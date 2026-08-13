@@ -16,7 +16,6 @@ import { BoxIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __, sprintf } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
@@ -29,12 +28,6 @@ const ListVariation = () => {
   const [attributeValueList, setAttributeValueList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
   const selectedAttribute = selectedItem as AttributeWithMeta | undefined;
-
-  const tableHeaders: TaxonomyTableHeader[] = [
-    { title: sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '') },
-    { title: __('Updated', 'kirki-ecommerce') },
-    { title: __('', 'kirki-ecommerce') },
-  ];
 
   useEffect(() => {
     setAttributeValueList(selectedAttribute?.values ?? []);
@@ -72,16 +65,11 @@ const ListVariation = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card cssOverride={cardStyles.tableCard}>
-              <CardContent cssOverride={cardStyles.tableContent}>
-                <VariationTable
-                  tableHeaders={tableHeaders}
-                  results={attributeValueList}
-                  updateDataList={setAttributeValueList}
-                  selectedItem={selectedAttribute}
-                />
-              </CardContent>
-            </Card>
+            <VariationTable
+              results={attributeValueList}
+              updateDataList={setAttributeValueList}
+              selectedItem={selectedAttribute}
+            />
           )}
         </Flex>
       </Container>

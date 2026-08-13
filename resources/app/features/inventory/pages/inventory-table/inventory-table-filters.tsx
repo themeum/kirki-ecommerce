@@ -7,24 +7,23 @@ import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { allTableHeaders } from '@/features/inventory/lib/utils';
+import { inventoryListOptions } from '@/features/inventory/types';
 import { useListParams } from '@/hooks';
 import { LayoutIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-type InventoryTableActionProps = {
+type InventoryTableFiltersProps = {
   selectedFields: string[];
   setSelectedFields: Dispatch<SetStateAction<string[]>>;
 };
 
-const InventoryTableAction = ({
+const InventoryTableFilters = ({
   selectedFields,
   setSelectedFields,
-}: InventoryTableActionProps) => {
-  const { params, setParam } = useListParams({
-    defaults: { sort_by: 'id', sort_order: 'asc', page: 1, limit: 20 },
-  });
+}: InventoryTableFiltersProps) => {
+  const { params, setParam } = useListParams(inventoryListOptions);
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -68,9 +67,9 @@ const InventoryTableAction = ({
   );
 };
 
-InventoryTableAction.displayName = 'InventoryTableAction';
+InventoryTableFilters.displayName = 'InventoryTableFilters';
 
-export default InventoryTableAction;
+export default InventoryTableFilters;
 
 const styles = defineStyles({
   wrapper: {

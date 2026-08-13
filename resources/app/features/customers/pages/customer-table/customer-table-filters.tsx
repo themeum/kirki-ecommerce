@@ -3,21 +3,14 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { customerListOptions } from '@/features/customers/types';
 import { useListParams } from '@/hooks';
 import { ArrowDownUp, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 
-const CustomerTableAction = () => {
-  const { params, setParam } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'first_name',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const CustomerTableFilters = () => {
+  const { params, setParam } = useListParams(customerListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -58,9 +51,9 @@ const CustomerTableAction = () => {
   );
 };
 
-CustomerTableAction.displayName = 'CustomerTableAction';
+CustomerTableFilters.displayName = 'CustomerTableFilters';
 
-export default CustomerTableAction;
+export default CustomerTableFilters;
 
 const styles = defineStyles({
   wrapper: {

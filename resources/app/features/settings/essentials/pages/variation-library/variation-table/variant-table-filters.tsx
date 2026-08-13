@@ -11,19 +11,19 @@ import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SortOrder } from '@/types/list-state';
 
-type VariantTableActionProps = {
+type VariantTableFiltersProps = {
   dataList: AttributeValue[];
   updateDataList: Dispatch<SetStateAction<AttributeValue[]>>;
   setSearchValue: Dispatch<SetStateAction<string>>;
   searchValue: string;
 };
 
-const VariantTableAction = ({
+const VariantTableFilters = ({
   dataList,
   updateDataList,
   setSearchValue,
   searchValue,
-}: VariantTableActionProps) => {
+}: VariantTableFiltersProps) => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const handleSortChange = () => {
@@ -55,9 +55,9 @@ const VariantTableAction = ({
   );
 };
 
-VariantTableAction.displayName = 'VariantTableAction';
+VariantTableFilters.displayName = 'VariantTableFilters';
 
-export default VariantTableAction;
+export default VariantTableFilters;
 
 const styles = defineStyles({
   wrapper: {

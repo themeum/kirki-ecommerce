@@ -3,29 +3,22 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { collectionListOptions } from '@/features/collections/types';
 import { useListParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-type CollectionTableActionProps = {
-  onSortChange?: () => void;
-};
-
-const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => {
-  const { params, setParam } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'title',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const CollectionTableFilters = () => {
+  const { params, setParam } = useListParams(collectionListOptions);
 
   const handleSearchChange = (value: string | number) => {
     setParam('search', value);
+  };
+
+  const handleSortChange = () => {
+    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
   };
 
   return (
@@ -46,7 +39,7 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
         <Button
           variant="outline"
           aria-label={__('Sort', 'kirki-ecommerce')}
-          onClick={onSortChange}
+          onClick={handleSortChange}
         >
           <ArrowDownUp />
         </Button>
@@ -55,9 +48,9 @@ const CollectionTableAction = ({ onSortChange }: CollectionTableActionProps) => 
   );
 };
 
-CollectionTableAction.displayName = 'CollectionTableAction';
+CollectionTableFilters.displayName = 'CollectionTableFilters';
 
-export default CollectionTableAction;
+export default CollectionTableFilters;
 
 const styles = defineStyles({
   wrapper: {

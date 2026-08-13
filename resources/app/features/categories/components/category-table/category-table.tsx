@@ -1,148 +1,89 @@
-import BulkActionHandler from '@/components/bulk-action-handler';
-import Sorting from '@/components/sorting';
-import Checkbox from '@/components/ui/checkbox';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import CategoryTableAction from '@/features/categories/components/category-table/category-table-action';
-import SingleRow from '@/features/categories/components/category-table/single-row';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Trash2 } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+
+import type { DataTableSelectionState } from '@/components/data-table';
+import DataTable from '@/components/data-table';
+import DataTableRowActions from '@/components/data-table/data-table-row-actions';
+import CategoryAddEditPopover from '@/features/categories/components/category-add-edit-dialog';
+import CategoryTableFilters from '@/features/categories/components/category-table/category-table-filters';
+import { categoryColumns } from '@/features/categories/components/category-table/columns';
 import type { Category } from '@/features/categories/schemas/catalog/category';
-import { useBulkDeleteCategoriesMutation } from '@/features/categories/services/category';
-import { useListParams, useMarkList } from '@/hooks';
+import { useBulkDeleteCategoriesMutation, useCategoriesQuery, useDeleteCategoryMutation } from '@/features/categories/services/category';
+import { categoryListOptions } from '@/features/categories/types';
+import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import type { PaginatedData } from '@/types/api/response';
-import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
-type CategoryTableProps = {
-  data: PaginatedData<Category>;
-  isFetching?: boolean;
-};
+const categoryBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
 
-const CategoryTable = ({ data }: CategoryTableProps) => {
-  const { params, setParams } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'name',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const CategoryTable = () => {
+  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
+    useDataTableParams(categoryListOptions);
+
+  const { data, isFetching } = useCategoriesQuery(params);
+  const deleteMutation = useDeleteCategoryMutation();
   const bulkDeleteMutation = useBulkDeleteCategoriesMutation();
+  const [editingItem, setEditingItem] = useState<Category | null>(null);
 
-  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
-    setParams({ sort_by: sortBy, sort_order: sortOrder });
-  };
+  const handleBulkApply = useCallback(
+    async (action: string, { selectedIds, isAllMatchingSelected }: DataTableSelectionState) => {
+      if (action !== 'delete') {
+        return;
+      }
 
-  const tableHeaders: TaxonomyTableHeader[] = [
-    {
-      title: __('Name', 'kirki-ecommerce'),
-      sortable: {
-        sort_by: 'name',
-        activeSortBy: params.sort_by,
-        sortOrder: params.sort_order,
-        onSort: handleSort,
-      },
+      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
     },
-    { title: __('Image', 'kirki-ecommerce') },
-    {
-      title: __('Description', 'kirki-ecommerce'),
-      sortable: {
-        sort_by: 'description',
-        activeSortBy: params.sort_by,
-        sortOrder: params.sort_order,
-        onSort: handleSort,
+    [bulkDeleteMutation],
+  );
+
+  const columns = useMemo<ColumnDef<Category>[]>(
+    () => [
+      ...categoryColumns,
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <DataTableRowActions
+            edit={{ onClick: () => setEditingItem(row.original) }}
+            actions={[
+              {
+                label: __('Delete', 'kirki-ecommerce'),
+                icon: <Trash2 size={16} />,
+                destructive: true,
+                onClick: () => deleteMutation.mutate(row.original.id),
+              },
+            ]}
+          />
+        ),
       },
-    },
-    {
-      title: __('Slug', 'kirki-ecommerce'),
-      sortable: {
-        sort_by: 'slug',
-        activeSortBy: params.sort_by,
-        sortOrder: params.sort_order,
-        onSort: handleSort,
-      },
-    },
-    {
-      title: __('Count', 'kirki-ecommerce'),
-      sortable: {
-        sort_by: 'count',
-        activeSortBy: params.sort_by,
-        sortOrder: params.sort_order,
-        onSort: handleSort,
-      },
-    },
-  ];
-
-  const { results, total, per_page } = data;
-
-  const {
-    handleSelectAll,
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    handleClearSelection,
-    isSelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({ data });
-
-  const handleApplyAction = async (action: string) => {
-    if (action !== 'delete') {
-      return;
-    }
-
-    await bulkDeleteMutation.mutateAsync(
-      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
-    );
-    handleClearSelection();
-  };
+    ],
+    [deleteMutation],
+  );
 
   return (
     <>
-      {selectedItems.length > 0 ? (
-        <BulkActionHandler
-          optionsArray={[
-            { value: 'delete', title: __('Delete', 'kirki-ecommerce') },
-          ]}
-          itemCount={itemCount}
-          onSelectAll={handleSelectAll}
-          onApply={(action) => handleApplyAction(action as string)}
-          total={total}
-          per_page={per_page}
-        />
-      ) : (
-        <CategoryTableAction />
+      <DataTable
+        data={data?.results ?? []}
+        columns={columns}
+        pageCount={data?.last_page ?? 0}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+        isLoading={isFetching}
+        enableRowSelection
+        selectionResetKey={selectionResetKey}
+        bulkActionOptions={categoryBulkActions}
+        onBulkApply={handleBulkApply}
+        columnPinning={{ right: ['actions'] }}
+        density="compact"
+        toolbar={<CategoryTableFilters />}
+      />
+      {editingItem && (
+        <CategoryAddEditPopover key={editingItem.id} category={editingItem} onClose={() => setEditingItem(null)} />
       )}
-      <Table density="compact">
-        <TableHeader>
-          <TableRow>
-            <TableHead onlyCheckbox cssOverride={styles.headCell}>
-              <Checkbox
-                value={isSelected('*')}
-                onChange={handleAllCheckboxClick}
-                isPartialChecked={itemCount > 0 && itemCount < total}
-              />
-            </TableHead>
-            {tableHeaders.map((header, index) => (
-              <TableHead key={index} cssOverride={styles.headCell}>
-                <Sorting data={header} />
-              </TableHead>
-            ))}
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {results.map((item, index) => (
-            <SingleRow
-              key={index}
-              item={item}
-              isSelected={isSelected}
-              handleSingleCheckboxClick={handleSingleCheckboxClick}
-            />
-          ))}
-        </TableBody>
-      </Table>
     </>
   );
 };
@@ -150,9 +91,3 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
 CategoryTable.displayName = 'CategoryTable';
 
 export default CategoryTable;
-
-const styles = defineStyles({
-  headCell: {
-    padding: `${theme.spacing[5]} ${theme.spacing[3]}`,
-  },
-});

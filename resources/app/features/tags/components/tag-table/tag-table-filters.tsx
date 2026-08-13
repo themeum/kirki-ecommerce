@@ -1,19 +1,12 @@
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import { tagListOptions } from '@/features/tags/types';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 
-const CategoryTableAction = () => {
-  const { params, setParam } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'name',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const TagTableFilters = () => {
+  const { params, setParam } = useListParams(tagListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -31,9 +24,9 @@ const CategoryTableAction = () => {
   );
 };
 
-CategoryTableAction.displayName = 'CategoryTableAction';
+TagTableFilters.displayName = 'TagTableFilters';
 
-export default CategoryTableAction;
+export default TagTableFilters;
 
 const styles = defineStyles({
   wrapper: {

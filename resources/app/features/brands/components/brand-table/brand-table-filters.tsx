@@ -1,19 +1,12 @@
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import { brandListOptions } from '@/features/brands/types';
 import { useListParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 
-const BrandTableAction = () => {
-  const { params, setParam } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'name',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const BrandTableFilters = () => {
+  const { params, setParam } = useListParams(brandListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -31,9 +24,9 @@ const BrandTableAction = () => {
   );
 };
 
-BrandTableAction.displayName = 'BrandTableAction';
+BrandTableFilters.displayName = 'BrandTableFilters';
 
-export default BrandTableAction;
+export default BrandTableFilters;
 
 const styles = defineStyles({
   wrapper: {

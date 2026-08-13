@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import type {
   Column,
   ColumnDef,
@@ -34,7 +35,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { SelectOption } from '@/types/components/common';
+import type { SelectOption, TableDensity } from '@/types/components/common';
 import { ELLIPSIS, getPageItems } from '@/utils/pagination';
 
 type DataTableProps<T extends DataTableItem> = {
@@ -51,7 +52,9 @@ type DataTableProps<T extends DataTableItem> = {
   toolbar?: ReactNode;
   filterBar?: ReactNode;
   onRowClick?: (item: T) => void;
+  density?: TableDensity;
   fixed?: boolean;
+  cssOverride?: CSSObject;
   hidePagination?: boolean;
   enableRowSelection?: boolean;
   selectionResetKey?: string | number;
@@ -95,7 +98,9 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     toolbar,
     filterBar,
     onRowClick,
+    density,
     fixed,
+    cssOverride,
     hidePagination = false,
     enableRowSelection = false,
     selectionResetKey,
@@ -226,7 +231,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
           toolbar
         )}
         {filterBar}
-        <Table fixed={fixed}>
+        <Table density={density} fixed={fixed} cssOverride={cssOverride}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
