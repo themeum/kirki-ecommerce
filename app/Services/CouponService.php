@@ -180,7 +180,7 @@ class CouponService
 
     protected function list_query(CouponFilterDTO $filters)
     {
-        return Coupon::with(['categories', 'products', 'customers'])
+        return Coupon::query()
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['title', 'code'], 'like', '%' . $search . '%');
             })
@@ -273,7 +273,11 @@ class CouponService
      */
     public function duplicate(int $id)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
+        $coupon = Coupon::find($id);
+
+        if (empty($coupon)) {
+            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
 
         $data = CreateCouponDTO::from_array($coupon->to_array());
         $data->title = $data->title . ' - Copy';

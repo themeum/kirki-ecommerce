@@ -217,7 +217,7 @@ class ProductService
 
     protected function list_query()
     {
-        $query = Product::query()->with(['categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants', 'media']);
+        $query = Product::query()->with(['categories', 'variants', 'media']);
         $query->select_raw('*, id as pid');
 
         return $query;
