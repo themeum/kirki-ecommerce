@@ -12,7 +12,7 @@
 
 .kecom-cart-grid {
   display: grid;
-  grid-template-columns: 1fr 640px;
+  grid-template-columns: 18fr 14fr;
   align-items: start;
 
   @include breakpoint-down(lg) {
@@ -154,10 +154,6 @@
 
     .kecom-cart-item-remove {
       max-height: $spacing-12;
-    }
-
-    .kecom-quantity {
-      height: $spacing-12;
     }
   }
 
