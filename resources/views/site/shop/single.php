@@ -170,19 +170,25 @@ foreach ($media as $media_item) {
 
                 <!-- Quantity -->
                  <div class="kecom-product-variant-group">
-                    <span class="kecom-product-variant-label"><?php esc_html_e('Quantity', 'kirki-ecommerce');?></span>
+                    <span class="kecom-product-variant-label"><?php esc_html_e('Quantity', 'kirki-ecommerce'); ?></span>
                     <div
                         x-data="quantitySelector({
                             min: 1,
                             <?php if ($track_inventory) : ?>
-                            max: selectedVariant?.stock || <?php echo esc_js($quantity); ?>,
+                            max: () => selectedVariant?.stock ?? <?php echo esc_js($quantity); ?>,
                             <?php endif; ?>
                             initial: 1
                         })"
                         class="kecom-quantity"
                         id="product-quantity"
                     >
-                        <button class="kecom-quantity-btn" type="button" aria-label="Decrease" @click="decrement">
+                        <button
+                            class="kecom-quantity-btn"
+                            type="button"
+                            aria-label="Decrease"
+                            :disabled="!selectedVariant?.available"
+                            @click="decrement"
+                        >
                             <?php Icon::render('minus'); ?>
                         </button>
 
@@ -193,13 +199,20 @@ foreach ($media as $media_item) {
                             @input="setValue($el.value)"
                             min="1"
                             <?php if ($track_inventory) : ?>
-                                :max="selectedVariant?.stock || <?php echo esc_js($quantity); ?>"
+                                :max="selectedVariant?.stock ?? <?php echo esc_js($quantity); ?>"
                             <?php endif; ?>
+                            :disabled="!selectedVariant?.available"
                             aria-label="Quantity"
                             id="quantity-input"
                         >
 
-                        <button class="kecom-quantity-btn" type="button" aria-label="Increase" @click="increment">
+                        <button
+                            class="kecom-quantity-btn"
+                            type="button"
+                            aria-label="Increase"
+                            :disabled="!selectedVariant?.available"
+                            @click="increment"
+                        >
                             <?php Icon::render('plus'); ?>
                         </button>
                     </div>
