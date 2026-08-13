@@ -1,7 +1,7 @@
 // Utilities - Spacing
 // .kecom-m-4, .kecom-pt-2, .kecom-mx-auto …
 
-@use "../tokens" as *;
+@use '../tokens' as *;
 
 @each $key, $value in $spacing-scale {
   .kecom-m-#{$key} {

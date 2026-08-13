@@ -9,7 +9,10 @@
  *   </form>
  */
 
-export interface ValidationRules {
+import { emit } from '../events';
+import { config } from '../utils';
+
+export type ValidationRules = {
   required?: boolean | string;
   minLength?: number | { value: number; message: string };
   maxLength?: number | { value: number; message: string };
@@ -18,71 +21,81 @@ export interface ValidationRules {
   min?: number | { value: number; message: string };
   max?: number | { value: number; message: string };
   validate?: (value: unknown) => boolean | string | Promise<boolean | string>;
-}
+};
 
-export interface FieldError {
+export type FieldError = {
   type: string;
   message: string;
-}
+};
 
-export interface FormConfig {
+export type FormConfig = {
   defaultValues?: Record<string, unknown>;
-  mode?: "onBlur" | "onChange" | "onSubmit";
-}
+  mode?: 'onBlur' | 'onChange' | 'onSubmit';
+};
 
-export interface FormState {
+export type FormState = {
   values: Record<string, unknown>;
   errors: Record<string, string>;
   touched: Record<string, boolean>;
   isSubmitting: boolean;
   isValid: boolean;
-}
+};
 
 const ValidationHelpers = {
   required(value: unknown, rule?: boolean | string): string | null {
-    if (!rule) return null;
-    const message = typeof rule === "string" ? rule : "This field is required";
-    const isEmpty = !value || (typeof value === "string" && value.trim() === "");
+    if (!rule) {
+      return null;
+    }
+    const message = typeof rule === 'string' ? rule : 'This field is required';
+    const isEmpty = !value || (typeof value === 'string' && value.trim() === '');
     return isEmpty ? message : null;
   },
 
   minLength(value: string, rule: number | { value: number; message: string }): string | null {
-    if (!value) return null;
-    const minLength = typeof rule === "number" ? rule : rule.value;
-    const message = typeof rule === "object" ? rule.message : `Minimum length is ${minLength}`;
+    if (!value) {
+      return null;
+    }
+    const minLength = typeof rule === 'number' ? rule : rule.value;
+    const message = typeof rule === 'object' ? rule.message : `Minimum length is ${minLength}`;
     return value.length < minLength ? message : null;
   },
 
   maxLength(value: string, rule: number | { value: number; message: string }): string | null {
-    if (!value) return null;
-    const maxLength = typeof rule === "number" ? rule : rule.value;
-    const message = typeof rule === "object" ? rule.message : `Maximum length is ${maxLength}`;
+    if (!value) {
+      return null;
+    }
+    const maxLength = typeof rule === 'number' ? rule : rule.value;
+    const message = typeof rule === 'object' ? rule.message : `Maximum length is ${maxLength}`;
     return value.length > maxLength ? message : null;
   },
 
   pattern(value: string, rule: RegExp | { value: RegExp; message: string }): string | null {
-    if (!value) return null;
+    if (!value) {
+      return null;
+    }
     const pattern = rule instanceof RegExp ? rule : rule.value;
-    const message = typeof rule === "object" && "message" in rule ? rule.message : "Invalid format";
+    const message = typeof rule === 'object' && 'message' in rule ? rule.message : 'Invalid format';
     return !pattern.test(value) ? message : null;
   },
 
   email(value: string, rule?: boolean | string): string | null {
-    if (!rule) return null;
-    const message = typeof rule === "string" ? rule : "Invalid email address";
+    if (!rule) {
+      return null;
+    }
+    const message = typeof rule === 'string' ? rule : 'Invalid email address';
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return !emailPattern.test(value) ? message : null;
   },
 
   min(value: number, rule: number | { value: number; message: string }): string | null {
-    const min = typeof rule === "number" ? rule : rule.value;
-    const message = typeof rule === "object" ? rule.message : `Minimum value is ${min}`;
+    const min = typeof rule === 'number' ? rule : rule.value;
+    const message = typeof rule === 'object' ? rule.message : `Minimum value is ${min}`;
     return value < min ? message : null;
   },
 
   max(value: number, rule: number | { value: number; message: string }): string | null {
-    const max = typeof rule === "number" ? rule : rule.value;
-    const message = typeof rule === "object" ? rule.message : `Maximum value is ${max}`;
+    const max = typeof rule === 'number' ? rule : rule.value;
+    const message = typeof rule === 'object' ? rule.message : `Maximum value is ${max}`;
     return value > max ? message : null;
   },
 
@@ -92,63 +105,84 @@ const ValidationHelpers = {
   ): Promise<string | null> {
     try {
       const result = await validate(value);
-      if (result === true) return null;
-      return typeof result === "string" ? result : "Validation failed";
+      if (result === true) {
+        return null;
+      }
+      return typeof result === 'string' ? result : 'Validation failed';
     } catch {
-      return "Validation error";
+      return 'Validation error';
     }
   },
 };
 
 async function validateField(value: unknown, rules?: ValidationRules): Promise<string | null> {
-  if (!rules) return null;
+  if (!rules) {
+    return null;
+  }
 
-  const stringValue = String(value || "");
-  const numericValue = typeof value === "number" ? value : parseFloat(stringValue);
+  const stringValue =
+    typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '';
+  const numericValue = typeof value === 'number' ? value : parseFloat(stringValue);
 
   const requiredError = ValidationHelpers.required(value, rules.required);
-  if (requiredError) return requiredError;
+  if (requiredError) {
+    return requiredError;
+  }
 
   if (rules.email) {
     const emailError = ValidationHelpers.email(stringValue, rules.email);
-    if (emailError) return emailError;
+    if (emailError) {
+      return emailError;
+    }
   }
 
   if (rules.minLength) {
     const error = ValidationHelpers.minLength(stringValue, rules.minLength);
-    if (error) return error;
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.maxLength) {
     const error = ValidationHelpers.maxLength(stringValue, rules.maxLength);
-    if (error) return error;
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.min && !isNaN(numericValue)) {
     const error = ValidationHelpers.min(numericValue, rules.min);
-    if (error) return error;
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.max && !isNaN(numericValue)) {
     const error = ValidationHelpers.max(numericValue, rules.max);
-    if (error) return error;
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.pattern && stringValue) {
     const error = ValidationHelpers.pattern(stringValue, rules.pattern);
-    if (error) return error;
+    if (error) {
+      return error;
+    }
   }
 
   if (rules.validate) {
     const error = await ValidationHelpers.custom(value, rules.validate);
-    if (error) return error;
+    if (error) {
+      return error;
+    }
   }
 
   return null;
 }
 
 export function form(config: FormConfig = {}) {
-  const { defaultValues = {}, mode = "onBlur" } = config;
+  const { defaultValues = {}, mode = 'onBlur' } = config;
 
   return {
     values: { ...defaultValues },
@@ -160,36 +194,36 @@ export function form(config: FormConfig = {}) {
     fieldRules: {} as Record<string, ValidationRules>,
 
     register(name: string, rules?: ValidationRules) {
-      this.values[name] ??= "";
-      this.fieldRules[name] = rules || {};
+      this.values[name] ??= '';
+      this.fieldRules[name] = rules ?? {};
       return {
         name,
-        "x-model": `values.${name}`,
-        ":class": `{ 'kecom-input-error': errors.${name} }`,
-        ":aria-invalid": `!!errors.${name}`,
-        "@blur": mode === "onBlur" || mode === "onChange" ? `handleBlur('${name}')` : null,
-        "@input": mode === "onChange" ? `handleInput('${name}', $event.target.value)` : null,
+        'x-model': `values.${name}`,
+        ':class': `{ 'kecom-input-error': errors.${name} }`,
+        ':aria-invalid': `!!errors.${name}`,
+        '@blur': mode === 'onBlur' || mode === 'onChange' ? `handleBlur('${name}')` : null,
+        '@input': mode === 'onChange' ? `handleInput('${name}', $event.target.value)` : null,
       };
     },
 
     // Apply to the .kecom-field wrapper div to toggle error state class
     fieldWrapper(name: string) {
       return {
-        ":class": `{ 'kecom-field-error-state': errors.${name} }`,
+        ':class': `{ 'kecom-field-error-state': errors.${name} }`,
       };
     },
 
     handleInput(name: string, value: unknown) {
       this.values[name] = value;
-      if (this.mode === "onChange") {
-        this.validateField(name);
+      if (this.mode === 'onChange') {
+        void this.validateField(name);
       }
     },
 
     handleBlur(name: string) {
       this.touched[name] = true;
-      if (this.mode === "onBlur" || this.mode === "onChange") {
-        this.validateField(name);
+      if (this.mode === 'onBlur' || this.mode === 'onChange') {
+        void this.validateField(name);
       }
     },
 
@@ -241,7 +275,10 @@ export function form(config: FormConfig = {}) {
       this.isValid = true;
     },
 
-    async handleSubmit(onValid: (data: Record<string, unknown>) => void | Promise<void>, onInvalid?: () => void) {
+    async handleSubmit(
+      onValid: (data: Record<string, unknown>) => void | Promise<void>,
+      onInvalid?: () => void,
+    ) {
       this.isSubmitting = true;
       this.touched = Object.keys(this.values).reduce((acc, key) => ({ ...acc, [key]: true }), {});
 
@@ -284,9 +321,11 @@ export function form(config: FormConfig = {}) {
  *     </select>
  *   </div>
  */
-export function stateField({ notifyAddressChange = false }: { notifyAddressChange?: boolean } = {}) {
+export function stateField({
+  notifyAddressChange = false,
+}: { notifyAddressChange?: boolean } = {}) {
   return {
-    states: [] as Array<{ id: string; name: string }>,
+    states: [] as { id: string; name: string }[],
 
     init() {
       const loadStates = (countryCode: string) => {
@@ -294,36 +333,36 @@ export function stateField({ notifyAddressChange = false }: { notifyAddressChang
           this.states = [];
           return;
         }
-        const countries: Array<{ code: string; states: Array<{ id: string; name: string }> }> =
-          window.kirki_ecommerce?.countries ?? [];
+        const countries: { code: string; states: { id: string; name: string }[] }[] =
+          config.countries ?? [];
         const country = countries.find((c) => c.code === countryCode);
-        this.states = country?.states || [];
+        this.states = country?.states ?? [];
       };
 
       // Watch parent form's country value
-      (this as any).$watch("values.country", (newCountry: string) => {
+      (this as any).$watch('values.country', (newCountry: string) => {
         loadStates(newCountry);
         if (notifyAddressChange) {
-          window.dispatchEvent(new CustomEvent("address-changed"));
+          emit('kecom:address:changed');
         }
       });
 
       // Watch parent form's state value
       if (notifyAddressChange) {
-        (this as any).$watch("values.state", () => {
-          window.dispatchEvent(new CustomEvent("address-changed"));
+        (this as any).$watch('values.state', () => {
+          emit('kecom:address:changed');
         });
       }
 
       // Populate states for the current country immediately
-      const currentCountry = (this as any).values?.country ?? "";
+      const currentCountry = (this as any).values?.country ?? '';
       loadStates(currentCountry);
 
       // Re-assert the saved state value after x-for stamps the options
       (this as any).$nextTick(() =>
         (this as any).$nextTick(() => {
-          const select = (this as any).$el.querySelector("select");
-          const savedState = (this as any).values?.state ?? "";
+          const select = (this as any).$el.querySelector('select');
+          const savedState = (this as any).values?.state ?? '';
           if (select && savedState) {
             select.value = savedState;
           }

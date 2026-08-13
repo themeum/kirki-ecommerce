@@ -17,7 +17,9 @@
   backdrop-filter: blur(2px);
   @include transition((opacity), 200ms);
 
-  &[x-cloak] { display: none; }
+  &[x-cloak] {
+    display: none;
+  }
 }
 
 // ── Modal Container ───────────────────────────────────────────────────────────
@@ -30,7 +32,9 @@
   padding: $spacing-4;
   overflow-y: auto;
 
-  &[x-cloak] { display: none; }
+  &[x-cloak] {
+    display: none;
+  }
 }
 
 // ── Modal Content ─────────────────────────────────────────────────────────────
@@ -48,8 +52,12 @@
   flex-direction: column;
 
   // Size variants
-  &-sm { max-width: 400px; }
-  &-lg { max-width: 700px; }
+  &-sm {
+    max-width: 400px;
+  }
+  &-lg {
+    max-width: 700px;
+  }
   &-fullscreen {
     max-width: 100%;
     max-height: 100vh;

@@ -5,7 +5,16 @@
 // Transition shorthand
 @use 'sass:list';
 
-@mixin transition($props: (color, background-color, border-color, box-shadow), $dur: 150ms, $ease: ease) {
+@mixin transition(
+  $props: (
+    color,
+    background-color,
+    border-color,
+    box-shadow,
+  ),
+  $dur: 150ms,
+  $ease: ease
+) {
   $result: ();
   @each $p in $props {
     $result: list.append($result, #{$p} #{$dur} #{$ease}, comma);
@@ -59,7 +68,9 @@
   cursor: pointer;
   outline: none;
 
-  &:focus { outline: none; }
+  &:focus {
+    outline: none;
+  }
 }
 
 // Scrollbar styling
@@ -67,12 +78,18 @@
   scrollbar-width: thin;
   scrollbar-color: $thumb $track;
 
-  &::-webkit-scrollbar        { width: $width; }
-  &::-webkit-scrollbar-track  { background: $track; }
-  &::-webkit-scrollbar-thumb  {
+  &::-webkit-scrollbar {
+    width: $width;
+  }
+  &::-webkit-scrollbar-track {
+    background: $track;
+  }
+  &::-webkit-scrollbar-thumb {
     background: $thumb;
     border-radius: $radius-full;
-    &:hover { filter: brightness(0.85); }
+    &:hover {
+      filter: brightness(0.85);
+    }
   }
 }
 
@@ -94,12 +111,21 @@
 
 // Skeleton loading shimmer
 @mixin skeleton {
-  background: linear-gradient(90deg, $background-surface-alt 25%, $background-fill 50%, $background-surface-alt 75%);
+  background: linear-gradient(
+    90deg,
+    $background-surface-alt 25%,
+    $background-fill 50%,
+    $background-surface-alt 75%
+  );
   background-size: 200% 100%;
   animation: kecom-skeleton 1.4s ease infinite;
 }
 
 @keyframes kecom-skeleton {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

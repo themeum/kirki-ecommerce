@@ -11,21 +11,27 @@
  *   })">
  */
 
-export interface QuantitySelectorConfig {
+export type QuantitySelectorConfig = {
   min?: number;
-  max?: number;
+  max?: number | (() => number);
   initial?: number;
   onChange?: (quantity: number) => void;
-}
+};
 
 export function quantitySelector(config: QuantitySelectorConfig = {}) {
   return {
     quantity: config.initial ?? 1,
     min: config.min ?? 1,
-    max: config.max,
+
+    get maxValue(): number | undefined {
+      if (typeof config.max === 'function') {
+        return config.max();
+      }
+      return config.max;
+    },
 
     increment() {
-      if (this.max === undefined || this.quantity < this.max) {
+      if (this.maxValue === undefined || this.quantity < this.maxValue) {
         this.quantity++;
         this.notifyChange();
       }
@@ -40,8 +46,7 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
 
     setValue(value: string) {
       const num = parseInt(value, 10);
-
-      if (!isNaN(num) && num >= this.min && (this.max === undefined || num <= this.max)) {
+      if (!isNaN(num) && num >= this.min && (this.maxValue === undefined || num <= this.maxValue)) {
         this.quantity = num;
         this.notifyChange();
       }
@@ -49,7 +54,7 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
 
     notifyChange() {
       config.onChange?.(this.quantity);
-      (this as any).$dispatch("quantity-change", { quantity: this.quantity });
+      (this as any).$dispatch('kecom:quantity:changed', { quantity: this.quantity });
     },
   };
 }

@@ -1,6 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import LoadingSpinner from '@/components/loading-spinner';
@@ -21,20 +18,8 @@ import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import {
-  getActionLabel,
-  getAvailableActions,
-  ORDER_ACTION_GROUP,
-  ORDER_ACTIONS,
-  type OrderAction,
-  type OrderActionPayload,
-  PAYMENT_ACTION_GROUP,
-} from '@/features/orders/lib/order-actions';
-import { toOrderFormAddresses } from '@/features/orders/lib/order-address';
-import {
-  getFulfillmentBadgeInfo,
-  getPaymentBadgeInfo,
-} from '@/features/orders/lib/order-badge';
+import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
+import { getActionLabel } from '@/features/orders/lib/order-actions';
 import CustomerCard from '@/features/orders/pages/order-create/components/customer-card';
 import NotesCard from '@/features/orders/pages/order-create/components/notes-card';
 import PaymentSummaryCard from '@/features/orders/pages/order-create/components/payment-summary-card';
@@ -43,13 +28,7 @@ import FlagCard from '@/features/orders/pages/order-details/flag-card';
 import ItemsTable from '@/features/orders/pages/order-details/items-table';
 import MarkAsPaidDialog from '@/features/orders/pages/order-details/mark-as-paid-dialog';
 import TakeActionCard from '@/features/orders/pages/order-details/take-action-card';
-import type { OrderFormInput, OrderFormPayload } from '@/features/orders/schemas/forms/order-form';
-import { OrderFormSchema } from '@/features/orders/schemas/forms/order-form';
-import { useOrderActionMutation, useOrderQuery, useUpdateOrderMutation } from '@/features/orders/services/order';
 import { ShowMoreIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults, pickFormValues } from '@/libs/zod';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -58,39 +37,33 @@ import { __, sprintf } from '@/wpi18n';
 const OrderDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [isTrackingDialogOpen, setIsTrackingDialogOpen] = useState(false);
-  const [isMarkAsPaidDialogOpen, setIsMarkAsPaidDialogOpen] = useState(false);
 
-  const { data: order, isLoading, isError } = useOrderQuery(id!, Boolean(id));
-  const actionMutation = useOrderActionMutation();
-  const updateMutation = useUpdateOrderMutation();
-
-  const form = useForm<OrderFormInput, unknown, OrderFormPayload>({
-    resolver: zodResolver(OrderFormSchema),
-    defaultValues: { ...getDefaults(OrderFormSchema), items: [] },
-  });
-
-  useEffect(() => {
-    if (!order) {
-      return;
-    }
-
-    form.reset(
-      pickFormValues(OrderFormSchema, order, {
-        items: order.items.map((item) => ({
-          variant_id: item.variant_id,
-          quantity: item.quantity,
-        })),
-        ...toOrderFormAddresses(order),
-      }),
-    );
-  }, [order, form]);
+  const {
+    order,
+    isLoading,
+    isError,
+    form,
+    paymentBadge,
+    fulfillmentBadge,
+    orderActions,
+    paymentActions,
+    isActionPending,
+    isSaving,
+    isTrackingDialogOpen,
+    setIsTrackingDialogOpen,
+    isMarkAsPaidDialogOpen,
+    setIsMarkAsPaidDialogOpen,
+    handleAction,
+    handleAddTracking,
+    handleMarkAsPaid,
+    handleSaveOrder,
+  } = useOrderDetails(id);
 
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
-  if (isError || !order) {
+  if (isError || !order || !paymentBadge || !fulfillmentBadge) {
     return (
       <Page>
         <PageHeading
@@ -114,57 +87,6 @@ const OrderDetails = () => {
       </Page>
     );
   }
-
-  const paymentBadge = getPaymentBadgeInfo(order.payment_status);
-  const fulfillmentBadge = getFulfillmentBadgeInfo(order.fulfillment_status);
-  const orderActions = getAvailableActions(order, ORDER_ACTION_GROUP);
-  const paymentActions = getAvailableActions(order, PAYMENT_ACTION_GROUP);
-
-  const performAction = (payload: OrderActionPayload) => {
-    actionMutation.mutate({ id: order.id, ...payload });
-  };
-
-  const handleAction = (action: OrderAction) => {
-    if (action === ORDER_ACTIONS.ADD_TRACKING) {
-      setIsTrackingDialogOpen(true);
-      return;
-    }
-
-    if (action === ORDER_ACTIONS.MARK_AS_PAID) {
-      setIsMarkAsPaidDialogOpen(true);
-      return;
-    }
-
-    performAction({ action });
-  };
-
-  const handleAddTracking = (values: {
-    carrier: string;
-    tracking_number: string;
-    tracking_url: string;
-  }) => {
-    actionMutation.mutate(
-      { id: order.id, action: ORDER_ACTIONS.ADD_TRACKING, ...values },
-      { onSuccess: () => setIsTrackingDialogOpen(false) },
-    );
-  };
-
-  const handleMarkAsPaid = (paymentProvider: string) => {
-    actionMutation.mutate(
-      { id: order.id, action: ORDER_ACTIONS.MARK_AS_PAID, payment_provider: paymentProvider },
-      { onSuccess: () => setIsMarkAsPaidDialogOpen(false) },
-    );
-  };
-
-  const handleSaveOrder = form.handleSubmit(
-    async (payload) => {
-      try {
-        await updateMutation.mutateAsync({ id: order.id, data: payload });
-      } catch (error) {
-        applyServerErrors(form, error as ErrorResponse);
-      }
-    },
-  );
 
   return (
     <Page>
@@ -248,7 +170,7 @@ const OrderDetails = () => {
                         <Button
                           key={action}
                           variant="secondary"
-                          disabled={actionMutation.isPending}
+                          disabled={isActionPending}
                           onClick={() => handleAction(action)}
                         >
                           {getActionLabel(action)}
@@ -274,12 +196,12 @@ const OrderDetails = () => {
               <TakeActionCard
                 order={order}
                 onAction={handleAction}
-                isPerforming={actionMutation.isPending}
+                isPerforming={isActionPending}
               />
 
               <CustomerCard
                 onSave={handleSaveOrder}
-                isSaving={updateMutation.isPending}
+                isSaving={isSaving}
                 readonly
               />
 
@@ -287,7 +209,7 @@ const OrderDetails = () => {
 
               <NotesCard
                 onSave={handleSaveOrder}
-                isSaving={updateMutation.isPending}
+                isSaving={isSaving}
               />
             </Flex>
           </Flex>
@@ -298,7 +220,7 @@ const OrderDetails = () => {
             open
             onOpenChange={setIsTrackingDialogOpen}
             tracking={order.shipping_tracking}
-            isSaving={actionMutation.isPending}
+            isSaving={isActionPending}
             onSubmit={handleAddTracking}
           />
         )}
@@ -308,7 +230,7 @@ const OrderDetails = () => {
             open
             onOpenChange={setIsMarkAsPaidDialogOpen}
             order={order}
-            isSaving={actionMutation.isPending}
+            isSaving={isActionPending}
             onSubmit={handleMarkAsPaid}
           />
         )}

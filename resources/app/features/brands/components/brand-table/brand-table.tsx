@@ -7,6 +7,7 @@ import SingleRow from '@/features/brands/components/brand-table/single-row';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
 import { useBulkDeleteBrandsMutation } from '@/features/brands/services/brand';
 import { useListParams, useMarkList } from '@/hooks';
+import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { PaginatedData } from '@/types/api/response';
@@ -91,17 +92,9 @@ const BrandTable = ({ data }: BrandTableProps) => {
       return;
     }
 
-    if (selectedItems.includes('*')) {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete-all',
-        ids: null,
-      });
-    } else {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete',
-        ids: selectedItems as number[],
-      });
-    }
+    await bulkDeleteMutation.mutateAsync(
+      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
+    );
     handleClearSelection();
   };
 

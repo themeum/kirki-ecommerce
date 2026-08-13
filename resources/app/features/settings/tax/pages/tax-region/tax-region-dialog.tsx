@@ -1,6 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import type { Dispatch, SetStateAction } from 'react';
 
 import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,15 +8,11 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import { getSearchedCountries } from '@/features/settings/lib/utils';
-import type { CountryWithGroup } from '@/features/settings/tax/lib/helper';
-import { groupEUCountries } from '@/features/settings/tax/lib/helper';
+import { useTaxRegionDialog } from '@/features/settings/tax/hooks/use-tax-region-dialog';
 import type {
   SelectedTaxRegionDraft,
   TaxRegion,
 } from '@/features/settings/tax/lib/utils';
-import { type TaxRegionPopupFormInput, TaxRegionPopupFormSchema } from '@/features/settings/tax/schemas/forms/tax-region-popup-form';
-import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -36,11 +30,6 @@ type TaxRegionPopupProps = {
   selectedRegion?: SelectedTaxRegionDraft[];
   onAdd?: () => void;
   errors?: FormErrors;
-};
-
-type InitialPopupState = {
-  countries: string[];
-  regions: SelectedTaxRegionDraft[];
 };
 
 type CountryStateOption = {
@@ -61,174 +50,27 @@ const TaxRegionPopup = (props: TaxRegionPopupProps) => {
     onAdd = noop,
   } = props;
 
-  const [searchValue, setSearchValue] = useState('');
-  const [initialObj, setInitialObj] = useState<InitialPopupState>({
-    countries: [],
-    regions: [],
+  const {
+    form,
+    filteredCountries,
+    formCountries,
+    formRegions,
+    buttonState,
+    handleSelectCountries,
+    handleSelectStates,
+    handleSearchRegion,
+    handleClose,
+    handleSubmit,
+  } = useTaxRegionDialog({
+    openPopup,
+    setOpenPopup,
+    regions,
+    selectedCountries,
+    setSelectedCountries,
+    setSelectedRegion,
+    selectedRegion,
+    onAdd,
   });
-  const { data: countryList } = useCountriesQuery({ limit: -1 });
-  const updatedCountryList = groupEUCountries(
-    countryList as CountryWithGroup[] | null | undefined,
-  );
-
-  const form = useForm<TaxRegionPopupFormInput>({
-    resolver: zodResolver(TaxRegionPopupFormSchema),
-    defaultValues: {
-      selectedCountries,
-      selectedRegion,
-    },
-  });
-
-  const formCountries = form.watch('selectedCountries');
-  const formRegions = form.watch(
-    'selectedRegion',
-  ) as SelectedTaxRegionDraft[];
-
-  useEffect(() => {
-    if (!openPopup) {
-      return;
-    }
-
-    setInitialObj({
-      countries: [...selectedCountries],
-      regions: [...selectedRegion],
-    });
-    form.reset({
-      selectedCountries: [...selectedCountries],
-      selectedRegion: [...selectedRegion],
-    });
-    setSearchValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking the selection would reset the form while the user is picking regions
-  }, [openPopup]);
-
-  const syncSelection = (
-    nextCountries: string[],
-    nextRegions: SelectedTaxRegionDraft[],
-  ) => {
-    form.setValue('selectedCountries', nextCountries, { shouldDirty: true });
-    form.setValue('selectedRegion', nextRegions, { shouldDirty: true });
-    setSelectedCountries(nextCountries);
-    setSelectedRegion(nextRegions);
-  };
-
-  const filteredCountries = useMemo(() => {
-    if (!updatedCountryList?.length) {
-      return [];
-    }
-
-    const searched = searchValue?.trim()
-      ? getSearchedCountries(searchValue, updatedCountryList)
-      : updatedCountryList;
-
-    return searched.filter(
-      (country) => !regions.some((r) => r.code === country.code),
-    );
-  }, [searchValue, updatedCountryList, regions]);
-
-  const handleSelectCountries = (country: CountryWithGroup) => {
-    const prevCountries = form.getValues('selectedCountries');
-    const prevRegions = form.getValues(
-      'selectedRegion',
-    ) as SelectedTaxRegionDraft[];
-    const isSelected = prevCountries.includes(country.code);
-
-    const nextCountries = isSelected
-      ? prevCountries.filter((c) => c !== country.code)
-      : [...prevCountries, country.code];
-
-    let nextRegions: SelectedTaxRegionDraft[];
-    const exists = prevRegions.find((r) => r.country === country.name);
-
-    if (exists) {
-      nextRegions = prevRegions.filter((r) => r.country !== country.name);
-    } else {
-      const states = (country.states ?? []) as CountryStateOption[];
-      nextRegions = [
-        ...prevRegions,
-        {
-          id: country.code,
-          country: country.name,
-          states: states.map((s) => ({
-            id: s.id,
-            title: String(s.name),
-            flag: s.flag || '',
-          })),
-          hasDeselectedState: false,
-          flag: country.flag || '',
-        },
-      ];
-    }
-
-    syncSelection(nextCountries, nextRegions);
-  };
-
-  const handleSelectStates = (
-    stateId: string | number,
-    countryCode: string,
-    allStates: CountryStateOption[] = [],
-    flag?: string,
-  ) => {
-    const prevCountries = form.getValues('selectedCountries');
-    const prevRegions = form.getValues(
-      'selectedRegion',
-    ) as SelectedTaxRegionDraft[];
-    const countryIndex = prevRegions.findIndex((item) => item.id === countryCode);
-
-    if (countryIndex === -1) {
-      return;
-    }
-
-    const countryItem = prevRegions[countryIndex];
-    const stateExists = countryItem.states.some((s) => s.id === stateId);
-
-    let updatedStates: SelectedTaxRegionDraft['states'];
-    if (stateExists) {
-      updatedStates = countryItem.states.filter((s) => s.id !== stateId);
-    } else {
-      updatedStates = [
-        ...countryItem.states,
-        {
-          id: stateId,
-          title: String(
-            allStates.find((s) => s.id === stateId)?.name || stateId,
-          ),
-          flag: flag || '',
-        },
-      ];
-    }
-
-    if (updatedStates.length === 0) {
-      syncSelection(
-        prevCountries.filter((c) => c !== countryCode),
-        prevRegions.filter((_, i) => i !== countryIndex),
-      );
-      return;
-    }
-
-    const hasDeselectedState = updatedStates.length !== allStates.length;
-    const nextRegions = prevRegions.map((item, index) =>
-      index === countryIndex
-        ? { ...item, states: updatedStates, hasDeselectedState }
-        : item,
-    );
-    syncSelection(prevCountries, nextRegions);
-  };
-
-  const handleSearchRegion = (value: string) => {
-    setSearchValue(value);
-  };
-
-  const handleClose = () => {
-    setSelectedCountries(initialObj?.countries);
-    setSelectedRegion(initialObj?.regions);
-    setOpenPopup(false);
-  };
-
-  const buttonState = formCountries?.length >= 1;
-
-  const handleSubmit = () => {
-    onAdd();
-  };
 
   return (
     <Dialog

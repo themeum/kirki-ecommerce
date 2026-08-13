@@ -1,8 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { type FieldPath, useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
-import { toast } from 'sonner';
 
 import MediaGalleryField from '@/components/form/media-gallery-field';
 import RichTextField from '@/components/form/rich-text-field';
@@ -25,18 +21,8 @@ import SEOSettings from '@/features/products/components/product-form/sections/se
 import Shipping from '@/features/products/components/product-form/sections/shipping/shipping';
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
 import UnsavedToast from '@/features/products/components/product-form/unsaved-toast';
-import { useUnsavedNavigationGuard } from '@/features/products/components/product-form/use-unsaved-navigation-guard';
-import {
-  getDefaultVariantValues,
-  type ProductFormInput,
-  type ProductFormPayload,
-  ProductFormSchema,
-} from '@/features/products/schemas/forms/product-form';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { setUnsavedDataStatus } from '@/libs/unsaved-store';
-import { getDefaults } from '@/libs/zod';
-import { getErrorMessage } from '@/services/helpers';
+import { useProductForm } from '@/features/products/hooks/use-product-form';
+import type { ProductFormInput, ProductFormPayload } from '@/features/products/schemas/forms/product-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -45,14 +31,6 @@ type ProductFormProps = {
   initialValues?: ProductFormInput;
   onSubmit: (data: ProductFormPayload) => Promise<ProductFormInput | void>;
   isSubmitting?: boolean;
-};
-
-type SaveResult = {
-  success?: boolean;
-};
-
-type HandleSaveOptions = {
-  focusOnError?: boolean;
 };
 
 const ProductForm = ({
@@ -64,79 +42,15 @@ const ProductForm = ({
   const navigate = useNavigate();
   const isCreate = mode === 'create';
 
-  const form = useForm<ProductFormInput, unknown, ProductFormPayload>({
-    resolver: zodResolver(ProductFormSchema),
-    defaultValues:
-      initialValues ?? {
-        ...getDefaults(ProductFormSchema),
-        variants: [getDefaultVariantValues()],
-      },
-  });
-
-  const hasVariants = useWatch({ control: form.control, name: 'has_variants' });
-  const attributeValues = useWatch({
-    control: form.control,
-    name: 'variants.0.attribute_values',
-  });
-
-  const showSimpleVariantSections =
-    !hasVariants ||
-    !attributeValues ||
-    (Array.isArray(attributeValues) && attributeValues.length === 0);
-
-  const { isDirty } = form.formState;
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-    return () => setUnsavedDataStatus(false);
-  }, [isDirty]);
-
-  const { isBlocked, discardChanges, markSaving, shakeSignal } =
-    useUnsavedNavigationGuard(isDirty);
-
-  const handleSave = async ({
-    focusOnError = true,
-  }: HandleSaveOptions = {}): Promise<SaveResult> => {
-    let success = false;
-
-    markSaving(true);
-    try {
-      await form.handleSubmit(async (payload) => {
-        try {
-          const result = await onSubmit(payload);
-          if (result) {
-            form.reset(result);
-          }
-          success = true;
-        } catch (error) {
-          const unmatchedMessages: string[] = [];
-          const { matchedFields } = applyServerErrors(
-            form,
-            error as ErrorResponse,
-            {
-              onUnmatched: (leftovers) => {
-                unmatchedMessages.push(...Object.values(leftovers));
-              },
-            },
-          );
-
-          toast.error(
-            [getErrorMessage(error), ...unmatchedMessages].join(' '),
-          );
-
-          if (focusOnError && matchedFields[0]) {
-            form.setFocus(matchedFields[0] as FieldPath<ProductFormInput>);
-          }
-
-          success = false;
-        }
-      })();
-    } finally {
-      markSaving(false);
-    }
-
-    return { success };
-  };
+  const {
+    form,
+    showSimpleVariantSections,
+    isDirty,
+    isBlocked,
+    discardChanges,
+    shakeSignal,
+    handleSave,
+  } = useProductForm({ initialValues, onSubmit });
 
   return (
     <Form {...form}>

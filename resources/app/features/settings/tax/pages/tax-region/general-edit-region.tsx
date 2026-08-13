@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
@@ -14,6 +13,8 @@ import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
+import { applyRegionRules, applyRegionTaxUpdate, mergeCitiesIntoTaxRates } from '@/features/settings/tax/lib/region-tax';
 import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/features/settings/tax/lib/utils';
 import AddCitiesPopup from '@/features/settings/tax/pages/tax-region/add-cities-dialog';
 import { SingleTaxRate } from '@/features/settings/tax/pages/tax-region/single-tax-rate';
@@ -23,7 +24,6 @@ import { type TaxRegionGeneralFormInput, TaxRegionGeneralFormSchema } from '@/fe
 import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { settingsKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
@@ -35,7 +35,7 @@ import { __ } from '@/wpi18n';
 const GeneralEditRegion = () => {
   const { code } = useParams();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const invalidateTaxSettings = useInvalidateTaxSettings();
   const [regions, setRegions] = useState<TaxRegion[]>([]);
   const [selectedCities, setSelectedCities] = useState<TaxRegionState[]>([]);
   const [showPopup, setShowPopup] = useState(false);
@@ -98,16 +98,7 @@ const GeneralEditRegion = () => {
   }, [applySingleTax]);
 
   const handleAddCities = () => {
-    const newTaxRates: TaxRate[] = selectedCities.map((city) => ({
-      state: String(city.title ?? ''),
-      rate: 0,
-    }));
-
-    const existingStates = new Set(taxRates.map((t) => t.state));
-    const nextRates = [
-      ...taxRates,
-      ...newTaxRates.filter((t) => !existingStates.has(t.state)),
-    ];
+    const nextRates = mergeCitiesIntoTaxRates(taxRates, selectedCities);
     form.setValue('product_tax', nextRates, { shouldDirty: true });
     setShowPopup(false);
   };
@@ -115,25 +106,11 @@ const GeneralEditRegion = () => {
   const buildUpdatedRegions = (
     values: TaxRegionGeneralFormInput,
     updatedTaxRates?: TaxRate[],
-  ): TaxRegion[] => {
-    return regions.map((country) =>
-      country.code === code
-        ? {
-          ...country,
-          product_tax: updatedTaxRates ?? values.product_tax ?? [],
-          is_central_tax_enabled: values.is_central_tax_enabled,
-          central_product_tax: values.central_product_tax,
-        }
-        : country,
-    );
-  };
+  ): TaxRegion[] =>
+    code ? applyRegionTaxUpdate(regions, code, values, updatedTaxRates) : regions;
 
   const updateTaxRules = async (rulesList: TaxRule[]) => {
-    const updatedData = regions.map((region) =>
-      region.code === selectedCountry?.code
-        ? { ...region, rules: rulesList }
-        : region,
-    );
+    const updatedData = applyRegionRules(regions, selectedCountry?.code ?? '', rulesList);
     setRegions(updatedData);
     await saveDataToDB(updatedData, 'delete');
   };
@@ -168,9 +145,7 @@ const GeneralEditRegion = () => {
         await updateSettings({ key: 'tax', data: payload });
         setSelectedCities([]);
         setUnsavedDataStatus(false);
-        void queryClient.invalidateQueries({
-          queryKey: settingsKeys.section('tax'),
-        });
+        invalidateTaxSettings();
       } catch (error) {
         toastMutationError(error);
       }

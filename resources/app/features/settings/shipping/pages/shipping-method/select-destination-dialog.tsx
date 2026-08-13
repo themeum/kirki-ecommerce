@@ -11,6 +11,16 @@ import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import {
+  applyDestinationToRule,
+  type DestinationConditionValue,
+  filterStates,
+  getCountryOptions,
+  resolveOpenSelection,
+  resolveStatesForCountry,
+  toggleState,
+  updateRegionStates,
+} from '@/features/settings/shipping/lib/shipping-rules/destination-selection';
+import {
   type SelectDestinationFormInput,
   type SelectDestinationFormPayload,
   SelectDestinationFormSchema,
@@ -22,10 +32,7 @@ import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-export type DestinationConditionValue = {
-  country: string;
-  states: (string | number)[];
-};
+export type { DestinationConditionValue };
 
 type SelectDestinationPopupProps = {
   openPopup: boolean;
@@ -73,15 +80,7 @@ export const SelectDestinationPopup = ({
   const [searchValue, setSearchValue] = useState('');
 
   const countryOptions = useMemo(
-    () =>
-      countryList
-        ?.filter((country) =>
-          selectedRegion?.some((region) => region.country === country.code),
-        )
-        .map((country) => ({
-          label: country.name,
-          value: country.code,
-        })) ?? [],
+    () => getCountryOptions(countryList, selectedRegion),
     [countryList, selectedRegion],
   );
 
@@ -90,18 +89,7 @@ export const SelectDestinationPopup = ({
       return;
     }
 
-    const country = selectedCountry ?? '';
-    const conditionValue = selectedConditionValue;
-    const statesFromCondition =
-      conditionValue?.country === country ? conditionValue.states : null;
-    const regionForCountry = selectedRegion?.find(
-      (r) => r.country.toLowerCase() === country.toLowerCase(),
-    );
-
-    form.reset({
-      country,
-      states: statesFromCondition ?? regionForCountry?.states ?? [],
-    });
+    form.reset(resolveOpenSelection(selectedCountry, selectedConditionValue, selectedRegion));
     setSearchValue('');
     // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking the selection would reset the form while the user is picking states
   }, [openPopup, form]);
@@ -112,88 +100,36 @@ export const SelectDestinationPopup = ({
       return;
     }
 
-    const country = countryList?.find(
-      (item) => item.code.toLowerCase() === formCountry.toLowerCase(),
+    const { stateList: nextStateList, states } = resolveStatesForCountry(
+      formCountry,
+      selectedConditionValue,
+      selectedRegion,
+      countryList,
     );
 
-    setStateList(country?.states ?? []);
-
-    const conditionValue = selectedConditionValue;
-    const statesFromCondition =
-      conditionValue?.country === formCountry ? conditionValue.states : null;
-    const regionForCountry = selectedRegion?.find(
-      (r) => r.country.toLowerCase() === formCountry.toLowerCase(),
-    );
-
-    form.setValue(
-      'states',
-      statesFromCondition ?? regionForCountry?.states ?? [],
-    );
+    setStateList(nextStateList);
+    form.setValue('states', states);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reacts to a country change only; adding the selection deps would re-apply the stored states over the user current picks
   }, [formCountry, countryList]);
 
-  const filteredStates = useMemo(() => {
-    if (!searchValue.trim()) {
-      return stateList;
-    }
-    const query = searchValue.toLowerCase();
-    return stateList.filter((state) =>
-      state.name.toLowerCase().includes(query),
-    );
-  }, [stateList, searchValue]);
+  const filteredStates = useMemo(
+    () => filterStates(stateList, searchValue),
+    [stateList, searchValue],
+  );
 
   const handleSelectState = (stateId: string | number) => {
     const current = form.getValues('states') ?? [];
-    const next = current.includes(stateId)
-      ? current.filter((id) => id !== stateId)
-      : [...current, stateId];
-    form.setValue('states', next, { shouldDirty: true });
+    form.setValue('states', toggleState(current, stateId), { shouldDirty: true });
   };
 
   const updateRegionList = (values: SelectDestinationFormPayload) => {
     setSelectedCountry(values.country);
-    setSelectedRegion((prev) =>
-      prev.map((r) =>
-        r.country === values.country ? { ...r, states: values.states } : r,
-      ),
-    );
+    setSelectedRegion((prev) => updateRegionStates(prev, values));
 
     if (onSave) {
       onSave(values);
     } else if (ruleIndex !== -1) {
-      setRulesObj((prev) =>
-        prev.map((rule, idx) => {
-          if (idx !== ruleIndex) {
-            return rule;
-          }
-
-          const condition = rule.conditions?.[0];
-          if (condition?.type !== 'destination_region') {
-            return rule;
-          }
-
-          const conditionValue = condition.value as DestinationConditionValue;
-          const isSameCountry = conditionValue?.country === values.country;
-
-          return {
-            ...rule,
-            conditions: [
-              {
-                ...condition,
-                value: isSameCountry
-                  ? {
-                      ...conditionValue,
-                      states: values.states,
-                    }
-                  : {
-                      country: values.country,
-                      states: values.states,
-                    },
-              },
-            ],
-          };
-        }),
-      );
+      setRulesObj((prev) => applyDestinationToRule(prev, ruleIndex, values));
     } else {
       setSelectedConditionValue({
         country: values.country,

@@ -1,8 +1,8 @@
 // Page - Checkout
 // Styles for checkout page
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-checkout-page {
   max-width: 1440px;
@@ -245,7 +245,7 @@
     margin: 0;
 
     span:not(:last-of-type)::after {
-      content: "•";
+      content: '•';
       margin-inline-start: $spacing-2;
     }
   }

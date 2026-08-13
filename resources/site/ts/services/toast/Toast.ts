@@ -1,5 +1,5 @@
-import { toastManager } from './runtime';
 import { type ToastConfig, type ToastOptions } from '../../types';
+import { toastManager } from './runtime';
 
 export class ToastService {
   show(message: string, config: ToastOptions = {}): string {

@@ -7,6 +7,7 @@ import TagTableAction from '@/features/tags/components/tag-table/tag-table-actio
 import type { Tag } from '@/features/tags/schemas/catalog/tag';
 import { useBulkDeleteTagsMutation } from '@/features/tags/services/tag';
 import { useListParams, useMarkList } from '@/hooks';
+import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { PaginatedData } from '@/types/api/response';
@@ -90,17 +91,9 @@ const TagTable = ({ data }: TagTableProps) => {
       return;
     }
 
-    if (selectedItems.includes('*')) {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete-all',
-        ids: null,
-      });
-    } else {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete',
-        ids: selectedItems as number[],
-      });
-    }
+    await bulkDeleteMutation.mutateAsync(
+      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
+    );
     handleClearSelection();
   };
 
