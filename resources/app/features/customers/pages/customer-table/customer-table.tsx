@@ -7,6 +7,7 @@ import SingleRow from '@/features/customers/pages/customer-table/single-row';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
 import { useBulkDeleteCustomersMutation } from '@/features/customers/services/customer';
 import { useListParams, useMarkList } from '@/hooks';
+import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import type { PaginatedData } from '@/types/api/response';
 import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
@@ -67,17 +68,9 @@ const CustomerTable = ({ data }: CustomerTableProps) => {
       return;
     }
 
-    if (selectedItems.includes('*')) {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete-all',
-        ids: null,
-      });
-    } else {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete',
-        ids: selectedItems as number[],
-      });
-    }
+    await bulkDeleteMutation.mutateAsync(
+      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
+    );
     handleClearSelection();
   };
 

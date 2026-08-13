@@ -80,6 +80,14 @@ MSW is aimed narrowly at where WordPress REST payloads actually drift: `unwrapDa
 
 **`columns` declarations must stay at module scope.** `product-table.tsx` carries an explicit comment recording why: the stable reference is what lets the memoized table header sit out a search. Moving them into a hook or a `useMemo` would silently reintroduce a re-render on every keystroke — a performance regression with no failing test.
 
+**Correction during implementation:** the nine pages do not in fact share one shape. Inspection during task 7 found three distinct shapes:
+
+- `product-table`, `order-table`, `coupon-table` — a `DataTable`-driven shape: `useListParams` → an own `useXQuery(params)` → `DataTable`'s built-in bulk-selection UI. `order-table.tsx` has no bulk delete at all (no `bulkActionOptions`/`onBulkApply`); `coupon-table.tsx` adds per-row actions (duplicate/activate/delete) on top via extra mutations.
+- `customer-table`, `brand-table`, `collection-table`, `category-table`, `tag-table` — a "taxonomy table" shape: the parent route fetches and passes `data` as a prop, and the table wires `useListParams` + `useMarkList` + a hand-rolled sortable `Table`. These five are near-identical copy-paste of each other (down to variable names).
+- `inventory-table` — neither: no `useListParams`, no query, no bulk-delete; it reads from `useInventoryForm()` and its "bulk action" is a navigation to the bulk-edit route, not a delete.
+
+Given that, a single generic `use-list-page` hook was rejected — it would need to abstract over "sometimes there's no bulk delete" and "sometimes data is fetched, sometimes it's a prop," which turns into conditional hook calls for no real gain. The one piece of logic genuinely identical across all seven pages that *do* have bulk delete (all but `order-table` and `inventory-table`) is the select-all/selected-ids branch, so that became a single pure function, `resolveBulkDeletePayload()` in `libs/bulk-delete.ts` (cross-feature, alongside `libs/form-errors.ts` and friends), used by all seven. The surrounding wiring (`useListParams`, the query, `useMarkList`, pagination) stays inline per page: each is a one-line call into an already-shared hook, not a decision, so wrapping it in a per-feature hook would relocate boilerplate without adding coverage. `inventory-table.tsx` was left untouched — it does not fit the pattern task 7 assumed, and forcing it into the same shape was out of scope for a behavior-preserving relocation.
+
 ### Order of work: highest density first
 
 Ranked by stateful-hook count against line count, not lines alone — density is what predicts entanglement:

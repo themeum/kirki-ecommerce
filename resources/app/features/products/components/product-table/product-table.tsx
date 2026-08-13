@@ -19,6 +19,7 @@ import ProductTableFilterBar from '@/features/products/components/product-table/
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { useBulkDeleteProductsMutation, useProductsQuery } from '@/features/products/services/product';
 import { useListParams } from '@/hooks';
+import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { DATE_FORMATS } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -108,17 +109,7 @@ const ProductTable = () => {
         return;
       }
 
-      if (isSelectAll) {
-        await bulkDeleteMutation.mutateAsync({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        await bulkDeleteMutation.mutateAsync({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
+      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isSelectAll, selectedItems));
     },
     [bulkDeleteMutation],
   );

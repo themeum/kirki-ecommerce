@@ -1,11 +1,4 @@
-import type {
-  ChangeEvent,
-  Dispatch,
-  KeyboardEvent,
-  MouseEvent,
-  SetStateAction,
-} from 'react';
-import { useEffect, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 
 import ThumbnailSelector from '@/components/thumbnail-selector';
 import Checkbox from '@/components/ui/checkbox';
@@ -13,23 +6,15 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { useBulkEditForm } from '@/features/bulk-edit';
-import useBulkEditList from '@/features/bulk-edit/hooks/use-bulk-edit-list';
+import { useBulkEditRow } from '@/features/bulk-edit/hooks/use-bulk-edit-row';
 import type { BulkEditSelectionData } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
 import type { UnitPriceValue } from '@/features/products';
-import type { ProductVariant } from '@/features/products';
 import { BaseUnitDialog } from '@/features/products';
-import { useAttributesQuery } from '@/features/products';
 import { ShippingBoxField } from '@/features/settings';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { calculateProfit } from '@/utils/common';
 import { __ } from '@/wpi18n';
-
-type BulkEditVariant = ProductVariant & {
-  has_limit_per_order?: boolean;
-  max_per_order?: number;
-};
 
 type SingleRowProps = {
   index: number;
@@ -50,207 +35,26 @@ const SingleRow = (props: SingleRowProps) => {
     selectedFields,
   } = props;
 
-  const { variants, updateVariants } = useBulkEditForm();
-  const { data: attributes = [] } = useAttributesQuery({ limit: -1 });
-  const currentVariation = variants[index] as BulkEditVariant;
-  const [varTitle, setVarTitle] = useState<(string | undefined)[]>([]);
-
-  const { isSelected, getVariantList, getActiveState } = useBulkEditList({
-    selectionData,
+  const {
+    currentVariation,
+    varTitle,
+    media,
+    getActiveState,
+    isMaxIndex,
+    handleInputEnterKeyDown,
+    handleNumberInputChange,
+    handleOnChange,
+    onCellMouseDown,
+    onCellMouseEnter,
+    onGrabberMouseDown,
+    handleMediaChange,
+  } = useBulkEditRow({
     index,
+    selectionData,
+    setSelectionData,
+    isDragging,
+    setIsDragging,
   });
-
-  useEffect(() => {
-    const attributeValueMap = Object.fromEntries(
-      (attributes || []).flatMap((attr) =>
-        (attr.values ?? []).map((v) => [v.id, v.value]),
-      ),
-    );
-
-    const variatioNames = currentVariation?.attribute_values.map(
-      (valueId) => attributeValueMap[valueId],
-    );
-    setVarTitle(variatioNames);
-  }, [attributes, currentVariation?.attribute_values]);
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      if (selectionData?.mode !== 'fill') {
-        setIsDragging(false);
-        return;
-      }
-
-      const variantIndexes = getVariantList('fill');
-      if (selectionData?.fieldName === 'base_price_per_unit') {
-        handleUnitInfoChange(variantIndexes);
-      } else {
-        const sourceValue =
-          variants[selectionData.baseIndex!][
-          selectionData.fieldName as keyof ProductVariant
-          ];
-
-        updateVariants({
-          key: selectionData.fieldName ?? '',
-          value: sourceValue,
-          variant_index: variantIndexes,
-        });
-      }
-      setSelectionData((prev) => ({
-        ...prev!,
-        mode: 'select',
-        end: Number(prev?.lastIndex ?? 0),
-      }));
-      setIsDragging(false);
-    };
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => window.removeEventListener('mouseup', handleMouseUp);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- binds the window mouseup that ends a fill-drag; re-binding on every variant edit would drop the in-flight gesture
-  }, [selectionData]);
-
-  const handleInputEnterKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      setSelectionData(null);
-    }
-  };
-
-  const handleNumberInputChange = (
-    event: ChangeEvent<HTMLInputElement>,
-    fieldName: string,
-  ) => {
-    handleOnChange(parseFloat(event.target.value), fieldName);
-  };
-
-  const handleOnChange = (value: unknown, fieldName: string) => {
-    if (selectionData!.start === selectionData!.end) {
-      updateVariants({
-        key: fieldName,
-        value,
-        variant_index: [index],
-      });
-      return;
-    }
-
-    applyValue(value, fieldName);
-  };
-
-  const applyValue = (value: unknown, fieldName: string) => {
-    if (!selectionData) {
-      return;
-    }
-
-    const variantIndexes = getVariantList('select');
-
-    if (fieldName === 'base_price_per_unit') {
-      handleUnitInfoChange(variantIndexes, value as UnitPriceValue);
-    } else {
-      updateVariants({
-        key: fieldName || (selectionData.fieldName ?? ''),
-        value,
-        variant_index: variantIndexes,
-      });
-    }
-  };
-
-  const onCellMouseDown = (
-    _e: MouseEvent<HTMLTableCellElement>,
-    fieldName: string,
-  ) => {
-    setIsDragging(true);
-    if (!isSelected(fieldName)) {
-      setSelectionData({
-        fieldName,
-        start: index,
-        end: index,
-        mode: 'select',
-        baseIndex: index,
-        lastIndex: index,
-      });
-    }
-  };
-
-  const onCellMouseEnter = (
-    e: MouseEvent<HTMLTableCellElement>,
-    _fieldName: string,
-  ) => {
-    if (!isDragging) {
-      return;
-    }
-    e.preventDefault();
-    if (selectionData?.mode === 'select') {
-      setSelectionData((prev) => {
-        if (!prev) {
-          return prev;
-        }
-        return { ...prev, end: index };
-      });
-    } else {
-      setSelectionData((prev) => {
-        if (!prev) {
-          return prev;
-        }
-        return { ...prev, lastIndex: index };
-      });
-    }
-  };
-
-  const onGrabberMouseDown = (
-    _e: MouseEvent<HTMLSpanElement>,
-    fieldName: string,
-  ) => {
-    setSelectionData((prev) => ({
-      ...prev!,
-      fieldName,
-      mode: 'fill',
-      grabberIndex: index,
-      lastIndex: index,
-    }));
-  };
-
-  const handleUnitInfoChange = (
-    variantIndexes: number[],
-    newValue: UnitPriceValue = {},
-  ) => {
-    const unitValues = {
-      total_unit: variants[selectionData!.baseIndex!]?.total_unit,
-      base_unit: variants[selectionData!.baseIndex!]?.base_unit,
-      total_unit_amount:
-        variants[selectionData!.baseIndex!]?.total_unit_amount,
-      base_unit_amount:
-        variants[selectionData!.baseIndex!]?.base_unit_amount,
-      ...newValue,
-    };
-    updateVariants({
-      key: 'base_price_per_unit',
-      value: unitValues,
-      variant_index: variantIndexes,
-    });
-  };
-
-  const isMaxIndex = (rowIndex: number) => {
-    if (selectionData?.baseIndex === undefined) {
-      return false;
-    }
-    const max = Math.max(selectionData.baseIndex, selectionData.end);
-    if (rowIndex === max) {
-      return true;
-    }
-    return false;
-  };
-
-  const handleMediaChange = (
-    img: Record<string, unknown>,
-    fieldName: string,
-  ) => {
-    delete img?.date;
-    delete img?.modified;
-    updateVariants({
-      key: fieldName,
-      value: img,
-      variant_index: [index],
-    });
-  };
-
-  const media = currentVariation?.media;
 
   return (
     <TableRow
