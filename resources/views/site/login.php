@@ -11,7 +11,9 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Route;
 
+use function Kirki\Ecommerce\Framework\config;
 
 ?>
 
@@ -32,9 +34,7 @@ use Kirki\Ecommerce\App\Supports\Url;
                 password: '', 
             },
             mode: 'onBlur'
-            })" method="post" @submit.prevent="handleSubmit((data) => {
-            console.log(data); 
-            })">
+            })" method="post" action="<?php echo Route::site_url('login.user') ?>">
             <div class="kecom-field">
                 <label class="kecom-field-label" for="kecom-email"><?php _e('Email', 'kirki-ecommerce'); ?></label>
                 <input class="kecom-input" type="email" id="kecom-email" name="email" x-bind="register('email', {

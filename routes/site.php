@@ -40,7 +40,12 @@ Route::site(function () {
     $register_page_slug = !empty($register_page) ? $register_page->post_name : 'register';
 
     Route::get($login_page_slug, [SiteController::class, 'login_page'])
+        ->template_redirect()
         ->name('login');
+
+    Route::post("{$login_page_slug}/process", [SiteController::class, 'handle_login'])
+        ->template_redirect()
+        ->name('login.user');
 
     Route::get($register_page_slug, [SiteController::class, 'register_page'])
         ->name('register');

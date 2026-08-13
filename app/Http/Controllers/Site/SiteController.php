@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\Http\Requests\Account\LoginRequest;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
@@ -23,13 +24,16 @@ use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -242,6 +246,29 @@ class SiteController
      */
     public function login_page(Request $request)
     {
+        if (is_user_logged_in()) {
+            return redirect(Url::get_shop_url());
+        }
+
         return view('site.login');
+    }
+
+    public function handle_login(LoginRequest $request)
+    {
+
+        $sanitized_input = $request->sanitized();
+
+        $creds = [
+            'user_login' => $sanitized_input['email'],
+            'user_password' => $sanitized_input['password'],
+        ];
+
+        $user = wp_signon($creds, false);
+
+        if (is_wp_error($user)) {
+            return redirect(Route::site_url('login'));
+        }
+
+        return redirect(Url::get_shop_url());
     }
 }
