@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useCallback, useContext, useEffect, useM
 
 import type { DataTableItem } from '@/components/data-table/types';
 import { useListParams, useMarkList } from '@/hooks';
-import type { PaginatedData } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
 
 type SelectedItem = string | number;
 

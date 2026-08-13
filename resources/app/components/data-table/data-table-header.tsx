@@ -7,7 +7,7 @@ import type {
 import Sorting from '@/components/sorting';
 import Checkbox from '@/components/ui/checkbox';
 import { TableHead, TableRow } from '@/components/ui/table';
-import type { SortOrder } from '@/types';
+import type { SortOrder } from '@/types/list-state';
 
 type DataTableHeaderProps = {
   columns: DataTableColumn<DataTableItem>[];

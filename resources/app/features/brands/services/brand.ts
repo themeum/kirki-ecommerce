@@ -1,0 +1,122 @@
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { endpoints } from '@/config/endpoints';
+import { brandKeys } from '@/features/brands';
+import { BrandSchema } from '@/features/brands/schemas/catalog/brand';
+import type { BrandFormPayload } from '@/features/brands/schemas/forms/brand-form';
+import { apiClient } from '@/libs/api';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import type { BulkActionParams } from '@/types/api/result';
+import type { ListQueryParams } from '@/types/list-state';
+import { __ } from '@/wpi18n';
+
+const getBrands = (params: ListQueryParams = {}) => {
+  return apiClient
+    .get(endpoints.BRANDS, { params })
+    .then((response) => parseData(PaginatedDataSchema(BrandSchema), response));
+};
+
+const createBrand = (data: BrandFormPayload) => {
+  return apiClient
+    .post(endpoints.BRANDS, data)
+    .then((response) => parseResponse(BrandSchema, response));
+};
+
+const updateBrand = ({ id, data }: { id: number; data: BrandFormPayload }) => {
+  return apiClient
+    .put(endpoints.BRAND(id), data)
+    .then((response) => parseResponse(BrandSchema, response));
+};
+
+const deleteBrand = (id: number) => {
+  return apiClient
+    .delete(endpoints.BRAND(id))
+    .then((response) => parseMessage(response));
+};
+
+const bulkDeleteBrands = ({
+  action = 'delete',
+  ids = [],
+}: BulkActionParams = {}) => {
+  return apiClient
+    .post(endpoints.BRANDS_BULK, { action, ids })
+    .then((response) => parseMessage(response));
+};
+
+const useBrandsQuery = (params: ListQueryParams = {}) => {
+  return useQuery({
+    queryKey: brandKeys.list(params),
+    queryFn: () => getBrands(params),
+    placeholderData: keepPreviousData,
+  });
+};
+
+const useCreateBrandMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createBrand,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message || __('Brand created successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useUpdateBrandMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateBrand,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message || __('Brand updated successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useDeleteBrandMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteBrand,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message || __('Brand deleted successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useBulkDeleteBrandsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: bulkDeleteBrands,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message || __('Brands deleted successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+export {
+  bulkDeleteBrands, createBrand, deleteBrand, getBrands, updateBrand, useBrandsQuery, useBulkDeleteBrandsMutation, useCreateBrandMutation, useDeleteBrandMutation, useUpdateBrandMutation,
+};
+

@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 
 import Thumbnail from '@/components/ui/thumbnail';
-import type { ThumbnailSize } from '@/types';
+import type { ThumbnailSize } from '@/types/components/common';
 
 type MediaStackItem = {
   url?: string;

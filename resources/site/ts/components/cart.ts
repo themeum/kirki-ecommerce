@@ -1,7 +1,6 @@
-import { cartApi } from "../api/cart";
-import { toastManager } from "../services/toast/runtime";
-
-
+import { cartApi } from '../api/cart';
+import { toastManager } from '../services/toast/runtime';
+import { config } from '../utils';
 
 export function cart() {
   const { __ } = window.wp.i18n;
@@ -10,7 +9,7 @@ export function cart() {
     loading: false,
     success: false,
     error: null as string | null,
-    cartData: window.kirki_ecommerce.cart,
+    cartData: config.cart,
 
     format_cart_items() {
       if (this.cartData.items.length > 0) {
@@ -40,9 +39,8 @@ export function cart() {
         document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: result.data }));
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
-        toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));
+        toastManager.error(this.error ?? __('Something went wrong', 'kirki-ecommerce'));
       }
-
     },
 
     async remove(id: number) {
@@ -68,13 +66,13 @@ export function cart() {
             cartItems.appendChild(empty_cart);
           }
         }
-        toastManager.success(__("Item removed to cart", "kirki-ecommerce"));
+        toastManager.success(__('Item removed to cart', 'kirki-ecommerce'));
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
-        toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));
+        toastManager.error(this.error ?? __('Something went wrong', 'kirki-ecommerce'));
       } finally {
         this.loading = false;
       }
-    }
+    },
   };
 }

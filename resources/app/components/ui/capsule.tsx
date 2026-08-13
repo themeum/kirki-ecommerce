@@ -7,7 +7,7 @@ import Combobox from '@/components/ui/combobox';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 
 type CapsuleValue = string | number;

@@ -1,11 +1,4 @@
-import type {
-  ArrowDownUpFilledProps,
-  IconColorProps,
-  IconDimensionProps,
-  IconProps,
-  IconStyleProps,
-} from '@/types';
-
+import type { ArrowDownUpFilledProps, IconColorProps, IconDimensionProps, IconProps, IconStyleProps } from '@/types/components/icon';
 export const ButtonDefaultIcon = () => (
   <svg
     width="16"

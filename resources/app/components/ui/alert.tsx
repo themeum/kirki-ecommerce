@@ -4,7 +4,7 @@ import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
-import type { AlertType } from '@/types';
+import type { AlertType } from '@/types/components/common';
 
 type AlertProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   type?: AlertType;

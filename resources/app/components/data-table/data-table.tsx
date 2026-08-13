@@ -14,7 +14,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHeader } from '@/components/ui/table';
 import { cardStyles } from '@/theme/card-styles';
-import type { PaginatedData, SelectOption, SortOrder } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { SelectOption } from '@/types/components/common';
+import type { SortOrder } from '@/types/list-state';
 
 type DataTableProps<T extends DataTableItem> = {
   data?: PaginatedData<T>;

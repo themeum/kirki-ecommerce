@@ -4,8 +4,9 @@ import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 
 import Button from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { useWordpressMedia } from '@/hooks';
+import type { MediaRef } from '@/schemas/shared/media';
 import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
-import type { MediaRef } from '@/types';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -66,7 +67,7 @@ const MediaSelector = ({
   }, [onSelectToggler]);
 
   useEffect(() => {
-    if (typeof wp !== 'undefined' && wp?.media) {
+    if (isDefined(wp) && isDefined(wp.media)) {
       mediaFrameRef.current = wp.media({
         title,
         library: { type: types },

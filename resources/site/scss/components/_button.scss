@@ -15,8 +15,8 @@
 // (e.g. .kecom-btn-primary.kecom-btn-primary) for the same reason.
 // Pseudo-class states naturally sit at (0,3,0) and win over theme rules.
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 // Doubled base → specificity (0,2,0)
 .kecom-btn.kecom-btn {
@@ -45,7 +45,7 @@
 
   &:disabled,
   &[disabled],
-  &[aria-disabled="true"] {
+  &[aria-disabled='true'] {
     cursor: not-allowed;
     opacity: 0.5;
     pointer-events: none;
@@ -181,7 +181,7 @@
   color: transparent;
 
   &::after {
-    content: "";
+    content: '';
     @include absolute-center;
     width: 1em;
     height: 1em;

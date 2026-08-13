@@ -5,7 +5,7 @@ import Button from '@/components/ui/button';
 import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
-import type { ConfirmationVariant } from '@/types';
+import type { ConfirmationVariant } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type ConfirmationDialogProps = {

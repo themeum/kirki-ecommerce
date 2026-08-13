@@ -11,7 +11,7 @@ import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
-import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
+import type { LabelFieldProps, SelectOption, SelectState } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

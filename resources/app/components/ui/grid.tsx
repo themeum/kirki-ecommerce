@@ -3,7 +3,7 @@ import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { buildGridAreas, buildGridTemplate, resolveGap } from '@/components/ui/layout-utils';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type { FlexAlign, FlexJustify, GapValue } from '@/types';
+import type { FlexAlign, FlexJustify, GapValue } from '@/types/components/common';
 
 type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   columns?: number;

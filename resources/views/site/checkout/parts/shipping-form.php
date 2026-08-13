@@ -41,7 +41,7 @@ $shipping_email = $shipping_address["email"] ?? '';
             email: '<?php echo esc_js($shipping_email); ?>',
         },
         mode: 'onBlur'
-   })" @validate-shipping-form.window="await validateForm(); $dispatch('shipping-form-validated', { isValid })">
+   })" x-on:kecom:shipping-form:validate.window="await validateForm(); $dispatch('kecom:shipping-form:validated', { isValid })">
         <div class="kecom-field" x-bind="fieldWrapper('country')">
             <label class="kecom-field-label" for="shipping-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
             <select class="kecom-select" id="shipping-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">

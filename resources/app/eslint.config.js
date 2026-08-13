@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import vitest from '@vitest/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -8,6 +9,94 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+
+// The features/ restructure (see openspec/changes/restructure-app-features)
+// was migrated feature by feature with this at `warn`, so violations were a
+// visible, shrinking count rather than an all-or-nothing gate. Every feature
+// has now moved (0 warnings as of group 7) — promoted to `error`.
+const FEATURE_BOUNDARY_SEVERITY = 'error';
+
+const FEATURES = [
+  'brands',
+  'tags',
+  'categories',
+  'collections',
+  'customers',
+  'coupons',
+  'inventory',
+  'bulk-edit',
+  'orders',
+  'products',
+  'settings',
+  'system',
+];
+
+const SHARED_ROOT_DIRS = [
+  'components',
+  'hooks',
+  'utils',
+  'libs',
+  'theme',
+  'types',
+  'schemas',
+  'services',
+  'contexts',
+  'config',
+];
+
+const featureBoundaryConfigs = FEATURES.map((feature) => ({
+  name: `kirki/feature-boundary-${feature}`,
+  files: ['**/*.{ts,tsx}'],
+  ignores: [`features/${feature}/**`],
+  rules: {
+    'no-restricted-imports': [
+      FEATURE_BOUNDARY_SEVERITY,
+      {
+        patterns: [
+          {
+            group: [`@/features/${feature}/*`, `@/features/${feature}/**`],
+            message: `Import from '@/features/${feature}' (its public API) instead of reaching into its internals.`,
+          },
+        ],
+      },
+    ],
+  },
+}));
+
+const sharedNoFeatureImportConfig = {
+  name: 'kirki/shared-no-feature-import',
+  files: SHARED_ROOT_DIRS.map((dir) => `${dir}/**/*.{ts,tsx}`),
+  rules: {
+    'no-restricted-imports': [
+      FEATURE_BOUNDARY_SEVERITY,
+      {
+        patterns: [
+          {
+            group: ['@/features/*', '@/features/**'],
+            message: 'Shared code may not depend on a feature. Move this file into the feature that owns the data it needs.',
+          },
+        ],
+      },
+    ],
+  },
+};
+
+const importNoCycleConfig = {
+  name: 'kirki/import-no-cycle',
+  files: ['**/*.{ts,tsx}'],
+  plugins: { import: importPlugin },
+  settings: {
+    'import/resolver': {
+      typescript: { project: './tsconfig.json' },
+    },
+  },
+  rules: {
+    // Not gated by FEATURE_BOUNDARY_SEVERITY — a cycle is always a real
+    // defect (undefined at module init), never a migration-in-progress
+    // warning.
+    'import/no-cycle': 'error',
+  },
+};
 
 export default tseslint.config(
   {
@@ -158,7 +247,7 @@ export default tseslint.config(
     // A route manifest is a data module, not a component module — the lazy()
     // route entries it declares are never the thing Fast Refresh reloads.
     name: 'kirki/route-manifest',
-    files: ['routes.tsx'],
+    files: ['**/routes.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
@@ -175,16 +264,6 @@ export default tseslint.config(
       'components/ui/stacked-items.tsx',
     ],
     rules: {
-      'react-refresh/only-export-components': 'off',
-    },
-  },
-
-  {
-    // Internal component playgrounds — not shipped, and logging is the point.
-    name: 'kirki/preview-sandboxes',
-    files: ['preview-pages/**/*.tsx', 'tryouts.tsx'],
-    rules: {
-      'no-console': 'off',
       'react-refresh/only-export-components': 'off',
     },
   },
@@ -215,6 +294,25 @@ export default tseslint.config(
     },
     rules: {
       'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  importNoCycleConfig,
+  ...featureBoundaryConfigs,
+  sharedNoFeatureImportConfig,
+
+  {
+    // `lazy(() => import(...))` needs a concrete file target for its own
+    // code-split chunk, which is a structurally different dependency than a
+    // feature's internals being reused elsewhere — route composition is
+    // exempt from the deep-import boundary rules for that reason. Must come
+    // after the boundary configs above: flat config resolves per-rule by
+    // last-matching block, and this is the one place that reopens a rule
+    // those configs close.
+    name: 'kirki/route-manifest-lazy-imports',
+    files: ['**/routes.tsx'],
+    rules: {
+      'no-restricted-imports': 'off',
     },
   },
 );

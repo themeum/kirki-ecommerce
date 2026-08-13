@@ -2,7 +2,8 @@ import type { CSSObject } from '@emotion/react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import type { SortableConfig } from '@/components/sorting';
-import type { PaginatedData, TableAlignment } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { TableAlignment } from '@/types/components/common';
 
 type DataTableItem = {
   id: string | number;

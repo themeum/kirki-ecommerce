@@ -5,7 +5,8 @@ import Placeholder from '@/components/ui/placeholder';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { CloudUpload } from '@/icons';
-import type { LabelFieldProps, MediaRef, ThumbnailSize } from '@/types';
+import type { MediaRef } from '@/schemas/shared/media';
+import type { LabelFieldProps, ThumbnailSize } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

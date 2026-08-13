@@ -1,5 +1,5 @@
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-breadcrumb {
   margin-top: 0px;
@@ -22,14 +22,15 @@
     gap: $spacing-3;
 
     &:not(:last-child)::after {
-      content: "";
+      content: '';
       width: 12px;
       height: 12px;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none'%3E%3Cpath stroke='%234a4852' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.2' d='m4.5 9 3-3-3-3'/%3E%3C/svg%3E") center / 12px 12px no-repeat;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none'%3E%3Cpath stroke='%234a4852' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.2' d='m4.5 9 3-3-3-3'/%3E%3C/svg%3E")
+        center / 12px 12px no-repeat;
       flex-shrink: 0;
     }
 
-    &[aria-current="page"] {
+    &[aria-current='page'] {
       color: $text-primary;
     }
   }

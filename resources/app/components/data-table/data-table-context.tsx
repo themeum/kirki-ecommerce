@@ -4,7 +4,8 @@ import type {
   DataTableColumn,
   DataTableItem,
 } from '@/components/data-table/types';
-import type { PaginatedData, SortOrder } from '@/types';
+import type { PaginatedData } from '@/types/api/response';
+import type { SortOrder } from '@/types/list-state';
 
 /*
  * Only DataTableBody and DataTablePagination read this, and both are supposed

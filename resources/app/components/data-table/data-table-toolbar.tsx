@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import BulkActionHandler from '@/components/bulk-action-handler';
 import { useDataTableSelection } from '@/components/data-table/data-table-selection-context';
 import type { DataTableBulkApplyPayload } from '@/components/data-table/types';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 
 type DataTableToolbarProps = {
   action?: ReactNode;

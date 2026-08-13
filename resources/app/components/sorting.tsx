@@ -4,7 +4,7 @@ import Flex from '@/components/ui/flex';
 import { ArrowDownUpFilled } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { SortOrder } from '@/types';
+import type { SortOrder } from '@/types/list-state';
 
 type SortableConfig = {
   sort_by: string;

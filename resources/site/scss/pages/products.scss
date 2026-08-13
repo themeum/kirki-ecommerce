@@ -1,8 +1,8 @@
 // Page - Products
 // Styles for products listing/shop page
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-products-page {
   padding-block: $spacing-10;
@@ -58,6 +58,10 @@
       border: none;
       outline: none;
       background-color: transparent;
+      padding: 0;
+      width: auto;
+      box-shadow: none;
+      height: auto;
     }
   }
 
