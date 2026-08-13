@@ -7,6 +7,7 @@ import SingleRow from '@/features/categories/components/category-table/single-ro
 import type { Category } from '@/features/categories/schemas/catalog/category';
 import { useBulkDeleteCategoriesMutation } from '@/features/categories/services/category';
 import { useListParams, useMarkList } from '@/hooks';
+import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { PaginatedData } from '@/types/api/response';
@@ -91,17 +92,9 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
       return;
     }
 
-    if (selectedItems.includes('*')) {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete-all',
-        ids: null,
-      });
-    } else {
-      await bulkDeleteMutation.mutateAsync({
-        action: 'delete',
-        ids: selectedItems as number[],
-      });
-    }
+    await bulkDeleteMutation.mutateAsync(
+      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
+    );
     handleClearSelection();
   };
 

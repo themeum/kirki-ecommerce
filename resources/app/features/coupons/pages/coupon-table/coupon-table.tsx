@@ -20,6 +20,7 @@ import FilterPopup from '@/features/coupons/pages/coupon-table/filter-popup/filt
 import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
 import { useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponsQuery, useDeleteCouponMutation } from '@/features/coupons/services/coupon';
 import { useListParams } from '@/hooks';
+import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { DATE_FORMATS } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -108,17 +109,7 @@ const CouponTable = () => {
         return;
       }
 
-      if (isSelectAll) {
-        await bulkDeleteMutation.mutateAsync({
-          action: 'delete-all',
-          ids: null,
-        });
-      } else {
-        await bulkDeleteMutation.mutateAsync({
-          action: 'delete',
-          ids: selectedItems as number[],
-        });
-      }
+      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isSelectAll, selectedItems));
     },
     [bulkDeleteMutation],
   );

@@ -1,6 +1,3 @@
-import { type ReactNode, useState } from 'react';
-import { useWatch } from 'react-hook-form';
-
 import DropdownButton from '@/components/dropdown-button';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -17,48 +14,16 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
+import { useAvailableCurrencyList } from '@/features/settings/multi-currency/hooks/use-available-currency-list';
+import type { CurrencyListItem } from '@/features/settings/multi-currency/lib/currency-list';
 import AddCurrencyPopup from '@/features/settings/multi-currency/pages/add-currency-dialog';
 import EditCurrencyDialog from '@/features/settings/multi-currency/pages/edit-currency-dialog';
-import type { Currency } from '@/features/settings/multi-currency/schemas/catalog/currency';
-import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
-import { type CurrencyBulkPayload, useAvailableCurrenciesQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation } from '@/features/settings/multi-currency/services/currency';
-import { IncreaseIcon, InfoIcon, ShowMoreIcon } from '@/icons';
+import { InfoIcon, ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { SelectOption } from '@/types/components/common';
-import { dateFormatter, dispatchToastMessage } from '@/utils/common';
+import { dateFormatter } from '@/utils/common';
 import { __, sprintf } from '@/wpi18n';
-
-type CurrencyListItem = Currency & {
-  badge1?: string;
-  is_toggle_disabled?: boolean;
-  is_action_disabled?: boolean;
-  rightIcon?: ReactNode;
-  rightText?: string;
-  icon?: ReactNode;
-  actionsArray?: SelectOption[];
-};
-
-const getActionArray = (item: Currency): SelectOption[] => {
-  if (item?.is_base) {
-    return [];
-  }
-  return [
-    {
-      title: __('Edit', 'kirki-ecommerce'),
-      value: 'edit',
-    },
-    {
-      title: __('Delete', 'kirki-ecommerce'),
-      value: 'delete',
-    },
-    {
-      title: __('Set as base currency', 'kirki-ecommerce'),
-      value: 'set_base',
-    },
-  ];
-};
 
 type CurrencyRowActionsProps = {
   item: CurrencyListItem;
@@ -102,107 +67,17 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
 };
 
 export const AvailableCurrencyList = () => {
-  const [editCurrency, setEditCurrency] = useState<(Currency & { icon?: string | null }) | null>(null);
-  const dataObj = useWatch<MultiCurrencySettingsFormInput>();
-
-  const { data: rawCurrencies = [], refetch } = useAvailableCurrenciesQuery();
-  const { mutate: updateCurrencyMutate } = useUpdateCurrencyMutation();
-  const { mutate: deleteCurrencyMutate } = useDeleteCurrencyMutation();
-
-  const showApiProviderStatus =
-    dataObj?.is_automatic_update_enabled === true &&
-    dataObj?.api_provider &&
-    dataObj?.last_sync_at &&
-    dataObj?.next_sync_at;
-
-  const currencyList: CurrencyListItem[] = (rawCurrencies).map(
-    (item) => ({
-      ...item,
-      ...(item?.is_base && {
-        is_toggle_disabled: true,
-        is_action_disabled: true,
-      }),
-      is_enabled: item?.is_active,
-      rightIcon: <IncreaseIcon />,
-      rightText:
-        item?.exchange_rate != null ? String(item.exchange_rate) : undefined,
-      icon: item?.symbol,
-      actionsArray: getActionArray(item),
-    }),
-  );
-
-  const updateData = (payload: CurrencyBulkPayload) => {
-    updateCurrencyMutate(payload, {
-      onSuccess: () => refetch(),
-    });
-  };
-
-  const updateCurrencyList = (item: CurrencyListItem, key: keyof Currency) => {
-    if (key !== 'is_base') {
-      const selectedCurrency = currencyList?.find(
-        (currency) => currency?.id === item?.id,
-      );
-      if (!selectedCurrency) {
-        return;
-      }
-
-      const payload: CurrencyBulkPayload = {
-        items: [
-          {
-            ...selectedCurrency,
-            is_active: selectedCurrency?.is_active ?? true,
-            is_base: selectedCurrency?.is_base ?? false,
-            [key]: !selectedCurrency[key],
-          },
-        ],
-      };
-
-      updateData(payload);
-      return;
-    }
-
-    const payload: CurrencyBulkPayload = {
-      items: currencyList.map((currency) => ({
-        ...currency,
-        is_base: currency?.id === item?.id,
-        is_active: currency?.is_active ?? true,
-      })),
-    };
-    updateData(payload);
-  };
-
-  const handleToggleCurrencyItem = (item: CurrencyListItem) => {
-    updateCurrencyList(item, 'is_active');
-  };
-
-  const handleDeleteCurrencyItem = (item: CurrencyListItem) => {
-    dispatchToastMessage('delete', {
-      title: __('Currency deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => refetch(),
-      onSuccess: () => {
-        deleteCurrencyMutate(item.id, {
-          onSuccess: () => refetch(),
-        });
-      },
-    });
-  };
-
-  const handleAction = (
-    action: string | number | (string | number)[],
-    item: CurrencyListItem,
-  ) => {
-    if (action === 'delete') {
-      handleDeleteCurrencyItem(item);
-    } else if (action === 'edit') {
-      setEditCurrency({
-        ...item,
-        icon: typeof item.icon === 'string' ? item.icon : item.symbol,
-      });
-    } else {
-      updateCurrencyList(item, 'is_base');
-    }
-  };
+  const {
+    currencyList,
+    showApiProviderStatus,
+    lastSyncAt,
+    nextSyncAt,
+    editCurrency,
+    setEditCurrency,
+    updateData,
+    handleToggleCurrencyItem,
+    handleAction,
+  } = useAvailableCurrencyList();
 
   return (
     <>
@@ -256,8 +131,8 @@ export const AvailableCurrencyList = () => {
                   'API connection is active. Last sync: %s. Next update %s.',
                   'kirki-ecommerce',
                 ),
-                dateFormatter(dataObj?.last_sync_at, 'relative'),
-                dateFormatter(dataObj?.next_sync_at, 'relative'),
+                dateFormatter(lastSyncAt, 'relative'),
+                dateFormatter(nextSyncAt, 'relative'),
               )
               : __('API connection is inactive', 'kirki-ecommerce')}</Text>
           </Flex>

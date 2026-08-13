@@ -1,6 +1,4 @@
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
 
 import MediaStack from '@/components/media-stack';
 import Button from '@/components/ui/button';
@@ -9,23 +7,14 @@ import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { generateVariantIndexById, generateVariantIndexes, getAttributeByValueId } from '@/features/products/lib/utils';
-import type { ProductVariant } from '@/features/products/schemas/catalog/variant';
-import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import { getAttributeByValueId } from '@/features/products/lib/utils';
 import { ChevronDownIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
 import { defineStyles } from '@/theme/mixins';
-import type { MediaChangePayload } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
+import { useSingleGroup } from './use-single-group';
 import VariantThumbnailSelector from './variant-thumbnail-selector';
-
-type CombinedData = {
-  base_price?: number | string | null;
-  in_stock?: boolean | string;
-  available_quantity?: number;
-  media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
-};
 
 const styles = defineStyles({
   hoverParent: {
@@ -59,202 +48,34 @@ const SingleGroup = ({
   expandVariation,
   updateVariants,
 }: SingleGroupProps) => {
-  const { control, setValue } = useFormContext<ProductFormInput>();
-  const attributes = useWatch({ control, name: 'attributes' }) ?? [];
-  const watchedVariants = useWatch({ control, name: 'variants' });
-  const variants = useMemo(
-    () => (watchedVariants ?? []) as ProductVariant[],
-    [watchedVariants],
-  );
-  const productGallery = (useWatch({ control, name: 'media' }) ?? []);
-  const galleryIds = productGallery.map((item) => Number(item.id)).filter(Boolean);
-  const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>(
-    [],
-  );
-  const [combinedData, setCombinedData] = useState<CombinedData>({});
-
-  const thisVariants = useMemo(
-    () => variants.filter((v) => v.attribute_values?.includes(parentId)),
-    [variants, parentId],
-  );
-
-  const [show, setShow] = useState(expandVariation);
-
-  useEffect(() => {
-    let minPrice = thisVariants[0]?.base_price;
-    let maxPrice = thisVariants[0]?.base_price;
-    let in_stock: boolean | string | undefined = thisVariants[0]?.in_stock;
-    let available_quantity = 0;
-    let mediaArray: CombinedData['media'] = [
-      thisVariants[0]?.media,
-    ];
-
-    thisVariants.forEach((item) => {
-      minPrice = Number(Math.min(Number(minPrice), Number(item?.base_price)));
-      maxPrice = Number(Math.max(Number(maxPrice), Number(item?.base_price)));
-      in_stock = item?.in_stock !== in_stock ? ' ' : in_stock;
-      available_quantity += Number(item?.available_quantity);
-      mediaArray =
-        item?.media && (mediaArray?.length ?? 0) < 2
-          ? [...(mediaArray ?? []), item.media]
-          : mediaArray;
-    });
-    setCombinedData((prev) => ({
-      ...prev,
-      base_price: minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`,
-      in_stock,
-      available_quantity,
-      media: mediaArray,
-    }));
-  }, [thisVariants]);
-
-  const thisAttribute = getAttributeByValueId(
+  const {
+    thisVariants,
+    thisAttribute,
     attributes,
+    combinedData,
+    hasVariation,
+    galleryIds,
+    variants,
+    show,
+    setShow,
+    selectedCheckedIndex,
+    handleParentCheckboxClick,
+    handleChildCheckboxClick,
+    handleOnParentValueChange,
+    handleOnChildValueChange,
+    handleParentThumbnailChange,
+    handleChildThumbnailChange,
+  } = useSingleGroup({
     parentId,
-  );
-
-  useEffect(() => {
-    setShow(expandVariation);
-  }, [expandVariation]);
-
-  useEffect(() => {
-    if (selectedIndex.length === 0) {
-      setSelectedCheckedIndex([]);
-    } else if (selectedIndex.length === variants.length) {
-      setSelectedCheckedIndex([...Array(thisVariants.length).keys()]);
-    }
-  }, [selectedIndex, thisVariants.length, variants.length]);
+    selectedIndex,
+    setSelectedIndex,
+    expandVariation,
+    updateVariants,
+  });
 
   if (!thisVariants.length) {
     return null;
   }
-
-  const handleOnChildValueChange = (
-    value: unknown,
-    fieldName: string,
-    variant: ProductVariant,
-  ) => {
-    const indexList = getIndexArray(variant).filter(
-      (index: number) => !selectedIndex.includes(index),
-    );
-    if (fieldName === 'media') {
-      const mediaValue = value as MediaChangePayload & {
-        date?: unknown;
-        modified?: unknown;
-      };
-      delete mediaValue?.date;
-      delete mediaValue?.modified;
-    }
-
-    updateVariants({
-      key: fieldName,
-      value,
-      variant_index: [...selectedIndex, ...indexList],
-    });
-  };
-
-  const handleOnParentValueChange = (value: unknown, fieldName: string) => {
-    const indexList = generateVariantIndexes(variants, [
-      parentId,
-    ]);
-    if (fieldName === 'media') {
-      const mediaValue = value as MediaChangePayload & {
-        date?: unknown;
-        modified?: unknown;
-      };
-      delete mediaValue?.date;
-      delete mediaValue?.modified;
-    }
-    updateVariants({
-      key: fieldName,
-      value,
-      variant_index: [
-        ...selectedIndex,
-        ...indexList.filter((item: number) => !selectedIndex.includes(item)),
-      ],
-    });
-    setSelectedCheckedIndex([]);
-    setSelectedIndex([]);
-  };
-
-  const handleParentCheckboxClick = (
-    value: boolean,
-    attributeArray: number[],
-  ) => {
-    setShow(true);
-    const indexList = generateVariantIndexes(
-      variants,
-      attributeArray,
-    );
-    if (value) {
-      setSelectedIndex((prev) => [
-        ...prev,
-        ...indexList.filter((item: number) => !selectedIndex.includes(item)),
-      ]);
-      setSelectedCheckedIndex([...Array(thisVariants.length).keys()]);
-    } else {
-      const newList = selectedIndex.filter(
-        (item) => !indexList.includes(item),
-      );
-      setSelectedIndex(newList);
-      setSelectedCheckedIndex([]);
-    }
-  };
-
-  const handleChildCheckboxClick = (
-    value: boolean,
-    variant: ProductVariant,
-    index: number,
-  ) => {
-    const indexList = getIndexArray(variant);
-    if (value) {
-      setSelectedIndex((prev) => [...prev, ...indexList]);
-      setSelectedCheckedIndex((prev) => [...prev, index]);
-    } else {
-      const newList = selectedIndex.filter(
-        (item) => !indexList.includes(item),
-      );
-      setSelectedIndex(newList);
-      setSelectedCheckedIndex((prev) => prev.filter((item) => item !== index));
-    }
-  };
-
-  const addToGalleryIfMissing = (media: MediaChangePayload | null) => {
-    if (!media?.id) {
-      return;
-    }
-    const isInGallery = productGallery.some((item) => String(item.id) === String(media.id));
-    if (!isInGallery) {
-      setValue('media', [...productGallery, media as MediaRef], { shouldDirty: true });
-    }
-  };
-
-  const handleParentThumbnailChange = (media: MediaChangePayload | null) => {
-    handleOnParentValueChange(media, 'media');
-    addToGalleryIfMissing(media);
-  };
-
-  const handleChildThumbnailChange = (media: MediaChangePayload | null, variant: ProductVariant) => {
-    handleOnChildValueChange(media, 'media', variant);
-    addToGalleryIfMissing(media);
-  };
-
-  const getIndexArray = (variant: ProductVariant): number[] => {
-    let indexList: number[] = [];
-    if (variant.id) {
-      indexList = generateVariantIndexById(variants, variant?.id);
-    } else {
-      indexList = generateVariantIndexes(
-        variants,
-        variant?.attribute_values,
-      );
-    }
-    return indexList;
-  };
-
-  const hasVariation = thisVariants[0].attribute_values.filter(
-    (item) => item !== parentId,
-  ).length;
 
   return (
     <>

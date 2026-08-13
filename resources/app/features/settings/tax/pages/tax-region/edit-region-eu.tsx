@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -15,6 +14,8 @@ import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
+import { applyEuRegionUpdate, applyRegionRules, deriveEuRegion, resolveVatProcessChange } from '@/features/settings/tax/lib/region-tax';
 import type { TaxRate, TaxRegion, TaxRule } from '@/features/settings/tax/lib/utils';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import { VatCollection } from '@/features/settings/tax/pages/tax-region/vat-collection/vat-collection';
@@ -22,7 +23,6 @@ import { type TaxRegionEuFormInput, TaxRegionEuFormSchema } from '@/features/set
 import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
-import { settingsKeys } from '@/libs/query-keys';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import type { TaxSettings } from '@/schemas/catalog/settings';
 import { toastMutationError } from '@/services/helpers';
@@ -44,11 +44,9 @@ const VatCollectionProcessRadios = () => {
     const nextType = String(value);
     setValue('type', nextType, { shouldDirty: true });
 
-    if (nextType === 'micro_business') {
-      const currentList = getValues('product_tax') ?? [];
-      if (Array.isArray(currentList) && currentList.length > 0) {
-        setValue('product_tax', [currentList[0]], { shouldDirty: true });
-      }
+    const nextProductTax = resolveVatProcessChange(nextType, getValues('product_tax') ?? []);
+    if (nextProductTax) {
+      setValue('product_tax', nextProductTax, { shouldDirty: true });
     }
   };
 
@@ -151,7 +149,7 @@ const VatProcessDescription = ({
 
 const EditRegionEU = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const invalidateTaxSettings = useInvalidateTaxSettings();
   const [regions, setRegions] = useState<TaxRegion[]>([]);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
@@ -179,17 +177,10 @@ const EditRegionEU = () => {
     [watchedProductTax],
   );
 
-  const euRegion = useMemo(() => {
-    const base = regions.find((region) => region.code === 'EU');
-    if (!base) {
-      return base;
-    }
-    return {
-      ...base,
-      type: vatCollectionProcess,
-      product_tax: vatCollectionList,
-    };
-  }, [regions, vatCollectionProcess, vatCollectionList]);
+  const euRegion = useMemo(
+    () => deriveEuRegion(regions, vatCollectionProcess, vatCollectionList),
+    [regions, vatCollectionProcess, vatCollectionList],
+  );
 
   useEffect(() => {
     const regionList = (taxSettingsData as TaxSettingsFormData)?.tax_regions;
@@ -212,18 +203,7 @@ const EditRegionEU = () => {
   const buildUpdatedRegions = (
     values: TaxRegionEuFormInput,
     overrides?: Partial<TaxRegion>,
-  ): TaxRegion[] => {
-    return regions.map((region) =>
-      region.code === 'EU'
-        ? {
-          ...region,
-          type: values.type,
-          product_tax: values.product_tax,
-          ...overrides,
-        }
-        : region,
-    );
-  };
+  ): TaxRegion[] => applyEuRegionUpdate(regions, values, overrides);
 
   const updateEUVatCollection = async (vatList: TaxRate[], from = '') => {
     form.setValue('product_tax', vatList, {
@@ -237,9 +217,7 @@ const EditRegionEU = () => {
   };
 
   const updateTaxRules = async (rulesList: TaxRule[], from = '') => {
-    const updatedRules = regions.map((region) =>
-      region.code === 'EU' ? { ...region, rules: rulesList } : region,
-    );
+    const updatedRules = applyRegionRules(regions, 'EU', rulesList);
     setRegions(updatedRules);
     await handleSaveData(updatedRules, from);
   };
@@ -262,9 +240,7 @@ const EditRegionEU = () => {
       try {
         await updateSettings({ key: 'tax', data: payload });
         setUnsavedDataStatus(false);
-        void queryClient.invalidateQueries({
-          queryKey: settingsKeys.section('tax'),
-        });
+        invalidateTaxSettings();
       } catch (error) {
         toastMutationError(error);
       }

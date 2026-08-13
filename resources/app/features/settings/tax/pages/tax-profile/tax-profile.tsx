@@ -32,6 +32,10 @@ type TaxProfileListItem = TaxProfileType & {
 };
 
 const TaxProfile = () => {
+  // Not folded into a shared tax hook alongside general-edit-region.tsx /
+  // edit-region-eu.tsx: this invalidates a different key (`taxKeys.all`,
+  // not the `tax` settings section) from inside an undo-toast's
+  // `onAutoClose` closure, so the two aren't provably the same operation.
   const queryClient = useQueryClient();
   const [showPopup, setShowPopup] = useState(false);
   const [editingProfile, setEditingProfile] =

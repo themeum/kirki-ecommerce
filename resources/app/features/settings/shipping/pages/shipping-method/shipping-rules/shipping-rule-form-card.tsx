@@ -16,6 +16,14 @@ import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import { useCategoriesQuery } from '@/features/categories';
 import { resolveDestinationRegion } from '@/features/settings/shipping/lib/shipping-rules/helper';
+import {
+  buildRuleDefaultValues,
+  type ConditionDataMap,
+  getConditionValueOptions,
+  getOperatorOptions,
+  mergeRuleIntoMethodRules,
+  resolveDestinationSelection,
+} from '@/features/settings/shipping/lib/shipping-rules/rule-form';
 import { actionOptionsArray, conditionOptions } from '@/features/settings/shipping/lib/utils';
 import type { DestinationConditionValue } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
 import { SelectDestinationPopup } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
@@ -31,7 +39,6 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
 import { settingsKeys } from '@/libs/query-keys';
-import { getDefaults } from '@/libs/zod';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings, useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
@@ -47,35 +54,6 @@ type ShippingRuleFormCardProps = {
   ruleIndex?: number;
   onCancel: () => void;
   onSaved: () => void;
-};
-
-type ConditionDataMap = Record<
-  string,
-  { id: number | string; name: string }[] | null
->;
-
-const buildDefaultValues = (initialRule?: ShippingRule): ShippingRuleFormInput => {
-  if (!initialRule) {
-    return getDefaults(ShippingRuleFormSchema);
-  }
-
-  const condition = initialRule.conditions?.[0];
-  const action = initialRule.action;
-  const isDestination = condition?.type === 'destination_region';
-
-  return {
-    condition: condition?.type || 'product_category',
-    operator: condition?.operator || 'is',
-    condition_value: isDestination
-      ? {
-        country: (condition.value as { country: string }).country,
-        states: (condition.value as { states?: (string | number)[] }).states ?? [],
-      }
-      : (condition?.value ?? null),
-    action: action?.type || 'set_shipping_cost',
-    action_value: (action?.value as string | number) ?? '',
-    selected_country: isDestination ? (condition.value as { country: string }).country : null,
-  };
 };
 
 const ShippingRuleFormCard = ({
@@ -105,7 +83,7 @@ const ShippingRuleFormCard = ({
 
   const form = useForm<ShippingRuleFormInput, unknown, ShippingRuleFormPayload>({
     resolver: zodResolver(ShippingRuleFormSchema),
-    defaultValues: buildDefaultValues(initialRule),
+    defaultValues: buildRuleDefaultValues(initialRule),
   });
 
   const selectedCondition = useWatch({
@@ -132,28 +110,12 @@ const ShippingRuleFormCard = ({
       return;
     }
 
-    let regionForCountry;
-    let selected_country = '';
+    const resolved = resolveDestinationSelection(selectedCountry, selectedRegion, mode);
 
-    if (selectedCountry) {
-      selected_country = selectedCountry;
-      regionForCountry = selectedRegion.find(
-        (r) => r.country === selectedCountry,
-      );
-    } else {
-      selected_country = selectedRegion[0]?.country;
-      regionForCountry = selectedRegion.find(
-        (r) => r.country === selected_country,
-      );
-    }
+    form.setValue('selected_country', resolved.selectedCountry || null);
 
-    form.setValue('selected_country', selected_country || null);
-
-    if (selected_country && mode !== 'edit') {
-      form.setValue('condition_value', {
-        country: selected_country,
-        states: regionForCountry?.states ?? [],
-      });
+    if (resolved.conditionValue) {
+      form.setValue('condition_value', resolved.conditionValue);
     }
   }, [selectedCountry, selectedRegion, selectedCondition, mode, form]);
 
@@ -216,49 +178,6 @@ const ShippingRuleFormCard = ({
     conditionData,
   ]);
 
-  const getConditionValueOptions = () => {
-    const data = conditionData[selectedCondition || ''];
-
-    switch (selectedCondition) {
-      case 'product_category':
-      case 'shipping_profile':
-        return (
-          data?.map((item) => ({
-            label: item.name,
-            value: item.name,
-          })) ?? []
-        );
-
-      default:
-        return [];
-    }
-  };
-
-  const getOperatorOptions = () => {
-    if (selectedCondition === 'cart_weight') {
-      return [
-        { label: __('> (Greater than)', 'kirki-ecommerce'), value: '>' },
-        { label: __('= (Equal to)', 'kirki-ecommerce'), value: '=' },
-        { label: __('< (Less than)', 'kirki-ecommerce'), value: '<' },
-      ];
-    }
-    return [{ label: __('is', 'kirki-ecommerce'), value: 'is' }];
-  };
-
-  const updateMethodRules = (
-    method: { shipping_rules?: ShippingRule[] },
-    rule: ShippingRuleFormPayload,
-  ) => {
-    const rules = method.shipping_rules ?? [];
-
-    if (ruleIndex !== -1) {
-      return rules.map((existingRule, idx) =>
-        idx === ruleIndex ? rule : existingRule,
-      );
-    }
-    return [...rules, rule];
-  };
-
   const handleSave = async (payload: ShippingRuleFormPayload) => {
     const zones = (shippingSettingsData as { shipping_zones: ShippingZone[] })
       .shipping_zones;
@@ -276,7 +195,7 @@ const ShippingRuleFormCard = ({
 
           return {
             ...method,
-            shipping_rules: updateMethodRules(method, payload),
+            shipping_rules: mergeRuleIntoMethodRules(method.shipping_rules, payload, ruleIndex),
           };
         }),
       };
@@ -337,7 +256,7 @@ const ShippingRuleFormCard = ({
                   {selectedCondition === 'cart_weight' ? (
                     <SelectField
                       name="operator"
-                      options={getOperatorOptions()}
+                      options={getOperatorOptions(selectedCondition)}
                     />
                   ) : (
                     <Input value={__('is', 'kirki-ecommerce')} readOnly />
@@ -368,7 +287,7 @@ const ShippingRuleFormCard = ({
                   ) : (
                     <SelectField
                       name="condition_value"
-                      options={getConditionValueOptions()}
+                      options={getConditionValueOptions(selectedCondition, conditionData)}
                     />
                   )}
                 </Grid>

@@ -1,6 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import ColorPickerField from '@/components/form/color-picker-field';
@@ -15,120 +13,18 @@ import ProgressBar from '@/components/ui/progressbar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import { EmailSettingsFormSchema } from '@/features/settings/email/schemas/forms/email-settings-form';
-import {
-  type EmailTemplateFormInput,
-  type EmailTemplateFormPayload,
-  EmailTemplateFormSchema,
-} from '@/features/settings/email/schemas/forms/email-template-form';
-import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
+import { useEditTemplate } from '@/features/settings/email/hooks/use-edit-template';
+import { positionToTabIndex, resolveLogoUrl, tabIndexToPosition } from '@/features/settings/email/lib/template';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
-import { getDefaults, pickFormValues } from '@/libs/zod';
-import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-const POSITION_MAP: Record<string, number> = {
-  start: 0,
-  center: 1,
-  end: 2,
-};
-
-const INDEX_TO_POSITION = ['start', 'center', 'end'];
-
-const resolveLogoUrl = (logo: unknown): string => {
-  if (!logo) {
-    return '';
-  }
-  if (typeof logo === 'string') {
-    return logo;
-  }
-  if (typeof logo === 'object' && 'url' in logo) {
-    return String((logo as { url?: string }).url ?? '');
-  }
-  return '';
-};
-
 const EditTemplate = () => {
   const navigate = useNavigate();
-  const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
-  const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'email'>();
-
-  const loaded = !isLoading && Boolean(emailSettingsData);
-  const defaultEmail = emailSettingsData?.default_template as
-    | Record<string, unknown>
-    | undefined;
-
-  const form = useForm<EmailTemplateFormInput, unknown, EmailTemplateFormPayload>({
-    resolver: zodResolver(EmailTemplateFormSchema),
-    defaultValues: getDefaults(EmailTemplateFormSchema),
-  });
-
-  const heightValue = form.watch('height') ?? 50;
-  const { isDirty } = form.formState;
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
-
-  useEffect(() => {
-    if (!defaultEmail) {
-      return;
-    }
-
-    form.reset(
-      pickFormValues(EmailTemplateFormSchema, defaultEmail, {
-        logo: resolveLogoUrl(defaultEmail.logo),
-        height: parseInt(String(defaultEmail.height), 10) || 50,
-      }),
-    );
-  }, [defaultEmail, form]);
-
-  const handleSaveData = async (payload: EmailTemplateFormPayload) => {
-    if (!emailSettingsData) {
-      return;
-    }
-
-    try {
-      const currentEmailSettings = EmailSettingsFormSchema.parse(
-        pickFormValues(EmailSettingsFormSchema, emailSettingsData),
-      );
-
-      await saveSettings({
-        key: 'email',
-        data: {
-          admin_emails: currentEmailSettings.admin_emails,
-          customer_emails: currentEmailSettings.customer_emails,
-          default_template: {
-            ...(emailSettingsData.default_template ?? {}),
-            ...payload,
-          },
-        },
-      });
-      form.reset(form.getValues());
-    } catch (error) {
-      applyServerErrors(form, error as ErrorResponse, {
-        stripPrefix: 'data.default_template.',
-      });
-    }
-  };
-
-  const handleDiscard = () => {
-    form.reset();
-  };
-
-  useSettingsPageActions({
-    isDirty,
-    isSaving: isPending,
-    onSave: form.handleSubmit(handleSaveData),
-    onDiscard: handleDiscard,
-  });
+  const { form, loaded, heightValue } = useEditTemplate();
 
   return (
     <>
@@ -189,13 +85,9 @@ const EditTemplate = () => {
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid || undefined}>
                             <Tabs
-                              value={String(
-                                POSITION_MAP[field.value || ''] ?? 0,
-                              )}
+                              value={positionToTabIndex(field.value)}
                               onValueChange={(value) => {
-                                field.onChange(
-                                  INDEX_TO_POSITION[Number(value)] || 'start',
-                                );
+                                field.onChange(tabIndexToPosition(value));
                               }}
                             >
                               <TabsList>
