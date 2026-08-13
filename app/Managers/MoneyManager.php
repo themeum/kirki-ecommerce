@@ -8,7 +8,7 @@ use Brick\Money\Money;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
-use Kirki\Ecommerce\App\Repositories\CurrencyRepository;
+use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
@@ -116,7 +116,7 @@ class MoneyManager
         $code = $this->get_requested_currency_code();
 
         if ($code !== null && $code !== $this->get_base_currency()) {
-            $currency = (new CurrencyRepository())->find_by_code($code);
+            $currency = CurrencyModel::where('code', $code)->first();
 
             if ($currency && $currency->is_active) {
                 $this->display_currency = $currency->code;

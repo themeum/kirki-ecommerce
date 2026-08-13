@@ -4,10 +4,12 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Exception;
 use Kirki\Ecommerce\App\Constants\DateTimeFormats;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
-use Kirki\Ecommerce\App\Repositories\CouponRepository;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
@@ -19,13 +21,6 @@ use function Kirki\Ecommerce\Framework\user;
 
 class CouponService
 {
-    protected $repository;
-
-    public function __construct(CouponRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return paginated coupons
      *
@@ -34,7 +29,9 @@ class CouponService
      */
     public function paginated(CouponFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        $filters = $filters->to_array();
+
+        return $this->list_query($filters)->paginate($filters['limit'] ?? Pagination::LIMIT, $filters['page'] ?? 1);
     }
 
     /**
@@ -45,7 +42,7 @@ class CouponService
      */
     public function all(CouponFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters->to_array())->get();
     }
 
     /**
@@ -57,7 +54,7 @@ class CouponService
      */
     public function find(int $id)
     {
-        $coupon = $this->repository->find($id);
+        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
 
         if (!$coupon) {
             throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -75,7 +72,7 @@ class CouponService
      */
     public function find_by_code(string $code)
     {
-        $coupon = $this->repository->find_by_code($code);
+        $coupon = Coupon::with(['categories', 'products.categories', 'customers'])->where('code', $code)->first();
 
         if (!$coupon) {
             throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -96,7 +93,13 @@ class CouponService
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
 
-        return $this->repository->create($attributes);
+        if ($attributes['discount_value_type'] === DiscountValueType::FIXED) {
+            $attributes['base_discount_amount_fixed'] = $attributes['discount_amount'];
+        } else {
+            $attributes['discount_amount_percentage'] = $attributes['discount_amount'];
+        }
+
+        return Coupon::create($attributes);
     }
 
     /**
@@ -108,7 +111,7 @@ class CouponService
      */
     public function update(UpdateCouponDTO $data)
     {
-        $coupon = $this->repository->find($data->id);
+        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($data->id);
 
         if (empty($coupon)) {
             throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -117,7 +120,13 @@ class CouponService
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        return $this->repository->update($data->id, $attributes);
+        if ($attributes['discount_value_type'] === DiscountValueType::FIXED) {
+            $attributes['base_discount_amount_fixed'] = $attributes['discount_amount'];
+        } else {
+            $attributes['discount_amount_percentage'] = $attributes['discount_amount'];
+        }
+
+        return (bool) Coupon::find($data->id)->update($attributes);
     }
 
     /**
@@ -129,13 +138,13 @@ class CouponService
      */
     public function delete(int $id)
     {
-        $coupon = $this->repository->find($id);
+        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
 
         if (empty($coupon)) {
             throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) Coupon::find($id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Coupon could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -157,7 +166,7 @@ class CouponService
             throw new NotFoundException(__('No coupons selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) Coupon::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Coupons could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -174,7 +183,49 @@ class CouponService
      */
     public function delete_all(CouponFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters->to_array())->delete();
+    }
+
+    protected function list_query($filters = [])
+    {
+        return Coupon::with(['categories', 'products', 'customers'])
+            ->when($filters['search'] ?? null, function (QueryBuilder $query, $search) {
+                return $query->where_any(['title', 'code'], 'like', '%' . $search . '%');
+            })
+            ->when(!empty($filters['method']), function (QueryBuilder $query) use ($filters) {
+                return $query->where('method', $filters['method']);
+            })
+            ->when(!empty($filters['discount_type']), function (QueryBuilder $query) use ($filters) {
+                return $query->where('discount_type', $filters['discount_type']);
+            })
+            ->when(isset($filters['is_active']), function (QueryBuilder $query) use ($filters) {
+                return $query->where('is_active', (int) $filters['is_active']);
+            })
+            ->when(!empty($filters['start_date']), function (QueryBuilder $query) use ($filters) {
+                return $query->where_date('start_datetime', '>=', $filters['start_date']);
+            })
+            ->when(!empty($filters['end_date']), function (QueryBuilder $query) use ($filters) {
+                return $query->where_date('end_datetime', '<=', $filters['end_date']);
+            })
+            ->when(!empty($filters['sort_by']) && !empty($filters['sort_order']), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters['sort_by'], $filters['sort_order']);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            })
+            ->when(!empty($filters['status']), function (QueryBuilder $query) use ($filters) {
+                return $query->apply_status_filter($filters['status']);
+            });
+    }
+
+    /**
+     * Check if a coupon code exists.
+     *
+     * @param string $code
+     * @return bool
+     */
+    public function is_exists(string $code)
+    {
+        return Coupon::query()->where('code', $code)->exists();
     }
 
     public function generate_new_code()
@@ -219,18 +270,18 @@ class CouponService
      */
     public function validate_code(string $code)
     {
-        return !$this->repository->is_exists($code);
+        return !$this->is_exists($code);
     }
 
     /**
      * Duplicate a coupon by its ID.
-     * 
+     *
      * @param int $id
      * @return Coupon
      */
     public function duplicate(int $id)
     {
-        $coupon = $this->repository->find($id);
+        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
 
         $data = CreateCouponDTO::from_array($coupon->to_array());
         $data->title = $data->title . ' - Copy';
@@ -247,7 +298,7 @@ class CouponService
      */
     public function change_activation_state(int $id, bool $is_active)
     {
-        $coupon = $this->repository->find($id);
+        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
 
         if ($is_active && $coupon->is_active) {
             throw new Exception(__('The coupon is already activated', 'kirki-ecommerce'));

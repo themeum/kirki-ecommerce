@@ -2,20 +2,14 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Kirki\Ecommerce\App\Repositories\PageRepository;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
+use function Kirki\Ecommerce\Framework\collection;
+
 class PageService
 {
-    protected $repository;
-
-    public function __construct(PageRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return all pages
      *
@@ -24,6 +18,13 @@ class PageService
      */
     public function all()
     {
-        return $this->repository->all();
+        $pages = get_pages([
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'sort_column' => 'menu_order,post_title',
+            'sort_order' => 'asc',
+        ]);
+
+        return collection($pages);
     }
 }

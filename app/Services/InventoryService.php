@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Repositories\VariantRepository;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -11,18 +10,18 @@ use Kirki\Ecommerce\Framework\Http\Response;
 class InventoryService
 {
     /**
-     * @var VariantRepository
+     * @var VariantService
      */
-    protected $repository;
+    protected $variant_service;
 
     /**
      * InventoryService constructor.
      *
-     * @param VariantRepository $repository
+     * @param VariantService $variant_service
      */
-    public function __construct(VariantRepository $repository)
+    public function __construct(VariantService $variant_service)
     {
-        $this->repository = $repository;
+        $this->variant_service = $variant_service;
     }
 
     /**
@@ -35,7 +34,7 @@ class InventoryService
      */
     public function has_stock(int $variant_id, int $quantity)
     {
-        $variant = $this->repository->find($variant_id);
+        $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
@@ -62,13 +61,13 @@ class InventoryService
      */
     public function increment_stock(int $variant_id, int $quantity)
     {
-        $variant = $this->repository->find($variant_id);
+        $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
         }
 
-        return $this->repository->increment($variant_id, 'available_quantity', $quantity);
+        return $this->variant_service->increment($variant_id, 'available_quantity', $quantity);
     }
 
     /**
@@ -82,7 +81,7 @@ class InventoryService
      */
     public function decrement_stock(int $variant_id, int $quantity)
     {
-        $variant = $this->repository->find($variant_id);
+        $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
@@ -92,7 +91,7 @@ class InventoryService
             throw new ValidationException(__('Insufficient stock.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
         }
 
-        return $this->repository->decrement($variant_id, 'available_quantity', $quantity);
+        return $this->variant_service->decrement($variant_id, 'available_quantity', $quantity);
     }
 
     /**
@@ -106,7 +105,7 @@ class InventoryService
      */
     public function reserve_stock(int $variant_id, int $quantity)
     {
-        $variant = $this->repository->find($variant_id);
+        $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
@@ -120,7 +119,7 @@ class InventoryService
             throw new ValidationException(__('Insufficient stock to reserve.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
         }
 
-        return $this->repository->increment($variant_id, 'committed_quantity', $quantity) && $this->repository->decrement($variant_id, 'available_quantity', $quantity);
+        return $this->variant_service->increment($variant_id, 'committed_quantity', $quantity) && $this->variant_service->decrement($variant_id, 'available_quantity', $quantity);
     }
 
     /**
@@ -133,7 +132,7 @@ class InventoryService
      */
     public function release_reserved_stock(int $variant_id, int $quantity)
     {
-        $variant = $this->repository->find($variant_id);
+        $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
@@ -146,7 +145,7 @@ class InventoryService
         $current_committed = $variant->committed_quantity;
         $release_amount = min($current_committed, $quantity);
 
-        return $this->repository->decrement($variant_id, 'committed_quantity', $release_amount) && $this->repository->increment($variant_id, 'available_quantity', $release_amount);
+        return $this->variant_service->decrement($variant_id, 'committed_quantity', $release_amount) && $this->variant_service->increment($variant_id, 'available_quantity', $release_amount);
     }
 
     /**
@@ -159,7 +158,7 @@ class InventoryService
      */
     public function confirm_reserved_stock(int $variant_id, int $quantity)
     {
-        $variant = $this->repository->find($variant_id);
+        $variant = $this->variant_service->find_or_null($variant_id);
 
         if (empty($variant)) {
             throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND);
@@ -172,7 +171,7 @@ class InventoryService
         $current_committed = $variant->committed_quantity;
         $confirm_amount = min($current_committed, $quantity);
 
-        return $this->repository->decrement($variant_id, 'committed_quantity', $confirm_amount);
+        return $this->variant_service->decrement($variant_id, 'committed_quantity', $confirm_amount);
     }
 
     /**
