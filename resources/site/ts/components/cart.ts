@@ -36,6 +36,7 @@ export function cart() {
         const result = await cartApi.updateItem(itemId, quantity);
         this.cartData = Object.assign(this.cartData, result.data);
         this.format_cart_items();
+        document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: result.data }));
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
         toastManager.error(this.error ?? __('Something went wrong', 'kirki-ecommerce'));
@@ -50,6 +51,7 @@ export function cart() {
       try {
         const result = await cartApi.removeItem(itemId);
         this.cartData = Object.assign(this.cartData, result.data);
+        document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: result.data }));
         const item = document.getElementById(String(itemId));
         if (item) {
           item.remove();
