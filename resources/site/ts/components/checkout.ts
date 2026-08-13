@@ -14,8 +14,26 @@ import { buildCartApi } from "../api/cart";
 const cartApi = buildCartApi({ skipTax: false });
 import { checkoutApi } from "../api/checkout";
 import { toastManager } from "../services/toast/runtime";
-import type { CheckoutRequest } from "../types";
+import type { CheckoutRequest, ShippingMethod } from "../types";
 import { config } from "../utils";
+
+/** Detail shape emitted by *-form-validated custom events */
+interface FormValidatedDetail {
+  isValid: boolean;
+}
+
+/** Subset of Alpine $data() returned for the form component */
+interface AlpineFormData {
+  values: Record<string, string>;
+  setError: (field: string, message: string) => void;
+  clearErrors: () => void;
+}
+
+/** Alpine magic properties available inside x-data component objects */
+interface AlpineContext {
+  $el: HTMLElement;
+  $dispatch: (event: string, detail?: unknown) => void;
+}
 
 export interface CheckoutConfig {
   cartTotal?: number;
@@ -28,16 +46,6 @@ export interface Country {
     id: string;
     name: string;
   }>;
-}
-
-export interface ShippingMethod {
-  id: string;
-  name: string;
-  description: string;
-  display_cost_money_object: {
-    display: string;
-    row: number;
-  };
 }
 
 export function checkout(componentConfig: CheckoutConfig = {}) {
@@ -53,7 +61,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
   }
 
   // Wait for a one-shot window event, resolving with its detail
-  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<any> {
+  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<FormValidatedDetail> {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         window.removeEventListener(eventName, handler);
@@ -113,8 +121,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     const shippingFormEl = document.querySelector("#shipping-form");
     const billingFormEl = document.querySelector("#billing-form");
-    const shippingForm = shippingFormEl ? window.Alpine.$data(shippingFormEl) : null;
-    const billingForm = billingFormEl ? window.Alpine.$data(billingFormEl) : null;
+    const shippingForm: AlpineFormData | null = shippingFormEl ? window.Alpine.$data(shippingFormEl) : null;
+    const billingForm: AlpineFormData | null = billingFormEl ? window.Alpine.$data(billingFormEl) : null;
 
     let hasFieldErrors = false;
 
@@ -162,11 +170,11 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
-      (this as any).$el.addEventListener("billing-form-validated", (e: any) => {
-        this.billingFormValid = e.detail.isValid;
+      (this as unknown as AlpineContext).$el.addEventListener("billing-form-validated", (e: Event) => {
+        this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
       });
-      (this as any).$el.addEventListener("shipping-form-validated", (e: any) => {
-        this.shippingFormValid = e.detail.isValid;
+      (this as unknown as AlpineContext).$el.addEventListener("shipping-form-validated", (e: Event) => {
+        this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
       });
 
       // Pre-select the first payment method
@@ -208,8 +216,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       try {
         const shippingFormEl = document.querySelector("#shipping-form");
         const billingFormEl = document.querySelector("#billing-form");
-        const shippingForm = window.Alpine.$data(shippingFormEl);
-        const billingForm = this.billingSameAsShipping ? null : window.Alpine.$data(billingFormEl);
+        const shippingForm: AlpineFormData = window.Alpine.$data(shippingFormEl);
+        const billingForm: AlpineFormData | null = this.billingSameAsShipping
+          ? null
+          : window.Alpine.$data(billingFormEl);
 
         const cartData = {
           shipping_address: {
@@ -268,7 +278,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     setShippingMethod(methodId: string) {
       this.selectedShippingMethod = methodId;
-      (this as any).$dispatch("shipping-method-change", { methodId });
+      (this as unknown as AlpineContext).$dispatch("shipping-method-change", { methodId });
       this.updateCart();
     },
 
@@ -314,7 +324,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
-      (this as any).$dispatch("payment-method-change", { method });
+      (this as unknown as AlpineContext).$dispatch("payment-method-change", { method });
     },
 
     async placeOrder() {
@@ -323,14 +333,14 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       try {
         // Validate both forms concurrently — dispatch triggers each form's
         // validateForm() which fires back *-form-validated on the window
-        (this as any).$dispatch("validate-shipping-form");
+        (this as unknown as AlpineContext).$dispatch("validate-shipping-form");
 
         // Only validate billing independently when it differs from shipping
         if (!this.billingSameAsShipping) {
-          (this as any).$dispatch("validate-billing-form");
+          (this as unknown as AlpineContext).$dispatch("validate-billing-form");
         }
 
-        const validationPromises: Promise<any>[] = [
+        const validationPromises: Promise<FormValidatedDetail>[] = [
           waitForEvent("shipping-form-validated"),
           this.billingSameAsShipping ? Promise.resolve({ isValid: true }) : waitForEvent("billing-form-validated"),
         ];
@@ -361,8 +371,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         // Collect form data
         const shippingFormEl = document.querySelector("#shipping-form");
         const billingFormEl = document.querySelector("#billing-form");
-        const shippingForm = window.Alpine.$data(shippingFormEl);
-        const billingForm = this.billingSameAsShipping ? null : window.Alpine.$data(billingFormEl);
+        const shippingForm: AlpineFormData = window.Alpine.$data(shippingFormEl);
+        const billingForm: AlpineFormData | null = this.billingSameAsShipping
+          ? null
+          : window.Alpine.$data(billingFormEl);
 
         // Prepare order data
         const orderData: CheckoutRequest = {
