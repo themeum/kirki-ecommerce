@@ -114,7 +114,7 @@ const CategoryTable = ({ data }: CategoryTableProps) => {
       ) : (
         <CategoryTableAction />
       )}
-      <Table type="variation">
+      <Table density="compact">
         <TableHeader>
           <TableRow>
             <TableHead onlyCheckbox cssOverride={styles.headCell}>

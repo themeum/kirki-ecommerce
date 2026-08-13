@@ -72,7 +72,7 @@ type SelectState = 'disabled' | 'active' | '';
 type AlertType = 'success' | 'fail' | 'pending';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
-type TableType = 'default' | 'variation' | 'wide';
+type TableDensity = 'default' | 'compact' | 'wide';
 type TableAlignment = 'right' | 'center';
 type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth';
 type ThumbnailSize = 'fullWidth' | 'small' | 'xsm';
@@ -126,7 +126,7 @@ export type {
   SelectState,
   StyleProps,
   TableAlignment,
-  TableType,
+  TableDensity,
   ThumbnailSize,
   ThumbnailType,
   TooltipPosition,

@@ -114,7 +114,7 @@ const BrandTable = ({ data }: BrandTableProps) => {
       ) : (
         <BrandTableAction />
       )}
-      <Table type="variation">
+      <Table density="compact">
         <TableHeader>
           <TableRow>
             <TableHead onlyCheckbox cssOverride={styles.headCell}>

@@ -16,7 +16,7 @@ const CustomerGroupTable = () => {
   ];
 
   return (
-    <Table type="wide">
+    <Table density="wide">
       <TableHeader>
         <TableRow>
           <TableHead onlyCheckbox>

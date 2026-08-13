@@ -149,7 +149,7 @@ const VariationTable = () => {
 
       <Card cssOverride={mergeCss(cardStyles.innerCard, cardStyles.tableCard)}>
         <CardContent cssOverride={cardStyles.tableContent}>
-        <Table type="variation">
+        <Table density="compact">
           <TableHeader>
             <TableRow style={{ height: '53px' }}>
               <TableHead onlyCheckbox>
