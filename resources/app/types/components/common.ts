@@ -89,16 +89,6 @@ type DropdownPosition = {
 type DropdownItemState = 'disabled' | 'titleOnly' | 'defaultSelected' | '';
 type ConfirmationVariant = 'default' | 'warning' | 'delete';
 
-type PaginationData = {
-  current_page: number;
-  last_page: number;
-  from: number;
-  total: number;
-  has_more_pages: boolean;
-  className?: string;
-  style?: CSSProperties;
-};
-
 export type {
   AlertType,
   ButtonSize,
@@ -121,7 +111,6 @@ export type {
   InputState,
   LabelFieldProps,
   LabelType,
-  PaginationData,
   SelectOption,
   SelectState,
   StyleProps,

@@ -28,24 +28,6 @@ type ProfitData = {
   base_cost_of_goods?: number | string | null;
 };
 
-type MarkListHandlers = {
-  isSelected: (id: string | number) => boolean;
-  handleSingleCheckboxClick: (
-    value: boolean | string | number,
-    id: string | number,
-  ) => void;
-};
-
-type TaxonomyTableHeader = {
-  title: string;
-  sortable?: {
-    sort_by: string;
-    activeSortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    onSort?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
-  };
-};
-
 type MediaChangePayload = {
   id?: string | number;
   url?: string;
@@ -54,12 +36,10 @@ type MediaChangePayload = {
 export type {
   DateFormatType,
   FormErrors,
-  MarkListHandlers,
   MediaChangePayload,
   ProfitData,
   SuggestionItem,
   SuggestionOption,
-  TaxonomyTableHeader,
   ToastMessageConfig,
   ToastVariant,
 };

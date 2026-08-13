@@ -16,7 +16,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import DataTableEmptyState from '@/components/data-table/data-table-empty-state';
 import DataTableSelectionBar from '@/components/data-table/data-table-selection-bar';
 import type { DataTableItem, DataTableSelectionState } from '@/components/data-table/types';
-import Sorting from '@/components/sorting';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -32,6 +31,7 @@ import {
 } from '@/components/ui/pagination';
 import Spinner from '@/components/ui/spinner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ArrowDownUpFilled } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -250,17 +250,29 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
                       onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
                     >
                       {header.isPlaceholder ? null : canSort ? (
-                        <Sorting
-                          data={{
-                            title: flexRender(header.column.columnDef.header, header.getContext()),
-                            sortable: {
-                              sort_by: header.column.id,
-                              activeSortBy: sorting[0]?.id,
-                              sortOrder: sorting[0]?.desc ? 'desc' : 'asc',
-                              onSort: () => header.column.toggleSorting(),
-                            },
-                          }}
-                        />
+                        <Flex
+                          gap={1}
+                          align="center"
+                          cssOverride={mergeCss(
+                            styles.sortableHeader,
+                            header.column.getIsSorted() && styles.sortableHeaderActive,
+                          )}
+                          onClick={() => header.column.toggleSorting()}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          <ArrowDownUpFilled
+                            top={
+                              header.column.getIsSorted() === 'desc'
+                                ? theme.colors.background.fillBrand
+                                : theme.colors.icon.secondary
+                            }
+                            bottom={
+                              header.column.getIsSorted() === 'asc'
+                                ? theme.colors.background.fillBrand
+                                : theme.colors.icon.secondary
+                            }
+                          />
+                        </Flex>
                       ) : (
                         flexRender(header.column.columnDef.header, header.getContext())
                       )}
@@ -387,6 +399,12 @@ const getPinnedCss = <T extends DataTableItem>(column: Column<T>, isHeader: bool
 const styles = defineStyles({
   clickable: {
     cursor: 'pointer',
+  },
+  sortableHeader: {
+    cursor: 'pointer',
+  },
+  sortableHeaderActive: {
+    color: theme.colors.background.fillBrand,
   },
   paginationWrapper: {
     width: '100%',
