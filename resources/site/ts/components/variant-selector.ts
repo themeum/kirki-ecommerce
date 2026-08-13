@@ -9,14 +9,14 @@
  *     selectedVariantId: <?= $selected_variant?->id ?>
  *   })">
  */
-import { emit } from "../events";
+import { emit } from '../events';
 
-export interface VariantAttribute {
+export type VariantAttribute = {
   name: string;
   value: string;
 }
 
-export interface Variant {
+export type Variant = {
   id: number;
   product_id: number;
   price: number;
@@ -27,7 +27,7 @@ export interface Variant {
   available: boolean;
 }
 
-export interface VariantSelectorConfig {
+export type VariantSelectorConfig = {
   variants: Variant[];
   selectedVariantId?: number;
   queryParam?: string;
@@ -78,7 +78,7 @@ export function variantSelector(config: VariantSelectorConfig) {
           const matchesOtherAttrs = Object.entries(this.selectedAttributes)
             .filter(([name]) => name !== attrName)
             .every(([name, value]) => 
-              variant.attributes.some(a => a.name === name && a.value === value)
+              variant.attributes.some(a => a.name === name && a.value === value),
             );
           
           if (matchesOtherAttrs) {
@@ -110,7 +110,7 @@ export function variantSelector(config: VariantSelectorConfig) {
       // Find variant that matches all selected attributes
       const matchingVariant = this.variants.find(variant => {
         return Object.entries(this.selectedAttributes).every(([name, value]) =>
-          variant.attributes.some(attr => attr.name === name && attr.value === value)
+          variant.attributes.some(attr => attr.name === name && attr.value === value),
         );
       });
       

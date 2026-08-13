@@ -9,16 +9,16 @@
  *   })">
  */
 
-import { listen } from "../events";
+import { listen } from '../events';
 
-export interface ImageSlide {
+export type ImageSlide = {
   id: string | number;
   url: string;
   alt?: string;
   thumb?: string;
 }
 
-export interface ImageSliderConfig {
+export type ImageSliderConfig = {
   images: ImageSlide[];
   startIndex?: number;
 }
@@ -71,8 +71,8 @@ export function imageSlider(config: ImageSliderConfig) {
     },
 
     handleKeydown(event: KeyboardEvent) {
-      if (event.key === 'ArrowRight') this.next();
-      if (event.key === 'ArrowLeft') this.prev();
+      if (event.key === 'ArrowRight') {this.next();}
+      if (event.key === 'ArrowLeft') {this.prev();}
     },
   };
 }

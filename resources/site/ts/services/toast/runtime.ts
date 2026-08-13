@@ -4,13 +4,13 @@ import {
   type ToastType,
 } from '../../types';
 
-interface ToastEntry {
+type ToastEntry = {
   id: string;
   element: HTMLElement;
   timerId: ReturnType<typeof setTimeout> | null;
 }
 
-export interface ToastApi {
+export type ToastApi = {
   (message: string, options?: ToastOptions): string;
   success: (message: string, duration?: number, options?: ToastOptions) => string;
   error: (message: string, duration?: number, options?: ToastOptions) => string;
@@ -153,7 +153,7 @@ export class ToastManager {
         }, 300);
       }
     } else {
-      this.entries.forEach((entry, entryId) => {
+      this.entries.forEach((entry) => {
         if (entry.timerId) {
           clearTimeout(entry.timerId);
         }
@@ -210,7 +210,7 @@ export class ToastManager {
   }
 
   private updateContainerPosition(position: string): void {
-    if (!this.container) return;
+    if (!this.container) {return;}
     
     if (position.includes('top')) {
       this.container.style.top = '16px';

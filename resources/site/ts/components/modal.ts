@@ -23,7 +23,7 @@
  *   </div>
  */
 
-export interface ModalConfig {
+export type ModalConfig = {
   open?: boolean;
   onClose?: () => void;
   onOpen?: () => void;
@@ -36,14 +36,14 @@ export function modal(config: ModalConfig = {}) {
     open() {
       this.isOpen = true;
       document.body.style.overflow = 'hidden';
-      if (config.onOpen) config.onOpen();
+      if (config.onOpen) {config.onOpen();}
       (this as any).$dispatch('kecom:modal:opened');
     },
 
     close() {
       this.isOpen = false;
       document.body.style.overflow = '';
-      if (config.onClose) config.onClose();
+      if (config.onClose) {config.onClose();}
       (this as any).$dispatch('kecom:modal:closed');
     },
 

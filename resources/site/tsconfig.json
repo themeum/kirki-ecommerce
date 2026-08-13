@@ -11,5 +11,5 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["ts/**/*.ts"]
+  "include": ["ts/**/*.ts", "vite.config.ts", "eslint.config.js"]
 }

@@ -8,7 +8,7 @@
  *   })">
  */
 
-export interface TabsConfig {
+export type TabsConfig = {
   activeTab?: string;
   tabs?: { id: string; label: string }[];
 }

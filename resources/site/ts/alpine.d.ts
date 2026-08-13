@@ -9,7 +9,7 @@ declare global {
 }
 
 declare module 'alpinejs' {
-  interface Alpine {
+  type Alpine = {
     data(name: string, callback: (...args: any[]) => any): Alpine;
     store(name: string, value?: any): any;
     start(): Alpine;

@@ -9,50 +9,53 @@
  * `addEventListener` calls so that event names and detail shapes stay in sync.
  */
 
-import type { Variant } from "./components/variant-selector";
-import type { Cart } from "./types";
+import type { Variant } from './components/variant-selector';
 
 // ── Event detail shapes ───────────────────────────────────────────────────────
 
-export interface Events {
+export type Events = {
   /** Fired when the selected product variant changes. */
-  "kecom:variant:changed": { variant: Variant };
+  'kecom:variant:changed': { variant: Variant };
 
   /** Fired when any shipping/billing address field changes (debounced). */
-  "kecom:address:changed": void;
+  'kecom:address:changed': void;
 
   /** Fired by quantitySelector on every quantity change. */
-  "kecom:quantity:changed": { quantity: number };
+  'kecom:quantity:changed': { quantity: number };
 
   /** Fired when the user selects a different shipping method. */
-  "kecom:shipping-method:changed": { methodId: string };
+  'kecom:shipping-method:changed': { methodId: string };
 
   /** Fired when the user selects a different payment method. */
-  "kecom:payment-method:changed": { method: string };
+  'kecom:payment-method:changed': { method: string };
 
   /** Trigger the shipping form to run its validation. */
-  "kecom:shipping-form:validate": void;
+  'kecom:shipping-form:validate': void;
 
   /** Trigger the billing form to run its validation. */
-  "kecom:billing-form:validate": void;
+  'kecom:billing-form:validate': void;
 
   /** Fired by the shipping form after validation completes. */
-  "kecom:shipping-form:validated": { isValid: boolean };
+  'kecom:shipping-form:validated': { isValid: boolean };
 
   /** Fired by the billing form after validation completes. */
-  "kecom:billing-form:validated": { isValid: boolean };
+  'kecom:billing-form:validated': { isValid: boolean };
 
   /** Fired when the modal opens. */
-  "kecom:modal:opened": void;
+  'kecom:modal:opened': void;
 
   /** Fired when the modal closes. */
-  "kecom:modal:closed": void;
+  'kecom:modal:closed': void;
 
   /** Fired when the active tab changes. */
-  "kecom:tab:changed": { tabId: string };
+  'kecom:tab:changed': { tabId: string };
 
   /** Fired when the shop product list is refreshed. */
-  "kecom:shop:products-updated": Cart;
+  'kecom:shop:products-updated': {
+    products_html?: string;
+    pagination_html?: string;
+    filters?: unknown;
+  };
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -68,7 +71,7 @@ export function emit<K extends keyof Events>(
   name: K,
   ...args: Events[K] extends void ? [] : [detail: Events[K]]
 ): void {
-  const detail = args[0] as Events[K] | undefined;
+  const detail = args[0];
   window.dispatchEvent(new CustomEvent(name, detail !== undefined ? { detail } : undefined));
 }
 

@@ -1,8 +1,8 @@
-import { apiRequest } from "../api/client";
-import { toastManager } from "../services/toast/runtime";
-import { emit } from "../events";
+import { apiRequest } from '../api/client';
+import { emit } from '../events';
+import { toastManager } from '../services/toast/runtime';
 
-interface ShopProductsResponse {
+type ShopProductsResponse = {
     success?: boolean;
     message?: string;
     data: {
@@ -28,7 +28,7 @@ export function shop() {
             window.addEventListener('popstate', () => {
                 const currentParams = new URLSearchParams(window.location.search);
                 this.sortBy = currentParams.get('sort_by') || 'recommended';
-                this.fetchProducts();
+                void this.fetchProducts();
             });
 
             // Intercept pagination clicks dynamically
@@ -36,20 +36,20 @@ export function shop() {
             if (paginationContainer) {
                 paginationContainer.addEventListener('click', (e: Event) => {
                     const target = e.target as HTMLElement;
-                    const link = target.closest('a.kecom-page-link') as HTMLAnchorElement;
+                    const link = target.closest('a.kecom-page-link')!;
                     if (link) {
                         e.preventDefault();
-                        const urlObj = new URL(link.href);
+                        const urlObj = new URL((link as HTMLAnchorElement).href);
 
                         // Update the browser URL with the current page path and the query parameters from the pagination link
                         window.history.pushState({}, '', window.location.pathname + urlObj.search);
-                        this.fetchProducts(true);
+                        void this.fetchProducts(true);
                     }
                 });
             }
         },
 
-        async applySort(value: string) {
+        applySort(value: string) {
             this.sortBy = value;
             
             const params = new URLSearchParams(window.location.search);
@@ -66,7 +66,7 @@ export function shop() {
             const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
             window.history.pushState({}, '', newUrl);
 
-            this.fetchProducts();
+            void this.fetchProducts();
         },
 
         async fetchProducts(shouldScroll = false) {
@@ -107,6 +107,6 @@ export function shop() {
             } finally {
                 this.isLoading = false;
             }
-        }
+        },
     }
 }

@@ -11,7 +11,7 @@
  *   })">
  */
 
-export interface QuantitySelectorConfig {
+export type QuantitySelectorConfig = {
   min?: number;
   max?: number | (() => number);
   initial?: number;
@@ -24,7 +24,7 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
     min: config.min ?? 1,
 
     get maxValue(): number | undefined {
-      if (typeof config.max === 'function') return config.max();
+      if (typeof config.max === 'function') {return config.max();}
       return config.max;
     },
 

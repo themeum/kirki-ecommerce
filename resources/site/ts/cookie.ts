@@ -13,7 +13,7 @@ export class Cookie {
         name: string,
         value: string,
         days = 30,
-        path = '/'
+        path = '/',
     ): void {
         const expires = new Date();
         expires.setDate(expires.getDate() + days);

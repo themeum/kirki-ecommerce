@@ -20,7 +20,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
 
   if (params) {
     const qs = new URLSearchParams(
-      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)]))
+      Object.fromEntries(Object.entries(params).map(([k, v]) => [k, String(v)])),
     );
     url += `?${qs.toString()}`;
   }
@@ -48,7 +48,7 @@ export async function apiRequest<T>(endpoint: string, options: RequestOptions = 
   }
 
   // 204 No Content
-  if (res.status === 204) return undefined as T;
+  if (res.status === 204) {return undefined as T;}
 
   return res.json() as Promise<T>;
 }

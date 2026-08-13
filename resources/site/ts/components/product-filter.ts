@@ -10,7 +10,7 @@ const ALLOWED_SORTS = [DEFAULT_SORT, 'low_to_high', 'high_to_low'] as const;
 
 type SortBy = (typeof ALLOWED_SORTS)[number];
 
-export interface ProductFilterConfig {
+export type ProductFilterConfig = {
   initialSortBy?: string | null;
 }
 

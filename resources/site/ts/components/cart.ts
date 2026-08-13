@@ -1,6 +1,6 @@
-import { cartApi } from "../api/cart";
-import { config } from "../utils";
-import { toastManager } from "../services/toast/runtime";
+import { cartApi } from '../api/cart';
+import { toastManager } from '../services/toast/runtime';
+import { config } from '../utils';
 
 export function cart() {
   const { __ } = window.wp.i18n;
@@ -38,7 +38,7 @@ export function cart() {
         this.format_cart_items();
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
-        toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));
+        toastManager.error(this.error ?? __('Something went wrong', 'kirki-ecommerce'));
       }
     },
 
@@ -56,18 +56,18 @@ export function cart() {
         }
 
         if (this.cartData.items_count === 0) {
-          const cartItems = document.querySelector(".kecom-cart-items");
+          const cartItems = document.querySelector('.kecom-cart-items');
           if (cartItems) {
-            const empty_cart = document.createElement("h4");
-            empty_cart.className = "kecom-cart-items-empty-text";
-            empty_cart.textContent = __("No items currently in cart.", "kirki-ecommerce");
+            const empty_cart = document.createElement('h4');
+            empty_cart.className = 'kecom-cart-items-empty-text';
+            empty_cart.textContent = __('No items currently in cart.', 'kirki-ecommerce');
             cartItems.appendChild(empty_cart);
           }
         }
-        toastManager.success(__("Item removed to cart", "kirki-ecommerce"));
+        toastManager.success(__('Item removed to cart', 'kirki-ecommerce'));
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
-        toastManager.error(this.error ?? __("Something went wrong", "kirki-ecommerce"));
+        toastManager.error(this.error ?? __('Something went wrong', 'kirki-ecommerce'));
       } finally {
         this.loading = false;
       }
