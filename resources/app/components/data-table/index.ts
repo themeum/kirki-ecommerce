@@ -1,31 +1,13 @@
 import DataTable from '@/components/data-table/data-table';
-import DataTablePagination from '@/components/data-table/data-table-pagination';
-import {
-  DataTableFilter,
-  DataTableFilterBar,
-  DataTableSelectionFilter,
-} from '@/components/data-table/data-table-slots';
 
-const DataTableNamespace = Object.assign(DataTable, {
-  Filter: DataTableFilter,
-  SelectionFilter: DataTableSelectionFilter,
-  FilterBar: DataTableFilterBar,
-  Pagination: DataTablePagination,
-});
-
-export default DataTableNamespace;
-export { useDataTableSelection } from '@/components/data-table/data-table-selection-context';
+export default DataTable;
+export { default as DataTableEmptyState } from '@/components/data-table/data-table-empty-state';
+export { default as DataTableRowActions } from '@/components/data-table/data-table-row-actions';
 export type {
-  DataTableBulkApplyPayload,
-  DataTableColumn,
   DataTableItem,
   DataTableRowAction,
   DataTableRowActionsConfig,
-  DataTableRowActionsResolver,
   DataTableRowEditAction,
+  DataTableSelectionState,
 } from '@/components/data-table/types';
-export {
-  DataTableFilter, DataTableFilterBar,
-  DataTablePagination, DataTableSelectionFilter,
-};
 
