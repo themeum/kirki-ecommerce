@@ -9,6 +9,7 @@
  *     selectedVariantId: <?= $selected_variant?->id ?>
  *   })">
  */
+import { emit } from "../events";
 
 export interface VariantAttribute {
   name: string;
@@ -122,9 +123,7 @@ export function variantSelector(config: VariantSelectorConfig) {
         window.history.replaceState({}, '', url.toString());
         
         // Dispatch event for image slider to update
-        window.dispatchEvent(new CustomEvent('variant-changed', {
-          detail: { variant: matchingVariant }
-        }));
+        emit('kecom:variant:changed', { variant: matchingVariant });
       }
     },
 
@@ -143,9 +142,7 @@ export function variantSelector(config: VariantSelectorConfig) {
             this.selectedAttributes[attr.name] = attr.value;
           });
           // Dispatch event for image slider to update
-          window.dispatchEvent(new CustomEvent('variant-changed', {
-            detail: { variant }
-          }));
+          emit('kecom:variant:changed', { variant });
           return;
         }
       }
@@ -158,9 +155,7 @@ export function variantSelector(config: VariantSelectorConfig) {
             this.selectedAttributes[attr.name] = attr.value;
           });
           // Dispatch event for image slider to update
-          window.dispatchEvent(new CustomEvent('variant-changed', {
-            detail: { variant }
-          }));
+          emit('kecom:variant:changed', { variant });
         }
       } else if (this.variants.length > 0) {
         // Auto-select first available variant
@@ -171,9 +166,7 @@ export function variantSelector(config: VariantSelectorConfig) {
             this.selectedAttributes[attr.name] = attr.value;
           });
           // Dispatch event for image slider to update
-          window.dispatchEvent(new CustomEvent('variant-changed', {
-            detail: { variant: firstAvailable }
-          }));
+          emit('kecom:variant:changed', { variant: firstAvailable });
         }
       }
     },

@@ -37,14 +37,14 @@ export function modal(config: ModalConfig = {}) {
       this.isOpen = true;
       document.body.style.overflow = 'hidden';
       if (config.onOpen) config.onOpen();
-      (this as any).$dispatch('modal-open');
+      (this as any).$dispatch('kecom:modal:opened');
     },
 
     close() {
       this.isOpen = false;
       document.body.style.overflow = '';
       if (config.onClose) config.onClose();
-      (this as any).$dispatch('modal-close');
+      (this as any).$dispatch('kecom:modal:closed');
     },
 
     toggle() {

@@ -1,5 +1,6 @@
 import { apiRequest } from "../api/client";
 import { toastManager } from "../services/toast/runtime";
+import { emit } from "../events";
 
 interface ShopProductsResponse {
     success?: boolean;
@@ -96,7 +97,7 @@ export function shop() {
                     }
 
                     // Dispatch event for any other components that need to know products updated
-                    window.dispatchEvent(new CustomEvent('shop:products-updated', { detail: result.data }));
+                    emit('kecom:shop:products-updated', result.data);
                 } else {
                     throw new Error(result?.message || 'Failed to fetch products');
                 }

@@ -40,7 +40,7 @@ $billing_email = $billing_address["email"] ?? '';
             email: '<?php echo esc_js($billing_email); ?>'
         },
         mode: 'onBlur'
-   })" :inert="billingSameAsShipping" @validate-billing-form.window="await validateForm(); $dispatch('billing-form-validated', { isValid })">
+   })" :inert="billingSameAsShipping" x-on:kecom:billing-form:validate.window="await validateForm(); $dispatch('kecom:billing-form:validated', { isValid })">
         <div class="kecom-field" x-bind="fieldWrapper('country')">
             <label class="kecom-field-label" for="billing-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
             <select class="kecom-select" id="billing-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">

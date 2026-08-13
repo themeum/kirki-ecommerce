@@ -9,6 +9,8 @@
  *   })">
  */
 
+import { listen } from "../events";
+
 export interface ImageSlide {
   id: string | number;
   url: string;
@@ -58,15 +60,14 @@ export function imageSlider(config: ImageSliderConfig) {
       this.currentIndex = 0;
       
       // Listen for variant changes to update image
-      window.addEventListener('variant-changed', ((e: Event) => {
-        const customEvent = e as CustomEvent;
-        if (customEvent.detail.variant?.image) {
-          const variantImageIndex = this.images.findIndex(img => img.url === customEvent.detail.variant.image);
+      listen('kecom:variant:changed', ({ variant }) => {
+        if (variant?.image) {
+          const variantImageIndex = this.images.findIndex(img => img.url === variant.image);
           if (variantImageIndex >= 0) {
             this.goTo(variantImageIndex);
           }
         }
-      }) as EventListener);
+      });
     },
 
     handleKeydown(event: KeyboardEvent) {

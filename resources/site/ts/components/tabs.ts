@@ -20,7 +20,7 @@ export function tabs(config: TabsConfig = {}) {
 
     setActive(tabId: string) {
       this.activeTab = tabId;
-      (this as any).$dispatch('tab-change', { tabId });
+      (this as any).$dispatch('kecom:tab:changed', { tabId });
     },
 
     isActive(tabId: string): boolean {

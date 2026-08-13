@@ -10,6 +10,8 @@
  */
 
 import { config } from "../utils";
+import { emit } from "../events";
+
 
 export interface ValidationRules {
   required?: boolean | string;
@@ -305,14 +307,14 @@ export function stateField({ notifyAddressChange = false }: { notifyAddressChang
       (this as any).$watch("values.country", (newCountry: string) => {
         loadStates(newCountry);
         if (notifyAddressChange) {
-          window.dispatchEvent(new CustomEvent("address-changed"));
+          emit('kecom:address:changed');
         }
       });
 
       // Watch parent form's state value
       if (notifyAddressChange) {
         (this as any).$watch("values.state", () => {
-          window.dispatchEvent(new CustomEvent("address-changed"));
+          emit('kecom:address:changed');
         });
       }
 

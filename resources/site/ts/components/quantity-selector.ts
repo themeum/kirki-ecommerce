@@ -52,7 +52,7 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
 
     notifyChange() {
       config.onChange?.(this.quantity);
-      (this as any).$dispatch('quantity-change', { quantity: this.quantity });
+      (this as any).$dispatch('kecom:quantity:changed', { quantity: this.quantity });
     },
   };
 }

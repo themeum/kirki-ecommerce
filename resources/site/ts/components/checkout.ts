@@ -16,6 +16,7 @@ import { checkoutApi } from "../api/checkout";
 import { toastManager } from "../services/toast/runtime";
 import type { CheckoutRequest, ShippingMethod } from "../types";
 import { config } from "../utils";
+import { listen } from "../events";
 
 /** Detail shape emitted by *-form-validated custom events */
 interface FormValidatedDetail {
@@ -170,10 +171,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
-      (this as unknown as AlpineContext).$el.addEventListener("billing-form-validated", (e: Event) => {
+      (this as unknown as AlpineContext).$el.addEventListener("kecom:billing-form:validated", (e: Event) => {
         this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
       });
-      (this as unknown as AlpineContext).$el.addEventListener("shipping-form-validated", (e: Event) => {
+      (this as unknown as AlpineContext).$el.addEventListener("kecom:shipping-form:validated", (e: Event) => {
         this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
       });
 
@@ -209,7 +210,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       // Debounced cart update — prevents hammering the API on rapid field changes
       const debouncedUpdateCart = debounce(() => this.updateCart(), 400);
 
-      window.addEventListener("address-changed", () => debouncedUpdateCart());
+      listen("kecom:address:changed", () => debouncedUpdateCart());
     },
 
     async updateCart() {
@@ -333,16 +334,18 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       try {
         // Validate both forms concurrently — dispatch triggers each form's
         // validateForm() which fires back *-form-validated on the window
-        (this as unknown as AlpineContext).$dispatch("validate-shipping-form");
+        (this as unknown as AlpineContext).$dispatch("kecom:shipping-form:validate");
 
         // Only validate billing independently when it differs from shipping
         if (!this.billingSameAsShipping) {
-          (this as unknown as AlpineContext).$dispatch("validate-billing-form");
+          (this as unknown as AlpineContext).$dispatch("kecom:billing-form:validate");
         }
 
         const validationPromises: Promise<FormValidatedDetail>[] = [
-          waitForEvent("shipping-form-validated"),
-          this.billingSameAsShipping ? Promise.resolve({ isValid: true }) : waitForEvent("billing-form-validated"),
+          waitForEvent("kecom:shipping-form:validated"),
+          this.billingSameAsShipping
+            ? Promise.resolve({ isValid: true })
+            : waitForEvent("kecom:billing-form:validated"),
         ];
 
         const [shippingResult, billingResult] = await Promise.all(validationPromises);
