@@ -76,28 +76,7 @@ class MiniCartShortcode
             aria-label="<?php esc_attr_e('View Cart', 'kirki-ecommerce'); ?>"
             class="kecom-mini-cart <?php echo esc_attr($attributes['class']); ?>"
             @kecom:cart-updated.document="updateCount($event.detail.items_count)"
-            x-data="{
-                cartCount: <?php echo (int) $total_items_count; ?>,
-                direction: null,
-
-                updateCount(newCount) {
-                    newCount = Number(newCount);
-
-                    if (newCount === this.cartCount) {
-                        return;
-                    }
-
-                    this.direction = newCount > this.cartCount
-                        ? 'increase'
-                        : 'decrease';
-
-                    this.cartCount = newCount;
-
-                    setTimeout(() => {
-                        this.direction = null;
-                    }, 300);
-                }
-            }">
+            x-data="miniCart({ initialCount: <?php echo (int) $total_items_count; ?> })">
 
             <span class="kecom-mini-cart-icon" aria-hidden="true"><?php Icon::render('cart', ['size' => 20]); ?></span>
             <span

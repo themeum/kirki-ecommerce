@@ -21,6 +21,7 @@ import { quantitySelector } from "./components/quantity-selector";
 import { tabs } from "./components/tabs";
 import { variantSelector } from "./components/variant-selector";
 import { shop } from "./components/shop";
+import { miniCart } from "./components/mini-cart";
 
 // ----------------------------------------------------------------------------
 // Alpine.js Registration
@@ -39,6 +40,7 @@ Alpine.data("modal", modal);
 Alpine.data("form", form);
 Alpine.data("stateField", stateField);
 Alpine.data('shop', shop);
+Alpine.data('miniCart', miniCart);
 
 // Initialize Alpine
 window.Alpine = Alpine;
