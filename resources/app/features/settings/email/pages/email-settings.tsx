@@ -18,6 +18,7 @@ import {
   type EmailSettingsFormPayload,
   EmailSettingsFormSchema,
 } from '@/features/settings/email/schemas/forms/email-settings-form';
+import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
@@ -197,7 +198,7 @@ const EmailSettings = () => {
           </Flex>
         </Form>
       ) : (
-        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+        <EmailSettingsSkeleton />
       )}
     </Container>
   );

@@ -12,6 +12,7 @@ import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
 import { useCustomersQuery } from '@/features/customers';
+import CustomerSearchSkeleton from '@/features/customers/skeletons/customer-search-skeleton';
 import CustomerProfileCard from '@/features/orders/pages/order-create/components/customer/customer-profile-card';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
@@ -78,11 +79,10 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
       >
         <Command shouldFilter={false}>
           <CommandList>
-            {customers.length === 0 && (
+            {customers.length === 0 && isFetching && <CustomerSearchSkeleton />}
+            {customers.length === 0 && !isFetching && (
               <Text variant="small" color="secondary" cssOverride={styles.status}>
-                {isFetching
-                  ? __('Searching...', 'kirki-ecommerce')
-                  : __('No customers found.', 'kirki-ecommerce')}
+                {__('No customers found.', 'kirki-ecommerce')}
               </Text>
             )}
             {customers.length > 0 && (

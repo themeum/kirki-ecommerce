@@ -17,6 +17,7 @@ import {
   type CheckoutSettingsFormPayload,
   CheckoutSettingsFormSchema,
 } from '@/features/settings/checkout/schemas/forms/checkout-settings-form';
+import CheckoutSettingsSkeleton from '@/features/settings/checkout/skeletons/checkout-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
@@ -106,7 +107,7 @@ const CheckoutSettings = () => {
           </Flex>
         </Form>
       ) : (
-        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+        <CheckoutSettingsSkeleton />
       )}
     </Container>
   );

@@ -1,6 +1,5 @@
 import type { CSSObject } from '@emotion/react';
 import type {
-  Column,
   ColumnDef,
   ColumnPinningState,
   OnChangeFn,
@@ -10,11 +9,13 @@ import type {
   VisibilityState,
 } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import type { CSSProperties, ReactNode } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { getPinnedCss, getPinningStyle } from '@/components/data-table/column-styles';
 import DataTableEmptyState from '@/components/data-table/data-table-empty-state';
 import DataTableSelectionBar from '@/components/data-table/data-table-selection-bar';
+import DataTableSkeleton from '@/components/data-table/data-table-skeleton';
 import type { DataTableItem, DataTableSelectionState } from '@/components/data-table/types';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
@@ -29,7 +30,6 @@ import {
   PaginationPageSelect,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import Spinner from '@/components/ui/spinner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ArrowDownUpFilled } from '@/icons';
 import { theme } from '@/theme';
@@ -67,19 +67,6 @@ type DataTableProps<T extends DataTableItem> = {
 
 const EMPTY_COLUMN_PINNING: ColumnPinningState = {};
 const EMPTY_COLUMN_VISIBILITY: VisibilityState = {};
-
-const getPinningStyle = <T extends DataTableItem>(column: Column<T>): CSSProperties | undefined => {
-  const pinned = column.getIsPinned();
-
-  if (!pinned) {
-    return undefined;
-  }
-
-  return {
-    left: pinned === 'left' ? `${column.getStart('left')}px` : undefined,
-    right: pinned === 'right' ? `${column.getAfter('right')}px` : undefined,
-  };
-};
 
 const noop = () => undefined;
 
@@ -209,6 +196,35 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
 
   const rows = table.getRowModel().rows;
   const visibleColumnCount = table.getVisibleLeafColumns().length;
+  const skeletonRowCount = data.length || pagination.pageSize;
+
+  const tableRef = useRef<HTMLTableElement>(null);
+  const measuredHeights = useRef<{ header?: number; row?: number }>({});
+
+  useEffect(() => {
+    if (isLoading) {
+      return;
+    }
+
+    const headerHeight = tableRef.current
+      ?.querySelector('thead tr')
+      ?.getBoundingClientRect().height;
+    if (headerHeight) {
+      measuredHeights.current.header = headerHeight;
+    }
+
+    if (rows.length === 0) {
+      return;
+    }
+
+    const rowHeight = tableRef.current
+      ?.querySelector('tbody tr')
+      ?.getBoundingClientRect().height;
+    if (rowHeight) {
+      measuredHeights.current.row = rowHeight;
+    }
+  }, [isLoading, rows.length]);
+
   const hasSelection = selection.selectedIds.length > 0 || selection.isAllMatchingSelected;
   const currentPage = table.getState().pagination.pageIndex + 1;
   const totalPages = table.getPageCount();
@@ -232,98 +248,109 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
             toolbar
           )}
           {filterBar}
-          <Table density={density} fixed={fixed} cssOverride={cssOverride}>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    const meta = header.column.columnDef.meta;
-                    const isSelectColumn = header.column.id === 'select';
-                    const canSort = header.column.getCanSort();
+          <Table
+            ref={tableRef}
+            density={density}
+            fixed={fixed}
+            cssOverride={cssOverride}
+            aria-busy={isLoading}
+          >
+            {isLoading ? (
+              <DataTableSkeleton
+                table={table}
+                rowCount={skeletonRowCount}
+                headerHeight={measuredHeights.current.header}
+                rowHeight={measuredHeights.current.row}
+              />
+            ) : (
+              <>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        const meta = header.column.columnDef.meta;
+                        const isSelectColumn = header.column.id === 'select';
+                        const canSort = header.column.getCanSort();
 
-                    return (
-                      <TableHead
-                        key={header.id}
-                        onlyCheckbox={isSelectColumn}
-                        alignment={meta?.alignment}
-                        cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(header.column, true))}
-                        style={getPinningStyle(header.column)}
-                        onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
-                      >
-                        {header.isPlaceholder ? null : canSort ? (
-                          <Flex
-                            gap={1}
-                            align="center"
-                            cssOverride={mergeCss(
-                              styles.sortableHeader,
-                              header.column.getIsSorted() && styles.sortableHeaderActive,
-                            )}
-                            onClick={() => header.column.toggleSorting()}
+                        return (
+                          <TableHead
+                            key={header.id}
+                            onlyCheckbox={isSelectColumn}
+                            alignment={meta?.alignment}
+                            cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(header.column, true))}
+                            style={getPinningStyle(header.column)}
+                            onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
                           >
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            <ArrowDownUpFilled
-                              top={
-                                header.column.getIsSorted() === 'desc'
-                                  ? theme.colors.background.fillBrand
-                                  : theme.colors.icon.secondary
-                              }
-                              bottom={
-                                header.column.getIsSorted() === 'asc'
-                                  ? theme.colors.background.fillBrand
-                                  : theme.colors.icon.secondary
-                              }
-                            />
-                          </Flex>
-                        ) : (
-                          flexRender(header.column.columnDef.header, header.getContext())
-                        )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={visibleColumnCount} alignment="center">
-                    <Spinner />
-                  </TableCell>
-                </TableRow>
-              ) : rows.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={visibleColumnCount} alignment="center">
-                    {emptyState ?? <DataTableEmptyState />}
-                  </TableCell>
-                </TableRow>
-              ) : (
-                rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-                    cssOverride={onRowClick ? styles.clickable : undefined}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      const meta = cell.column.columnDef.meta;
-                      const isSelectColumn = cell.column.id === 'select';
+                            {header.isPlaceholder ? null : canSort ? (
+                              <Flex
+                                gap={1}
+                                align="center"
+                                cssOverride={mergeCss(
+                                  styles.sortableHeader,
+                                  header.column.getIsSorted() && styles.sortableHeaderActive,
+                                )}
+                                onClick={() => header.column.toggleSorting()}
+                              >
+                                {flexRender(header.column.columnDef.header, header.getContext())}
+                                <ArrowDownUpFilled
+                                  top={
+                                    header.column.getIsSorted() === 'desc'
+                                      ? theme.colors.background.fillBrand
+                                      : theme.colors.icon.secondary
+                                  }
+                                  bottom={
+                                    header.column.getIsSorted() === 'asc'
+                                      ? theme.colors.background.fillBrand
+                                      : theme.colors.icon.secondary
+                                  }
+                                />
+                              </Flex>
+                            ) : (
+                              flexRender(header.column.columnDef.header, header.getContext())
+                            )}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {rows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={visibleColumnCount} alignment="center">
+                        {emptyState ?? <DataTableEmptyState />}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                        cssOverride={onRowClick ? styles.clickable : undefined}
+                      >
+                        {row.getVisibleCells().map((cell) => {
+                          const meta = cell.column.columnDef.meta;
+                          const isSelectColumn = cell.column.id === 'select';
 
-                      return (
-                        <TableCell
-                          key={cell.id}
-                          onlyCheckbox={isSelectColumn}
-                          alignment={meta?.alignment}
-                          cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(cell.column, false))}
-                          style={getPinningStyle(cell.column)}
-                          onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
-                        >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
+                          return (
+                            <TableCell
+                              key={cell.id}
+                              onlyCheckbox={isSelectColumn}
+                              alignment={meta?.alignment}
+                              cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(cell.column, false))}
+                              style={getPinningStyle(cell.column)}
+                              onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
+                            >
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </>
+            )}
           </Table>
         </CardContent>
       </Card>
@@ -376,27 +403,6 @@ DataTable.displayName = 'DataTable';
 
 export default DataTable;
 export type { DataTableProps };
-
-const stickyStyles = defineStyles({
-  head: {
-    position: 'sticky',
-    zIndex: 2,
-    backgroundColor: theme.colors.background.surfaceAlt,
-  },
-  cell: {
-    position: 'sticky',
-    zIndex: 1,
-    backgroundColor: theme.colors.background.fill,
-  },
-});
-
-const getPinnedCss = <T extends DataTableItem>(column: Column<T>, isHeader: boolean) => {
-  if (!column.getIsPinned()) {
-    return undefined;
-  }
-
-  return isHeader ? stickyStyles.head : stickyStyles.cell;
-};
 
 const styles = defineStyles({
   clickable: {

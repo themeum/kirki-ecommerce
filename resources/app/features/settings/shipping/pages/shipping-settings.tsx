@@ -17,6 +17,7 @@ import ShippingMethodRow from '@/features/settings/shipping/pages/shipping-metho
 import ShippingProfile from '@/features/settings/shipping/pages/shipping-profile/shipping-profile';
 import { ShippingRegionPopup } from '@/features/settings/shipping/pages/shipping-zone/shipping-region-dialog';
 import ShippingZoneActions from '@/features/settings/shipping/pages/shipping-zone-actions';
+import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
 import type { CountryWithStates } from '@/features/settings/shipping/types';
 import { LocationIcon, TruckIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -162,7 +163,7 @@ const ShippingSettings = () => {
             </Flex>
           </Form>
         ) : (
-          <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+          <ShippingSettingsSkeleton />
         )}
       </Container>
       {showCreateZonePopup && (

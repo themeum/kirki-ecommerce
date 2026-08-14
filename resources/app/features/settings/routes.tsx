@@ -2,7 +2,6 @@ import { type ComponentType, createElement, lazy, type ReactElement, Suspense } 
 import type { RouteObject } from 'react-router';
 import { Navigate } from 'react-router';
 
-import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 
 const SettingsLayout = lazy(() => import('@/features/settings/pages/settings-layout'));
@@ -28,7 +27,7 @@ const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,
   props = {} as Props,
 ): ReactElement => (
-  <Suspense fallback={<LoadingSpinner />}>
+  <Suspense fallback={null}>
     {createElement(Component, props)}
   </Suspense>
 );

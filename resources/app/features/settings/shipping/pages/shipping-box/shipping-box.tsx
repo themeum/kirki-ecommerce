@@ -1,5 +1,5 @@
 import { Package2 } from 'lucide-react';
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -20,6 +20,7 @@ import Text from '@/components/ui/text';
 import ShippingBoxPopup from '@/features/settings/shipping/pages/shipping-box/shipping-box-dialog';
 import type { ShippingBox as ShippingBoxType } from '@/features/settings/shipping/schemas/catalog/shipping';
 import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/features/settings/shipping/services/shipping';
+import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { EditPenIcon, ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -81,48 +82,51 @@ const ShippingBoxRowActions = (props: ShippingBoxRowActionsProps) => {
   );
 };
 
+const getActionArray = (box: ShippingBoxListItem): BoxAction[] => {
+  if (box.is_default) {
+    return [];
+  }
+  return [
+    {
+      title: box.is_default
+        ? __('Unset as Default', 'kirki-ecommerce')
+        : __('Set as Default', 'kirki-ecommerce'),
+      value: 'set_default',
+    },
+    {
+      title: __('Delete', 'kirki-ecommerce'),
+      value: 'delete',
+    },
+  ];
+};
+
 const ShippingBox = () => {
   const [openPopup, setOpenPopup] = useState(false);
-  const [shippingBoxList, setShippingBoxList] = useState<ShippingBoxListItem[]>([]);
+  const [removedIds, setRemovedIds] = useState<number[]>([]);
   const [editedItem, setEditedItem] = useState<ShippingBoxListItem | null>(null);
 
-  const { data: shippingBoxes = [], refetch } = useShippingBoxesQuery({ limit: -1 });
+  const { data: shippingBoxes = [], isLoading, refetch } = useShippingBoxesQuery({ limit: -1 });
   const { mutate: updateBox } = useUpdateShippingBoxMutation();
   const { mutate: deleteBox } = useDeleteShippingBoxMutation();
 
-  const getActionArray = (box: ShippingBoxListItem): BoxAction[] => {
-    if (box.is_default) {
-      return [];
-    }
-    return [
-      {
-        title: box.is_default
-          ? __('Unset as Default', 'kirki-ecommerce')
-          : __('Set as Default', 'kirki-ecommerce'),
-        value: 'set_default',
-      },
-      {
-        title: __('Delete', 'kirki-ecommerce'),
-        value: 'delete',
-      },
-    ];
-  };
-
-  useEffect(() => {
-    const updatedList = shippingBoxes.map((box) => ({
-      ...box,
-      subText: sprintf(
-        __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
-        box.length ?? 0,
-        box.width ?? 0,
-        box.height ?? 0,
-        box.unit ?? '',
-      ),
-      is_action_disabled: (box as ShippingBoxListItem).is_default === true,
-      actionsArray: getActionArray(box as ShippingBoxListItem),
-    }));
-    setShippingBoxList(updatedList as ShippingBoxListItem[]);
-  }, [shippingBoxes]);
+  const shippingBoxList = useMemo<ShippingBoxListItem[]>(
+    () =>
+      shippingBoxes
+        .filter((box) => !removedIds.includes(box.id))
+        .map((box) => ({
+          ...box,
+          subText: sprintf(
+            __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
+            box.length ?? 0,
+            box.width ?? 0,
+            box.height ?? 0,
+            box.unit ?? '',
+          ),
+          is_action_disabled: (box as ShippingBoxListItem).is_default === true,
+          actionsArray: getActionArray(box as ShippingBoxListItem),
+        })) as ShippingBoxListItem[],
+    [shippingBoxes, removedIds],
+  );
 
   const openCreatePopup = () => {
     setEditedItem(null);
@@ -141,16 +145,13 @@ const ShippingBox = () => {
 
   const handleAction = (action: string, item: ShippingBoxListItem) => {
     if (action === 'delete') {
-      const initialList = [...shippingBoxList];
-      setShippingBoxList((boxList) =>
-        boxList.filter((box) => box?.id !== item?.id),
-      );
+      setRemovedIds((prev) => [...prev, item.id]);
 
       dispatchToastMessage('delete', {
         title: __('Shipping box deleted', 'kirki-ecommerce'),
         duration: 5000,
         undoAction: () => {
-          setShippingBoxList(initialList);
+          setRemovedIds((prev) => prev.filter((id) => id !== item.id));
         },
         onSuccess: () => {
           deleteBox(item?.id, {
@@ -192,7 +193,10 @@ const ShippingBox = () => {
             buttonText={__('Create Box', 'kirki-ecommerce')}
             onAdd={openCreatePopup}
           />
-          {shippingBoxList.length > 0 && (
+          {isLoading && (
+            <StackedListSkeleton cssOverride={{ marginTop: theme.spacing[5] }} />
+          )}
+          {!isLoading && shippingBoxList.length > 0 && (
             <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingBoxList.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>

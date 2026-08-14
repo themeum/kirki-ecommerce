@@ -22,6 +22,7 @@ import {
   CustomerFormSchema,
 } from '@/features/customers/schemas/forms/customer-form';
 import { useCreateCustomerMutation, useCustomerQuery, useUpdateCustomerMutation } from '@/features/customers/services/customer';
+import CustomerDetailsSkeleton from '@/features/customers/skeletons/customer-details-skeleton';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -37,7 +38,8 @@ const CustomerDetails = () => {
   const isNew = id === NEW_ITEM_ID;
   const numericId = isNew ? 0 : Number(id);
 
-  const { data: customerData } = useCustomerQuery(numericId, !isNew);
+  const { data: customerData, isLoading } = useCustomerQuery(numericId, !isNew);
+  const isLoadingCustomer = !isNew && isLoading;
   const createMutation = useCreateCustomerMutation();
   const updateMutation = useUpdateCustomerMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -105,6 +107,9 @@ const CustomerDetails = () => {
         hasBack
         sticky
       />
+      {isLoadingCustomer ? (
+        <CustomerDetailsSkeleton />
+      ) : (
       <Container>
         <Flex gap={4}>
           <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
@@ -142,6 +147,7 @@ const CustomerDetails = () => {
           </Flex>
         </Flex>
       </Container>
+      )}
     </Form>
   );
 };

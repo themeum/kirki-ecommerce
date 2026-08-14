@@ -222,7 +222,7 @@ export {
   PaginationLink,
   PaginationNext,
   PaginationPageSelect,
-  PaginationPrevious
+  PaginationPrevious,
 };
 
 const styles = defineStyles({

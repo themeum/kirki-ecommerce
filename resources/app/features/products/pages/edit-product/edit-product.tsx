@@ -1,6 +1,5 @@
 import { useParams } from 'react-router';
 
-import LoadingSpinner from '@/components/loading-spinner';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import ProductForm from '@/features/products/components/product-form/product-form';
@@ -9,6 +8,7 @@ import {
   useProductQuery,
   useUpdateProductMutation,
 } from '@/features/products/services/product';
+import ProductFormSkeleton from '@/features/products/skeletons/product-form-skeleton';
 import { __ } from '@/wpi18n';
 
 const EditProduct = () => {
@@ -19,9 +19,10 @@ const EditProduct = () => {
     isError,
   } = useProductQuery(id!, Boolean(id));
   const updateProductMutation = useUpdateProductMutation();
+  let x = true;
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <ProductFormSkeleton />;
   }
 
   if (isError || !product) {

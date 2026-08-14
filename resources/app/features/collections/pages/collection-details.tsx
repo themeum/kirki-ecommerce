@@ -24,6 +24,7 @@ import {
   CollectionFormSchema,
 } from '@/features/collections/schemas/forms/collection-form';
 import { useCollectionQuery, useCreateCollectionMutation, useUpdateCollectionMutation } from '@/features/collections/services/collection';
+import CollectionDetailsSkeleton from '@/features/collections/skeletons/collection-details-skeleton';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -40,7 +41,8 @@ const CollectionDetails = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [collectionId, setCollectionId] = useState<number | undefined>();
 
-  const { data: collectionResponse } = useCollectionQuery(Number(id), !isNew);
+  const { data: collectionResponse, isLoading } = useCollectionQuery(Number(id), !isNew);
+  const isLoadingCollection = !isNew && isLoading;
   const createMutation = useCreateCollectionMutation();
   const updateMutation = useUpdateCollectionMutation();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -120,6 +122,9 @@ const CollectionDetails = () => {
         onBack={() => navigate(RouteConfig.Collections.buildLink())}
       />
 
+      {isLoadingCollection ? (
+        <CollectionDetailsSkeleton />
+      ) : (
       <Container size="md">
         <Flex direction="column" gap={4}>
           <Card cssOverride={cardStyles.formCard}>
@@ -216,6 +221,7 @@ const CollectionDetails = () => {
           </Card>
         </Flex>
       </Container>
+      )}
     </Form>
   );
 };

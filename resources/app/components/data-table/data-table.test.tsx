@@ -52,7 +52,7 @@ describe('DataTable', () => {
 });
 
 describe('DataTable loading', () => {
-  it('replaces rows with a spinner while keeping headers, toolbar, filter bar and an inert pagination bar', () => {
+  it('replaces the whole table with skeletons while keeping toolbar, filter bar and an inert pagination bar', () => {
     render(
       <DataTable
         {...baseProps()}
@@ -62,14 +62,59 @@ describe('DataTable loading', () => {
       />,
     );
 
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Alpha')).not.toBeInTheDocument();
-    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.queryByText('Name')).not.toBeInTheDocument();
     expect(screen.getByText('My Toolbar')).toBeInTheDocument();
     expect(screen.getByText('My Filter Bar')).toBeInTheDocument();
 
     const pageTwo = screen.getByRole('button', { name: '2' });
     expect(pageTwo).toBeDisabled();
+  });
+
+  it('drops aria-busy and restores the headers once loading finishes', () => {
+    render(<DataTable {...baseProps()} />);
+
+    expect(screen.getByRole('table')).not.toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByText('Name')).toBeInTheDocument();
+    expect(screen.getByText('Alpha')).toBeInTheDocument();
+  });
+
+  it('renders one skeleton row per row that was on screen, and one skeleton cell per visible column', () => {
+    render(<DataTable {...baseProps()} isLoading />);
+
+    const bodyRows = screen.getByRole('table').querySelectorAll('tbody tr');
+
+    expect(bodyRows).toHaveLength(items.length);
+    expect(bodyRows[0].querySelectorAll('[data-slot="skeleton"]')).toHaveLength(columns.length);
+  });
+
+  it('falls back to the page size when there are no previous rows to replace', () => {
+    render(<DataTable {...baseProps({ data: [], pagination: { pageIndex: 0, pageSize: 7 } })} isLoading />);
+
+    expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(7);
+  });
+
+  it('reserves an explicit height on every placeholder row so the rows do not collapse', () => {
+    render(<DataTable {...baseProps()} isLoading />);
+
+    const table = screen.getByRole('table');
+    const headerRow = table.querySelector<HTMLElement>('thead tr')!;
+    const bodyRows = table.querySelectorAll<HTMLElement>('tbody tr');
+
+    expect(headerRow.style.height).toBe('42px');
+    bodyRows.forEach((row) => {
+      expect(row.style.height).toBe('58px');
+    });
+  });
+
+  it('offers no sortable header while a request is in flight', () => {
+    const onSortingChange = vi.fn();
+
+    render(<DataTable {...baseProps({ onSortingChange })} isLoading />);
+
+    expect(screen.queryByText('Name')).not.toBeInTheDocument();
+    expect(onSortingChange).not.toHaveBeenCalled();
   });
 });
 
@@ -87,10 +132,10 @@ describe('DataTable empty state', () => {
     expect(screen.queryByText('No items found')).not.toBeInTheDocument();
   });
 
-  it('shows the spinner instead of the empty state while loading with no rows', () => {
+  it('shows skeletons instead of the empty state while loading with no rows', () => {
     render(<DataTable {...baseProps({ data: [], isLoading: true })} />);
 
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByRole('table')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('No items found')).not.toBeInTheDocument();
   });
 });
@@ -316,12 +361,14 @@ describe('DataTable pinning and visibility', () => {
     expect(getComputedStyle(cell).position).toBe('sticky');
   });
 
-  it('renders no header or cells for a hidden column, and spans only visible columns while loading', () => {
+  it('renders no header or cells for a hidden column, and no skeleton for it while loading', () => {
     render(<DataTable {...baseProps({ columnVisibility: { status: false }, isLoading: true })} />);
 
     expect(screen.queryByText('Status')).not.toBeInTheDocument();
 
-    const loadingCell = screen.getByRole('status').closest('td');
-    expect(loadingCell).toHaveAttribute('colspan', '1');
+    const table = screen.getByRole('table');
+
+    expect(table.querySelectorAll('thead [data-slot="skeleton"]')).toHaveLength(1);
+    expect(table.querySelectorAll('tbody tr')[0].querySelectorAll('[data-slot="skeleton"]')).toHaveLength(1);
   });
 });

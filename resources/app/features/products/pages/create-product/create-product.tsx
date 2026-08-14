@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router';
 
-import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 import ProductForm from '@/features/products/components/product-form/product-form';
 import {
@@ -13,6 +12,7 @@ import {
 import {
   useCreateProductMutation,
 } from '@/features/products/services/product';
+import ProductFormSkeleton from '@/features/products/skeletons/product-form-skeleton';
 import { useShippingBoxesQuery } from '@/features/settings';
 import { getDefaults } from '@/libs/zod';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
@@ -32,7 +32,7 @@ const CreateProduct = () => {
     isLoadingDefaults || isLoadingSettings || isLoadingBoxes;
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <ProductFormSkeleton />;
   }
 
   const defaults = getDefaults(ProductFormSchema);

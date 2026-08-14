@@ -19,6 +19,7 @@ import {
   type ShippingZoneFormPayload,
   ShippingZoneFormSchema,
 } from '@/features/settings/shipping/schemas/forms/shipping-zone-form';
+import ShippingZoneSkeleton from '@/features/settings/shipping/skeletons/shipping-zone-skeleton';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -151,7 +152,7 @@ const ShippingZonePage = () => {
             </Flex>
           </Form>
         ) : (
-          <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+          <ShippingZoneSkeleton />
         )}
       </Container>
     </>

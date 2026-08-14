@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
@@ -17,6 +17,7 @@ import Text from '@/components/ui/text';
 import AddSchemaPopup from '@/features/settings/essentials/pages/schema-profile/add-schema-dialog';
 import type { SchemaProfile } from '@/features/settings/essentials/schemas/catalog/schema-profile';
 import { useDeleteSchemaMutation, useSchemasQuery } from '@/features/settings/essentials/services/schema';
+import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -32,31 +33,29 @@ type SchemaListItem = SchemaProfile & {
 const SchemaProfileComponent = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [editedItem, setEditedItem] = useState<SchemaProfile | null>(null);
-  const [schemaProfileList, setSchemaProfileList] = useState<SchemaListItem[]>([]);
+  const [removedIds, setRemovedIds] = useState<number[]>([]);
 
-  const { data: schemaList = [], refetch } = useSchemasQuery();
+  const { data: schemaList = [], isLoading, refetch } = useSchemasQuery();
   const { mutate: deleteSchema } = useDeleteSchemaMutation();
 
-  useEffect(() => {
-    const updatedSchemaList = schemaList.map((schema) => {
-      return {
-        ...schema,
-        badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
-      };
-    });
-    setSchemaProfileList(updatedSchemaList);
-  }, [schemaList]);
+  const schemaProfileList = useMemo<SchemaListItem[]>(
+    () =>
+      schemaList
+        .filter((schema) => !removedIds.includes(schema.id))
+        .map((schema) => ({
+          ...schema,
+          badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
+        })),
+    [schemaList, removedIds],
+  );
 
   const handleDeleteSchema = (item: SchemaListItem) => {
-    const initialList = [...schemaProfileList];
-    setSchemaProfileList((prev) =>
-      prev.filter((schema) => schema?.id !== item?.id),
-    );
+    setRemovedIds((prev) => [...prev, item.id]);
     dispatchToastMessage('delete', {
       title: __('Schema deleted', 'kirki-ecommerce'),
       duration: 5000,
       undoAction: () => {
-        setSchemaProfileList(initialList);
+        setRemovedIds((prev) => prev.filter((id) => id !== item.id));
       },
       onSuccess: () => {
         deleteSchema(item.id, { onSuccess: () => refetch() });
@@ -87,7 +86,9 @@ const SchemaProfileComponent = () => {
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>
-          {!schemaProfileList?.length ? (
+          {isLoading ? (
+            <StackedListSkeleton hasMedia={false} />
+          ) : !schemaProfileList?.length ? (
             <Card cssOverride={cardStyles.innerDarkCard}>
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">

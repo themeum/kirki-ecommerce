@@ -22,6 +22,7 @@ import { TaxRateList } from '@/features/settings/tax/pages/tax-region/tax-rate-l
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import { type TaxRegionGeneralFormInput, TaxRegionGeneralFormSchema } from '@/features/settings/tax/schemas/forms/tax-region-general-form';
 import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax-settings-form';
+import TaxRegionSkeleton from '@/features/settings/tax/skeletons/tax-region-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -246,7 +247,7 @@ const GeneralEditRegion = () => {
               </Flex>
             </Form>
           ) : (
-            <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+            <TaxRegionSkeleton />
           )}
         </Container>
         {showPopup && (
