@@ -13,7 +13,7 @@ class BrandUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Brand::get_table_name() . ',slug,' . $this->get_int('id'),
+            'slug' => 'string|nullable|unique:' . Brand::get_table_name() . ',slug,' . $this->int('id'),
             'description' => 'string|nullable',
             'logo' => 'integer|nullable',
             'website_url' => 'string|nullable',

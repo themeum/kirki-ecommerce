@@ -47,7 +47,7 @@ class ProductUpdateRequest extends Request
             //product
             'id' => 'required|integer',
             'title' => 'required|string|max:500',
-            'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug,' . $this->get_int('id'),
+            'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug,' . $this->int('id'),
             'status' => 'string|nullable|in:' . implode(',', ProductStatus::get_constant_values()),
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',

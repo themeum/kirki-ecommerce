@@ -13,7 +13,7 @@ class AttributeUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Attribute::get_table_name() . ',slug,' . $this->get_int('id'),
+            'slug' => 'string|nullable|unique:' . Attribute::get_table_name() . ',slug,' . $this->int('id'),
             'type' => 'string|in:color,list|nullable',
         ];
     }

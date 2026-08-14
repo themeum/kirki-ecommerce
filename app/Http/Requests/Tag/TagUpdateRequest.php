@@ -13,7 +13,7 @@ class TagUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Tag::get_table_name() . ',slug,' . $this->get_int('id'),
+            'slug' => 'string|nullable|unique:' . Tag::get_table_name() . ',slug,' . $this->int('id'),
             'description' => 'string|nullable',
         ];
     }

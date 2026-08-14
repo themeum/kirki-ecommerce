@@ -13,7 +13,7 @@ class CollectionUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'title' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Collection::get_table_name() . ',slug,' . $this->get_int('id'),
+            'slug' => 'string|nullable|unique:' . Collection::get_table_name() . ',slug,' . $this->int('id'),
             'description' => 'string|nullable',
             'banner' => 'integer|nullable',
             'seo_title' => 'string|nullable',

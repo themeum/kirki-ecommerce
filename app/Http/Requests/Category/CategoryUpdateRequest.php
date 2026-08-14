@@ -14,7 +14,7 @@ class CategoryUpdateRequest extends Request
             'id' => 'required|integer',
             'parent_id' => 'integer|nullable',
             'name' => 'required|string',
-            'slug' => 'string|nullable|unique:' . Category::get_table_name() . ',slug,' . $this->get_int('id'),
+            'slug' => 'string|nullable|unique:' . Category::get_table_name() . ',slug,' . $this->int('id'),
             'description' => 'string|nullable',
             'image' => 'integer|nullable',
             'level' => 'integer|nullable',
