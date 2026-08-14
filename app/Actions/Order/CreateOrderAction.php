@@ -113,7 +113,7 @@ class CreateOrderAction
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
             }
 
-            if (!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) {
+            if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
                 $empty_cart_dto->customer_id = $create_order_dto->customer_id;
                 $empty_cart_dto->token = $dto->cart_token;
