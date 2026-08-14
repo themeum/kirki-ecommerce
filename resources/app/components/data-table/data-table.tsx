@@ -215,158 +215,160 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
   const pageItems = getPageItems(currentPage, totalPages);
 
   return (
-    <Card cssOverride={cardStyles.tableCard}>
-      <CardContent cssOverride={cardStyles.tableContent}>
-        {hasSelection ? (
-          <DataTableSelectionBar
-            selection={selection}
-            total={total}
-            shownCount={data.length}
-            bulkActionOptions={bulkActionOptions}
-            onBulkApply={onBulkApply}
-            onSelectAllMatching={handleSelectAllMatching}
-            onClearSelection={handleClearSelection}
-          />
-        ) : (
-          toolbar
-        )}
-        {filterBar}
-        <Table density={density} fixed={fixed} cssOverride={cssOverride}>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  const meta = header.column.columnDef.meta;
-                  const isSelectColumn = header.column.id === 'select';
-                  const canSort = header.column.getCanSort();
-
-                  return (
-                    <TableHead
-                      key={header.id}
-                      onlyCheckbox={isSelectColumn}
-                      alignment={meta?.alignment}
-                      cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(header.column, true))}
-                      style={getPinningStyle(header.column)}
-                      onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
-                    >
-                      {header.isPlaceholder ? null : canSort ? (
-                        <Flex
-                          gap={1}
-                          align="center"
-                          cssOverride={mergeCss(
-                            styles.sortableHeader,
-                            header.column.getIsSorted() && styles.sortableHeaderActive,
-                          )}
-                          onClick={() => header.column.toggleSorting()}
-                        >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          <ArrowDownUpFilled
-                            top={
-                              header.column.getIsSorted() === 'desc'
-                                ? theme.colors.background.fillBrand
-                                : theme.colors.icon.secondary
-                            }
-                            bottom={
-                              header.column.getIsSorted() === 'asc'
-                                ? theme.colors.background.fillBrand
-                                : theme.colors.icon.secondary
-                            }
-                          />
-                        </Flex>
-                      ) : (
-                        flexRender(header.column.columnDef.header, header.getContext())
-                      )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={visibleColumnCount} alignment="center">
-                  <Spinner />
-                </TableCell>
-              </TableRow>
-            ) : rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={visibleColumnCount} alignment="center">
-                  {emptyState ?? <DataTableEmptyState />}
-                </TableCell>
-              </TableRow>
-            ) : (
-              rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-                  cssOverride={onRowClick ? styles.clickable : undefined}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const meta = cell.column.columnDef.meta;
-                    const isSelectColumn = cell.column.id === 'select';
+    <Flex direction="column" gap={4}>
+      <Card cssOverride={cardStyles.tableCard}>
+        <CardContent cssOverride={cardStyles.tableContent}>
+          {hasSelection ? (
+            <DataTableSelectionBar
+              selection={selection}
+              total={total}
+              shownCount={data.length}
+              bulkActionOptions={bulkActionOptions}
+              onBulkApply={onBulkApply}
+              onSelectAllMatching={handleSelectAllMatching}
+              onClearSelection={handleClearSelection}
+            />
+          ) : (
+            toolbar
+          )}
+          {filterBar}
+          <Table density={density} fixed={fixed} cssOverride={cssOverride}>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const meta = header.column.columnDef.meta;
+                    const isSelectColumn = header.column.id === 'select';
+                    const canSort = header.column.getCanSort();
 
                     return (
-                      <TableCell
-                        key={cell.id}
+                      <TableHead
+                        key={header.id}
                         onlyCheckbox={isSelectColumn}
                         alignment={meta?.alignment}
-                        cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(cell.column, false))}
-                        style={getPinningStyle(cell.column)}
+                        cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(header.column, true))}
+                        style={getPinningStyle(header.column)}
                         onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
                       >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
+                        {header.isPlaceholder ? null : canSort ? (
+                          <Flex
+                            gap={1}
+                            align="center"
+                            cssOverride={mergeCss(
+                              styles.sortableHeader,
+                              header.column.getIsSorted() && styles.sortableHeaderActive,
+                            )}
+                            onClick={() => header.column.toggleSorting()}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            <ArrowDownUpFilled
+                              top={
+                                header.column.getIsSorted() === 'desc'
+                                  ? theme.colors.background.fillBrand
+                                  : theme.colors.icon.secondary
+                              }
+                              bottom={
+                                header.column.getIsSorted() === 'asc'
+                                  ? theme.colors.background.fillBrand
+                                  : theme.colors.icon.secondary
+                              }
+                            />
+                          </Flex>
+                        ) : (
+                          flexRender(header.column.columnDef.header, header.getContext())
+                        )}
+                      </TableHead>
                     );
                   })}
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        {!hidePagination && (
-          <Pagination disabled={isLoading}>
-            <Flex align="center" justify="space-between" cssOverride={styles.paginationWrapper}>
-              <PaginationPageSelect
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onChange={(page) => table.setPageIndex(page - 1)}
-              />
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    disabled={!table.getCanPreviousPage()}
-                    onClick={() => table.previousPage()}
-                  />
-                </PaginationItem>
-                {pageItems.map((item, index) =>
-                  item === ELLIPSIS ? (
-                    <PaginationItem key={`ellipsis-${index}`}>
-                      <PaginationEllipsis />
-                    </PaginationItem>
-                  ) : (
-                    <PaginationItem key={item}>
-                      <PaginationLink
-                        isActive={item === currentPage}
-                        onClick={() => table.setPageIndex(item - 1)}
-                      >
-                        {item}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ),
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    disabled={!table.getCanNextPage()}
-                    onClick={() => table.nextPage()}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Flex>
-          </Pagination>
-        )}
-      </CardContent>
-    </Card>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={visibleColumnCount} alignment="center">
+                    <Spinner />
+                  </TableCell>
+                </TableRow>
+              ) : rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={visibleColumnCount} alignment="center">
+                    {emptyState ?? <DataTableEmptyState />}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                    cssOverride={onRowClick ? styles.clickable : undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const meta = cell.column.columnDef.meta;
+                      const isSelectColumn = cell.column.id === 'select';
+
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          onlyCheckbox={isSelectColumn}
+                          alignment={meta?.alignment}
+                          cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(cell.column, false))}
+                          style={getPinningStyle(cell.column)}
+                          onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      {!hidePagination && (
+        <Pagination disabled={isLoading}>
+          <Flex align="center" justify="space-between" cssOverride={styles.paginationWrapper}>
+            <PaginationPageSelect
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onChange={(page) => table.setPageIndex(page - 1)}
+            />
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  disabled={!table.getCanPreviousPage()}
+                  onClick={() => table.previousPage()}
+                />
+              </PaginationItem>
+              {pageItems.map((item, index) =>
+                item === ELLIPSIS ? (
+                  <PaginationItem key={`ellipsis-${index}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={item}>
+                    <PaginationLink
+                      isActive={item === currentPage}
+                      onClick={() => table.setPageIndex(item - 1)}
+                    >
+                      {item}
+                    </PaginationLink>
+                  </PaginationItem>
+                ),
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  disabled={!table.getCanNextPage()}
+                  onClick={() => table.nextPage()}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Flex>
+        </Pagination>
+      )}
+    </Flex>
   );
 };
 

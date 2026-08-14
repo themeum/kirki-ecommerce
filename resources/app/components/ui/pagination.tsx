@@ -4,9 +4,8 @@ import { type ComponentPropsWithoutRef, createContext, forwardRef, useContext } 
 import Flex from '@/components/ui/flex';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import { ArrowLeftIcon } from '@/icons';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scopedMerge, uiFocusRing } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const PaginationDisabledContext = createContext(false);
@@ -108,10 +107,10 @@ const PaginationPrevious = forwardRef<HTMLButtonElement, PaginationPreviousProps
         type="button"
         aria-label={__('Previous page', 'kirki-ecommerce')}
         disabled={Boolean(disabled) || contextDisabled}
-        css={scopedMerge(styles.link, cssOverride)}
+        css={scopedMerge(styles.link, styles.navLink, cssOverride)}
         {...rest}
       >
-        {children ?? <ArrowLeftIcon />}
+        {children ?? __('Prev', 'kirki-ecommerce')}
       </button>
     );
   },
@@ -137,14 +136,10 @@ const PaginationNext = forwardRef<HTMLButtonElement, PaginationNextProps>(
         type="button"
         aria-label={__('Next page', 'kirki-ecommerce')}
         disabled={Boolean(disabled) || contextDisabled}
-        css={scopedMerge(styles.link, cssOverride)}
+        css={scopedMerge(styles.link, styles.navLink, cssOverride)}
         {...rest}
       >
-        {children ?? (
-          <span css={scoped(styles.nextIcon)}>
-            <ArrowLeftIcon />
-          </span>
-        )}
+        {children ?? __('Next', 'kirki-ecommerce')}
       </button>
     );
   },
@@ -227,7 +222,7 @@ export {
   PaginationLink,
   PaginationNext,
   PaginationPageSelect,
-  PaginationPrevious,
+  PaginationPrevious
 };
 
 const styles = defineStyles({
@@ -272,9 +267,9 @@ const styles = defineStyles({
       color: theme.colors.text.light,
     },
   },
-  nextIcon: {
-    ...flexCenter(),
-    transform: 'rotate(180deg)',
+  navLink: {
+    width: 'auto',
+    padding: `0 ${theme.spacing[3]}`,
   },
   ellipsis: {
     ...flexCenter(),
