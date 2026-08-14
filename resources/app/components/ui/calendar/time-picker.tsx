@@ -292,6 +292,10 @@ const styles = defineStyles({
     minWidth: '56px',
     maxHeight: '200px',
     overflowY: 'auto',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
     '&:not(:first-of-type)': {
       paddingLeft: theme.spacing[1],
       borderLeft: `1px solid ${theme.colors.border.default}`,
