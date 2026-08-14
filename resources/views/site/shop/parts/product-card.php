@@ -28,7 +28,7 @@ if (!isset($data['product']) || !is_object($data['product'])) {
  */
 $product = $data['product'];
 
-$variants = $product->variants()->get();
+$variants = $product->variants;
 $variant = $variants->first();
 
 if (!$variant) {
@@ -55,8 +55,8 @@ if ($sale_price > 0) {
     $formatted_sale_price = $manager->format($manager->from_minor($sale_price));
 }
 
-$category = $product->categories()->first();
-$media = $product->media()->first();
+$category = $product->categories->first();
+$media = $product->media->first();
 $image_url = null;
 if ($media) {
     $image_url = wp_get_attachment_image_url($media->ID, 'large');

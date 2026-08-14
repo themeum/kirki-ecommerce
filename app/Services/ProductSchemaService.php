@@ -3,8 +3,9 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\ProductSchema;
-use Kirki\Ecommerce\App\Repositories\ProductSchemaRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\DTO\ProductSchema\CreateProductSchemaDTO;
@@ -14,13 +15,6 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 class ProductSchemaService
 {
-    protected $repository;
-
-    public function __construct(ProductSchemaRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return paginated product schemas
      *
@@ -29,7 +23,7 @@ class ProductSchemaService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -40,7 +34,7 @@ class ProductSchemaService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -52,7 +46,7 @@ class ProductSchemaService
      */
     public function find(int $id)
     {
-        $product_schema = $this->repository->find($id);
+        $product_schema = ProductSchema::find($id);
 
         if (!$product_schema) {
             throw new NotFoundException(__('Product schema not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -69,7 +63,7 @@ class ProductSchemaService
      */
     public function create(CreateProductSchemaDTO $data)
     {
-        $product_schema = $this->repository->create($data->to_array());
+        $product_schema = ProductSchema::create($data->to_array());
 
         return $product_schema;
     }
@@ -83,19 +77,19 @@ class ProductSchemaService
      */
     public function update(UpdateProductSchemaDTO $data)
     {
-        $product_schema = $this->repository->find($data->id);
+        $product_schema = ProductSchema::find($data->id);
 
         if (empty($product_schema)) {
             throw new NotFoundException(__('Product schema could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_updated = $this->repository->update($data->id, $data->to_array());
+        $is_updated = (bool) $product_schema->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Product schema could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        return $this->repository->find($data->id);
+        return ProductSchema::find($data->id);
     }
 
     /**
@@ -107,13 +101,7 @@ class ProductSchemaService
      */
     public function delete(int $id)
     {
-        $product_schema = $this->repository->find($id);
-
-        if (empty($product_schema)) {
-            throw new NotFoundException(__('Product schema could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) ProductSchema::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Product schema could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -131,7 +119,7 @@ class ProductSchemaService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) ProductSchema::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Product schemas could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -148,6 +136,18 @@ class ProductSchemaService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    protected function list_query(ListFilterDTO $filters)
+    {
+        return ProductSchema::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
     }
 }

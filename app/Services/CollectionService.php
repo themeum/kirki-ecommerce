@@ -3,13 +3,14 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Collection;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Collection\CreateCollectionDTO;
 use Kirki\Ecommerce\App\DTO\Collection\UpdateCollectionDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\App\Repositories\CollectionRepository;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection as DataCollection;
 
 use Exception;
@@ -18,16 +19,6 @@ use function Kirki\Ecommerce\Framework\user;
 class CollectionService
 {
     /**
-     * @var CollectionRepository
-     */
-    protected $repository;
-
-    public function __construct(CollectionRepository $collection_repository)
-    {
-        $this->repository = $collection_repository;
-    }
-
-    /**
      * Return paginated collections.
      *
      * @param ListFilterDTO $filters
@@ -35,7 +26,7 @@ class CollectionService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -46,7 +37,7 @@ class CollectionService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -58,7 +49,7 @@ class CollectionService
      */
     public function find(int $id)
     {
-        $collection = $this->repository->find($id);
+        $collection = Collection::with_count('products')->find($id);
 
         if (empty($collection)) {
             throw new NotFoundException(__('Collection not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -76,12 +67,13 @@ class CollectionService
     public function create(CreateCollectionDTO $data)
     {
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
+        $data->slug = Collection::generate_unique_slug($data->slug);
 
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
 
-        return $this->repository->create($attributes);
+        return Collection::create($attributes);
     }
 
     /**
@@ -94,28 +86,25 @@ class CollectionService
      */
     public function update(UpdateCollectionDTO $data)
     {
-        $collection = $this->repository->find($data->id);
+        $collection = Collection::find($data->id);
 
         if (empty($collection)) {
             throw new NotFoundException(__('Collection could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
-
-        if ($collection->slug !== $data->slug && $this->repository->find_by_slug($data->slug)) {
-            throw new Exception(__('Collection slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        $data->slug = Collection::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->to_array();
         $attributes['updated_by'] = user()->get_id();
 
-        $updated = $this->repository->update($data->id, $attributes);
+        $updated = (bool) $collection->update($attributes);
 
         if (!$updated) {
             throw new Exception(__('Collection could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
-        return $this->repository->find($data->id);
+        return Collection::with_count('products')->find($data->id);
     }
 
     /**
@@ -127,7 +116,7 @@ class CollectionService
      */
     public function delete(int $id)
     {
-        $deleted = $this->repository->delete($id);
+        $deleted = (bool) Collection::query()->where('id', $id)->delete();
 
         if (!$deleted) {
             throw new Exception(__('Collection could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -145,7 +134,7 @@ class CollectionService
      */
     public function bulk_delete(array $ids)
     {
-        $deleted = $this->repository->bulk_delete($ids);
+        $deleted = (bool) Collection::where_in('id', $ids)->delete();
 
         if (!$deleted) {
             throw new Exception(__('Collections could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -164,6 +153,19 @@ class CollectionService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    protected function list_query(ListFilterDTO $filters)
+    {
+        return Collection::with_count('products')
+            ->when($filters->search, function (QueryBuilder $query, $search) {
+                return $query->where_any(['title', 'slug', 'description'], 'like', '%' . $search . '%');
+            })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
     }
 }
