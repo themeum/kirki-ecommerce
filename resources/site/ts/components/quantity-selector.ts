@@ -30,6 +30,10 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
       return config.max;
     },
 
+    get max(): number | undefined {
+      return this.maxValue;
+    },
+
     increment() {
       if (this.maxValue === undefined || this.quantity < this.maxValue) {
         this.quantity++;
