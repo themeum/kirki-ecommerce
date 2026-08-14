@@ -19,7 +19,6 @@ const EditProduct = () => {
     isError,
   } = useProductQuery(id!, Boolean(id));
   const updateProductMutation = useUpdateProductMutation();
-  let x = true;
 
   if (isLoading) {
     return <ProductFormSkeleton />;
