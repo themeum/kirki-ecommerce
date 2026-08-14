@@ -1,124 +1,95 @@
-import BulkActionHandler from '@/components/bulk-action-handler';
-import Sorting from '@/components/sorting';
-import Checkbox from '@/components/ui/checkbox';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import CustomerTableAction from '@/features/customers/pages/customer-table/customer-table-action';
-import SingleRow from '@/features/customers/pages/customer-table/single-row';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Trash2 } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router';
+
+import type { DataTableSelectionState } from '@/components/data-table';
+import DataTable from '@/components/data-table';
+import DataTableRowActions from '@/components/data-table/data-table-row-actions';
+import { RouteConfig } from '@/config/route-config';
+import { customerColumns } from '@/features/customers/pages/customer-table/columns';
+import CustomerTableFilters from '@/features/customers/pages/customer-table/customer-table-filters';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
-import { useBulkDeleteCustomersMutation } from '@/features/customers/services/customer';
-import { useListParams, useMarkList } from '@/hooks';
+import { useBulkDeleteCustomersMutation, useCustomersQuery, useDeleteCustomerMutation } from '@/features/customers/services/customer';
+import { customerListOptions } from '@/features/customers/types';
+import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
-import type { PaginatedData } from '@/types/api/response';
-import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
-type CustomerTableProps = {
-  data: PaginatedData<CustomerListItem>;
-  isFetching?: boolean;
-};
+const customerBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
 
-const CustomerTable = ({ data }: CustomerTableProps) => {
-  const { params, setParams } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'first_name',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const CustomerTable = () => {
+  const navigate = useNavigate();
+  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
+    useDataTableParams(customerListOptions);
+
+  const { data, isFetching } = useCustomersQuery(params);
+  const deleteMutation = useDeleteCustomerMutation();
   const bulkDeleteMutation = useBulkDeleteCustomersMutation();
 
-  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
-    setParams({ sort_by: sortBy, sort_order: sortOrder });
-  };
+  const handleBulkApply = useCallback(
+    async (action: string, { selectedIds, isAllMatchingSelected }: DataTableSelectionState) => {
+      if (action !== 'delete') {
+        return;
+      }
 
-  const { results, total, per_page } = data;
-
-  const tableHeaders: TaxonomyTableHeader[] = [
-    {
-      title: __('Customer', 'kirki-ecommerce'),
-      sortable: {
-        sort_by: 'first_name',
-        activeSortBy: params.sort_by,
-        sortOrder: params.sort_order,
-        onSort: handleSort,
-      },
+      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
     },
-    { title: __('Orders', 'kirki-ecommerce') },
-    { title: __('Amount Spent', 'kirki-ecommerce') },
-    { title: __('Location', 'kirki-ecommerce') },
-    { title: __('Last Order', 'kirki-ecommerce') },
-    { title: __('Joined at', 'kirki-ecommerce') },
-    { title: __('', 'kirki-ecommerce') },
-  ];
+    [bulkDeleteMutation],
+  );
 
-  const {
-    handleSelectAll,
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    handleClearSelection,
-    isSelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({ data });
+  const handleRowClick = useCallback(
+    (item: CustomerListItem) => {
+      void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: item.id }));
+    },
+    [navigate],
+  );
 
-  const handleApplyAction = async (action: string) => {
-    if (action !== 'delete') {
-      return;
-    }
-
-    await bulkDeleteMutation.mutateAsync(
-      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
-    );
-    handleClearSelection();
-  };
+  const columns = useMemo<ColumnDef<CustomerListItem>[]>(
+    () => [
+      ...customerColumns,
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div role="presentation" onClick={(event) => event.stopPropagation()}>
+            <DataTableRowActions
+              edit={{ onClick: () => handleRowClick(row.original) }}
+              actions={[
+                {
+                  label: __('Delete', 'kirki-ecommerce'),
+                  icon: <Trash2 size={16} />,
+                  destructive: true,
+                  onClick: () => deleteMutation.mutate(row.original.id),
+                },
+              ]}
+            />
+          </div>
+        ),
+      },
+    ],
+    [deleteMutation, handleRowClick],
+  );
 
   return (
-    <>
-      {selectedItems.length > 0 ? (
-        <BulkActionHandler
-          optionsArray={[
-            { value: 'delete', title: __('Delete', 'kirki-ecommerce') },
-          ]}
-          itemCount={itemCount}
-          onSelectAll={handleSelectAll}
-          onApply={(action) => handleApplyAction(action as string)}
-          total={total}
-          per_page={per_page}
-        />
-      ) : (
-        <CustomerTableAction />
-      )}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead onlyCheckbox>
-              <Checkbox
-                value={isSelected('*')}
-                onChange={handleAllCheckboxClick}
-                isPartialChecked={itemCount > 0 && itemCount < total}
-              />
-            </TableHead>
-            {tableHeaders.map((header, index) => (
-              <TableHead key={index}>
-                <Sorting data={header} />
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {results.map((item, index) => (
-            <SingleRow
-              key={index}
-              item={item}
-              isSelected={isSelected}
-              handleSingleCheckboxClick={handleSingleCheckboxClick}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </>
+    <DataTable
+      data={data?.results ?? []}
+      columns={columns}
+      pageCount={data?.last_page ?? 0}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
+      isLoading={isFetching}
+      enableRowSelection
+      selectionResetKey={selectionResetKey}
+      bulkActionOptions={customerBulkActions}
+      onBulkApply={handleBulkApply}
+      columnPinning={{ right: ['actions'] }}
+      onRowClick={handleRowClick}
+      toolbar={<CustomerTableFilters />}
+    />
   );
 };
 

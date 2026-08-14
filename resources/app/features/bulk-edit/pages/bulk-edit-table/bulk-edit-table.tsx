@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useBulkEditForm } from '@/features/bulk-edit';
 import { allTableHeaders } from '@/features/bulk-edit/lib/utils';
+import { bulkEditTableStyles } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table-styles';
 import SingleRow from '@/features/bulk-edit/pages/bulk-edit-table/single-row';
 
 type BulkEditSelectionData = {
@@ -26,7 +27,7 @@ const BulkEditTable = ({ selectedFields }: BulkEditTableProps) => {
   const [isDragging, setIsDragging] = useState(false);
 
   return (
-    <Table scrollable editMode="multiCell" style={{ minWidth: '100vw' }}>
+    <Table cssOverride={bulkEditTableStyles} style={{ minWidth: '100vw' }}>
       <TableHeader>
         <TableRow>
           {allTableHeaders

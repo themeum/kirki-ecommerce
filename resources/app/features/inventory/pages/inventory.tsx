@@ -1,25 +1,20 @@
 import { useEffect } from 'react';
 
-import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
-import Flex from '@/components/ui/flex';
 import PageHeading from '@/components/ui/page-heading';
 import { useUpdateBulkVariantsMutation } from '@/features/bulk-edit';
 import { InventoryFormProvider, useInventoryForm } from '@/features/inventory';
 import InventoryTable from '@/features/inventory/pages/inventory-table/inventory-table';
 import { useInventoryQuery } from '@/features/inventory/services/inventory';
-import { useListParams } from '@/hooks';
-import { cardStyles } from '@/theme/card-styles';
+import { inventoryListOptions } from '@/features/inventory/types';
+import { useDataTableParams } from '@/hooks';
 import { __ } from '@/wpi18n';
 
 const InventoryPage = () => {
-  const { params, setParam } = useListParams({
-    defaults: { sort_by: 'id', sort_order: 'asc', page: 1, limit: 20 },
-  });
-  const { data: inventoryData, isLoading } = useInventoryQuery(params);
-  const { setInventory, data, loaded, hasChanges, resetChanges } = useInventoryForm();
+  const { params } = useDataTableParams(inventoryListOptions);
+  const { data: inventoryData } = useInventoryQuery(params);
+  const { setInventory, data, hasChanges, resetChanges } = useInventoryForm();
   const { mutate: updateBulkVariants } = useUpdateBulkVariantsMutation();
 
   useEffect(() => {
@@ -82,27 +77,7 @@ const InventoryPage = () => {
         }
       />
       <Container>
-        {loaded && !isLoading ? (
-          <Flex direction="column" gap={4}>
-            <Card cssOverride={cardStyles.tableCard}>
-              <CardContent cssOverride={cardStyles.tableContent}>
-                <InventoryTable />
-              </CardContent>
-            </Card>
-            <Pagination
-              data={{
-                current_page: data?.current_page ?? 1,
-                last_page: data?.last_page ?? 1,
-                from: data?.from ?? 0,
-                total: data?.total ?? 0,
-                has_more_pages: data?.has_more_pages ?? false,
-              }}
-              onChange={(page) => setParam('page', page)}
-            />
-          </Flex>
-        ) : (
-          <div>{__('Loading...', 'kirki-ecommerce')}</div>
-        )}
+        <InventoryTable />
       </Container>
     </>
   );

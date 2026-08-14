@@ -1,103 +1,66 @@
-import { useState } from 'react';
+import type { VisibilityState } from '@tanstack/react-table';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import BulkActionHandler from '@/components/bulk-action-handler';
-import Button from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
-import Flex from '@/components/ui/flex';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { DataTableSelectionState } from '@/components/data-table';
+import DataTable from '@/components/data-table';
 import { RouteConfig } from '@/config/route-config';
 import { useInventoryForm } from '@/features/inventory';
 import { allTableHeaders } from '@/features/inventory/lib/utils';
-import InventoryTableAction from '@/features/inventory/pages/inventory-table/inventory-table-action';
-import SingleRow from '@/features/inventory/pages/inventory-table/single-row';
+import { inventoryColumns } from '@/features/inventory/pages/inventory-table/columns';
+import InventoryTableFilters from '@/features/inventory/pages/inventory-table/inventory-table-filters';
+import { inventoryTableStyles } from '@/features/inventory/pages/inventory-table/inventory-table-styles';
+import { inventoryListOptions } from '@/features/inventory/types';
 import type { InventoryVariant } from '@/features/products';
-import { useMarkList } from '@/hooks';
+import { useDataTableParams } from '@/hooks';
 import { __ } from '@/wpi18n';
+
+const inventoryBulkActions = [{ value: 'bulk-edit', title: __('Bulk Edit', 'kirki-ecommerce') }];
 
 const InventoryTable = () => {
   const navigate = useNavigate();
-  const { data } = useInventoryForm();
-  const { results, per_page } = data!;
-  const [selectedFields, setSelectedFields] = useState(
-    allTableHeaders.map((item) => item.value),
+  const { data, loaded } = useInventoryForm();
+  const { pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
+    useDataTableParams(inventoryListOptions);
+  const [selectedFields, setSelectedFields] = useState(allTableHeaders.map((item) => item.value));
+
+  const rows = useMemo<InventoryVariant[]>(() => Object.values(data?.results ?? {}), [data]);
+
+  const columnVisibility = useMemo<VisibilityState>(
+    () => Object.fromEntries(allTableHeaders.map((header) => [header.value, selectedFields.includes(header.value)])),
+    [selectedFields],
   );
 
-  const {
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    isSelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({
-    data: {
-      results: Object.values(results),
-      total: Object.values(results).length,
-    },
-  });
+  const handleBulkApply = useCallback(
+    (action: string, { selectedIds }: DataTableSelectionState) => {
+      if (action !== 'bulk-edit') {
+        return;
+      }
 
-  const handleApplyAction = () => {
-    void navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedItems.join(',')}`);
-  };
+      void navigate(`${RouteConfig.BulkVariants.buildLink()}?ids=${selectedIds.join(',')}`);
+    },
+    [navigate],
+  );
 
   return (
-    <>
-      {selectedItems.length > 0 ? (
-        <Flex gap={2} align="center" cssOverride={{ height: '68px' }}>
-          <BulkActionHandler
-            itemCount={itemCount}
-            onSelectAll={() => handleAllCheckboxClick(true)}
-            total={Object.values(results).length}
-            per_page={per_page}
-          />
-          <Button
-            variant="secondary"
-            onClick={handleApplyAction}
-          >
-            {__('Bulk Edit', 'kirki-ecommerce')}
-          </Button>
-        </Flex>
-      ) : (
-        <InventoryTableAction
-          selectedFields={selectedFields}
-          setSelectedFields={setSelectedFields}
-        />
-      )}
-
-      <Table editMode="singleCell">
-        <TableHeader>
-          <TableRow>
-            <TableHead onlyCheckbox>
-              <Checkbox
-                value={isSelected('*')}
-                onChange={handleAllCheckboxClick}
-                isPartialChecked={
-                  itemCount > 0 && itemCount < Object.keys(results).length
-                }
-              />
-            </TableHead>
-            {allTableHeaders
-              .filter((item) => selectedFields.includes(item?.value))
-              .map((header, index) => (
-                <TableHead alignment={header?.alignment} key={index}>
-                  {header.title}
-                </TableHead>
-              ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Object.values(results).map((item: InventoryVariant, index) => (
-            <SingleRow
-              key={index}
-              item={item}
-              isSelected={isSelected}
-              handleSingleCheckboxClick={handleSingleCheckboxClick}
-              selectedFields={selectedFields}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </>
+    <DataTable
+      data={rows}
+      columns={inventoryColumns}
+      pageCount={data?.last_page ?? 0}
+      total={data?.total}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
+      isLoading={!loaded}
+      enableRowSelection
+      selectionResetKey={selectionResetKey}
+      bulkActionOptions={inventoryBulkActions}
+      onBulkApply={handleBulkApply}
+      columnVisibility={columnVisibility}
+      cssOverride={inventoryTableStyles}
+      toolbar={<InventoryTableFilters selectedFields={selectedFields} setSelectedFields={setSelectedFields} />}
+    />
   );
 };
 

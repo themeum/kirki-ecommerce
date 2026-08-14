@@ -11,21 +11,6 @@ type ListQueryParams = {
 type ListParams<TFilter extends Record<string, unknown> = {}> =
   ListQueryParams & TFilter;
 
-type ListState<
-  TData = unknown,
-  TFilter extends Record<string, unknown> = {},
-> = {
-  loaded: boolean;
-  data: TData | null;
-  search: string;
-  page: number;
-  sort_order: SortOrder;
-  sort_by: string;
-  limit: string | number;
-  toggler?: boolean | number;
-  filter?: TFilter;
-};
-
 type ListFilterParser<T = unknown> = {
   parse: (value: string | null) => T | undefined;
   serialize?: (value: T) => string | null;
@@ -82,14 +67,6 @@ const parseString = (value: string | null): string | undefined => {
   return value;
 };
 
-const parseBoolean = (value: unknown): 0 | 1 => {
-  if (!value) {
-    return 0;
-  }
-
-  return value ? 1 : 0;
-}
-
 const serializeFilterValue = (value: unknown): string | null => {
   if (value === null || value === undefined || value === '') {
     return null;
@@ -113,9 +90,8 @@ export type {
   ListFilterParser,
   ListParams,
   ListQueryParams,
-  ListState,
   SortOrder,
 };
 
-export { parseArray, parseBoolean, parseNumberArray, parseStatus, parseString, serializeFilterValue };
+export { parseArray, parseNumberArray, parseStatus, parseString, serializeFilterValue };
 
