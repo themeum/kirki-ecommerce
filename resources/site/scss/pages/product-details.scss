@@ -244,8 +244,8 @@
         background: linear-gradient(
           to top right,
           transparent calc(50% - 0.5px),
-          $border-default calc(50% - 0.5px),
-          $border-default calc(50% + 0.5px),
+          $border-disabled calc(50% - 0.5px),
+          $border-disabled calc(50% + 0.5px),
           transparent calc(50% + 0.5px)
         );
       }
@@ -272,8 +272,23 @@
     }
 
     &:disabled {
-      opacity: 0.35;
+      opacity: 0.4;
       cursor: not-allowed;
+      position: relative;
+      overflow: hidden;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top right,
+          transparent calc(50% - 0.5px),
+          $border-disabled calc(50% - 0.5px),
+          $border-disabled calc(50% + 0.5px),
+          transparent calc(50% + 0.5px)
+        );
+      }
     }
   }
 
