@@ -90,7 +90,7 @@ describe('TimePicker overlay', () => {
   it('emits HH:mm when an hour and a minute are chosen', () => {
     const { onChange, field } = renderTimePicker(null);
 
-    fireEvent.focus(field);
+    fireEvent.click(field);
 
     chooseOption('Hour', '14');
     chooseOption('Minute', '30');
@@ -101,7 +101,7 @@ describe('TimePicker overlay', () => {
   it('keeps the overlay open after the first choice', () => {
     const { field } = renderTimePicker(null);
 
-    fireEvent.focus(field);
+    fireEvent.click(field);
     chooseOption('Hour', '14');
 
     expect(screen.getByRole('listbox', { name: 'Minute' })).toBeInTheDocument();
@@ -110,7 +110,7 @@ describe('TimePicker overlay', () => {
   it('offers every hour and every minute', () => {
     const { field } = renderTimePicker(null);
 
-    fireEvent.focus(field);
+    fireEvent.click(field);
 
     expect(
       within(screen.getByRole('listbox', { name: 'Hour' })).getAllByRole('option'),
@@ -123,7 +123,7 @@ describe('TimePicker overlay', () => {
   it('emits a 24-hour string from a 12-hour selection', () => {
     const { onChange, field } = renderTimePicker(null, 12);
 
-    fireEvent.focus(field);
+    fireEvent.click(field);
 
     chooseOption('Hour', '2');
     chooseOption('Minute', '30');
@@ -152,7 +152,7 @@ describe('TimePicker overlay', () => {
   it('reopens when the field is clicked after being dismissed', () => {
     const { field } = renderTimePicker(null);
 
-    fireEvent.focus(field);
+    fireEvent.click(field);
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(screen.queryByRole('listbox', { name: 'Hour' })).not.toBeInTheDocument();
@@ -234,7 +234,7 @@ describe('DateTimePicker', () => {
     );
 
     fireEvent.click(screen.getByRole('combobox'));
-    fireEvent.focus(getTimeField(container.ownerDocument.body));
+    fireEvent.click(getTimeField(container.ownerDocument.body));
 
     expect(screen.getByRole('listbox', { name: 'Hour' })).toBeInTheDocument();
     expect(screen.getByRole('grid')).toBeInTheDocument();

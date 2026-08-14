@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/calendar';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 
-type DateFieldMode = 'date' | 'date-range' | 'time' | 'date-time';
+type DateFieldMode = 'date' | 'range' | 'time' | 'datetime';
 
 type DateFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -71,7 +71,7 @@ const DateField = <
       field.onChange(nextValue === '' ? null : nextValue);
     };
 
-    if (mode === 'date-range') {
+    if (mode === 'range') {
       return (
         <DateRangePicker
           id={fieldId}
@@ -102,7 +102,7 @@ const DateField = <
       );
     }
 
-    if (mode === 'date-time') {
+    if (mode === 'datetime') {
       return (
         <DateTimePicker
           id={fieldId}

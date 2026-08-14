@@ -11,6 +11,8 @@ import {
   type Matcher,
 } from 'react-day-picker';
 
+import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
 import {
   InputGroup,
   InputGroupAddon,
@@ -19,6 +21,7 @@ import {
 } from '@/components/ui/input-group';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+import Text from '@/components/ui/text';
 import {
   DATE_FORMATS,
   formatDateValue,
@@ -27,7 +30,7 @@ import {
   WEEK_STARTS_ON,
 } from '@/libs/date';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, mergeCss, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -216,38 +219,45 @@ const PickerTrigger = ({
   cssOverride,
 }: PickerTriggerProps) => {
   return (
-    <PopoverTrigger asChild>
-      <button
-        type="button"
-        id={id}
-        role="combobox"
-        aria-haspopup={ariaHasPopup}
-        aria-controls={controlsId}
-        aria-expanded={open}
-        aria-invalid={error || undefined}
-        disabled={disabled}
+    <PopoverAnchor asChild>
+      <Flex
+        align="center"
+        gap={2}
         data-error={error ? 'true' : undefined}
-        css={scopedMerge(styles.trigger, error && styles.triggerError, cssOverride)}
+        data-disabled={disabled ? 'true' : undefined}
+        cssOverride={mergeCss(styles.trigger, error ? styles.triggerError : {}, cssOverride ?? {})}
       >
-        <span css={scoped(styles.value)}>
-          {label ?? <span css={scoped(styles.placeholder)}>{placeholder}</span>}
-        </span>
-        {onClear && (
-          <button
-            type="button"
-            css={scoped(styles.clear)}
-            aria-label={clearLabel}
-            onClick={(event) => {
-              event.stopPropagation();
-              onClear();
-            }}
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            id={id}
+            role="combobox"
+            aria-haspopup={ariaHasPopup}
+            aria-controls={controlsId}
+            aria-expanded={open}
+            aria-invalid={error || undefined}
+            disabled={disabled}
+            cssOverride={styles.triggerControl}
           >
-            <X size={14} />
-          </button>
+            <span css={scoped(styles.value)}>
+              {label ?? <span css={scoped(styles.placeholder)}>{placeholder}</span>}
+            </span>
+            {!onClear && <CalendarDays css={scoped(styles.icon)} />}
+          </Button>
+        </PopoverTrigger>
+        {onClear && (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={clearLabel}
+            cssOverride={styles.clear}
+            onClick={onClear}
+          >
+            <X />
+          </Button>
         )}
-        <CalendarDays size={16} css={scoped(styles.icon)} />
-      </button>
-    </PopoverTrigger>
+      </Flex>
+    </PopoverAnchor>
   );
 };
 
@@ -441,26 +451,32 @@ const scrollOptionIntoView = (node: HTMLButtonElement | null) => {
  */
 const TimeColumn = ({ label, options, selectedValue, onSelect }: TimeColumnProps) => {
   return (
-    <div role="listbox" aria-label={label} css={scoped(styles.timeColumn)}>
+    <Flex
+      direction="column"
+      gap="2px"
+      role="listbox"
+      aria-label={label}
+      cssOverride={styles.timeColumn}
+    >
       {options.map((option) => {
         const isSelected = option.value === selectedValue;
 
         return (
-          <button
+          <Button
             key={option.value}
             ref={isSelected ? scrollOptionIntoView : undefined}
-            type="button"
+            variant="ghost"
             role="option"
             aria-selected={isSelected}
             tabIndex={-1}
-            css={scopedMerge(styles.timeOption, isSelected && styles.timeOptionSelected)}
+            cssOverride={mergeCss(styles.timeOption, isSelected ? styles.timeOptionSelected : {})}
             onClick={() => onSelect(option.value)}
           >
             {option.label}
-          </button>
+          </Button>
         );
       })}
-    </div>
+    </Flex>
   );
 };
 
@@ -569,8 +585,7 @@ const TimePicker = ({
                 onChange(event.target.value);
               }
             }}
-            onFocus={() => setOpen(true)}
-            onClick={() => setOpen(true)}
+            onClick={() => setOpen((prev) => !prev)}
             onBlur={(event) => {
               if (!event.target.value) {
                 onChange(null);
@@ -579,7 +594,8 @@ const TimePicker = ({
           />
           <InputGroupAddon align="inline-end">
             <InputGroupButton
-              size="icon-xs"
+              size="icon-sm"
+              variant="ghost"
               disabled={disabled}
               aria-haspopup="dialog"
               aria-controls={panelId}
@@ -587,7 +603,7 @@ const TimePicker = ({
               aria-label={__('Choose time', 'kirki-ecommerce')}
               onClick={() => setOpen((isOpen) => !isOpen)}
             >
-              <Clock size={14} />
+              <Text color="disabled"><Clock size={14} /></Text>
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
@@ -605,7 +621,7 @@ const TimePicker = ({
           }
         }}
       >
-        <div css={scoped(styles.timeColumns)}>
+        <Flex gap={1}>
           <TimeColumn
             label={__('Hour', 'kirki-ecommerce')}
             options={hourOptions}
@@ -629,7 +645,7 @@ const TimePicker = ({
               onSelect={handleMeridiemSelect}
             />
           )}
-        </div>
+        </Flex>
       </PopoverContent>
     </Popover>
   );
@@ -729,14 +745,14 @@ const DateTimePicker = ({
           disabled={disabledDays}
         />
         <Separator marginTop={theme.spacing[2]} marginBottom={theme.spacing[2]} />
-        <div css={scoped(styles.footer)}>
+        <Flex align="center" justify="center" cssOverride={styles.footer}>
           <TimePicker
             value={timePart}
             onChange={handleTimeChange}
             hourCycle={hourCycle}
             disabled={disabled}
           />
-        </div>
+        </Flex>
       </PopoverContent>
     </Popover>
   );
@@ -790,30 +806,30 @@ const styles = defineStyles({
       pointerEvents: 'none',
     },
     [`.${defaultClassNames.button_previous}, .${defaultClassNames.button_next}`]:
-      {
-        ...flexCenter(),
-        width: theme.spacing[7],
-        height: theme.spacing[7],
-        padding: 0,
-        border: `1px solid ${theme.colors.border.default}`,
-        borderRadius: theme.radius.md,
-        backgroundColor: theme.colors.background.fill,
-        color: theme.colors.icon.secondary,
-        cursor: 'pointer',
-        pointerEvents: 'auto',
-        '&:hover': {
-          backgroundColor: theme.colors.background.fillHover,
-          color: theme.colors.icon.primary,
-        },
-        '&:focus-visible': {
-          ...uiFocusRing(theme),
-        },
-        '&:disabled': {
-          color: theme.colors.icon.disabled,
-          borderColor: theme.colors.border.disabled,
-          cursor: 'not-allowed',
-        },
+    {
+      ...flexCenter(),
+      width: theme.spacing[7],
+      height: theme.spacing[7],
+      padding: 0,
+      border: `1px solid ${theme.colors.border.default}`,
+      borderRadius: theme.radius.md,
+      backgroundColor: theme.colors.background.fill,
+      color: theme.colors.icon.secondary,
+      cursor: 'pointer',
+      pointerEvents: 'auto',
+      '&:hover': {
+        backgroundColor: theme.colors.background.fillHover,
+        color: theme.colors.icon.primary,
       },
+      '&:focus-visible': {
+        ...uiFocusRing(theme),
+      },
+      '&:disabled': {
+        color: theme.colors.icon.disabled,
+        borderColor: theme.colors.border.disabled,
+        cursor: 'not-allowed',
+      },
+    },
     [`.${defaultClassNames.month_grid}`]: {
       borderCollapse: 'collapse',
       margin: 0,
@@ -855,10 +871,10 @@ const styles = defineStyles({
       },
     },
     [`.${defaultClassNames.today}:not(.${defaultClassNames.selected}) .${defaultClassNames.day_button}`]:
-      {
-        ...theme.typography.small('semibold'),
-        color: theme.colors.text.emphasis,
-      },
+    {
+      ...theme.typography.small('semibold'),
+      color: theme.colors.text.emphasis,
+    },
     [`.${defaultClassNames.outside}`]: {
       color: theme.colors.text.subdued,
     },
@@ -907,19 +923,14 @@ const styles = defineStyles({
     width: '100%',
     minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
-    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+    padding: `0 ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    justifyContent: 'space-between',
-    ...itemCenter(),
-    gap: theme.spacing[2],
-    cursor: 'pointer',
-    textAlign: 'left',
-    '&:focus-visible, &[data-state="open"]': {
+    '&:focus-within, &:has([data-state="open"])': {
       borderColor: theme.colors.border.default,
       ...uiFocusRing(theme),
     },
-    '&:disabled': {
+    '&[data-disabled="true"]': {
       backgroundColor: theme.colors.background.surfaceAlt,
       color: theme.colors.text.secondary,
       opacity: 0.8,
@@ -930,9 +941,31 @@ const styles = defineStyles({
   triggerError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
-    '&:focus-visible, &[data-state="open"]': {
+    '&:focus-within, &:has([data-state="open"])': {
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme, theme.colors.border.critical),
+    },
+  },
+  triggerControl: {
+    flex: 1,
+    minWidth: 0,
+    width: 'auto',
+    height: 'auto',
+    padding: `${theme.spacing[2]} 0`,
+    justifyContent: 'space-between',
+    borderRadius: theme.radius.none,
+    backgroundColor: 'transparent',
+    color: theme.colors.text.primary,
+    textAlign: 'left',
+    opacity: 1,
+    transition: 'none',
+    '&:hover': {
+      backgroundColor: 'transparent',
+      color: theme.colors.text.primary,
+    },
+    '&:focus-visible': {
+      outline: 'none',
+      boxShadow: 'none',
     },
   },
   value: {
@@ -949,16 +982,22 @@ const styles = defineStyles({
     opacity: 0.8,
   },
   clear: {
-    ...flexCenter(),
     flexShrink: 0,
-    padding: 0,
-    margin: 0,
-    border: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
+    width: theme.spacing[5],
+    height: theme.spacing[5],
+    backgroundColor: 'transparent',
     color: theme.colors.text.secondary,
+    transition: 'none',
+    '& svg': {
+      width: '14px',
+      height: '14px',
+    },
     '&:hover': {
+      backgroundColor: 'transparent',
       color: theme.colors.text.primary,
+    },
+    '&:active': {
+      transform: 'none',
     },
   },
   icon: {
@@ -973,8 +1012,6 @@ const styles = defineStyles({
     padding: theme.spacing[2],
   },
   footer: {
-    ...itemCenter(),
-    justifyContent: 'center',
     padding: `0 ${theme.spacing[1]}`,
   },
   timeInput: {
@@ -988,14 +1025,7 @@ const styles = defineStyles({
     maxWidth: 'none',
     padding: theme.spacing[1],
   },
-  timeColumns: {
-    display: 'flex',
-    gap: theme.spacing[1],
-  },
   timeColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
     minWidth: '56px',
     maxHeight: '200px',
     overflowY: 'auto',
@@ -1005,16 +1035,20 @@ const styles = defineStyles({
     },
   },
   timeOption: {
-    ...flexCenter(),
-    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
-    border: 'none',
+    width: '100%',
+    height: 'auto',
+    padding: `${theme.spacing[3]}`,
     borderRadius: theme.radius.sm,
     backgroundColor: 'transparent',
     ...theme.typography.small(),
     color: theme.colors.text.primary,
-    cursor: 'pointer',
+    transition: 'none',
     '&:hover': {
       backgroundColor: theme.colors.background.optionHover,
+      color: theme.colors.text.primary,
+    },
+    '&:active': {
+      transform: 'none',
     },
   },
   timeOptionSelected: {
@@ -1022,6 +1056,7 @@ const styles = defineStyles({
     color: theme.colors.text.light,
     '&:hover': {
       backgroundColor: theme.colors.background.fillBrandHover,
+      color: theme.colors.text.light,
     },
   },
 });
