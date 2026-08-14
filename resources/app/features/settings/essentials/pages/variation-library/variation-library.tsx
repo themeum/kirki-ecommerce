@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -19,6 +19,7 @@ import { RouteConfig } from '@/config/route-config';
 import type { Attribute } from '@/features/products';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/features/products';
 import AddVariationPopup from '@/features/settings/essentials/pages/variation-library/add-variation-dialog';
+import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -35,30 +36,30 @@ const VariationList = () => {
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
   const [variationType, setVariationType] = useState<string | null>(null);
-  const [attributeListArr, setAttributeListArr] = useState<AttributeListItem[]>([]);
+  const [removedIds, setRemovedIds] = useState<number[]>([]);
 
-  const { data: attributeList = [], refetch } = useAttributesQuery({ limit: -1 });
+  const { data: attributeList = [], isLoading, refetch } = useAttributesQuery({ limit: -1 });
   const { mutate: deleteAttribute } = useDeleteAttributeMutation();
 
-  useEffect(() => {
-    const formattedAttributes = attributeList.map((item) => ({
-      ...item,
-      badge1: `${item.values?.length ?? 0} values`,
-      icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
-    }));
-    setAttributeListArr(formattedAttributes);
-  }, [attributeList]);
+  const attributeListArr = useMemo<AttributeListItem[]>(
+    () =>
+      attributeList
+        .filter((item) => !removedIds.includes(item.id))
+        .map((item) => ({
+          ...item,
+          badge1: `${item.values?.length ?? 0} values`,
+          icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
+        })),
+    [attributeList, removedIds],
+  );
 
   const handleDeleteVariation = (item: AttributeListItem) => {
-    const initialList = [...attributeListArr];
-    setAttributeListArr((prev) =>
-      prev.filter((attribute) => attribute?.id !== item?.id),
-    );
+    setRemovedIds((prev) => [...prev, item.id]);
     dispatchToastMessage('delete', {
       title: __('Attribute deleted', 'kirki-ecommerce'),
       duration: 5000,
       undoAction: () => {
-        setAttributeListArr(initialList);
+        setRemovedIds((prev) => prev.filter((id) => id !== item.id));
       },
       onSuccess: () => {
         deleteAttribute(item.id, { onSuccess: () => refetch() });
@@ -93,7 +94,9 @@ const VariationList = () => {
           }}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>
-          {!attributeListArr.length ? (
+          {isLoading ? (
+            <StackedListSkeleton />
+          ) : !attributeListArr.length ? (
             <Card cssOverride={cardStyles.innerDarkCard}>
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">

@@ -17,6 +17,7 @@ import {
   type MultiCurrencySettingsFormPayload,
   MultiCurrencySettingsFormSchema,
 } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
+import MultiCurrencySettingsSkeleton from '@/features/settings/multi-currency/skeletons/multi-currency-settings-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { CurrencyIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -131,7 +132,7 @@ const MultiCurrencySettings = () => {
           </Flex>
         </Form>
       ) : (
-        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+        <MultiCurrencySettingsSkeleton />
       )}
     </Container>
   );

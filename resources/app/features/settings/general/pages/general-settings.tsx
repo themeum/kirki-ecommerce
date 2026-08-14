@@ -15,6 +15,7 @@ import {
   type GeneralSettingsFormPayload,
   GeneralSettingsFormSchema,
 } from '@/features/settings/general/schemas/forms/general-settings-form';
+import GeneralSettingsSkeleton from '@/features/settings/general/skeletons/general-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
@@ -128,7 +129,7 @@ const GeneralSettings = () => {
           </Flex>
         </Form>
       ) : (
-        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+        <GeneralSettingsSkeleton />
       )}
     </Container>
   );

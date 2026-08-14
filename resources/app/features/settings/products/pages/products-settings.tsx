@@ -15,6 +15,7 @@ import {
   type ProductsSettingsFormPayload,
   ProductsSettingsFormSchema,
 } from '@/features/settings/products/schemas/forms/products-settings-form';
+import ProductsSettingsSkeleton from '@/features/settings/products/skeletons/products-settings-skeleton';
 import { ProductSettingsIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -89,7 +90,7 @@ const ProductsSettings = () => {
           </Flex>
         </Form>
       ) : (
-        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+        <ProductsSettingsSkeleton />
       )}
     </Container>
   );

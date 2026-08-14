@@ -1,10 +1,10 @@
 import Checkbox from '@/components/ui/checkbox';
-import Spinner from '@/components/ui/spinner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import ProductPickerRow from '@/features/products/components/select-products-dialog/product-picker-row';
 import type { ProductSelection, ProductVariantSelection } from '@/features/products/components/select-products-dialog/types';
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
+import ProductPickerSkeleton from '@/features/products/skeletons/product-picker-skeleton';
 import { __ } from '@/wpi18n';
 
 type ProductPickerItem = {
@@ -73,13 +73,7 @@ const ProductTable = (props: ProductTableProps) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {isLoading && (
-          <TableRow>
-            <TableCell colSpan={4}>
-              <Spinner />
-            </TableCell>
-          </TableRow>
-        )}
+        {isLoading && <ProductPickerSkeleton />}
         {!isLoading && pickerItems.length === 0 && (
           <TableRow>
             <TableCell colSpan={4}>

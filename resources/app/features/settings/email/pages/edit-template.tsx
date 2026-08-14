@@ -15,6 +15,7 @@ import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useEditTemplate } from '@/features/settings/email/hooks/use-edit-template';
 import { positionToTabIndex, resolveLogoUrl, tabIndexToPosition } from '@/features/settings/email/lib/template';
+import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -157,7 +158,7 @@ const EditTemplate = () => {
             </Flex>
           </Form>
         ) : (
-          <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+          <EditTemplateSkeleton />
         )}
       </Container>
     </>

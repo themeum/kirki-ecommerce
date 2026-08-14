@@ -1,7 +1,6 @@
 import { type ComponentType, createElement, lazy, type ReactElement, Suspense } from 'react';
 import type { RouteObject } from 'react-router';
 
-import LoadingSpinner from '@/components/loading-spinner';
 import { RouteConfig } from '@/config/route-config';
 
 const Orders = lazy(() => import('@/features/orders/pages/orders'));
@@ -12,7 +11,7 @@ const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,
   props = {} as Props,
 ): ReactElement => (
-  <Suspense fallback={<LoadingSpinner />}>
+  <Suspense fallback={null}>
     {createElement(Component, props)}
   </Suspense>
 );
