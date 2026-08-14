@@ -24,13 +24,6 @@ type DatePickerProps = {
   cssOverride?: CSSObject;
 };
 
-/**
- * Single date selection presented in a popover-anchored calendar.
- *
- * @param props Component props.
- *
- * @returns DatePicker element.
- */
 const DatePicker = ({
   value,
   onChange = noop,

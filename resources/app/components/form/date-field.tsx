@@ -5,6 +5,8 @@ import { Controller, type ControllerRenderProps, type FieldPath, type FieldValue
 import {
   DatePicker,
   DateRangePicker,
+  type DateRangePresetKey,
+  type DateRangePresetsPosition,
   DateTimePicker,
   type HourCycle,
   TimePicker,
@@ -27,6 +29,8 @@ type DateFieldProps<
   minDate?: string | null;
   maxDate?: string | null;
   numberOfMonths?: number;
+  presets?: boolean | DateRangePresetKey[];
+  presetsPosition?: DateRangePresetsPosition;
   hourCycle?: HourCycle;
   clearable?: boolean;
   disabled?: boolean;
@@ -47,6 +51,8 @@ const DateField = <
   minDate,
   maxDate,
   numberOfMonths,
+  presets,
+  presetsPosition,
   hourCycle,
   clearable,
   disabled,
@@ -82,6 +88,8 @@ const DateField = <
           minDate={minDate}
           maxDate={maxDate}
           numberOfMonths={numberOfMonths}
+          presets={presets}
+          presetsPosition={presetsPosition}
           clearable={clearable}
           disabled={disabled}
           error={error}

@@ -1,8 +1,14 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { useState } from 'react';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DatePicker, DateTimePicker, TimePicker } from '@/components/ui/calendar';
+import type { DateRangePresetKey, DateRangeValue } from '@/components/ui/calendar';
+import {
+  DatePicker,
+  DateRangePicker,
+  DateTimePicker,
+  TimePicker,
+} from '@/components/ui/calendar';
 
 beforeAll(() => {
   Element.prototype.hasPointerCapture = vi.fn(() => false);
@@ -201,6 +207,136 @@ describe('TimePicker field', () => {
     fireEvent.blur(field);
 
     expect(onChange).toHaveBeenLastCalledWith(null);
+  });
+});
+
+describe('DateRangePicker presets', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 5, 10));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const renderRangePicker = (
+    props: {
+      presets?: boolean | DateRangePresetKey[];
+      value?: DateRangeValue | null;
+      minDate?: string;
+    } = {},
+  ) => {
+    const { value = null, ...rest } = props;
+    const onChange = vi.fn();
+
+    render(
+      <DateRangePicker
+        value={value}
+        onChange={onChange}
+        placeholder="Pick a date range"
+        {...rest}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('combobox'));
+
+    return { onChange };
+  };
+
+  const getPresetBar = () => document.querySelector('[data-slot="range-presets"]');
+
+  const getPresetLabels = () => {
+    const bar = getPresetBar();
+
+    if (!bar) {
+      return [];
+    }
+
+    return Array.from(bar.querySelectorAll('button')).map((button) => {
+      return button.textContent;
+    });
+  };
+
+  it('renders no preset bar by default', () => {
+    renderRangePicker();
+
+    expect(getPresetBar()).toBeNull();
+    expect(screen.getAllByRole('grid')).not.toHaveLength(0);
+  });
+
+  it('renders the full set when presets is true', () => {
+    renderRangePicker({ presets: true });
+
+    expect(getPresetLabels()).toEqual([
+      'Today',
+      'Yesterday',
+      'Tomorrow',
+      'Last 7 days',
+      'Last 30 days',
+      'This week',
+      'Last week',
+      'This month',
+      'Last month',
+      'This year',
+      'Last year',
+    ]);
+  });
+
+  it('renders only the requested presets, in the requested order', () => {
+    renderRangePicker({ presets: ['this-week', 'today'] });
+
+    expect(getPresetLabels()).toEqual(['This week', 'Today']);
+  });
+
+  it('emits the preset range and closes the popover', () => {
+    const { onChange } = renderRangePicker({ presets: ['today'] });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Today' }));
+
+    expect(onChange).toHaveBeenCalledWith({ from: '2026-06-10', to: '2026-06-10' });
+    expect(screen.queryAllByRole('grid')).toHaveLength(0);
+  });
+
+  it('emits a week range honouring the calendar week start', () => {
+    const { onChange } = renderRangePicker({ presets: ['last-week'] });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Last week' }));
+
+    expect(onChange).toHaveBeenCalledWith({ from: '2026-05-31', to: '2026-06-06' });
+  });
+
+  it('disables a preset that falls entirely before minDate', () => {
+    renderRangePicker({ presets: ['last-month'], minDate: '2026-06-01' });
+
+    expect(screen.getByRole('button', { name: 'Last month' })).toBeDisabled();
+  });
+
+  it('clamps a preset that only partly overlaps the bounds', () => {
+    const { onChange } = renderRangePicker({
+      presets: ['this-month'],
+      minDate: '2026-06-15',
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'This month' }));
+
+    expect(onChange).toHaveBeenCalledWith({ from: '2026-06-15', to: '2026-06-30' });
+  });
+
+  it('marks the preset matching the current value as pressed', () => {
+    renderRangePicker({
+      presets: ['today', 'this-month'],
+      value: { from: '2026-06-01', to: '2026-06-30' },
+    });
+
+    expect(screen.getByRole('button', { name: 'This month' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 });
 

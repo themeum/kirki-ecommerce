@@ -22,13 +22,7 @@ type PickerTriggerProps = {
   cssOverride?: CSSObject;
 };
 
-/**
- * Shared popover trigger for the date, range, and date-time pickers.
- *
- * @param props Component props.
- *
- * @returns PickerTrigger element.
- */
+
 const PickerTrigger = ({
   id,
   controlsId,

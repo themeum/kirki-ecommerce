@@ -201,11 +201,12 @@ const TimePicker = ({
               }
             }}
           />
-          <InputGroupAddon align="inline-end">
+          <InputGroupAddon align="inline-end" cssOverride={styles.timeAddon}>
             <InputGroupButton
               size="icon-sm"
               variant="ghost"
               disabled={disabled}
+              cssOverride={styles.timeTrigger}
               aria-haspopup="dialog"
               aria-controls={panelId}
               aria-expanded={open}
@@ -269,6 +270,16 @@ const styles = defineStyles({
   timeInput: {
     '&::-webkit-calendar-picker-indicator': {
       display: 'none',
+    },
+  },
+  timeAddon: {
+    borderLeft: 'none',
+  },
+  timeTrigger: {
+    backgroundColor: 'transparent',
+    transition: 'none',
+    '&:hover': {
+      backgroundColor: 'transparent',
     },
   },
   timeContent: {

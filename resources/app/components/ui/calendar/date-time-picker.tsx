@@ -36,13 +36,6 @@ type DateTimePickerProps = {
   cssOverride?: CSSObject;
 };
 
-/**
- * Combined date and time selection emitting a single `yyyy-MM-dd HH:mm` string.
- *
- * @param props Component props.
- *
- * @returns DateTimePicker element.
- */
 const DateTimePicker = ({
   value,
   onChange = noop,

@@ -37,13 +37,7 @@ const NavChevron = ({ orientation = 'left', size = 16 }: ChevronProps) => {
 
 NavChevron.displayName = 'NavChevron';
 
-/**
- * Month grid built on DayPicker, styled entirely through theme tokens.
- *
- * @param props Component props, forwarded to DayPicker.
- *
- * @returns Calendar element.
- */
+
 const Calendar = ({ cssOverride, ...props }: CalendarProps) => {
   const {
     showOutsideDays = true,
