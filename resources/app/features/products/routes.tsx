@@ -1,20 +1,12 @@
-import { type ComponentType, createElement, lazy, type ReactElement, Suspense } from 'react';
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router';
 
+import withSuspense from '@/components/with-suspense';
 import { RouteConfig } from '@/config/route-config';
 
 const Products = lazy(() => import('@/features/products/pages/products'));
 const CreateProduct = lazy(() => import('@/features/products/pages/create-product/create-product'));
 const EditProduct = lazy(() => import('@/features/products/pages/edit-product/edit-product'));
-
-const withSuspense = <Props extends object>(
-  Component: ComponentType<Props>,
-  props = {} as Props,
-): ReactElement => (
-  <Suspense fallback={null}>
-    {createElement(Component, props)}
-  </Suspense>
-);
 
 const ProductRoutes = RouteConfig.Products;
 

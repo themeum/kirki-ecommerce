@@ -1,19 +1,11 @@
-import { type ComponentType, createElement, lazy, type ReactElement, Suspense } from 'react';
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router';
 
+import withSuspense from '@/components/with-suspense';
 import { RouteConfig } from '@/config/route-config';
 
 const Coupons = lazy(() => import('@/features/coupons/pages/coupons'));
 const EditCoupon = lazy(() => import('@/features/coupons/pages/edit-coupon/edit-coupon'));
-
-const withSuspense = <Props extends object>(
-  Component: ComponentType<Props>,
-  props = {} as Props,
-): ReactElement => (
-  <Suspense fallback={null}>
-    {createElement(Component, props)}
-  </Suspense>
-);
 
 const couponsRoutes: RouteObject[] = [
   { path: RouteConfig.Coupons.template, element: withSuspense(Coupons) },

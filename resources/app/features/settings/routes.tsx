@@ -1,7 +1,8 @@
-import { type ComponentType, createElement, lazy, type ReactElement, Suspense } from 'react';
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router';
 import { Navigate } from 'react-router';
 
+import withSuspense from '@/components/with-suspense';
 import { RouteConfig } from '@/config/route-config';
 
 const SettingsLayout = lazy(() => import('@/features/settings/pages/settings-layout'));
@@ -22,15 +23,6 @@ const EssentialsSettings = lazy(() => import('@/features/settings/essentials/pag
 const ColorVariation = lazy(() => import('@/features/settings/essentials/pages/variation-library/color-variation'));
 const ListVariation = lazy(() => import('@/features/settings/essentials/pages/variation-library/list-variation'));
 const AdvancedSettings = lazy(() => import('@/features/settings/advanced/pages/advanced-settings'));
-
-const withSuspense = <Props extends object>(
-  Component: ComponentType<Props>,
-  props = {} as Props,
-): ReactElement => (
-  <Suspense fallback={null}>
-    {createElement(Component, props)}
-  </Suspense>
-);
 
 const SettingsRoutes = RouteConfig.Settings;
 
