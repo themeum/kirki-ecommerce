@@ -6,7 +6,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { InputState } from '@/types';
+import type { InputState } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

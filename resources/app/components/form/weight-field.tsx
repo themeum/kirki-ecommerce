@@ -126,7 +126,7 @@ const WeightField = <
                     onBlur={weightField.onBlur}
                     disabled={disabled}
                     aria-invalid={weightState.invalid}
-                    placeholder="e.g. 10"
+                    placeholder={__('e.g. 10', 'kirki-ecommerce')}
                   />
                   <InputGroupAddon align="inline-end">
                     <Select

@@ -3,7 +3,7 @@ import { type CSSProperties, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type { HeadingType } from '@/types';
+import type { HeadingType } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type HeadingProps = {

@@ -19,6 +19,7 @@ import { quantitySelector } from './components/quantity-selector';
 import { shop } from './components/shop';
 import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
+import { miniCart } from "./components/mini-cart";
 
 import '../scss/index.scss';
 
@@ -39,6 +40,7 @@ Alpine.data('modal', modal);
 Alpine.data('form', form);
 Alpine.data('stateField', stateField);
 Alpine.data('shop', shop);
+Alpine.data('miniCart', miniCart);
 
 // Initialize Alpine
 window.Alpine = Alpine;

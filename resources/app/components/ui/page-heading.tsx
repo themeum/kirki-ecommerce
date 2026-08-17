@@ -8,7 +8,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
-import type { ContainerSize, HeadingType } from '@/types';
+import type { ContainerSize, HeadingType } from '@/types/components/common';
 
 type PageHeadingProps = {
   type?: HeadingType;

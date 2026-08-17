@@ -2,45 +2,96 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Kirki\Ecommerce\App\Repositories\CartRepository;
+use Kirki\Ecommerce\App\Models\Cart as CartModel;
+use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
-use Kirki\Ecommerce\App\DTO\Cart\UpdateCartDTO;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
-use function Kirki\Ecommerce\Framework\app;
-use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
 {
-    protected $repository;
-    public function __construct(CartRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     public function get_cart($customer_id = null, $token = null)
     {
         $cart = null;
 
         if ($customer_id) {
-            $cart = $this->repository->find_by_customer($customer_id);
+            $cart = $this->find_by_customer($customer_id);
         }
 
         if (!$cart && $token) {
-            $cart = $this->repository->find_by_token($token);
+            $cart = $this->find_by_token($token);
         }
 
         if ($cart && $customer_id && !$cart->customer_id) {
-            $this->repository->update_cart($cart->id, ['customer_id' => $customer_id]);
+            $this->update_cart($cart->id, ['customer_id' => $customer_id]);
         }
 
         return $cart;
+    }
+
+    protected function find_by_token($token)
+    {
+        return CartModel::where('cart_token', $token)->with([
+            'items' => ['product' => ['media', 'categories'], 'variant' => ['media']]
+        ])->order_by('id', 'desc')->first();
+    }
+
+    /**
+     * Update cart by token
+     *
+     * @since 1.0.0
+     *
+     * @param string $token
+     * @param array $data
+     *
+     * @return CartModel|null
+     */
+    protected function update_by_token($token, array $data)
+    {
+        $cart = $this->find_by_token($token);
+
+        if ($cart) {
+            $cart->update($data);
+            return $this->find($cart->id);
+        }
+
+        return null;
+    }
+
+    protected function find_by_customer($customer_id)
+    {
+        return CartModel::where('customer_id', $customer_id)->with([
+            'items' => ['product' => ['media', 'categories'], 'variant' => ['media', 'attribute_values', 'available_quantity']]
+        ])->order_by('id', 'desc')->first();
+    }
+
+    protected function create_cart(array $data)
+    {
+        return CartModel::create($data);
+    }
+
+    protected function update_cart($id, array $data)
+    {
+        $cart = CartModel::find($id);
+
+        if (empty($cart)) {
+            return null;
+        }
+
+        $cart->update($data);
+
+        return $this->find($id);
+    }
+
+    protected function add_item_to_cart($cart_id, array $item_data)
+    {
+        return CartItem::create(array_merge(['cart_id' => $cart_id], $item_data));
     }
 
     protected function create_new_cart($customer_id = null)
@@ -89,12 +140,14 @@ class CartService
             }
         }
 
-        return $this->repository->create_cart($data)->load('items', 'items.product', 'items.variant');
+        return $this->create_cart($data)->load_missing('items', 'items.product', 'items.variant');
     }
 
     public function find_item_in_cart($cart_id, $variant_id = null)
     {
-        return $this->repository->find_item_in_cart($cart_id, $variant_id);
+        return CartItem::where('cart_id', $cart_id)
+            ->where('variant_id', $variant_id)
+            ->first();
     }
 
     public function add_item(AddToCartDTO $dto)
@@ -113,15 +166,15 @@ class CartService
             $new_quantity = $existing_item->quantity + $dto->quantity;
             $this->update_item_quantity($cart_id, $existing_item->id, $new_quantity);
         } else {
-            $this->repository->add_item($cart_id, $dto->to_array());
+            $this->add_item_to_cart($cart_id, $dto->to_array());
         }
 
-        return $this->repository->find($cart_id);
+        return $this->find($cart_id);
     }
 
     public function update_item_quantity($cart_id, $item_id, $quantity)
     {
-        $item = $this->repository->find_item($item_id);
+        $item = $this->find_item($item_id);
 
         if (!$item) {
             throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
@@ -131,22 +184,28 @@ class CartService
             throw new Exception(__('Unauthorized action.', 'kirki-ecommerce'));
         }
 
-        return $this->repository->update_item($item_id, ['quantity' => $quantity]);
+        return $this->update_item($item_id, ['quantity' => $quantity]);
     }
 
     public function find_item($item_id)
     {
-        return $this->repository->find_item($item_id);
+        return CartItem::find($item_id);
     }
 
     public function update_item($item_id, array $data)
     {
-        return $this->repository->update_item($item_id, $data);
+        $item = $this->find_item($item_id);
+
+        if (empty($item)) {
+            return false;
+        }
+
+        return $item->update($data);
     }
 
     public function partial_update($cart_id, array $data)
     {
-        return $this->repository->update_cart($cart_id, $data);
+        return $this->update_cart($cart_id, $data);
     }
 
     public function remove_item(RemoveCartItemDTO $dto)
@@ -157,7 +216,7 @@ class CartService
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
-        $item = $this->repository->find_item($dto->item_id);
+        $item = $this->find_item($dto->item_id);
 
         if (!$item) {
             throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
@@ -167,7 +226,7 @@ class CartService
             throw new Exception(__('Unauthorized action.', 'kirki-ecommerce'));
         }
 
-        return $this->repository->remove_item($item->id);
+        return CartItem::destroy($item->id);
     }
 
     public function empty_cart(EmptyCartDTO $dto)
@@ -178,14 +237,16 @@ class CartService
             $cart = $this->create_new_cart($dto->customer_id);
         }
 
-        $this->repository->empty_cart($cart->id);
+        CartModel::where('id', $cart->id)->delete();
 
         return null;
     }
 
     public function find($cart_id)
     {
-        return $this->repository->find($cart_id);
+        return CartModel::with([
+            'items' => ['product' => ['media', 'categories'], 'variant' => ['media']]
+        ])->find($cart_id);
     }
 
     /**

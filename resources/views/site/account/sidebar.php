@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Account Sidebar Partial.
+ * Account Page Template.
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>

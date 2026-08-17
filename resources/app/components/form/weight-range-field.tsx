@@ -57,7 +57,7 @@ const WeightRangeField = <
               name={`${name}.${index}.from` as FieldPath<TFieldValues>}
               render={({ field: fromField, fieldState }) => (
                 <Input
-                  value={(fromField.value) ?? ''}
+                  value={fromField.value ?? ''}
                   type="number"
                   placeholder={__('e.g. 0', 'kirki-ecommerce')}
                   disabled={disabled}
@@ -74,7 +74,7 @@ const WeightRangeField = <
               name={`${name}.${index}.to` as FieldPath<TFieldValues>}
               render={({ field: toField, fieldState }) => (
                 <Input
-                  value={(toField.value) ?? ''}
+                  value={toField.value ?? ''}
                   type="number"
                   placeholder={__('e.g. 10', 'kirki-ecommerce')}
                   disabled={disabled}
@@ -93,7 +93,7 @@ const WeightRangeField = <
                 render={({ field: amountField, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <Input
-                      value={(amountField.value) ?? ''}
+                      value={amountField.value ?? ''}
                       type="number"
                       placeholder={__('e.g. 15', 'kirki-ecommerce')}
                       disabled={disabled}

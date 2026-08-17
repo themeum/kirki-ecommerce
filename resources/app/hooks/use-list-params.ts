@@ -1,12 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
-import type {
-  ListFilterConfig,
-  ListParams,
-  ListQueryParams,
-  SortOrder,
-} from '@/types';
+import type { ListFilterConfig, ListParams, ListQueryParams, SortOrder } from '@/types/list-state';
 import { serializeFilterValue } from '@/types/list-state';
 
 type ListParamsDefaults = ListQueryParams;

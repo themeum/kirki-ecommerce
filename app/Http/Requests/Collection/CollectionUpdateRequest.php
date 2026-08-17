@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Collection;
 
+use Kirki\Ecommerce\App\Models\Collection;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -12,7 +13,7 @@ class CollectionUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'title' => 'required|string',
-            'slug' => 'string|nullable',
+            'slug' => 'string|nullable|unique:' . Collection::get_table_name() . ',slug,' . $this->int('id'),
             'description' => 'string|nullable',
             'banner' => 'integer|nullable',
             'seo_title' => 'string|nullable',

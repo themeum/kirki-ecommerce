@@ -11,9 +11,9 @@ import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
+import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
-import type { MediaRef } from '@/types';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 

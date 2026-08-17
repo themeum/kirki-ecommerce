@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Account Details Page Template.
+ * Account - Account Details Page Template.
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>

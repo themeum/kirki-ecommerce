@@ -1,25 +1,14 @@
 import type { CSSObject } from '@emotion/react';
 import type { CSSProperties, ReactNode } from 'react';
 
-import type { SortableConfig } from '@/components/sorting';
-import type { PaginatedData, TableAlignment } from '@/types';
-
 type DataTableItem = {
   id: string | number;
 };
 
-type DataTableColumn<T> = {
-  title: ReactNode;
-  renderItem: (item: T) => ReactNode;
-  alignment?: TableAlignment;
-  sortable?: Pick<SortableConfig, 'sort_by'>
-  cssOverride?: CSSObject;
-  onColumnClick?: (item: T) => void;
-};
-
-type DataTableBulkApplyPayload = {
-  selectedItems: (string | number)[];
-  isSelectAll: boolean;
+type DataTableSelectionState = {
+  selectedIds: string[];
+  isAllMatchingSelected: boolean;
+  selectedCount: number;
 };
 
 type DataTableRowEditAction = {
@@ -43,26 +32,11 @@ type DataTableRowActionsConfig = {
   actionCssOverride?: CSSObject;
 };
 
-type DataTableRowActionsResolver<T> = (
-  item: T,
-) => DataTableRowActionsConfig | null | undefined;
-
-const EMPTY_PAGE: PaginatedData<never> = {
-  results: [],
-  total: 0,
-  per_page: 0,
-  current_page: 1,
-  last_page: 1,
-};
-
-export { EMPTY_PAGE };
 export type {
-  DataTableBulkApplyPayload,
-  DataTableColumn,
   DataTableItem,
   DataTableRowAction,
   DataTableRowActionsConfig,
-  DataTableRowActionsResolver,
   DataTableRowEditAction,
+  DataTableSelectionState,
 };
 

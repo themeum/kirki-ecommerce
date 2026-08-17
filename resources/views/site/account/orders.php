@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Account Orders Page Template.
+ * Account - Orders Page Template.
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>

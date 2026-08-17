@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Attribute;
 
+use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -12,7 +13,7 @@ class AttributeUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
-            'slug' => 'string|nullable',
+            'slug' => 'string|nullable|unique:' . Attribute::get_table_name() . ',slug,' . $this->int('id'),
             'type' => 'string|in:color,list|nullable',
         ];
     }

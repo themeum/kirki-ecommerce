@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
-use Kirki\Ecommerce\App\Repositories\CurrencyRepository;
+use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
@@ -68,8 +68,7 @@ class Currency
      */
     protected static function resolve_currency(string $currency_code)
     {
-        $currency_repository = new CurrencyRepository();
-        return $currency_repository->find_by_code($currency_code);
+        return CurrencyModel::where('code', $currency_code)->first();
     }
 
     /**

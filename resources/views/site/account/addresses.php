@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Account Addresses Page Template.
+ * Account - Addresses Page Template.
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>

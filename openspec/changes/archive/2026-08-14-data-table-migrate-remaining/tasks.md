@@ -1,0 +1,79 @@
+## 1. Brands — the archetype
+
+Land this one completely before starting any other table; categories and tags are copied from it.
+
+- [x] 1.1 Add a module-scope `brandListOptions` constant to `features/brands/types.ts` (create it if absent) holding the defaults currently duplicated in `pages/brands.tsx`, `brand-table.tsx` and `brand-table-action.tsx` — `{ search: '', sort_by: 'name', sort_order: 'asc', page: 1, limit: 10 }`
+- [x] 1.2 Create `features/brands/components/brand-table/columns.tsx` as a module-scope `ColumnDef<Brand>[]`, porting the cells from `single-row.tsx`: name, logo thumbnail, description, slug, count. Preserve the `|| '--'` / `?? 0` fallbacks
+- [x] 1.3 Set `enableSorting: true` with ids taken **verbatim** from the current `Sorting` configs — `name`, `description`, `slug`, `count`. The image column stays unsortable. Verify each id against `services/brand` rather than inferring it from the column heading
+- [x] 1.4 Add the actions column as `{ id: 'actions' }` pinned to the trailing edge, rendering `DataTableRowActions` (edit + destructive delete). Its cell calls back to the table rather than owning state — implemented as a `useMemo` column appended in `brand-table.tsx` (not the static `columns.tsx`), so it can close over `setEditingItem` and the single `useDeleteBrandMutation` instance instead of each row owning its own hook
+- [x] 1.5 Rename `brand-table-action.tsx` → `brand-table-filters.tsx` and point it at `brandListOptions`
+- [x] 1.6 Rewrite `brand-table.tsx`: `useDataTableParams(brandListOptions)`, `useBrandsQuery(params)`, one `editingItem` state driving a single `BrandAddEditPopover` (keyed on the item id so switching rows remounts it), one `useDeleteBrandMutation`, `useBulkDeleteBrandsMutation` behind `onBulkApply`, `enableRowSelection`, `selectionResetKey`, `columnPinning={{ right: ['actions'] }}`, `density="compact"`, and `toolbar` / `filterBar` props — note: `DataTable` did not expose a `density` prop yet, so it was added (pass-through to the `Table` primitive) since multiple tasks in this change require it
+- [x] 1.7 Pass **`isFetching`** from `useBrandsQuery` into `isLoading`
+- [x] 1.8 Delete `features/brands/components/brand-table/single-row.tsx`
+- [x] 1.9 Strip `pages/brands.tsx` down to its heading and page actions: remove `useListParams`, the query, the `loaded` gate, `Card`/`CardContent`, `Pagination` and the `PaginationData` cast. Remove the now-dead `isFetching` prop from the table's props type
+- [x] 1.10 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 2. Categories and tags
+
+- [x] 2.1 Repeat group 1 for categories: `categoryListOptions`, `columns.tsx`, `category-table-filters.tsx`, rewritten `category-table.tsx`, deleted `single-row.tsx`, stripped `pages/categories.tsx`. `density="compact"`
+- [x] 2.2 Repeat group 1 for tags — note tags does **not** pass `type="variation"` today, so it takes the default density, not `compact`
+- [x] 2.3 Diff all three table components against each other; any difference that is not a genuine feature difference is an accident from copying — diffed clean, only naming/density/dialog-prop differences remain
+- [x] 2.4 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 3. Collections and customers
+
+- [x] 3.1 Collections: `collectionListOptions`, `columns.tsx` from its `single-row.tsx`, `collection-table-filters.tsx`, rewritten table, deleted `single-row.tsx`, stripped `pages/collections.tsx`. Keep `fixed`
+- [x] 3.2 Leave collections' toolbar sort-toggle button as it is, wired to the same params. Do not convert it to sortable headers — that is a UI change, not a migration
+- [x] 3.3 Leave collections' disabled date filter in place, still disabled
+- [x] 3.4 Customers: `customerListOptions`, `columns.tsx`, `customer-table-filters.tsx`, rewritten table, deleted `single-row.tsx`, stripped `pages/customers.tsx`. Sorting stays on the customer column only — note: neither collections nor customers had a per-row edit dialog (both navigate to a detail page), and since the whole row is click-navigable, the actions cell wraps `DataTableRowActions` in a `stopPropagation` div (mirroring the pattern tags' old `single-row.tsx` already used) so the destructive delete action doesn't also trigger navigation
+- [x] 3.5 Leave customers' disabled date filter and non-functional filter button exactly as they are
+- [x] 3.6 Note that `pages/customers.tsx` uses `cardStyles.formCard` and a bare `CardContent`, unlike the other five — after adopting the DataTable's own card its spacing will change. Flag it for the visual check in group 8
+- [x] 3.7 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 4. Inventory
+
+- [x] 4.1 Create `columns.tsx` from `inventory-table/single-row.tsx`, delete `single-row.tsx`
+- [x] 4.2 Keep the form-backed data source: read rows from `useInventoryForm()` and convert the keyed object at the boundary with `Object.values(results)`. Do not introduce a query — `InventoryTable` itself calls no query; `useInventoryQuery` stays where it already was, in `pages/inventory.tsx` (see 4.7 note)
+- [x] 4.3 Supply the in-flight signal from the form context's own loading state — inventory has no query, so there is no `isFetching` to pass — implemented as `isLoading={!loaded}` from `useInventoryForm()`
+- [x] 4.4 Move the column-visibility dropdown from local `selectedFields` state to the DataTable's `columnVisibility`, keeping the same dropdown UI in `inventory-table-filters.tsx` — `selectedFields: string[]` state stays (dropdown UI unchanged), converted to a TanStack `VisibilityState` object at the boundary and handed to `DataTable`'s `columnVisibility` prop, which now does the actual hiding (previously a manual `.filter()` over `allTableHeaders`)
+- [x] 4.5 Keep the bulk action navigating to `RouteConfig.BulkVariants` with `?ids=`, now built from the reported `selectedIds` instead of `useMarkList`'s `selectedItems` — surfaced through the standard `bulkActionOptions`/`onBulkApply` selection-bar flow (a single "Bulk Edit" option) rather than the old always-visible button, matching how every other migrated table now exposes bulk actions
+- [x] 4.6 Pass the inventory feature's `singleCell` style module (created in `table-pagination-primitives`) through to the table — no module by that name exists; the equivalent already lives at `inventory-table-styles.ts` (`inventoryTableStyles`, the same per-cell-hover `cssOverride` this task describes). `DataTable` did not expose a `cssOverride` pass-through to its inner `Table`, so it was added (mirroring the `density` addition in group 1) and `inventoryTableStyles` is passed through unchanged
+- [x] 4.7 Strip `pages/inventory.tsx` of its `useListParams`, `Card`, `Pagination` and the `loaded && !isLoading` gate, keeping the `useInventoryForm` wiring and the unsaved-changes bar — `useListParams` replaced with `useDataTableParams(inventoryListOptions)` (still needed in the page because `handleDiscardUpdate` resets the form back to the query's pristine `inventoryData`, which only the page has); `useInventoryQuery` itself was deliberately *not* moved into `InventoryTable` per 4.2. `Card`/`Pagination`/the loading gate are gone — `InventoryTable` now owns its own card and pagination via `DataTable`
+- [x] 4.8 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 5. Variation library
+
+- [x] 5.1 Create `columns.tsx` from its `single-row.tsx`, delete `single-row.tsx` — `columns.tsx` exports a `getVariationColumns({attributeName, type, updatedAt})` factory rather than a bare constant, since the header text is the attribute's own name (not a fixed translation string) and the color-swatch/hex column only exists for `type === 'color'` — both are genuinely dynamic, not accidental
+- [x] 5.2 Keep the client-side search: continue calling `getSearchedValue(keyword, results)` in the feature and supply the filtered array as the table's rows. Do not ask the DataTable to filter
+- [x] 5.3 Render with paging disabled — this list has no server pages — `hidePagination`, with inert static `pagination`/`sorting` state (DataTable's props require them, but `manualPagination`/`manualSorting` mean they're never acted on)
+- [x] 5.4 Delete the hand-rolled "No data found" Card/Text block; the DataTable's empty state replaces it, so a local search matching nothing looks like every other empty list — also removed the now-redundant `Card`/`CardContent` wrapper in `list-variation.tsx` and `color-variation.tsx` that used to wrap `VariationTable`, since `DataTable` owns its own card now (would otherwise double up); their own separate "no value added yet" empty state (shown when there are zero values at all, before `VariationTable` even mounts) is untouched, out of scope
+- [x] 5.5 Keep bulk delete going through `confirmAction` from `useOutletContext<SettingsOutletContext>()` — same for the per-row delete action (`single-row.tsx` already routed it through `confirmAction` too). Both wrap the mutation in a `Promise` that only resolves inside `confirmAction`'s callback, so the selection bar's selection state isn't cleared until the user actually confirms
+- [x] 5.6 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 6. Customer groups (mock)
+
+- [x] 6.1 Rebuild `customer-group-table.tsx` on the DataTable with its existing mock array as the rows and real local row selection replacing the `noop` handlers. `density="wide"` — added a synthetic `id` (1-10) to each mock row since `DataTable` requires a stable row id; row content is otherwise identical (same repeated "Wholesale Partners" row, 10 times)
+- [x] 6.2 Put its header strings through `__()` with domain `kirki-ecommerce` — `'Group Name'`, `'Members'`, `'Tags'`, `'Created On'` are currently raw literals
+- [x] 6.3 Keep the mock nature obvious in the code so nobody mistakes it for a wired screen, and leave the page's non-functional filter UI alone — kept a comment flagging the mock array, moved the page's inline (non-functional) toolbar JSX into `CustomerGroupTable` itself as its `toolbar`, matching how every other migrated table supplies its toolbar, and removed the page's now-redundant `Card`/`CardContent` wrapper since `DataTable` owns its own card
+- [x] 6.4 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 7. The five non-list tables (primitives only)
+
+These keep hand-rolled rows and do not become DataTables.
+
+- [x] 7.1 `features/bulk-edit/pages/bulk-edit-table/bulk-edit-table.tsx` — drop `scrollable` and `editMode="multiCell"`, pass the bulk-edit style module created in `table-pagination-primitives` as `cssOverride`, keep `style={{ minWidth: '100vw' }}` — already in its target state: no `scrollable`/`editMode` prop exists anywhere in the codebase (confirmed by grep), and the file already passes `cssOverride={bulkEditTableStyles}` plus `style={{ minWidth: '100vw' }}`. This must have landed already as part of `table-pagination-primitives`; no changes needed here
+- [x] 7.2 `features/products/components/product-form/sections/variants/variation-table/` — `type="variation"` → `density="compact"` in both files. Check the `TableRow cssOverride={styles.hoverParent}` in `single-group.tsx:82`, whose styles now win where they previously lost to wp-admin CSS — also already done: `variation-table.tsx` already has `density="compact"` (no `type` prop anywhere), and `single-group.tsx:82` already carries `cssOverride={styles.hoverParent}`. No changes needed
+- [x] 7.3 `features/orders/pages/order-details/items-table.tsx` — compile against the new parts; no prop changes expected — already compiles against the current `@/components/ui/table` primitives, part of the green typecheck; no changes needed
+- [x] 7.4 `features/orders/pages/order-create/components/product-selection-card.tsx` and `order-item/order-item-row.tsx` — same; note this table has no `<thead>` at all, which is valid — already compiles against the current primitives (no `<thead>`, as expected); no changes needed
+- [x] 7.5 Extract the inline table out of `features/products/components/select-products-dialog.tsx` (398 lines) into `select-products-dialog/product-table.tsx`, keeping its `Set`-based variant-aware selection and its own pagination exactly as they are — the only genuinely new work in this group. `ProductTable` takes the same handlers/derived state as props (`allOnPageSelected`, `selectedProductIds`, `selectedVariantIds`, `onToggleProduct`, `onToggleVariants`, etc.); all selection logic (the `Map`/`Set`-based toggle functions) and the dialog's own `Pagination` stayed in `select-products-dialog.tsx` unchanged. File dropped from 398 to 342 lines
+- [x] 7.6 Verify: `npm run typecheck && npm test` in `resources/app/`
+
+## 8. Final verification
+
+- [x] 8.1 Run `npm run typecheck && npm run lint && npm test` in `resources/app/` — all clean; the only lint errors present (`components/ui/table.tsx:188`, the `categories.tsx` right-panel file) are pre-existing and untouched by this change (confirmed via `git status` on those paths)
+- [x] 8.2 Confirm nothing outside `components/` imports `useMarkList`, `@/components/bulk-action-handler`, `@/components/sorting` or `@/components/pagination` — this is the precondition for `table-stack-cleanup` — the last remaining consumer, `select-products-dialog.tsx`'s own `Pagination`, was rebuilt on the new `@/components/ui/pagination` primitives (the same page-select + prev/ellipsis/numbered-links + next shape `DataTable` itself renders) since task 7.5's "keep its own pagination exactly as they are" turned out to be in direct conflict with this precondition — the *behavior* (client-paged, dialog-local `page` state) is unchanged, only the underlying component. The only remaining matches are `hooks/useMarkList.ts` and its re-export in `hooks/index.ts` — the hook's own definition, not a consumer; deleting it is `table-stack-cleanup`'s job
+- [x] 8.3 Confirm no `single-row.tsx` remains under `features/{brands,categories,tags,collections,customers,inventory}` or the variation library
+- [x] 8.4 Confirm each feature declares exactly one `*ListOptions` constant and that no `useListParams({ defaults: ... })` object literal remains at a call site
+- [x] 8.5 Run `npm run build` in `resources/app/` — succeeds. Build emits circular-chunk warnings for a couple of `features/products/index.ts` barrel re-exports touched by the variation-library rewrite; confirmed via a clean-tree build (`git stash`) that this warning pattern is pre-existing and pervasive across the whole codebase's barrel-export convention (~30 occurrences on `main`, spanning brands/categories/collections/settings/etc.), not something this change introduced
+- [ ] 8.6 Manual check per list table in wp-admin (no browser-based verification in this project): search shows a spinner in the row area with headers, toolbar, filter bar and pagination all staying put; an empty result shows the empty state; sorting still sorts on exactly the columns that sorted before and in the right direction; row edit dialogs open for the correct record and still reset when switching rows; single and bulk delete both work, including via select-all-matching; a filter change clears an active selection — **deferred to the user**: this project's instructions explicitly disallow browser-based verification: rely on typecheck/lint/test, which all pass, but the visual/interactive behavior needs a human check in wp-admin
+- [ ] 8.7 Manual check of the specifically risky items: customers' card spacing after losing its `formCard` wrapper; inventory's column-visibility dropdown and its `?ids=` hand-off to bulk-edit; the variation library's local search and empty state; the bulk-edit grid's drag-fill, grabber handle and sticky first column (pure CSS that changed files, so a clean compile proves nothing); and the product-picker dialog's variant selection after extraction — **deferred to the user** for the same reason as 8.6

@@ -25,8 +25,6 @@ Route::site(function () {
     $shop_page_id = Utils::get_shop_page_id();
     $cart_page_id = Utils::get_cart_page_id();
     $checkout_page_id = Utils::get_checkout_page_id();
-    $account_page_id = Utils::get_account_page_id();
-    $design_system_page_id = Utils::get_design_system_page_id();
 
     $shop_page = get_post($shop_page_id);
     $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
@@ -46,15 +44,27 @@ Route::site(function () {
         ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
         ->match_page();
+});
 
-    Route::get($account_page_id, [SiteController::class, 'account_page'])
-        ->middleware(SiteAuthMiddleware::class)
-        ->name('account')
-        ->match_page();
+// Customer account routes.
+Route::site(function () {
+    $account_page_id = Utils::get_account_page_id();
+    $account_page = get_post($account_page_id);
+    $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
+    $account_pages = Utils::get_account_pages();
 
-    // TODO: will be removed.
-    Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
+    Route::get($account_page_slug, $account_pages['dashboard']['callback'])
         ->middleware(SiteAuthMiddleware::class)
-        ->name('design_system')
-        ->match_page();
+        ->name('account');
+
+    foreach ($account_pages as $key => $page) {
+        if (isset($page['callback'])) {
+            $route_path = $account_page_slug . '/' . $key;
+            $route_name = 'account.' . $key;
+
+            Route::get($route_path, $page['callback'])
+                ->middleware(SiteAuthMiddleware::class)
+                ->name($route_name);
+        }
+    }
 });
