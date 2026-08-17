@@ -1,0 +1,230 @@
+// Account - Order Details
+// Styling for single order details view
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-order-details {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+
+  &-back {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    @include typography(sm, medium, $text-secondary);
+    text-decoration: none;
+    @include transition(color);
+
+    &:hover {
+      color: $text-primary;
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2;
+    }
+  }
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: $spacing-6;
+    border-bottom: 1px solid $border-default;
+    gap: $spacing-4;
+
+    @include breakpoint-down(md) {
+      flex-direction: column;
+    }
+
+    &-info {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-1;
+
+      &-title {
+        @include typography(2xl, bold, $text-primary);
+        margin: 0;
+      }
+
+      &-date {
+        @include typography(sm, normal, $text-secondary);
+        margin: 0;
+      }
+    }
+
+    &-badges {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: $spacing-2;
+    }
+  }
+
+  // Items section
+  &-items-card {
+    border: 1px solid $border-default;
+    border-radius: $radius-xl;
+    overflow: hidden;
+  }
+
+  &-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+
+    th {
+      background-color: $background-surface-alt;
+      padding: $spacing-4 $spacing-5;
+      @include typography(xs, semibold, $text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid $border-default;
+    }
+
+    td {
+      padding: $spacing-5;
+      border-bottom: 1px solid $border-default;
+      @include typography(base, normal, $text-primary);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    &-product {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-1;
+
+      &-name {
+        @include typography(base, semibold, $text-primary);
+      }
+
+      &-variant {
+        @include typography(xs, normal, $text-secondary);
+      }
+    }
+
+    &-price {
+      @include typography(base, normal, $text-secondary);
+    }
+
+    &-qty {
+      @include typography(base, normal, $text-primary);
+      font-weight: $font-weight-medium;
+    }
+
+    &-total {
+      @include typography(base, semibold, $text-primary);
+      text-align: right;
+    }
+
+    th:last-child {
+      text-align: right;
+    }
+  }
+
+  // Two-column details grid
+  &-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-8;
+
+    @include breakpoint-down(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-6;
+    }
+  }
+
+  &-card {
+    background-color: $background-surface-alt;
+    border: 1px solid $border-default;
+    border-radius: $radius-xl;
+    padding: $spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+
+    &-title {
+      @include typography(md, bold, $text-primary);
+      margin: 0;
+      padding-bottom: $spacing-3;
+      border-bottom: 1px solid $border-default;
+    }
+
+    &-rows {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+    }
+
+    &-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      @include typography(sm, normal, $text-secondary);
+
+      &-value {
+        @include typography(sm, medium, $text-primary);
+      }
+
+      &.is-total {
+        padding-top: $spacing-3;
+        border-top: 1px solid $border-default;
+        @include typography(base, bold, $text-primary);
+
+        .kecom-order-details-card-row-value {
+          @include typography(xl, bold, $background-fill-brand);
+        }
+      }
+    }
+
+    address {
+      font-style: normal;
+      @include typography(sm, normal, $text-secondary);
+      line-height: 1.6;
+      margin: 0;
+
+      strong {
+        color: $text-primary;
+        font-weight: $font-weight-semibold;
+        display: block;
+        margin-bottom: $spacing-1;
+      }
+    }
+  }
+
+  // Tracking section
+  &-tracking-box {
+    background: linear-gradient(135deg, $background-fill-secondary 0%, rgba($background-fill-secondary, 0.4) 100%);
+    border: 1px solid rgba($border-default, 0.3);
+    border-radius: $radius-xl;
+    padding: $spacing-5 $spacing-6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-4;
+
+    @include breakpoint-down(sm) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &-info {
+      h5 {
+        @include typography(sm, bold, $text-primary);
+        margin: 0 0 $spacing-1;
+      }
+
+      p {
+        @include typography(xs, normal, $text-secondary);
+        margin: 0;
+      }
+    }
+  }
+}

@@ -1,0 +1,155 @@
+// Account - Dashboard
+// Styling for the dashboard overview tab
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+
+  &-welcome {
+    background: linear-gradient(135deg, $background-fill-secondary 0%, rgba($background-fill-secondary, 0.4) 100%);
+    border: 1px solid rgba($border-default, 0.3);
+    border-radius: $radius-xl;
+    padding: $spacing-6 $spacing-8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-6;
+
+    @include breakpoint-down(sm) {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: $spacing-5;
+    }
+
+    &-text {
+      h3 {
+        @include typography(xl, bold, $text-primary);
+        margin: 0 0 $spacing-1;
+      }
+
+      p {
+        @include typography(sm, normal, $text-secondary);
+        margin: 0;
+      }
+    }
+
+    &-logout {
+      @include typography(sm, medium, $background-fill-critical);
+      text-decoration: underline;
+      cursor: pointer;
+      white-space: nowrap;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  // Metric Cards
+  &-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-6;
+
+    @include breakpoint-down(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-4;
+    }
+  }
+
+  &-stat-card {
+    background-color: $background-surface-alt;
+    border: 1px solid $border-default;
+    border-radius: $radius-xl;
+    padding: $spacing-6;
+    display: flex;
+    align-items: center;
+    gap: $spacing-5;
+    text-decoration: none;
+    @include transition((background-color, border-color, transform, box-shadow));
+
+    &:hover {
+      background-color: $background-surface;
+      border-color: $border-hover;
+      transform: translateY(-2px);
+      box-shadow: $shadow-md;
+    }
+
+    &-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: $radius-lg;
+      background-color: $background-fill-secondary;
+      color: $background-fill-brand;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      svg {
+        width: 24px;
+        height: 24px;
+        stroke: currentColor;
+        stroke-width: 1.75;
+      }
+    }
+
+    &-details {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    &-title {
+      @include typography(sm, medium, $text-secondary);
+      margin: 0;
+    }
+
+    &-value {
+      @include typography(2xl, bold, $text-primary);
+      margin: $spacing-1 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-subtext {
+      @include typography(xs, normal, $text-secondary);
+      margin-top: $spacing-1;
+    }
+  }
+
+  // Recent Orders section
+  &-recent-orders {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      h4 {
+        @include typography(lg, semibold, $text-primary);
+        margin: 0;
+      }
+
+      a {
+        @include typography(sm, medium, $background-fill-brand);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-1;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

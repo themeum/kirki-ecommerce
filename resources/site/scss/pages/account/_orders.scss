@@ -1,0 +1,112 @@
+// Account - Orders
+// Styling for the orders list table and cards
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-orders {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+
+  &-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid $border-default;
+    border-radius: $radius-xl;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  &-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+
+    th {
+      background-color: $background-surface-alt;
+      padding: $spacing-4 $spacing-5;
+      @include typography(xs, semibold, $text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid $border-default;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: $spacing-5;
+      border-bottom: 1px solid $border-default;
+      @include typography(base, normal, $text-primary);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background-color: rgba($background-surface-alt, 0.5);
+    }
+  }
+
+  &-number {
+    @include typography(base, semibold, $background-fill-brand);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &-date {
+    @include typography(sm, normal, $text-secondary);
+  }
+
+  &-total {
+    @include typography(base, semibold, $text-primary);
+  }
+
+  &-items-count {
+    @include typography(xs, normal, $text-secondary);
+    display: block;
+  }
+
+  &-empty {
+    text-align: center;
+    padding: $spacing-16 $spacing-6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-4;
+
+    &-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: $radius-full;
+      background-color: $background-surface-alt;
+      color: $text-secondary;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 32px;
+        height: 32px;
+        stroke: currentColor;
+        stroke-width: 1.5;
+      }
+    }
+
+    &-title {
+      @include typography(xl, bold, $text-primary);
+      margin: 0;
+    }
+
+    &-text {
+      @include typography(base, normal, $text-secondary);
+      margin: 0;
+      max-width: 400px;
+    }
+  }
+}

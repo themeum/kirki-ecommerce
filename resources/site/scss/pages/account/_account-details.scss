@@ -1,0 +1,52 @@
+// Account - Account Details
+// Styling for profile settings and password change form
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-details {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+
+  &-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-8;
+  }
+
+  &-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-5;
+
+    &-title {
+      @include typography(lg, bold, $text-primary);
+      margin: 0 0 $spacing-2;
+      padding-bottom: $spacing-3;
+      border-bottom: 1px solid $border-default;
+    }
+
+    &-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: $spacing-5;
+
+      @include breakpoint-down(sm) {
+        grid-template-columns: 1fr;
+      }
+
+      .kecom-field-full {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    padding-top: $spacing-6;
+    border-top: 1px solid $border-default;
+  }
+}
