@@ -141,6 +141,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'delete']);
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
+    Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
     Route::put('/variants/bulk', [VariantController::class, 'bulk_update']);
