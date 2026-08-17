@@ -93,6 +93,7 @@ const Capsule = ({
         variant="ghost"
         aria-label="Clear"
         onClick={onClearItem}
+        cssOverride={{ backgroundColor: theme.colors.background.surfaceTertiary }}
       >
         <Minus size={16} aria-hidden="true" />
       </Button>
