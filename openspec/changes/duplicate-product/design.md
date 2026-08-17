@@ -23,13 +23,16 @@ The one thing that makes `Product` harder than `Coupon` to duplicate: `CreateCou
 
 ## Decisions
 
-### 1. Route/dispatch pattern: `PATCH /products/{id}/action`, plain `Request`, inline switch
+### 1. Route/dispatch pattern: dedicated `POST /products/{id}/duplicate`, not a generic `/action` switch
 
-Mirrors `CouponController::action()` exactly: a plain `Request $request` (the framework contract, not a dedicated `FormRequest`), `$request->int('id')` / `$request->string('action')`, and a `switch` with a `default` branch returning `Response::BAD_REQUEST`.
+**Revised during implementation** — the change originally shipped as `PATCH /products/{id}/action` with `{"action": "duplicate"}`, mirroring `CouponController::action()`/`OrderController::action()`. The user explicitly asked for that to be reverted in favor of a dedicated endpoint, so `ProductController` now has a `duplicate(Request $request, DuplicateProductAction $duplicate_action)` method on its own route, matching the `POST /orders/{order_id}/refunds` precedent (a dedicated sub-resource action route, not a generic dispatcher) rather than the Coupon/Order `/action` precedent. Response status is `201 Created` (matching `create()`), since duplication genuinely creates a new product resource — the old `/action` pattern returned `200` because it was one case inside a multi-purpose dispatcher, which no longer applies.
 
-**Alternative considered:** a dedicated `ProductActionRequest` with a validated `action|in:...` rule and a `ProductAction` constants class, mirroring `OrderActionRequest`/`OrderAction`. Rejected for now — `OrderController::action()` needs formal validation because different order actions require different conditional fields (`refund_id`, `amount`, `tracking_number`, ...). A single-case product action (`duplicate`, taking only `id`) doesn't have that problem yet; introducing a constants class and FormRequest for one value is premature abstraction. If a second product action shows up with its own required fields, revisit and follow the `OrderActionRequest` pattern instead.
+Consequences of this reversal:
+- `ProductController::action()` is gone — it had exactly one case (`duplicate`), so once that moved out there was nothing left to dispatch.
+- The `App\Constants\Product\ProductAction` class (added specifically to back that switch's `case` values, anticipating future `trash`/`restore`/`delete` actions) is deleted — it had no other caller once the switch it existed for was removed. If/when those future actions land, whether they reuse a generic dispatcher or each get their own dedicated route is a decision for that point, not speculated on here.
+- `routes/api.php`'s `PATCH /products/{id}/action` route is replaced by `POST /products/{id}/duplicate` (still `->where('id', '[\d]+')`).
 
-**Alternative considered:** dedicated `POST /products/{id}/duplicate` route. Rejected per the proposal — breaks from the established `/action` convention for no benefit.
+**Alternative considered (original decision, now superseded):** a dedicated `ProductActionRequest` + `ProductAction`-style validated dispatcher mirroring `OrderActionRequest`/`OrderAction`. Moot now that there's no dispatcher at all.
 
 ### 2. `DuplicateProductAction` builds `CreateProductDTO` field-by-field, not via `from_array($product->to_array())`
 

@@ -1,3 +1,5 @@
+> **Superseded**: tasks 1.1/1.2 and 3.1-3.3's `PATCH /products/{id}/action` endpoint was replaced by a dedicated `POST /products/{id}/duplicate` endpoint at the user's explicit request — see section 5 and design.md decision #1. Left as-is below for history; section 5 is the accurate record of what actually shipped.
+
 ## 1. Route & controller wiring
 
 - [x] 1.1 Add `Route::patch('/products/{id}/action', [ProductController::class, 'action'])->where('id', '[\d]+');` to `routes/api.php`, placed next to the existing `/products/*` routes (mirrors the `/coupons/{id}/action` and `/orders/{id}/action` entries).
@@ -23,3 +25,11 @@
 ## 4. Final verification
 
 - [x] 4.1 Run the full suite: `bash kirki-test all` and confirm no regressions outside `ProductApiTest` (7 pre-existing failures — 3 in `ProductApiTest`, 3 in `CartApiTest`, 1 in `OrderApiTest` — all reproduce identically on a clean `git stash` of this change's diff; none touch product duplication).
+
+## 5. Endpoint redesign: dedicated route instead of generic action dispatcher
+
+- [x] 5.1 Replace the `PATCH /products/{id}/action` route in `routes/api.php` with `Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');` (matches the `POST /orders/{order_id}/refunds` dedicated-sub-resource precedent, not the Coupon/Order `/action` precedent).
+- [x] 5.2 Replace `ProductController::action()` with `duplicate(Request $request, DuplicateProductAction $duplicate_action)` — no switch, calls `$duplicate_action->execute($request->int('id'))` directly, returns `Response::CREATED` (201, matching `create()`) instead of the old 200.
+- [x] 5.3 Delete `app/Constants/Product/ProductAction.php` — it existed solely to back the removed switch's `case` values; no other caller once the switch was gone. Remove the now-unused import from `ProductController.php`.
+- [x] 5.4 Update `tests/Integration/ProductApiTest.php`: swap the three duplicate tests' `PATCH products/{id}/action` + `{"action": "duplicate"}` calls for `POST products/{id}/duplicate` (no body), expecting `201`. Delete `test_product_action_with_unrecognized_action_returns_bad_request()` entirely — there is no longer a generic dispatcher for it to exercise. Remove the now-unused `ProductAction` import.
+- [x] 5.5 Verify: `bash kirki-test integration --filter=ProductApiTest` passes (same 3 pre-existing, unrelated failures only; all duplicate tests green on the new endpoint).

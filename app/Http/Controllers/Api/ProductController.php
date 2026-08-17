@@ -16,7 +16,6 @@ use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
-use Kirki\Ecommerce\App\Constants\Product\ProductAction;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
@@ -152,23 +151,13 @@ class ProductController
         }
     }
 
-    public function action(Request $request, DuplicateProductAction $duplicate_action)
+    public function duplicate(Request $request, DuplicateProductAction $duplicate_action)
     {
-        switch ($request->string('action')) {
-            case ProductAction::DUPLICATE:
-                $product = $duplicate_action->execute($request->int('id'));
-                $message = __('Product duplicated successfully.', 'kirki-ecommerce');
-                break;
-            default:
-                return response()->json([
-                    'errors' => [],
-                    'message' => __('No action performed.', 'kirki-ecommerce'),
-                ], Response::BAD_REQUEST);
-        }
+        $product = $duplicate_action->execute($request->int('id'));
 
         return response()->json([
             'data' => ProductResource::make($product),
-            'message' => $message,
-        ]);
+            'message' => __('Product duplicated successfully.', 'kirki-ecommerce'),
+        ], Response::CREATED);
     }
 }

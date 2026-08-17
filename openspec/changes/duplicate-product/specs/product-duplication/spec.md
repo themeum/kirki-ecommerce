@@ -4,20 +4,16 @@ Lets a store admin create a new product pre-populated from an existing one, rath
 
 ## ADDED Requirements
 
-### Requirement: Duplicate a product via the products action endpoint
-The system SHALL accept a `duplicate` action against `PATCH /products/{id}/action` and create a new product as a copy of the product identified by `{id}`.
+### Requirement: Duplicate a product via a dedicated endpoint
+The system SHALL accept `POST /products/{id}/duplicate` and create a new product as a copy of the product identified by `{id}`.
 
 #### Scenario: Successful duplication
-- **WHEN** an admin sends `PATCH /products/{id}/action` with `{"action": "duplicate"}` for an existing product
+- **WHEN** an admin sends `POST /products/{id}/duplicate` for an existing product
 - **THEN** a new product is created and returned in the response, distinct from the source product (different id)
 
 #### Scenario: Duplicating a non-existent product
-- **WHEN** an admin sends the `duplicate` action for a product id that does not exist
+- **WHEN** an admin sends `POST /products/{id}/duplicate` for a product id that does not exist
 - **THEN** the system returns a not-found error and creates no product
-
-#### Scenario: Unrecognized action value
-- **WHEN** an admin sends `PATCH /products/{id}/action` with an `action` value other than `duplicate`
-- **THEN** the system returns a bad-request error and performs no action
 
 ### Requirement: Duplicated product starts as a draft with a distinguishable title
 The system SHALL set the duplicated product's status to draft regardless of the source product's status, and SHALL suffix the duplicated product's title to distinguish it from the source.

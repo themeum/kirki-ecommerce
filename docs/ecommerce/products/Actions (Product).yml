@@ -6,14 +6,11 @@ info:
     - products
 
 http:
-  method: PATCH
-  url: "{{baseUrl}}/products/10/action"
+  method: POST
+  url: "{{baseUrl}}/products/56/duplicate"
   body:
     type: json
-    data: |-
-      {
-        "action": "duplicate"
-      }
+    data: ""
   auth: inherit
 
 settings:

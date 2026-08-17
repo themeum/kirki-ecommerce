@@ -4,7 +4,7 @@ Merchants recreating a similar product today have to re-enter every field, media
 
 ## What Changes
 
-- Add `PATCH /products/{id}/action` to `ProductController`, dispatching on an `action` field (mirrors `CouponController::action()` / `OrderController::action()`), with `duplicate` as the only case for now.
+- Add a dedicated `POST /products/{id}/duplicate` endpoint (`ProductController::duplicate()`) — not a generic `{id}/action` dispatcher. See design.md decision #1 for why this superseded the originally-shipped `PATCH /products/{id}/action` approach.
 - Add `DuplicateProductAction` (`app/Actions/Product/`) that loads a product with its full relation set and delegates to the existing `CreateProductAction` to persist the copy — no new persistence logic, no changes to `CreateProductAction` itself.
 - The duplicate is built by copying every scalar product field, remapping relation fields (`media`, `categories`, `tags`, `collections`) to id arrays, and reconstructing the `attributes` payload shape (`[{id, values}]`) from the product's loaded `attribute_values`, grouped by `attribute_id`.
 - Title is suffixed with `" - Copy"`; slug is left to `ProductService::create()`'s existing auto-uniquing.
@@ -21,9 +21,8 @@ Merchants recreating a similar product today have to re-enter every field, media
 
 ## Impact
 
-- `app/Http/Controllers/Api/ProductController.php` — new `action()` method.
-- `routes/api.php` — new `PATCH /products/{id}/action` route.
+- `app/Http/Controllers/Api/ProductController.php` — new `duplicate()` method.
+- `routes/api.php` — new `POST /products/{id}/duplicate` route.
 - `app/Actions/Product/DuplicateProductAction.php` — new file.
-- Possibly a new lightweight request class for the `action` field, or reuse of the existing `Request` contract with inline validation (matches how `CouponController::action()`/`OrderController::action()` currently validate their `action`/`id` inputs — to be confirmed in design).
 - No database schema changes — `sku` is already `nullable` at the DB level (`kirki_ecommerce_variants.sku`), so duplicated variants with a `null` sku are valid as-is.
 - No frontend changes in this proposal (backend endpoint only).

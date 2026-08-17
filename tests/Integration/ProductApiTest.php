@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
-use Kirki\Ecommerce\App\Constants\Product\ProductAction;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
@@ -495,11 +494,9 @@ class ProductApiTest extends RestTestCase
         ]);
         $this->product_id = $product['id'];
 
-        $response = $this->request('PATCH', 'products/' . $this->product_id . '/action', [
-            'action' => ProductAction::DUPLICATE,
-        ]);
+        $response = $this->request('POST', 'products/' . $this->product_id . '/duplicate');
 
-        $payload = $this->assert_api_success($response);
+        $payload = $this->assert_api_success($response, 201);
         $duplicated = $payload['data'];
 
         $this->assertNotEquals($this->product_id, $duplicated['id']);
@@ -532,9 +529,7 @@ class ProductApiTest extends RestTestCase
      */
     public function test_duplicate_missing_product_returns_404(): void
     {
-        $response = $this->request('PATCH', 'products/999999/action', [
-            'action' => ProductAction::DUPLICATE,
-        ]);
+        $response = $this->request('POST', 'products/999999/duplicate');
 
         $this->assert_api_error($response, 404);
     }
@@ -551,11 +546,9 @@ class ProductApiTest extends RestTestCase
         $product = $this->create_product(['title' => 'Bare Product']);
         $this->product_id = $product['id'];
 
-        $response = $this->request('PATCH', 'products/' . $this->product_id . '/action', [
-            'action' => ProductAction::DUPLICATE,
-        ]);
+        $response = $this->request('POST', 'products/' . $this->product_id . '/duplicate');
 
-        $payload = $this->assert_api_success($response);
+        $payload = $this->assert_api_success($response, 201);
         $duplicated = $payload['data'];
 
         $this->assertNotEquals($this->product_id, $duplicated['id']);
@@ -567,22 +560,5 @@ class ProductApiTest extends RestTestCase
         $this->assertCount(1, $duplicated['variants']);
         $this->assertNull($duplicated['variants'][0]['sku']);
         $this->assertEquals([], $duplicated['variants'][0]['attribute_values']);
-    }
-
-    /**
-     * An unrecognized product action returns a bad request.
-     *
-     * @return void
-     * @since 1.0.0
-     */
-    public function test_product_action_with_unrecognized_action_returns_bad_request(): void
-    {
-        $this->product_id = $this->create_product()['id'];
-
-        $response = $this->request('PATCH', 'products/' . $this->product_id . '/action', [
-            'action' => 'not-a-real-action',
-        ]);
-
-        $this->assert_api_error($response, 400);
     }
 }
