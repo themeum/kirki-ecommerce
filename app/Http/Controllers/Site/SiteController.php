@@ -306,7 +306,7 @@ class SiteController
             'remember'      => $sanitized_input['remember'],
         ];
 
-        $user = wp_signon($creds, false);
+        $user = wp_signon($creds, is_ssl());
 
         if (is_wp_error($user)) {
             set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
