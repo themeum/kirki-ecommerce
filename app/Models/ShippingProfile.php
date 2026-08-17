@@ -12,9 +12,11 @@ class ShippingProfile extends Model
 
     protected $casts = [
         'id' => 'integer',
+        'is_default' => 'boolean',
     ];
 
     protected $fillable = [
         'name',
+        'is_default',
     ];
 }

@@ -10,6 +10,5 @@ class ProductStatus
 
     const DRAFT = 'draft';
     const PUBLISHED = 'published';
-    const UNPUBLISHED = 'unpublished';
-    const ARCHIVED = 'archived';
+    const TRASHED = 'trashed';
 }
