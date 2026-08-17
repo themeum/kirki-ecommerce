@@ -12,6 +12,7 @@ import {
   TimePicker,
 } from '@/components/ui/calendar';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { DATE_FORMATS, formatDateValue, parseDateValue } from '@/libs/date';
 
 type DateFieldMode = 'date' | 'range' | 'time' | 'datetime';
 
@@ -26,8 +27,8 @@ type DateFieldProps<
   infoText?: ReactNode;
   placeholder?: string;
   displayFormat?: string;
-  minDate?: string | null;
-  maxDate?: string | null;
+  minDate?: Date | null;
+  maxDate?: Date | null;
   numberOfMonths?: number;
   presets?: boolean | DateRangePresetKey[];
   presetsPosition?: DateRangePresetsPosition;
@@ -63,7 +64,7 @@ const DateField = <
 
   const readString = (value: unknown) => {
     if (typeof value !== 'string') {
-      return '';
+      return null;
     }
 
     return value;
@@ -78,11 +79,28 @@ const DateField = <
     };
 
     if (mode === 'range') {
+      const rangeValue = field.value as
+        | { from?: string | null; to?: string | null }
+        | null
+        | undefined;
+
       return (
         <DateRangePicker
           id={fieldId}
-          value={field.value ?? null}
-          onChange={(nextValue) => field.onChange(nextValue ?? null)}
+          value={{
+            from: parseDateValue(rangeValue?.from),
+            to: parseDateValue(rangeValue?.to),
+          }}
+          onChange={(nextValue) =>
+            field.onChange(
+              nextValue
+                ? {
+                    from: formatDateValue(nextValue.from),
+                    to: formatDateValue(nextValue.to),
+                  }
+                : null,
+            )
+          }
           placeholder={placeholder}
           displayFormat={displayFormat}
           minDate={minDate}
@@ -114,8 +132,10 @@ const DateField = <
       return (
         <DateTimePicker
           id={fieldId}
-          value={readString(field.value)}
-          onChange={writeString}
+          value={parseDateValue(readString(field.value), DATE_FORMATS.DATE_TIME_INPUT)}
+          onChange={(nextValue) =>
+            writeString(formatDateValue(nextValue, DATE_FORMATS.DATE_TIME_INPUT))
+          }
           placeholder={placeholder}
           displayFormat={displayFormat}
           minDate={minDate}
@@ -131,8 +151,8 @@ const DateField = <
     return (
       <DatePicker
         id={fieldId}
-        value={readString(field.value)}
-        onChange={writeString}
+        value={parseDateValue(readString(field.value))}
+        onChange={(nextValue) => writeString(formatDateValue(nextValue))}
         placeholder={placeholder}
         displayFormat={displayFormat}
         minDate={minDate}

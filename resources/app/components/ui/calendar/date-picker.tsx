@@ -6,17 +6,17 @@ import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
 import PickerTrigger from '@/components/ui/calendar/picker-trigger';
 import { Popover, PopoverContent } from '@/components/ui/popover';
-import { DATE_FORMATS, formatDateValue, parseDateValue } from '@/libs/date';
+import { DATE_FORMATS, formatDateValue, toValidDate } from '@/libs/date';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type DatePickerProps = {
-  value: string | null;
-  onChange?: (value: string | null) => void;
+  value: Date | null;
+  onChange?: (value: Date | null) => void;
   placeholder?: string;
   displayFormat?: string;
-  minDate?: string | null;
-  maxDate?: string | null;
+  minDate?: Date | null;
+  maxDate?: Date | null;
   clearable?: boolean;
   disabled?: boolean;
   error?: boolean;
@@ -28,7 +28,7 @@ const DatePicker = ({
   value,
   onChange = noop,
   placeholder = __('Pick a date', 'kirki-ecommerce'),
-  displayFormat = DATE_FORMATS.HUMAN_READABLE,
+  displayFormat = DATE_FORMATS.HUMAN_READABLE_SHORT,
   minDate,
   maxDate,
   clearable = false,
@@ -40,13 +40,13 @@ const DatePicker = ({
   const [open, setOpen] = useState(false);
   const calendarId = useId();
 
-  const selectedDate = parseDateValue(value);
+  const selectedDate = toValidDate(value);
   const { startDate, endDate, disabledDays } = getDateBounds(minDate, maxDate);
   const displayValue = formatDateValue(selectedDate, displayFormat);
   const showClear = clearable && Boolean(selectedDate) && !disabled;
 
   const handleSelect = (nextDate: Date | undefined) => {
-    onChange(formatDateValue(nextDate ?? null));
+    onChange(nextDate ?? null);
     setOpen(false);
   };
 

@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { Copy } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -9,22 +8,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
-import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
+import { DATE_FORMATS, END_OF_DAY_TIME, formatDateValue, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import { mergeDateTime } from '../../../lib/coupon-datetime';
-
 const formatDisplayDate = (date?: string | null, time?: string | null): string | null => {
-  const merged = mergeDateTime(date ?? '', time ?? '');
+  const merged = mergeDateAndTime(date ?? '', time ?? '');
 
   if (!merged) {
     return null;
   }
 
-  return format(merged, DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
+  return formatDateValue(merged, DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
 };
 
 type PreviewSectionProps = {

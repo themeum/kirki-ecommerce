@@ -85,7 +85,7 @@ const ProductPickerRow = ({
             <Button
               variant="ghost"
               size="icon-xs"
-              aria-label="Toggle variants"
+              aria-label={__('Toggle variants', 'kirki-ecommerce')}
               onClick={onToggleExpand}
               style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
             >

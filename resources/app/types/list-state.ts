@@ -6,6 +6,8 @@ type ListQueryParams = {
   sort_order?: SortOrder;
   page?: number;
   limit?: string | number;
+  from_date?: string | null;
+  to_date?: string | null;
 };
 
 type ListParams<TFilter extends Record<string, unknown> = {}> =

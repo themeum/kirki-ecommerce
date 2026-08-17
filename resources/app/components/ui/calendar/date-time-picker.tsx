@@ -13,8 +13,9 @@ import { Separator } from '@/components/ui/separator';
 import {
   DATE_FORMATS,
   formatDateValue,
-  parseDateValue,
+  mergeDateAndTime,
   START_OF_DAY_TIME,
+  toValidDate,
 } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -22,12 +23,12 @@ import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type DateTimePickerProps = {
-  value: string | null;
-  onChange?: (value: string | null) => void;
+  value: Date | null;
+  onChange?: (value: Date | null) => void;
   placeholder?: string;
   displayFormat?: string;
-  minDate?: string | null;
-  maxDate?: string | null;
+  minDate?: Date | null;
+  maxDate?: Date | null;
   hourCycle?: HourCycle;
   clearable?: boolean;
   disabled?: boolean;
@@ -54,10 +55,9 @@ const DateTimePicker = ({
   const [displayedMonth, setDisplayedMonth] = useState<Date | undefined>();
   const calendarId = useId();
 
-  const selectedDateTime = parseDateValue(value, DATE_FORMATS.DATE_TIME_INPUT);
+  const selectedDateTime = toValidDate(value);
   const { startDate, endDate, disabledDays } = getDateBounds(minDate, maxDate);
 
-  const datePart = formatDateValue(selectedDateTime);
   const timePart = formatDateValue(selectedDateTime, DATE_FORMATS.TIME_INPUT);
   const displayValue = formatDateValue(selectedDateTime, displayFormat);
   const showClear = clearable && Boolean(selectedDateTime) && !disabled;
@@ -80,7 +80,7 @@ const DateTimePicker = ({
       return;
     }
 
-    onChange(`${nextDatePart} ${timePart ?? START_OF_DAY_TIME}`);
+    onChange(mergeDateAndTime(nextDatePart, timePart ?? START_OF_DAY_TIME));
   };
 
   const handleTimeChange = (nextTime: string | null) => {
@@ -88,9 +88,10 @@ const DateTimePicker = ({
       return;
     }
 
-    const anchorDatePart = datePart ?? formatDateValue(getAnchorDate());
+    const anchorDatePart =
+      formatDateValue(selectedDateTime) ?? formatDateValue(getAnchorDate());
 
-    onChange(`${anchorDatePart} ${nextTime}`);
+    onChange(mergeDateAndTime(anchorDatePart ?? '', nextTime));
   };
 
   return (

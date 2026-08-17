@@ -1,9 +1,12 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import { format } from 'date-fns';
 
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
+import { DATE_FORMATS } from '@/libs/date';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const collectionColumns: ColumnDef<Collection>[] = [
@@ -31,7 +34,7 @@ const collectionColumns: ColumnDef<Collection>[] = [
     id: 'created_at',
     header: __('Created at', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => row.original?.created_at ?? '--',
+    cell: ({ row }) => isDefined(row.original.created_at) ? format(row.original?.created_at, DATE_FORMATS.HUMAN_READABLE) : '--',
   },
 ];
 

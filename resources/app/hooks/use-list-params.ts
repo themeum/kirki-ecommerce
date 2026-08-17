@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
+import { formatAtomDateTime } from '@/libs/date';
 import type { ListFilterConfig, ListParams, ListQueryParams, SortOrder } from '@/types/list-state';
 import { serializeFilterValue } from '@/types/list-state';
+import { isDefined } from '@/utils/object';
 
 type ListParamsDefaults = ListQueryParams;
 
@@ -56,6 +58,8 @@ const useListParams = <
     const pageValue = searchParams.get('page');
     const limitValue = searchParams.get('limit');
     const sortOrder = searchParams.get('sort_order') as SortOrder | null;
+    const fromDate = searchParams.get('from_date');
+    const toDate = searchParams.get('to_date');
 
     const parsedFilter: Partial<TFilter> = {};
 
@@ -79,6 +83,8 @@ const useListParams = <
       limit: limitValue
         ? Number(limitValue) || limitValue
         : (defaults.limit ?? 10),
+      from_date: isDefined(fromDate) ? formatAtomDateTime(new Date(fromDate)) : null,
+      to_date: isDefined(toDate) ? formatAtomDateTime(new Date(toDate)) : isDefined(fromDate) ? formatAtomDateTime(new Date(fromDate)) : null,
       ...parsedFilter,
     } as ListParams<TFilter>;
   }, [searchParams, defaults, filterConfig]);
@@ -103,7 +109,7 @@ const useListParams = <
           const next = new URLSearchParams(prev);
 
           const shouldResetPage = Object.keys(updates).some((key) =>
-            ['search', 'sort_by', 'sort_order', 'limit', ...filterKeys].includes(
+            ['search', 'sort_by', 'sort_order', 'limit', 'from_date', 'to_date', ...filterKeys].includes(
               key,
             ),
           );
