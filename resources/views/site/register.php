@@ -34,8 +34,9 @@ use Kirki\Ecommerce\App\Supports\Url;
                 accept_terms: false
             },
             mode: 'onBlur'
-            })" method="post" x-on:submit.prevent="handleSubmit((data)=>{
-                console.log('submit', data);
+            })" method="post" x-on:submit="handleSubmit((data)=>{
+                console.log(data);
+                return true;
             })">
             <div class="kecom-field" :class="errors.first_name ? 'kecom-field-error-state' : ''">
                 <label class="kecom-field-label" for="kecom-first-name"><?php _e('First Name', 'kirki-ecommerce'); ?></label>
@@ -91,21 +92,5 @@ use Kirki\Ecommerce\App\Supports\Url;
             </div>
             <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php _e('Sign up', 'kirki-ecommerce'); ?></button>
         </form>
-        <div class="kecom-login-social">
-            <div class="kecom-login-social-divider">
-                <div class="kecom-divider"></div>
-                <span class="kecom-divider-text"><?php _e('or sign up with', 'kirki-ecommerce'); ?></span>
-                <div class="kecom-divider"></div>
-            </div>
-            <div class="kecom-login-social-btn-container">
-                <button class="kecom-btn kecom-btn-outline kecom-google-btn">
-                    <?php Icon::render('google', ['size' => 24]); ?>
-                </button>
-                <button class="kecom-btn kecom-btn-outline kecom-facebook-btn">
-                    <?php Icon::render('facebook', ['size' => 24]); ?>
-                </button>
-            </div>
-
-        </div>
     </div>
 </div>

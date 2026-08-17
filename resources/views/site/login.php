@@ -9,9 +9,11 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Login;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
+$validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
 ?>
 
 <div class="kecom-login-container">
@@ -25,16 +27,23 @@ use Kirki\Ecommerce\App\Supports\Url;
                 </a>
             </div>
         </div>
+        <?php if (!empty($validation_errors)): ?>
+            <div class="kecom-alert kecom-alert-error">
+                <?php foreach ($validation_errors as $error): ?>
+                    <?php echo $error['message']; ?>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
         <form class="kecom-login-form" x-data="form({
             defaultValues: {
                 email: '',
                 password: '', 
-                remember: false
+                remember: false,
+                ajax_nonce: window.kirki_ecommerce.ajax_nonce,
             },
             mode: 'onBlur'
-            })" method="post" x-on:submit.prevent="handleSubmit((data)=>{
-                console.log('submit', data);
-            })">
+            })" method="post" @submit.prevent="handleSubmit(() => $el.submit(), () => { return false; })">
+            <input type="hidden" name="ajax_nonce" x-bind="register('ajax_nonce')">
             <div class="kecom-field" :class="errors.email ? 'kecom-field-error-state' : ''">
                 <label class="kecom-field-label" for="kecom-email"><?php _e('Email', 'kirki-ecommerce'); ?></label>
                 <input class="kecom-input" type="email" id="kecom-email" name="email" x-bind="register('email', {
@@ -67,21 +76,7 @@ use Kirki\Ecommerce\App\Supports\Url;
             </label>
             <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php _e('Login', 'kirki-ecommerce'); ?></button>
         </form>
-        <div class="kecom-login-social">
-            <div class="kecom-login-social-divider">
-                <div class="kecom-divider"></div>
-                <span class="kecom-divider-text"><?php _e('or continue with', 'kirki-ecommerce'); ?></span>
-                <div class="kecom-divider"></div>
-            </div>
-            <div class="kecom-login-social-btn-container">
-                <button class="kecom-btn kecom-btn-outline kecom-google-btn">
-                    <?php Icon::render('google', ['size' => 24]); ?>
-                </button>
-                <button class="kecom-btn kecom-btn-outline kecom-facebook-btn">
-                    <?php Icon::render('facebook', ['size' => 24]); ?>
-                </button>
-            </div>
-
-        </div>
     </div>
 </div>
+<?php delete_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
+?>

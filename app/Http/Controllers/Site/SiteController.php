@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\Constants\Login;
 use Kirki\Ecommerce\App\Http\Requests\Account\LoginRequest;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
@@ -270,9 +271,32 @@ class SiteController
 
         return view('site.register');
     }
-
+    /**
+     * Handle login
+     *
+     * @since 1.0.0
+     *
+     * @param LoginRequest $request  request.
+     *
+     * @return string Template path.
+     */
     public function handle_login(LoginRequest $request)
     {
+        if (is_user_logged_in()) {
+            return redirect(Url::get_account_url());
+        }
+
+        $has_nonce = Utils::is_nonce_verified();
+
+        if (!$has_nonce) {
+            set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
+                'invalid_nonce' => [
+                    'code' => 'invalid_nonce',
+                    'message' => __('Invalid nonce', 'kirki-ecommerce'),
+                ]
+            ]);
+            return redirect(Route::site_url('login'));
+        }
 
         $sanitized_input = $request->sanitized();
 
@@ -284,6 +308,12 @@ class SiteController
         $user = wp_signon($creds, false);
 
         if (is_wp_error($user)) {
+            set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
+                'invalid_user' => [
+                    'code' => 'invalid_user',
+                    'message' => __('Invalid email or password', 'kirki-ecommerce'),
+                ]
+            ]);
             return redirect(Route::site_url('login'));
         }
 
