@@ -123,7 +123,7 @@ class Coupon extends Model
 
     public function products()
     {
-        return $this->belongs_to_many(Product::class, 'kirki_ecommerce_coupon_products', 'coupon_id', 'product_id');
+        return $this->belongs_to_many(Product::class, 'kirki_ecommerce_coupon_products', 'coupon_id', 'product_id')->with_pivot('is_reward_item');
     }
 
     public function customers()

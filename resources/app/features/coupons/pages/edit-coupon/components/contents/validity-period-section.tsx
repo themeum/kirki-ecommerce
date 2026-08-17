@@ -2,7 +2,7 @@ import { InfinityIcon } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
-import TextField from '@/components/form/text-field';
+import DateField from '@/components/form/date-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldDescription } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
@@ -31,14 +31,14 @@ const ValidityPeriodSection = () => {
       <CardContent>
         <Flex direction="column" gap={4}>
           <Grid>
-            <TextField
+            <DateField
               name="start_date"
-              type="date"
+              mode="date"
               label={__('Start date', 'kirki-ecommerce')}
             />
-            <TextField
+            <DateField
               name="start_time"
-              type="time"
+              mode="time"
               label={__('Start time', 'kirki-ecommerce')}
             />
           </Grid>
@@ -50,14 +50,14 @@ const ValidityPeriodSection = () => {
 
           {hasEndDatetime ? (
             <Grid>
-              <TextField
+              <DateField
                 name="end_date"
-                type="date"
+                mode="date"
                 label={__('End date', 'kirki-ecommerce')}
               />
-              <TextField
+              <DateField
                 name="end_time"
-                type="time"
+                mode="time"
                 label={__('End time', 'kirki-ecommerce')}
               />
             </Grid>

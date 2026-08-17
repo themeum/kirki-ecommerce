@@ -1,109 +1,96 @@
-import BulkActionHandler from '@/components/bulk-action-handler';
-import Checkbox from '@/components/ui/checkbox';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import CollectionTableAction from '@/features/collections/components/collection-table/collection-table-action';
-import SingleRow from '@/features/collections/components/collection-table/single-row';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Trash2 } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router';
+
+import type { DataTableSelectionState } from '@/components/data-table';
+import DataTable from '@/components/data-table';
+import DataTableRowActions from '@/components/data-table/data-table-row-actions';
+import { RouteConfig } from '@/config/route-config';
+import CollectionTableFilters from '@/features/collections/components/collection-table/collection-table-filters';
+import { collectionColumns } from '@/features/collections/components/collection-table/columns';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
-import { useBulkDeleteCollectionsMutation } from '@/features/collections/services/collection';
-import { useListParams, useMarkList } from '@/hooks';
+import { useBulkDeleteCollectionsMutation, useCollectionsQuery, useDeleteCollectionMutation } from '@/features/collections/services/collection';
+import { collectionListOptions } from '@/features/collections/types';
+import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
-import type { PaginatedData } from '@/types/api/response';
-import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
-type CollectionTableProps = {
-  data: PaginatedData<Collection>;
-  isFetching?: boolean;
-};
+const collectionBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
 
-const CollectionTable = ({ data }: CollectionTableProps) => {
-  const { params, setParam } = useListParams({
-    defaults: {
-      search: '',
-      sort_by: 'title',
-      sort_order: 'asc',
-      page: 1,
-      limit: 10,
-    },
-  });
+const CollectionTable = () => {
+  const navigate = useNavigate();
+  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
+    useDataTableParams(collectionListOptions);
+
+  const { data, isFetching } = useCollectionsQuery(params);
+  const deleteMutation = useDeleteCollectionMutation();
   const bulkDeleteMutation = useBulkDeleteCollectionsMutation();
 
-  const { results, total, per_page } = data;
+  const handleBulkApply = useCallback(
+    async (action: string, { selectedIds, isAllMatchingSelected }: DataTableSelectionState) => {
+      if (action !== 'delete') {
+        return;
+      }
 
-  const tableHeaders: TaxonomyTableHeader[] = [
-    { title: __('Collection', 'kirki-ecommerce') },
-    { title: __('Products', 'kirki-ecommerce') },
-    { title: __('Created at', 'kirki-ecommerce') },
-    { title: __('', 'kirki-ecommerce') },
-  ];
+      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+    },
+    [bulkDeleteMutation],
+  );
 
-  const {
-    handleSelectAll,
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    handleClearSelection,
-    isSelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({ data });
+  const handleRowClick = useCallback(
+    (item: Collection) => {
+      void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: item.id }));
+    },
+    [navigate],
+  );
 
-  const handleApplyAction = async (action: string) => {
-    if (action !== 'delete') {
-      return;
-    }
-
-    await bulkDeleteMutation.mutateAsync(
-      resolveBulkDeletePayload(selectedItems.includes('*'), selectedItems),
-    );
-    handleClearSelection();
-  };
-
-  const handleSortChange = () => {
-    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
-  };
+  const columns = useMemo<ColumnDef<Collection>[]>(
+    () => [
+      ...collectionColumns,
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div role="presentation" onClick={(event) => event.stopPropagation()}>
+            <DataTableRowActions
+              edit={{ onClick: () => handleRowClick(row.original) }}
+              actions={[
+                {
+                  label: __('Delete', 'kirki-ecommerce'),
+                  icon: <Trash2 size={16} />,
+                  destructive: true,
+                  onClick: () => deleteMutation.mutate(row.original.id),
+                },
+              ]}
+            />
+          </div>
+        ),
+      },
+    ],
+    [deleteMutation, handleRowClick],
+  );
 
   return (
-    <>
-      {selectedItems.length > 0 ? (
-        <BulkActionHandler
-          optionsArray={[{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }]}
-          itemCount={itemCount}
-          onSelectAll={handleSelectAll}
-          onApply={(action) => handleApplyAction(action as string)}
-          total={total}
-          per_page={per_page}
-        />
-      ) : (
-        <CollectionTableAction onSortChange={handleSortChange} />
-      )}
-
-      <Table fixed>
-        <TableHeader>
-          <TableRow>
-            <TableHead onlyCheckbox>
-              <Checkbox
-                value={isSelected('*')}
-                onChange={handleAllCheckboxClick}
-                isPartialChecked={itemCount > 0 && itemCount < total}
-              />
-            </TableHead>
-            {tableHeaders.map((header, index) => (
-              <TableHead key={index}>{header.title}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {results.map((item, index) => (
-            <SingleRow
-              key={index}
-              item={item}
-              isSelected={isSelected}
-              handleSingleCheckboxClick={handleSingleCheckboxClick}
-            />
-          ))}
-        </TableBody>
-      </Table>
-    </>
+    <DataTable
+      data={data?.results ?? []}
+      columns={columns}
+      pageCount={data?.last_page ?? 0}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      sorting={sorting}
+      onSortingChange={onSortingChange}
+      isLoading={isFetching}
+      enableRowSelection
+      selectionResetKey={selectionResetKey}
+      bulkActionOptions={collectionBulkActions}
+      onBulkApply={handleBulkApply}
+      columnPinning={{ right: ['actions'] }}
+      fixed
+      onRowClick={handleRowClick}
+      toolbar={<CollectionTableFilters />}
+    />
   );
 };
 

@@ -6,7 +6,6 @@ use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
 use Kirki\Ecommerce\App\Actions\Product\UpdateProductAction;
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductListRequest;
-use Kirki\Ecommerce\App\Repositories\ProductRepository;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Product\ProductUpdateRequest;
@@ -29,12 +28,10 @@ use function Kirki\Ecommerce\Framework\response;
 class ProductController
 {
     protected $service;
-    protected $repository;
 
-    public function __construct(ProductService $service, ProductRepository $repository)
+    public function __construct(ProductService $service)
     {
         $this->service = $service;
-        $this->repository = $repository;
     }
 
     public function get(ProductListRequest $request)

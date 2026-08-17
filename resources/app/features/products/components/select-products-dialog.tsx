@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import Pagination from '@/components/pagination';
 import Button from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogBody,
@@ -13,19 +11,20 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
-import Searchbox from '@/components/ui/searchbox';
-import Spinner from '@/components/ui/spinner';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPageSelect,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
 import ProductFilterPopup, { type ProductFilterValue } from '@/features/products/components/select-products-dialog/product-filter-popup';
-import ProductPickerRow from '@/features/products/components/select-products-dialog/product-picker-row';
+import ProductTable from '@/features/products/components/select-products-dialog/product-table';
 import type {
   ProductSelection,
   ProductVariantSelection,
@@ -34,7 +33,7 @@ import { getVariantLabel } from '@/features/products/components/select-products-
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
 import { useProductsWithVariantsQuery } from '@/features/products/services/product';
 import { BoxIcon, ListFilter } from '@/icons';
-import type { PaginationData } from '@/types/components/common';
+import { ELLIPSIS, getPageItems } from '@/utils/pagination';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type SelectProductsDialogProps = {
@@ -216,13 +215,9 @@ const SelectProductsDialog = ({
   const partialOnPageSelected =
     selectedOnPageCount > 0 && selectedOnPageCount < pageSelectableCount;
 
-  const paginationData: PaginationData = {
-    current_page: data?.current_page ?? page,
-    last_page: data?.last_page ?? 1,
-    from: data?.from ?? 0,
-    total: data?.total ?? 0,
-    has_more_pages: data?.has_more_pages ?? false,
-  };
+  const totalPages = data?.last_page ?? 1;
+  const totalResults = data?.total ?? 0;
+  const pageItems = useMemo(() => getPageItems(page, totalPages), [page, totalPages]);
 
   const toggleExpand = (productId: number) => {
     setExpandedProductIds((previous) => {
@@ -309,70 +304,61 @@ const SelectProductsDialog = ({
             </ProductFilterPopup>
           </Flex>
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead onlyCheckbox>
-                  <Checkbox
-                    checked={allOnPageSelected}
-                    isPartialChecked={partialOnPageSelected}
-                    disabled={pageSelectableCount === 0}
-                    onCheckedChange={(checked) =>
-                      toggleAllOnPage(checked === true)
-                    }
-                  />
-                </TableHead>
-                <TableHead>
-                  {selectVariants
-                    ? __('Variants', 'kirki-ecommerce')
-                    : __('Products', 'kirki-ecommerce')}
-                </TableHead>
-                <TableHead>{__('Inventory', 'kirki-ecommerce')}</TableHead>
-                <TableHead alignment="right">
-                  {__('Price', 'kirki-ecommerce')}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading && (
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <Spinner />
-                  </TableCell>
-                </TableRow>
-              )}
-              {!isLoading && products.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    <Text variant="small" color="secondary">
-                      {__('No products found.', 'kirki-ecommerce')}
-                    </Text>
-                  </TableCell>
-                </TableRow>
-              )}
-              {pickerItems.map((item) => (
-                <ProductPickerRow
-                  key={item.product.id}
-                  product={item.product}
-                  selection={item.selection}
-                  expanded={expandedProductIds.has(item.product.id)}
-                  onToggleExpand={() => toggleExpand(item.product.id)}
-                  selectVariants={selectVariants}
-                  isProductSelected={selectedProductIds.has(item.product.id)}
-                  selectedVariantIds={selectedVariantIds}
-                  onToggleProduct={(checked) =>
-                    toggleProduct(item.selection, checked)
-                  }
-                  onToggleVariants={(variants, checked) =>
-                    toggleVariants(item.selection, variants, checked)
-                  }
-                />
-              ))}
-            </TableBody>
-          </Table>
+          <ProductTable
+            isLoading={isLoading}
+            pickerItems={pickerItems}
+            selectVariants={selectVariants}
+            allOnPageSelected={allOnPageSelected}
+            partialOnPageSelected={partialOnPageSelected}
+            pageSelectableCount={pageSelectableCount}
+            onToggleAllOnPage={toggleAllOnPage}
+            expandedProductIds={expandedProductIds}
+            onToggleExpand={toggleExpand}
+            selectedProductIds={selectedProductIds}
+            selectedVariantIds={selectedVariantIds}
+            onToggleProduct={toggleProduct}
+            onToggleVariants={toggleVariants}
+          />
         </DialogBody>
         <DialogFooter cssOverride={{ justifyContent: 'space-between', alignItems: 'center' }}>
-          <Pagination data={paginationData} onChange={setPage} />
+          {totalResults > 0 && (
+            <Pagination disabled={isLoading}>
+              <Flex align="center" gap={2}>
+                <PaginationPageSelect
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onChange={setPage}
+                />
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      disabled={page <= 1}
+                      onClick={() => setPage(page - 1)}
+                    />
+                  </PaginationItem>
+                  {pageItems.map((item, index) =>
+                    item === ELLIPSIS ? (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={item}>
+                        <PaginationLink isActive={item === page} onClick={() => setPage(item)}>
+                          {item}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      disabled={page >= totalPages}
+                      onClick={() => setPage(page + 1)}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Flex>
+            </Pagination>
+          )}
           <Flex gap={2} align="center">
             <Text variant="small" color="secondary">
               {sprintf(

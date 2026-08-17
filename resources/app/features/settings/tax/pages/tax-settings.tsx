@@ -22,6 +22,7 @@ import {
   type TaxSettingsFormPayload,
   TaxSettingsFormSchema,
 } from '@/features/settings/tax/schemas/forms/tax-settings-form';
+import TaxSettingsSkeleton from '@/features/settings/tax/skeletons/tax-settings-skeleton';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -214,7 +215,7 @@ const TaxSettings = () => {
           </Flex>
         </Form>
       ) : (
-        <div>{__('Loading ...', 'kirki-ecommerce')}</div>
+        <TaxSettingsSkeleton />
       )}
     </Container>
   );

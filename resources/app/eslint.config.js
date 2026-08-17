@@ -269,6 +269,19 @@ export default tseslint.config(
   },
 
   {
+    // A list table's columns.tsx module-scope ColumnDef[] is deliberately
+    // paired with the small cell components that need hooks (e.g. a cell
+    // that navigates or fires a mutation) — see list-table-composition spec.
+    // Splitting those components into their own files would separate a
+    // column from the one thing its cell renders.
+    name: 'kirki/data-table-columns',
+    files: ['**/columns.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  {
     name: 'kirki/declaration-files',
     files: ['**/*.d.ts'],
     rules: {

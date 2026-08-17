@@ -136,10 +136,9 @@ const styles = defineStyles({
   },
   contentPane: {
     // Floor, not a cap: a page's own Container can still grow past this
-    // (email-settings/edit-template.tsx does), but sparse content — most
-    // visibly the "Loading ..." placeholder shown before a page's data
-    // query resolves — must not be allowed to shrink the column narrower
-    // than the standard settings content width.
+    // (email-settings/edit-template.tsx does), but sparse content must not be
+    // allowed to shrink the column narrower than the standard settings
+    // content width.
     minWidth: '600px',
     animation: `${pageEnterKeyframes} 0.45s ease-out both`,
   },

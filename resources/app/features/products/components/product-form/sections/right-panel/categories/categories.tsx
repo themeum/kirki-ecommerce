@@ -10,6 +10,7 @@ import AddNewCategory from '@/features/products/components/product-form/sections
 import List from '@/features/products/components/product-form/sections/right-panel/categories/list';
 import type { ProductCategoryRef } from '@/features/products/schemas/catalog/product';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import CategoryListSkeleton from '@/features/products/skeletons/category-list-skeleton';
 import { theme } from '@/theme';
 import { defineStyles, itemCenter, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -20,7 +21,7 @@ const Categories = () => {
     limit: -1,
   });
   const categories = categoryData?.results ?? [];
-  const selectedCategories: ProductCategoryRef[] = useWatch({ control: control, name: 'categories' }) ?? [];
+  const selectedCategories: ProductCategoryRef[] = useWatch({ control, name: 'categories' }) ?? [];
 
   const getParentsToDeselect = (
     category: Category,
@@ -176,9 +177,7 @@ const Categories = () => {
       <div css={scoped(styles.header)}>
         <Label>{__('Categories', 'kirki-ecommerce')}</Label>
       </div>
-      {!loaded && (
-        <div css={scoped(styles.loading)}>{__('Loading...', 'kirki-ecommerce')}</div>
-      )}
+      {!loaded && <CategoryListSkeleton />}
       {loaded && (
         <>
           {categories.length > 0 && (
@@ -256,8 +255,5 @@ const styles = defineStyles({
   footer: {
     width: '100%',
     padding: `${theme.spacing[2]} ${theme.spacing[4]} ${theme.spacing[4]}`,
-  },
-  loading: {
-    padding: `0 ${theme.spacing[4]} ${theme.spacing[4]}`,
   },
 });

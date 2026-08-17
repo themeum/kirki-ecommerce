@@ -310,4 +310,11 @@
       appearance: textfield;
     }
   }
+
+  &-sm {
+    .kecom-quantity-btn,
+    .kecom-quantity-input.kecom-quantity-input {
+      height: 32px;
+    }
+  }
 }

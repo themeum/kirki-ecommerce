@@ -1,6 +1,5 @@
 import { useNavigate, useParams } from 'react-router';
 
-import LoadingSpinner from '@/components/loading-spinner';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -28,6 +27,7 @@ import FlagCard from '@/features/orders/pages/order-details/flag-card';
 import ItemsTable from '@/features/orders/pages/order-details/items-table';
 import MarkAsPaidDialog from '@/features/orders/pages/order-details/mark-as-paid-dialog';
 import TakeActionCard from '@/features/orders/pages/order-details/take-action-card';
+import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
 import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -60,7 +60,7 @@ const OrderDetails = () => {
   } = useOrderDetails(id);
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <OrderDetailsSkeleton />;
   }
 
   if (isError || !order || !paymentBadge || !fulfillmentBadge) {

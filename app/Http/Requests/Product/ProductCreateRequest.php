@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -45,7 +46,7 @@ class ProductCreateRequest extends Request
         return [
             //product
             'title' => 'required|string|max:500',
-            'slug' => 'string|nullable|max:500',
+            'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug',
             'status' => 'string|nullable|in:' . implode(',', ProductStatus::get_constant_values()),
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',

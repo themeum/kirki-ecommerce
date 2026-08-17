@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Address;
-use Kirki\Ecommerce\App\Repositories\AddressRepository;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
@@ -13,13 +13,6 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 class AddressService
 {
-    protected $repository;
-
-    public function __construct(AddressRepository $address_repository)
-    {
-        $this->repository = $address_repository;
-    }
-
     /**
      * Return all addresses.
      *
@@ -28,7 +21,30 @@ class AddressService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return Address::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where_any(
+                [
+                    'first_name',
+                    'last_name',
+                    'address_line1',
+                    'address_line2',
+                    'city',
+                    'state',
+                    'country',
+                    'postal_code',
+                    'email',
+                    'phone',
+                ],
+                'like',
+                '%' . $search . '%'
+            );
+        })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            })
+            ->get();
     }
 
     /**
@@ -40,7 +56,7 @@ class AddressService
      */
     public function find(int $id)
     {
-        $address = $this->repository->find($id);
+        $address = Address::find($id);
 
         if (!$address) {
             throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -57,7 +73,7 @@ class AddressService
      */
     public function create(CreateAddressDTO $data)
     {
-        $address = $this->repository->create($data->to_array());
+        $address = Address::create($data->to_array());
 
         return $address;
     }
@@ -73,19 +89,19 @@ class AddressService
      */
     public function update(UpdateAddressDTO $data)
     {
-        $address = $this->repository->find($data->id);
+        $address = Address::find($data->id);
 
         if (empty($address)) {
             throw new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_updated = $this->repository->update($data->id, $data->to_array());
+        $is_updated = $address->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Address could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        return $this->repository->find($data->id);
+        return Address::find($data->id);
     }
 
     /**
@@ -97,13 +113,7 @@ class AddressService
      */
     public function delete(int $id)
     {
-        $address = $this->repository->find($id);
-
-        if (empty($address)) {
-            throw new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = Address::where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Address could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -121,7 +131,7 @@ class AddressService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = Address::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Addresses could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -137,6 +147,6 @@ class AddressService
      */
     public function delete_all()
     {
-        return $this->repository->delete_all();
+        return (bool) Address::query()->delete();
     }
 }

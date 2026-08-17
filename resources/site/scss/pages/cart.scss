@@ -12,7 +12,7 @@
 
 .kecom-cart-grid {
   display: grid;
-  grid-template-columns: 17fr 13fr;
+  grid-template-columns: 18fr 14fr;
   align-items: start;
 
   @include breakpoint-down(lg) {
@@ -63,6 +63,7 @@
     &-container {
       @include flex(column, flex-start, flex-start);
       flex-grow: 1;
+      gap: $spacing-6;
     }
 
     &-info,
@@ -151,17 +152,10 @@
       text-transform: inherit;
     }
 
-    .kecom-cart-item-remove,
-    .kecom-quantity {
-      margin-top: $spacing-6;
-    }
-
     .kecom-cart-item-remove {
-      max-height: $spacing-12;
-    }
-
-    .kecom-quantity {
       height: $spacing-12;
+      width: $spacing-12;
+      padding: 0px;
     }
   }
 

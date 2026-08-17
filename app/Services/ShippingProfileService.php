@@ -3,8 +3,9 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\ShippingProfile;
-use Kirki\Ecommerce\App\Repositories\ShippingProfileRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\DTO\ShippingProfile\CreateShippingProfileDTO;
@@ -14,13 +15,6 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 class ShippingProfileService
 {
-    protected $repository;
-
-    public function __construct(ShippingProfileRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return paginated shipping profiles
      *
@@ -29,7 +23,7 @@ class ShippingProfileService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -40,7 +34,7 @@ class ShippingProfileService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -52,7 +46,7 @@ class ShippingProfileService
      */
     public function find(int $id)
     {
-        $shipping_profile = $this->repository->find($id);
+        $shipping_profile = ShippingProfile::find($id);
 
         if (!$shipping_profile) {
             throw new NotFoundException(__('Shipping profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -69,7 +63,7 @@ class ShippingProfileService
      */
     public function create(CreateShippingProfileDTO $data)
     {
-        $shipping_profile = $this->repository->create($data->to_array());
+        $shipping_profile = ShippingProfile::create($data->to_array());
 
         return $shipping_profile;
     }
@@ -83,19 +77,19 @@ class ShippingProfileService
      */
     public function update(UpdateShippingProfileDTO $data)
     {
-        $shipping_profile = $this->repository->find($data->id);
+        $shipping_profile = ShippingProfile::find($data->id);
 
         if (empty($shipping_profile)) {
             throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_updated = $this->repository->update($data->id, $data->to_array());
+        $is_updated = (bool) $shipping_profile->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Shipping profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        return $this->repository->find($data->id);
+        return ShippingProfile::find($data->id);
     }
 
     /**
@@ -107,13 +101,7 @@ class ShippingProfileService
      */
     public function delete(int $id)
     {
-        $shipping_profile = $this->repository->find($id);
-
-        if (empty($shipping_profile)) {
-            throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) ShippingProfile::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Shipping profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -131,7 +119,7 @@ class ShippingProfileService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) ShippingProfile::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Shipping profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -148,6 +136,18 @@ class ShippingProfileService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    protected function list_query(ListFilterDTO $filters)
+    {
+        return ShippingProfile::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
     }
 }

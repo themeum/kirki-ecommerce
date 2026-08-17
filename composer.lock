@@ -125,7 +125,7 @@
       "version": "2.1.15",
       "source": {
         "type": "git",
-        "url": "git@github.com:themeum/framework.git",
+        "url": "https://github.com/themeum/framework.git",
         "reference": "f1682814516df2a64e8941e00e8b09c69aa040b7"
       },
       "dist": {

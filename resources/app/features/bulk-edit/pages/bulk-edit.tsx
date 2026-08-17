@@ -11,6 +11,7 @@ import { BulkEditFormProvider, useBulkEditForm } from '@/features/bulk-edit';
 import { allTableHeaders } from '@/features/bulk-edit/lib/utils';
 import BulkEditTable from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/features/bulk-edit/services/bulk-edit';
+import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
 import { LayoutIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
@@ -99,7 +100,10 @@ const BulkEditPage = () => {
         {loaded && !isLoading ? (
           <BulkEditTable selectedFields={selectedFields} />
         ) : (
-          <div>{__('Loading...', 'kirki-ecommerce')}</div>
+          <BulkEditTableSkeleton
+            selectedFields={selectedFields}
+            rowCount={ids.length || undefined}
+          />
         )}
       </FullPageContainer>
     </>

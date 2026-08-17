@@ -1,23 +1,18 @@
-import { type Dispatch, type SetStateAction, useMemo, useState } from 'react';
+import type { ColumnDef } from '@tanstack/react-table';
+import { Trash2 } from 'lucide-react';
+import { type Dispatch, type SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router';
 
-import BulkActionHandler from '@/components/bulk-action-handler';
-import { Card, CardContent } from '@/components/ui/card';
-import Checkbox from '@/components/ui/checkbox';
-import Flex from '@/components/ui/flex';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import Text from '@/components/ui/text';
+import type { DataTableSelectionState } from '@/components/data-table';
+import DataTable from '@/components/data-table';
+import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import type { Attribute, AttributeValue } from '@/features/products';
-import { useBulkDeleteAttributeValuesMutation } from '@/features/products';
-import SingleRow from '@/features/settings/essentials/pages/variation-library/variation-table/single-row';
-import VariantTableAction from '@/features/settings/essentials/pages/variation-library/variation-table/variant-table-action';
+import { useBulkDeleteAttributeValuesMutation, useDeleteAttributeValueMutation } from '@/features/products';
+import { getVariationColumns } from '@/features/settings/essentials/pages/variation-library/variation-table/columns';
+import VariantTableFilters from '@/features/settings/essentials/pages/variation-library/variation-table/variant-table-filters';
+import VariationValuePopup from '@/features/settings/essentials/pages/variation-library/variation-value-dialog';
 import { getSearchedValue, setUnsavedDataStatus } from '@/features/settings/lib/utils';
-import { useMarkList } from '@/hooks';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types/components/common';
-import type { TaxonomyTableHeader } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
@@ -36,28 +31,22 @@ type SettingsOutletContext = {
 
 type VariationTableProps = {
   results?: AttributeValue[];
-  tableHeaders: TaxonomyTableHeader[];
   selectedItem?: AttributeWithMeta;
   updateDataList: Dispatch<SetStateAction<AttributeValue[]>>;
 };
 
+const variationBulkActions = [{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }];
+
 const VariationTable = ({
   results = [],
-  tableHeaders,
   selectedItem,
   updateDataList,
 }: VariationTableProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
+  const deleteMutation = useDeleteAttributeValueMutation();
   const bulkDeleteMutation = useBulkDeleteAttributeValuesMutation();
-  const {
-    handleSelectAll,
-    handleAllCheckboxClick,
-    handleSingleCheckboxClick,
-    isSelected,
-    selectedItems,
-    itemCount,
-  } = useMarkList({ data: { results, total: results?.length } });
   const [searchValue, setSearchValue] = useState('');
+  const [editingItem, setEditingItem] = useState<AttributeValue | null>(null);
 
   const filteredList = useMemo(() => {
     const keyword = searchValue?.trim();
@@ -67,104 +56,127 @@ const VariationTable = ({
     return getSearchedValue(keyword, results);
   }, [searchValue, results]);
 
-  const handleApplyAction = (action: string) => {
-    if (action === 'delete') {
+  const handleDeleteValue = useCallback(
+    (item: AttributeValue) => {
+      if (!selectedItem) {
+        return;
+      }
+
       setUnsavedDataStatus(true);
       confirmAction({
-        action: () => onBulkDelete(),
+        action: () => {
+          deleteMutation.mutate({ attribute_id: selectedItem.id, value_id: item.id });
+        },
         otherProps: {
           variant: 'delete',
           force: true,
-          title: __('Delete all variation?', 'kirki-ecommerce'),
+          title: __('Delete attribute value?', 'kirki-ecommerce'),
           subtitle: __(
-            'Are you sure you want to delete all values? This action cannot be undone.',
+            'Are you sure you want to delete this value? This action cannot be undone.',
             'kirki-ecommerce',
           ),
         },
       });
-    }
-  };
+    },
+    [confirmAction, deleteMutation, selectedItem],
+  );
 
-  const onBulkDelete = () => {
-    if (!selectedItem) {
-      return;
-    }
-    bulkDeleteMutation.mutate({
-      attribute_id: selectedItem.id,
-      ids: selectedItems as number[],
+  const handleBulkApply = useCallback(
+    (action: string, { selectedIds }: DataTableSelectionState) =>
+      new Promise<void>((resolve) => {
+        if (action !== 'delete' || !selectedItem) {
+          resolve();
+          return;
+        }
+
+        setUnsavedDataStatus(true);
+        confirmAction({
+          action: () => {
+            bulkDeleteMutation.mutate({
+              attribute_id: selectedItem.id,
+              ids: selectedIds.map(Number),
+            });
+            resolve();
+          },
+          otherProps: {
+            variant: 'delete',
+            force: true,
+            title: __('Delete all variation?', 'kirki-ecommerce'),
+            subtitle: __(
+              'Are you sure you want to delete all values? This action cannot be undone.',
+              'kirki-ecommerce',
+            ),
+          },
+        });
+      }),
+    [bulkDeleteMutation, confirmAction, selectedItem],
+  );
+
+  const columns = useMemo<ColumnDef<AttributeValue>[]>(() => {
+    const baseColumns = getVariationColumns({
+      attributeName: selectedItem?.name,
+      type: selectedItem?.type,
+      updatedAt: selectedItem?.updated_at,
     });
-  };
+
+    return [
+      ...baseColumns,
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <DataTableRowActions
+            edit={{ onClick: () => setEditingItem(row.original) }}
+            actions={[
+              {
+                label: __('Delete', 'kirki-ecommerce'),
+                icon: <Trash2 size={16} />,
+                destructive: true,
+                onClick: () => handleDeleteValue(row.original),
+              },
+            ]}
+          />
+        ),
+      },
+    ];
+  }, [selectedItem, handleDeleteValue]);
 
   return (
     <>
-      {selectedItems.length > 0 ? (
-        <BulkActionHandler
-          optionsArray={[{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }]}
-          itemCount={itemCount}
-          onSelectAll={handleSelectAll}
-          onApply={(action) => handleApplyAction(action as string)}
-        />
-      ) : (
-        <VariantTableAction
-          searchValue={searchValue}
-          setSearchValue={setSearchValue}
-          dataList={filteredList}
-          updateDataList={updateDataList}
-        />
-      )}
-      {!filteredList?.length ? (
-        <Card cssOverride={cardStyles.innerDarkCard}>
-          <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
-            <Flex align="center" justify="center">
-              <Text weight="semibold" cssOverride={styles.mutedText}>{__('No data found', 'kirki-ecommerce')}</Text>
-            </Flex>
-          </CardContent>
-        </Card>
-      ) : (
-        <Table fixed>
-          <TableHeader>
-            <TableRow>
-              <TableHead onlyCheckbox>
-                <Checkbox
-                  checked={isSelected('*')}
-                  onCheckedChange={handleAllCheckboxClick}
-                />
-              </TableHead>
-              {tableHeaders?.map((header, index) => (
-                <TableHead key={index}>{header?.title}</TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {filteredList?.map((item, index) => {
-              return (
-                <SingleRow
-                  key={index}
-                  item={item}
-                  selectedItem={selectedItem}
-                  isSelected={isSelected}
-                  handleSingleCheckboxClick={handleSingleCheckboxClick}
-                />
-              );
-            })}
-          </TableBody>
-        </Table>
-      )}
+      <DataTable
+        data={filteredList}
+        columns={columns}
+        pageCount={1}
+        pagination={{ pageIndex: 0, pageSize: filteredList.length || 1 }}
+        onPaginationChange={() => undefined}
+        sorting={[]}
+        onSortingChange={() => undefined}
+        hidePagination
+        fixed
+        enableRowSelection
+        bulkActionOptions={variationBulkActions}
+        onBulkApply={handleBulkApply}
+        toolbar={(
+          <VariantTableFilters
+            searchValue={searchValue}
+            setSearchValue={setSearchValue}
+            dataList={filteredList}
+            updateDataList={updateDataList}
+          />
+        )}
+      />
+      <VariationValuePopup
+        isOpen={Boolean(editingItem)}
+        onClose={() => setEditingItem(null)}
+        editedItem={editingItem}
+        type={selectedItem?.type}
+        selectedItem={selectedItem}
+      />
     </>
   );
 };
 
 VariationTable.displayName = 'VariationTable';
-
-const styles = defineStyles({
-  emptyStateContent: {
-    padding: `${theme.spacing[9]} 0`,
-    borderRadius: theme.radius.none,
-  },
-  mutedText: {
-    color: theme.colors.text.subdued,
-  },
-});
 
 export default VariationTable;
