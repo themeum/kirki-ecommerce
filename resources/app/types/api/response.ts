@@ -42,10 +42,10 @@ type ApiError = {
 };
 
 export type {
+  ApiError,
+  ApiErrorPayload,
   ApiResponse,
   ApiResponseMeta,
   PaginatedData,
   PaginatedResponse,
-  ApiError,
-  ApiErrorPayload,
 };

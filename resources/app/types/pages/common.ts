@@ -17,31 +17,15 @@ type ToastMessageConfig = {
   title?: string;
   duration?: number;
   undoAction?: () => void;
-  onSuccess?: () => Promise<void>;
+  onSuccess?: () => void | Promise<void>;
 };
+
+type ToastVariant = 'default' | 'warning' | 'delete' | 'success' | 'error';
 
 type ProfitData = {
   base_price?: number | string | null;
   base_sale_price?: number | string | null;
   base_cost_of_goods?: number | string | null;
-};
-
-type MarkListHandlers = {
-  isSelected: (id: string | number) => boolean;
-  handleSingleCheckboxClick: (
-    value: boolean | string | number,
-    id: string | number,
-  ) => void;
-};
-
-type TaxonomyTableHeader = {
-  title: string;
-  sortable?: {
-    sort_by: string;
-    activeSortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    onSort?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
-  };
 };
 
 type MediaChangePayload = {
@@ -50,13 +34,12 @@ type MediaChangePayload = {
 };
 
 export type {
-  FormErrors,
   DateFormatType,
+  FormErrors,
+  MediaChangePayload,
+  ProfitData,
   SuggestionItem,
   SuggestionOption,
   ToastMessageConfig,
-  ProfitData,
-  MarkListHandlers,
-  TaxonomyTableHeader,
-  MediaChangePayload,
+  ToastVariant,
 };

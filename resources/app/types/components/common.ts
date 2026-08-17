@@ -72,7 +72,7 @@ type SelectState = 'disabled' | 'active' | '';
 type AlertType = 'success' | 'fail' | 'pending';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
-type TableType = 'default' | 'variation' | 'wide';
+type TableDensity = 'default' | 'compact' | 'wide';
 type TableAlignment = 'right' | 'center';
 type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth';
 type ThumbnailSize = 'fullWidth' | 'small' | 'xsm';
@@ -88,16 +88,6 @@ type DropdownPosition = {
 };
 type DropdownItemState = 'disabled' | 'titleOnly' | 'defaultSelected' | '';
 type ConfirmationVariant = 'default' | 'warning' | 'delete';
-
-type PaginationData = {
-  current_page: number;
-  last_page: number;
-  from: number;
-  total: number;
-  has_more_pages: boolean;
-  className?: string;
-  style?: CSSProperties;
-};
 
 export type {
   AlertType,
@@ -121,12 +111,11 @@ export type {
   InputState,
   LabelFieldProps,
   LabelType,
-  PaginationData,
   SelectOption,
   SelectState,
   StyleProps,
   TableAlignment,
-  TableType,
+  TableDensity,
   ThumbnailSize,
   ThumbnailType,
   TooltipPosition,

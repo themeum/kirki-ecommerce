@@ -1,4 +1,4 @@
-import type { CSSObject, Theme } from '@emotion/react';
+import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ReactNode } from 'react';
 
 import { theme } from '@/theme';
@@ -47,40 +47,6 @@ ChipField.displayName = 'ChipField';
 export default ChipField;
 export type { ChipFieldProps };
 
-/**
- * Styles for the input placed in ChipField's `control` slot, so it reads as
- * part of the box rather than as a nested input.
- */
-const chipFieldControlCss: CSSObject = {
-  width: '100%',
-  minHeight: '36px',
-  margin: 0,
-  padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-  border: 'none',
-  borderRadius: theme.radius.none,
-  backgroundColor: 'transparent',
-  outline: 'none',
-  boxShadow: 'none',
-  cursor: 'text',
-  ...theme.typography.small(),
-  color: theme.colors.text.primary,
-  '&::placeholder': {
-    color: theme.colors.text.secondary,
-    opacity: 0.8,
-  },
-  '&:disabled': {
-    cursor: 'not-allowed',
-    color: theme.colors.text.secondary,
-  },
-  '&:focus, &:focus-visible': {
-    outline: 'none',
-    boxShadow: 'none',
-    borderColor: 'transparent',
-  },
-};
-
-export { chipFieldControlCss };
-
 const styles = defineStyles({
   root: {
     width: '100%',
@@ -90,13 +56,13 @@ const styles = defineStyles({
     overflow: 'hidden',
     '&:focus-within': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
       borderColor: theme.colors.border.critical,
       '&:focus-within': {
         borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+        ...uiFocusRing(theme, theme.colors.border.critical),
       },
     },
     '&[data-disabled="true"]': {

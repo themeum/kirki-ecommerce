@@ -1,14 +1,38 @@
+import { z } from 'zod';
+
 import type { MediaRef } from '@/schemas/shared/media';
 import { isMediaObject, isVideoObject } from '@/utils/media';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-import { z } from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DefaultSchema = z.ZodObject<any> | z.ZodEffects<z.ZodTypeAny>;
 
+/**
+ * A bare `instanceof z.ZodEffects` narrows to `ZodEffects<any, any, any>`, so
+ * reading `_def` off it hands back `any` and taints every caller. These guards
+ * pin the wrapped schema to `ZodTypeAny` instead, keeping the recursive walks
+ * below typed.
+ */
+const isEffects = (schema: z.ZodTypeAny): schema is z.ZodEffects<z.ZodTypeAny> =>
+  schema instanceof z.ZodEffects;
+
+type WrappedSchema =
+  | z.ZodOptional<z.ZodTypeAny>
+  | z.ZodNullable<z.ZodTypeAny>
+  | z.ZodDefault<z.ZodTypeAny>;
+
+const isWrapped = (schema: z.ZodTypeAny): schema is WrappedSchema =>
+  schema instanceof z.ZodOptional ||
+  schema instanceof z.ZodNullable ||
+  schema instanceof z.ZodDefault;
+
+const isObjectSchema = (
+  schema: z.ZodTypeAny,
+): schema is z.ZodObject<z.ZodRawShape> => schema instanceof z.ZodObject;
+
 function getShape(schema: z.ZodTypeAny): z.ZodRawShape {
-  if (schema instanceof z.ZodEffects) {
+  if (isEffects(schema)) {
     return getShape(schema._def.schema);
   }
   return (schema as z.ZodObject<z.ZodRawShape>).shape;
@@ -18,11 +42,11 @@ function unwrapToDefault(schema: z.ZodTypeAny): unknown {
   if (schema instanceof z.ZodDefault) {
     return schema._def.defaultValue();
   }
-  if (schema instanceof z.ZodEffects) {
+  if (isEffects(schema)) {
     return unwrapToDefault(schema._def.schema);
   }
   if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) {
-    return unwrapToDefault(schema._def.innerType);
+    return unwrapToDefault((schema as WrappedSchema)._def.innerType);
   }
   return undefined;
 }
@@ -47,10 +71,10 @@ type NullishShape<Shape extends z.ZodRawShape> = {
  * declared `NullishShape` output type a lie.
  */
 function unwrapToBase(schema: z.ZodTypeAny): z.ZodTypeAny {
-  if (schema instanceof z.ZodEffects && schema._def.effect.type === 'refinement') {
+  if (isEffects(schema) && schema._def.effect.type === 'refinement') {
     return unwrapToBase(schema._def.schema);
   }
-  if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable || schema instanceof z.ZodDefault) {
+  if (isWrapped(schema)) {
     return unwrapToBase(schema._def.innerType);
   }
   return schema;
@@ -92,7 +116,7 @@ function pickFormValues<Schema extends DefaultSchema>(
     return acc;
   }, {});
 
-  return { ...picked, ...overrides } as z.input<Schema>;
+  return { ...picked, ...overrides };
 }
 
 function isEmptyValue(value: unknown): boolean {
@@ -140,7 +164,7 @@ function requiredWhen<Base extends z.ZodTypeAny>(schema: Base, isValidationFaile
   if (!isDefined(message)) {
     message = __('Validation failed.', 'kirki-ecommerce');
   }
-  const cloned = schema.describe(schema.description ?? '') as Base;
+  const cloned = schema.describe(schema.description ?? '');
   const rules = requiredWhenRules.get(cloned) ?? [];
   rules.push({ isValidationFailed, message });
   requiredWhenRules.set(cloned, rules);
@@ -181,17 +205,13 @@ function collectIssuesForShape(
 
 function getNestedShape(schema: z.ZodTypeAny): z.ZodRawShape | undefined {
   let unwrapped = schema;
-  while (
-    unwrapped instanceof z.ZodOptional ||
-    unwrapped instanceof z.ZodNullable ||
-    unwrapped instanceof z.ZodDefault
-  ) {
+  while (isWrapped(unwrapped)) {
     unwrapped = unwrapped._def.innerType;
   }
-  if (unwrapped instanceof z.ZodEffects) {
+  if (isEffects(unwrapped)) {
     unwrapped = unwrapped._def.schema;
   }
-  if (unwrapped instanceof z.ZodObject) {
+  if (isObjectSchema(unwrapped)) {
     return unwrapped.shape;
   }
   return undefined;
@@ -289,7 +309,7 @@ function stringOrNull() {
       if (isEmptyValue(value)) {
         return null;
       }
-      return (value as string).trim();
+      return (value!).trim();
     });
 }
 
@@ -320,6 +340,6 @@ export {
   prepareFormSchema,
   required,
   requiredWhen,
-  stringOrNull
+  stringOrNull,
 };
 

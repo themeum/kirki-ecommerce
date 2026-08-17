@@ -1,12 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
-import type {
-  ListFilterConfig,
-  ListParams,
-  ListQueryParams,
-  SortOrder,
-} from '@/types';
+import type { ListFilterConfig, ListParams, ListQueryParams, SortOrder } from '@/types/list-state';
 import { serializeFilterValue } from '@/types/list-state';
 
 type ListParamsDefaults = ListQueryParams;
@@ -43,7 +38,7 @@ const useListParams = <
     filter: filterConfig,
   } = options;
 
-  const filterKeys = filterConfig?.keys ?? [];
+  const filterKeys = useMemo(() => filterConfig?.keys ?? [], [filterConfig]);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -127,7 +122,7 @@ const useListParams = <
           }
 
           Object.entries(defaults).forEach(([key, defaultValue]) => {
-            if (filterKeys.includes(key as keyof TFilter & string)) {
+            if (filterKeys.includes(key)) {
               return;
             }
             const current = next.get(key);
@@ -155,7 +150,7 @@ const useListParams = <
   const setParam = useCallback(
     (key: SetParamKey<TFilter>, value: unknown, replace = false) => {
       if (key === 'filter' && value && typeof value === 'object') {
-        setParams(value as Partial<TFilter>, replace);
+        setParams(value, replace);
         return;
       }
       setParams({ [key]: value } as ListParamsUpdate<TFilter>, replace);

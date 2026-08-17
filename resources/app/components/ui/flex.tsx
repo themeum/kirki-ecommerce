@@ -1,18 +1,9 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { resolveGap } from '@/components/ui/layout-utils';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
-import type {
-  FlexAlign,
-  FlexBasis,
-  FlexDirection,
-  FlexGrow,
-  FlexJustify,
-  FlexShrink,
-  FlexWrap,
-  GapValue,
-} from '@/types';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
+import type { FlexAlign, FlexBasis, FlexDirection, FlexGrow, FlexJustify, FlexShrink, FlexWrap, GapValue } from '@/types/components/common';
 
 type FlexProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   direction?: FlexDirection;

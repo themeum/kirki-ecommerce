@@ -1,6 +1,16 @@
 // Shared TypeScript interfaces for the site bundle
 
-export interface kirkiEcommerceConfig {
+export type ShippingMethod = {
+  id: string;
+  name: string;
+  description: string;
+  display_cost_money_object: {
+    display: string;
+    row: number;
+  };
+};
+
+export type KirkiEcommerceConfig = {
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];
@@ -9,31 +19,37 @@ export interface kirkiEcommerceConfig {
   cart: CartUpdateItem;
   thank_you_url: string;
   checkout_cart?: {
-    items: any[];
-    pricing: any;
-    shipping_method: any;
+    items: CartItem[];
+    pricing: CartPricing;
+    shipping_method: ShippingMethod | null;
     is_billing_same_as_shipping?: boolean;
-    available_shipping_methods?: any[];
+    available_shipping_methods?: ShippingMethod[];
   };
   currency?: string;
-  countries?: any[];
+  countries?: { code: string; name: string; states: { id: string; name: string }[] }[];
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;
-}
+};
 
 // Extend window for WordPress-injected config
 declare global {
   interface Window {
-    kirki_ecommerce: kirkiEcommerceConfig;
-    wp: any;
+    kirki_ecommerce: KirkiEcommerceConfig;
+    wp: {
+      i18n: {
+        __: (text: string, domain?: string) => string;
+        _n: (single: string, plural: string, number: number, domain?: string) => string;
+        _x: (text: string, context: string, domain?: string) => string;
+      };
+    };
     Alpine: any;
   }
 }
 
 // ── API response shapes ───────────────────────────────────────────────────────
 
-export interface CartItem {
+export type CartItem = {
   id: number;
   cart_id: string;
   quantity: number;
@@ -59,47 +75,47 @@ export interface CartItem {
   created_at: string;
   updated_at: string;
   display_product_total_money_object: {
-    display: string,
+    display: string;
   };
   display_total_money_object: {
-    display: string,
+    display: string;
   };
-}
+};
 
-export interface CartUpdateItem {
+export type CartUpdateItem = {
   sub_total: number;
   total: number;
   items_count: number;
   pricing: {
     display_subtotal_money_object: {
-      display: string,
+      display: string;
     };
     display_total_money_object: {
-      display: string,
-    },
-  },
-  items: CartItem[],
+      display: string;
+    };
+  };
+  items: CartItem[];
   formatted_items: Record<number, string> | null;
-}
+};
 
-export interface MoneyObject {
+export type MoneyObject = {
   raw: number;
   display: string;
   currency: {
     code: string;
     symbol: string;
   };
-}
+};
 
-export interface DiscountDetails {
+export type DiscountDetails = {
   code: string | null;
   title: string | null;
   discount_value_type: string | null;
   discount_amount_percentage: number | null;
   base_discount_amount_fixed: number | null;
-}
+};
 
-export interface CartPricing {
+export type CartPricing = {
   display_subtotal_money_object: MoneyObject;
   display_tax_total_money_object: MoneyObject;
   discount_details: DiscountDetails | null;
@@ -109,9 +125,9 @@ export interface CartPricing {
   display_shipping_discount_money_object: MoneyObject;
   display_shipping_total_money_object: MoneyObject;
   display_total_money_object: MoneyObject;
-}
+};
 
-export interface Cart {
+export type Cart = {
   id: number;
   customer_id: number | null;
   cart_token: string;
@@ -132,20 +148,20 @@ export interface Cart {
   expires_at: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface ApiResponse<T> {
+export type ApiResponse<T> = {
   data: T;
   message: string;
   success: boolean;
-}
+};
 
-export interface OrderItem {
+export type OrderItem = {
   variant_id: number;
   quantity: number;
-}
+};
 
-export interface CheckoutRequest {
+export type CheckoutRequest = {
   items: OrderItem[];
   currency_code: string;
   payment_provider: string;
@@ -163,23 +179,23 @@ export interface CheckoutRequest {
   shipping_phone: string;
   shipping_email: string;
   shipping_company?: string | null;
-  billing_first_name: string;
-  billing_last_name: string;
-  billing_address_line1: string;
-  billing_address_line2: string;
-  billing_city: string;
-  billing_state: string;
-  billing_postcode: string;
-  billing_country: string;
-  billing_phone: string;
-  billing_email: string;
+  billing_first_name?: string;
+  billing_last_name?: string;
+  billing_address_line1?: string;
+  billing_address_line2?: string;
+  billing_city?: string;
+  billing_state?: string;
+  billing_postcode?: string;
+  billing_country?: string;
+  billing_phone?: string;
+  billing_email?: string;
   billing_company?: string | null;
   customer_email: string;
   customer_phone: string;
   customer_notes?: string | null;
-}
+};
 
-export interface CheckoutResponse {
+export type CheckoutResponse = {
   id: number;
   uuid: string;
   order_number: string;
@@ -187,36 +203,37 @@ export interface CheckoutResponse {
   total: string;
   currency: string;
   payment_next_step: {
-    type: 'redirect' | 'html',
-    value: string
-  } | null
-}
+    type: 'redirect' | 'html';
+    value: string;
+  } | null;
+};
 
-export interface WishlistItem {
+export type WishlistItem = {
   product_id: number;
   variant_id?: number;
   name: string;
   image?: string;
   price?: number;
   url?: string;
-}
+};
 
-export interface ApiError {
+export type ApiError = {
   message: string;
   code?: string;
-}
+};
 
 // ── Toast types ───────────────────────────────────────────────────────────────
 
-export type ToastType = "success" | "error" | "warning" | "info" | "default";
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
 
-export type ToastPosition = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right";
+export type ToastPosition =
+  'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
 
-export type ToastExpandMode = "hover" | "always" | "never";
+export type ToastExpandMode = 'hover' | 'always' | 'never';
 
-export type ToastTheme = "light" | "dark" | "auto";
+export type ToastTheme = 'light' | 'dark' | 'auto';
 
-export interface ToastOffset {
+export type ToastOffset = {
   x?: number;
   y?: number;
   mobile?: {
@@ -227,37 +244,37 @@ export interface ToastOffset {
     x?: number;
     y?: number;
   };
-}
+};
 
-export interface ToastOptions {
+export type ToastOptions = {
   type?: ToastType;
   title?: string;
   description?: string;
   icon?: string | null;
   duration?: number;
   closeButton?: boolean;
-  dir?: "ltr" | "rtl" | "auto";
+  dir?: 'ltr' | 'rtl' | 'auto';
   richColors?: boolean;
   position?: ToastPosition;
   theme?: ToastTheme;
-}
+};
 
-export interface ToastConfig {
+export type ToastConfig = {
   position?: ToastPosition;
   duration?: number;
   closeButton?: boolean;
   maxVisible?: number;
-  dir?: "ltr" | "rtl" | "auto";
+  dir?: 'ltr' | 'rtl' | 'auto';
   offset?: ToastOffset;
   expandMode?: ToastExpandMode;
   richColors?: boolean;
   theme?: ToastTheme;
-}
+};
 
-export interface ToastItem {
+export type ToastItem = {
   id: string;
   title: string;
   description?: string;
   type: ToastType;
   duration: number;
-}
+};

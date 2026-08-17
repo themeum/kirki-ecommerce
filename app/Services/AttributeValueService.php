@@ -3,9 +3,9 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\AttributeValue;
-use Kirki\Ecommerce\App\Repositories\AttributeValueRepository;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\AttributeValue\CreateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\UpdateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
@@ -14,13 +14,6 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 class AttributeValueService
 {
-    protected $repository;
-
-    public function __construct(AttributeValueRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return all attribute values
      *
@@ -30,7 +23,14 @@ class AttributeValueService
      */
     public function all(int $attribute_id, ListFilterDTO $filters)
     {
-        return $this->repository->all($attribute_id, $filters->to_array());
+        return AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters->search), function (QueryBuilder $query, $search) {
+            return $query->where_any(['value', 'color'], 'like', '%' . $search . '%');
+        })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            })->get();
     }
 
     /**
@@ -42,7 +42,7 @@ class AttributeValueService
      */
     public function get_ids_by_attribute_id(int $id)
     {
-        return $this->repository->get_ids_by_attribute_id($id);
+        return array_column(AttributeValue::select('id')->where('attribute_id', $id)->get()->to_array(), 'id');
     }
 
     /**
@@ -54,7 +54,7 @@ class AttributeValueService
      */
     public function find(int $id)
     {
-        $attribute_value = $this->repository->find($id);
+        $attribute_value = AttributeValue::find($id);
 
         if (empty($attribute_value)) {
             throw new NotFoundException(__('Attribute value not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -71,7 +71,7 @@ class AttributeValueService
      */
     public function insert(array $values)
     {
-        return $this->repository->insert($values);
+        return AttributeValue::insert($values);
     }
 
     /**
@@ -82,7 +82,7 @@ class AttributeValueService
      */
     public function create(CreateAttributeValueDTO $data)
     {
-        return $this->repository->create($data->to_array());
+        return AttributeValue::create($data->to_array());
     }
 
     /**
@@ -94,19 +94,19 @@ class AttributeValueService
      */
     public function update(UpdateAttributeValueDTO $data)
     {
-        $attribute_value = $this->repository->find($data->id);
+        $attribute_value = AttributeValue::find($data->id);
 
         if (empty($attribute_value)) {
             throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_updated = $this->repository->update($data->id, $data->to_array());
+        $is_updated = (bool) $attribute_value->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Attribute value could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        return $this->repository->find($data->id);
+        return AttributeValue::find($data->id);
     }
 
     /**
@@ -118,13 +118,7 @@ class AttributeValueService
      */
     public function delete(int $id)
     {
-        $attribute_value = $this->repository->find($id);
-
-        if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) AttributeValue::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Attribute value could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -142,7 +136,7 @@ class AttributeValueService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) AttributeValue::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -159,6 +153,8 @@ class AttributeValueService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) AttributeValue::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where_any(['value', 'color'], 'like', '%' . $search . '%');
+        })->delete();
     }
 }

@@ -34,7 +34,7 @@ $sidebar_data = [
 
 <?php Template::get_header(); ?>
 
-<div class="kecom-products-page" x-data="shop()">
+<div class="kecom-page-wrapper kecom-products-page" x-data="shop()">
     <div class="kecom-container">
         <?php
         include_view(

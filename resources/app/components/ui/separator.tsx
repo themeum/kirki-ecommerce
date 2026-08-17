@@ -1,6 +1,7 @@
 import type { CSSObject } from '@emotion/react';
 import * as SeparatorPrimitive from '@radix-ui/react-separator';
-import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type CSSProperties } from 'react';
+import type { ComponentRef} from 'react';
+import { type ComponentPropsWithoutRef, type CSSProperties, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';

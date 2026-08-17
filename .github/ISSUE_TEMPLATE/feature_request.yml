@@ -1,0 +1,63 @@
+name: Feature request
+description: Suggest a new capability or an improvement to an existing one
+labels: ['enhancement', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Please search [existing issues](https://github.com/themeum/kirki-ecommerce/issues)
+        first — if a similar request exists, add your use case there instead.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the store-owner or developer scenario, not just the feature you have in mind.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should Kirki Ecommerce do?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Related area
+      options:
+        - Products / catalog (variants, categories, tags, brands, collections)
+        - Cart & checkout
+        - Payments / payment gateways
+        - Orders & refunds
+        - Customers
+        - Inventory
+        - Coupons & discounts
+        - Shipping
+        - Tax
+        - Currency & pricing
+        - Settings
+        - Admin dashboard (UI)
+        - Storefront (frontend)
+        - REST API
+        - WP-CLI / migrations
+        - Emails & notifications
+        - Developer experience (hooks, extensibility)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have considered
+      description: Workarounds you are using today, or how other platforms solve this.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Mockups, links, or references to how a comparable store setup handles this.

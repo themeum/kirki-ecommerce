@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { Controller, useFieldArray, useFormContext, type FieldArrayPath, type FieldPath, type FieldValues } from 'react-hook-form';
+import { Controller, type FieldArrayPath, type FieldPath, type FieldValues, useFieldArray, useFormContext } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Field, FieldError } from '@/components/ui/field';
@@ -35,7 +35,7 @@ const WeightRangeField = <
 
   const arrayError = (formState.errors as Record<string, unknown>)?.[name] as
     | RowErrorMessage
-    | Array<{ from?: RowErrorMessage; to?: RowErrorMessage; base_amount?: RowErrorMessage }>
+    | { from?: RowErrorMessage; to?: RowErrorMessage; base_amount?: RowErrorMessage }[]
     | undefined;
   const arrayLevelMessage = Array.isArray(arrayError) ? undefined : arrayError?.message;
   const rowErrorFor = (index: number) => (Array.isArray(arrayError) ? arrayError[index] : undefined);
@@ -57,7 +57,7 @@ const WeightRangeField = <
               name={`${name}.${index}.from` as FieldPath<TFieldValues>}
               render={({ field: fromField, fieldState }) => (
                 <Input
-                  value={(fromField.value as string | number | null) ?? ''}
+                  value={fromField.value ?? ''}
                   type="number"
                   placeholder={__('e.g. 0', 'kirki-ecommerce')}
                   disabled={disabled}
@@ -74,7 +74,7 @@ const WeightRangeField = <
               name={`${name}.${index}.to` as FieldPath<TFieldValues>}
               render={({ field: toField, fieldState }) => (
                 <Input
-                  value={(toField.value as string | number | null) ?? ''}
+                  value={toField.value ?? ''}
                   type="number"
                   placeholder={__('e.g. 10', 'kirki-ecommerce')}
                   disabled={disabled}
@@ -93,7 +93,7 @@ const WeightRangeField = <
                 render={({ field: amountField, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <Input
-                      value={(amountField.value as string | number | null) ?? ''}
+                      value={amountField.value ?? ''}
                       type="number"
                       placeholder={__('e.g. 15', 'kirki-ecommerce')}
                       disabled={disabled}

@@ -4,6 +4,7 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PlusIcon } from '@/icons';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type HeaderActionsCardProps = {
@@ -13,7 +14,7 @@ type HeaderActionsCardProps = {
   onAdd?: () => void;
   hideButton?: boolean;
   dropDownButton?: boolean;
-  handleOptionSelect?: (value: string | number | Array<string | number>) => void;
+  handleOptionSelect?: (value: string | number | (string | number)[]) => void;
 };
 
 const HeaderActionsCard = (props: HeaderActionsCardProps) => {
@@ -24,7 +25,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
     onAdd,
     hideButton = false,
     dropDownButton = false,
-    handleOptionSelect = () => { },
+    handleOptionSelect = noop,
   } = props;
   return (
     <>

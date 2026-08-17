@@ -21,4 +21,4 @@ const formatValidationIssues = (issues: ZodIssue[]) => {
   });
 };
 
-export { ApiValidationError, isApiValidationError, formatValidationIssues };
+export { ApiValidationError, formatValidationIssues, isApiValidationError };

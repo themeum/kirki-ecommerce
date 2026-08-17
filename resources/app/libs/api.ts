@@ -28,7 +28,7 @@ const apiClient = axios.create({
 function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
   if (data === null || data === undefined || typeof data !== 'object') {
     if (typeof data === 'string' && data === '') {
-      // eslint-disable-next-line no-console
+       
       console.warn(
         `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is an empty string — the form schema's transform should emit null explicitly instead.`,
       );
@@ -37,7 +37,7 @@ function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
   }
 
   if (data instanceof Date) {
-    // eslint-disable-next-line no-console
+     
     console.warn(
       `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is a raw Date — the form schema's transform should convert it with dateString().`,
       data,
@@ -55,7 +55,7 @@ function warnOnUnshapedPayload(data: unknown, path: string[] = []): void {
   }
 
   if (isMediaObject(data)) {
-    // eslint-disable-next-line no-console
+     
     console.warn(
       `[api] outgoing payload at "${path.length ? path.join('.') : '(root)'}" is a raw media object — the form schema's transform should collapse it with mediaId().`,
       data,
@@ -162,7 +162,7 @@ apiClient.interceptors.response.use(
       return Promise.reject(modifiedError as Error);
     }
 
-    return Promise.reject(error as Error);
+    return Promise.reject(error);
   },
 );
 

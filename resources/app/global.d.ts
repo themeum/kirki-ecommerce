@@ -1,8 +1,13 @@
 /// <reference types="vite/client" />
 
-import '@emotion/react';
+import type { CSSObject } from '@emotion/react';
+import type { RowData } from '@tanstack/react-table';
 
 import type { AppTheme } from '@/theme';
+import type { TableAlignment } from '@/types/components/common';
+
+import '@emotion/react';
+import '@tanstack/react-table';
 
 type KirkiEcommerceConfig = {
   site_url: string;
@@ -28,7 +33,7 @@ type WpI18n = {
     context: string,
     domain?: string,
   ) => string;
-  sprintf: (format: string, ...args: Array<string | number>) => string;
+  sprintf: (format: string, ...args: (string | number)[]) => string;
   setLocaleData: (data: Record<string, unknown>, domain?: string) => void;
   getLocaleData: (domain?: string) => Record<string, unknown>;
 };
@@ -91,6 +96,14 @@ declare global {
 
 declare module '@emotion/react' {
   export interface Theme extends AppTheme { }
+}
+
+declare module '@tanstack/table-core' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- must match table-core's own param names for declaration merging to unify
+  interface ColumnMeta<TData extends RowData, TValue> {
+    alignment?: TableAlignment;
+    cssOverride?: CSSObject;
+  }
 }
 
 declare module '*.css' {

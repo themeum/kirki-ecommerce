@@ -1,6 +1,7 @@
 import type { CSSObject } from '@emotion/react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { ComponentRef, forwardRef, type ComponentPropsWithoutRef } from 'react';
+import type {ComponentRef} from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';

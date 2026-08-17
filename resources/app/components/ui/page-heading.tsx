@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import { ArrowLeft } from 'lucide-react';
-import { forwardRef, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentProps, type CSSProperties, forwardRef, type ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
@@ -8,7 +8,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
-import type { ContainerSize, HeadingType } from '@/types';
+import type { ContainerSize, HeadingType } from '@/types/components/common';
 
 type PageHeadingProps = {
   type?: HeadingType;
@@ -87,7 +87,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
                 {leftIcon}
               </span>
             )}
-            <Text variant='heading5'>{text}</Text>
+            <Text variant="heading5">{text}</Text>
             {children}
             <Flex cssOverride={styles.actions} gap={2}>
               {actions}

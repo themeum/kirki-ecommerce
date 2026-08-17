@@ -1,9 +1,9 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type { ContainerSize } from '@/types';
+import type { ContainerSize } from '@/types/components/common';
 
 type ContainerProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   size?: ContainerSize;

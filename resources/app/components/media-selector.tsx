@@ -1,11 +1,12 @@
-import { CSSObject } from '@emotion/react';
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import type { CSSObject } from '@emotion/react';
+import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
 import { useWordpressMedia } from '@/hooks';
+import type { MediaRef } from '@/schemas/shared/media';
 import { defineStyles, flexCenter, scopedMerge } from '@/theme/mixins';
-import type { MediaRef } from '@/types';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
@@ -62,14 +63,15 @@ const MediaSelector = ({
       onSelect(selectedImage);
       setOnSelectToggler(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per external toggle to hand back the current pick; re-running on onSelect/selectedImage identity would re-emit the same selection
   }, [onSelectToggler]);
 
   useEffect(() => {
-    if (typeof wp !== 'undefined' && wp?.media) {
+    if (isDefined(wp) && isDefined(wp.media)) {
       mediaFrameRef.current = wp.media({
-        title: title,
+        title,
         library: { type: types },
-        multiple: multiple,
+        multiple,
         button: {
           text: buttonText ?? (multiple
             ? __('Use These Images', 'kirki-ecommerce')
@@ -121,6 +123,7 @@ const MediaSelector = ({
         mediaFrameRef.current.off('close');
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- builds the wp.media frame once on mount — re-running on any prop identity change would discard the frame and its open state
   }, []);
 
   const openMediaFrame = () => {
@@ -161,5 +164,5 @@ MediaSelector.displayName = 'MediaSelector';
 export default MediaSelector;
 
 const styles = defineStyles({
-  mediaSelector: flexCenter()
+  mediaSelector: flexCenter(),
 });

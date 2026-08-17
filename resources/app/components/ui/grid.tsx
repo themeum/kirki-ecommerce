@@ -1,9 +1,9 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { buildGridAreas, buildGridTemplate, resolveGap } from '@/components/ui/layout-utils';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
-import type { FlexAlign, FlexJustify, GapValue } from '@/types';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
+import type { FlexAlign, FlexJustify, GapValue } from '@/types/components/common';
 
 type GridProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   columns?: number;

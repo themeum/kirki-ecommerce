@@ -1,9 +1,9 @@
 import { type CSSObject } from '@emotion/react';
-import { forwardRef, type CSSProperties } from 'react';
+import { type CSSProperties, forwardRef } from 'react';
 
 import { theme } from '@/theme';
-import { scopedMerge, defineStyles } from '@/theme/mixins';
-import type { HeadingType } from '@/types';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
+import type { HeadingType } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
 type HeadingProps = {

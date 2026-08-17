@@ -1,3 +1,5 @@
+import { noop } from '@/utils/function';
+
 type TranslateText = (text: string, domain?: string) => string;
 type TranslateContext = (
   text: string,
@@ -17,7 +19,7 @@ type TranslatePluralContext = (
   context: string,
   domain?: string,
 ) => string;
-type SprintfFn = (format: string, ...args: Array<string | number>) => string;
+type SprintfFn = (format: string, ...args: (string | number)[]) => string;
 type SetLocaleDataFn = (
   data: Record<string, unknown>,
   domain?: string,
@@ -34,7 +36,7 @@ type I18nModule = {
   getLocaleData?: GetLocaleDataFn;
 };
 
-const i18n: I18nModule = window?.wp?.i18n || {};
+const i18n: I18nModule = window?.wp?.i18n ?? {};
 
 export const __: TranslateText = i18n.__ ?? ((s) => s);
 export const _x: TranslateContext = i18n._x ?? ((s) => s);
@@ -42,5 +44,5 @@ export const _n: TranslatePlural = i18n._n ?? ((s) => s);
 export const _nx: TranslatePluralContext = i18n._nx ?? ((s) => s);
 export const sprintf: SprintfFn =
   i18n.sprintf ?? ((...args) => args.join(' '));
-export const setLocaleData: SetLocaleDataFn = i18n.setLocaleData ?? (() => {});
+export const setLocaleData: SetLocaleDataFn = i18n.setLocaleData ?? noop;
 export const getLocaleData: GetLocaleDataFn = i18n.getLocaleData ?? (() => ({}));

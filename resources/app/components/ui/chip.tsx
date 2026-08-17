@@ -1,10 +1,11 @@
 import type { CSSObject } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type CSSProperties, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
-import { flexCenter, scopedMerge, scoped, defineStyles } from '@/theme/mixins';
-import type { GapValue } from '@/types';
+import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
+import type { GapValue } from '@/types/components/common';
+import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type ChipProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
@@ -28,14 +29,14 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
     gap = 2,
     closeIcon,
     style,
-    onRemove = () => {},
+    onRemove = noop,
     ...rest
   } = props;
 
   const chipStyle = defineStyles({
     ...(color !== undefined ? { '--chip-swatch-color': color } : {}),
     ...style,
-  })as CSSProperties;
+  });
 
   return (
     <div ref={ref} style={chipStyle} css={scopedMerge(styles.root, cssOverride)} {...rest}>
@@ -79,8 +80,8 @@ const styles = defineStyles({
   },
   swatch: {
     borderRadius: theme.radius.full,
-    height: '16px',
-    width: '16px',
+    height: theme.spacing[4],
+    width: theme.spacing[4],
     backgroundColor: 'var(--chip-swatch-color)',
   },
   close: {

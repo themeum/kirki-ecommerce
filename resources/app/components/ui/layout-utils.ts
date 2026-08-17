@@ -1,5 +1,5 @@
-import { theme, type SpacingKey } from '@/theme';
-import type { GapValue } from '@/types';
+import { type SpacingKey, theme } from '@/theme';
+import type { GapValue } from '@/types/components/common';
 
 /**
  * Resolve a gap value to a CSS length string.

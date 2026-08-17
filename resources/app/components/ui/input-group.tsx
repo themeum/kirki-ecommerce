@@ -1,9 +1,9 @@
-import { type CSSObject, type Theme } from '@emotion/react';
-import { forwardRef, type ComponentPropsWithoutRef, type MouseEvent } from 'react';
+import { type CSSObject } from '@emotion/react';
+import { type ComponentPropsWithoutRef, forwardRef, type MouseEvent } from 'react';
 
 import Button from '@/components/ui/button';
 import { theme } from '@/theme';
-import { flexCenter, itemCenter, uiFocusRing, scopedMerge, mergeCss, defineStyles } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, mergeCss, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type InputGroupAlign =
   | 'inline-start'
@@ -129,6 +129,7 @@ const InputGroupAddon = forwardRef<HTMLDivElement, InputGroupAddonProps>(
     };
 
     return (
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- widens the click target onto the addon so a stray click still focuses the control; keyboard users tab straight to the control, so there is nothing to bind
       <div
         ref={ref}
         role="group"
@@ -261,14 +262,14 @@ export {
 };
 
 export type {
-  InputGroupAlign,
-  InputGroupButtonSize,
-  InputGroupProps,
   InputGroupAddonProps,
+  InputGroupAlign,
+  InputGroupButtonProps,
+  InputGroupButtonSize,
   InputGroupInputProps,
+  InputGroupProps,
   InputGroupTextareaProps,
   InputGroupTextProps,
-  InputGroupButtonProps,
 };
 
 const styles = defineStyles({
@@ -286,14 +287,14 @@ const styles = defineStyles({
     overflow: 'hidden',
     '&:focus-within': {
       borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme as Theme),
+      ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
       border: `1px solid ${theme.colors.border.critical}`,
       boxShadow: 'none',
       '&:focus-within': {
         borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme as Theme, theme.colors.border.critical),
+        ...uiFocusRing(theme, theme.colors.border.critical),
       },
     },
     '&[data-disabled="true"]': {

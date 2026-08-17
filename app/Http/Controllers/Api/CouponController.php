@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Actions\Coupon\CreateCouponAction;
+use Kirki\Ecommerce\App\Actions\Coupon\DuplicateCouponAction;
 use Kirki\Ecommerce\App\Actions\Coupon\UpdateCouponAction;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Coupon\CouponCreateRequest;
@@ -141,11 +142,11 @@ class CouponController
         ]);
     }
 
-    public function action(Request $request)
+    public function action(Request $request, DuplicateCouponAction $duplicate_action)
     {
         switch ($request->string('action')) {
             case 'duplicate':
-                $coupon = $this->service->duplicate($request->int('id'));
+                $coupon = $duplicate_action->execute($request->int('id'));
                 $message = __('Coupon duplicated successfully.', 'kirki-ecommerce');
                 break;
             case 'activate':

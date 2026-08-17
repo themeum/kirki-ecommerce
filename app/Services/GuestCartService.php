@@ -78,7 +78,7 @@ class GuestCartService extends CartService
             return;
         }
 
-        if (!$this->repository->find_by_token($token)) {
+        if (!$this->find_by_token($token)) {
             $this->clear_guest_cart_cookie();
             $this->set_guest_cart_cookie();
         }

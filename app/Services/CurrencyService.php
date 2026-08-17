@@ -4,9 +4,10 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Models\Currency;
-use Kirki\Ecommerce\App\Repositories\CurrencyRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Support\Arrayable;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Currency\CreateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
@@ -15,17 +16,11 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
 class CurrencyService
 {
-    protected $repository;
-
-    public function __construct(CurrencyRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Get base currency
      *
@@ -33,7 +28,7 @@ class CurrencyService
      */
     public function get_base_currency()
     {
-        return $this->repository->find_base();
+        return Currency::base()->first();
     }
 
     /**
@@ -44,7 +39,7 @@ class CurrencyService
      */
     public function set_base(string $code)
     {
-        $currency = $this->repository->find_by_code($code);
+        $currency = Currency::where('code', $code)->first();
 
         if (!$currency) {
             throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -54,7 +49,9 @@ class CurrencyService
             return true;
         }
 
-        return $this->repository->set_base($code);
+        Currency::base()->update(['is_base' => 0]);
+
+        return (bool) Currency::where('code', $code)->update(['is_base' => 1]);
     }
 
     /**
@@ -64,7 +61,7 @@ class CurrencyService
      */
     public function list()
     {
-        return $this->repository->list();
+        return collection($this->get_all_currencies());
     }
 
     /**
@@ -75,7 +72,7 @@ class CurrencyService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -86,7 +83,7 @@ class CurrencyService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -98,7 +95,7 @@ class CurrencyService
      */
     public function find(int $id)
     {
-        $currency = $this->repository->find($id);
+        $currency = Currency::find($id);
 
         if (!$currency) {
             throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -116,7 +113,7 @@ class CurrencyService
      */
     public function find_by_code(string $code)
     {
-        $currency = $this->repository->find_by_code($code);
+        $currency = Currency::where('code', $code)->first();
 
         if (!$currency) {
             throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -137,7 +134,7 @@ class CurrencyService
     {
         $items_array = collection($items)->map(fn($item) => $item instanceof Arrayable ? $item->to_array() : $item)->all();
 
-        $currency = $this->repository->insert($items_array);
+        $currency = Currency::insert($items_array);
 
         return $currency;
     }
@@ -152,7 +149,7 @@ class CurrencyService
      */
     public function create(CreateCurrencyDTO $data)
     {
-        $currency = $this->repository->create($data->to_array());
+        $currency = Currency::create($data->to_array());
 
         return $currency;
     }
@@ -169,17 +166,17 @@ class CurrencyService
      */
     public function update(UpdateCurrencyDTO $data)
     {
-        $currency = $this->repository->find($data->id);
+        $currency = Currency::find($data->id);
 
         if (empty($currency)) {
             throw new NotFoundException(__('Currency could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        if ($currency->code !== $data->code && $this->repository->find_by_code($data->code)) {
+        if ($currency->code !== $data->code && Currency::where('code', $data->code)->first()) {
             throw new Exception(__('Currency code already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
-        $is_updated = $this->repository->update($data->id, $data->to_array());
+        $is_updated = (bool) $currency->update($data->to_array());
 
         if ($data->is_base && !$currency->is_base) {
             CurrencyExchange::sync();
@@ -189,7 +186,7 @@ class CurrencyService
             throw new Exception(__('Currency could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
         }
 
-        return $this->repository->find($data->id);
+        return Currency::find($data->id);
     }
 
     /**
@@ -202,13 +199,7 @@ class CurrencyService
      */
     public function delete(int $id)
     {
-        $currency = $this->repository->find($id);
-
-        if (empty($currency)) {
-            throw new NotFoundException(__('Currency could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) Currency::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Currency could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -226,7 +217,7 @@ class CurrencyService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) Currency::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Currencies could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -243,6 +234,31 @@ class CurrencyService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    protected function list_query(ListFilterDTO $filters)
+    {
+        return Currency::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where_any(['name', 'code', 'symbol'], 'like', '%' . $search . '%');
+        })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
+    }
+
+    protected function get_all_currencies()
+    {
+        $path = app()->resource_path('data/currencies.json');
+
+        if (!file_exists($path)) {
+            return [];
+        }
+
+        $content = file_get_contents($path);
+
+        return json_decode($content, true) ?? [];
     }
 }

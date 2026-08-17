@@ -35,7 +35,7 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
             type: 'secondary',
             size: 'icon',
             icon: <MoreVertical size={12} />,
-            cssOverride: actionCssOverride
+            cssOverride: actionCssOverride,
           }}
           options={actions.map((action, index) =>
             'type' in action && action.type === 'separator'

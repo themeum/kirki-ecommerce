@@ -15,8 +15,8 @@
 // Pseudo-class variants (:focus, :hover, :disabled) naturally sit at (0,3,0)
 // and therefore also win over theme rules.
 
-@use "../tokens" as *;
-@use "../mixins" as *;
+@use '../tokens' as *;
+@use '../mixins' as *;
 
 // ── Field wrapper ────────────────────────────────────────────────────────────
 
@@ -30,7 +30,7 @@
     @include typography(base, medium, $text-primary);
 
     &-required::after {
-      content: " *";
+      content: ' *';
       color: $background-fill-critical;
     }
   }
@@ -232,6 +232,7 @@
     &:checked {
       border-color: $background-fill-brand;
       border-width: 2px;
+      background-color: transparent;
       background-image: radial-gradient(circle, $background-fill-brand 40%, transparent 40%);
     }
 
@@ -266,6 +267,7 @@
     background: none;
     border: none;
     outline: none;
+    box-shadow: none;
     padding: 0px;
     color: $icon-primary;
     cursor: pointer;
@@ -287,6 +289,7 @@
     width: 3rem;
     height: 40px;
     border: none;
+    box-shadow: none;
     text-align: center;
     font-family: $font-family;
     font-size: $font-size-base;
@@ -303,8 +306,15 @@
       appearance: none;
       margin: 0;
     }
-    &[type="number"] {
+    &[type='number'] {
       appearance: textfield;
+    }
+  }
+
+  &-sm {
+    .kecom-quantity-btn,
+    .kecom-quantity-input.kecom-quantity-input {
+      height: 32px;
     }
   }
 }

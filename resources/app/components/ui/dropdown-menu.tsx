@@ -1,7 +1,8 @@
 import type { CSSObject } from '@emotion/react';
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
-import { ComponentRef, forwardRef, type ComponentPropsWithoutRef, type HTMLAttributes } from 'react';
+import type { ComponentRef} from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type HTMLAttributes } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
@@ -262,7 +263,7 @@ export {
   DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator,
   DropdownMenuShortcut, DropdownMenuSub,
   DropdownMenuSubContent,
-  DropdownMenuSubTrigger, DropdownMenuTrigger
+  DropdownMenuSubTrigger, DropdownMenuTrigger,
 };
 
 const styles = defineStyles({

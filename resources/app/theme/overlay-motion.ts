@@ -1,4 +1,4 @@
-import { keyframes, type CSSObject } from '@emotion/react';
+import { type CSSObject, keyframes } from '@emotion/react';
 
 import { theme } from '@/theme';
 
@@ -87,10 +87,10 @@ const getOverlayMotionStyles = (transformOrigin: string): CSSObject => {
 };
 
 export {
-  overlayInFromTop,
+  getOverlayMotionStyles,
   overlayInFromBottom,
   overlayInFromLeft,
   overlayInFromRight,
+  overlayInFromTop,
   overlayOut,
-  getOverlayMotionStyles,
 };

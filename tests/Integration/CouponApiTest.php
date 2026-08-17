@@ -8,11 +8,15 @@ use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class CouponApiTest extends RestTestCase
 {
+    use CreatesTestProducts;
+
     /**
      * Coupon id for the current test.
      *
@@ -20,6 +24,18 @@ class CouponApiTest extends RestTestCase
      * @since 1.0.0
      */
     protected $coupon_id;
+
+    /**
+     * Prepare state before each test.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed_base_currency();
+    }
 
     /**
      * Create coupon returns 201 and persists.
@@ -263,6 +279,60 @@ class CouponApiTest extends RestTestCase
     }
 
     /**
+     * Duplicating a coupon copies its category, product, and customer associations.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_duplicate_coupon_preserves_associations(): void
+    {
+        $category = $this->create_coupon_test_category();
+        $product = $this->create_product();
+        $reward_product = $this->create_product();
+        $customer = $this->create_coupon_test_customer();
+
+        $original = $this->create_coupon([
+            'title' => 'Coupon With Associations',
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'customer_eligibility' => CustomerEligibility::SPECIFIC_CUSTOMERS,
+            'category_ids' => [$category['id']],
+            'product_ids' => [$product['id']],
+            'reward_product_ids' => [$reward_product['id']],
+            'customer_ids' => [$customer['id']],
+        ]);
+
+        $this->coupon_id = $original['id'];
+
+        $response = $this->request('PATCH', 'coupons/' . $this->coupon_id . '/action', [
+            'action' => 'duplicate',
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $duplicated = $payload['data'];
+
+        $this->assertNotEquals($this->coupon_id, $duplicated['id']);
+        $this->assertEquals('Coupon With Associations - Copy', $duplicated['title']);
+        $this->assertEqualsCanonicalizing([$category['id']], $duplicated['categories']);
+        $this->assertEqualsCanonicalizing([$customer['id']], $duplicated['customers']);
+        $this->assertEqualsCanonicalizing([$product['id'], $reward_product['id']], $duplicated['products']);
+    }
+
+    /**
+     * Duplicating a missing coupon returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_duplicate_missing_coupon_returns_404(): void
+    {
+        $response = $this->request('PATCH', 'coupons/999999/action', [
+            'action' => 'duplicate',
+        ]);
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
      * Create coupon.
      * @param array $overrides Overrides.
      *
@@ -272,6 +342,59 @@ class CouponApiTest extends RestTestCase
     protected function create_coupon(array $overrides = []): array
     {
         $response = $this->request('POST', 'coupons', $this->coupon_payload($overrides));
+        $payload = $this->assert_api_success($response, 201);
+
+        return $payload['data'];
+    }
+
+    /**
+     * Create a category for coupon association tests.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_coupon_test_category(): array
+    {
+        $response = $this->request('POST', 'categories', [
+            'name' => 'Coupon Test Category',
+            'slug' => 'coupon-test-category-' . wp_generate_password(6, false),
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+
+        return $payload['data'];
+    }
+
+    /**
+     * Create a customer for coupon association tests.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_coupon_test_customer(): array
+    {
+        $unique = wp_generate_password(8, false);
+
+        $response = $this->request('POST', 'customers', [
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'email' => 'coupon-customer-' . $unique . '@example.com',
+            'phone' => '5550100',
+            'is_billing_same_as_shipping' => true,
+            'shipping_address' => [
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'email' => 'coupon-customer-' . $unique . '@example.com',
+                'phone' => '5550100',
+                'address_line1' => '123 Main St',
+                'address_line2' => '',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country' => 'US',
+            ],
+        ]);
+
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
