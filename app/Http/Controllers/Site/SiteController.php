@@ -301,8 +301,9 @@ class SiteController
         $sanitized_input = $request->sanitized();
 
         $creds = [
-            'user_login' => $sanitized_input['email'],
+            'user_login'    => $sanitized_input['email'],
             'user_password' => $sanitized_input['password'],
+            'remember'      => $sanitized_input['remember'],
         ];
 
         $user = wp_signon($creds, false);

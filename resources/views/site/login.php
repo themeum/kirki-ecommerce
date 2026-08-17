@@ -38,7 +38,7 @@ $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
             defaultValues: {
                 email: '',
                 password: '', 
-                remember: false,
+                remember: '',
                 ajax_nonce: window.kirki_ecommerce.ajax_nonce,
             },
             mode: 'onBlur'
@@ -70,10 +70,10 @@ $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
                 </div>
                 <span class="kecom-field-error" x-show="errors.password" x-text="errors.password"></span>
             </div>
-            <label class="kecom-checkbox">
-                <input class="kecom-checkbox-input" x-bind="register('remember')" name="remember" type="checkbox">
-                <span class="kecom-checkbox-label"><?php _e('Remember me', 'kirki-ecommerce'); ?></span>
-            </label>
+            <div class="kecom-checkbox">
+                <input class="kecom-checkbox-input" type="checkbox" id="kecom-input-remember" name="remember" x-bind="register('remember')">
+                <label class="kecom-checkbox-label" for="kecom-input-remember"><?php _e('Remember me', 'kirki-ecommerce'); ?></label>
+            </div>
             <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php _e('Login', 'kirki-ecommerce'); ?></button>
         </form>
     </div>

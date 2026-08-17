@@ -13,6 +13,7 @@ class LoginRequest extends Request
         return [
             'email' => 'required|email',
             'password' => 'required',
+            'remember' => 'nullable|in:on,off',
         ];
     }
 
@@ -21,6 +22,7 @@ class LoginRequest extends Request
         return [
             'email' => Sanitizer::EMAIL,
             'password' => Sanitizer::TEXT,
+            'remember' => fn($value) => 'on' === $value,
         ];
     }
 }
