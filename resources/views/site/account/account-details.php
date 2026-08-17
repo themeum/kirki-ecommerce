@@ -20,6 +20,8 @@ $first_name = $user->first_name ?: '';
 $last_name = $user->last_name ?: '';
 $display_name = $user->display_name ?: '';
 $email = $user->user_email ?: '';
+
+$pages = view_data('pages');
 ?>
 
 <?php Template::get_header(); ?>
@@ -29,7 +31,7 @@ $email = $user->user_email ?: '';
         <!-- Account Center 2-Column Grid -->
         <div class="kecom-account-grid">
             <!-- Left Sidebar Navigation -->
-            <?php include_view('site.account.sidebar', ['current_page' => 'account-details']); ?>
+            <?php include_view('site.account.sidebar', ['pages' => $pages]); ?>
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">

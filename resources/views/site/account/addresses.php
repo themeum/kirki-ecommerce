@@ -18,6 +18,8 @@ use function Kirki\Ecommerce\Framework\view_data;
 $billing_address = view_data('billing_address');
 $shipping_address = view_data('shipping_address');
 $countries = view_data('countries') ?: [];
+
+$pages = view_data('pages');
 ?>
 
 <?php Template::get_header(); ?>
@@ -27,7 +29,7 @@ $countries = view_data('countries') ?: [];
         <!-- Account Center 2-Column Grid -->
         <div class="kecom-account-grid">
             <!-- Left Sidebar Navigation -->
-            <?php include_view('site.account.sidebar', ['current_page' => 'addresses']); ?>
+            <?php include_view('site.account.sidebar', ['pages' => $pages]); ?>
 
             <!-- Right Content Area -->
             <main class="kecom-account-content" x-data="{ editingAddress: null }">

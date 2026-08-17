@@ -22,6 +22,8 @@ $orders = view_data('orders') ?: [];
 $orders_count = count($orders);
 $logout_url = wp_logout_url(Url::get_account_url());
 $recent_orders = array_slice($orders, 0, 5);
+
+$pages = $data['pages'] ?? [];
 ?>
 
 <?php Template::get_header(); ?>
@@ -31,7 +33,7 @@ $recent_orders = array_slice($orders, 0, 5);
         <!-- Account Center 2-Column Grid -->
         <div class="kecom-account-grid">
             <!-- Left Sidebar Navigation -->
-            <?php include_view('site.account.sidebar', ['current_page' => 'dashboard']); ?>
+            <?php include_view('site.account.sidebar', ['pages' => $pages]); ?>
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
@@ -49,7 +51,7 @@ $recent_orders = array_slice($orders, 0, 5);
 
                     <!-- Quick Stat Cards -->
                     <div class="kecom-account-dashboard-stats">
-                        <a href="<?php echo esc_url(Url::get_account_orders_url()); ?>" class="kecom-account-dashboard-stat-card">
+                        <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>" class="kecom-account-dashboard-stat-card">
                             <div class="kecom-account-dashboard-stat-card-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="m7.5 4.27 9 5.15" />
@@ -65,7 +67,7 @@ $recent_orders = array_slice($orders, 0, 5);
                             </div>
                         </a>
 
-                        <a href="<?php echo esc_url(Url::get_account_addresses_url()); ?>" class="kecom-account-dashboard-stat-card">
+                        <a href="<?php echo esc_url(Url::get_account_url('addresses')); ?>" class="kecom-account-dashboard-stat-card">
                             <div class="kecom-account-dashboard-stat-card-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
@@ -79,7 +81,7 @@ $recent_orders = array_slice($orders, 0, 5);
                             </div>
                         </a>
 
-                        <a href="<?php echo esc_url(Url::get_account_details_url()); ?>" class="kecom-account-dashboard-stat-card">
+                        <a href="<?php echo esc_url(Url::get_account_url('details')); ?>" class="kecom-account-dashboard-stat-card">
                             <div class="kecom-account-dashboard-stat-card-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="12" cy="8" r="5" />
@@ -99,7 +101,7 @@ $recent_orders = array_slice($orders, 0, 5);
                         <div class="kecom-account-dashboard-recent-orders-header">
                             <h4><?php esc_html_e('Recent Orders', 'kirki-ecommerce'); ?></h4>
                             <?php if ($orders_count > 0) : ?>
-                                <a href="<?php echo esc_url(Url::get_account_orders_url()); ?>">
+                                <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>">
                                     <?php esc_html_e('View All', 'kirki-ecommerce'); ?> &rarr;
                                 </a>
                             <?php endif; ?>
@@ -132,7 +134,7 @@ $recent_orders = array_slice($orders, 0, 5);
                                         ?>
                                             <tr>
                                                 <td>
-                                                    <a href="<?php echo esc_url(Url::get_account_order_details_url($order['order_number'] ?? $order['id'])); ?>" class="kecom-account-orders-number">#<?php echo esc_html($order['order_number'] ?? $order['id']); ?></a>
+                                                    <a href="<?php echo esc_url(Url::get_account_url('orders/' . ($order['order_number'] ?? $order['id']))); ?>" class="kecom-account-orders-number">#<?php echo esc_html($order['order_number'] ?? $order['id']); ?></a>
                                                 </td>
                                                 <td>
                                                     <span class="kecom-account-orders-date"><?php echo esc_html($order_date); ?></span>
@@ -147,7 +149,7 @@ $recent_orders = array_slice($orders, 0, 5);
                                                     <span class="kecom-account-orders-items-count"><?php printf(esc_html(_n('%d item', '%d items', $items_count, 'kirki-ecommerce')), $items_count); ?></span>
                                                 </td>
                                                 <td>
-                                                    <a href="<?php echo esc_url(Url::get_account_order_details_url($order['order_number'] ?? $order['id'])); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">
+                                                    <a href="<?php echo esc_url(Url::get_account_url('orders/' . ($order['order_number'] ?? $order['id']))); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">
                                                         <?php esc_html_e('View', 'kirki-ecommerce'); ?>
                                                     </a>
                                                 </td>

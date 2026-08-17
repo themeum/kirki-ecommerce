@@ -18,6 +18,8 @@ use function Kirki\Ecommerce\Framework\view_data;
 
 $orders = view_data('orders') ?: [];
 $orders_count = count($orders);
+
+$pages = view_data('pages');
 ?>
 
 <?php Template::get_header(); ?>
@@ -27,7 +29,7 @@ $orders_count = count($orders);
         <!-- Account Center 2-Column Grid -->
         <div class="kecom-account-grid">
             <!-- Left Sidebar Navigation -->
-            <?php include_view('site.account.sidebar', ['current_page' => 'orders']); ?>
+            <?php include_view('site.account.sidebar', ['pages' => $pages]); ?>
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
@@ -67,7 +69,7 @@ $orders_count = count($orders);
                                     ?>
                                         <tr>
                                             <td>
-                                                <a href="<?php echo esc_url(Url::get_account_order_details_url($order['order_number'] ?? $order['id'])); ?>" class="kecom-account-orders-number">#<?php echo esc_html($order['order_number'] ?? $order['id']); ?></a>
+                                                <a href="<?php echo esc_url(Url::get_account_url('orders/' . ($order['order_number'] ?? $order['id']))); ?>" class="kecom-account-orders-number">#<?php echo esc_html($order['order_number'] ?? $order['id']); ?></a>
                                             </td>
                                             <td>
                                                 <span class="kecom-account-orders-date"><?php echo esc_html($order_date); ?></span>
@@ -84,7 +86,7 @@ $orders_count = count($orders);
                                                 <span class="kecom-account-orders-items-count"><?php printf(esc_html(_n('%d item', '%d items', $items_count, 'kirki-ecommerce')), $items_count); ?></span>
                                             </td>
                                             <td>
-                                                <a href="<?php echo esc_url(Url::get_account_order_details_url($order['order_number'] ?? $order['id'])); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">
+                                                <a href="<?php echo esc_url(Url::get_account_url('orders/' . ($order['order_number'] ?? $order['id']))); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">
                                                     <?php esc_html_e('View Order', 'kirki-ecommerce'); ?>
                                                 </a>
                                             </td>

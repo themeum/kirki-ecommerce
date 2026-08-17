@@ -67,7 +67,7 @@ $order_number = $order['order_number'] ?? ($order_model->order_number ?? $order[
                 <div class="kecom-order-details">
                     <!-- Back Link -->
                     <div>
-                        <a href="<?php echo esc_url(Url::get_account_orders_url()); ?>" class="kecom-order-details-back">
+                        <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>" class="kecom-order-details-back">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="m15 18-6-6 6-6" />
                             </svg>

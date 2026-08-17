@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
@@ -84,28 +85,39 @@ class Utils
     {
         $pages = [
             'dashboard' => [
-                'title' => __('Dashboard', 'kirki-ecommerce'),
-                'icon'  => 'dashboard',
-                'url' => Url::get_account_url(),
-                'callback' => [AccountController::class, 'dashboard']
+                'title'     => __('Dashboard', 'kirki-ecommerce'),
+                'icon'      => 'dashboard',
+                'url'       => Url::get_account_url(),
+                'is_active' => Route::is('account'),
+                'callback'  => [AccountController::class, 'dashboard'],
             ],
             'orders' => [
-                'title' => __('Orders', 'kirki-ecommerce'),
-                'icon'  => 'orders',
-                'url' => Url::get_account_url('orders'),
-                'callback' => [AccountController::class, 'orders']
+                'title'     => __('Orders', 'kirki-ecommerce'),
+                'icon'      => 'box',
+                'url'       => Url::get_account_url('orders'),
+                'is_active' => Route::is('account.orders') || Route::is('account.orders.details'),
+                'callback'  => [AccountController::class, 'orders'],
             ],
             'addresses' => [
-                'title' => __('Addresses', 'kirki-ecommerce'),
-                'icon'  => 'addresses',
-                'url' => Url::get_account_url('addresses'),
-                'callback' => [AccountController::class,'addresses'],
+                'title'     => __('Addresses', 'kirki-ecommerce'),
+                'icon'      => 'map-pin',
+                'url'       => Url::get_account_url('addresses'),
+                'is_active' => Route::is('account.addresses'),
+                'callback'  => [AccountController::class, 'addresses'],
             ],
             'account-details' => [
-                'title' => __('Account Details', 'kirki-ecommerce'),
-                'icon'  => 'account-details',
-                'url' => Url::get_account_url('account-details'),
-                'callback' => [AccountController::class,'account_details'],
+                'title'     => __('Account Details', 'kirki-ecommerce'),
+                'icon'      => 'user',
+                'url'       => Url::get_account_url('account-details'),
+                'is_active' => Route::is('account.account-details') || Route::is('account.details'),
+                'callback'  => [AccountController::class, 'account_details'],
+            ],
+            'logout' => [
+                'title'     => __('Log Out', 'kirki-ecommerce'),
+                'icon'      => 'log-out',
+                'url'       => wp_logout_url(Url::get_account_url()),
+                'is_active' => false,
+                'class'     => 'kecom-account-nav-link-logout',
             ],
         ];
 
