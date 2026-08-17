@@ -73,6 +73,23 @@ class AccountController
     }
 
     /**
+     * Order details page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Request.
+     * @param string  $uuid    Order uuid.
+     *
+     * @return Response response.
+     */
+    public function order_details(Request $request, $uuid)
+    {
+        $order = $request->user()->orders()->where('uuid', $uuid)->first();
+
+        return view('site.account.order-details', ['pages' => $this->pages, 'order' => $order])->layout(false);
+    }
+
+    /**
      * Addresses page.
      *
      * @since 1.0.0
