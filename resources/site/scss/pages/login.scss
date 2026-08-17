@@ -24,6 +24,11 @@
     display: flex;
     flex-direction: column;
     padding: $spacing-12;
+
+    @include breakpoint-down(md) {
+      max-width: 348px;
+      padding: $spacing-10;
+    }
   }
 
   &-header {
@@ -46,6 +51,7 @@
 
       a {
         @include typography(md, medium, $text-primary);
+        text-decoration: none;
       }
     }
 
@@ -87,6 +93,11 @@
     .kecom-checkbox {
       margin-bottom: $spacing-12;
     }
+
+    .kecom-checkbox-link {
+      @include typography(base, medium, $text-emphasis);
+      text-decoration: none;
+    }
   }
 
   &-social {
@@ -97,11 +108,11 @@
       .kecom-divider {
         border: 1px solid $border-default;
         width: 100%;
-        max-width: 138.5px
       }
 
       .kecom-divider-text {
         @include typography(base, normal, $text-subdued);
+        white-space: nowrap;
         margin: 0 $spacing-8;
       }
     }
@@ -116,5 +127,16 @@
         width: 100%;
       }
     }
+  }
+}
+
+.kecom-registration-terms-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-12;
+
+  .kecom-checkbox {
+    margin-bottom: 0;
   }
 }

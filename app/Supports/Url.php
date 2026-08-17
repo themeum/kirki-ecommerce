@@ -30,9 +30,9 @@ class Url
      *
      * @return string
      */
-    public static function get_registration_url(string $slug)
+    public static function get_registration_url()
     {
-        return Route::site_url('register', ['slug' => $slug]);
+        return Route::site_url('register');
     }
 
     /**
@@ -148,7 +148,7 @@ class Url
      */
     public static function get_login_url($redirect = '')
     {
-        return wp_login_url($redirect);
+        return Route::site_url('login', $redirect ? ['redirect' => $redirect] : []);
     }
 
     /**

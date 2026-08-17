@@ -43,9 +43,9 @@ Route::site(function () {
         ->template_redirect()
         ->name('login');
 
-    Route::post("{$login_page_slug}/process", [SiteController::class, 'handle_login'])
+    Route::post($login_page_slug, [SiteController::class, 'handle_login'])
         ->template_redirect()
-        ->name('login.user');
+        ->name('login');
 
     Route::get($register_page_slug, [SiteController::class, 'register_page'])
         ->name('register');

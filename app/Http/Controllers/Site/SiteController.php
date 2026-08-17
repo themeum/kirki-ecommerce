@@ -247,10 +247,28 @@ class SiteController
     public function login_page(Request $request)
     {
         if (is_user_logged_in()) {
-            return redirect(Url::get_shop_url());
+            return redirect(Url::get_account_url());
         }
 
         return view('site.login');
+    }
+
+    /**
+     * Registration page
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request  request.
+     *
+     * @return string Template path.
+     */
+    public function register_page(Request $request)
+    {
+        if (is_user_logged_in()) {
+            return redirect(Url::get_account_url());
+        }
+
+        return view('site.register');
     }
 
     public function handle_login(LoginRequest $request)
@@ -269,6 +287,6 @@ class SiteController
             return redirect(Route::site_url('login'));
         }
 
-        return redirect(Url::get_shop_url());
+        return redirect(Url::get_account_url());
     }
 }
