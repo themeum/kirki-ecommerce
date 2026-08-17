@@ -25,7 +25,6 @@ Route::site(function () {
     $shop_page_id = Utils::get_shop_page_id();
     $cart_page_id = Utils::get_cart_page_id();
     $checkout_page_id = Utils::get_checkout_page_id();
-    $design_system_page_id = Utils::get_design_system_page_id();
 
     $shop_page = get_post($shop_page_id);
     $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
@@ -44,12 +43,6 @@ Route::site(function () {
     Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
         ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
-        ->match_page();
-
-    // TODO: will be removed.
-    Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
-        ->middleware(SiteAuthMiddleware::class)
-        ->name('design_system')
         ->match_page();
 });
 
