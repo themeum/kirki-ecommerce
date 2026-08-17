@@ -11,10 +11,12 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Login;
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
 $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
 ?>
+<?php Template::get_header(); ?>
 
 <div class="kecom-login-container">
     <div class="kecom-login-form-wrapper">
@@ -80,3 +82,5 @@ $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
 </div>
 <?php delete_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
 ?>
+
+<?php Template::get_footer() ?>

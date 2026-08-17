@@ -248,10 +248,10 @@ class SiteController
     public function login_page(Request $request)
     {
         if (is_user_logged_in()) {
-            return redirect(Url::get_account_url());
+            return view('site.account')->layout(false);
         }
 
-        return view('site.login');
+        return view('site.login')->layout(false);
     }
 
     /**
@@ -266,10 +266,10 @@ class SiteController
     public function register_page(Request $request)
     {
         if (is_user_logged_in()) {
-            return redirect(Url::get_account_url());
+            return view('site.account')->layout(false);
         }
 
-        return view('site.register');
+        return view('site.register')->layout(false);
     }
     /**
      * Handle login

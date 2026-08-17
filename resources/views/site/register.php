@@ -10,9 +10,12 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
 ?>
+
+<?php Template::get_header(); ?>
 
 <div class="kecom-login-container">
     <div class="kecom-login-form-wrapper">
@@ -94,3 +97,5 @@ use Kirki\Ecommerce\App\Supports\Url;
         </form>
     </div>
 </div>
+
+<?php Template::get_footer(); ?>
