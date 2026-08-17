@@ -25,7 +25,6 @@ Route::site(function () {
     $shop_page_id = Utils::get_shop_page_id();
     $cart_page_id = Utils::get_cart_page_id();
     $checkout_page_id = Utils::get_checkout_page_id();
-    $account_page_id = Utils::get_account_page_id();
     $design_system_page_id = Utils::get_design_system_page_id();
 
     $shop_page = get_post($shop_page_id);
@@ -47,6 +46,16 @@ Route::site(function () {
         ->name('checkout')
         ->match_page();
 
+    // TODO: will be removed.
+    Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
+        ->middleware(SiteAuthMiddleware::class)
+        ->name('design_system')
+        ->match_page();
+});
+
+// Customer account routes.
+Route::site(function () {
+    $account_page_id = Utils::get_account_page_id();
     $account_page = get_post($account_page_id);
     $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
     $account_pages = Utils::get_account_pages();
@@ -65,10 +74,4 @@ Route::site(function () {
                 ->name($route_name);
         }
     }
-
-    // TODO: will be removed.
-    Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
-        ->middleware(SiteAuthMiddleware::class)
-        ->name('design_system')
-        ->match_page();
 });
