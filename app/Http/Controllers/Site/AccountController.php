@@ -13,12 +13,15 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
+use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -98,15 +101,21 @@ class AccountController
      * @since 1.0.0
      *
      * @param Request $request Request.
-     * @param string  $uuid    Order uuid.
+     * @param OrderService $order_service order service.
      *
      * @return Response response.
      */
-    public function order_details(Request $request, $uuid)
+    public function order_details(Request $request, OrderService $order_service)
     {
-        $order = $request->user()->orders()->where('uuid', $uuid)->first();
 
-        return view('site.account.order-details', ['pages' => $this->pages, 'order' => $order])->layout(false);
+        $order = $order_service->find_order_by_uuid($request->uuid);
+        if (!$order) {
+            return redirect(Route::site_url('account.orders'));
+        }
+
+        $order_resource = $order ? OrderResource::make($order) : null;
+
+        return view('site.account.order-details', ['pages' => $this->pages, 'order' => $order_resource])->layout(false);
     }
 
     /**
