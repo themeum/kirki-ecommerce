@@ -12,7 +12,6 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Assets;
-use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
 $orders = $data['orders'] ?? [];
@@ -27,11 +26,13 @@ $image_url = Assets::get_url('images/product-fallback.webp');
     <table class="kecom-table kecom-table-spaced kecom-orders-table">
         <tbody>
             <?php foreach ($orders as $order) :
-                $order_uuid = $order['uuid'];
-                $order_number = $order['order_number'];
-                $order_status = $order['status'];
+                $order_uuid = $order['uuid'] ?? '';
+                $order_number = $order['order_number'] ?? '';
+                $order_status = $order['status'] ?? '';
+                $order_status_desc = $order['status_desc'] ?? '';
                 $order_url = Url::get_account_url('orders/' . $order_uuid);
-                $invoiced_total = $order['invoiced_total_money_object']->display ?? ''
+                $invoiced_total = $order['invoiced_total_money_object']->display ?? '';
+                $order_items = $order['quantity'] ?? 0;
                 ?>
                 <tr>
                     <!-- 1. Product Image / Collage Placeholder -->
@@ -50,7 +51,7 @@ $image_url = Assets::get_url('images/product-fallback.webp');
                                 #<?php echo esc_html($order_number); ?>
                             </a>
                             <span class="kecom-account-order-items">
-                                <?php printf(esc_html(_n('%d item', '%d items', $order['items_count'], 'kirki-ecommerce')), $order['items_count']); ?>
+                                <?php printf(esc_html(_n('%d item', '%d items', $order_items, 'kirki-ecommerce')), $order_items); ?>
                             </span>
                         </div>
                     </td>
@@ -62,7 +63,7 @@ $image_url = Assets::get_url('images/product-fallback.webp');
                                 <?php echo esc_html(ucfirst($order_status)); ?>
                             </span>
                             <span class="kecom-account-order-status-sub">
-                                <?php echo esc_html($order['status_desc']); ?>
+                                <?php echo esc_html($order_status_desc); ?>
                             </span>
                         </div>
                     </td>
@@ -77,9 +78,12 @@ $image_url = Assets::get_url('images/product-fallback.webp');
                     <!-- 5. Action Buttons (Pay, View) -->
                     <td class="kecom-orders-table-col-actions">
                         <div class="kecom-account-order-actions-wrap">
-                            <?php if (!empty($order['is_unpaid'])) : ?>
+                            <?php
+                            //TODO: later will be added.
+                            if (false) :
+                                ?>
                                 <a href="<?php echo esc_url(Url::get_checkout_url() . '?order_pay=' . $order['order_number']); ?>" class="kecom-btn kecom-btn-secondary kecom-btn-sm">
-                                    <?php esc_html_e('Pay', 'kirki-ecommerce'); ?>
+                                <?php esc_html_e('Pay', 'kirki-ecommerce'); ?>
                                 </a>
                             <?php endif; ?>
                             <a href="<?php echo esc_url($order_url); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">

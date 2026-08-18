@@ -26,6 +26,7 @@ $user_email = $user->user_email ?: '';
 
 $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
+$register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : '';
 ?>
 
 <?php Template::get_header(); ?>
@@ -82,8 +83,8 @@ $shipping_address = $customer ? $customer->get_shipping_address() : null;
                                 </div>
 
                                 <div class="kecom-account-field">
-                                    <span class="kecom-account-field-label"><?php esc_html_e('PASSWORD', 'kirki-ecommerce'); ?></span>
-                                    <span class="kecom-account-field-value kecom-password-dots">••••••••••••</span>
+                                    <span class="kecom-account-field-label"><?php esc_html_e('REGISTERED SINCE', 'kirki-ecommerce'); ?></span>
+                                    <span class="kecom-account-field-value"><?php echo esc_html($register_since); ?></span>
                                 </div>
                             </div>
                         </div>

@@ -12,7 +12,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
-use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
