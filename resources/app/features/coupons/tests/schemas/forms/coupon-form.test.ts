@@ -51,7 +51,7 @@ describe('CouponFormSchema', () => {
       product_ids: [],
       category_ids: [],
       target_country_type: 'all-countries',
-      target_countries: [],
+      target_countries: null,
     });
   });
 
@@ -242,7 +242,7 @@ describe('CouponFormSchema', () => {
       target_country_type: 'all-countries',
       target_countries: [{ country: 'US', states: [] }],
     });
-    expect(result.target_countries).toEqual([]);
+    expect(result.target_countries).toEqual(null);
   });
 
   it('rejects a blank required title or start_date', () => {
