@@ -4,8 +4,7 @@
 //           .kecom-btn-outline   .kecom-btn-ghost      .kecom-btn-link
 //           .kecom-btn-primary-soft  .kecom-btn-destructive-soft
 // Sizes:    .kecom-btn-sm       .kecom-btn-lg
-// Extras:   .kecom-btn-block    .kecom-btn-loading
-// Icon-only: .kecom-btn-icon    .kecom-btn-icon-sm    .kecom-btn-icon-lg
+// Icon-only: .kecom-btn-icon (combine with .kecom-btn-sm or .kecom-btn-lg)
 //
 // Specificity strategy
 // --------------------
@@ -155,18 +154,18 @@
 // ── Icon-only ────────────────────────────────────────────────────────────────
 
 .kecom-btn-icon.kecom-btn-icon {
-  padding: 9px; // 36px height
+  padding: 9px; // 36px height / square
   gap: 0;
-}
 
-.kecom-btn-icon-sm.kecom-btn-icon-sm {
-  padding: 7px; // 32px height
-  gap: 0;
-}
+  &.kecom-btn-sm,
+  &.kecom-btn-sm.kecom-btn-sm {
+    padding: 7px; // 32px height / square
+  }
 
-.kecom-btn-icon-lg.kecom-btn-icon-lg {
-  padding: 11px; // 40px height
-  gap: 0;
+  &.kecom-btn-lg,
+  &.kecom-btn-lg.kecom-btn-lg {
+    padding: 11px; // 40px height / square
+  }
 }
 
 // ── Extras ───────────────────────────────────────────────────────────────────

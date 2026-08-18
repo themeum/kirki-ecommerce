@@ -121,13 +121,13 @@ if (!current_user_can('manage_options')) {
 
     <p class="kds-label">Icon-only</p>
     <div class="kds-row">
-        <button class="kecom-btn kecom-btn-primary kecom-btn-icon-sm" aria-label="Search">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon kecom-btn-sm" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
         <button class="kecom-btn kecom-btn-primary kecom-btn-icon" aria-label="Settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
-        <button class="kecom-btn kecom-btn-primary kecom-btn-icon-lg" aria-label="Menu">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon kecom-btn-lg" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
     </div>
