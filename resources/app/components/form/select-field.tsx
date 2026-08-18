@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 type SelectFieldOption = {
   label: string;
-  value: string;
+  value: string | number;
+  icon?: ReactNode;
 };
 
 type SelectFieldProps<
@@ -75,7 +76,8 @@ const SelectField = <
               </SelectTrigger>
               <SelectContent>
                 {options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
+                  <SelectItem key={String(option.value)} value={String(option.value)}>
+                    {option.icon}
                     {option.label}
                   </SelectItem>
                 ))}

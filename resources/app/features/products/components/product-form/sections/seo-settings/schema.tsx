@@ -1,9 +1,8 @@
-import { Controller, useFormContext } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import GroupTagTable from '@/components/group-tag-table';
-import { Field, FieldDescription, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SchemaSelectField from '@/features/products/components/fields/schema-select-field';
 import SchemaPreview from '@/features/products/components/product-form/sections/seo-settings/schema-preview';
 import { groupDetails } from '@/features/products/lib/seo-settings/utils';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
@@ -13,7 +12,7 @@ import { __ } from '@/wpi18n';
 type GroupedValues = Record<string, (string | number)[]>;
 
 const Schema = () => {
-  const { control, watch } = useFormContext<ProductFormInput>();
+  const { watch } = useFormContext<ProductFormInput>();
   const { data: schemas = [], isLoading } = useSchemasQuery({ limit: -1 });
   const schemaId = watch('schema_id');
 
@@ -41,56 +40,13 @@ const Schema = () => {
     label: item.name,
   }));
 
-  const displayValue =
-    resolvedSchemaId !== null ? String(resolvedSchemaId) : '';
-
   return (
     <Flex direction="column" gap={4}>
-      <Controller
-        control={control}
-        name="schema_id"
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel htmlFor="schema_id">
-              {__('Schema', 'kirki-ecommerce')}
-            </FieldLabel>
-            <Select
-              value={displayValue}
-              onValueChange={(nextValue) => {
-                field.onChange(nextValue === '' ? null : Number(nextValue));
-              }}
-              disabled={!hasProfiles || isLoading}
-            >
-              <SelectTrigger
-                id="schema_id"
-                error={Boolean(fieldState.error)}
-                aria-invalid={fieldState.invalid}
-              >
-                <SelectValue
-                  placeholder={__(
-                    'Select a schema',
-                    'kirki-ecommerce',
-                  )}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {schemaOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {!hasProfiles && !isLoading ? (
-              <FieldDescription>
-                {__(
-                  'No schema profiles — create one in Settings → Essentials',
-                  'kirki-ecommerce',
-                )}
-              </FieldDescription>
-            ) : null}
-          </Field>
-        )}
+      <SchemaSelectField
+        options={schemaOptions}
+        resolvedSchemaId={resolvedSchemaId}
+        hasProfiles={hasProfiles}
+        isLoading={isLoading}
       />
       {Object.keys(selectedValues).length > 0 ? (
         <GroupTagTable

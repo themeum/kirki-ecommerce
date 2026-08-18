@@ -16,6 +16,8 @@ type TextFieldProps<
   placeholder?: string;
   type?: ComponentPropsWithoutRef<typeof Input>['type'];
   disabled?: boolean;
+  readOnly?: boolean;
+  onClick?: () => void;
   cssOverride?: CSSObject;
   autoFocus?: boolean;
 };
@@ -31,6 +33,8 @@ const TextField = <
   placeholder,
   type = 'text',
   disabled,
+  readOnly,
+  onClick,
   cssOverride,
   autoFocus = false,
 }: TextFieldProps<TFieldValues, TName>) => {
@@ -58,6 +62,8 @@ const TextField = <
             type={type}
             placeholder={placeholder}
             disabled={disabled}
+            readOnly={readOnly}
+            onClick={onClick}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
             // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus

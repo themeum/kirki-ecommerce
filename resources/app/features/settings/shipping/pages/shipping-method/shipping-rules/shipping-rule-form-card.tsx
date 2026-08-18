@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
-import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
@@ -8,7 +8,6 @@ import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Field, FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
@@ -263,24 +262,10 @@ const ShippingRuleFormCard = ({
                   )}
 
                   {selectedCondition === 'destination_region' ? (
-                    <Controller
-                      control={form.control}
+                    <TextField
                       name="selected_country"
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <Input
-                            id="selected_country"
-                            value={field.value ?? ''}
-                            onClick={() => setOpenDestinationPopup(true)}
-                            readOnly
-                            error={Boolean(fieldState.error)}
-                            aria-invalid={fieldState.invalid}
-                          />
-                          {fieldState.invalid && (
-                            <FieldError errors={[fieldState.error]} />
-                          )}
-                        </Field>
-                      )}
+                      readOnly
+                      onClick={() => setOpenDestinationPopup(true)}
                     />
                   ) : selectedCondition === 'cart_weight' ? (
                     <TextField name="condition_value" />
