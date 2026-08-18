@@ -67,5 +67,6 @@ Route::site(function () {
 
     Route::get($account_page_slug . '/orders/{uuid}', [AccountController::class, 'order_details'])
         ->middleware(SiteAuthMiddleware::class)
+        ->template_redirect()
         ->name('account.orders.show');
 });

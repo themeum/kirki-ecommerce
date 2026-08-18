@@ -1,0 +1,93 @@
+// Component: Order Product Item
+// Used in checkout order summary, account order details, etc.
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-product-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.kecom-product-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-7;
+}
+
+.kecom-product-image-wrapper {
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+}
+
+.kecom-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid #ffffff;
+  border-radius: $radius-lg;
+  background-color: $background-surface-tertiary;
+}
+
+.kecom-product-qty-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  @include flex-center();
+  @include typography(sm, semibold, $text-light);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 $spacing-1;
+  background-color: $background-inverse;
+  border: 1px solid #ffffff;
+  border-radius: 6px;
+}
+
+.kecom-product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.kecom-product-name {
+  @include typography(base, medium, $text-primary);
+  text-decoration: none;
+  outline: none;
+  margin: 0;
+}
+
+.kecom-product-category {
+  @include typography(sm, regular, $text-secondary);
+  margin: 0;
+}
+
+.kecom-product-variant {
+  @include typography(sm, regular, $text-secondary);
+  margin: 0;
+
+  span:not(:last-of-type)::after {
+    content: '•';
+    margin-inline-start: $spacing-2;
+  }
+}
+
+.kecom-product-price-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-1;
+}
+
+.kecom-product-price {
+  @include typography(base, medium, $text-primary);
+}
+
+.kecom-product-discount {
+  @include typography(sm, regular, $text-secondary);
+  text-decoration: line-through;
+}
