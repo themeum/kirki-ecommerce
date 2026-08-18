@@ -57,10 +57,6 @@ Route::site(function () {
         ->middleware(SiteAuthMiddleware::class)
         ->name($account_page['route_name']);
 
-    Route::get("{$account_page_slug}/orders/{order_number}", [AccountController::class, 'order_details'])
-        ->middleware(SiteAuthMiddleware::class)
-        ->name('account.orders.details');
-
     foreach ($account_pages as $key => $page) {
         if (isset($page['callback']) && is_callable($page['callback'])) {
             Route::get($page['route_path'], $page['callback'])
