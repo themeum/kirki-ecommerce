@@ -1,5 +1,5 @@
 info:
-  name: Edit Authorize.Net Credentials
+  name: Square
   type: http
   seq: 3
   tags:
@@ -13,13 +13,14 @@ http:
     data: |-
       {
         "data": {
-          "login_id": "3a8V3b5Yz2",
-          "transaction_key": "9NGG9rdvk2e657MZ",
-          "signature_key": "93A6568827835B162331CC78CDB0565F49ADBEBEE47309ED6B859687AAF18ACBBDF3B3AA065717E86365B41FD3ABF9E68F04BA3359471BF27AA312C962E0A10C",
+          "location_id": "LEGT83VZEV5V2",
+          "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+          "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
           "sandbox": true
         }
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0
@@ -37,9 +38,9 @@ examples:
         data: |-
           {
             "data": {
-              "login_id": "3a8V3b5Yz2",
-              "transaction_key": "9NGG9rdvk2e657MZ",
-              "signature_key": "93A6568827835B162331CC78CDB0565F49ADBEBEE47309ED6B859687AAF18ACBBDF3B3AA065717E86365B41FD3ABF9E68F04BA3359471BF27AA312C962E0A10C",
+              "location_id": "LEGT83VZEV5V2",
+              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
               "sandbox": true
             }
           }
@@ -54,28 +55,28 @@ examples:
         data: |-
           {
             "data": {
-              "id": "authorizenet",
-              "name": "Authorize.net",
-              "icon": "authorizenet",
+              "id": "square",
+              "name": "Square",
+              "icon": "square",
               "is_enabled": true,
               "is_offline": false,
-              "description": "Authorize.net payment gateway",
+              "description": "Square payment gateway",
               "settings": {
-                "login_id": "3a8V3b5Yz2",
-                "transaction_key": "9NGG9rdvk2e657MZ",
-                "signature_key": "93A6568827835B162331CC78CDB0565F49ADBEBEE47309ED6B859687AAF18ACBBDF3B3AA065717E86365B41FD3ABF9E68F04BA3359471BF27AA312C962E0A10C",
+                "login_id": "LEGT83VZEV5V2",
+                "transaction_key": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+                "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
                 "sandbox": true
               },
               "fields": [
                 {
-                  "name": "login_id",
-                  "label": "Login ID",
+                  "name": "location_id",
+                  "label": "Location ID",
                   "type": "text",
                   "required": true
                 },
                 {
-                  "name": "transaction_key",
-                  "label": "Transaction Key",
+                  "name": "access_token",
+                  "label": "Access Token",
                   "type": "text",
                   "required": true
                 },
@@ -87,20 +88,14 @@ examples:
                 },
                 {
                   "name": "sandbox",
-                  "label": Sandbox",
+                  "label": "Sandbox",
                   "type": "checkbox",
                   "required": true
                 }
               ],
-              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/authorizenet",
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/square",
               "webhook_events": [
-                "checkout.session.completed",
-                "checkout.session.async_payment_succeeded",
-                "checkout.session.async_payment_failed",
-                "charge.refunded",
-                "charge.dispute.created",
-                "charge.dispute.closed",
-                "charge.succeeded"
+                
               ]
             },
             "message": "Payment method updated successfully.",
@@ -116,9 +111,9 @@ examples:
         data: |-
           {
             "data": {
-              "login_id": "3a8V3b5Yz2",
-              "transaction_key": "9NGG9rdvk2e657MZ",
-              "signature_key": "93A6568827835B162331CC78CDB0565F49ADBEBEE47309ED6B859687AAF18ACBBDF3B3AA065717E86365B41FD3ABF9E68F04BA3359471BF27AA312C962E0A10C",
+              "location_id": "LEGT83VZEV5V2",
+              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
               "sandbox": true
             }
           }
