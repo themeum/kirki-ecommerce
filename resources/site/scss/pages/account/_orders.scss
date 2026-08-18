@@ -1,5 +1,5 @@
 // Account - Orders
-// Styling for the orders list table and cards
+// Styling for the order list table matching the design mockup
 
 @use '../../tokens' as *;
 @use '../../mixins' as *;
@@ -9,104 +9,105 @@
   flex-direction: column;
   gap: $spacing-6;
 
-  &-table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    border: 1px solid $border-default;
+  .kecom-account-panel-header {
+    &-title {
+      @include typography(xl, semibold, $text-primary);
+      margin: 0;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Orders Table
+// ----------------------------------------------------------------------------
+.kecom-orders-table {
+  // Column 1: Thumbnail
+  .kecom-orders-table-col-thumb {
+    width: 70px;
+    padding-right: $spacing-3;
+  }
+
+  .kecom-account-order-thumb-wrap {
+    flex-shrink: 0;
+  }
+
+  .kecom-account-order-thumb {
+    width: 64px;
+    height: 64px;
     border-radius: $radius-xl;
-    -webkit-overflow-scrolling: touch;
-  }
+    overflow: hidden;
+    background-color: $background-surface-alt;
+    @include flex-center();
 
-  &-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: left;
-
-    th {
-      background-color: $background-surface-alt;
-      padding: $spacing-4 $spacing-5;
-      @include typography(xs, semibold, $text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid $border-default;
-      white-space: nowrap;
-    }
-
-    td {
-      padding: $spacing-5;
-      border-bottom: 1px solid $border-default;
-      @include typography(base, normal, $text-primary);
-      vertical-align: middle;
-      white-space: nowrap;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    tr:hover td {
-      background-color: rgba($background-surface-alt, 0.5);
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
   }
 
-  &-number {
-    @include typography(base, semibold, $background-fill-brand);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
+  // Column 2: Order ID & Item Count
+  .kecom-orders-table-col-info {
+    min-width: 110px;
   }
 
-  &-date {
-    @include typography(sm, normal, $text-secondary);
-  }
-
-  &-total {
-    @include typography(base, semibold, $text-primary);
-  }
-
-  &-items-count {
-    @include typography(xs, normal, $text-secondary);
-    display: block;
-  }
-
-  &-empty {
-    text-align: center;
-    padding: $spacing-16 $spacing-6;
+  .kecom-account-order-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-4;
+    gap: $spacing-1;
 
-    &-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: $radius-full;
-      background-color: $background-surface-alt;
-      color: $text-secondary;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .kecom-account-order-number {
+      @include typography();
+      text-decoration: none;
+      @include transition(color);
 
-      svg {
-        width: 32px;
-        height: 32px;
-        stroke: currentColor;
-        stroke-width: 1.5;
+      &:hover {
+        color: $text-emphasis;
       }
     }
 
-    &-title {
-      @include typography(xl, bold, $text-primary);
-      margin: 0;
+    .kecom-account-order-items {
+      @include typography(base, normal, $text-secondary);
+    }
+  }
+
+  // Column 3: Status Block (Status Title & Subtitle)
+  .kecom-orders-table-col-status {
+    min-width: 180px;
+  }
+
+  .kecom-account-order-status-block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+
+    .kecom-account-order-status-title {
+      @include typography();
     }
 
-    &-text {
+    .kecom-account-order-status-sub {
       @include typography(base, normal, $text-secondary);
-      margin: 0;
-      max-width: 400px;
     }
+  }
+
+  // Column 4: Price Block
+  .kecom-orders-table-col-price {
+    min-width: 90px;
+
+    .kecom-account-order-price {
+      @include typography();
+    }
+  }
+
+  // Column 5: Action Buttons (Pay, View)
+  .kecom-orders-table-col-actions {
+    text-align: right;
+  }
+
+  .kecom-account-order-actions-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-4;
   }
 }

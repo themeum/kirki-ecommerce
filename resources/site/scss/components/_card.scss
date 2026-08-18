@@ -1,0 +1,71 @@
+// Component: Card
+// Standard rounded surface container used across the application
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-card {
+  background-color: $background-surface;
+  border-radius: $radius-2xl;
+  padding: $spacing-9 $spacing-10;
+  box-shadow: $shadow-sm;
+  display: flex;
+  flex-direction: column;
+
+  &-bordered {
+    border: 1px solid $border-default;
+  }
+
+  &-flush {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  &-sm {
+    padding: $spacing-4;
+    border-radius: $radius-xl;
+  }
+
+  &-lg {
+    padding: $spacing-8;
+  }
+
+  &-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-9;
+
+    &-bordered {
+      padding-bottom: $spacing-4;
+      border-bottom: 1px solid $border-default;
+    }
+  }
+
+  &-title {
+    @include typography(md, semibold, $text-primary);
+    margin: 0;
+  }
+
+  &-subtitle {
+    @include typography(xs, normal, $text-secondary);
+    margin-top: $spacing-1;
+  }
+
+  &-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  &-footer {
+    display: flex;
+    align-items: center;
+    margin-top: $spacing-5;
+    padding-top: $spacing-4;
+
+    &-bordered {
+      border-top: 1px solid $border-default;
+    }
+  }
+}

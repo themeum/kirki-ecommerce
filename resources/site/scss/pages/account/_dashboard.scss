@@ -1,5 +1,5 @@
 // Account - Dashboard
-// Styling for the dashboard overview tab
+// Styling for the dashboard overview tab matching the design mockup
 
 @use '../../tokens' as *;
 @use '../../mixins' as *;
@@ -7,147 +7,114 @@
 .kecom-account-dashboard {
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
 
-  &-welcome {
-    background: linear-gradient(135deg, $background-fill-secondary 0%, rgba($background-fill-secondary, 0.4) 100%);
-    border: 1px solid rgba($border-default, 0.3);
-    border-radius: $radius-xl;
-    padding: $spacing-6 $spacing-8;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: $spacing-6;
-
-    @include breakpoint-down(sm) {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: $spacing-5;
-    }
-
-    &-text {
-      h3 {
-        @include typography(xl, bold, $text-primary);
-        margin: 0 0 $spacing-1;
-      }
-
-      p {
-        @include typography(sm, normal, $text-secondary);
-        margin: 0;
-      }
-    }
-
-    &-logout {
-      @include typography(sm, medium, $background-fill-critical);
-      text-decoration: underline;
-      cursor: pointer;
-      white-space: nowrap;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-  }
-
-  // Metric Cards
-  &-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: $spacing-6;
-
-    @include breakpoint-down(md) {
-      grid-template-columns: 1fr;
-      gap: $spacing-4;
-    }
-  }
-
-  &-stat-card {
-    background-color: $background-surface-alt;
-    border: 1px solid $border-default;
-    border-radius: $radius-xl;
-    padding: $spacing-6;
-    display: flex;
-    align-items: center;
-    gap: $spacing-5;
-    text-decoration: none;
-    @include transition((background-color, border-color, transform, box-shadow));
-
-    &:hover {
-      background-color: $background-surface;
-      border-color: $border-hover;
-      transform: translateY(-2px);
-      box-shadow: $shadow-md;
-    }
-
-    &-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: $radius-lg;
-      background-color: $background-fill-secondary;
-      color: $background-fill-brand;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      svg {
-        width: 24px;
-        height: 24px;
-        stroke: currentColor;
-        stroke-width: 1.75;
-      }
-    }
-
-    &-details {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    &-title {
-      @include typography(sm, medium, $text-secondary);
-      margin: 0;
-    }
-
-    &-value {
-      @include typography(2xl, bold, $text-primary);
-      margin: $spacing-1 0 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    &-subtext {
-      @include typography(xs, normal, $text-secondary);
-      margin-top: $spacing-1;
-    }
-  }
-
-  // Recent Orders section
-  &-recent-orders {
+  // 1. Welcome Greeting
+  .kecom-account-welcome {
     display: flex;
     flex-direction: column;
     gap: $spacing-4;
+    margin-bottom: $spacing-12;
 
-    &-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    &-label {
+      @include typography(base, normal, $text-secondary);
+    }
 
-      h4 {
-        @include typography(lg, semibold, $text-primary);
+    &-name {
+      @include typography(3xl, semibold, $text-primary);
+      line-height: $line-height-2xl;
+      margin: 0;
+    }
+  }
+
+  // 2. Recent Orders Section
+  .kecom-account-recent-orders-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+
+    .kecom-account-section-header {
+      @include flex-between();
+
+      .kecom-account-section-title {
+        @include typography(md, semibold, $text-primary);
         margin: 0;
       }
 
-      a {
-        @include typography(sm, medium, $background-fill-brand);
+      .kecom-account-section-link {
+        @include typography(sm, medium, $text-emphasis);
         text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: $spacing-1;
+        @include transition(color);
 
         &:hover {
           text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  // 3. Bottom Cards Grid
+  .kecom-account-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-9;
+    margin-top: $spacing-9;
+
+    @include breakpoint-down(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-5;
+    }
+
+    .kecom-card-body {
+      gap: $spacing-6;
+    }
+
+    .kecom-account-field {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      &-label {
+        @include typography(sm, normal, $text-subdued);
+        text-transform: uppercase;
+      }
+
+      &-value {
+        @include typography(base, medium, $text-primary);
+
+        &.kecom-password-dots {
+          @include typography(base, medium, $text-primary);
+        }
+      }
+    }
+
+    .kecom-addresses-split {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-8;
+
+      @include breakpoint-down(xs) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kecom-account-address-col {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      .kecom-account-address-lines {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-1;
+
+        p {
+          @include typography(base, medium, $text-primary);
+          margin: 0;
+
+          &.kecom-empty-text {
+            @include typography(base, normal, $text-subdued);
+            font-style: italic;
+          }
         }
       }
     }
