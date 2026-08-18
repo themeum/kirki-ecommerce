@@ -1,10 +1,9 @@
-// Page - Login
-// Styles for login page
+// Styles for auth pages - Login, Registration, Forget Password
 
 @use "../tokens" as *;
 @use "../mixins" as *;
 
-.kecom-login {
+.kecom-auth {
   &-container {
     max-width: 1440px;
     padding: $spacing-18 $spacing-0;

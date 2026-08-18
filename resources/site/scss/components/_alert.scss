@@ -5,13 +5,11 @@
 //           .kecom-alert-warning
 
 @use '../tokens' as *;
+@use '../mixins' as *;
 
 .kecom-alert {
   padding: $spacing-5 $spacing-10;
-  font-family: $font-family;
-  font-size: $font-size-md;
-  font-weight: $font-weight-normal;
-  line-height: $line-height-sm;
+  @include typography(md, normal, sm);
   border-radius: $radius-md;
   background-color: $background-fill;
   border: 1px solid $border-default;
@@ -25,13 +23,13 @@
 
   &-success {
     color: $text-success;
-    border-color: $border-inverse;
+    border-color: $background-fill-success;
     background-color: $background-fill-success-secondary;
   }
 
   &-warning {
     color: $text-warning;
-    border-color: $border-inverse;
+    border-color: $background-fill-warning;
     background-color: $background-fill-warning-secondary;
   }
 }

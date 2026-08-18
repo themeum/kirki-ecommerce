@@ -10,33 +10,45 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Login;
+use Kirki\Ecommerce\App\Constants\Registration;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
 $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
+$registration_sucess = get_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY);
+$anyone_can_register = (int) get_option('users_can_register');
 ?>
 <?php Template::get_header(); ?>
 
-<div class="kecom-login-container">
-    <div class="kecom-login-form-wrapper">
-        <div class="kecom-login-header">
-            <h3 class="kecom-login-header-title"><?php _e('Login', 'kirki-ecommerce'); ?></h3>
-            <div class="kecom-login-header-content">
-                <span><?php _e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
-                <a href="<?php echo Url::get_registration_url(); ?>">
-                    <?php _e('Sign up', 'kirki-ecommerce'); ?>
-                </a>
+<div class="kecom-auth-container">
+    <div class="kecom-auth-form-wrapper">
+        <div class="kecom-auth-header">
+            <h3 class="kecom-auth-header-title"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></h3>
+            <div class="kecom-auth-header-content">
+                <span><?php esc_html_e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
+                <?php if (1 === $anyone_can_register): ?>
+                    <a href="<?php echo esc_url(Url::get_registration_url()); ?>">
+                        <?php esc_html_e('Sign up', 'kirki-ecommerce'); ?>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
         <?php if (!empty($validation_errors)): ?>
             <div class="kecom-alert kecom-alert-error">
                 <?php foreach ($validation_errors as $error): ?>
-                    <?php echo $error['message']; ?>
+                    <?php echo esc_html($error['message']); ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-        <form class="kecom-login-form" x-data="form({
+        <?php if (!empty($registration_sucess)): ?>
+            <div class="kecom-alert kecom-alert-success">
+                <?php foreach ($registration_sucess as $success): ?>
+                    <?php echo esc_html($success['message']); ?>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        <form class="kecom-auth-form" x-data="form({
             defaultValues: {
                 email: '',
                 password: '', 
@@ -47,22 +59,22 @@ $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
             })" method="post" @submit.prevent="handleSubmit(() => $el.submit(), () => { return false; })">
             <input type="hidden" name="ajax_nonce" x-bind="register('ajax_nonce')">
             <div class="kecom-field" :class="errors.email ? 'kecom-field-error-state' : ''">
-                <label class="kecom-field-label" for="kecom-email"><?php _e('Email', 'kirki-ecommerce'); ?></label>
-                <input class="kecom-input" type="email" id="kecom-email" name="email" x-bind="register('email', {
-                    required: 'Email is required',
+                <label class="kecom-field-label" for="kecom-email"><?php esc_html_e('Email', 'kirki-ecommerce'); ?></label>
+                <input class="kecom-input" type="email" id="kecom-email" name="email" x-bind="<?php printf("register('email', {
+                    required: '%s',
                     email: true
-                })" placeholder="<?php _e('name@example.com', 'kirki-ecommerce'); ?>">
+                })", __('Email is required', 'kirki-ecommerce')) ?>" placeholder="<?php esc_html_e('name@example.com', 'kirki-ecommerce'); ?>">
                 <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
             </div>
             <div class="kecom-field" :class="errors.password ? 'kecom-field-error-state' : ''">
                 <div class="kecom-password-field-label">
-                    <label class="kecom-field-label" for="kecom-password"><?php _e('Password', 'kirki-ecommerce'); ?></label>
-                    <a class="kecom-forgot-password-label" href="#"><?php _e('Forgot password ?', 'kirki-ecommerce'); ?></a>
+                    <label class="kecom-field-label" for="kecom-password"><?php esc_html_e('Password', 'kirki-ecommerce'); ?></label>
+                    <a class="kecom-forgot-password-label" href="<?php echo esc_url(wp_lostpassword_url(Url::get_login_url())); ?>"><?php esc_html_e('Forgot password ?', 'kirki-ecommerce'); ?></a>
                 </div>
                 <div class="kecom-password-input" x-data="{ showPassword: false }">
-                    <input class="kecom-input" :type="showPassword ? 'text' : 'password'" id="kecom-password" name="password" x-bind="register('password', {
-                    required: 'Password is required',
-                })" placeholder="<?php _e('Type your password', 'kirki-ecommerce'); ?>">
+                    <input class="kecom-input" :type="showPassword ? 'text' : 'password'" id="kecom-password" name="password" x-bind="<?php printf("register('password', {
+                    required: '%s',
+                })", __('Password is required', 'kirki-ecommerce')) ?>" placeholder="<?php esc_html_e('Type your password', 'kirki-ecommerce'); ?>">
                     <template x-if="showPassword">
                         <span class="kecom-password-input-show" @click="showPassword = false"><?php Icon::render('eye'); ?></span>
                     </template>
@@ -74,13 +86,14 @@ $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
             </div>
             <div class="kecom-checkbox">
                 <input class="kecom-checkbox-input" type="checkbox" id="kecom-input-remember" name="remember" x-bind="register('remember')">
-                <label class="kecom-checkbox-label" for="kecom-input-remember"><?php _e('Remember me', 'kirki-ecommerce'); ?></label>
+                <label class="kecom-checkbox-label" for="kecom-input-remember"><?php esc_html_e('Remember me', 'kirki-ecommerce'); ?></label>
             </div>
-            <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php _e('Login', 'kirki-ecommerce'); ?></button>
+            <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></button>
         </form>
     </div>
 </div>
-<?php delete_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
+<?php
+delete_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
+delete_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY);
+Template::get_footer()
 ?>
-
-<?php Template::get_footer() ?>

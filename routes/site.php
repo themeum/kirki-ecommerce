@@ -48,6 +48,10 @@ Route::site(function () {
     Route::get($register_page_slug, [SiteController::class, 'register_page'])
         ->name('register');
 
+    Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
+        ->template_redirect()
+        ->name('register');
+
     Route::get($shop_page_slug, [SiteController::class, 'shop_page'])
         ->name('shop')
         ->match_page();

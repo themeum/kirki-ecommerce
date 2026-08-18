@@ -12,7 +12,9 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\Constants\Login;
+use Kirki\Ecommerce\App\Constants\Registration;
 use Kirki\Ecommerce\App\Http\Requests\Account\LoginRequest;
+use Kirki\Ecommerce\App\Http\Requests\Account\RegistrationRequest;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
@@ -248,6 +250,7 @@ class SiteController
     public function login_page(Request $request)
     {
         if (is_user_logged_in()) {
+            wp_safe_redirect(Url::get_account_url());
             return view('site.account')->layout(false);
         }
 
@@ -265,7 +268,20 @@ class SiteController
      */
     public function register_page(Request $request)
     {
+        $anyone_can_register = (int) get_option('users_can_register');
+
+        if (! $anyone_can_register) {
+            wp_die(
+                __('Registration is disabled for now. Please contact the administrator for more information.', 'kirki-ecommerce'),
+                __('Registration Disabled', 'kirki-ecommerce'),
+                [
+                    'response' => 403,
+                ]
+            );
+        }
+
         if (is_user_logged_in()) {
+            wp_safe_redirect(Url::get_account_url());
             return view('site.account')->layout(false);
         }
 
@@ -319,5 +335,62 @@ class SiteController
         }
 
         return redirect(Url::get_account_url());
+    }
+
+    /**
+     * Handle registration
+     *
+     * @since 1.0.0
+     *
+     * @param RegistrationRequest $request  request.
+     *
+     * @return string Template path.
+     */
+    public function handle_registration(RegistrationRequest $request)
+    {
+        if (is_user_logged_in()) {
+            return redirect(Url::get_account_url());
+        }
+
+        $has_nonce = Utils::is_nonce_verified();
+
+        if (!$has_nonce) {
+            set_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY, [
+                'invalid_nonce' => [
+                    'code' => 'invalid_nonce',
+                    'message' => __('Invalid nonce', 'kirki-ecommerce'),
+                ]
+            ]);
+            return redirect(Route::site_url('register'));
+        }
+
+        $sanitized_input = $request->sanitized();
+
+        $user = wp_insert_user([
+            'user_login' => $sanitized_input['email'],
+            'user_email' => $sanitized_input['email'],
+            'user_pass' => $sanitized_input['password'],
+            'first_name' => $sanitized_input['first_name'],
+            'last_name' => $sanitized_input['last_name'],
+        ]);
+
+        if (is_wp_error($user)) {
+            set_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY, [
+                'invalid_user' => [
+                    'code' => 'invalid_user',
+                    'message' => $user->get_error_message(),
+                ]
+            ]);
+            return redirect(Route::site_url('register'));
+        }
+
+        set_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY, [
+            'registration_success' => [
+                'code' => 'registration_success',
+                'message' => __('Your account has been created successfully. Please Log In.', 'kirki-ecommerce'),
+            ]
+        ]);
+
+        return redirect(Url::get_login_url());
     }
 }

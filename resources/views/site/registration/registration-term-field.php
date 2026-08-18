@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Registration Terms and Condition Template Part.
+ *
+ * @package Kirki\Ecommerce\Templates
+ * @since 1.0.0
+ */
+
+defined('ABSPATH') || exit;
+
+?>
+
+<div class="kecom-registration-terms-field">
+    <label class="kecom-checkbox">
+        <input required class="kecom-checkbox-input" x-bind="<?php printf("register('accept_terms', {
+                    required: '%s'
+                })", __('You must accept the terms of service', 'kirki-ecommerce')) ?>" name="accept_terms" type="checkbox">
+        <span class="kecom-checkbox-label">
+            <?php _e('I agree to the ', 'kirki-ecommerce'); ?>
+            <a href="#" class="kecom-checkbox-link"><?php _e('Terms of service', 'kirki-ecommerce'); ?></a>
+            <?php _e(' and ', 'kirki-ecommerce'); ?>
+            <a href="#" class="kecom-checkbox-link"><?php _e('Privacy Policy', 'kirki-ecommerce'); ?></a>
+        </span>
+    </label>
+</div>
