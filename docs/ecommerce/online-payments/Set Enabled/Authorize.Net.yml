@@ -1,7 +1,7 @@
 info:
-  name: Set Enabled Authorize.Net
+  name: Authorize.Net
   type: http
-  seq: 1
+  seq: 3
   tags:
     - online-payments
 

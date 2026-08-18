@@ -1,7 +1,7 @@
 info:
-  name: Install Authorize.Net
+  name: Authorize.Net
   type: http
-  seq: 5
+  seq: 3
   tags:
     - online-payments
 
