@@ -1,15 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDown } from 'lucide-react';
-import { type Dispatch, Fragment, type ReactNode, type SetStateAction, useEffect, useState } from 'react';
-import { Controller, useForm, useFormContext } from 'react-hook-form';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
+import UnitAmountField from '@/components/form/unit-amount-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   calculateBasePricePerUnit,
   DEFAULT_UNIT,
@@ -39,91 +37,6 @@ type BaseUnitPopupProps = {
   onChange: (value: BaseUnitFormPayload) => void;
   buttonProps?: Record<string, unknown>;
 };
-
-type UnitAmountFieldProps = {
-  label: string;
-  infoText?: string;
-  amountName: 'total_unit_amount' | 'base_unit_amount';
-  unitName: 'total_unit' | 'base_unit';
-  placeholder: string;
-  onUnitChange: (value: string) => void;
-  children: ReactNode;
-};
-
-const UnitAmountField = ({
-  label,
-  infoText,
-  amountName,
-  unitName,
-  placeholder,
-  onUnitChange,
-  children,
-}: UnitAmountFieldProps) => {
-  const { control, clearErrors } = useFormContext<BaseUnitFormInput>();
-
-  return (
-    <Controller
-      control={control}
-      name={amountName}
-      render={({ field: amountField, fieldState: amountState }) => (
-        <Controller
-          control={control}
-          name={unitName}
-          render={({ field: unitField, fieldState: unitState }) => {
-            const hasError =
-              Boolean(amountState.error) || Boolean(unitState.error);
-
-            return (
-              <Field data-invalid={hasError || undefined}>
-                <FieldLabel htmlFor={amountName} infoText={infoText}>
-                  {label}
-                </FieldLabel>
-                <InputGroup error={hasError}>
-                  <InputGroupInput
-                    id={amountName}
-                    type="number"
-                    min={0}
-                    placeholder={placeholder}
-                    value={amountField.value ?? ''}
-                    onChange={(event) => {
-                      amountField.onChange(event.target.value);
-                      clearErrors([amountName, unitName]);
-                    }}
-                    onBlur={amountField.onBlur}
-                    aria-invalid={amountState.invalid}
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <Select
-                      value={unitField.value ?? ''}
-                      onValueChange={onUnitChange}
-                    >
-                      <SelectTrigger
-                        id={unitName}
-                        variant="invisible"
-                        aria-invalid={unitState.invalid}
-                        cssOverride={styles.unitTrigger}
-                      >
-                        <SelectValue>
-                          {getUnitShortText(unitField.value)}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>{children}</SelectContent>
-                    </Select>
-                  </InputGroupAddon>
-                </InputGroup>
-                {hasError && (
-                  <FieldError errors={[amountState.error, unitState.error]} />
-                )}
-              </Field>
-            );
-          }}
-        />
-      )}
-    />
-  );
-};
-
-UnitAmountField.displayName = 'UnitAmountField';
 
 const getInitialValues = (data?: ProductVariant | null): BaseUnitFormInput => {
   const values = mapBaseUnitFromVariant(data ?? undefined);
@@ -174,8 +87,6 @@ const BaseUnitDialog = ({
   };
 
   const handleTotalUnitChange = (value: string) => {
-    form.setValue('total_unit', value);
-
     const nextBaseUnitOptions = getSpecifiedUnitList(value);
     if (
       !nextBaseUnitOptions.some(
@@ -188,8 +99,7 @@ const BaseUnitDialog = ({
     form.clearErrors(['total_unit_amount', 'total_unit', 'base_unit']);
   };
 
-  const handleBaseUnitChange = (value: string) => {
-    form.setValue('base_unit', value);
+  const handleBaseUnitChange = () => {
     form.clearErrors(['base_unit_amount', 'base_unit']);
   };
 
@@ -227,52 +137,38 @@ const BaseUnitDialog = ({
                   'The total quantity contained in this product, e.g. 500g or 1kg for a bag of rice, 1l for a bottle of oil.',
                   'kirki-ecommerce',
                 )}
-                amountName="total_unit_amount"
+                name="total_unit_amount"
                 unitName="total_unit"
                 placeholder="5"
+                unitShortText={(value) => getUnitShortText(value as string)}
                 onUnitChange={handleTotalUnitChange}
-              >
-                {unitGroups.map((group, index) => (
-                  <Fragment key={group.heading}>
-                    {index > 0 && <SelectSeparator />}
-                    <SelectGroup>
-                      <SelectLabel icon={group.leftIcon}>
-                        {group.heading}
-                      </SelectLabel>
-                      {group.items.map((item) => (
-                        <SelectItem
-                          key={item.value}
-                          value={item.value ?? ''}
-                          endSlot={item.subText}
-                        >
-                          {item.title}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </Fragment>
-                ))}
-              </UnitAmountField>
+                unitOptions={unitGroups.map((group) => ({
+                  heading: group.heading,
+                  icon: group.leftIcon,
+                  items: group.items.map((item) => ({
+                    value: item.value ?? '',
+                    label: item.title ?? '',
+                    endSlot: item.subText,
+                  })),
+                }))}
+              />
               <UnitAmountField
                 label={__('Base unit', 'kirki-ecommerce')}
                 infoText={__(
                   'The unit price is calculated for, e.g. set 100g to show the price per 100g, or 1kg to show the price per kg.',
                   'kirki-ecommerce',
                 )}
-                amountName="base_unit_amount"
+                name="base_unit_amount"
                 unitName="base_unit"
                 placeholder="1"
+                unitShortText={(value) => getUnitShortText(value as string)}
                 onUnitChange={handleBaseUnitChange}
-              >
-                {baseUnitOptions.map((item) => (
-                  <SelectItem
-                    key={item.value}
-                    value={item.value ?? ''}
-                    endSlot={item.subText}
-                  >
-                    {item.title}
-                  </SelectItem>
-                ))}
-              </UnitAmountField>
+                unitOptions={baseUnitOptions.map((item) => ({
+                  value: item.value ?? '',
+                  label: item.title ?? '',
+                  endSlot: item.subText,
+                }))}
+              />
             </Flex>
           </DialogBody>
           <DialogFooter>
@@ -298,11 +194,6 @@ BaseUnitDialog.displayName = 'BaseUnitDialog';
 export default BaseUnitDialog;
 
 const styles = defineStyles({
-  unitTrigger: {
-    width: 'auto',
-    minWidth: '64px',
-    paddingRight: theme.spacing[2],
-  },
   visuallyHiddenTitle: {
     position: 'absolute',
     width: '1px',

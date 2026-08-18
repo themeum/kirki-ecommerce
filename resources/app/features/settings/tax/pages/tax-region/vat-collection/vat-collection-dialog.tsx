@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactNode, useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
+import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Form } from '@/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { TaxRate } from '@/features/settings/tax/lib/utils';
 import {
   type VatCollectionFormInput,
@@ -100,42 +99,15 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <Controller
-              control={form.control}
+            <SelectField
               name="state"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel htmlFor="state">
-                    {__('Select country', 'kirki-ecommerce')}
-                  </FieldLabel>
-                  <Select
-                    value={field.value ? String(field.value) : ''}
-                    onValueChange={(value) => field.onChange(value)}
-                  >
-                    <SelectTrigger
-                      id="state"
-                      error={Boolean(fieldState.error)}
-                      aria-invalid={fieldState.invalid}
-                    >
-                      <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statesOption.map((option) => (
-                        <SelectItem
-                          key={option.value}
-                          value={String(option.value)}
-                        >
-                          {option.leftIcon}
-                          {option.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+              label={__('Select country', 'kirki-ecommerce')}
+              placeholder={__('Select', 'kirki-ecommerce')}
+              options={statesOption.map((option) => ({
+                value: String(option.value),
+                label: String(option.title),
+                icon: option.leftIcon,
+              }))}
             />
             <TextField
               name="rate"

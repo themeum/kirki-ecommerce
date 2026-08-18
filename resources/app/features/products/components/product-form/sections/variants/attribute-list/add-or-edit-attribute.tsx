@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { useForm, useFormContext, useFormState, useWatch } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import ActionGroup from '@/components/ui/action-group';
@@ -12,7 +12,7 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import AttributeValuesField from '@/features/products/components/attribute-values-field';
+import AttributeValuesField from '@/features/products/components/fields/attribute-values-field';
 import {
   type MatrixMutation,
   savedVariants,
@@ -71,6 +71,9 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
       values: data?.values ?? [],
     },
   });
+
+  const nameFormState = useFormState({ control: form.control, name: 'name' });
+  const nameFieldState = form.getFieldState('name', nameFormState);
 
   const type = form.watch('type') ?? 'list';
   const formData = form.watch();
@@ -234,63 +237,57 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                 </ButtonGroup>
               </Flex>
             )}
-            <Controller
-              control={form.control}
-              name="name"
-              render={({ fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>
-                    {__('Variation Name', 'kirki-ecommerce')}
-                  </FieldLabel>
-                  <Combobox
-                    error={Boolean(
-                      fieldState.error ??
-                      form.formState.errors.id ??
-                      form.formState.errors.name,
-                    )}
-                    value={
-                      formData?.id != null ? String(formData.id) : undefined
-                    }
-                    options={[
-                      ...(formData?.id != null && formData?.name
-                        ? [
-                          {
-                            label: formData.name,
-                            value: String(formData.id),
-                          },
-                        ]
-                        : []),
-                      ...attributeSuggestionArray
-                        .filter(
-                          (item) => String(item.value) !== String(formData?.id),
-                        )
-                        .map((item) => ({
-                          label: item.title,
-                          value: String(item.value),
-                        })),
-                    ]}
-                    placeholder={__(
-                      'e.g. Size or Material',
-                      'kirki-ecommerce',
-                    )}
-                    searchPlaceholder={__(
-                      'e.g. Size or Material',
-                      'kirki-ecommerce',
-                    )}
-                    creatable
-                    addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
-                    onChange={(nextValue) =>
-                      handleAttributeSelect(String(nextValue))
-                    }
-                    onAddItem={(query) => handleNewAttributeAdd(query)}
-                    disabled={!!formData?.id}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
+            <Field data-invalid={nameFieldState.invalid || undefined}>
+              <FieldLabel>
+                {__('Variation Name', 'kirki-ecommerce')}
+              </FieldLabel>
+              <Combobox
+                error={Boolean(
+                  nameFieldState.error ??
+                  form.formState.errors.id ??
+                  form.formState.errors.name,
+                )}
+                value={
+                  formData?.id != null ? String(formData.id) : undefined
+                }
+                options={[
+                  ...(formData?.id != null && formData?.name
+                    ? [
+                      {
+                        label: formData.name,
+                        value: String(formData.id),
+                      },
+                    ]
+                    : []),
+                  ...attributeSuggestionArray
+                    .filter(
+                      (item) => String(item.value) !== String(formData?.id),
+                    )
+                    .map((item) => ({
+                      label: item.title,
+                      value: String(item.value),
+                    })),
+                ]}
+                placeholder={__(
+                  'e.g. Size or Material',
+                  'kirki-ecommerce',
+                )}
+                searchPlaceholder={__(
+                  'e.g. Size or Material',
+                  'kirki-ecommerce',
+                )}
+                creatable
+                addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
+                onChange={(nextValue) =>
+                  handleAttributeSelect(String(nextValue))
+                }
+                onAddItem={(query) => handleNewAttributeAdd(query)}
+                disabled={!!formData?.id}
+              />
+              {nameFieldState.invalid && (
+                <FieldError errors={[nameFieldState.error]} />
               )}
-            />
+            </Field>
             <AttributeValuesField
               name="values"
               label={__('Variation Values', 'kirki-ecommerce')}

@@ -1,21 +1,20 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
-import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import VatProcessField from '@/features/settings/tax/components/fields/vat-process-field';
 import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
-import { applyEuRegionUpdate, applyRegionRules, deriveEuRegion, resolveVatProcessChange } from '@/features/settings/tax/lib/region-tax';
+import { applyEuRegionUpdate, applyRegionRules, deriveEuRegion } from '@/features/settings/tax/lib/region-tax';
 import type { TaxRate, TaxRegion, TaxRule } from '@/features/settings/tax/lib/utils';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import { VatCollection } from '@/features/settings/tax/pages/tax-region/vat-collection/vat-collection';
@@ -28,124 +27,11 @@ import { getDefaults, pickFormValues } from '@/libs/zod';
 import type { TaxSettings } from '@/schemas/catalog/settings';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type TaxSettingsFormData = Omit<TaxSettings, 'tax_regions'> & {
   tax_regions?: TaxRegion[];
-};
-
-const VatCollectionProcessRadios = () => {
-  const { control, setValue, getValues } =
-    useFormContext<TaxRegionEuFormInput>();
-
-  const handleProcessChange = (value: string | number) => {
-    const nextType = String(value);
-    setValue('type', nextType, { shouldDirty: true });
-
-    const nextProductTax = resolveVatProcessChange(nextType, getValues('product_tax') ?? []);
-    if (nextProductTax) {
-      setValue('product_tax', nextProductTax, { shouldDirty: true });
-    }
-  };
-
-  return (
-    <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
-      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
-        <CardContent cssOverride={cardStyles.innerContent}>
-
-          <Controller
-            control={control}
-            name="type"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(value) => handleProcessChange(value)}
-                  aria-invalid={fieldState.invalid}
-                >
-                  <Field orientation="horizontal">
-                    <RadioGroupItem value="oss" id="vat-process-oss" />
-                    <FieldLabel htmlFor="vat-process-oss">
-                      {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
-                    </FieldLabel>
-                  </Field>
-                </RadioGroup>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <VatProcessDescription processValue="oss" />
-        </CardContent>
-      </Card>
-
-      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
-        <CardContent cssOverride={cardStyles.innerContent}>
-
-          <Controller
-            control={control}
-            name="type"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <RadioGroup
-                  value={field.value}
-                  onValueChange={(value) => handleProcessChange(value)}
-                  aria-invalid={fieldState.invalid}
-                >
-                  <Field orientation="horizontal">
-                    <RadioGroupItem
-                      value="micro_business"
-                      id="vat-process-micro-business"
-                    />
-                    <FieldLabel htmlFor="vat-process-micro-business">
-                      {__('Micro Business', 'kirki-ecommerce')}
-                    </FieldLabel>
-                  </Field>
-                </RadioGroup>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
-          />
-
-          <VatProcessDescription processValue="micro_business" />
-        </CardContent>
-      </Card>
-    </Flex>
-  );
-};
-
-const VatProcessDescription = ({
-  processValue,
-}: {
-  processValue: string;
-}) => {
-  const currentProcess = useWatch<TaxRegionEuFormInput>({ name: 'type' });
-
-  if (currentProcess !== processValue) {
-    return null;
-  }
-
-  return (
-    <Card cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[2] }} >
-      <CardContent cssOverride={cardStyles.innerDarkContent}>
-        <Text color="secondary" variant="small">
-          {processValue === 'oss' ?
-            __(
-              'Collect VAT based on the customer’s EU country for cross-border sales. VAT from all EU countries is reported through a single OSS return. Required once your EU cross-border sales exceed €10,000 per year.',
-              'kirki-ecommerce',
-            )
-            : __(
-              'Collect VAT using your local country’s rate only. Applies when selling mainly within your own country. Available while EU cross-border sales remain below €10,000 per year.',
-              'kirki-ecommerce',
-            )
-          }
-        </Text>
-      </CardContent>
-    </Card>
-  );
 };
 
 const EditRegionEU = () => {
@@ -283,7 +169,7 @@ const EditRegionEU = () => {
               <Card cssOverride={cardStyles.formCard} >
                 <CardContent>
                   <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
-                  <VatCollectionProcessRadios />
+                  <VatProcessField />
                 </CardContent>
               </Card>
 
@@ -314,11 +200,3 @@ const EditRegionEU = () => {
 EditRegionEU.displayName = 'EditRegionEU';
 
 export default EditRegionEU;
-
-const styles = defineStyles({
-  vatProcessCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing[2],
-  },
-});

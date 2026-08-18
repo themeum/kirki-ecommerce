@@ -81,6 +81,50 @@ const sharedNoFeatureImportConfig = {
   },
 };
 
+// Field components own the react-hook-form binding: they are generic over
+// `<TFieldValues, TName>`, read `control` from `useFormContext()`, and render
+// the Field/FieldLabel/FieldError envelope. Screens bind by rendering one of
+// them, so an error-rendering or a11y fix made in a field reaches every screen.
+// Generic fields live in components/form/; fields carrying feature knowledge
+// (their own option query, create mutation, or cross-field side effects) live
+// in features/<feature>/components/fields/, because shared code may not import
+// from a feature (see sharedNoFeatureImportConfig).
+//
+// Expressed as `no-restricted-syntax` rather than `no-restricted-imports`
+// deliberately: flat-config rule entries replace rather than merge, so adding
+// a broad-glob `no-restricted-imports` block here would silently drop the
+// feature-boundary patterns those configs set.
+// `features/**` rather than `features/*`: settings nests sub-features, so its
+// field components sit at features/settings/<area>/components/fields/.
+const CONTROLLER_FIELD_DIRS = [
+  'components/form/**/*.{ts,tsx}',
+  'features/**/components/fields/**/*.{ts,tsx}',
+];
+
+const controllerOnlyInFieldsConfig = {
+  name: 'kirki/controller-only-in-fields',
+  files: ['**/*.{ts,tsx}'],
+  rules: {
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector:
+          "ImportDeclaration[source.value='react-hook-form'] > ImportSpecifier[imported.name='Controller']",
+        message:
+          'Bind inputs through a field component, not a Controller. Generic fields live in components/form/; fields needing feature data live in features/<feature>/components/fields/.',
+      },
+    ],
+  },
+};
+
+const controllerFieldAllowlistConfig = {
+  name: 'kirki/controller-field-allowlist',
+  files: CONTROLLER_FIELD_DIRS,
+  rules: {
+    'no-restricted-syntax': 'off',
+  },
+};
+
 const importNoCycleConfig = {
   name: 'kirki/import-no-cycle',
   files: ['**/*.{ts,tsx}'],
@@ -313,6 +357,8 @@ export default tseslint.config(
   importNoCycleConfig,
   ...featureBoundaryConfigs,
   sharedNoFeatureImportConfig,
+  controllerOnlyInFieldsConfig,
+  controllerFieldAllowlistConfig,
 
   {
     // `lazy(() => import(...))` needs a concrete file target for its own
