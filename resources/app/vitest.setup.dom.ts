@@ -28,3 +28,14 @@ window.wp = {
     getLocaleData: () => ({}),
   },
 };
+
+// cmdk (behind Combobox/Command) observes and scrolls its list on mount, and
+// jsdom implements neither API. Stubs are enough because nothing here depends
+// on real layout.
+globalThis.ResizeObserver = class {
+  observe = () => undefined;
+  unobserve = () => undefined;
+  disconnect = () => undefined;
+};
+
+Element.prototype.scrollIntoView = () => undefined;

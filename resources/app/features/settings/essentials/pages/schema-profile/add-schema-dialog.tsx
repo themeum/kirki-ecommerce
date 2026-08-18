@@ -1,17 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type Dispatch, type SetStateAction, useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
-import GroupTagTable from '@/components/group-tag-table';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Field, FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import { groupDetails, optionsList, requiredFields } from '@/features/products';
+import SchemaPropertyField from '@/features/settings/essentials/components/fields/schema-property-field';
 import type { SchemaProfile } from '@/features/settings/essentials/schemas/catalog/schema-profile';
 import {
   type SchemaProfileFormInput,
@@ -22,7 +20,6 @@ import { useCreateSchemaMutation, useUpdateSchemaMutation } from '@/features/set
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
-import type { SelectOption } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
 
 type AddSchemaPopupProps = {
@@ -121,35 +118,14 @@ const AddSchemaPopup = ({
                 label={__('Schema preset name', 'kirki-ecommerce')}
                 placeholder={__('e.g General', 'kirki-ecommerce')}
               />
-              <Controller
-                control={form.control}
-                name="schema"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <GroupTagTable
-                      groupDetails={groupDetails}
-                      selectedValues={field.value}
-                      optionsArray={optionsList as SelectOption[]}
-                      requiredFields={requiredFields}
-                      onChange={(value) =>
-                        field.onChange(value)
-                      }
-                      hasSelect
-                      isEditable
-                    />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
-              />
+              <SchemaPropertyField name="schema" />
             </Flex>
           </DialogBody>
           <DialogFooter style={{ justifyContent: 'space-between' }}>
             <Text weight="medium">{sprintf(
-                __('%d selected', 'kirki-ecommerce'),
-                Object.keys(selectedValues)?.length,
-              )}</Text>
+              __('%d selected', 'kirki-ecommerce'),
+              Object.keys(selectedValues)?.length,
+            )}</Text>
             <ActionGroup>
               <Button variant="outline" onClick={onClose}>
                 {__('Cancel', 'kirki-ecommerce')}
