@@ -17,7 +17,11 @@ import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
-import TargetingTab from '@/features/coupons/pages/edit-coupon/components/tabs/targeting-tab';
+import { splitIsoDateTime } from '@/features/coupons/lib/coupon-datetime';
+import CouponPreview from '@/features/coupons/pages/edit-coupon/coupon-preview';
+import ConditionsTab from '@/features/coupons/pages/edit-coupon/tabs/conditions-tab';
+import DetailsTab from '@/features/coupons/pages/edit-coupon/tabs/details-tab';
+import TargetingTab from '@/features/coupons/pages/edit-coupon/tabs/targeting-tab';
 import {
   type CouponFormInput,
   type CouponFormPayload,
@@ -36,11 +40,6 @@ import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-
-import { splitIsoDateTime } from '../../lib/coupon-datetime';
-import CouponPreview from './components/coupon-preview';
-import ConditionsTab from './components/tabs/conditions-tab';
-import DetailsTab from './components/tabs/details-tab';
 
 const DETAILS_TAB_FIELDS: (keyof CouponFormInput)[] = [
   'method',

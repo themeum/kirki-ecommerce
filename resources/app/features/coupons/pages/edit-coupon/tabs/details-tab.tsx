@@ -9,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import CouponCodeField from '@/features/coupons/components/fields/coupon-code-field';
-import DiscountTypeField from '@/features/coupons/pages/edit-coupon/components/fields/discount-type-field';
+import DiscountTypeField from '@/features/coupons/components/fields/discount-type-field';
 import DiscountValueSection from '@/features/coupons/pages/edit-coupon/components/sections/discount-value-section';
 import ValidityPeriodSection from '@/features/coupons/pages/edit-coupon/components/sections/validity-period-section';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';

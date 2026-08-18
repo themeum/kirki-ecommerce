@@ -9,7 +9,7 @@ import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import { useCategoriesQuery } from '@/features/categories';
-import ProductSelectionField from '@/features/coupons/pages/edit-coupon/components/fields/product-selection-field';
+import ProductSelectionField from '@/features/coupons/components/fields/product-selection-field';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
