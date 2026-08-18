@@ -14,4 +14,8 @@ export const ENDPOINTS = {
   checkout: {
     root: '/checkout',
   },
+  customer: {
+    root: '/customers',
+    single: (id: number) => `/customers/${id}`,
+  },
 } as const;

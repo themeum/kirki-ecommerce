@@ -8,18 +8,19 @@
 import Alpine from 'alpinejs';
 
 // Import components
+import { accountAddresses } from './components/account-addresses';
 import { addToCart } from './components/add-to-cart';
 import { cart } from './components/cart';
 import { checkout } from './components/checkout';
 import { form, stateField } from './components/form';
 import { imageSlider } from './components/image-slider';
+import { miniCart } from './components/mini-cart';
 import { modal } from './components/modal';
 import { productFilter } from './components/product-filter';
 import { quantitySelector } from './components/quantity-selector';
 import { shop } from './components/shop';
 import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
-import { miniCart } from "./components/mini-cart";
 
 import '../scss/index.scss';
 
@@ -28,6 +29,7 @@ import '../scss/index.scss';
 // ----------------------------------------------------------------------------
 
 // Register components
+Alpine.data('accountAddresses', accountAddresses);
 Alpine.data('addToCart', addToCart);
 Alpine.data('cart', cart);
 Alpine.data('productFilter', productFilter);
