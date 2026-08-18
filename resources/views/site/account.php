@@ -14,6 +14,11 @@ defined('ABSPATH') || exit;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
-$pages = view_data('pages');
-
-include_view('site.account.dashboard', ['pages' => $pages]);
+include_view('site.account.dashboard', [
+    'customer'         => view_data('customer'),
+    'user'             => view_data('user'),
+    'orders'           => view_data('orders'),
+    'billing_address'  => view_data('billing_address'),
+    'shipping_address' => view_data('shipping_address'),
+    'pages'            => view_data('pages'),
+]);

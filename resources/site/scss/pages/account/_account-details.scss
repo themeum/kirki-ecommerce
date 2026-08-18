@@ -1,52 +1,35 @@
 // Account - Account Details
-// Styling for profile settings and password change form
+// Styling for profile and password management matching the design mockup
 
 @use '../../tokens' as *;
 @use '../../mixins' as *;
 
-.kecom-account-details {
+.kecom-account-details-page {
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
+  gap: $spacing-6;
 
-  &-form {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-8;
+  .kecom-account-details-title {
+    @include typography(xl, semibold, $text-primary);
+    margin: 0;
   }
+}
 
-  &-section {
-    display: flex;
-    flex-direction: column;
+.kecom-account-details-form {
+  gap: $spacing-5;
+
+  .kecom-card {
     gap: $spacing-5;
-
-    &-title {
-      @include typography(lg, bold, $text-primary);
-      margin: 0 0 $spacing-2;
-      padding-bottom: $spacing-3;
-      border-bottom: 1px solid $border-default;
-    }
-
-    &-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: $spacing-5;
-
-      @include breakpoint-down(sm) {
-        grid-template-columns: 1fr;
-      }
-
-      .kecom-field-full {
-        grid-column: 1 / -1;
-      }
-    }
   }
 
-  &-actions {
-    display: flex;
-    align-items: center;
-    gap: $spacing-4;
-    padding-top: $spacing-6;
-    border-top: 1px solid $border-default;
+  .kecom-account-details-actions {
+    margin-top: $spacing-2;
+
+    .kecom-btn-primary {
+      padding: 10px 24px;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      border-radius: $radius-md;
+    }
   }
 }

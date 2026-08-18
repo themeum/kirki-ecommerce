@@ -15,7 +15,7 @@ use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 
-use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -55,7 +55,20 @@ class AccountController
      */
     public function dashboard(Request $request)
     {
-        return view('site.account', ['pages' => $this->pages])->layout(false);
+        $customer = customer();
+        $user = wp_get_current_user();
+        $billing_address = $customer ? $customer->get_billing_address() : null;
+        $shipping_address = $customer ? $customer->get_shipping_address() : null;
+
+        $data = [
+            'customer'         => $customer,
+            'user'             => $user,
+            'billing_address'  => $billing_address,
+            'shipping_address' => $shipping_address,
+            'pages'            => $this->pages,
+        ];
+
+        return view('site.account', $data)->layout(false);
     }
 
     /**
@@ -73,6 +86,29 @@ class AccountController
     }
 
     /**
+     * Order details page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Request.
+     *
+     * @return Response response.
+     */
+    public function order_details(Request $request)
+    {
+        $customer = customer();
+        $user = wp_get_current_user();
+
+        $data = [
+            'customer' => $customer,
+            'user'     => $user,
+            'pages'    => $this->pages,
+        ];
+
+        return view('site.account.order-details', $data)->layout(false);
+    }
+
+    /**
      * Addresses page.
      *
      * @since 1.0.0
@@ -83,7 +119,22 @@ class AccountController
      */
     public function addresses(Request $request)
     {
-        return view('site.account.addresses', ['pages' => $this->pages])->layout(false);
+        $customer = customer();
+        $user = wp_get_current_user();
+        $billing_address = $customer ? $customer->get_billing_address() : null;
+        $shipping_address = $customer ? $customer->get_shipping_address() : null;
+        $countries = Utils::get_countries();
+
+        $data = [
+            'customer'         => $customer,
+            'user'             => $user,
+            'billing_address'  => $billing_address,
+            'shipping_address' => $shipping_address,
+            'countries'        => $countries,
+            'pages'            => $this->pages,
+        ];
+
+        return view('site.account.addresses', $data)->layout(false);
     }
 
     /**
@@ -97,6 +148,15 @@ class AccountController
      */
     public function account_details(Request $request)
     {
-        return view('site.account.account-details', ['pages' => $this->pages])->layout(false);
+        $customer = customer();
+        $user = wp_get_current_user();
+
+        $data = [
+            'customer' => $customer,
+            'user'     => $user,
+            'pages'    => $this->pages,
+        ];
+
+        return view('site.account.account-details', $data)->layout(false);
     }
 }

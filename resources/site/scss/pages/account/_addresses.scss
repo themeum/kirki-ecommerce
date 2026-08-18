@@ -1,151 +1,31 @@
 // Account - Addresses
-// Styling for billing & shipping addresses cards and edit forms
+// Styling for billing & shipping addresses view using shared card and form components
 
 @use '../../tokens' as *;
 @use '../../mixins' as *;
 
-.kecom-account-addresses {
+.kecom-account-addresses-page {
   display: flex;
   flex-direction: column;
-  gap: $spacing-8;
+  gap: $spacing-6;
 
-  &-desc {
-    @include typography(base, normal, $text-secondary);
+  .kecom-account-addresses-title {
+    @include typography(xl, semibold, $text-primary);
     margin: 0;
   }
+}
 
-  &-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: $spacing-8;
+.kecom-account-addresses-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-6;
 
-    @include breakpoint-down(md) {
-      grid-template-columns: 1fr;
-      gap: $spacing-6;
-    }
+  @include breakpoint-down(md) {
+    grid-template-columns: 1fr;
   }
 
-  &-card {
-    background-color: $background-surface-alt;
-    border: 1px solid $border-default;
-    border-radius: $radius-2xl;
-    padding: $spacing-8;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: $spacing-6;
-    height: 100%;
-    @include transition((border-color, box-shadow));
-
-    &:hover {
-      border-color: $border-hover;
-      box-shadow: $shadow-sm;
-    }
-
-    &-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid $border-default;
-      padding-bottom: $spacing-4;
-
-      &-title {
-        @include typography(lg, bold, $text-primary);
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: $spacing-2;
-
-        svg {
-          width: 20px;
-          height: 20px;
-          stroke: $background-fill-brand;
-          stroke-width: 1.75;
-        }
-      }
-    }
-
-    &-body {
-      display: flex;
-      flex-direction: column;
-      gap: $spacing-2;
-      flex-grow: 1;
-
-      address {
-        font-style: normal;
-        @include typography(base, normal, $text-secondary);
-        line-height: 1.6;
-        margin: 0;
-
-        strong {
-          color: $text-primary;
-          font-weight: $font-weight-semibold;
-          display: block;
-          margin-bottom: $spacing-1;
-        }
-      }
-    }
-
-    &-empty {
-      @include typography(base, normal, $text-secondary);
-      font-style: italic;
-      margin: 0;
-    }
-
-    &-footer {
-      padding-top: $spacing-4;
-      border-top: 1px dashed $border-default;
-      display: flex;
-      align-items: center;
-      gap: $spacing-3;
-    }
-  }
-
-  // Address Edit Form Box
-  &-form-box {
-    background-color: $background-surface-alt;
-    border: 1px solid $border-default;
-    border-radius: $radius-2xl;
-    padding: $spacing-8;
-    margin-top: $spacing-6;
-
-    @include breakpoint-down(md) {
-      padding: $spacing-5;
-    }
-
-    &-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: $spacing-6;
-
-      h4 {
-        @include typography(xl, bold, $text-primary);
-        margin: 0;
-      }
-    }
-
-    .kecom-address-form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: $spacing-5;
-
-      @include breakpoint-down(sm) {
-        grid-template-columns: 1fr;
-      }
-
-      .kecom-field-full {
-        grid-column: 1 / -1;
-      }
-    }
-
-    &-actions {
-      display: flex;
-      align-items: center;
-      gap: $spacing-4;
-      margin-top: $spacing-8;
-      padding-top: $spacing-6;
-      border-top: 1px solid $border-default;
-    }
+  .kecom-address-text {
+    @include typography(base, medium, $text-primary);
+    font-style: normal;
   }
 }

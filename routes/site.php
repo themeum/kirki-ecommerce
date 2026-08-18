@@ -13,6 +13,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -56,6 +57,10 @@ Route::site(function () {
     Route::get($account_page_slug, $account_pages['dashboard']['callback'])
         ->middleware(SiteAuthMiddleware::class)
         ->name('account');
+
+    Route::get("{$account_page_slug}/orders/{order_number}", [AccountController::class, 'order_details'])
+        ->middleware(SiteAuthMiddleware::class)
+        ->name('account.orders.details');
 
     foreach ($account_pages as $key => $page) {
         if (isset($page['callback'])) {
