@@ -4,7 +4,7 @@
     "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
     "This file is @generated automatically"
   ],
-  "content-hash": "82ca00528e51284934689a97f1563002",
+  "content-hash": "f442d7f5b18a803f8d02e6519f9f1a7c",
   "packages": [
     {
       "name": "brick/math",
@@ -122,16 +122,16 @@
     },
     {
       "name": "themeum/framework",
-      "version": "2.1.15",
+      "version": "3.0.1",
       "source": {
         "type": "git",
         "url": "https://github.com/themeum/framework.git",
-        "reference": "f1682814516df2a64e8941e00e8b09c69aa040b7"
+        "reference": "d6cb795be5255c0b9be451b958d0fdbace28b971"
       },
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/themeum/framework/zipball/f1682814516df2a64e8941e00e8b09c69aa040b7",
-        "reference": "f1682814516df2a64e8941e00e8b09c69aa040b7",
+        "url": "https://api.github.com/repos/themeum/framework/zipball/d6cb795be5255c0b9be451b958d0fdbace28b971",
+        "reference": "d6cb795be5255c0b9be451b958d0fdbace28b971",
         "shasum": ""
       },
       "require": {
@@ -218,10 +218,10 @@
         "wordpress"
       ],
       "support": {
-        "source": "https://github.com/themeum/framework/tree/v2.1.15",
+        "source": "https://github.com/themeum/framework/tree/v3.0.1",
         "issues": "https://github.com/themeum/framework/issues"
       },
-      "time": "2026-08-10T13:05:27+00:00"
+      "time": "2026-08-18T15:04:52+00:00"
     }
   ],
   "packages-dev": [

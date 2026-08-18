@@ -34,7 +34,7 @@
   ],
   "require": {
     "brick/money": "0.7",
-    "themeum/framework": "^2.0.0"
+    "themeum/framework": "^3.0.0"
   },
   "config": {
     "platform": {
