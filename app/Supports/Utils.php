@@ -93,6 +93,8 @@ class Utils
                 'icon'      => 'dashboard',
                 'url'       => Url::get_account_url(),
                 'is_active' => Route::is('account'),
+                'route_path' => $account_page_slug,
+                'route_name' => 'account',
                 'callback'  => [AccountController::class, 'dashboard'],
             ],
             'orders' => [
@@ -100,6 +102,8 @@ class Utils
                 'icon'      => 'box',
                 'url'       => Url::get_account_url('orders'),
                 'is_active' => Route::is('account.orders') || Route::is('account.orders.details'),
+                'route_path' => $account_page_slug . '/orders',
+                'route_name' => 'account.orders',
                 'callback'  => [AccountController::class, 'orders'],
             ],
             'addresses' => [
@@ -107,6 +111,8 @@ class Utils
                 'icon'      => 'map-pin',
                 'url'       => Url::get_account_url('addresses'),
                 'is_active' => Route::is('account.addresses'),
+                'route_path' => $account_page_slug . '/addresses',
+                'route_name' => 'account.addresses',
                 'callback'  => [AccountController::class, 'addresses'],
             ],
             'account-details' => [
@@ -114,6 +120,8 @@ class Utils
                 'icon'      => 'user',
                 'url'       => Url::get_account_url('account-details'),
                 'is_active' => Route::is('account.account-details') || Route::is('account.details'),
+                'route_path' => $account_page_slug . '/account-details',
+                'route_name' => 'account.account-details',
                 'callback'  => [AccountController::class, 'account_details'],
             ],
             'logout' => [
