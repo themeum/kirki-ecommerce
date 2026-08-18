@@ -11,7 +11,7 @@ class LoginRequest extends Request
     {
         return [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|password',
             'remember' => 'nullable|in:on,off',
         ];
     }

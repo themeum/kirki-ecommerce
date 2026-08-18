@@ -25,14 +25,14 @@ $anyone_can_register = (int) get_option('users_can_register');
     <div class="kecom-auth-form-wrapper">
         <div class="kecom-auth-header">
             <h3 class="kecom-auth-header-title"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></h3>
-            <div class="kecom-auth-header-content">
-                <span><?php esc_html_e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
-                <?php if (1 === $anyone_can_register): ?>
+            <?php if (1 === $anyone_can_register): ?>
+                <div class="kecom-auth-header-content">
+                    <span><?php esc_html_e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
                     <a href="<?php echo esc_url(Url::get_registration_url()); ?>">
                         <?php esc_html_e('Sign up', 'kirki-ecommerce'); ?>
                     </a>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </div>
         <?php if (!empty($validation_errors)): ?>
             <div class="kecom-alert kecom-alert-error">
