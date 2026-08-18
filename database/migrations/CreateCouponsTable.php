@@ -32,7 +32,8 @@ class CreateCouponsTable implements Migration
             $table->boolean('has_end_datetime')->default(0);
             $table->datetime('end_datetime')->nullable();
 
-            $table->text('target_countries')->nullable()->comment('Array of country codes as JSON');
+            $table->enum('target_country_type', ['all-countries', 'specific-countries'])->default('all-countries');
+            $table->text('target_countries')->nullable()->comment('Array of {country, states} regions as JSON');
             $table->boolean('first_time_buyer_only')->default(0);
             $table->enum('customer_eligibility', ['all', 'specific-customers', 'specific-groups'])->default('all');
             $table->boolean('exclude_customers')->default(0);

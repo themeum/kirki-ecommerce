@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { CategorySchema } from '@/features/categories/schemas/catalog/category';
 import { ProductListItemWithVariantsSchema } from '@/features/products/schemas/catalog/product';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { RegionSchema } from '@/schemas/shared/region';
 
 export const CouponStatusSchema = z.enum([
   'active',
@@ -37,6 +38,13 @@ export const CouponEligibleItemTypeSchema = z.enum([
 
 export type CouponEligibleItemType = z.infer<typeof CouponEligibleItemTypeSchema>;
 
+export const CouponTargetCountryTypeSchema = z.enum([
+  'all-countries',
+  'specific-countries',
+]);
+
+export type CouponTargetCountryType = z.infer<typeof CouponTargetCountryTypeSchema>;
+
 export const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
 
 export type CouponDiscountValueType = z.infer<
@@ -70,7 +78,8 @@ export const CouponSchema = z.object({
   start_datetime: z.string().nullish(),
   has_end_datetime: z.boolean().default(false),
   end_datetime: z.string().nullish(),
-  target_countries: z.array(z.string()).nullish(),
+  target_country_type: CouponTargetCountryTypeSchema.default('all-countries'),
+  target_countries: z.array(RegionSchema).nullish(),
   first_time_buyer_only: z.boolean().default(false),
   customer_eligibility: z.enum(['specific-customers', 'specific-groups', 'all']).default('all'),
   exclude_customers: z.boolean().default(false),

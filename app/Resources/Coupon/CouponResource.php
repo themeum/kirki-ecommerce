@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\App\Resources\CategoryResource;
 use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\Framework\Resource;
@@ -43,6 +44,7 @@ class CouponResource extends Resource
             'start_datetime' => $this->start_datetime,
             'has_end_datetime' => filter_var($this->has_end_datetime, FILTER_VALIDATE_BOOLEAN),
             'end_datetime' => $this->end_datetime,
+            'target_country_type' => $this->target_country_type ?? TargetCountryType::ALL_COUNTRIES,
             'target_countries' => $this->target_countries,
             'first_time_buyer_only' => filter_var($this->first_time_buyer_only, FILTER_VALIDATE_BOOLEAN),
             'customer_eligibility' => $this->customer_eligibility ?? CustomerEligibility::ALL,

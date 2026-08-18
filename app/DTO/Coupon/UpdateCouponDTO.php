@@ -54,7 +54,10 @@ class UpdateCouponDTO extends DTO
     /** @var string|null */
     public $end_datetime;
 
-    /** @var string|null */
+    /** @var string */
+    public $target_country_type = 'all-countries';
+
+    /** @var array|null */
     public $target_countries;
 
     /** @var bool */

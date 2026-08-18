@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
+import RegionsField from '@/components/form/regions-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
@@ -12,7 +13,6 @@ import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import RegionsField from '@/features/settings/shipping/components/fields/regions-field';
 import { ShippingMethod } from '@/features/settings/shipping/pages/shipping-method/shipping-method';
 import {
   type ShippingZoneFormInput,

@@ -55,6 +55,7 @@ class Coupon extends Model
         'start_datetime',
         'has_end_datetime',
         'end_datetime',
+        'target_country_type',
         'target_countries',
         'first_time_buyer_only',
         'customer_eligibility',

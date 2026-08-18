@@ -215,10 +215,10 @@ class CouponService
                 return $query->where('is_active', (int) $filters->is_active);
             })
             ->when(!empty($filters->start_date), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('start_datetime', '>=', $filters->start_date);
+                return $query->where_date('start_datetime', '>=', Date::parse($filters->start_date)->set_timezone('UTC')->format(DateTimeFormats::DB_DATE));
             })
             ->when(!empty($filters->end_date), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('end_datetime', '<=', $filters->end_date);
+                return $query->where_date('end_datetime', '<=', Date::parse($filters->end_date)->set_timezone('UTC')->format(DateTimeFormats::DB_DATE));
             })
             ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters->sort_by, $filters->sort_order);

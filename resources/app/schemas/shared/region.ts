@@ -3,29 +3,31 @@ import { z } from 'zod';
 import { prepareFormSchema } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
-export const ShippingRegionFormShape = z.object({
+export const RegionSchema = z.object({
   country: z.string(),
   states: z.array(z.union([z.string(), z.number()])),
   hasDeselectedState: z.boolean().optional(),
   flag: z.string().optional(),
 });
 
-const ShippingRegionFormMainShape = z.object({
+export type Region = z.infer<typeof RegionSchema>;
+
+const RegionsDialogFormShape = z.object({
   title: z.string().nullish().default(''),
   countries: z.array(z.string()).min(1, {
     message: __('Select at least one country', 'kirki-ecommerce'),
   }),
-  regions: z.array(ShippingRegionFormShape).min(1, {
+  regions: z.array(RegionSchema).min(1, {
     message: __('Select at least one region', 'kirki-ecommerce'),
   }),
 });
 
-export const ShippingRegionFormSchema = prepareFormSchema(ShippingRegionFormMainShape).transform((values) => ({
+export const RegionsDialogFormSchema = prepareFormSchema(RegionsDialogFormShape).transform((values) => ({
   title: values.title || null,
   countries: values.countries,
   regions: values.regions,
 }));
 
-export type ShippingRegionFormInput = z.input<typeof ShippingRegionFormSchema>;
+export type RegionsDialogFormInput = z.input<typeof RegionsDialogFormSchema>;
 
-export type ShippingRegionFormPayload = z.output<typeof ShippingRegionFormSchema>;
+export type RegionsDialogFormPayload = z.output<typeof RegionsDialogFormSchema>;

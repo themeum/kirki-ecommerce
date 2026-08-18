@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
+use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
@@ -31,78 +32,90 @@ class DiscountService
     public function validate_coupon(Coupon $coupon, CalculationContextDTO $context)
     {
         if (!$coupon->is_active) {
-            throw new ValidationException(__('Coupon is not active.', 'kirki-ecommerce'));
+            throw new ValidationException(esc_html__('Coupon is not active.', 'kirki-ecommerce'));
         }
 
         $now = Date::now();
 
         if ($coupon->start_datetime && $coupon->start_datetime->gt($now)) {
-            throw new ValidationException(__('Coupon has not started yet.', 'kirki-ecommerce'));
+            throw new ValidationException(esc_html__('Coupon has not started yet.', 'kirki-ecommerce'));
         }
 
         if ($coupon->has_end_datetime && $coupon->end_datetime && $coupon->end_datetime->lt($now)) {
-            throw new ValidationException(__('Coupon has expired.', 'kirki-ecommerce'));
+            throw new ValidationException(esc_html__('Coupon has expired.', 'kirki-ecommerce'));
         }
 
         if ($coupon->has_usage_limit && $coupon->current_usage_count >= $coupon->usage_limit) {
-            throw new ValidationException(__('Coupon usage limit reached.', 'kirki-ecommerce'));
+            throw new ValidationException(esc_html__('Coupon usage limit reached.', 'kirki-ecommerce'));
         }
 
         if ($coupon->spend_condition_type === SpendConditionType::MIN_CART_AMOUNT && $coupon->spend_condition_value > $context->get_subtotal()) {
-            throw new ValidationException(sprintf(__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value));
+            throw new ValidationException(sprintf(esc_html__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value));
         }
 
         if ($coupon->spend_condition_type === SpendConditionType::MIN_ITEMS && $coupon->spend_condition_value > $context->get_items_count()) {
-            throw new ValidationException(sprintf(__('Minimum %s items required.', 'kirki-ecommerce'), $coupon->spend_condition_value));
+            throw new ValidationException(sprintf(esc_html__('Minimum %s items required.', 'kirki-ecommerce'), $coupon->spend_condition_value));
         }
 
-        if (!empty($coupon->target_countries)) {
+        if ($coupon->target_country_type === TargetCountryType::SPECIFIC_COUNTRIES && !empty($coupon->target_countries)) {
             if (!$context->shipping_address) {
-                throw new ValidationException(__('Please provide a shipping address to use this coupon.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('Please provide a shipping address to use this coupon.', 'kirki-ecommerce'));
             }
 
-            $cart_country = $context->shipping_address['country'] ?? null;
+            $shipping_country = $context->shipping_address['country'] ?? null;
+            $shipping_state = $context->shipping_address['state'] ?? null;
 
-            if ($cart_country && !in_array($cart_country, $coupon->target_countries, true)) {
-                throw new ValidationException(__('This coupon is not valid for your shipping country.', 'kirki-ecommerce'));
+            $matched_region = collection($coupon->target_countries)
+                ->first(function ($region) use ($shipping_country) {
+                    return ($region['country'] ?? null) === $shipping_country;
+                });
+
+            if (empty($matched_region)) {
+                throw new ValidationException(esc_html__('This coupon is not valid for your shipping country.', 'kirki-ecommerce'));
+            }
+
+            $target_states = array_map('strval', $matched_region['states'] ?? []);
+
+            if (!empty($target_states) && !in_array((string) $shipping_state, $target_states, true)) {
+                throw new ValidationException(esc_html__('This coupon is not valid for your shipping state.', 'kirki-ecommerce'));
             }
         }
 
         // Exclude specific customers
         if ($coupon->exclude_customers && $coupon->customers->count() > 0) {
             if ($context->customer_id && $coupon->customers->pluck('id')->contains($context->customer_id)) {
-                throw new ValidationException(__('This coupon is not available for you.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
             }
         }
 
         // Include specific customers
         if (!$coupon->exclude_customers && $coupon->customers->count() > 0) {
             if (!$context->customer_id || !$coupon->customers->pluck('id')->contains($context->customer_id)) {
-                throw new ValidationException(__('This coupon is not available for you.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
             }
         }
 
         // First time buyer
         if ($coupon->first_time_buyer_only) {
             if (!$context->customer_id || empty(user()->get_id())) {
-                throw new ValidationException(__('Please login to use this coupon.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 
             if ($context->customer_order_count > 0) {
-                throw new ValidationException(__('This coupon is only available for first time buyers.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('This coupon is only available for first time buyers.', 'kirki-ecommerce'));
             }
         }
 
         // Has customer limit
         if ($coupon->has_customer_limit && $coupon->customer_limit > 0) {
             if (!$context->customer_id || empty(user()->get_id())) {
-                throw new ValidationException(__('Please login to use this coupon.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 
             $current_customer_usage = $coupon->usage()->where('customer_id', $context->customer_id)->count();
 
             if ($current_customer_usage >= $coupon->customer_limit) {
-                throw new ValidationException(__('You have reached the usage limit for this coupon.', 'kirki-ecommerce'));
+                throw new ValidationException(esc_html__('You have reached the usage limit for this coupon.', 'kirki-ecommerce'));
             }
         }
     }

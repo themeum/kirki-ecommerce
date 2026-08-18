@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
+use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -44,7 +45,8 @@ class CouponCreateRequest extends Request
             'start_datetime' => 'date|format:' . Somoy::ATOM,
             'has_end_datetime' => 'boolean|nullable',
             'end_datetime' => 'required_if:has_end_datetime,true|date|format:' . Somoy::ATOM . '|nullable',
-            'target_countries' => 'array|nullable',
+            'target_country_type' => 'string|in:' . implode(',', TargetCountryType::get_constant_values()) . '|nullable',
+            'target_countries' => 'required_if:target_country_type,' . TargetCountryType::SPECIFIC_COUNTRIES . '|array|nullable',
             'first_time_buyer_only' => 'boolean|nullable',
             'customer_eligibility' => 'string|in:' . implode(',', CustomerEligibility::get_constant_values()) . '|nullable',
             'exclude_customers' => 'boolean|nullable',
@@ -82,6 +84,7 @@ class CouponCreateRequest extends Request
             'start_datetime' => Sanitizer::TEXT,
             'has_end_datetime' => Sanitizer::BOOL,
             'end_datetime' => Sanitizer::TEXT,
+            'target_country_type' => Sanitizer::TEXT,
             'target_countries' => Sanitizer::ARRAY,
             'first_time_buyer_only' => Sanitizer::BOOL,
             'customer_eligibility' => Sanitizer::TEXT,

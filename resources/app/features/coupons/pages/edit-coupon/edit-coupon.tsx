@@ -17,6 +17,7 @@ import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
+import TargetingTab from '@/features/coupons/pages/edit-coupon/components/tabs/targeting-tab';
 import {
   type CouponFormInput,
   type CouponFormPayload,
@@ -59,6 +60,11 @@ const DETAILS_TAB_FIELDS: (keyof CouponFormInput)[] = [
   'end_time',
 ];
 
+const TARGETING_TAB_FIELDS: (keyof CouponFormInput)[] = [
+  'target_country_type',
+  'target_countries',
+];
+
 const CONDITIONS_TAB_FIELDS: (keyof CouponFormInput)[] = [
   'has_usage_limit',
   'usage_limit',
@@ -79,8 +85,9 @@ const tabOptions = [
     index: 'targeting',
     title: __('Targeting', 'kirki-ecommerce'),
     icon: <CheckSquare size={16} />,
-    fields: [],
-    hasTabError: () => false,
+    fields: TARGETING_TAB_FIELDS,
+    hasTabError: (errors: FieldErrors<CouponFormInput>) =>
+      TARGETING_TAB_FIELDS.some((field) => Boolean(errors[field])),
   },
   {
     index: 'conditions',
@@ -223,9 +230,7 @@ const EditCoupon = () => {
               </Tabs>
 
               {activeTab === 'detail' && <DetailsTab />}
-              {activeTab === 'targeting' && (
-                <></>
-              )}
+              {activeTab === 'targeting' && <TargetingTab />}
               {activeTab === 'conditions' && <ConditionsTab />}
             </Flex>
 

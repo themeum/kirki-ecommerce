@@ -10,11 +10,13 @@ import {
   CouponDiscountValueTypeSchema,
   CouponEligibleItemTypeSchema,
   CouponMethodSchema,
+  CouponTargetCountryTypeSchema,
 } from '@/features/coupons/schemas/catalog/coupon';
 import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
 import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
 import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { RegionSchema } from '@/schemas/shared/region';
 import { __ } from '@/wpi18n';
 
 const isProductEligibility = (
@@ -110,6 +112,14 @@ const CouponFormShape = z.object({
       isProductEligibility(values, 'specific-categories') && isEmptyValue(values.categories),
     __('Select at least one category', 'kirki-ecommerce'),
   ),
+  target_country_type: CouponTargetCountryTypeSchema.default('all-countries'),
+  target_countries: requiredWhen(
+    z.array(RegionSchema).nullish().default([]),
+    (values) =>
+      values.target_country_type === 'specific-countries' &&
+      isEmptyValue(values.target_countries),
+    __('Select at least one region', 'kirki-ecommerce'),
+  ),
 });
 
 /** Formats to the same ATOM string the wire layer expects — no Date object survives into the payload. */
@@ -153,6 +163,11 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
       eligibleItemType === 'specific-categories'
         ? (values.categories ?? []).map((category) => category.id)
         : [],
+    target_country_type: values.target_country_type,
+    target_countries:
+      values.target_country_type === 'specific-countries'
+        ? values.target_countries ?? []
+        : null,
   };
 });
 

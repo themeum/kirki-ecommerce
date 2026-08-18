@@ -3,18 +3,19 @@ import { Minus } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
+import { RegionsDialog } from '@/components/regions-dialog';
 import Chip from '@/components/ui/chip';
 import ChipField from '@/components/ui/chip-field';
 import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
-import { getSearchedCountries, getSelectedRegionTags } from '@/features/settings/shipping/lib/utils';
-import { ShippingRegionPopup } from '@/features/settings/shipping/pages/shipping-zone/shipping-region-dialog';
-import type { CountryWithStates, ShippingRegion } from '@/features/settings/shipping/types';
 import { LocationIcon } from '@/icons';
+import type { Country } from '@/schemas/reference/country';
+import type { Region } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { getSearchedCountries, getSelectedRegionTags } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 type RegionsFieldProps<
@@ -24,6 +25,8 @@ type RegionsFieldProps<
   name: TName;
   label?: string;
   infoText?: string;
+  placeholder?: string;
+  emptyText?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
@@ -35,22 +38,23 @@ const RegionsField = <
   name,
   label,
   infoText,
+  placeholder = __('Type to add destinations..', 'kirki-ecommerce'),
+  emptyText = __('Added destinations will appear here', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: RegionsFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const [searchValue, setSearchValue] = useState('');
-  const [pickingCountry, setPickingCountry] = useState<CountryWithStates | null>(null);
+  const [pickingCountry, setPickingCountry] = useState<Country | null>(null);
 
-  const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
-  const countryList = countryData as CountryWithStates[];
+  const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
 
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => {
-        const regions = (field.value as ShippingRegion[] | null) ?? [];
+        const regions = (field.value as Region[] | null) ?? [];
         const tags = getSelectedRegionTags(regions, countryList);
         const searchMatches = searchValue
           ? getSearchedCountries(searchValue, countryList).filter(
@@ -58,7 +62,7 @@ const RegionsField = <
           )
           : [];
 
-        const addCountry = (country: CountryWithStates) => {
+        const addCountry = (country: Country) => {
           setSearchValue('');
           if ((country.states?.length ?? 0) > 0) {
             setPickingCountry(country);
@@ -81,25 +85,23 @@ const RegionsField = <
                   control={
                     <Input
                       value={searchValue}
-                      placeholder={__('Type to add destinations..', 'kirki-ecommerce')}
+                      placeholder={placeholder}
                       disabled={disabled}
                       cssOverride={chipFieldControlCss}
                       onChange={(event) => setSearchValue(event.target.value)}
                     />
                   }
                   chips={
-                    tags.length > 0
-                      ? tags.map((tag) => (
-                        <Chip
-                          key={tag.id}
-                          text={tag.title}
-                          img={tag.tagIcon}
-                          subText={tag.subText}
-                          closeIcon={<Minus size={14} aria-hidden="true" />}
-                          onRemove={() => removeRegion(tag.id)}
-                        />
-                      ))
-                      : undefined
+                    tags.length > 0 && tags.map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        text={tag.title}
+                        img={<span>{tag.tagIcon}</span>}
+                        subText={tag.subText}
+                        closeIcon={<Minus size={14} aria-hidden="true" />}
+                        onRemove={() => removeRegion(tag.id)}
+                      />
+                    ))
                   }
                 />
                 {searchMatches.length > 0 && (
@@ -122,16 +124,14 @@ const RegionsField = <
                 {tags.length === 0 && !searchValue && (
                   <div css={scoped(mergeCss(styles.emptyState))}>
                     <LocationIcon />
-                    <span css={scoped(styles.emptyStateText)}>
-                      {__('Added destinations will appear here', 'kirki-ecommerce')}
-                    </span>
+                    <span css={scoped(styles.emptyStateText)}>{emptyText}</span>
                   </div>
                 )}
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
             {pickingCountry && (
-              <ShippingRegionPopup
+              <RegionsDialog
                 open={Boolean(pickingCountry)}
                 onOpenChange={(open) => {
                   if (!open) {

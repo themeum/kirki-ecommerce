@@ -50,6 +50,8 @@ describe('CouponFormSchema', () => {
       customer_limit: null,
       product_ids: [],
       category_ids: [],
+      target_country_type: 'all-countries',
+      target_countries: [],
     });
   });
 
@@ -211,6 +213,36 @@ describe('CouponFormSchema', () => {
       products: [],
     });
     expect(allProducts.success).toBe(true);
+  });
+
+  it('requires at least one region when targeting specific countries', () => {
+    const missingRegions = CouponFormSchema.safeParse({
+      ...base,
+      target_country_type: 'specific-countries',
+      target_countries: [],
+    });
+    expect(missingRegions.success).toBe(false);
+    expect(missingRegions.error?.issues[0].message).toBe('Select at least one region');
+  });
+
+  it('passes the selected regions through untouched', () => {
+    const regions = [{ country: 'US', states: ['5'] }];
+    const result = CouponFormSchema.parse({
+      ...base,
+      target_country_type: 'specific-countries',
+      target_countries: regions,
+    });
+    expect(result.target_country_type).toBe('specific-countries');
+    expect(result.target_countries).toEqual(regions);
+  });
+
+  it('empties the regions when targeting all countries', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      target_country_type: 'all-countries',
+      target_countries: [{ country: 'US', states: [] }],
+    });
+    expect(result.target_countries).toEqual([]);
   });
 
   it('rejects a blank required title or start_date', () => {
