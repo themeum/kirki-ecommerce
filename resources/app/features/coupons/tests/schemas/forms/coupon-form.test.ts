@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import { CouponFormSchema } from '@/features/coupons/schemas/forms/coupon-form';
+import type { ProductSelection } from '@/features/products/schemas/catalog/product-selection';
 import { DATE_FORMATS } from '@/libs/date';
 import { getDefaults } from '@/libs/zod';
 
@@ -37,6 +38,7 @@ describe('CouponFormSchema', () => {
       code: 'SUMMER10',
       discount_type: 'amount-off',
       discount_target: 'order',
+      eligible_item_type: null,
       discount_value_type: 'fixed',
       discount_amount: '10',
       start_datetime: expectedDateTime('2026-06-01', '09:00'),
@@ -46,6 +48,8 @@ describe('CouponFormSchema', () => {
       usage_limit: null,
       has_customer_limit: false,
       customer_limit: null,
+      product_ids: [],
+      category_ids: [],
     });
   });
 
@@ -141,6 +145,72 @@ describe('CouponFormSchema', () => {
       customer_limit: null,
     });
     expect(missingCustomer.success).toBe(false);
+  });
+
+  const productSelection = (productId: number): ProductSelection => ({
+    productId,
+    productTitle: `Product ${productId}`,
+    thumbnail: null,
+    inStock: true,
+    regularPrice: { raw: 10, display: '$10', currency: { code: 'USD', symbol: '$' } },
+    salePrice: null,
+    variants: [],
+  });
+
+  const productTarget = {
+    ...base,
+    discount_target: 'products',
+    eligible_item_type: 'specific-products',
+    products: [productSelection(1), productSelection(2)],
+  };
+
+  const shoesCategory = { id: 7, name: 'Shoes', slug: 'shoes' };
+
+  it('sends product_ids only when eligible items is specific-products', () => {
+    const result = CouponFormSchema.parse(productTarget);
+    expect(result.eligible_item_type).toBe('specific-products');
+    expect(result.product_ids).toEqual([1, 2]);
+    expect(result.category_ids).toEqual([]);
+  });
+
+  it('flattens selected categories to category_ids when eligible items is specific-categories', () => {
+    const result = CouponFormSchema.parse({
+      ...productTarget,
+      eligible_item_type: 'specific-categories',
+      categories: [shoesCategory],
+    });
+    expect(result.product_ids).toEqual([]);
+    expect(result.category_ids).toEqual([7]);
+  });
+
+  it('clears eligible items and both id lists when discount_target is order', () => {
+    const result = CouponFormSchema.parse({
+      ...productTarget,
+      discount_target: 'order',
+      categories: [shoesCategory],
+    });
+    expect(result.eligible_item_type).toBeNull();
+    expect(result.product_ids).toEqual([]);
+    expect(result.category_ids).toEqual([]);
+  });
+
+  it('requires a selection matching the chosen eligible item type', () => {
+    const missingProducts = CouponFormSchema.safeParse({ ...productTarget, products: [] });
+    expect(missingProducts.success).toBe(false);
+
+    const missingCategories = CouponFormSchema.safeParse({
+      ...productTarget,
+      eligible_item_type: 'specific-categories',
+      categories: [],
+    });
+    expect(missingCategories.success).toBe(false);
+
+    const allProducts = CouponFormSchema.safeParse({
+      ...productTarget,
+      eligible_item_type: 'all-products',
+      products: [],
+    });
+    expect(allProducts.success).toBe(true);
   });
 
   it('rejects a blank required title or start_date', () => {

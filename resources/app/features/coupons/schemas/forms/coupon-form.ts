@@ -1,17 +1,29 @@
 import { format } from 'date-fns';
 import { z } from 'zod';
 
+import { CategorySchema } from '@/features/categories';
 import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
+import type { CouponEligibleItemType } from '@/features/coupons/schemas/catalog/coupon';
 import {
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
+  CouponEligibleItemTypeSchema,
   CouponMethodSchema,
 } from '@/features/coupons/schemas/catalog/coupon';
+import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
 import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
 import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
+
+const isProductEligibility = (
+  values: Record<string, unknown>,
+  eligibleItemType: CouponEligibleItemType,
+) =>
+  values.discount_type === 'amount-off' &&
+  values.discount_target === 'products' &&
+  values.eligible_item_type === eligibleItemType;
 
 const CouponFormShape = z.object({
   method: CouponMethodSchema.default('code'),
@@ -78,6 +90,26 @@ const CouponFormShape = z.object({
     (values) => Boolean(values.has_customer_limit) && isEmptyValue(values.customer_limit),
     __('Customer usage limit required', 'kirki-ecommerce'),
   ),
+  eligible_item_type: requiredWhen(
+    CouponEligibleItemTypeSchema.nullish().default('all-products'),
+    (values) =>
+      values.discount_type === 'amount-off' &&
+      values.discount_target === 'products' &&
+      isEmptyValue(values.eligible_item_type),
+    __('Eligible items is required', 'kirki-ecommerce'),
+  ),
+  products: requiredWhen(
+    z.array(ProductSelectionSchema).nullish().default([]),
+    (values) =>
+      isProductEligibility(values, 'specific-products') && isEmptyValue(values.products),
+    __('Select at least one product', 'kirki-ecommerce'),
+  ),
+  categories: requiredWhen(
+    z.array(CategorySchema).nullish().default([]),
+    (values) =>
+      isProductEligibility(values, 'specific-categories') && isEmptyValue(values.categories),
+    __('Select at least one category', 'kirki-ecommerce'),
+  ),
 });
 
 /** Formats to the same ATOM string the wire layer expects — no Date object survives into the payload. */
@@ -86,6 +118,8 @@ const formatDateTime = (date: Date | null): string | null =>
 
 const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) => {
   const isAmountOff = values.discount_type === 'amount-off';
+  const isProductTarget = isAmountOff && values.discount_target === 'products';
+  const eligibleItemType = isProductTarget ? values.eligible_item_type ?? null : null;
 
   return {
     method: values.method,
@@ -93,6 +127,7 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     code: values.method === 'code' ? values.code?.trim() || null : null,
     discount_type: values.discount_type,
     discount_target: isAmountOff ? values.discount_target ?? null : null,
+    eligible_item_type: eligibleItemType,
     discount_value_type: isAmountOff ? values.discount_value_type ?? null : null,
     discount_amount:
       isAmountOff && values.discount_amount ? values.discount_amount : null,
@@ -110,6 +145,14 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     usage_limit: values.has_usage_limit ? values.usage_limit : null,
     has_customer_limit: values.has_customer_limit,
     customer_limit: values.has_customer_limit ? values.customer_limit : null,
+    product_ids:
+      eligibleItemType === 'specific-products'
+        ? (values.products ?? []).map((product) => product.productId)
+        : [],
+    category_ids:
+      eligibleItemType === 'specific-categories'
+        ? (values.categories ?? []).map((category) => category.id)
+        : [],
   };
 });
 
@@ -117,5 +160,6 @@ type CouponFormPayload = z.output<typeof CouponFormSchema>;
 
 type CouponFormInput = z.input<typeof CouponFormSchema>;
 
-export { type CouponFormInput, type CouponFormPayload, CouponFormSchema };
+export { CouponFormSchema };
+export type { CouponFormInput, CouponFormPayload };
 

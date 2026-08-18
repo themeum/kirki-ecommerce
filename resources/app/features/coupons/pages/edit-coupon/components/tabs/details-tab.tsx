@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
+import RadioGroupField from '@/components/form/radio-group-field';
+import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +12,9 @@ import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Spinner from '@/components/ui/spinner';
 import Text from '@/components/ui/text';
-import DiscountTypeSelector from '@/features/coupons/pages/edit-coupon/components/contents/discount-type-selector';
-import DiscountValueSection from '@/features/coupons/pages/edit-coupon/components/contents/discount-value-section';
-import ValidityPeriodSection from '@/features/coupons/pages/edit-coupon/components/contents/validity-period-section';
+import DiscountTypeField from '@/features/coupons/pages/edit-coupon/components/fields/discount-type-field';
+import DiscountValueSection from '@/features/coupons/pages/edit-coupon/components/sections/discount-value-section';
+import ValidityPeriodSection from '@/features/coupons/pages/edit-coupon/components/sections/validity-period-section';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { useGenerateNewCodeQuery, useValidateQuery } from '@/features/coupons/services/coupon';
 import { useDebounce } from '@/hooks';
@@ -71,9 +73,8 @@ const DetailsTab = () => {
         </CardHeader>
         <CardContent>
           <Flex direction="column" gap={4}>
-            {/* TODO: Add method field later */}
-            {/* <RadioGroupField
-              name='method'
+            <RadioGroupField
+              name="method"
               cssOverride={styles.methodField}
               label={__('Method', 'kirki-ecommerce')}
               options={[
@@ -86,8 +87,7 @@ const DetailsTab = () => {
                   value: 'automatic',
                 },
               ]}
-            /> */}
-
+            />
             <Grid>
               <TextField
                 name="title"
@@ -140,21 +140,21 @@ const DetailsTab = () => {
 
             <Field>
               <FieldLabel>{__('Discount Type', 'kirki-ecommerce')}</FieldLabel>
-              <DiscountTypeSelector />
+              <DiscountTypeField />
             </Field>
-
-            {/* TODO: Add discount target field later */}
-            {/* {isAmountOff && (
-              <SelectField
-                name="discount_target"
-                label={__('Discount Target', 'kirki-ecommerce')}
-                placeholder={__('Select target', 'kirki-ecommerce')}
-                options={[
-                  { value: 'products', label: __('Products', 'kirki-ecommerce') },
-                  { value: 'order', label: __('Entire Order', 'kirki-ecommerce') },
-                ]}
-              />
-            )} */}
+            {isAmountOff && (
+              <>
+                <SelectField
+                  name="discount_target"
+                  label={__('Discount Target', 'kirki-ecommerce')}
+                  placeholder={__('Select target', 'kirki-ecommerce')}
+                  options={[
+                    { value: 'products', label: __('Products', 'kirki-ecommerce') },
+                    { value: 'order', label: __('Entire Order', 'kirki-ecommerce') },
+                  ]}
+                />
+              </>
+            )}
           </Flex>
         </CardContent>
       </Card>

@@ -1,9 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CheckSquare, Tag } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import type { FieldErrors } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
-// import ConditionsTab from './components/tabs/conditions-tab';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
@@ -11,6 +12,8 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
@@ -24,6 +27,7 @@ import {
   useCreateCouponMutation,
   useUpdateCouponMutation,
 } from '@/features/coupons/services/coupon';
+import { buildProductSelection } from '@/features/products';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -34,65 +38,67 @@ import { __ } from '@/wpi18n';
 
 import { splitIsoDateTime } from '../../lib/coupon-datetime';
 import CouponPreview from './components/coupon-preview';
+import ConditionsTab from './components/tabs/conditions-tab';
 import DetailsTab from './components/tabs/details-tab';
 
-// const DETAILS_TAB_FIELDS: (keyof CouponFormValues)[] = [
-//   'method',
-//   'title',
-//   'code',
-//   'discount_type',
-//   'discount_target',
-//   'discount_value_type',
-//   'discount_amount',
-//   'start_date',
-//   'start_time',
-//   'has_end_datetime',
-//   'end_date',
-//   'end_time',
-// ];
+const DETAILS_TAB_FIELDS: (keyof CouponFormInput)[] = [
+  'method',
+  'title',
+  'code',
+  'discount_type',
+  'discount_target',
+  'eligible_item_type',
+  'products',
+  'categories',
+  'discount_value_type',
+  'discount_amount',
+  'start_date',
+  'start_time',
+  'has_end_datetime',
+  'end_date',
+  'end_time',
+];
 
-// const CONDITIONS_TAB_FIELDS: (keyof CouponFormValues)[] = [
-//   'has_usage_limit',
-//   'usage_limit',
-//   'has_customer_limit',
-//   'customer_limit',
-// ];
+const CONDITIONS_TAB_FIELDS: (keyof CouponFormInput)[] = [
+  'has_usage_limit',
+  'usage_limit',
+  'has_customer_limit',
+  'customer_limit',
+];
 
-// TODO: Add tabs later
-// const tabOptions = [
-//   {
-//     index: 'detail',
-//     title: __('Details', 'kirki-ecommerce'),
-//     icon: <Tag size={16} />,
-//     fields: DETAILS_TAB_FIELDS,
-//     hasTabError: (errors: FieldErrors<CouponFormValues>) =>
-//       DETAILS_TAB_FIELDS.some((field) => Boolean(errors[field])),
-//   },
-//   {
-//     index: 'targeting',
-//     title: __('Targeting', 'kirki-ecommerce'),
-//     icon: <CheckSquare size={16} />,
-//     fields: [],
-//     hasTabError: () => false,
-//   },
-//   {
-//     index: 'conditions',
-//     title: __('Conditions', 'kirki-ecommerce'),
-//     icon: <CheckSquare size={16} />,
-//     fields: CONDITIONS_TAB_FIELDS,
-//     hasTabError: (errors: FieldErrors<CouponFormValues>) =>
-//       CONDITIONS_TAB_FIELDS.some((field) => Boolean(errors[field]))
-//     ,
-//   }
-// ] as const;
+const tabOptions = [
+  {
+    index: 'detail',
+    title: __('Details', 'kirki-ecommerce'),
+    icon: <Tag size={16} />,
+    fields: DETAILS_TAB_FIELDS,
+    hasTabError: (errors: FieldErrors<CouponFormInput>) =>
+      DETAILS_TAB_FIELDS.some((field) => Boolean(errors[field])),
+  },
+  {
+    index: 'targeting',
+    title: __('Targeting', 'kirki-ecommerce'),
+    icon: <CheckSquare size={16} />,
+    fields: [],
+    hasTabError: () => false,
+  },
+  {
+    index: 'conditions',
+    title: __('Conditions', 'kirki-ecommerce'),
+    icon: <CheckSquare size={16} />,
+    fields: CONDITIONS_TAB_FIELDS,
+    hasTabError: (errors: FieldErrors<CouponFormInput>) =>
+      CONDITIONS_TAB_FIELDS.some((field) => Boolean(errors[field]))
+    ,
+  },
+] as const;
 
 
 const EditCoupon = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = id === NEW_ITEM_ID;
-  const activeTab = 'detail';
-  // const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState<typeof tabOptions[number]['index']>('detail');
   const [couponId, setCouponId] = useState<number>();
 
   const { data: couponInfo } = useCouponQuery(id ?? '');
@@ -105,8 +111,7 @@ const EditCoupon = () => {
     defaultValues: getDefaults(CouponFormSchema),
   });
 
-  // TODO: uncomment later
-  // const { errors } = form.formState;
+  const { errors } = form.formState;
 
   useEffect(() => {
     if (!couponInfo) {
@@ -125,6 +130,7 @@ const EditCoupon = () => {
         start_time: start.time,
         end_date: end.date,
         end_time: end.time,
+        products: couponInfo.products.map(buildProductSelection),
       }),
     );
   }, [couponInfo, form]);
@@ -193,10 +199,9 @@ const EditCoupon = () => {
         <Container>
           <Flex gap={4}>
             <Flex direction="column" gap={4} basis="70%" grow={1}>
-              {/* TODO: Tab will implement later */}
-              {/* <Tabs
-                value={String(activeTab)}
-                onValueChange={(value) => setActiveTab(Number(value))}
+              <Tabs
+                value={activeTab}
+                onValueChange={(value) => setActiveTab(value as typeof tabOptions[number]['index'])}
               >
                 <TabsList cssOverride={styles.tabsList}>
                   {
@@ -204,24 +209,24 @@ const EditCoupon = () => {
                       const hasError = option.hasTabError(errors);
                       return (
                         <TabsTrigger
-                          value={String(option.index)}
+                          value={option.index}
                           cssOverride={{ ...styles.tab, ...(hasError && activeTab !== option.index ? styles.tabError : {}) }}
                           key={index}
                         >
                           {option.icon}
-                          <Text variant="small" weight='medium'>{option.title} {hasError && activeTab !== option.index && <span css={styles.tabErrorMark}>*</span>}</Text>
+                          <Text variant="small" weight="medium">{option.title} {hasError && activeTab !== option.index && <span css={styles.tabErrorMark}>*</span>}</Text>
                         </TabsTrigger>
                       );
                     })
                   }
                 </TabsList>
-              </Tabs> */}
+              </Tabs>
 
               {activeTab === 'detail' && <DetailsTab />}
-              {/* {activeTab === 'targeting' && (
+              {activeTab === 'targeting' && (
                 <></>
               )}
-              {activeTab === 'conditions' && <ConditionsTab />} */}
+              {activeTab === 'conditions' && <ConditionsTab />}
             </Flex>
 
             <div css={scoped(styles.sidebar)}>

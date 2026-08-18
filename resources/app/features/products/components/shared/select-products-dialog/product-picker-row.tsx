@@ -8,7 +8,7 @@ import Thumbnail from '@/components/ui/thumbnail';
 import type {
   ProductSelection,
   ProductVariantSelection,
-} from '@/features/products/components/select-products-dialog/types';
+} from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { ChevronDownIcon } from '@/icons';
 import { __ } from '@/wpi18n';

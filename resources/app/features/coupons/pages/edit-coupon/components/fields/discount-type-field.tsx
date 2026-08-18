@@ -20,7 +20,7 @@ const options = [
     value: 'free-shipping',
     label: __('Free Shipping', 'kirki-ecommerce'),
     icon: <Truck size={20} />,
-    hidden: true,
+    hidden: false,
   },
   {
     value: 'buy-x-get-y',
@@ -30,7 +30,7 @@ const options = [
   },
 ] as const;
 
-const DiscountTypeSelector = () => {
+const DiscountTypeField = () => {
   const { control } = useFormContext<CouponFormInput>();
 
   return (
@@ -42,7 +42,6 @@ const DiscountTypeSelector = () => {
           value={field.value}
           onValueChange={field.onChange}
           cssOverride={styles.root}
-          disabled
         >
           {options.map((option) => {
             const optionId = `discount-type-${option.value}`;
@@ -77,9 +76,9 @@ const DiscountTypeSelector = () => {
   );
 };
 
-DiscountTypeSelector.displayName = 'DiscountTypeSelector';
+DiscountTypeField.displayName = 'DiscountTypeField';
 
-export default DiscountTypeSelector;
+export default DiscountTypeField;
 
 const styles = defineStyles({
   root: {

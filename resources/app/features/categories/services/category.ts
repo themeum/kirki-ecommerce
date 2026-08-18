@@ -59,11 +59,12 @@ const bulkDeleteCategories = ({
     .then((response) => parseMessage(response));
 };
 
-const useCategoriesQuery = (params: ListQueryParams = {}) => {
+const useCategoriesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: categoryKeys.list(params),
     queryFn: () => getCategories(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 

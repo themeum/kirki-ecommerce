@@ -1,11 +1,15 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import CategoriesDropdownField from '@/components/form/categories-dropdown-field';
 import NumberField from '@/components/form/number-field';
 import SelectField from '@/components/form/select-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Field } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
+import ProductSelectionField from '@/features/coupons/pages/edit-coupon/components/fields/product-selection-field';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -16,6 +20,13 @@ const DiscountValueSection = () => {
     name: 'discount_value_type',
     control,
   })
+  const discountTarget = useWatch({ control, name: 'discount_target' });
+  const eligibleItemType = useWatch({ control, name: 'eligible_item_type' });
+  const { data: categoryData } = useCategoriesQuery(
+    { limit: -1 },
+    eligibleItemType === 'specific-categories',
+  );
+  const categories = categoryData?.results ?? [];
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
@@ -49,39 +60,35 @@ const DiscountValueSection = () => {
           </Grid>
 
           {/* TODO: Add eligible items field later */}
-          {/* <Field>
-            <Flex justify="space-between" align="center">
-              <FieldLabel>{__('Eligible Items', 'kirki-ecommerce')}</FieldLabel>
-              <Badge variant="secondary">{__('Coming soon', 'kirki-ecommerce')}</Badge>
-            </Flex>
-            <Select disabled defaultValue="specific-products">
-              <SelectTrigger disabled>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="specific-products">
-                  {__('Specific Products', 'kirki-ecommerce')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <Placeholder type="primary">
-              <ThumbnailPlaceholder />
-            </Placeholder>
-            <Button type="button" variant="secondary" disabled css={styles.selectProductsButton}>
-              {__('Select Products', 'kirki-ecommerce')}
-            </Button>
-          </Field> */}
+          <Field>
+            {discountTarget === 'products' && (
+              <>
+                <SelectField
+                  name="eligible_item_type"
+                  label={__('Eligible Items', 'kirki-ecommerce')}
+                  placeholder={__('Select eligible items', 'kirki-ecommerce')}
+                  options={[
+                    { value: 'all-products', label: __('All Products', 'kirki-ecommerce') },
+                    { value: 'specific-products', label: __('Specific Products', 'kirki-ecommerce') },
+                    { value: 'specific-categories', label: __('Specific Categories', 'kirki-ecommerce') },
+                  ]}
+                />
+                {eligibleItemType === 'specific-products' && <ProductSelectionField />}
+                {eligibleItemType === 'specific-categories' && (
+                  <CategoriesDropdownField
+                    name="categories"
+                    categories={categories}
+                    label={__('Categories', 'kirki-ecommerce')}
+                    placeholder={__('Search categories..', 'kirki-ecommerce')}
+                  />
+                )}
+              </>
+            )}
+          </Field>
         </Flex>
       </CardContent>
     </Card>
   )
 };
-
-
-// const styles = {
-//   selectProductsButton: scoped({
-//     width: '100%',
-//   }),
-// };
 
 export default DiscountValueSection

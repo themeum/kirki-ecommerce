@@ -6,6 +6,8 @@ use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Resources\CategoryResource;
+use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
@@ -52,8 +54,8 @@ class CouponResource extends Resource
             'current_usage_count' => $this->current_usage_count ?? 0,
             'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             'status' => $this->get_status(),
-            'categories' => !empty($this->categories) ? $this->categories->pluck('id')->all() : [],
-            'products' => !empty($this->products) ? $this->products->pluck('id')->all() : [],
+            'categories' => !empty($this->categories) ? CategoryResource::collection($this->categories) : [],
+            'products' => !empty($this->products) ? ProductListWithVariantsResource::collection($this->products) : [],
             'customers' => !empty($this->customers) ? $this->customers->pluck('id')->all() : [],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

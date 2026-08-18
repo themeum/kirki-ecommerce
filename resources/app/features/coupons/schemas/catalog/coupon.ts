@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { CategorySchema } from '@/features/categories/schemas/catalog/category';
+import { ProductListItemWithVariantsSchema } from '@/features/products/schemas/catalog/product';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
 
 export const CouponStatusSchema = z.enum([
@@ -27,6 +29,14 @@ export const CouponDiscountTargetSchema = z.enum(['order', 'products']);
 
 export type CouponDiscountTarget = z.infer<typeof CouponDiscountTargetSchema>;
 
+export const CouponEligibleItemTypeSchema = z.enum([
+  'all-products',
+  'specific-products',
+  'specific-categories',
+]);
+
+export type CouponEligibleItemType = z.infer<typeof CouponEligibleItemTypeSchema>;
+
 export const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
 
 export type CouponDiscountValueType = z.infer<
@@ -52,7 +62,7 @@ export const CouponSchema = z.object({
   base_discount_amount_money_object: z.any(),
   display_discount_amount: MoneyAmountSchema.nullish(),
   display_discount_amount_money_object: z.any(),
-  eligible_item_type: z.enum(['specific-products', 'specific-categories', 'all-products']).nullish(),
+  eligible_item_type: CouponEligibleItemTypeSchema.nullish(),
   spend_condition_type: z.enum(['min-cart-amount', 'min-items']).nullish(),
   spend_condition_value: z.number().nullish(),
   reward_quantity: z.number().nullish(),
@@ -71,6 +81,8 @@ export const CouponSchema = z.object({
   current_usage_count: z.number().default(0),
   is_active: z.boolean().default(true),
   status: CouponStatusSchema,
+  products: z.array(ProductListItemWithVariantsSchema).default([]),
+  categories: z.array(CategorySchema).default([]),
   created_by: z.number().nullish(),
   updated_by: z.number().nullish(),
   created_at: z.string().nullish(),

@@ -22,6 +22,21 @@ use function Kirki\Ecommerce\Framework\user;
 class CouponService
 {
     /**
+     * Relations required to render a single coupon through CouponResource.
+     *
+     * @var array
+     */
+    const DETAIL_RELATIONS = [
+        'categories',
+        'customers',
+        'products.media',
+        'products.attributes',
+        'products.attribute_values',
+        'products.variants.attribute_values',
+        'products.variants.product',
+    ];
+
+    /**
      * Return paginated coupons
      *
      * @param CouponFilterDTO $filters
@@ -52,7 +67,7 @@ class CouponService
      */
     public function find(int $id)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
+        $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
         if (!$coupon) {
             throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -279,7 +294,7 @@ class CouponService
      */
     public function change_activation_state(int $id, bool $is_active)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
+        $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
         if ($is_active && $coupon->is_active) {
             throw new Exception(__('The coupon is already activated', 'kirki-ecommerce'));

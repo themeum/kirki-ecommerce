@@ -312,9 +312,40 @@ class CouponApiTest extends RestTestCase
 
         $this->assertNotEquals($this->coupon_id, $duplicated['id']);
         $this->assertEquals('Coupon With Associations - Copy', $duplicated['title']);
-        $this->assertEqualsCanonicalizing([$category['id']], $duplicated['categories']);
+        $this->assertEqualsCanonicalizing([$category['id']], array_column($duplicated['categories'], 'id'));
         $this->assertEqualsCanonicalizing([$customer['id']], $duplicated['customers']);
-        $this->assertEqualsCanonicalizing([$product['id'], $reward_product['id']], $duplicated['products']);
+        $this->assertEqualsCanonicalizing([$product['id'], $reward_product['id']], array_column($duplicated['products'], 'id'));
+    }
+
+    /**
+     * Show coupon returns targeted products with the details the edit form renders.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_coupon_returns_detailed_products(): void
+    {
+        $product = $this->create_product();
+
+        $coupon = $this->create_coupon([
+            'title' => 'Coupon With Product Details',
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'product_ids' => [$product['id']],
+        ]);
+
+        $this->coupon_id = $coupon['id'];
+
+        $response = $this->request('GET', 'coupons/' . $this->coupon_id);
+        $payload = $this->assert_api_success($response);
+
+        $products = $payload['data']['products'];
+        $this->assertCount(1, $products);
+        $this->assertEquals($product['id'], $products[0]['id']);
+        $this->assertEquals($product['title'], $products[0]['title']);
+        $this->assertArrayHasKey('image', $products[0]);
+        $this->assertArrayHasKey('attributes', $products[0]);
+        $this->assertNotEmpty($products[0]['variants']);
     }
 
     /**
