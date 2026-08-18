@@ -8,6 +8,8 @@
   max-width: 1440px;
   margin: 0 auto;
   padding: $spacing-0 $spacing-10;
+  display: flex;
+  gap: 35px;
 
   &-title {
     font-size: 2.25rem;
@@ -17,7 +19,7 @@
     font-weight: 800;
     margin: 0;
     padding: 0;
-    margin-top: 30px;
+    margin-top: 20px;
   }
 
   &-info {

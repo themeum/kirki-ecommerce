@@ -130,11 +130,14 @@ class Url
      *
      * @since 1.0.0
      *
-     * @return string
+     * @param string|null $path Path to append to the account URL.
+     *
+     * @return string The account URL.
      */
-    public static function get_account_url()
+    public static function get_account_url($path = null)
     {
-        return Route::site_url('account');
+        $url = Route::site_url('account');
+        return $path ? $url . '/' . ltrim($path, '/') : $url;
     }
 
     /**

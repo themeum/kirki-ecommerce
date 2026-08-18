@@ -13,6 +13,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -25,8 +26,6 @@ Route::site(function () {
     $shop_page_id = Utils::get_shop_page_id();
     $cart_page_id = Utils::get_cart_page_id();
     $checkout_page_id = Utils::get_checkout_page_id();
-    $account_page_id = Utils::get_account_page_id();
-    $design_system_page_id = Utils::get_design_system_page_id();
     $login_page_id = Utils::get_login_page_id();
     $register_page_id = Utils::get_registration_page_id();
 
@@ -64,15 +63,27 @@ Route::site(function () {
         ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
         ->match_page();
+});
 
-    Route::get($account_page_id, [SiteController::class, 'account_page'])
-        ->middleware(SiteAuthMiddleware::class)
-        ->name('account')
-        ->match_page();
+// Customer account routes.
+Route::site(function () {
+    $account_pages = Utils::get_account_pages();
+    $account_page = $account_pages['dashboard'];
+    $account_page_slug = $account_page['route_path'];
 
-    // TODO: will be removed.
-    Route::get($design_system_page_id, [SiteController::class, 'design_system_page'])
+    Route::get($account_page_slug, $account_page['callback'])
         ->middleware(SiteAuthMiddleware::class)
-        ->name('design_system')
-        ->match_page();
+        ->name($account_page['route_name']);
+
+    foreach ($account_pages as $key => $page) {
+        if (isset($page['callback']) && is_callable($page['callback'])) {
+            Route::get($page['route_path'], $page['callback'])
+                ->middleware(SiteAuthMiddleware::class)
+                ->name($page['route_name']);
+        }
+    }
+
+    Route::get($account_page_slug . '/orders/{uuid}', [AccountController::class, 'order_details'])
+        ->middleware(SiteAuthMiddleware::class)
+        ->name('account.orders.show');
 });

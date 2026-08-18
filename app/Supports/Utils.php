@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
@@ -70,6 +71,59 @@ class Utils
         ];
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
+
+        return $pages;
+    }
+
+    /**
+     * Get account pages.
+     *
+     * @since 1.0.0
+     *
+     * @return array The account pages.
+     */
+    public static function get_account_pages()
+    {
+        $account_page_id = Utils::get_account_page_id();
+        $account_page = get_post($account_page_id);
+        $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
+
+        $pages = [
+            'dashboard' => [
+                'title' => __('Dashboard', 'kirki-ecommerce'),
+                'icon'  => 'dashboard',
+                'url' => Url::get_account_url(),
+                'route_path' => $account_page_slug,
+                'route_name' => 'account',
+                'callback' => [AccountController::class, 'dashboard']
+            ],
+            'orders' => [
+                'title' => __('Orders', 'kirki-ecommerce'),
+                'icon'  => 'orders',
+                'url' => Url::get_account_url('orders'),
+                'route_path' => $account_page_slug . '/orders',
+                'route_name' => 'account.orders',
+                'callback' => [AccountController::class, 'orders']
+            ],
+            'addresses' => [
+                'title' => __('Addresses', 'kirki-ecommerce'),
+                'icon'  => 'addresses',
+                'url' => Url::get_account_url('addresses'),
+                'route_path' => $account_page_slug . '/addresses',
+                'route_name' => 'account.addresses',
+                'callback' => [AccountController::class,'addresses'],
+            ],
+            'account-details' => [
+                'title' => __('Account Details', 'kirki-ecommerce'),
+                'icon'  => 'account-details',
+                'url' => Url::get_account_url('account-details'),
+                'route_path' => $account_page_slug . '/account-details',
+                'route_name' => 'account.account-details',
+                'callback' => [AccountController::class,'account_details'],
+            ],
+        ];
+
+        $pages = apply_filters('kirki_ecommerce_account_pages', $pages);
 
         return $pages;
     }
