@@ -294,7 +294,7 @@ class CouponApiTest extends RestTestCase
         $original = $this->create_coupon([
             'title' => 'Coupon With Associations',
             'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
-            'customer_eligibility' => CustomerEligibility::SPECIFIC_CUSTOMERS,
+            'customer_include_eligibility' => CustomerEligibility::SPECIFIC_CUSTOMERS,
             'category_ids' => [$category['id']],
             'product_ids' => [$product['id']],
             'reward_product_ids' => [$reward_product['id']],
@@ -450,7 +450,7 @@ class CouponApiTest extends RestTestCase
             'discount_amount' => 10,
             'start_datetime' => '2025-01-01T00:00:00+00:00',
             'has_end_datetime' => false,
-            'customer_eligibility' => CustomerEligibility::ALL,
+            'customer_include_eligibility' => CustomerEligibility::ALL,
             'is_active' => true,
         ];
 

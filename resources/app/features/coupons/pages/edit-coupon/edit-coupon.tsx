@@ -62,6 +62,11 @@ const DETAILS_TAB_FIELDS: (keyof CouponFormInput)[] = [
 const TARGETING_TAB_FIELDS: (keyof CouponFormInput)[] = [
   'target_country_type',
   'target_countries',
+  'first_time_buyer_only',
+  'customer_include_eligibility',
+  'include_customers',
+  'customer_exclude_eligibility',
+  'exclude_customers',
 ];
 
 const CONDITIONS_TAB_FIELDS: (keyof CouponFormInput)[] = [
@@ -137,6 +142,8 @@ const EditCoupon = () => {
         end_date: end.date,
         end_time: end.time,
         products: couponInfo.products.map(buildProductSelection),
+        include_customers: couponInfo.customers,
+        exclude_customers: couponInfo.excluded_customers,
       }),
     );
   }, [couponInfo, form]);

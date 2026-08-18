@@ -35,7 +35,6 @@ const DiscountTypeField = () => {
           label: option.label,
           icon: option.icon,
         }))}
-      disabled
     />
   );
 };

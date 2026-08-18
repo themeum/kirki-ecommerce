@@ -5,6 +5,7 @@ import { CategorySchema } from '@/features/categories';
 import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import type { CouponEligibleItemType } from '@/features/coupons/schemas/catalog/coupon';
 import {
+  CouponCustomerEligibilitySchema,
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
@@ -12,6 +13,7 @@ import {
   CouponMethodSchema,
   CouponTargetCountryTypeSchema,
 } from '@/features/coupons/schemas/catalog/coupon';
+import { CustomerInfoSchema } from '@/features/customers/schemas/catalog/customer';
 import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
 import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
 import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
@@ -120,6 +122,23 @@ const CouponFormShape = z.object({
       isEmptyValue(values.target_countries),
     __('Select at least one region', 'kirki-ecommerce'),
   ),
+  first_time_buyer_only: z.boolean().default(false),
+  customer_include_eligibility: CouponCustomerEligibilitySchema.default('all'),
+  include_customers: requiredWhen(
+    z.array(CustomerInfoSchema).nullish().default([]),
+    (values) =>
+      values.customer_include_eligibility === 'specific-customers' &&
+      isEmptyValue(values.include_customers),
+    __('Select at least one customer', 'kirki-ecommerce'),
+  ),
+  customer_exclude_eligibility: CouponCustomerEligibilitySchema.default('none'),
+  exclude_customers: requiredWhen(
+    z.array(CustomerInfoSchema).nullish().default([]),
+    (values) =>
+      values.customer_exclude_eligibility === 'specific-customers' &&
+      isEmptyValue(values.exclude_customers),
+    __('Select at least one customer', 'kirki-ecommerce'),
+  ),
 });
 
 /** Formats to the same ATOM string the wire layer expects — no Date object survives into the payload. */
@@ -168,6 +187,17 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
       values.target_country_type === 'specific-countries'
         ? values.target_countries ?? []
         : null,
+    first_time_buyer_only: values.first_time_buyer_only,
+    customer_include_eligibility: values.customer_include_eligibility,
+    customer_ids:
+      values.customer_include_eligibility === 'specific-customers'
+        ? (values.include_customers ?? []).map((customer) => customer.id)
+        : [],
+    customer_exclude_eligibility: values.customer_exclude_eligibility,
+    exclude_customer_ids:
+      values.customer_exclude_eligibility === 'specific-customers'
+        ? (values.exclude_customers ?? []).map((customer) => customer.id)
+        : [],
   };
 });
 

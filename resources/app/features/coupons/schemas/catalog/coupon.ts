@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { CategorySchema } from '@/features/categories/schemas/catalog/category';
+import { CustomerInfoSchema } from '@/features/customers/schemas/catalog/customer';
 import { ProductListItemWithVariantsSchema } from '@/features/products/schemas/catalog/product';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { RegionSchema } from '@/schemas/shared/region';
@@ -45,6 +46,15 @@ export const CouponTargetCountryTypeSchema = z.enum([
 
 export type CouponTargetCountryType = z.infer<typeof CouponTargetCountryTypeSchema>;
 
+export const CouponCustomerEligibilitySchema = z.enum([
+  'none',
+  'all',
+  'specific-customers',
+  'specific-groups',
+]);
+
+export type CouponCustomerEligibility = z.infer<typeof CouponCustomerEligibilitySchema>;
+
 export const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
 
 export type CouponDiscountValueType = z.infer<
@@ -81,8 +91,8 @@ export const CouponSchema = z.object({
   target_country_type: CouponTargetCountryTypeSchema.default('all-countries'),
   target_countries: z.array(RegionSchema).nullish(),
   first_time_buyer_only: z.boolean().default(false),
-  customer_eligibility: z.enum(['specific-customers', 'specific-groups', 'all']).default('all'),
-  exclude_customers: z.boolean().default(false),
+  customer_include_eligibility: CouponCustomerEligibilitySchema.default('all'),
+  customer_exclude_eligibility: CouponCustomerEligibilitySchema.default('none'),
   has_usage_limit: z.boolean().default(false),
   usage_limit: z.number().nullish(),
   has_customer_limit: z.boolean().default(false),
@@ -92,6 +102,8 @@ export const CouponSchema = z.object({
   status: CouponStatusSchema,
   products: z.array(ProductListItemWithVariantsSchema).default([]),
   categories: z.array(CategorySchema).default([]),
+  customers: z.array(CustomerInfoSchema).default([]),
+  excluded_customers: z.array(CustomerInfoSchema).default([]),
   created_by: z.number().nullish(),
   updated_by: z.number().nullish(),
   created_at: z.string().nullish(),

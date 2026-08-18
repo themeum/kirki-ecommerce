@@ -64,10 +64,10 @@ class UpdateCouponDTO extends DTO
     public $first_time_buyer_only = false;
 
     /** @var string */
-    public $customer_eligibility = 'all';
+    public $customer_include_eligibility = 'all';
 
-    /** @var bool */
-    public $exclude_customers = false;
+    /** @var string */
+    public $customer_exclude_eligibility = 'none';
 
     /** @var bool */
     public $has_usage_limit = false;
@@ -92,6 +92,9 @@ class UpdateCouponDTO extends DTO
 
     /** @var array */
     public $customer_ids = [];
+
+    /** @var array */
+    public $exclude_customer_ids = [];
 
     /** @var array */
     public $reward_product_ids = [];

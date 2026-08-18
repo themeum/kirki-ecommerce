@@ -63,69 +63,76 @@ const UsageLimitRow = ({
   );
 };
 
-const ConditionsTab = () => (
-  <Flex direction="column" gap={4}>
-    <Card cssOverride={cardStyles.formCard}>
-      <CardHeader>
-        <CardTitle>{__('Usage Limit', 'kirki-ecommerce')}</CardTitle>
-        <Text variant="small" color="secondary">
-          {__('Limit the usage of the coupon', 'kirki-ecommerce')}
-        </Text>
-      </CardHeader>
-      <CardContent>
-        <Flex direction="column" gap={3}>
-          <UsageLimitRow
-            checkboxName="has_usage_limit"
-            inputName="usage_limit"
-            label={__(
-              'Limit number of times this discount can be used in total',
-              'kirki-ecommerce',
-            )}
-            tooltip={__(
-              'Once this limit is reached, the coupon can no longer be used.',
-              'kirki-ecommerce',
-            )}
-          />
-          <UsageLimitRow
-            checkboxName="has_customer_limit"
-            inputName="customer_limit"
-            label={__('Limit usage per customer', 'kirki-ecommerce')}
-            tooltip={__(
-              'Each customer can use this coupon up to this many times.',
-              'kirki-ecommerce',
-            )}
-          />
-        </Flex>
-      </CardContent>
-    </Card>
+const ConditionsTab = () => {
+  const { control } = useFormContext<CouponFormInput>();
+  const discountType = useWatch({ control, name: 'discount_type' });
+  return (
+    <Flex direction="column" gap={4}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardHeader>
+          <CardTitle>{__('Usage Limit', 'kirki-ecommerce')}</CardTitle>
+          <Text variant="small" color="secondary">
+            {__('Limit the usage of the coupon', 'kirki-ecommerce')}
+          </Text>
+        </CardHeader>
+        <CardContent>
+          <Flex direction="column" gap={3}>
+            <UsageLimitRow
+              checkboxName="has_usage_limit"
+              inputName="usage_limit"
+              label={__(
+                'Limit number of times this discount can be used in total',
+                'kirki-ecommerce',
+              )}
+              tooltip={__(
+                'Once this limit is reached, the coupon can no longer be used.',
+                'kirki-ecommerce',
+              )}
+            />
+            <UsageLimitRow
+              checkboxName="has_customer_limit"
+              inputName="customer_limit"
+              label={__('Limit usage per customer', 'kirki-ecommerce')}
+              tooltip={__(
+                'Each customer can use this coupon up to this many times.',
+                'kirki-ecommerce',
+              )}
+            />
+          </Flex>
+        </CardContent>
+      </Card>
+      {
+        discountType !== 'free-shipping' && (
+          <Card cssOverride={cardStyles.formCard}>
+            <CardHeader>
+              <CardTitle>{__('Combinations', 'kirki-ecommerce')}</CardTitle>
+              <Text variant="small" color="secondary">
+                {__(
+                  'Define how the coupon can be combined with other coupons',
+                  'kirki-ecommerce',
+                )}
+              </Text>
+            </CardHeader>
+            <CardContent>
+              <Flex direction="column" gap={3}>
+                {combinationOptions.map((option) => {
+                  const optionId = `combination-${option.id}`;
 
-    <Card cssOverride={cardStyles.formCard}>
-      <CardHeader>
-        <CardTitle>{__('Combinations', 'kirki-ecommerce')}</CardTitle>
-        <Text variant="small" color="secondary">
-          {__(
-            'Define how the coupon can be combined with other coupons',
-            'kirki-ecommerce',
-          )}
-        </Text>
-      </CardHeader>
-      <CardContent>
-        <Flex direction="column" gap={3}>
-          {combinationOptions.map((option) => {
-            const optionId = `combination-${option.id}`;
-
-            return (
-              <Field key={option.id} orientation="horizontal">
-                <Checkbox id={optionId} checked={false} disabled />
-                <FieldLabel htmlFor={optionId}>{option.label}</FieldLabel>
-              </Field>
-            );
-          })}
-        </Flex>
-      </CardContent>
-    </Card>
-  </Flex>
-);
+                  return (
+                    <Field key={option.id} orientation="horizontal">
+                      <Checkbox id={optionId} checked={false} disabled />
+                      <FieldLabel htmlFor={optionId}>{option.label}</FieldLabel>
+                    </Field>
+                  );
+                })}
+              </Flex>
+            </CardContent>
+          </Card>
+        )
+      }
+    </Flex>
+  );
+}
 
 ConditionsTab.displayName = 'ConditionsTab';
 

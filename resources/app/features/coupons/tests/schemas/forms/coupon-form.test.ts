@@ -52,6 +52,11 @@ describe('CouponFormSchema', () => {
       category_ids: [],
       target_country_type: 'all-countries',
       target_countries: null,
+      first_time_buyer_only: false,
+      customer_include_eligibility: 'all',
+      customer_ids: [],
+      customer_exclude_eligibility: 'none',
+      exclude_customer_ids: [],
     });
   });
 
@@ -243,6 +248,78 @@ describe('CouponFormSchema', () => {
       target_countries: [{ country: 'US', states: [] }],
     });
     expect(result.target_countries).toEqual(null);
+  });
+
+  const customer = (id: number) => ({
+    id,
+    first_name: `Customer ${id}`,
+    last_name: null,
+    email: `customer${id}@example.com`,
+  });
+
+  it('flattens both customer selections to their id lists', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'specific-customers',
+      include_customers: [customer(1), customer(2)],
+      customer_exclude_eligibility: 'specific-customers',
+      exclude_customers: [customer(3)],
+    });
+    expect(result.customer_ids).toEqual([1, 2]);
+    expect(result.exclude_customer_ids).toEqual([3]);
+  });
+
+  it('empties each customer list when its eligibility is not specific-customers', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'all',
+      include_customers: [customer(1)],
+      customer_exclude_eligibility: 'none',
+      exclude_customers: [customer(3)],
+    });
+    expect(result.customer_ids).toEqual([]);
+    expect(result.exclude_customer_ids).toEqual([]);
+  });
+
+  it('carries a guests-only pairing of include none and exclude all', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'none',
+      customer_exclude_eligibility: 'all',
+    });
+    expect(result.customer_include_eligibility).toBe('none');
+    expect(result.customer_exclude_eligibility).toBe('all');
+    expect(result.customer_ids).toEqual([]);
+    expect(result.exclude_customer_ids).toEqual([]);
+  });
+
+  it('requires a customer selection when either eligibility is specific-customers', () => {
+    const missingInclude = CouponFormSchema.safeParse({
+      ...base,
+      customer_include_eligibility: 'specific-customers',
+      include_customers: [],
+    });
+    expect(missingInclude.success).toBe(false);
+    expect(missingInclude.error?.issues[0].message).toBe('Select at least one customer');
+
+    const missingExclude = CouponFormSchema.safeParse({
+      ...base,
+      customer_exclude_eligibility: 'specific-customers',
+      exclude_customers: [],
+    });
+    expect(missingExclude.success).toBe(false);
+  });
+
+  it('keeps a customer present in both lists on both sides of the payload', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'specific-customers',
+      include_customers: [customer(1)],
+      customer_exclude_eligibility: 'specific-customers',
+      exclude_customers: [customer(1)],
+    });
+    expect(result.customer_ids).toEqual([1]);
+    expect(result.exclude_customer_ids).toEqual([1]);
   });
 
   it('rejects a blank required title or start_date', () => {

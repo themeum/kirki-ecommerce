@@ -20,13 +20,28 @@ class CouponSeeder extends Seeder
             $product_ids = $coupon_data['product_ids'];
             $category_ids = $coupon_data['category_ids'];
             $customer_ids = $coupon_data['customer_ids'];
+            $exclude_customer_ids = $coupon_data['exclude_customer_ids'];
 
-            unset($coupon_data['product_ids'], $coupon_data['category_ids'], $coupon_data['customer_ids']);
+            unset($coupon_data['product_ids'], $coupon_data['category_ids'], $coupon_data['customer_ids'], $coupon_data['exclude_customer_ids']);
 
             $coupon = Coupon::create($coupon_data);
 
-            if ($coupon_data['customer_eligibility'] === 'specific-customers' && !empty($customer_ids)) {
-                $coupon->customers()->sync($customer_ids);
+            $customer_sync_data = [];
+
+            if ($coupon_data['customer_include_eligibility'] === 'specific-customers') {
+                foreach ($customer_ids as $customer_id) {
+                    $customer_sync_data[$customer_id] = ['is_excluded' => 0];
+                }
+            }
+
+            if ($coupon_data['customer_exclude_eligibility'] === 'specific-customers') {
+                foreach ($exclude_customer_ids as $customer_id) {
+                    $customer_sync_data[$customer_id] = ['is_excluded' => 1];
+                }
+            }
+
+            if (!empty($customer_sync_data)) {
+                $coupon->customers()->sync($customer_sync_data);
             }
 
             if ($coupon_data['eligible_item_type'] === 'specific-products' && !empty($product_ids)) {

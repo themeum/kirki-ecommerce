@@ -130,7 +130,7 @@ class CouponService
             throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'reward_product_ids']);
+        $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'exclude_customer_ids', 'reward_product_ids']);
         $attributes['updated_by'] = user()->get_id();
 
         if ($data->discount_value_type === DiscountValueType::FIXED) {

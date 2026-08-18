@@ -39,7 +39,8 @@ class DuplicateCouponAction
         $data->title = $data->title . ' - Copy';
         $data->code = $this->coupon_service->generate_new_code();
         $data->category_ids = $coupon->categories->pluck('id')->to_array();
-        $data->customer_ids = $coupon->customers->pluck('id')->to_array();
+        $data->customer_ids = $coupon->customers->reject(fn($customer) => !empty($customer->pivot['is_excluded']))->pluck('id')->to_array();
+        $data->exclude_customer_ids = $coupon->customers->filter(fn($customer) => !empty($customer->pivot['is_excluded']))->pluck('id')->to_array();
         $data->product_ids = $coupon->products->reject(fn($product) => !empty($product->pivot['is_reward_item']))->pluck('id')->to_array();
         $data->reward_product_ids = $coupon->products->filter(fn($product) => !empty($product->pivot['is_reward_item']))->pluck('id')->to_array();
 

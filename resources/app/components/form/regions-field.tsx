@@ -14,7 +14,7 @@ import type { Country } from '@/schemas/reference/country';
 import type { Region } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { getSearchedCountries, getSelectedRegionTags } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
@@ -122,7 +122,7 @@ const RegionsField = <
                   </div>
                 )}
                 {tags.length === 0 && !searchValue && (
-                  <div css={scoped(mergeCss(styles.emptyState))}>
+                  <div css={scoped(styles.emptyState)}>
                     <LocationIcon />
                     <span css={scoped(styles.emptyStateText)}>{emptyText}</span>
                   </div>
@@ -205,6 +205,9 @@ const styles = defineStyles({
     alignItems: 'center',
     gap: theme.spacing[2],
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
+    marginTop: theme.spacing[2],
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    borderRadius: theme.radius.lg,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,

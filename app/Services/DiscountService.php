@@ -6,6 +6,7 @@ use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
@@ -81,16 +82,29 @@ class DiscountService
             }
         }
 
+        $excluded_customers = $coupon->customers->filter(fn($customer) => !empty($customer->pivot['is_excluded']));
+        $included_customers = $coupon->customers->reject(fn($customer) => !empty($customer->pivot['is_excluded']));
+
+        // Exclude all customers
+        if ($coupon->customer_exclude_eligibility === CustomerEligibility::ALL && $context->customer_id) {
+            throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
+        }
+
+        // Include no customers
+        if ($coupon->customer_include_eligibility === CustomerEligibility::NONE && $context->customer_id) {
+            throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
+        }
+
         // Exclude specific customers
-        if ($coupon->exclude_customers && $coupon->customers->count() > 0) {
-            if ($context->customer_id && $coupon->customers->pluck('id')->contains($context->customer_id)) {
+        if ($coupon->customer_exclude_eligibility === CustomerEligibility::SPECIFIC_CUSTOMERS && $excluded_customers->count() > 0) {
+            if ($context->customer_id && $excluded_customers->pluck('id')->contains($context->customer_id)) {
                 throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
             }
         }
 
         // Include specific customers
-        if (!$coupon->exclude_customers && $coupon->customers->count() > 0) {
-            if (!$context->customer_id || !$coupon->customers->pluck('id')->contains($context->customer_id)) {
+        if ($coupon->customer_include_eligibility === CustomerEligibility::SPECIFIC_CUSTOMERS && $included_customers->count() > 0) {
+            if (!$context->customer_id || !$included_customers->pluck('id')->contains($context->customer_id)) {
                 throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
             }
         }

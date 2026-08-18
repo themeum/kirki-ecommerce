@@ -8,14 +8,13 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-import { mergeDateTime } from '../../../lib/coupon-datetime';
 
 const formatDisplayDate = (date?: string | null, time?: string | null): string | null => {
   const merged = mergeDateTime(date ?? '', time ?? '');

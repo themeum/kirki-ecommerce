@@ -263,7 +263,7 @@ class CartApiTest extends RestTestCase
             'discount_amount' => 10,
             'start_datetime' => '2025-01-01T00:00:00+00:00',
             'has_end_datetime' => false,
-            'customer_eligibility' => CustomerEligibility::ALL,
+            'customer_include_eligibility' => CustomerEligibility::ALL,
             'is_active' => true,
         ]);
 
