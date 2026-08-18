@@ -11,6 +11,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -18,6 +19,7 @@ use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $pages = view_data('pages');
+$fallback_image_url = Assets::get_url('images/product-fallback.webp');
 ?>
 
 <?php Template::get_header(); ?>
@@ -148,70 +150,67 @@ $pages = view_data('pages');
                         <div class="kecom-order-details-col-right">
                             <div class="kecom-card kecom-order-summary-card">
                                 <!-- Order Items List -->
-                                <div class="kecom-order-items-list">
+                                <div class="kecom-product-list">
                                     <!-- Item 1 -->
-                                    <div class="kecom-order-item-row">
-                                        <div class="kecom-order-item-thumb-wrap">
-                                            <div class="kecom-order-item-thumb">
-                                                <div class="kecom-order-item-thumb-placeholder">
-                                                    <?php Icon::render('box'); ?>
-                                                </div>
+                                    <div class="kecom-product-item">
+                                        <div class="kecom-product-image-wrapper">
+                                            <img src="<?php echo esc_url($fallback_image_url); ?>" alt="Basic Heavy Weight T-shirt" class="kecom-product-image">
+                                            <span class="kecom-product-qty-badge">1</span>
+                                        </div>
+
+                                        <div class="kecom-product-info">
+                                            <a href="#" class="kecom-product-name"><?php esc_html_e('Basic Heavy Weight T-shirt', 'kirki-ecommerce'); ?></a>
+                                            <span class="kecom-product-category"><?php esc_html_e('Handcrafted Apparel', 'kirki-ecommerce'); ?></span>
+                                            <div class="kecom-product-variant">
+                                                <span>L</span>
+                                                <span>Blue</span>
                                             </div>
-                                            <span class="kecom-order-item-qty">1</span>
                                         </div>
 
-                                        <div class="kecom-order-item-details">
-                                            <h4 class="kecom-order-item-name">Basic Heavy Weight T-shirt</h4>
-                                            <span class="kecom-order-item-cat">Handcrafted Apparel</span>
-                                            <span class="kecom-order-item-variant">L • Blue</span>
-                                        </div>
-
-                                        <div class="kecom-order-item-price">
-                                            <span>$12.00</span>
+                                        <div class="kecom-product-price-wrapper">
+                                            <span class="kecom-product-price">$12.00</span>
                                         </div>
                                     </div>
 
                                     <!-- Item 2 -->
-                                    <div class="kecom-order-item-row">
-                                        <div class="kecom-order-item-thumb-wrap">
-                                            <div class="kecom-order-item-thumb">
-                                                <div class="kecom-order-item-thumb-placeholder">
-                                                    <?php Icon::render('box'); ?>
-                                                </div>
+                                    <div class="kecom-product-item">
+                                        <div class="kecom-product-image-wrapper">
+                                            <img src="<?php echo esc_url($fallback_image_url); ?>" alt="Basic Heavy Weight T-shirt" class="kecom-product-image">
+                                            <span class="kecom-product-qty-badge">1</span>
+                                        </div>
+
+                                        <div class="kecom-product-info">
+                                            <a href="#" class="kecom-product-name"><?php esc_html_e('Basic Heavy Weight T-shirt', 'kirki-ecommerce'); ?></a>
+                                            <span class="kecom-product-category"><?php esc_html_e('Handcrafted Apparel', 'kirki-ecommerce'); ?></span>
+                                            <div class="kecom-product-variant">
+                                                <span>M</span>
+                                                <span>Green</span>
                                             </div>
-                                            <span class="kecom-order-item-qty">1</span>
                                         </div>
 
-                                        <div class="kecom-order-item-details">
-                                            <h4 class="kecom-order-item-name">Basic Heavy Weight T-shirt</h4>
-                                            <span class="kecom-order-item-cat">Handcrafted Apparel</span>
-                                            <span class="kecom-order-item-variant">M • Green</span>
-                                        </div>
-
-                                        <div class="kecom-order-item-price">
-                                            <span>$12.00</span>
+                                        <div class="kecom-product-price-wrapper">
+                                            <span class="kecom-product-price">$12.00</span>
                                         </div>
                                     </div>
 
                                     <!-- Item 3 -->
-                                    <div class="kecom-order-item-row">
-                                        <div class="kecom-order-item-thumb-wrap">
-                                            <div class="kecom-order-item-thumb">
-                                                <div class="kecom-order-item-thumb-placeholder">
-                                                    <?php Icon::render('box'); ?>
-                                                </div>
+                                    <div class="kecom-product-item">
+                                        <div class="kecom-product-image-wrapper">
+                                            <img src="<?php echo esc_url($fallback_image_url); ?>" alt="Basic Heavy Weight T-shirt" class="kecom-product-image">
+                                            <span class="kecom-product-qty-badge">1</span>
+                                        </div>
+
+                                        <div class="kecom-product-info">
+                                            <a href="#" class="kecom-product-name"><?php esc_html_e('Basic Heavy Weight T-shirt', 'kirki-ecommerce'); ?></a>
+                                            <span class="kecom-product-category"><?php esc_html_e('Handcrafted Apparel', 'kirki-ecommerce'); ?></span>
+                                            <div class="kecom-product-variant">
+                                                <span>S</span>
+                                                <span>Black</span>
                                             </div>
-                                            <span class="kecom-order-item-qty">1</span>
                                         </div>
 
-                                        <div class="kecom-order-item-details">
-                                            <h4 class="kecom-order-item-name">Basic Heavy Weight T-shirt</h4>
-                                            <span class="kecom-order-item-cat">Handcrafted Apparel</span>
-                                            <span class="kecom-order-item-variant">S • Black</span>
-                                        </div>
-
-                                        <div class="kecom-order-item-price">
-                                            <span>$12.00</span>
+                                        <div class="kecom-product-price-wrapper">
+                                            <span class="kecom-product-price">$12.00</span>
                                         </div>
                                     </div>
                                 </div>
