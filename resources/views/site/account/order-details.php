@@ -35,29 +35,18 @@ $pages = view_data('pages');
                     <!-- Top Navigation & Order Title Bar -->
                     <div class="kecom-order-details-header">
                         <div class="kecom-order-details-header-left">
-                            <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>" class="kecom-btn-back" aria-label="<?php esc_attr_e('Back to orders', 'kirki-ecommerce'); ?>">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m15 18-6-6 6-6" />
-                                </svg>
+                            <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>" class="kecom-btn kecom-btn-outline kecom-btn-icon kecom-btn-sm" aria-label="<?php esc_attr_e('Back to orders', 'kirki-ecommerce'); ?>">
+                                <?php Icon::render('arrow-left'); ?>
                             </a>
                             <div class="kecom-order-details-title-wrap">
                                 <div class="kecom-order-details-heading-row">
                                     <h1 class="kecom-order-details-title"><?php esc_html_e('Orders #2314', 'kirki-ecommerce'); ?></h1>
-                                    <span class="kecom-order-badge kecom-badge-processing">
+                                    <span class="kecom-badge kecom-badge-success-light">
                                         <?php esc_html_e('Processing', 'kirki-ecommerce'); ?>
                                     </span>
                                 </div>
                                 <span class="kecom-order-details-placed"><?php esc_html_e('Placed on Oct 17, 2026', 'kirki-ecommerce'); ?></span>
                             </div>
-                        </div>
-
-                        <div class="kecom-order-details-header-right">
-                            <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-btn-buy-again">
-                                <?php esc_html_e('Buy Again', 'kirki-ecommerce'); ?>
-                            </a>
-                            <button type="button" class="kecom-btn-cancel-order">
-                                <?php esc_html_e('Cancel Order', 'kirki-ecommerce'); ?>
-                            </button>
                         </div>
                     </div>
 
@@ -70,10 +59,9 @@ $pages = view_data('pages');
                                 <h3 class="kecom-card-title"><?php esc_html_e('Order Status', 'kirki-ecommerce'); ?></h3>
 
                                 <div class="kecom-order-stepper">
-                                    <div class="kecom-order-step is-active">
+                                    <div class="kecom-order-step">
                                         <div class="kecom-order-step-indicator">
                                             <span class="kecom-order-step-dot"></span>
-                                            <span class="kecom-order-step-line"></span>
                                         </div>
                                         <div class="kecom-order-step-content">
                                             <h4 class="kecom-order-step-title"><?php esc_html_e('Order received', 'kirki-ecommerce'); ?></h4>
@@ -81,10 +69,9 @@ $pages = view_data('pages');
                                         </div>
                                     </div>
 
-                                    <div class="kecom-order-step is-active">
+                                    <div class="kecom-order-step">
                                         <div class="kecom-order-step-indicator">
                                             <span class="kecom-order-step-dot"></span>
-                                            <span class="kecom-order-step-line"></span>
                                         </div>
                                         <div class="kecom-order-step-content">
                                             <h4 class="kecom-order-step-title"><?php esc_html_e('Payment confirmed', 'kirki-ecommerce'); ?></h4>
@@ -92,7 +79,7 @@ $pages = view_data('pages');
                                         </div>
                                     </div>
 
-                                    <div class="kecom-order-step is-active">
+                                    <div class="kecom-order-step">
                                         <div class="kecom-order-step-indicator">
                                             <span class="kecom-order-step-dot"></span>
                                         </div>
@@ -109,20 +96,30 @@ $pages = view_data('pages');
                                 <div class="kecom-order-info-grid">
                                     <!-- Contact Information -->
                                     <div class="kecom-order-info-block">
-                                        <h4 class="kecom-order-info-title"><?php esc_html_e('Contact Information', 'kirki-ecommerce'); ?></h4>
-                                        <p class="kecom-order-info-text">Bradley Lawlor</p>
-                                        <p class="kecom-order-info-text">bradley.lawlor@email.com</p>
+                                        <h4 class="kecom-order-info-title">
+                                            <?php esc_html_e('Contact Information', 'kirki-ecommerce'); ?>
+                                        </h4>
+                                        <div class="kecom-order-info-content">
+                                            <p class="kecom-order-info-text">Bradley Lawlor</p>
+                                            <p class="kecom-order-info-text">bradley.lawlor@email.com</p>
+                                        </div>
                                     </div>
 
                                     <!-- Payment Information -->
                                     <div class="kecom-order-info-block">
-                                        <h4 class="kecom-order-info-title"><?php esc_html_e('Payment', 'kirki-ecommerce'); ?></h4>
-                                        <p class="kecom-order-info-text">Visa •••• 1234</p>
+                                        <h4 class="kecom-order-info-title">
+                                            <?php esc_html_e('Payment', 'kirki-ecommerce'); ?>
+                                        </h4>
+                                        <div class="kecom-order-info-content">
+                                            <p class="kecom-order-info-text">Visa •••• 1234</p>
+                                        </div>
                                     </div>
 
                                     <!-- Shipping Address -->
                                     <div class="kecom-order-info-block">
-                                        <h4 class="kecom-order-info-title"><?php esc_html_e('Shipping Address', 'kirki-ecommerce'); ?></h4>
+                                        <h4 class="kecom-order-info-title">
+                                            <?php esc_html_e('Shipping Address', 'kirki-ecommerce'); ?>
+                                        </h4>
                                         <div class="kecom-order-address-lines">
                                             <p>Bradley Lawlor</p>
                                             <p>123 Main Street</p>
@@ -133,7 +130,9 @@ $pages = view_data('pages');
 
                                     <!-- Billing Address -->
                                     <div class="kecom-order-info-block">
-                                        <h4 class="kecom-order-info-title"><?php esc_html_e('Billing Address', 'kirki-ecommerce'); ?></h4>
+                                        <h4 class="kecom-order-info-title">
+                                            <?php esc_html_e('Billing Address', 'kirki-ecommerce'); ?>
+                                        </h4>
                                         <div class="kecom-order-address-lines">
                                             <p>Bradley Lawlor</p>
                                             <p>123 Main Street</p>
@@ -227,7 +226,6 @@ $pages = view_data('pages');
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label">
                                             <?php esc_html_e('Shipping', 'kirki-ecommerce'); ?>
-                                            <span class="kecom-info-tip" title="<?php esc_attr_e('Shipping calculation', 'kirki-ecommerce'); ?>">ⓘ</span>
                                         </span>
                                         <span class="kecom-pricing-value">$12.00</span>
                                     </div>
@@ -235,12 +233,11 @@ $pages = view_data('pages');
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label">
                                             <?php esc_html_e('Taxes', 'kirki-ecommerce'); ?>
-                                            <span class="kecom-info-tip" title="<?php esc_attr_e('Tax breakdown', 'kirki-ecommerce'); ?>">ⓘ</span>
                                         </span>
                                         <span class="kecom-pricing-value">$0.00</span>
                                     </div>
 
-                                    <div class="kecom-pricing-row kecom-pricing-row-discount">
+                                    <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label"><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
                                         <span class="kecom-pricing-value">-$7.00</span>
                                     </div>
