@@ -11,15 +11,41 @@
 
 defined('ABSPATH') || exit;
 
-$pages = $data['pages'] ?? [];
+use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Utils;
+use function Kirki\Ecommerce\Framework\view_data;
 
+$menu_items = $data['pages'] ?? (view_data('pages') ?: Utils::get_account_pages());
 ?>
-<aside class="kecom-account-page-sidebar">
-    <ul class="kecom-account-page-nav">
-        <?php foreach ($pages as $key => $page) : ?>
-            <li class="kecom-account-page-nav-item">
-                <a href="<?php echo esc_url($page['url']); ?>"><?php echo esc_html($page['title']); ?></a>
-            </li>
-        <?php endforeach; ?>
-    </ul>
+
+<aside class="kecom-account-sidebar">
+    <nav class="kecom-account-nav" aria-label="<?php esc_attr_e('Account Navigation', 'kirki-ecommerce'); ?>">
+        <ul class="kecom-account-nav-list">
+            <?php foreach ($menu_items as $key => $item) :
+                $is_active = !empty($item['is_active']);
+                $classes = ['kecom-account-nav-link'];
+
+                if ($is_active) {
+                    $classes[] = 'is-active';
+                }
+
+                if (!empty($item['class'])) {
+                    $classes[] = $item['class'];
+                }
+            ?>
+                <li class="kecom-account-nav-item kecom-account-nav-item-<?php echo esc_attr($key); ?>">
+                    <a
+                        href="<?php echo esc_url($item['url']); ?>"
+                        class="<?php echo esc_attr(implode(' ', $classes)); ?>"
+                        <?php echo $is_active ? 'aria-current="page"' : ''; ?>
+                    >
+                        <?php if (!empty($item['icon'])) : ?>
+                            <?php Icon::render($item['icon']); ?>
+                        <?php endif; ?>
+                        <span><?php echo esc_html($item['title']); ?></span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </nav>
 </aside>

@@ -58,7 +58,7 @@ Route::site(function () {
         ->name($account_page['route_name']);
 
     foreach ($account_pages as $key => $page) {
-        if (isset($page['callback']) && is_callable($page['callback'])) {
+        if (isset($page['callback']) && $page['callback']) {
             Route::get($page['route_path'], $page['callback'])
                 ->middleware(SiteAuthMiddleware::class)
                 ->name($page['route_name']);

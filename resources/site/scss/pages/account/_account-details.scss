@@ -1,0 +1,35 @@
+// Account - Account Details
+// Styling for profile and password management matching the design mockup
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+
+  .kecom-account-details-title {
+    @include typography(xl, semibold, $text-primary);
+    margin: 0;
+  }
+}
+
+.kecom-account-details-form {
+  gap: $spacing-5;
+
+  .kecom-card {
+    gap: $spacing-5;
+  }
+
+  .kecom-account-details-actions {
+    margin-top: $spacing-2;
+
+    .kecom-btn-primary {
+      padding: 10px 24px;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      border-radius: $radius-md;
+    }
+  }
+}
