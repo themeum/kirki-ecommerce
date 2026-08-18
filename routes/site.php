@@ -49,27 +49,27 @@ Route::site(function () {
 
 // Customer account routes.
 Route::site(function () {
-    $account_page_id = Utils::get_account_page_id();
-    $account_page = get_post($account_page_id);
-    $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
     $account_pages = Utils::get_account_pages();
+    $account_page = $account_pages['dashboard'];
+    $account_page_slug = $account_page['route_path'];
 
-    Route::get($account_page_slug, $account_pages['dashboard']['callback'])
+    Route::get($account_page_slug, $account_page['callback'])
         ->middleware(SiteAuthMiddleware::class)
-        ->name('account');
+        ->name($account_page['route_name']);
 
     Route::get("{$account_page_slug}/orders/{order_number}", [AccountController::class, 'order_details'])
         ->middleware(SiteAuthMiddleware::class)
         ->name('account.orders.details');
 
     foreach ($account_pages as $key => $page) {
-        if (isset($page['callback'])) {
-            $route_path = $account_page_slug . '/' . $key;
-            $route_name = 'account.' . $key;
-
-            Route::get($route_path, $page['callback'])
+        if (isset($page['callback']) && is_callable($page['callback'])) {
+            Route::get($page['route_path'], $page['callback'])
                 ->middleware(SiteAuthMiddleware::class)
-                ->name($route_name);
+                ->name($page['route_name']);
         }
     }
+
+    Route::get($account_page_slug . '/orders/{uuid}', [AccountController::class, 'order_details'])
+        ->middleware(SiteAuthMiddleware::class)
+        ->name('account.orders.show');
 });

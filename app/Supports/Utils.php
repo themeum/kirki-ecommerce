@@ -83,6 +83,10 @@ class Utils
      */
     public static function get_account_pages()
     {
+        $account_page_id = Utils::get_account_page_id();
+        $account_page = get_post($account_page_id);
+        $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
+
         $pages = [
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),

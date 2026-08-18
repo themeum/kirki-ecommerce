@@ -91,21 +91,15 @@ class AccountController
      * @since 1.0.0
      *
      * @param Request $request Request.
+     * @param string  $uuid    Order uuid.
      *
      * @return Response response.
      */
-    public function order_details(Request $request)
+    public function order_details(Request $request, $uuid)
     {
-        $customer = customer();
-        $user = wp_get_current_user();
+        $order = $request->user()->orders()->where('uuid', $uuid)->first();
 
-        $data = [
-            'customer' => $customer,
-            'user'     => $user,
-            'pages'    => $this->pages,
-        ];
-
-        return view('site.account.order-details', $data)->layout(false);
+        return view('site.account.order-details', ['pages' => $this->pages, 'order' => $order])->layout(false);
     }
 
     /**
