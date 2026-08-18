@@ -1,0 +1,113 @@
+// Account - Orders
+// Styling for the order list table matching the design mockup
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-orders {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+
+  .kecom-account-panel-header {
+    &-title {
+      @include typography(xl, semibold, $text-primary);
+      margin: 0;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Orders Table
+// ----------------------------------------------------------------------------
+.kecom-orders-table {
+  // Column 1: Thumbnail
+  .kecom-orders-table-col-thumb {
+    width: 70px;
+    padding-right: $spacing-3;
+  }
+
+  .kecom-account-order-thumb-wrap {
+    flex-shrink: 0;
+  }
+
+  .kecom-account-order-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: $radius-xl;
+    overflow: hidden;
+    background-color: $background-surface-alt;
+    @include flex-center();
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  // Column 2: Order ID & Item Count
+  .kecom-orders-table-col-info {
+    min-width: 110px;
+  }
+
+  .kecom-account-order-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+
+    .kecom-account-order-number {
+      @include typography();
+      text-decoration: none;
+      @include transition(color);
+
+      &:hover {
+        color: $text-emphasis;
+      }
+    }
+
+    .kecom-account-order-items {
+      @include typography(base, normal, $text-secondary);
+    }
+  }
+
+  // Column 3: Status Block (Status Title & Subtitle)
+  .kecom-orders-table-col-status {
+    min-width: 180px;
+  }
+
+  .kecom-account-order-status-block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+
+    .kecom-account-order-status-title {
+      @include typography();
+    }
+
+    .kecom-account-order-status-sub {
+      @include typography(base, normal, $text-secondary);
+    }
+  }
+
+  // Column 4: Price Block
+  .kecom-orders-table-col-price {
+    min-width: 90px;
+
+    .kecom-account-order-price {
+      @include typography();
+    }
+  }
+
+  // Column 5: Action Buttons (Pay, View)
+  .kecom-orders-table-col-actions {
+    text-align: right;
+  }
+
+  .kecom-account-order-actions-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-4;
+  }
+}

@@ -18,28 +18,54 @@
 @use '../tokens' as *;
 @use '../mixins' as *;
 
+// ── Form wrapper & rows ───────────────────────────────────────────────────────
+
+.kecom-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+
+  &-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-5;
+
+    @include breakpoint-down(sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 // ── Field wrapper ────────────────────────────────────────────────────────────
 
 .kecom-field {
   display: flex;
   flex-direction: column;
-  gap: $spacing-4;
+  gap: $spacing-2;
   width: 100%;
 
   &-label {
-    @include typography(base, medium, $text-primary);
+    @include typography(sm, medium, $text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
 
     &-required::after {
       content: ' *';
       color: $background-fill-critical;
     }
+
+    .kecom-info-tip {
+      @include typography(xs, medium, $text-subdued);
+      cursor: help;
+    }
   }
 
   &-help {
-    @include typography(sm, normal, $text-secondary);
+    @include typography(xs, normal, $text-secondary);
   }
   &-error {
-    @include typography(sm, normal, $background-fill-critical);
+    @include typography(xs, normal, $background-fill-critical);
   }
 
   // Error state
@@ -142,6 +168,26 @@
         padding-right: $spacing-8;
       }
     }
+  }
+
+  .kecom-input-icon-btn {
+    position: absolute;
+    right: $spacing-3;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: $text-secondary;
+    cursor: pointer;
+    @include flex-center;
+    @include transition(color);
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  &:has(.kecom-input-icon-btn) .kecom-input {
+    padding-right: $spacing-8;
   }
 }
 

@@ -1,0 +1,31 @@
+// Account - Addresses
+// Styling for billing & shipping addresses view using shared card and form components
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-addresses-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+
+  .kecom-account-addresses-title {
+    @include typography(xl, semibold, $text-primary);
+    margin: 0;
+  }
+}
+
+.kecom-account-addresses-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-6;
+
+  @include breakpoint-down(md) {
+    grid-template-columns: 1fr;
+  }
+
+  .kecom-address-text {
+    @include typography(base, medium, $text-primary);
+    font-style: normal;
+  }
+}

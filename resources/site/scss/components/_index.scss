@@ -1,9 +1,12 @@
 // Components barrel file
 @use 'button';
 @use 'badge';
+@use 'card';
+@use 'table';
 @use 'form';
 @use 'breadcrumb';
 @use 'product-card';
+@use 'order-product';
 @use 'pagination';
 @use 'modal';
 @use 'toast';
