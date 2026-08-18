@@ -5,7 +5,10 @@
 @use '../mixins' as *;
 
 .kecom-table-wrap {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -13,6 +16,7 @@
 
 .kecom-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: separate;
   border-spacing: 0;
   text-align: left;
