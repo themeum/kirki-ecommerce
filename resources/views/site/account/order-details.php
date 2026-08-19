@@ -15,6 +15,7 @@ use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
@@ -35,6 +36,10 @@ $shipping = $totals['invoiced_shipping_money_object'] ?? null;
 $taxes = $totals['invoiced_tax_money_object'] ?? null;
 $discount = $totals['invoiced_discount_money_object'] ?? null;
 $total = $totals['invoiced_total_money_object'] ?? null;
+
+$order_timeline = $order['order_timeline'] ?? [];
+
+usort($order_timeline, fn($a_time, $b_time) => $a_time['date'] <=> $b_time['date']);
 
 $items = $order['items']->to_array() ?? [];
 $items_product_data = $order['item_product_data'] ?? [];
@@ -69,7 +74,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                 <div class="kecom-order-details-heading-row">
                                     <h1 class="kecom-order-details-title"><?php echo printf(__('Order #%s', 'kirki-ecommerce'), $order['order_number'] ?? ''); ?></h1>
                                     <span class="kecom-badge kecom-badge-success-light">
-                                        <?php echo esc_html($order['status'] ?? '') ?>
+                                        <?php echo esc_html($order['formatted_status'] ?? '') ?>
                                     </span>
                                 </div>
                                 <span class="kecom-order-details-placed"><?php echo esc_html(__('Placed on ', 'kirki-ecommerce') . $order_placed); ?></span>
@@ -91,30 +96,41 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                             <span class="kecom-order-step-dot"></span>
                                         </div>
                                         <div class="kecom-order-step-content">
-                                            <h4 class="kecom-order-step-title"><?php esc_html_e('Order received', 'kirki-ecommerce'); ?></h4>
-                                            <span class="kecom-order-step-date">October 15, 2026</span>
+                                            <h4 class="kecom-order-step-title"><?php esc_html_e('Order Received', 'kirki-ecommerce'); ?></h4>
+                                            <span class="kecom-order-step-date"><?php echo esc_html(date('F j, Y', strtotime($order['created_at']))); ?></span>
                                         </div>
                                     </div>
 
-                                    <div class="kecom-order-step">
-                                        <div class="kecom-order-step-indicator">
-                                            <span class="kecom-order-step-dot"></span>
-                                        </div>
-                                        <div class="kecom-order-step-content">
-                                            <h4 class="kecom-order-step-title"><?php esc_html_e('Payment confirmed', 'kirki-ecommerce'); ?></h4>
-                                            <span class="kecom-order-step-date">October 15, 2026</span>
-                                        </div>
-                                    </div>
+                                    <?php if (count($order_timeline)):
+                                    ?>
+                                        <?php foreach ($order_timeline as $timeline):
 
-                                    <div class="kecom-order-step">
-                                        <div class="kecom-order-step-indicator">
-                                            <span class="kecom-order-step-dot"></span>
+                                        ?>
+                                            <?php if ($timeline['date']): ?>
+                                                <div class="kecom-order-step">
+                                                    <div class="kecom-order-step-indicator">
+                                                        <span class="kecom-order-step-dot"></span>
+                                                    </div>
+                                                    <div class="kecom-order-step-content">
+                                                        <h4 class="kecom-order-step-title"><?php echo esc_html($timeline['status'] ?? ''); ?></h4>
+                                                        <span class="kecom-order-step-date"><?php echo esc_html(date('F j, Y', strtotime($timeline['date'] ?? ''))); ?></span>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+
+                                    <?php if ('processing' === $order['fulfillment_status']) : ?>
+                                        <div class="kecom-order-step">
+                                            <div class="kecom-order-step-indicator">
+                                                <span class="kecom-order-step-dot"></span>
+                                            </div>
+                                            <div class="kecom-order-step-content">
+                                                <h4 class="kecom-order-step-title"><?php esc_html_e('Order Processing', 'kirki-ecommerce'); ?></h4>
+                                                <span class="kecom-order-step-date"><?php echo esc_html(date('F j, Y', strtotime($order['updated_at']))); ?></span>
+                                            </div>
                                         </div>
-                                        <div class="kecom-order-step-content">
-                                            <h4 class="kecom-order-step-title"><?php esc_html_e('Order processing', 'kirki-ecommerce'); ?></h4>
-                                            <span class="kecom-order-step-date">October 16, 2026</span>
-                                        </div>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -212,6 +228,9 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                             $base_price_obj = $item['base_price_money_object'] ?? null;
                                             $item_product = $items_product_data[$key]['product'] ?? [];
                                             $categories = $item_product['categories'] ?? [];
+                                            $product_image = $item_product['media'][0] ?? [];
+                                            $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
+                                            $image = $item['image'] ? $item['image'] : $product_first_image;
                                         ?>
                                             <div class="kecom-product-item">
                                                 <div class="kecom-product-image-wrapper">
