@@ -1,16 +1,14 @@
-import { Controller } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import ColorPickerField from '@/components/form/color-picker-field';
+import ProgressBarField from '@/components/form/progress-bar-field';
+import TabsField from '@/components/form/tabs-field';
 import TextField from '@/components/form/text-field';
 import ThumbnailField from '@/components/form/thumbnail-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
-import { Field, FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import ProgressBar from '@/components/ui/progressbar';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useEditTemplate } from '@/features/settings/email/hooks/use-edit-template';
@@ -63,53 +61,27 @@ const EditTemplate = () => {
                         label={__('Height', 'kirki-ecommerce')}
                         type="number"
                       />
-                      <Controller
-                        control={form.control}
+                      <ProgressBarField
                         name="height"
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <ProgressBar
-                              value={Number(field.value) || 0}
-                              onChange={(value) => field.onChange(value)}
-                              label={__('Height', 'kirki-ecommerce')}
-                              rightText={`${heightValue}px`}
-                            />
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
+                        label={__('Height', 'kirki-ecommerce')}
+                        rightText={`${heightValue}px`}
                       />
-                      <Controller
-                        control={form.control}
+                      <TabsField
                         name="position"
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <Tabs
-                              value={positionToTabIndex(field.value)}
-                              onValueChange={(value) => {
-                                field.onChange(tabIndexToPosition(value));
-                              }}
-                            >
-                              <TabsList>
-                                <TabsTrigger value="0">
-                                  <AlignLeftIcon />
-                                </TabsTrigger>
-                                <TabsTrigger value="1">
-                                  <AlignCenterIcon />
-                                </TabsTrigger>
-                                <TabsTrigger value="2">
-                                  <AlignLeftIcon
-                                    style={{ transform: 'scaleX(-1)' }}
-                                  />
-                                </TabsTrigger>
-                              </TabsList>
-                            </Tabs>
-                            {fieldState.invalid && (
-                              <FieldError errors={[fieldState.error]} />
-                            )}
-                          </Field>
-                        )}
+                        options={[
+                          { value: '0', icon: <AlignLeftIcon /> },
+                          { value: '1', icon: <AlignCenterIcon /> },
+                          {
+                            value: '2',
+                            icon: (
+                              <AlignLeftIcon
+                                style={{ transform: 'scaleX(-1)' }}
+                              />
+                            ),
+                          },
+                        ]}
+                        toTabValue={(value) => positionToTabIndex(value as string)}
+                        fromTabValue={(value) => tabIndexToPosition(value)}
                       />
                     </CardContent>
                   </Card>
