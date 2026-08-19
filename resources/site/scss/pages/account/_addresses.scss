@@ -24,8 +24,12 @@
     grid-template-columns: 1fr;
   }
 
+  .kecom-address-card-same {
+    margin-bottom: $spacing-6;
+  }
+
   .kecom-address-text {
-    @include typography(base, medium, $text-primary);
+    @include typography(base, normal, $text-primary);
     font-style: normal;
   }
 }
