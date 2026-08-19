@@ -1,9 +1,9 @@
 /**
  * Account Addresses Alpine Component
- * Handles viewing and saving billing & shipping addresses via PUT {{baseUrl}}/customers/{id}
+ * Handles viewing and saving billing & shipping addresses via POST /account/addresses
  */
 
-import { type CustomerAddressPayload, customerApi } from '../api/customer';
+import { type AccountAddressPayload, accountApi } from '../api/account';
 import { config } from '../utils';
 import { toastMeta } from './toast';
 
@@ -24,7 +24,6 @@ export interface AddressItem {
 export function accountAddresses() {
   const toast = toastMeta.component();
 
-  const customerId = Number(config?.customer_id ?? config?.customerId) || 1;
   const initialSameAsBilling = Boolean(
     config?.is_billing_same_as_shipping ?? config?.isBillingSameAsShipping,
   );
@@ -40,7 +39,6 @@ export function accountAddresses() {
     }[]) ?? [];
 
   return {
-    customerId,
     addresses,
     countries,
     editingAddress: null as 'billing' | 'shipping' | null,
@@ -163,47 +161,45 @@ export function accountAddresses() {
           // Mirror billing to shipping
           this.addresses.shipping = { ...this.addresses.billing };
 
-          const payload = {
+          const payload: AccountAddressPayload = {
+            type: 'shipping',
+            first_name: this.addresses.billing.first_name || '',
+            last_name: this.addresses.billing.last_name || '',
+            company: this.addresses.billing.company || '',
+            country: this.addresses.billing.country || '',
+            address_line1: this.addresses.billing.address_line1 || '',
+            address_line2: this.addresses.billing.address_line2 || '',
+            city: this.addresses.billing.city || '',
+            state: String(this.addresses.billing.state || ''),
+            postal_code: this.addresses.billing.postal_code || '',
+            phone: this.addresses.billing.phone || '',
+            email: this.addresses.billing.email || '',
             is_billing_same_as_shipping: true,
-            shipping_address: {
-              first_name: this.addresses.billing.first_name || '',
-              last_name: this.addresses.billing.last_name || '',
-              company: this.addresses.billing.company || '',
-              country: this.addresses.billing.country || '',
-              address_line1: this.addresses.billing.address_line1 || '',
-              address_line2: this.addresses.billing.address_line2 || '',
-              city: this.addresses.billing.city || '',
-              state: String(this.addresses.billing.state || ''),
-              postal_code: this.addresses.billing.postal_code || '',
-              phone: this.addresses.billing.phone || '',
-              email: this.addresses.billing.email || '',
-            },
           };
 
-          await customerApi.updateCustomer(this.customerId, payload);
+          await accountApi.updateAddress(payload);
           toast.success('Shipping address set to same as billing.');
         } else {
           // Restore previous custom shipping address
           this.addresses.shipping = { ...this.customShippingAddress };
 
-          const payload = {
+          const payload: AccountAddressPayload = {
+            type: 'shipping',
+            first_name: this.addresses.shipping.first_name || '',
+            last_name: this.addresses.shipping.last_name || '',
+            company: this.addresses.shipping.company || '',
+            country: this.addresses.shipping.country || '',
+            address_line1: this.addresses.shipping.address_line1 || '',
+            address_line2: this.addresses.shipping.address_line2 || '',
+            city: this.addresses.shipping.city || '',
+            state: String(this.addresses.shipping.state || ''),
+            postal_code: this.addresses.shipping.postal_code || '',
+            phone: this.addresses.shipping.phone || '',
+            email: this.addresses.shipping.email || '',
             is_billing_same_as_shipping: false,
-            shipping_address: {
-              first_name: this.addresses.shipping.first_name || '',
-              last_name: this.addresses.shipping.last_name || '',
-              company: this.addresses.shipping.company || '',
-              country: this.addresses.shipping.country || '',
-              address_line1: this.addresses.shipping.address_line1 || '',
-              address_line2: this.addresses.shipping.address_line2 || '',
-              city: this.addresses.shipping.city || '',
-              state: String(this.addresses.shipping.state || ''),
-              postal_code: this.addresses.shipping.postal_code || '',
-              phone: this.addresses.shipping.phone || '',
-              email: this.addresses.shipping.email || '',
-            },
           };
 
-          await customerApi.updateCustomer(this.customerId, payload);
+          await accountApi.updateAddress(payload);
           toast.info('Separate shipping address enabled.');
         }
       } catch (err: any) {
@@ -225,7 +221,8 @@ export function accountAddresses() {
       const type = this.editingAddress;
 
       try {
-        const addressPayload: CustomerAddressPayload = {
+        const payload: AccountAddressPayload = {
+          type,
           first_name: this.formData.first_name || '',
           last_name: this.formData.last_name || '',
           company: this.formData.company || '',
@@ -239,11 +236,7 @@ export function accountAddresses() {
           email: this.addresses[type]?.email || '',
         };
 
-        const payload = {
-          [type === 'billing' ? 'billing_address' : 'shipping_address']: addressPayload,
-        };
-
-        const res = await customerApi.updateCustomer(this.customerId, payload);
+        const res = await accountApi.updateAddress(payload);
 
         // Update local reactive state
         this.addresses[type] = {

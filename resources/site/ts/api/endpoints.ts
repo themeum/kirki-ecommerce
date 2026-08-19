@@ -21,5 +21,6 @@ export const ENDPOINTS = {
   account: {
     profile: '/account/profile',
     passwordChange: '/account/password-change',
+    addresses: '/account/addresses',
   },
 } as const;
