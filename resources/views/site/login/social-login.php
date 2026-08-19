@@ -3,6 +3,7 @@
 /**
  * Social Login Template Part.
  *
+ * @todo will be used later.
  * @package Kirki\Ecommerce\Templates
  * @since 1.0.0
  */
@@ -10,7 +11,6 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
-
 ?>
 
 <div class="kecom-login-social">

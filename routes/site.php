@@ -45,12 +45,14 @@ Route::site(function () {
         ->template_redirect()
         ->name('login');
 
-    Route::get($register_page_slug, [SiteController::class, 'register_page'])
-        ->name('register');
+    if (Utils::can_user_register()) {
+        Route::get($register_page_slug, [SiteController::class, 'register_page'])
+            ->name('register');
 
-    Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
-        ->template_redirect()
-        ->name('register');
+        Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
+            ->template_redirect()
+            ->name('register');
+    }
 
     Route::get($shop_page_slug, [SiteController::class, 'shop_page'])
         ->name('shop')

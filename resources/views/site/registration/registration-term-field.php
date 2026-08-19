@@ -3,6 +3,7 @@
 /**
  * Registration Terms and Condition Template Part.
  *
+ * @todo will be used later.
  * @package Kirki\Ecommerce\Templates
  * @since 1.0.0
  */

@@ -13,7 +13,8 @@ class RegistrationRequest extends Request
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|password',
+            'password' => 'required|min:8',
+            'password_confirmation' => 'required|same_as:password',
         ];
     }
 
@@ -24,6 +25,7 @@ class RegistrationRequest extends Request
             'last_name' => Sanitizer::TEXT,
             'email' => Sanitizer::EMAIL,
             'password' => Sanitizer::TEXT,
+            'password_confirmation' => Sanitizer::TEXT,
         ];
     }
 }

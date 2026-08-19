@@ -44,6 +44,7 @@ $validation_errors = get_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KE
                 last_name: '',
                 email: '',
                 password: '',
+                password_confirmation: '',
                 ajax_nonce: window.kirki_ecommerce.ajax_nonce,
             },
             mode: 'onBlur'
@@ -88,6 +89,24 @@ $validation_errors = get_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KE
                     </template>
                 </div>
                 <span class="kecom-field-error" x-show="errors.password" x-text="errors.password"></span>
+            </div>
+            <div class="kecom-field" :class="errors.password_confirmation ? 'kecom-field-error-state' : ''">
+                <div class="kecom-password-field-label">
+                    <label class="kecom-field-label" for="kecom-password_confirmation"><?php esc_html_e('Confirm Password', 'kirki-ecommerce'); ?></label>
+                </div>
+                <div class="kecom-password-input" x-data="{ showPassword: false }">
+                    <input class="kecom-input" :type="showPassword ? 'text' : 'password'" id="kecom-password_confirmation" name="password_confirmation" x-bind="<?php printf("register('password_confirmation', {
+                    required: '%s',
+                    validate: (value) => value === values.password || '%s'
+                })", __('Confirm password is required', 'kirki-ecommerce'), __('Password does not match', 'kirki-ecommerce')) ?>" placeholder="<?php _e('Confirm your password', 'kirki-ecommerce'); ?>">
+                    <template x-if="showPassword">
+                        <span class="kecom-password-input-show" @click="showPassword = false"><?php Icon::render('eye'); ?></span>
+                    </template>
+                    <template x-if="!showPassword">
+                        <span class="kecom-password-input-show" @click="showPassword = true"><?php Icon::render('eye-off'); ?></span>
+                    </template>
+                </div>
+                <span class="kecom-field-error" x-show="errors.password_confirmation" x-text="errors.password_confirmation"></span>
             </div>
             <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php esc_html_e('Sign up', 'kirki-ecommerce'); ?></button>
         </form>

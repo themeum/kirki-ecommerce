@@ -14,10 +14,10 @@ use Kirki\Ecommerce\App\Constants\Registration;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Supports\Utils;
 
 $validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
 $registration_sucess = get_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY);
-$anyone_can_register = (int) get_option('users_can_register');
 ?>
 <?php Template::get_header(); ?>
 
@@ -25,7 +25,7 @@ $anyone_can_register = (int) get_option('users_can_register');
     <div class="kecom-auth-form-wrapper">
         <div class="kecom-auth-header">
             <h3 class="kecom-auth-header-title"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></h3>
-            <?php if (1 === $anyone_can_register): ?>
+            <?php if (Utils::can_user_register()): ?>
                 <div class="kecom-auth-header-content">
                     <span><?php esc_html_e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
                     <a href="<?php echo esc_url(Url::get_registration_url()); ?>">

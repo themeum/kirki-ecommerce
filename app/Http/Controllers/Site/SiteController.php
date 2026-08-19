@@ -302,9 +302,8 @@ class SiteController
             return redirect(Url::get_account_url());
         }
 
-        $has_nonce = Utils::is_nonce_verified();
-
-        if (!$has_nonce) {
+        if (!Utils::is_nonce_verified()) {
+            //@TODO : will be replaced by reusable flash message.
             set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
                 'invalid_nonce' => [
                     'code' => 'invalid_nonce',
@@ -325,6 +324,7 @@ class SiteController
         $user = wp_signon($creds, is_ssl());
 
         if (is_wp_error($user)) {
+            //@TODO : will be replaced by reusable flash message.
             set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
                 'invalid_user' => [
                     'code' => 'invalid_user',
@@ -352,9 +352,8 @@ class SiteController
             return redirect(Url::get_account_url());
         }
 
-        $has_nonce = Utils::is_nonce_verified();
-
-        if (!$has_nonce) {
+        if (!Utils::is_nonce_verified()) {
+            //@TODO : will be replaced by reusable flash message.
             set_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY, [
                 'invalid_nonce' => [
                     'code' => 'invalid_nonce',
@@ -375,6 +374,7 @@ class SiteController
         ]);
 
         if (is_wp_error($user)) {
+            //@TODO : will be replaced by reusable flash message.
             set_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY, [
                 'invalid_user' => [
                     'code' => 'invalid_user',
@@ -384,6 +384,7 @@ class SiteController
             return redirect(Route::site_url('register'));
         }
 
+        //@TODO : will be replaced by reusable flash message.
         set_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY, [
             'registration_success' => [
                 'code' => 'registration_success',

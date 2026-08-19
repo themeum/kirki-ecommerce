@@ -265,4 +265,16 @@ class Utils
         $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
         return json_decode($countries_json, true);
     }
+
+    /**
+     * Check if user can register.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if user can register, false otherwise.
+     */
+    public static function can_user_register()
+    {
+        return (int) get_option('users_can_register', 0);
+    }
 }
