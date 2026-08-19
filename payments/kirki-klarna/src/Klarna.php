@@ -17,12 +17,13 @@ use Kirki\Ecommerce\Framework\Validation\Validator;
 defined('ABSPATH') || exit;
 
 /**
- * Razorpay payment gateway.
+ * Klarna payment gateway.
  */
 class Klarna extends PaymentProvider
 {
     protected ?KlarnaClient $client = null;
     protected Order $order;
+    protected KlarnaTransactionBuilder $transactionBuilder;
 
     public function __construct()
     {
@@ -83,18 +84,27 @@ class Klarna extends PaymentProvider
         }
 
         try {
+            $this->order = $order;
             $this->client = $this->get_client();
+            $this->transactionBuilder = new KlarnaTransactionBuilder($this->order);
 
-            $payload = [
+            $payment_session = $this->create_payment_session();
+            if (empty($payment_session['session_id'])) {
+                throw new Exception(__('Klarna Payment Error: Payment Session ID not found.', 'kirki-ecommerce-klarna'));
+            }
 
-            ];
+            $response = $this->create_hpp_session($payment_session['session_id']);
 
-            return PaymentActionDTO::from_array([
-                'type' => PaymentActionType::REDIRECT,
-                'value' => '',//$response['payment_link']['long_url'],
-            ]);
+            if (!empty($response['redirect_url'])) {
+                return PaymentActionDTO::from_array([
+                    'type' => PaymentActionType::REDIRECT,
+                    'value' => $response['redirect_url'],
+                ]);
+            }
+
+            throw new Exception(__('Klarna Payment Error: Redirect URl not found.', 'kirki-ecommerce-klarna'));
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Razorpay Payment Error: %s', 'kirki-ecommerce-square'), $e->getMessage()));
+            throw new Exception(sprintf(__('Klarna Payment Error: %s', 'kirki-ecommerce-klarna'), $e->getMessage()));
         }
     }
 
@@ -176,16 +186,16 @@ class Klarna extends PaymentProvider
      */
     protected function get_client(): KlarnaClient
     {
-        $location_id = $this->settings['location_id'] ?? '';
-        $access_token = $this->settings['access_token'] ?? '';
-        $signature_key = $this->settings['signature_key'] ?? '';
+        $username = $this->settings['username'] ?? '';
+        $password = $this->settings['password'] ?? '';
+        $region = $this->settings['region'] ?? '';
         $sandbox = $this->settings['sandbox'] ?? true;
 
-        if (empty($location_id) || empty($access_token) || empty($signature_key)) {
+        if (empty($username) || empty($password) || empty($region)) {
             throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
         }
 
-        return new KlarnaClient($location_id, $access_token, $signature_key, $sandbox);
+        return new KlarnaClient($username, $password, $region, $sandbox);
     }
 
     /**
@@ -197,7 +207,7 @@ class Klarna extends PaymentProvider
     protected function verify_and_parse_notification(): object {}
 
     /**
-     * Update the order based on a Razorpay payment event's status.
+     * Update the order based on a Klarna payment event's status.
      *
      * @param object $payload
      * @return void
@@ -235,5 +245,37 @@ class Klarna extends PaymentProvider
     {
         OrderManager::set_transaction_id($order_id, $entity->id);
         OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+    }
+
+    protected function create_payment_session()
+    {
+        $payload = [
+            'billing_address' => $this->transactionBuilder->format_address('billing'),
+            'merchant_reference1' => $this->order->uuid,
+            'order_amount' => $this->order->invoiced_total,
+            'order_lines' => $this->transactionBuilder->get_line_items(),
+            'order_tax_amount' => (int) $this->order->invoiced_tax_total,
+            'purchase_country' => $this->order->billing_country,
+            'purchase_currency' => $this->order->currency_code,
+            'shipping_address' =>  $this->transactionBuilder->format_address('shipping'),
+            'intent' => 'buy'
+        ];
+
+        return $this->client->send($payload, 'create_payment_session_id');
+    }
+
+    protected function create_hpp_session($session_id)
+    {
+        $payment_session_url =  $this->client->get_base_url() . KlarnaConstant::PAYMENT_SESSION . "/{$session_id}";
+        $payload = [
+            'merchant_urls' => $this->transactionBuilder->get_merchant_urls($this->webhook_url()),
+            'options' => [
+                'place_order_mode' => 'CAPTURE_ORDER',
+                'purchase_type' => 'BUY'
+            ],
+            'payment_session_url' => $payment_session_url
+        ];
+
+        return $this->client->send($payload, 'hhp_session_url');
     }
 }

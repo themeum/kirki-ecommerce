@@ -15,7 +15,6 @@
 
 use Kirki\Ecommerce\App\Constants\HookNames;
 use Kirki\Ecommerce\Payments\Klarna;
-use Kirki\Ecommerce\Payments\Square;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -32,7 +31,7 @@ function kirki_klarna_register_payment_provider()
         return;
     }
     add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
-        $providers[Klarna::class] = new Square();
+        $providers[Klarna::class] = new Klarna();
 
         return $providers;
     });

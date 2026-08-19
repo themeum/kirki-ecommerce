@@ -11,6 +11,8 @@ class KlarnaConstant
 {
     use HasConstants;
 
+    const SANDBOX = 'sandbox';
+    const PRODUCTION = 'production';
     const API_URLS = array(
         'eu' => array(
             'production' => 'https://api.klarna.com/',
@@ -25,4 +27,7 @@ class KlarnaConstant
             'sandbox' => 'https://api-oc.playground.klarna.com/',
         ),
     );
+
+    const PAYMENT_SESSION = 'payments/v1/sessions';
+    const HPP_SESSION = 'hpp/v1/sessions';
 }
