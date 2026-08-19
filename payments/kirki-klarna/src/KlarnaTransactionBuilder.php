@@ -3,13 +3,12 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
 
 /**
- * Builds Authorize.Net request payloads and interprets transaction status.
+ * Builds Klarna request payloads and interprets transaction status.
  *
  */
 class KlarnaTransactionBuilder
@@ -21,10 +20,10 @@ class KlarnaTransactionBuilder
         $this->order = $order;
     }
 
-    public function format_address($type)
+    public function format_address(string $type)
     {
         if (empty($this->order->{$type . '_address_line1'})) {
-            return new \stdclass();
+            return new \stdClass();
         }
 
         [$address_line1, $address_line2] = $this->split_address(99, $type);
@@ -65,18 +64,18 @@ class KlarnaTransactionBuilder
         ];
     }
 
-    public function get_line_items()
+    public function get_line_items(): array
     {
         $line_items = [];
 
         foreach ($this->order->items as $item) {
             $line_items[] = [
-                'name' => $item['product_name'],
-                'quantity' => (int) $item['quantity'],
-                'total_amount' => (int) $item['invoiced_total'],
-                'total_discount_amount' => (int) $item['invoiced_discount_amount'],
-                'total_tax_amount' => (int) $item['invoiced_tax_total'],
-                'unit_price' => (int) $item['invoiced_price'],
+                'name' => $item->product_name,
+                'quantity' => (int) $item->quantity,
+                'total_amount' => (int) $item->invoiced_total,
+                'total_discount_amount' => (int) $item->invoiced_discount_amount,
+                'total_tax_amount' => (int) $item->invoiced_tax_total,
+                'unit_price' => (int) $item->invoiced_price,
             ];
         }
 

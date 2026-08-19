@@ -5,26 +5,26 @@ namespace Kirki\Ecommerce\Payments;
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 /**
- * Constants for the Razorpay Payments API integration.
+ * Constants for the Klarna Payments API integration.
  */
 class KlarnaConstant
 {
     use HasConstants;
 
-    public const API_URLS = array(
-        'eu' => array(
+    public const API_URLS = [
+        'eu' => [
             'production' => 'https://api.klarna.com/',
             'sandbox' => 'https://api.playground.klarna.com/',
-        ),
-        'na' => array(
+        ],
+        'na' => [
             'production' => 'https://api-na.klarna.com/',
             'sandbox' => 'https://api-na.playground.klarna.com/',
-        ),
-        'oc' => array(
+        ],
+        'oc' => [
             'production' => 'https://api-oc.klarna.com/',
             'sandbox' => 'https://api-oc.playground.klarna.com/',
-        ),
-    );
+        ],
+    ];
 
     public const PAYMENT_SESSION = 'payments/v1/sessions';
     public const HPP_SESSION = 'hpp/v1/sessions';

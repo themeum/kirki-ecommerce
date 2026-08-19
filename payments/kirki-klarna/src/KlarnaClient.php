@@ -4,8 +4,6 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use InvalidArgumentException;
-use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -15,10 +13,10 @@ defined('ABSPATH') || exit;
  */
 class KlarnaClient
 {
-    protected $username;
-    protected $password;
-    protected $region;
-    protected $sandbox;
+    protected string $username;
+    protected string $password;
+    protected string $region;
+    protected bool $sandbox;
 
     public function __construct(string $username, string $password, string $region, bool $sandbox = false)
     {
@@ -28,59 +26,50 @@ class KlarnaClient
         $this->sandbox = $sandbox;
     }
 
-    public function post(array $payload, string $method_name, array $args = [])
+    public function create_payment_session(array $payload): array
     {
-        $endpoint = call_user_func([$this, $method_name]);
-
-        $request = Http::with_token($this->get_auth(), 'Basic');
-
-        if (!empty($args['headers'])) {
-            $request->with_headers($args['headers']);
-        }
-
-        $response = $request->with_body(wp_json_encode($payload))->post($endpoint);
-
-        if ($response->failed()) {
-            throw new Exception($response->body());
-        }
-
-        return $response->json();
+        return $this->send('post', $this->payment_session_url(), $payload);
     }
 
-    protected function get_auth()
+    public function create_hpp_session(array $payload, string $idempotency_key): array
     {
-        if (empty($this->username) || empty($this->password)) {
-            throw new InvalidArgumentException(__('Invalid Username Or Password.', 'kirki-ecommerce-klarna'));
-        }
-        return $this->username . ':' . $this->password;
+        return $this->send('post', $this->hpp_session_url(), $payload, [
+            'Klarna-Idempotency-Key' => $idempotency_key,
+        ]);
     }
 
-    protected function create_payment_session_id()
+    public function get_order(string $klarna_order_id): array
     {
-        return $this->get_base_url() . KlarnaConstant::PAYMENT_SESSION;
+        return $this->send('get', $this->order_management_url() . $klarna_order_id);
+    }
+
+    public function payment_session_resource_url(string $session_id): string
+    {
+        return $this->payment_session_url() . "/{$session_id}";
     }
 
     public function get_base_url(): string
     {
-        return KlarnaConstant::API_URLS[$this->region][$this->get_mode()] ?? null;
+        $url = KlarnaConstant::API_URLS[$this->region][$this->get_mode()] ?? null;
+
+        if (empty($url)) {
+            throw new InvalidArgumentException(__('Invalid Klarna region.', 'kirki-ecommerce-klarna'));
+        }
+
+        return $url;
     }
 
-    protected function get_mode()
+    protected function send(string $method, string $url, array $payload = [], array $headers = []): array
     {
-        return $this->sandbox ? KlarnaConstant::SANDBOX : KlarnaConstant::PRODUCTION;
-    }
+        $request = Http::with_token($this->get_auth(), 'Basic');
 
-    protected function hhp_session_url()
-    {
-        return $this->get_base_url() . KlarnaConstant::HPP_SESSION;
-    }
+        if (!empty($headers)) {
+            $request = $request->with_headers($headers);
+        }
 
-    public function get(string $method_name, string $args)
-    {
-        $endpoint = call_user_func([$this, $method_name], $args);
-
-        $response = Http::with_token($this->get_auth(), 'Basic')
-            ->get($endpoint . $args);
+        $response = 'post' === $method
+            ? $request->with_body(wp_json_encode($payload))->post($url)
+            : $request->get($url);
 
         if ($response->failed()) {
             throw new Exception($response->body());
@@ -89,7 +78,31 @@ class KlarnaClient
         return $response->json();
     }
 
-    protected function order_management_url()
+    protected function get_auth(): string
+    {
+        if (empty($this->username) || empty($this->password)) {
+            throw new InvalidArgumentException(__('Invalid Username Or Password.', 'kirki-ecommerce-klarna'));
+        }
+
+        return base64_encode($this->username . ':' . $this->password);
+    }
+
+    protected function get_mode(): string
+    {
+        return $this->sandbox ? KlarnaConstant::SANDBOX : KlarnaConstant::PRODUCTION;
+    }
+
+    protected function payment_session_url(): string
+    {
+        return $this->get_base_url() . KlarnaConstant::PAYMENT_SESSION;
+    }
+
+    protected function hpp_session_url(): string
+    {
+        return $this->get_base_url() . KlarnaConstant::HPP_SESSION;
+    }
+
+    protected function order_management_url(): string
     {
         return $this->get_base_url() . KlarnaConstant::ORDER;
     }
