@@ -26,9 +26,33 @@ Route::site(function () {
     $shop_page_id = Utils::get_shop_page_id();
     $cart_page_id = Utils::get_cart_page_id();
     $checkout_page_id = Utils::get_checkout_page_id();
+    $login_page_id = Utils::get_login_page_id();
+    $register_page_id = Utils::get_registration_page_id();
 
     $shop_page = get_post($shop_page_id);
     $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
+
+    $login_page = get_post($login_page_id);
+    $login_page_slug = !empty($login_page) ? $login_page->post_name : 'login';
+
+    $register_page = get_post($register_page_id);
+    $register_page_slug = !empty($register_page) ? $register_page->post_name : 'register';
+
+    Route::get($login_page_slug, [SiteController::class, 'login_page'])
+        ->name('login');
+
+    Route::post($login_page_slug, [SiteController::class, 'handle_login'])
+        ->template_redirect()
+        ->name('login');
+
+    if (Utils::registration_enabled()) {
+        Route::get($register_page_slug, [SiteController::class, 'register_page'])
+            ->name('register');
+
+        Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
+            ->template_redirect()
+            ->name('register');
+    }
 
     Route::get($shop_page_slug, [SiteController::class, 'shop_page'])
         ->name('shop')

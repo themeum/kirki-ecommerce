@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -54,22 +56,26 @@ class AccountController
      * @since 1.0.0
      *
      * @param Request $request Request.
+     * @param OrderService $order_service   Order service.
      *
      * @return Response response.
      */
-    public function dashboard(Request $request)
+    public function dashboard(Request $request, OrderService $order_service)
     {
         $customer = customer();
         $user = wp_get_current_user();
-        $billing_address = $customer ? $customer->get_billing_address() : null;
-        $shipping_address = $customer ? $customer->get_shipping_address() : null;
+
+        $dto = new OrderListFilterDTO();
+        $dto->customer_id = $customer->get_customer_id();
+        $dto->limit = 3;
+
+        $orders = OrderListResource::paginated($order_service->paginated_orders($dto));
 
         $data = [
-            'customer'         => $customer,
-            'user'             => $user,
-            'billing_address'  => $billing_address,
-            'shipping_address' => $shipping_address,
-            'pages'            => $this->pages,
+            'customer'  => $customer,
+            'user'      => $user,
+            'pages'     => $this->pages,
+            'orders'    => $orders,
         ];
 
         return view('site.account', $data)->layout(false);

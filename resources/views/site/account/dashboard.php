@@ -16,13 +16,17 @@ use Kirki\Ecommerce\App\Supports\Url;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
-$user = view_data('user') ?: wp_get_current_user();
+$user = view_data('user');
+$customer = view_data('customer');
+$pages = view_data('pages');
+$orders = view_data('orders', []);
+
 $display_name = $user->display_name ?: $user->user_login ?: __('Customer', 'kirki-ecommerce');
 $user_email = $user->user_email ?: '';
-$customer = view_data('customer');
-$billing_address = view_data('billing_address') ?? ($customer ? $customer->get_billing_address() : null);
-$shipping_address = view_data('shipping_address') ?? ($customer ? $customer->get_shipping_address() : null);
-$pages = view_data('pages');
+
+$billing_address = $customer ? $customer->get_billing_address() : null;
+$shipping_address = $customer ? $customer->get_shipping_address() : null;
+$register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : '';
 ?>
 
 <?php Template::get_header(); ?>
@@ -53,7 +57,7 @@ $pages = view_data('pages');
                         </div>
 
                         <!-- Orders List Partial -->
-                        <?php include_view('site.account.orders-table'); ?>
+                        <?php include_view('site.account.orders-table', ['orders' => $orders['results']]); ?>
                     </div>
 
                     <!-- Account Details & Saved Addresses Cards -->
@@ -79,8 +83,8 @@ $pages = view_data('pages');
                                 </div>
 
                                 <div class="kecom-account-field">
-                                    <span class="kecom-account-field-label"><?php esc_html_e('PASSWORD', 'kirki-ecommerce'); ?></span>
-                                    <span class="kecom-account-field-value kecom-password-dots">••••••••••••</span>
+                                    <span class="kecom-account-field-label"><?php esc_html_e('REGISTERED SINCE', 'kirki-ecommerce'); ?></span>
+                                    <span class="kecom-account-field-value"><?php echo esc_html($register_since); ?></span>
                                 </div>
                             </div>
                         </div>
