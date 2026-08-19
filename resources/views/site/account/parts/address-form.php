@@ -17,9 +17,6 @@ $countries = $data['countries'] ?? [];
 <div class="kecom-card" x-show="editingAddress" x-cloak>
     <div class="kecom-card-header">
         <h3 class="kecom-card-title" x-text="editingAddress === 'billing' ? '<?php esc_attr_e('Edit Billing Address', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('Edit Shipping Address', 'kirki-ecommerce'); ?>'"></h3>
-        <button type="button" class="kecom-btn kecom-btn-outline kecom-btn-sm" :disabled="loading" @click.prevent="cancelEdit">
-            <?php esc_html_e('Cancel', 'kirki-ecommerce'); ?>
-        </button>
     </div>
 
     <form @submit.prevent="saveAddress" class="kecom-form">

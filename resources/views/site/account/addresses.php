@@ -70,8 +70,9 @@ $customer_data = [
     'photo'             => $customer ? ($customer->photo ?? null) : null,
     'accepts_marketing' => $customer ? (bool)($customer->accepts_marketing ?? false) : false,
     'notes'             => $customer ? ($customer->notes ?? null) : null,
-    'language'          => $customer ? ($customer->language ?? 'en') : 'en',
-    'tags'              => $customer ? ($customer->tags ?? []) : [],
+    'language'                    => $customer ? ($customer->language ?? 'en') : 'en',
+    'tags'                        => $customer ? ($customer->tags ?? []) : [],
+    'is_billing_same_as_shipping' => $customer ? (bool)($customer->is_billing_same_as_shipping ?? false) : false,
 ];
 
 $addresses_payload = [
