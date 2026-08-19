@@ -157,27 +157,48 @@ class Klarna extends PaymentProvider
      */
     public function webhook()
     {
-        $payload = @file_get_contents('php://input');
+        $raw_payload = @file_get_contents('php://input');
+        $payload = json_decode($raw_payload);
 
-        $this->client = $this->get_client();
-        $event = $this->verify_and_parse_notification();
+        http_response_code(200);
 
         $allowed_event_types = [
-            RazorpayConstant::EVENT_PAYMENT_CAPTURED,
-            RazorpayConstant::EVENT_PAYMENT_FAILED
+            KlarnaConstant::STATUS_COMPLETED,
+            KlarnaConstant::STATUS_CANCELED,
+            KlarnaConstant::STATUS_FAILED
         ];
 
-        if (!in_array($event->event, $allowed_event_types, true)) {
+        if (!in_array($payload->session->status, $allowed_event_types, true)) {
             return false;
         }
 
-        // $order_id = $event->payload->payment->entity->notes->order_id ?? null;
-        // $order = OrderManager::find($order_id);
-        // if ($order->payment_status === PaymentStatus::PAID) {
-        //     return false;
-        // }
+        $klarna_order_id = $payload->session->order_id ?? null;
 
-        $this->handle_transaction_response($event);
+        if (empty($klarna_order_id)) {
+            return false;
+        }
+
+        $this->client = $this->get_client();
+
+        try {
+            $order_details = $this->client->get('order_management_url', $klarna_order_id);
+            $order_uuid = $order_details['merchant_reference1'] ?? null;
+
+            if (empty($order_uuid)) {
+                throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-klarna'));
+            }
+
+            $this->order = OrderManager::find_by_uuid($order_uuid);
+            if ($this->order->payment_status === PaymentStatus::PAID) {
+                return false;
+            }
+
+            $this->handle_transaction_response($order_details);
+            return true;
+        } catch (\Throwable $th) {
+            throw new Exception(__('Webhook error: ' . $th->getMessage(), 'kirki-ecommerce-klarna'));
+        }
+
         return true;
     }
 
@@ -201,53 +222,45 @@ class Klarna extends PaymentProvider
         return new KlarnaClient($username, $password, $region, $sandbox);
     }
 
-    /**
-     * Read the raw webhook payload, verify its signature, and decode it.
-     *
-     * @return object
-     * @throws Exception If the payload is empty or its signature is invalid.
-     */
-    protected function verify_and_parse_notification(): object {}
-
-    /**
-     * Update the order based on a Klarna payment event's status.
-     *
-     * @param object $payload
-     * @return void
-     * @throws Exception If the order update fails.
-     */
-    protected function handle_transaction_response(object $payload)
+    protected function handle_transaction_response(array $payload)
     {
-        // $entity   = $payload->payload->payment->entity;
-        // $status   = $entity->status ?? PaymentStatus::UNPAID;
-        // $order_id = $entity->notes->order_id;
+        $status = $payload['status'] ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
         try {
+            switch ($status) {
+                case KlarnaConstant::ORDER_CAPTURED:
+                    $this->record_transaction($payload);
+                    OrderManager::mark_payment_as_paid($this->order->id);
+                    break;
 
+                case KlarnaConstant::ORDER_EXPIRED:
+                case KlarnaConstant::ORDER_CANCELLED:
+                case KlarnaConstant::ORDER_CLOSED:
+                    $this->record_transaction($payload);
+                    OrderManager::mark_payment_as_failed($this->order->id);
+                    break;
+
+                default:
+                    OrderManager::mark_payment_as_unpaid($this->order->id);
+            }
 
             DB::commit();
         } catch (\Throwable $e) {
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-square'), $e->getMessage())
+                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-klarna'), $e->getMessage())
             );
         }
     }
 
-    /**
-     * Store the transaction ID and raw payment payload for an order.
-     *
-     * @param string $order_id
-     * @param object $entity
-     * @return void
-     */
-    protected function record_transaction(string $order_id, object $entity): void
+
+    protected function record_transaction(array $payload): void
     {
-        OrderManager::set_transaction_id($order_id, $entity->id);
-        OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+        OrderManager::set_transaction_id($this->order->id, $payload['klarna_reference']);
+        OrderManager::set_payment_metadata($this->order->id, wp_json_encode($payload));
     }
 
     protected function create_payment_session()
@@ -267,18 +280,18 @@ class Klarna extends PaymentProvider
         return $this->client->post($payload, 'create_payment_session_id');
     }
 
-    protected function create_hpp_session($session_id)
+    protected function create_hpp_session(string $session_id)
     {
         $payment_session_url =  $this->client->get_base_url() . KlarnaConstant::PAYMENT_SESSION . "/{$session_id}";
         $payload = [
             'merchant_urls' => $this->transactionBuilder->get_merchant_urls($this->webhook_url()),
             'options' => [
                 'place_order_mode' => 'CAPTURE_ORDER',
-                'purchase_type' => 'BUY'
+                'purchase_type' => 'BUY',
             ],
             'payment_session_url' => $payment_session_url
         ];
 
-        return $this->client->post($payload, 'hhp_session_url');
+        return $this->client->post($payload, 'hhp_session_url', ['headers' => ['Klarna-Idempotency-Key' => $this->order->uuid]]);
     }
 }

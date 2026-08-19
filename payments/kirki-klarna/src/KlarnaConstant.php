@@ -11,9 +11,7 @@ class KlarnaConstant
 {
     use HasConstants;
 
-    const SANDBOX = 'sandbox';
-    const PRODUCTION = 'production';
-    const API_URLS = array(
+    public const API_URLS = array(
         'eu' => array(
             'production' => 'https://api.klarna.com/',
             'sandbox' => 'https://api.playground.klarna.com/',
@@ -28,6 +26,19 @@ class KlarnaConstant
         ),
     );
 
-    const PAYMENT_SESSION = 'payments/v1/sessions';
-    const HPP_SESSION = 'hpp/v1/sessions';
+    public const PAYMENT_SESSION = 'payments/v1/sessions';
+    public const HPP_SESSION = 'hpp/v1/sessions';
+    public const ORDER = 'ordermanagement/v1/orders/';
+
+    public const SANDBOX = 'sandbox';
+    public const PRODUCTION = 'production';
+
+    public const STATUS_COMPLETED = 'COMPLETED';
+    public const STATUS_CANCELED = 'CANCELED';
+    public const STATUS_FAILED = 'FAILED';
+
+    public const ORDER_CAPTURED = 'CAPTURED';
+    public const ORDER_CANCELLED = 'CANCELLED';
+    public const ORDER_EXPIRED = 'EXPIRED';
+    public const ORDER_CLOSED = 'CLOSED';
 }

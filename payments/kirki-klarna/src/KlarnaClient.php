@@ -28,18 +28,17 @@ class KlarnaClient
         $this->sandbox = $sandbox;
     }
 
-    public function is_verified(string $raw_payload): bool
-    {
-    }
-
-    public function post(array $payload, string $method_name)
+    public function post(array $payload, string $method_name, array $args = [])
     {
         $endpoint = call_user_func([$this, $method_name]);
 
-        $response = Http::with_token($this->get_auth(), 'Basic')
-            //->with_headers(['Klarna-Idempotency-Key' => $this->order->uuid])
-            ->with_body(wp_json_encode($payload))
-            ->post($endpoint);
+        $request = Http::with_token($this->get_auth(), 'Basic');
+
+        if (!empty($args['headers'])) {
+            $request->with_headers($args['headers']);
+        }
+
+        $response = $request->with_body(wp_json_encode($payload))->post($endpoint);
 
         if ($response->failed()) {
             throw new Exception($response->body());
@@ -74,5 +73,24 @@ class KlarnaClient
     protected function hhp_session_url()
     {
         return $this->get_base_url() . KlarnaConstant::HPP_SESSION;
+    }
+
+    public function get(string $method_name, string $args)
+    {
+        $endpoint = call_user_func([$this, $method_name], $args);
+
+        $response = Http::with_token($this->get_auth(), 'Basic')
+            ->get($endpoint . $args);
+
+        if ($response->failed()) {
+            throw new Exception($response->body());
+        }
+
+        return $response->json();
+    }
+
+    protected function order_management_url()
+    {
+        return $this->get_base_url() . KlarnaConstant::ORDER;
     }
 }
