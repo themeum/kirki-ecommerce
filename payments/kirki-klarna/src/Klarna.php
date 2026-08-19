@@ -220,6 +220,14 @@ class Klarna extends PaymentProvider
         return $this->client = new KlarnaClient($username, $password, $region, $sandbox);
     }
 
+    /**
+     * Apply an order's status, from Klarna's Order Management API, to the local order.
+     *
+     * @param Order $order The local order.
+     * @param array $payload The order data returned by KlarnaClient::get_order().
+     * @return void
+     * @throws Exception If the order update fails.
+     */
     protected function handle_transaction_response(Order $order, array $payload): void
     {
         $status = $payload['status'] ?? PaymentStatus::UNPAID;
@@ -254,12 +262,26 @@ class Klarna extends PaymentProvider
         }
     }
 
+    /**
+     * Record the Klarna transaction ID and raw order payload against the local order.
+     *
+     * @param Order $order The local order.
+     * @param array $payload The order data returned by KlarnaClient::get_order().
+     * @return void
+     */
     protected function record_transaction(Order $order, array $payload): void
     {
         OrderManager::set_transaction_id($order->id, $payload['klarna_reference']);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 
+    /**
+     * Create a Klarna payment session for an order.
+     *
+     * @param Order $order
+     * @return array The decoded JSON response, including the session_id.
+     * @throws Exception If the API request fails.
+     */
     protected function create_payment_session(Order $order): array
     {
         $builder = new KlarnaTransactionBuilder($order);
@@ -279,6 +301,14 @@ class Klarna extends PaymentProvider
         return $this->get_client()->create_payment_session($payload);
     }
 
+    /**
+     * Create a Klarna Hosted Payment Page session for an order's payment session.
+     *
+     * @param Order $order
+     * @param string $session_id The payment session ID from create_payment_session().
+     * @return array The decoded JSON response, including the redirect_url.
+     * @throws Exception If the API request fails.
+     */
     protected function create_hpp_session(Order $order, string $session_id): array
     {
         $builder = new KlarnaTransactionBuilder($order);

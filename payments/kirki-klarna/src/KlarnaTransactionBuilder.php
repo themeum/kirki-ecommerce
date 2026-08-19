@@ -15,11 +15,20 @@ class KlarnaTransactionBuilder
 {
     protected Order $order;
 
+    /**
+     * @param Order $order The order to build Klarna payloads for.
+     */
     public function __construct(Order $order)
     {
         $this->order = $order;
     }
 
+    /**
+     * Build a Klarna address object for the order's billing or shipping address.
+     *
+     * @param string $type Either 'billing' or 'shipping'.
+     * @return object An empty stdClass if the order has no address of that type.
+     */
     public function format_address(string $type)
     {
         if (empty($this->order->{$type . '_address_line1'})) {
@@ -41,6 +50,13 @@ class KlarnaTransactionBuilder
         ];
     }
 
+    /**
+     * Split an order address into two Klarna-length-limited street address lines.
+     *
+     * @param int $max_length Maximum length of each returned line.
+     * @param string $type Either 'billing' or 'shipping'.
+     * @return array{0: string, 1: string}|array{} A [line1, line2] pair, or [] if the order has no address of that type.
+     */
     protected function split_address(int $max_length, string $type): array
     {
         $line1 = (string) ($this->order->{$type . '_address_line1'} ?? '');
@@ -64,6 +80,11 @@ class KlarnaTransactionBuilder
         ];
     }
 
+    /**
+     * Build Klarna order_lines entries for the order's items and shipping charge.
+     *
+     * @return array
+     */
     public function get_line_items(): array
     {
         $line_items = [];
@@ -91,6 +112,12 @@ class KlarnaTransactionBuilder
         return $line_items;
     }
 
+    /**
+     * Build the merchant_urls block for a Klarna HPP session.
+     *
+     * @param string $webhook_url URL Klarna should notify on order status changes.
+     * @return array
+     */
     public function get_merchant_urls(string $webhook_url): array
     {
         return[

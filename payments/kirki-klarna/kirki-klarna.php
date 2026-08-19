@@ -25,6 +25,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 add_action('plugins_loaded', 'kirki_klarna_register_payment_provider');
 register_activation_hook(__FILE__, 'kirki_klarna_register_payment_provider');
 
+/**
+ * Register the Klarna payment provider with kirki-ecommerce.
+ *
+ * @return void
+ */
 function kirki_klarna_register_payment_provider()
 {
     if (!class_exists(HookNames::class)) {
