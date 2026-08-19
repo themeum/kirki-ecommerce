@@ -9,13 +9,12 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Constants\Registration;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\Framework\session;
 
-$validation_errors = get_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY);
 ?>
 
 <?php Template::get_header(); ?>
@@ -31,13 +30,16 @@ $validation_errors = get_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KE
                 </a>
             </div>
         </div>
-        <?php if (!empty($validation_errors)): ?>
+
+        <!-- Errors -->
+        <?php if (session()->has('errors')) : ?>
             <div class="kecom-alert kecom-alert-error">
-                <?php foreach ($validation_errors as $error): ?>
-                    <?php echo esc_html($error['message']); ?>
+                <?php foreach (session('errors') as $error) : ?>
+                    <?php echo esc_html($error); ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+
         <form class="kecom-auth-form" x-data="form({
             defaultValues: {
                 first_name: '',
@@ -113,7 +115,4 @@ $validation_errors = get_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KE
     </div>
 </div>
 
-<?php
-delete_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY);
-Template::get_footer();
-?>
+<?php Template::get_footer(); ?>
