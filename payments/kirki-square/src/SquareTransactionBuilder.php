@@ -30,6 +30,28 @@ class SquareTransactionBuilder
             ];
         }
 
+        if (!empty($order->invoiced_shipping_total)) {
+            $line_items[] = [
+                'name' => __('Shipping Charge', 'kirki-ecommerce-square'),
+                'quantity' => '1',
+                'base_price_money' => [
+                    'amount' => (int) $item->invoiced_shipping_total,
+                    'currency' => strtoupper($order->currency_code)
+                ],
+            ];
+        }
+
+        if (!empty($order->invoiced_tax_total)) {
+            $line_items[] = [
+                'name' => __('Tax', 'kirki-ecommerce-square'),
+                'quantity' => '1',
+                'base_price_money' => [
+                    'amount' => (int) $item->invoiced_tax_total,
+                    'currency' => strtoupper($order->currency_code)
+                ],
+            ];
+        }
+
         return $line_items;
     }
 }

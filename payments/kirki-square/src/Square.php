@@ -41,7 +41,7 @@ class Square extends PaymentProvider
             [
                 'name' => 'location_id',
                 'label' => __('Location ID', 'kirki-ecommerce-square'),
-                'type' => 'dropdown',
+                'type' => 'text',
                 'required' => true,
             ],
             [
@@ -84,16 +84,27 @@ class Square extends PaymentProvider
                 'idempotency_key' => SquareConstant::PREFIX . $order->uuid,
                 'order' => [
                     'location_id' => $this->settings['location_id'],
-                    'reference_id' =>  SquareConstant::PREFIX . $order->id,
+                    'reference_id' => $order->uuid,
                     'line_items' => SquareTransactionBuilder::build_line_items($order),
-                    'checkout_options' => [
-                        'redirect_url' => Url::get_checkout_success_url($order->uuid)
-                    ],
-                    'enable_coupon' => false
+                ],
+                'checkout_options' => [
+                    'redirect_url' => Url::get_checkout_success_url($order->uuid),
+                    'enable_coupon' => false,
+                ],
+                'pre_populated_data' => [
+                    'buyer_email' => $order->billing_email ?? null,
+                    'buyer_address' => [
+                        'address_line_1' => $order->billing_address_line1 ?? null,
+                        'address_line_2' => $order->billing_address_line2 ?? null,
+                        'postal_code' => $order->billing_postal_code ?? null,
+                        'country' => $order->billing_country ?? null,
+                        'first_name' => $order->billing_first_name ?? null,
+                        'last_name' => $order->billing_last_name ?? null
+                    ]
                 ]
             ];
 
-            $response = $this->client->send($payload, 'payment_link_url');
+            $response = $this->client->create_payment_link($payload);
 
             if (empty($response['payment_link']['long_url'])) {
                 throw new Exception(__('Square checkout link not found.', 'kirki-ecommerce-square'));
@@ -156,24 +167,37 @@ class Square extends PaymentProvider
     public function webhook()
     {
         $this->client = $this->get_client();
-        $event = $this->verify_and_parse_notification();
+        $payload = $this->verify_and_parse_notification();
 
         $allowed_event_types = [
-            RazorpayConstant::EVENT_PAYMENT_CAPTURED,
-            RazorpayConstant::EVENT_PAYMENT_FAILED
+            SquareConstant::EVENT_PAYMENT_UPDATE
         ];
 
-        if (!in_array($event->event, $allowed_event_types, true)) {
+        if (!in_array($payload->type, $allowed_event_types, true)) {
             return false;
         }
 
-        // $order_id = $event->payload->payment->entity->notes->order_id ?? null;
-        // $order = OrderManager::find($order_id);
-        // if ($order->payment_status === PaymentStatus::PAID) {
-        //     return false;
-        // }
+        $payment = $payload->data->object->payment ?? null;
+        if (empty($payment)) {
+            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
+        }
+        $reference_id = $payment->reference_id ?? null;
 
-        $this->handle_transaction_response($event);
+        if (!$reference_id && !empty($payment->order_id)) {
+            $order_details = $this->client->fetch_square_ref_id($payment->order_id);
+            $reference_id = $order_details['order']['reference_id'] ?? null;
+        }
+
+        if (empty($reference_id)) {
+            throw new Exception(__('Square Error: Order UUID Not Found.', 'kirki-ecommerce-square'));
+        }
+
+        $order = OrderManager::find_by_uuid($reference_id);
+        if ($order->payment_status === PaymentStatus::PAID) {
+            return false;
+        }
+
+        $this->handle_transaction_response($payment, $order);
         return true;
     }
 
@@ -203,7 +227,23 @@ class Square extends PaymentProvider
      * @return object
      * @throws Exception If the payload is empty or its signature is invalid.
      */
-    protected function verify_and_parse_notification(): object {}
+    protected function verify_and_parse_notification(): object
+    {
+        $payload = file_get_contents('php://input');
+
+        // Respond with a 200 status code to acknowledge the notification.
+        http_response_code(200);
+
+        if (empty($payload)) {
+            throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-square'));
+        }
+
+        if (!$this->client->is_verified($payload, $this->webhook_url())) {
+            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
+        }
+
+        return json_decode($payload);
+    }
 
     /**
      * Update the order based on a Razorpay payment event's status.
@@ -212,16 +252,29 @@ class Square extends PaymentProvider
      * @return void
      * @throws Exception If the order update fails.
      */
-    protected function handle_transaction_response(object $payload)
+    protected function handle_transaction_response(object $payload, Order $order)
     {
-        // $entity   = $payload->payload->payment->entity;
-        // $status   = $entity->status ?? PaymentStatus::UNPAID;
-        // $order_id = $entity->notes->order_id;
+        $status = $payload->status ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
         try {
+            switch ($status) {
+                case SquareConstant::PAYMENT_COMPLETED:
+                    $this->record_transaction($order, $payload);
+                    OrderManager::mark_payment_as_paid($order->id);
+                    break;
 
+                case SquareConstant::PAYMENT_CANCELED:
+                case SquareConstant::PAYMENT_FAILED:
+                    $this->record_transaction($order, $payload);
+                    OrderManager::mark_payment_as_failed($order->id);
+                    break;
+
+                case SquareConstant::PAYMENT_APPROVED:
+                case SquareConstant::PAYMENT_PENDING:
+                    OrderManager::mark_payment_as_unpaid($order->id);
+            }
 
             DB::commit();
         } catch (\Throwable $e) {
@@ -233,16 +286,10 @@ class Square extends PaymentProvider
         }
     }
 
-    /**
-     * Store the transaction ID and raw payment payload for an order.
-     *
-     * @param string $order_id
-     * @param object $entity
-     * @return void
-     */
-    protected function record_transaction(string $order_id, object $entity): void
+
+    protected function record_transaction(Order $order, object $payload): void
     {
-        OrderManager::set_transaction_id($order_id, $entity->id);
-        OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+        OrderManager::set_transaction_id($order->id, $payload->id);
+        OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }

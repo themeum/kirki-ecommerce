@@ -54,41 +54,31 @@ class SquareClient
         return $response->json();
     }
 
-    /**
-     * Build the HTTP Basic auth token from the key ID and secret.
-     *
-     * @return string
-     * @throws InvalidArgumentException If the key ID or secret is missing.
-     */
-    protected function get_auth()
+
+    public function is_verified(string $raw_payload, string $webhook_url): bool
     {
-        // if (empty($this->key_id) || empty($this->key_secret)) {
-        //     throw new InvalidArgumentException(__('Invalid API Key Or Key Secret.', 'kirki-ecommerce-razorpay'));
-        // }
-        // return base64_encode($this->key_id . ':' . $this->key_secret);
+        $given_signature = $_SERVER['HTTP_X_SQUARE_HMACSHA256_SIGNATURE'] ?? $_SERVER['HTTP_X_SQUARE_SIGNATURE'] ?? '';
+
+        if (empty(strlen($raw_payload)) || empty(strlen($given_signature))) {
+            return false;
+        }
+
+        $payload =  $webhook_url . $raw_payload;
+
+        $hash = hash_hmac('sha256', $payload, $this->signature_key, true);
+        $expected_signature = base64_encode($hash);
+
+        return $expected_signature === $given_signature;
     }
 
-    /**
-     * Verify a webhook payload's signature against the configured webhook secret.
-     *
-     * @param string $raw_payload
-     * @return bool
-     */
-    public function is_verified(string $raw_payload): bool
+    public function send(string $endpoint, string $method, array $payload = [])
     {
-        $given_signature = $_SERVER['HTTP_X_RAZORPAY_SIGNATURE'] ?? '';
-        $expected_signature = hash_hmac(RazorpayConstant::SHA256, $raw_payload, $this->webhook_secret);
+        $request = Http::with_token($this->access_token)
+                    ->with_headers(['Square-Version' => SquareConstant::SQUARE_VERSION]);
 
-        return hash_equals($expected_signature, $given_signature);
-    }
-
-    public function send(array $payload, string $method)
-    {
-        $endpoint = call_user_func(array($this, $method));
-
-        $response = Http::with_token($this->access_token)
-            ->with_body(wp_json_encode($payload))
-            ->post($endpoint);
+        $response = SquareConstant::POST_METHOD === $method
+            ? $request->with_body(wp_json_encode($payload))->post($endpoint)
+            : $request->get($endpoint);
 
         if ($response->failed()) {
             throw new Exception($response->body());
@@ -97,10 +87,28 @@ class SquareClient
         return $response->json();
     }
 
-    public function payment_link_url(): string
+    protected function payment_link_url(): string
     {
-        $endpoint = $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
+        return $this->get_base_url() . SquareConstant::PAYMENT_LINK;
+    }
 
-        return $endpoint . SquareConstant::PAYMENT_LINK;
+    public function create_payment_link(array $payload)
+    {
+        return $this->send($this->payment_link_url(), SquareConstant::POST_METHOD, $payload);
+    }
+
+    public function fetch_square_ref_id(string $order_id)
+    {
+        return $this->send($this->retrieve_order_url($order_id), SquareConstant::GET_METHOD);
+    }
+
+    protected function retrieve_order_url(string $order_id)
+    {
+        return $this->get_base_url() . SquareConstant::ORDER_LINK . "/{$order_id}";
+    }
+
+    protected function get_base_url()
+    {
+        return  $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
     }
 }
