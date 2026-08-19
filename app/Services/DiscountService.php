@@ -178,6 +178,8 @@ class DiscountService
             return $result;
         }
 
+        // @todo: implement automatic coupon calculation logic
+
         $this->validate_coupon($coupon, $context);
 
         $result->discount_details = $coupon;

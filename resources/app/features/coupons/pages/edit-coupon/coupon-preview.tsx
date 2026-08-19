@@ -16,7 +16,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
 
-const formatDisplayDate = (date?: string | null, time?: string | null): string | null => formatDateValue(mergeDateTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
+const formatDisplayDate = (date?: string | null, time?: string | null) => formatDateValue(mergeDateTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
 
 type PreviewSectionProps = {
   title: string;
