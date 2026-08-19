@@ -62,10 +62,10 @@
   }
 
   &-help {
-    @include typography(xs, normal, $text-secondary);
+    @include typography(sm, normal, $text-secondary);
   }
   &-error {
-    @include typography(xs, normal, $background-fill-critical);
+    @include typography(sm, normal, $background-fill-critical);
   }
 
   // Error state

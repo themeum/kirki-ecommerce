@@ -52,6 +52,8 @@ hr {
 
 .kecom-page-wrapper {
   width: 100%;
+  margin: 0;
+  padding: 0;
 
   &:has(.kecom-account-page) {
     background-color: $background-surface-secondary;

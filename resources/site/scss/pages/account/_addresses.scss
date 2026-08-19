@@ -13,6 +13,10 @@
     @include typography(xl, semibold, $text-primary);
     margin: 0;
   }
+
+  .kecom-card {
+    max-width: 732px;
+  }
 }
 
 .kecom-account-addresses-grid {
