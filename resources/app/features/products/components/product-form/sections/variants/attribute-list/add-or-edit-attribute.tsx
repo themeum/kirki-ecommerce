@@ -1,44 +1,35 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Card, CardContent } from '@/components/ui/card';
-import Combobox from '@/components/ui/combobox';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import AttributeValuesField from '@/features/products/components/attribute-values-field';
+import AttributeNameField, { type AttributeSuggestion } from '@/features/products/components/fields/attribute-name-field';
+import AttributeValuesField from '@/features/products/components/fields/attribute-values-field';
 import {
   type MatrixMutation,
   savedVariants,
   useVariantMatrix,
 } from '@/features/products/components/product-form/sections/variants/use-variant-matrix';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
-import type { AddVariationFormPayload } from '@/features/products/schemas/forms/add-variation-form';
 import {
   type ProductAttributeFormInput,
   ProductAttributeFormSchema,
 } from '@/features/products/schemas/forms/product-attribute-form';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { useAttributesQuery, useCreateAttributeMutation } from '@/features/products/services/attribute';
+import { useAttributesQuery } from '@/features/products/services/attribute';
 import { ColorPaletteIcon, ListIcon } from '@/icons';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import type { SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __, _n, sprintf } from '@/wpi18n';
-
-type AttributeSuggestion = SelectOption & {
-  type?: string;
-};
 
 type AddOrEditAttributeProps = {
   onClose?: () => void;
@@ -59,7 +50,6 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
   const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({
     limit: -1,
   });
-  const createAttributeMutation = useCreateAttributeMutation();
 
   const form = useForm<ProductAttributeFormInput>({
     resolver: zodResolver(ProductAttributeFormSchema),
@@ -145,42 +135,6 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
     handleOnClose();
   };
 
-  const handleAttributeSelect = (attributeValue: string) => {
-    const selected = attributeSuggestionArray.find(
-      (item) => String(item.value) === attributeValue,
-    );
-    if (!selected) {
-      return;
-    }
-
-    form.setValue('name', selected.title, { shouldDirty: true });
-    form.setValue('id', selected.value as number, { shouldDirty: true });
-    form.setValue('type', type, { shouldDirty: true });
-    form.setValue('values', [], { shouldDirty: true });
-    form.clearErrors(['id', 'name']);
-  };
-
-  const handleNewAttributeAdd = async (value: string) => {
-    const newAttribute: AddVariationFormPayload = {
-      name: value,
-      type,
-    };
-    try {
-      const response = await createAttributeMutation.mutateAsync(newAttribute);
-      const attributeData = response.data as Attribute & { slug?: string };
-      const { id, name, slug, type: attrType, values } = attributeData;
-      form.reset({
-        id,
-        name,
-        slug,
-        type: attrType,
-        values: (values) ?? [],
-      });
-    } catch (error) {
-      applyServerErrors(form, error as ErrorResponse);
-    }
-  };
-
   const handleOnClose = () => {
     form.reset({
       id: undefined,
@@ -234,62 +188,12 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
                 </ButtonGroup>
               </Flex>
             )}
-            <Controller
-              control={form.control}
-              name="name"
-              render={({ fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>
-                    {__('Variation Name', 'kirki-ecommerce')}
-                  </FieldLabel>
-                  <Combobox
-                    error={Boolean(
-                      fieldState.error ??
-                      form.formState.errors.id ??
-                      form.formState.errors.name,
-                    )}
-                    value={
-                      formData?.id != null ? String(formData.id) : undefined
-                    }
-                    options={[
-                      ...(formData?.id != null && formData?.name
-                        ? [
-                          {
-                            label: formData.name,
-                            value: String(formData.id),
-                          },
-                        ]
-                        : []),
-                      ...attributeSuggestionArray
-                        .filter(
-                          (item) => String(item.value) !== String(formData?.id),
-                        )
-                        .map((item) => ({
-                          label: item.title,
-                          value: String(item.value),
-                        })),
-                    ]}
-                    placeholder={__(
-                      'e.g. Size or Material',
-                      'kirki-ecommerce',
-                    )}
-                    searchPlaceholder={__(
-                      'e.g. Size or Material',
-                      'kirki-ecommerce',
-                    )}
-                    creatable
-                    addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
-                    onChange={(nextValue) =>
-                      handleAttributeSelect(String(nextValue))
-                    }
-                    onAddItem={(query) => handleNewAttributeAdd(query)}
-                    disabled={!!formData?.id}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
+            <AttributeNameField
+              label={__('Variation Name', 'kirki-ecommerce')}
+              suggestions={attributeSuggestionArray}
+              placeholder={__('e.g. Size or Material', 'kirki-ecommerce')}
+              searchPlaceholder={__('e.g. Size or Material', 'kirki-ecommerce')}
+              addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
             />
             <AttributeValuesField
               name="values"

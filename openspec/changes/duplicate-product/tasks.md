@@ -1,0 +1,35 @@
+> **Superseded**: tasks 1.1/1.2 and 3.1-3.3's `PATCH /products/{id}/action` endpoint was replaced by a dedicated `POST /products/{id}/duplicate` endpoint at the user's explicit request — see section 5 and design.md decision #1. Left as-is below for history; section 5 is the accurate record of what actually shipped.
+
+## 1. Route & controller wiring
+
+- [x] 1.1 Add `Route::patch('/products/{id}/action', [ProductController::class, 'action'])->where('id', '[\d]+');` to `routes/api.php`, placed next to the existing `/products/*` routes (mirrors the `/coupons/{id}/action` and `/orders/{id}/action` entries).
+- [x] 1.2 Add `ProductController::action(Request $request, DuplicateProductAction $duplicate_action)` following `CouponController::action()`'s shape: plain `Request $request`, `switch ($request->string('action'))`, a `'duplicate'` case calling `$duplicate_action->execute($request->int('id'))` and returning `ProductResource::make($product)`, and a `default` case returning `Response::BAD_REQUEST` with an empty `errors` array and a "No action performed." message.
+- [x] 1.3 Verify: `bash kirki-test integration --filter=ProductApiTest` passes (confirmed the 3 pre-existing failures in this file — `test_variant_referencing_an_unlisted_value_is_rejected`, `test_duplicate_variant_combination_is_rejected`, `test_update_without_attribute_values_is_rejected` — reproduce identically on a clean `git stash`, unrelated to this change).
+
+## 2. DuplicateProductAction
+
+- [x] 2.1 Create `app/Actions/Product/DuplicateProductAction.php`, constructor-injecting `ProductService` and `CreateProductAction` (same collaborator pattern as `DuplicateCouponAction`).
+- [x] 2.2 Implement `execute(int $id)`: load the product via `$this->product_service->find($id)` (**diverged from the original task wording** — reused `ProductService::find()` instead of a fresh `Product::with([...])->find()` + inline `NotFoundException`, since it already does exactly that; see design.md decision #2's correction note).
+- [x] 2.3 Build the `CreateProductDTO` copy per design.md decision #2: scalar fields copied 1:1, `title` suffixed with `' - Copy'`, `slug` left null, `status` forced to `ProductStatus::DRAFT`, `categories`/`tags`/`collections` mapped to `pluck('id')->all()`, `media` mapped to `pluck('ID')->all()` (**corrected** — `Post`'s primary key is `ID`, not `id`; see design.md), `attributes` reconstructed as `[{id, values}]` by grouping the loaded `attribute_values` by `attribute_id` in the order of the loaded `attributes` pivot.
+- [x] 2.4 Implement `prepare_variant_copy(Variant $variant): CreateVariantDTO` per design.md decision #3: `CreateVariantDTO::from_array($variant->to_array())` then override `sku = null`, `available_quantity = 0`, `in_stock = false`, `committed_quantity = 0`, `attribute_values = $variant->attribute_values->pluck('id')->all()`.
+- [x] 2.5 Map every loaded variant through `prepare_variant_copy()` and pass the resulting `CreateProductDTO` + `CreateVariantDTO[]` to `$this->create_product_action->execute(...)`, returning its result.
+- [x] 2.6 Verify: `bash kirki-test integration --filter=ProductApiTest` passes (same pre-existing 3 failures only; no new failures).
+
+## 3. Tests
+
+- [x] 3.1 In `tests/Integration/ProductApiTest.php`, add `test_duplicate_product_preserves_associations_and_resets_variant_fields()`: create a product with categories, tags, collections, an attribute+value, and a variant carrying a SKU, price, weight, and non-zero `available_quantity`/`committed_quantity`/`in_stock`. `PATCH products/{id}/action` with `{"action": "duplicate"}`. Assert: new id differs from source; title is `"<source title> - Copy"`; status is draft even if source wasn't; categories/tags/collections/attribute-values match the source; the duplicated variant has `sku === null`, `available_quantity === 0`, `committed_quantity === 0`, `in_stock === false`, while price/weight/attribute values match the source variant. **Scope note**: media pass-through is not asserted here — `ProductResource`'s `media` key runs every id through `MediaAttachment::make()`, which returns `null` (filtered out of the response) unless the attachment has real `wp_get_attachment_metadata()`/`get_attached_file()` data, which a bare `factory()->attachment->create()` doesn't have. Fabricating a real image fixture just to exercise the single `pluck('ID')->all()` line for media — mechanically identical to the already-covered categories/tags/collections pass-through — wasn't worth the added test fragility.
+- [x] 3.2 Add `test_duplicate_missing_product_returns_404()`: `PATCH products/999999/action` with `{"action": "duplicate"}` returns 404 and creates no product (mirrors `CouponApiTest::test_duplicate_missing_coupon_returns_404`).
+- [x] 3.3 Add `test_product_action_with_unrecognized_action_returns_bad_request()`: `PATCH products/{id}/action` with `{"action": "not-a-real-action"}` returns a bad-request response and performs no changes.
+- [x] 3.4 Verify: `bash kirki-test integration --filter=ProductApiTest` passes, showing all three new tests green (same 3 pre-existing, unrelated failures only).
+
+## 4. Final verification
+
+- [x] 4.1 Run the full suite: `bash kirki-test all` and confirm no regressions outside `ProductApiTest` (7 pre-existing failures — 3 in `ProductApiTest`, 3 in `CartApiTest`, 1 in `OrderApiTest` — all reproduce identically on a clean `git stash` of this change's diff; none touch product duplication).
+
+## 5. Endpoint redesign: dedicated route instead of generic action dispatcher
+
+- [x] 5.1 Replace the `PATCH /products/{id}/action` route in `routes/api.php` with `Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');` (matches the `POST /orders/{order_id}/refunds` dedicated-sub-resource precedent, not the Coupon/Order `/action` precedent).
+- [x] 5.2 Replace `ProductController::action()` with `duplicate(Request $request, DuplicateProductAction $duplicate_action)` — no switch, calls `$duplicate_action->execute($request->int('id'))` directly, returns `Response::CREATED` (201, matching `create()`) instead of the old 200.
+- [x] 5.3 Delete `app/Constants/Product/ProductAction.php` — it existed solely to back the removed switch's `case` values; no other caller once the switch was gone. Remove the now-unused import from `ProductController.php`.
+- [x] 5.4 Update `tests/Integration/ProductApiTest.php`: swap the three duplicate tests' `PATCH products/{id}/action` + `{"action": "duplicate"}` calls for `POST products/{id}/duplicate` (no body), expecting `201`. Delete `test_product_action_with_unrecognized_action_returns_bad_request()` entirely — there is no longer a generic dispatcher for it to exercise. Remove the now-unused `ProductAction` import.
+- [x] 5.5 Verify: `bash kirki-test integration --filter=ProductApiTest` passes (same 3 pre-existing, unrelated failures only; all duplicate tests green on the new endpoint).
