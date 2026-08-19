@@ -103,6 +103,7 @@
   @include typography(sm, medium, $text-emphasis);
   text-decoration: none;
   display: inline-block;
+  align-self: flex-start;
 
   &:hover {
     text-decoration: underline;

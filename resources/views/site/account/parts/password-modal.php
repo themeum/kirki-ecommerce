@@ -49,22 +49,27 @@ use Kirki\Ecommerce\App\Supports\Icon;
             </button>
         </div>
 
-        <form @submit.prevent="updatePassword">
+        <form
+            x-data="form({
+                defaultValues: {
+                    current_password: '',
+                    password: '',
+                    password_confirmation: ''
+                },
+                mode: 'onBlur'
+            })"
+            @submit.prevent="handleSubmit((values) => updatePassword(values, () => reset()))"
+        >
             <div class="kecom-modal-body">
-                <template x-if="passwordError">
-                    <div class="kecom-alert kecom-alert-danger" x-text="passwordError"></div>
-                </template>
-
-                <div class="kecom-field">
+                <div class="kecom-field" x-bind="fieldWrapper('current_password')">
                     <label for="kecom_current_password" class="kecom-field-label"><?php esc_html_e('Current password', 'kirki-ecommerce'); ?></label>
                     <div class="kecom-input-password-wrap">
                         <input
                             :type="showCurrentPassword ? 'text' : 'password'"
                             id="kecom_current_password"
                             class="kecom-input"
-                            x-model="passwordData.current_password"
+                            x-bind="register('current_password', { required: '<?php esc_html_e('Current password is required', 'kirki-ecommerce'); ?>' })"
                             placeholder="••••••••••••"
-                            required
                         />
                         <button
                             type="button"
@@ -76,21 +81,21 @@ use Kirki\Ecommerce\App\Supports\Icon;
                             <span x-show="showCurrentPassword" x-cloak><?php Icon::render('eye'); ?></span>
                         </button>
                     </div>
+                    <span class="kecom-field-error" x-show="errors.current_password" x-text="errors.current_password"></span>
                     <a href="<?php echo esc_url(wp_lostpassword_url()); ?>" class="kecom-forgot-password-link">
                         <?php esc_html_e('Forgot Password?', 'kirki-ecommerce'); ?>
                     </a>
                 </div>
 
-                <div class="kecom-field">
+                <div class="kecom-field" x-bind="fieldWrapper('password')">
                     <label for="kecom_new_password" class="kecom-field-label"><?php esc_html_e('Password', 'kirki-ecommerce'); ?></label>
                     <div class="kecom-input-password-wrap">
                         <input
                             :type="showNewPassword ? 'text' : 'password'"
                             id="kecom_new_password"
                             class="kecom-input"
-                            x-model="passwordData.password"
+                            x-bind="register('password', { required: '<?php esc_html_e('Password is required', 'kirki-ecommerce'); ?>' })"
                             placeholder="••••••••"
-                            required
                         />
                         <button
                             type="button"
@@ -102,18 +107,21 @@ use Kirki\Ecommerce\App\Supports\Icon;
                             <span x-show="showNewPassword" x-cloak><?php Icon::render('eye'); ?></span>
                         </button>
                     </div>
+                    <span class="kecom-field-error" x-show="errors.password" x-text="errors.password"></span>
                 </div>
 
-                <div class="kecom-field">
+                <div class="kecom-field" x-bind="fieldWrapper('password_confirmation')">
                     <label for="kecom_confirm_password" class="kecom-field-label"><?php esc_html_e('Confirm new password', 'kirki-ecommerce'); ?></label>
                     <div class="kecom-input-password-wrap">
                         <input
                             :type="showConfirmPassword ? 'text' : 'password'"
                             id="kecom_confirm_password"
                             class="kecom-input"
-                            x-model="passwordData.password_confirmation"
+                            x-bind="register('password_confirmation', {
+                                required: '<?php esc_html_e('Please confirm your new password', 'kirki-ecommerce'); ?>',
+                                validate: (val) => val === values.password || '<?php esc_html_e('Passwords do not match', 'kirki-ecommerce'); ?>'
+                            })"
                             placeholder="••••••••"
-                            required
                         />
                         <button
                             type="button"
@@ -125,6 +133,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                             <span x-show="showConfirmPassword" x-cloak><?php Icon::render('eye'); ?></span>
                         </button>
                     </div>
+                    <span class="kecom-field-error" x-show="errors.password_confirmation" x-text="errors.password_confirmation"></span>
                 </div>
             </div>
 
