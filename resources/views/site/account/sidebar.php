@@ -14,7 +14,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Utils;
 
-$menu_items = Utils::get_account_pages();
+$menu_items = Utils::get_account_menu_items();
 ?>
 
 <aside class="kecom-account-sidebar">
