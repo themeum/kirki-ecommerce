@@ -29,6 +29,15 @@ $first_name = ucfirst($customer->get_first_name());
 $last_name = ucfirst($customer->get_last_name());
 $email = $customer->get_email();
 
+$totals = $order['totals'] ?? [];
+$subtotal = $totals['invoiced_subtotal_money_object'] ?? null;
+$shipping = $totals['invoiced_shipping_money_object'] ?? null;
+$taxes = $totals['invoiced_tax_money_object'] ?? null;
+$discount = $totals['invoiced_discount_money_object'] ?? null;
+$total = $totals['invoiced_total_money_object'] ?? null;
+
+$items = $order['items']->to_array() ?? [];
+$items_product_data = $order['item_product_data'] ?? [];
 $order_placed = isset($order['created_at']) ? date('M j, Y', strtotime($order['created_at'])) : '';
 $shipping_address = $order['shipping_address'] ?? [];
 $shipping_country = $order['shipping_country'] ?? [];
@@ -196,100 +205,69 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <div class="kecom-order-details-col-right">
                             <div class="kecom-card kecom-order-summary-card">
                                 <!-- Order Items List -->
-                                <div class="kecom-product-list">
-                                    <!-- Item 1 -->
-                                    <div class="kecom-product-item">
-                                        <div class="kecom-product-image-wrapper">
-                                            <img src="<?php echo esc_url($fallback_image_url); ?>" alt="Basic Heavy Weight T-shirt" class="kecom-product-image">
-                                            <span class="kecom-product-qty-badge">1</span>
-                                        </div>
+                                <?php if (count($items)) : ?>
+                                    <div class="kecom-product-list">
+                                        <!-- Item 1 -->
+                                        <?php foreach ($items as $key => $item):
+                                            $base_price_obj = $item['base_price_money_object'] ?? null;
+                                            $item_product = $items_product_data[$key]['product'] ?? [];
+                                            $categories = $item_product['categories'] ?? [];
+                                        ?>
+                                            <div class="kecom-product-item">
+                                                <div class="kecom-product-image-wrapper">
+                                                    <?php if (!empty($image) && isset($image['url'])): ?>
+                                                        <img src="<?php echo esc_url($image['url']); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
+                                                    <?php else: ?>
+                                                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
+                                                    <?php endif; ?>
+                                                    <span class="kecom-product-qty-badge"><?php echo esc_html($item['quantity'] ?? 0); ?></span>
+                                                </div>
 
-                                        <div class="kecom-product-info">
-                                            <a href="#" class="kecom-product-name"><?php esc_html_e('Basic Heavy Weight T-shirt', 'kirki-ecommerce'); ?></a>
-                                            <span class="kecom-product-category"><?php esc_html_e('Handcrafted Apparel', 'kirki-ecommerce'); ?></span>
-                                            <div class="kecom-product-variant">
-                                                <span>L</span>
-                                                <span>Blue</span>
+                                                <div class="kecom-product-info">
+                                                    <a href="#" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
+                                                    <span class="kecom-product-category"><?php echo esc_html($categories[count($categories) - 1]['name'] ?? ''); ?></span>
+                                                    <div class="kecom-product-variant">
+                                                        <?php echo esc_html($item['variant_name'] ?? '') ?>
+                                                    </div>
+                                                </div>
+
+                                                <div class="kecom-product-price-wrapper">
+                                                    <span class="kecom-product-price"><?php echo esc_html($base_price_obj->display ?? ''); ?></span>
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        <div class="kecom-product-price-wrapper">
-                                            <span class="kecom-product-price">$12.00</span>
-                                        </div>
+                                        <?php endforeach; ?>
                                     </div>
-
-                                    <!-- Item 2 -->
-                                    <div class="kecom-product-item">
-                                        <div class="kecom-product-image-wrapper">
-                                            <img src="<?php echo esc_url($fallback_image_url); ?>" alt="Basic Heavy Weight T-shirt" class="kecom-product-image">
-                                            <span class="kecom-product-qty-badge">1</span>
-                                        </div>
-
-                                        <div class="kecom-product-info">
-                                            <a href="#" class="kecom-product-name"><?php esc_html_e('Basic Heavy Weight T-shirt', 'kirki-ecommerce'); ?></a>
-                                            <span class="kecom-product-category"><?php esc_html_e('Handcrafted Apparel', 'kirki-ecommerce'); ?></span>
-                                            <div class="kecom-product-variant">
-                                                <span>M</span>
-                                                <span>Green</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="kecom-product-price-wrapper">
-                                            <span class="kecom-product-price">$12.00</span>
-                                        </div>
-                                    </div>
-
-                                    <!-- Item 3 -->
-                                    <div class="kecom-product-item">
-                                        <div class="kecom-product-image-wrapper">
-                                            <img src="<?php echo esc_url($fallback_image_url); ?>" alt="Basic Heavy Weight T-shirt" class="kecom-product-image">
-                                            <span class="kecom-product-qty-badge">1</span>
-                                        </div>
-
-                                        <div class="kecom-product-info">
-                                            <a href="#" class="kecom-product-name"><?php esc_html_e('Basic Heavy Weight T-shirt', 'kirki-ecommerce'); ?></a>
-                                            <span class="kecom-product-category"><?php esc_html_e('Handcrafted Apparel', 'kirki-ecommerce'); ?></span>
-                                            <div class="kecom-product-variant">
-                                                <span>S</span>
-                                                <span>Black</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="kecom-product-price-wrapper">
-                                            <span class="kecom-product-price">$12.00</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <?php endif; ?>
 
                                 <!-- Summary Totals Breakdown -->
                                 <div class="kecom-order-pricing-breakdown">
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label"><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
-                                        <span class="kecom-pricing-value">$36.00</span>
+                                        <span class="kecom-pricing-value"><?php echo esc_html($subtotal->display ?? ''); ?></span>
                                     </div>
 
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label">
                                             <?php esc_html_e('Shipping', 'kirki-ecommerce'); ?>
                                         </span>
-                                        <span class="kecom-pricing-value">$12.00</span>
+                                        <span class="kecom-pricing-value"><?php echo esc_html($shipping->display ?? ''); ?></span>
                                     </div>
 
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label">
                                             <?php esc_html_e('Taxes', 'kirki-ecommerce'); ?>
                                         </span>
-                                        <span class="kecom-pricing-value">$0.00</span>
+                                        <span class="kecom-pricing-value"><?php echo esc_html($taxes->display ?? ''); ?></span>
                                     </div>
 
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label"><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
-                                        <span class="kecom-pricing-value">-$7.00</span>
+                                        <span class="kecom-pricing-value"><?php echo esc_html($discount->display ?? ''); ?></span>
                                     </div>
 
                                     <div class="kecom-pricing-row kecom-pricing-row-total">
                                         <span class="kecom-pricing-label"><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
-                                        <span class="kecom-pricing-value">$41.00</span>
+                                        <span class="kecom-pricing-value"><?php echo esc_html($total->display ?? ''); ?></span>
                                     </div>
                                 </div>
                             </div>

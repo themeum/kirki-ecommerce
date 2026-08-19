@@ -17,6 +17,9 @@ class OrderResource extends BaseOrderResource
             'billing_country' => app(CountryService::class)->find($this->billing_country),
             'status' => $this->format_order_status(),
             'payment_next_step' => Payment::pay($this->resource),
+            'item_product_data' => $this->items->map(function ($item) {
+                return $item->product_data;
+            })->to_array(),
         ]);
     }
 
