@@ -14,10 +14,4 @@ class UpdateProfilePayloadDTO extends DTO
 
     /** @var string|null */
     public $last_name;
-
-    /** @var string|null */
-    public $phone;
-
-    /** @var string */
-    public $display_name;
 }

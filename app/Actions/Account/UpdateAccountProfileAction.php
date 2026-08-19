@@ -42,10 +42,9 @@ class UpdateAccountProfileAction
         DB::begin_transaction();
 
         try {
-            $profile_fields = $data->only(['first_name', 'last_name', 'phone']);
-            $customer = $this->customer_service->update_profile($customer->id, $profile_fields);
+            $customer = $this->customer_service->update_profile($customer->id, $data->all());
 
-            $this->user_service->update_display_name($data->user_id, $data->display_name);
+            $this->user_service->partial_update($data->user_id, $data->all());
 
             DB::commit();
 

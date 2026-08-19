@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Exception;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
 class UserService
@@ -33,24 +34,19 @@ class UserService
     }
 
     /**
-     * Update a WordPress user's display name.
+     * Update a WordPress user's fields.
      *
      * @param int $user_id
-     * @param string $display_name
+     * @param array $fields
      * @throws ValidationException
      * @return void
      */
-    public function update_display_name(int $user_id, string $display_name)
+    public function partial_update(int $user_id, array $fields)
     {
-        $result = wp_update_user([
-            'ID' => $user_id,
-            'display_name' => $display_name,
-        ]);
+        $result = wp_update_user(array_merge(['ID' => $user_id], $fields));
 
         if (is_wp_error($result)) {
-            throw ValidationException::with_errors([
-                'display_name' => [$result->get_error_message()],
-            ]);
+            throw new Exception(esc_html($result->get_error_message()));
         }
     }
 }

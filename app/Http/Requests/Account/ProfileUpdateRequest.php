@@ -12,8 +12,6 @@ class ProfileUpdateRequest extends Request
         return [
             'first_name' => 'required|string',
             'last_name' => 'nullable|string',
-            'phone' => 'nullable|string',
-            'display_name' => 'required|string',
         ];
     }
 
@@ -22,8 +20,6 @@ class ProfileUpdateRequest extends Request
         return [
             'first_name' => Sanitizer::TEXT,
             'last_name' => Sanitizer::TEXT,
-            'phone' => Sanitizer::TEXT,
-            'display_name' => Sanitizer::TEXT,
         ];
     }
 }
