@@ -268,7 +268,7 @@ class SiteController
      */
     public function register_page(Request $request)
     {
-        if (! Utils::can_user_register()) {
+        if (! Utils::registration_enabled()) {
             wp_die(
                 __('Registration is disabled for now. Please contact the administrator for more information.', 'kirki-ecommerce'),
                 __('Registration Disabled', 'kirki-ecommerce'),

@@ -45,7 +45,7 @@ Route::site(function () {
         ->template_redirect()
         ->name('login');
 
-    if (Utils::can_user_register()) {
+    if (Utils::registration_enabled()) {
         Route::get($register_page_slug, [SiteController::class, 'register_page'])
             ->name('register');
 

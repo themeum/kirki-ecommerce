@@ -273,7 +273,7 @@ class Utils
      *
      * @return bool True if user can register, false otherwise.
      */
-    public static function can_user_register()
+    public static function registration_enabled()
     {
         return (int) get_option('users_can_register', 0);
     }

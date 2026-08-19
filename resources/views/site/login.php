@@ -25,7 +25,7 @@ $registration_sucess = get_transient(Registration::REGISTRATION_TRANSIENT_SUCCES
     <div class="kecom-auth-form-wrapper">
         <div class="kecom-auth-header">
             <h3 class="kecom-auth-header-title"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></h3>
-            <?php if (Utils::can_user_register()): ?>
+            <?php if (Utils::registration_enabled()): ?>
                 <div class="kecom-auth-header-content">
                     <span><?php esc_html_e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
                     <a href="<?php echo esc_url(Url::get_registration_url()); ?>">
