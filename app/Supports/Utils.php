@@ -139,7 +139,7 @@ class Utils
             'logout' => [
                 'title'     => __('Log Out', 'kirki-ecommerce'),
                 'icon'      => 'log-out',
-                'url'       => wp_logout_url(Url::get_account_url()),
+                'url'       => wp_logout_url(Url::get_login_url()),
                 'is_active' => false,
                 'class'     => 'kecom-account-nav-link-logout',
                 'is_menu'   => true,
