@@ -67,7 +67,7 @@ $sidebar_data = [
         </div>
 
         <div class="kecom-products-grid">
-            <?php include_view('site.shop.parts.list', ['products' => $products]);?>
+            <?php include_view('site.shop.parts.list', ['products' => $products]); ?>
         </div>
 
         <div class="kecom-pagination-container">

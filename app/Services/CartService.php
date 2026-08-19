@@ -29,7 +29,11 @@ class CartService
         }
 
         if ($cart && $customer_id && !$cart->customer_id) {
-            $this->update_cart($cart->id, ['customer_id' => $customer_id]);
+            $cart = $this->update_cart($cart->id, ['customer_id' => $customer_id]);
+        }
+
+        if ($cart && $cart->customer_id && $cart->customer_id !== $customer_id) {
+            $cart = null;
         }
 
         return $cart;
@@ -99,7 +103,7 @@ class CartService
 
         $data = [
             'cart_token' => uuid(),
-            'currency_code' => 'USD', //todo: Currency code, should be dynamic
+            'currency_code' => base_currency()->code, //todo: Currency code, should be dynamic
             'base_currency_code' => base_currency()->code,
         ];
 
@@ -213,7 +217,7 @@ class CartService
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
         if (empty($cart)) {
-            $cart = $this->create_new_cart($dto->customer_id);
+            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
         }
 
         $item = $this->find_item($dto->item_id);
@@ -233,11 +237,10 @@ class CartService
     {
         $cart = $this->get_cart($dto->customer_id, $dto->token);
 
-        if (empty($cart)) {
-            $cart = $this->create_new_cart($dto->customer_id);
+        if (!empty($cart)) {
+            CartModel::where('id', $cart->id)->delete();
         }
 
-        CartModel::where('id', $cart->id)->delete();
 
         return null;
     }
