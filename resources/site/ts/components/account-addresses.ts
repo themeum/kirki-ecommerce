@@ -4,7 +4,7 @@
  */
 
 import { type CustomerAddressPayload, customerApi } from '../api/customer';
-import { config as siteConfig } from '../utils';
+import { config } from '../utils';
 import { toastMeta } from './toast';
 
 export interface AddressItem {
@@ -21,50 +21,31 @@ export interface AddressItem {
   country?: string;
 }
 
-export interface CustomerData {
-  id?: number;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  phone?: string;
-  photo?: number | null;
-  accepts_marketing?: boolean;
-  notes?: string | null;
-  language?: string;
-  tags?: string[];
-  is_billing_same_as_shipping?: boolean;
-}
-
-export interface AccountAddressesConfig {
-  customerId: number;
-  customerData?: CustomerData;
-  addresses?: {
-    billing: AddressItem;
-    shipping: AddressItem;
-  };
-  countries?: {
-    code: string;
-    name: string;
-    states?: { id: string | number; name: string }[];
-  }[];
-}
-
-export function accountAddresses(config: AccountAddressesConfig) {
+export function accountAddresses() {
   const toast = toastMeta.component();
-  const initialSameAsBilling = Boolean(config.customerData?.is_billing_same_as_shipping);
+
+  const customerId = Number(config?.customer_id ?? config?.customerId) || 1;
+  const initialSameAsBilling = Boolean(
+    config?.is_billing_same_as_shipping ?? config?.isBillingSameAsShipping,
+  );
+  const addresses = config?.addresses ?? {
+    billing: {},
+    shipping: {},
+  };
+  const countries =
+    (config?.countries as {
+      code: string;
+      name: string;
+      states?: { id: string | number; name: string }[];
+    }[]) ?? [];
 
   return {
-    customerId: Number(config.customerId) || 1,
-    customerData: config.customerData ?? {},
-    addresses: config.addresses ?? {
-      billing: {},
-      shipping: {},
-    },
-    countries:
-      siteConfig?.countries ?? window.kirki_ecommerce?.countries ?? config?.countries ?? [],
+    customerId,
+    addresses,
+    countries,
     editingAddress: null as 'billing' | 'shipping' | null,
     sameAsBilling: initialSameAsBilling,
-    customShippingAddress: { ...(config.addresses?.shipping ?? {}) },
+    customShippingAddress: { ...(addresses?.shipping ?? {}) },
     togglingSameAsBilling: false,
     loading: false,
     errorMessage: '',
@@ -122,8 +103,7 @@ export function accountAddresses(config: AccountAddressesConfig) {
       if (!addr) {
         return '';
       }
-      const name = `${addr.first_name || ''} ${addr.last_name || ''}`.trim();
-      return name || this.customerData.first_name || '';
+      return `${addr.first_name || ''} ${addr.last_name || ''}`.trim();
     },
 
     getCityStateZip(type: 'billing' | 'shipping'): string {
@@ -196,7 +176,7 @@ export function accountAddresses(config: AccountAddressesConfig) {
               state: String(this.addresses.billing.state || ''),
               postal_code: this.addresses.billing.postal_code || '',
               phone: this.addresses.billing.phone || '',
-              email: this.customerData.email || '',
+              email: this.addresses.billing.email || '',
             },
           };
 
@@ -219,7 +199,7 @@ export function accountAddresses(config: AccountAddressesConfig) {
               state: String(this.addresses.shipping.state || ''),
               postal_code: this.addresses.shipping.postal_code || '',
               phone: this.addresses.shipping.phone || '',
-              email: this.customerData.email || '',
+              email: this.addresses.shipping.email || '',
             },
           };
 
@@ -256,7 +236,7 @@ export function accountAddresses(config: AccountAddressesConfig) {
           state: String(this.formData.state || ''),
           postal_code: this.formData.postal_code || '',
           phone: this.formData.phone || '',
-          email: this.customerData.email || '',
+          email: this.addresses[type]?.email || '',
         };
 
         const payload = {
@@ -267,6 +247,7 @@ export function accountAddresses(config: AccountAddressesConfig) {
 
         // Update local reactive state
         this.addresses[type] = {
+          ...this.addresses[type],
           first_name: this.formData.first_name,
           last_name: this.formData.last_name,
           company: this.formData.company,
