@@ -25,8 +25,6 @@ use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
 {
-    protected const GUEST_CART_COOKIE_MINUTES = 43200;
-
     /**
      * Resolve the canonical cart for the given identity.
      *
@@ -276,7 +274,7 @@ class CartService
     public function get_current_cart()
     {
         $user_id = is_user_logged_in() ? (int) get_current_user_id() : null;
-        $cart_token = $user_id ? null : $this->get_cookie_cart_token();
+        $cart_token = $this->get_cookie_cart_token();
 
         return $this->get_cart($user_id, $cart_token);
     }

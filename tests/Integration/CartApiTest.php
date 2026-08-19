@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Models\Cart as CartModel;
 use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -313,6 +314,52 @@ class CartApiTest extends RestTestCase
         $this->assertEquals($merge_owned->id, $merged->id);
         $this->assertCount(2, $merged->items);
         $this->assertNull(CartModel::find($merge_guest->id));
+    }
+
+    public function test_login_with_guest_cart_merges_on_plain_get(): void
+    {
+        $this->prepare_variant();
+
+        $owned_user = static::factory()->user->create(['role' => 'subscriber']);
+        $this->create_service_cart($owned_user, $this->variant_id, 1);
+
+        $second_product = $this->create_product([
+            'title' => 'Login Merge Product ' . wp_generate_password(4, false),
+        ]);
+        $second_variant_id = $this->default_variant_id($second_product);
+        $guest_cart = $this->create_service_cart(null, $second_variant_id, 2);
+
+        wp_set_current_user($owned_user);
+
+        $payload = $this->with_cart_cookie($guest_cart->cart_token, function () {
+            return $this->assert_api_success($this->request('GET', 'cart'));
+        });
+
+        $this->assertCount(2, $payload['data']['items']);
+    }
+
+    public function test_current_cart_merges_guest_cart_for_authenticated_shopper(): void
+    {
+        $this->prepare_variant();
+
+        $owned_user = static::factory()->user->create(['role' => 'subscriber']);
+        $this->create_service_cart($owned_user, $this->variant_id, 1);
+
+        $second_product = $this->create_product([
+            'title' => 'Current Cart Merge Product ' . wp_generate_password(4, false),
+        ]);
+        $second_variant_id = $this->default_variant_id($second_product);
+        $guest_cart = $this->create_service_cart(null, $second_variant_id, 2);
+
+        wp_set_current_user($owned_user);
+
+        $merged = $this->with_cart_cookie($guest_cart->cart_token, function () {
+            app()->instance('request', Request::capture());
+            return app()->make(CartService::class)->get_current_cart();
+        });
+
+        $this->assertCount(2, $merged->items);
+        $this->assertNull(CartModel::find($guest_cart->id));
     }
 
     public function test_duplicate_variant_merge_uses_guest_quantity(): void
