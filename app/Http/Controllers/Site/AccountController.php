@@ -11,8 +11,6 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
-use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
-use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -21,7 +19,9 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\redirect;
+use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -32,23 +32,13 @@ use function Kirki\Ecommerce\Framework\view;
 class AccountController
 {
     /**
-     * Account pages.
+     * Data list limit.
      *
      * @since 1.0.0
      *
-     * @var array
+     * @var int
      */
-    private $pages = [];
-
-    /**
-     * Constructor.
-     *
-     * @since 1.0.0
-     */
-    public function __construct()
-    {
-        $this->pages = Utils::get_account_pages();
-    }
+    protected $list_limit = 10;
 
     /**
      * Dashboard page.
@@ -65,20 +55,49 @@ class AccountController
         $customer = customer();
         $user = wp_get_current_user();
 
-        $dto = new OrderListFilterDTO();
-        $dto->customer_id = $customer->get_customer_id();
-        $dto->limit = 3;
-
-        $orders = OrderListResource::paginated($order_service->paginated_orders($dto));
+        $order_data = $order_service->get_current_customer_orders(['limit' => 3]);
 
         $data = [
             'customer'  => $customer,
             'user'      => $user,
-            'pages'     => $this->pages,
-            'orders'    => $orders,
+            'orders'    => $order_data['orders'],
         ];
 
         return view('site.account', $data)->layout(false);
+    }
+
+    /**
+     * Orders html.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Request.
+     *
+     * @return Response JSON response.
+     */
+    public function orders_html(Request $request, OrderService $order_service)
+    {
+        $page = $request->int('page', 1);
+
+        $filters = [
+            'page' => $page,
+            'limit' => $this->list_limit
+        ];
+
+        $order_data = $order_service->get_current_customer_orders($filters);
+
+        ob_start();
+        $orders = $order_data['orders']['results'] ?? [];
+        foreach ($orders as $order) {
+            include_view('site.account.orders.row', ['order' => $order]);
+        }
+
+        $order_data['orders']['results'] = ob_get_clean();
+
+        return response()->json([
+            'data' => $order_data['orders'],
+            'message' => __('Orders fetched successfully', 'kirki-ecommerce')
+        ]);
     }
 
     /**
@@ -87,12 +106,19 @@ class AccountController
      * @since 1.0.0
      *
      * @param Request $request Request.
+     * @param OrderService $order_service order service.
      *
      * @return Response response.
      */
-    public function orders(Request $request)
+    public function orders(Request $request, OrderService $order_service)
     {
-        return view('site.account.orders', ['pages' => $this->pages])->layout(false);
+        $order_data = $order_service->get_current_customer_orders(['limit' => $this->list_limit]);
+
+        $data = [
+            'orders' => $order_data['orders'],
+        ];
+
+        return view('site.account.orders', $data)->layout(false);
     }
 
     /**
@@ -115,7 +141,7 @@ class AccountController
 
         $order_resource = $order ? OrderResource::make($order) : null;
 
-        return view('site.account.order-details', ['pages' => $this->pages, 'order' => $order_resource])->layout(false);
+        return view('site.account.order-details', ['order' => $order_resource])->layout(false);
     }
 
     /**
@@ -141,7 +167,6 @@ class AccountController
             'billing_address'  => $billing_address,
             'shipping_address' => $shipping_address,
             'countries'        => $countries,
-            'pages'            => $this->pages,
         ];
 
         return view('site.account.addresses', $data)->layout(false);
@@ -164,7 +189,6 @@ class AccountController
         $data = [
             'customer' => $customer,
             'user'     => $user,
-            'pages'    => $this->pages,
         ];
 
         return view('site.account.account-details', $data)->layout(false);

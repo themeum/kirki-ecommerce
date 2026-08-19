@@ -117,13 +117,13 @@ class Utils
                 'route_name' => 'account.addresses',
                 'callback'  => [AccountController::class, 'addresses'],
             ],
-            'account-details' => [
-                'title'     => __('Account Details', 'kirki-ecommerce'),
+            'manage' => [
+                'title'     => __('Account', 'kirki-ecommerce'),
                 'icon'      => 'user',
-                'url'       => Url::get_account_url('account-details'),
-                'is_active' => Route::is('account.account-details') || Route::is('account.details'),
-                'route_path' => $account_page_slug . '/account-details',
-                'route_name' => 'account.account-details',
+                'url'       => Url::get_account_url('manage'),
+                'is_active' => Route::is('account.manage'),
+                'route_path' => $account_page_slug . '/manage',
+                'route_name' => 'account.manage',
                 'callback'  => [AccountController::class, 'account_details'],
             ],
             'logout' => [
