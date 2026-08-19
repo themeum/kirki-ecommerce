@@ -27,11 +27,11 @@ class TaxProfilesSeeder extends Seeder
     protected function get_tax_profiles()
     {
         return [
-            ['name' => 'Standard Rate'],
-            ['name' => 'Reduced Rate'],
-            ['name' => 'Zero Rate'],
-            ['name' => 'Digital Goods'],
-            ['name' => 'Shipping Tax'],
+            ['name' => 'Standard Rate', 'is_default' => true],
+            ['name' => 'Reduced Rate', 'is_default' => false],
+            ['name' => 'Zero Rate', 'is_default' => false],
+            ['name' => 'Digital Goods', 'is_default' => false],
+            ['name' => 'Shipping Tax', 'is_default' => false],
         ];
     }
 }

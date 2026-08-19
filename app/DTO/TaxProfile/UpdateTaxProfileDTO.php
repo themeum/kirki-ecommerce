@@ -11,4 +11,7 @@ class UpdateTaxProfileDTO extends DTO
 
     /** @var string */
     public $name;
+
+    /** @var bool */
+    public $is_default;
 }
