@@ -33,9 +33,9 @@ $items_images = $order['items_images'] ?? [];
     <td class="kecom-orders-table-col-thumb">
         <div class="kecom-account-order-thumb-wrap">
             <div class="kecom-account-order-thumb kecom-thumb-placeholder">
-                <?php foreach ($items_images as $image_url) : ?>
-                    <img src="<?php echo esc_url($image_url); ?>" alt="">
-                <?php endforeach; ?>
+                <?php if (!empty($items_images)) : ?>
+                    <img src="<?php echo esc_url($items_images[0]); ?>" alt="<?php esc_attr_e('Product image', 'kirki-ecommerce'); ?>">
+                <?php endif; ?>
             </div>
         </div>
     </td>
