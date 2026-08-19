@@ -10,7 +10,7 @@ type ListParamsDefaults = ListQueryParams;
 
 type ListParamsUpdate<
   TFilter extends Record<string, unknown> = {},
-> = Partial<ListQueryParams & TFilter>;
+> = Partial<ListQueryParams & TFilter> | Partial<ListQueryParams>;
 
 type UseListParamsOptions<
   TFilter extends Record<string, unknown> = {},
@@ -84,7 +84,7 @@ const useListParams = <
         ? Number(limitValue) || limitValue
         : (defaults.limit ?? 10),
       from_date: isDefined(fromDate) ? formatAtomDateTime(new Date(fromDate)) : null,
-      to_date: isDefined(toDate) ? formatAtomDateTime(new Date(toDate)) : isDefined(fromDate) ? formatAtomDateTime(new Date(fromDate)) : null,
+      to_date: isDefined(toDate) ? formatAtomDateTime(new Date(toDate)) : null,
       ...parsedFilter,
     } as ListParams<TFilter>;
   }, [searchParams, defaults, filterConfig]);
@@ -159,7 +159,7 @@ const useListParams = <
         setParams(value, replace);
         return;
       }
-      setParams({ [key]: value } as ListParamsUpdate<TFilter>, replace);
+      setParams({ [key]: value }, replace);
     },
     [setParams],
   );

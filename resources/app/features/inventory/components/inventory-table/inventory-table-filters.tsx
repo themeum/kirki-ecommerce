@@ -2,16 +2,16 @@ import type { Dispatch, SetStateAction } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
 import ActionGroup from '@/components/ui/action-group';
-import Button from '@/components/ui/button';
+import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { allTableHeaders } from '@/features/inventory/lib/utils';
 import { inventoryListOptions } from '@/features/inventory/types';
-import { useListParams } from '@/hooks';
-import { LayoutIcon, ListFilter } from '@/icons';
+import { useDataTableParams } from '@/hooks';
+import { LayoutIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type InventoryTableFiltersProps = {
@@ -23,7 +23,7 @@ const InventoryTableFilters = ({
   selectedFields,
   setSelectedFields,
 }: InventoryTableFiltersProps) => {
-  const { params, setParam } = useListParams(inventoryListOptions);
+  const { params, setParam, handleDateFilter } = useDataTableParams(inventoryListOptions);
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -32,20 +32,20 @@ const InventoryTableFilters = ({
           onChange={(value) => setParam('search', value)}
           value={params.search}
           placeholder={__('Search Products', 'kirki-ecommerce')}
+          clearable
         />
       </div>
 
       <ActionGroup>
-        <Select disabled>
-          <SelectTrigger cssOverride={styles.selectTrigger}>
-            <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
-        <Button variant="outline">
-          <ListFilter />
-          {__('Filter', 'kirki-ecommerce')}
-        </Button>
+        <DateRangePicker
+          value={{
+            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
+            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
+          }}
+          presets
+          clearable
+          onChange={handleDateFilter}
+        />
         <DropdownButton
           buttonProps={{
             type: 'outlined',

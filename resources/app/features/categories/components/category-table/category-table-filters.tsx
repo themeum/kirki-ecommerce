@@ -16,8 +16,9 @@ const CategoryTableFilters = () => {
     <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '160px' }}>
         <Searchbox
-          onChange={(value) => handleSearchChange(value as string)}
+          onChange={(value) => handleSearchChange(String(value))}
           value={params.search || ''}
+          clearable
         />
       </div>
     </Flex>

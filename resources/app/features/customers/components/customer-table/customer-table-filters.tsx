@@ -1,21 +1,18 @@
-import { memo } from 'react';
-
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { CouponListFilter} from '@/features/coupons';
-import { couponListOptions } from '@/features/coupons';
-import FilterPopup from '@/features/coupons/pages/coupon-table/filter-popup/filter-popup';
-import { useListParams } from '@/hooks';
+import { customerListOptions } from '@/features/customers/types';
+import { useDataTableParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-const CouponTableFilter = memo(() => {
-  const { params, setParam } = useListParams<CouponListFilter>(couponListOptions);
+const CustomerTableFilters = () => {
+  const { params, setParam, handleDateFilter } = useDataTableParams(customerListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -27,21 +24,23 @@ const CouponTableFilter = memo(() => {
 
   return (
     <Flex cssOverride={styles.wrapper}>
-      <div style={{ width: '160px' }}>
+      <div style={{ width: '180px' }}>
         <Searchbox
-          onChange={(value) => handleSearchChange(value as string)}
           value={params.search || ''}
-          delay={500}
+          onChange={(value) => handleSearchChange(String(value))}
+          clearable
         />
       </div>
       <ActionGroup>
-        <Select disabled>
-          <SelectTrigger cssOverride={styles.selectTrigger}>
-            <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
-        <FilterPopup />
+        <DateRangePicker
+          value={{
+            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
+            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
+          }}
+          presets
+          clearable
+          onChange={handleDateFilter}
+        />
         <Button
           variant="outline"
           aria-label={__('Sort', 'kirki-ecommerce')}
@@ -52,11 +51,11 @@ const CouponTableFilter = memo(() => {
       </ActionGroup>
     </Flex>
   );
-});
+};
 
-CouponTableFilter.displayName = 'CouponTableFilter';
+CustomerTableFilters.displayName = 'CustomerTableFilters';
 
-export default CouponTableFilter;
+export default CustomerTableFilters;
 
 const styles = defineStyles({
   wrapper: {

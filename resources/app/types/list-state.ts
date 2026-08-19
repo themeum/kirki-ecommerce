@@ -1,3 +1,5 @@
+import { formatAtomDateTime } from '@/libs/date';
+
 type SortOrder = 'asc' | 'desc';
 
 type ListQueryParams = {
@@ -69,6 +71,14 @@ const parseString = (value: string | null): string | undefined => {
   return value;
 };
 
+const parseDateString = (value: string | null): string | null => {
+  if (!value) {
+    return null;
+  }
+
+  return formatAtomDateTime(new Date(value));
+}
+
 const serializeFilterValue = (value: unknown): string | null => {
   if (value === null || value === undefined || value === '') {
     return null;
@@ -95,5 +105,5 @@ export type {
   SortOrder,
 };
 
-export { parseArray, parseNumberArray, parseStatus, parseString, serializeFilterValue };
+export { parseArray, parseDateString, parseNumberArray, parseStatus, parseString, serializeFilterValue };
 

@@ -2,11 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
-use Kirki\Ecommerce\Framework\Supports\Arr;
 
 class Order extends Model
 {
+    use HasDateRangeFilter;
+
     protected $table = 'kirki_ecommerce_orders';
 
     protected $fillable = [

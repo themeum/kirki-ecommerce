@@ -3,12 +3,13 @@ import { memo } from 'react';
 import Button from '@/components/ui/button';
 import Capsule from '@/components/ui/capsule';
 import Flex from '@/components/ui/flex';
-import type { OrderListFilter} from '@/features/orders';
+import type { OrderListFilter } from '@/features/orders';
 import { fulfillmentStatusOptions, orderListFilterConfig, orderListOptions, paymentStatusOptions } from '@/features/orders';
-import { useListParams } from '@/hooks';
+import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types/pages/common';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | (string | number)[];
@@ -25,7 +26,7 @@ const filterActionBarCss = defineStyles({
 });
 
 const OrderTableFilterBar = memo(() => {
-  const { params, setParam, setParams } = useListParams<OrderListFilter>(orderListOptions);
+  const { params, setParam, setParams } = useDataTableParams(orderListOptions);
 
   const filterOptionsMap: Partial<Record<OrderFilterKey, SuggestionOption[]>> = {
     fulfillment_status: fulfillmentStatusOptions,
@@ -40,8 +41,14 @@ const OrderTableFilterBar = memo(() => {
     return Boolean(val);
   });
 
-  const getFilterValue = (key: OrderFilterKey): FilterValue =>
-    (params[key] || '');
+  const getFilterValue = (key: OrderFilterKey): FilterValue => {
+    if (!isDefined(params[key])) {
+      return '';
+    }
+
+    return params[key];
+  }
+
 
   const handleFilterChange = (val: FilterValue, key: OrderFilterKey) => {
     setParam(key, val || undefined);

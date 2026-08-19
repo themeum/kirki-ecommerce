@@ -1,9 +1,12 @@
+import { memo } from 'react';
+
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { collectionListOptions } from '@/features/collections/types';
+import { couponListOptions } from '@/features/coupons';
+import FilterPopup from '@/features/coupons/components/coupon-table/filter-popup/filter-popup';
 import { useDataTableParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
@@ -11,10 +14,10 @@ import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-const CollectionTableFilters = () => {
-  const { params, setParam, handleDateFilter } = useDataTableParams(collectionListOptions);
+const CouponTableFilter = memo(() => {
+  const { params, setParam, handleDateFilter } = useDataTableParams(couponListOptions);
 
-  const handleSearchChange = (value: string | number) => {
+  const handleSearchChange = (value: string) => {
     setParam('search', value);
   };
 
@@ -24,11 +27,11 @@ const CollectionTableFilters = () => {
 
   return (
     <Flex cssOverride={styles.wrapper}>
-      <div style={{ width: '180px' }}>
+      <div style={{ width: '160px' }}>
         <Searchbox
+          onChange={(value) => handleSearchChange(value as string)}
           value={params.search || ''}
-          onChange={(value) => handleSearchChange(value)}
-          clearable
+          delay={500}
         />
       </div>
       <ActionGroup>
@@ -41,6 +44,7 @@ const CollectionTableFilters = () => {
           clearable
           onChange={handleDateFilter}
         />
+        <FilterPopup />
         <Button
           variant="outline"
           aria-label={__('Sort', 'kirki-ecommerce')}
@@ -51,11 +55,11 @@ const CollectionTableFilters = () => {
       </ActionGroup>
     </Flex>
   );
-};
+});
 
-CollectionTableFilters.displayName = 'CollectionTableFilters';
+CouponTableFilter.displayName = 'CouponTableFilter';
 
-export default CollectionTableFilters;
+export default CouponTableFilter;
 
 const styles = defineStyles({
   wrapper: {

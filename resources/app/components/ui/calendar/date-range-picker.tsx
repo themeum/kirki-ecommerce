@@ -246,6 +246,7 @@ const DateRangePicker = ({
             startMonth={startDate ?? undefined}
             endMonth={endDate ?? undefined}
             disabled={disabledDays}
+            resetOnSelect
           />
           {presetsPosition !== 'left' && <PresetBar
             presets={presets}

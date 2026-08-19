@@ -2,19 +2,20 @@ import { memo } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import type { OrderListFilter} from '@/features/orders';
 import { orderListOptions } from '@/features/orders';
-import FilterPopup from '@/features/orders/pages/order-table/filter-popup/filter-popup';
-import { useListParams } from '@/hooks';
+import FilterPopup from '@/features/orders/components/order-table/filter-popup/filter-popup';
+import { useDataTableParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const OrderTableAction = memo(() => {
-  const { params, setParam } = useListParams<OrderListFilter>(orderListOptions);
+  const { params, setParam, handleDateFilter } = useDataTableParams(orderListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -35,6 +36,15 @@ const OrderTableAction = memo(() => {
         />
       </div>
       <ActionGroup>
+        <DateRangePicker
+          value={{
+            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
+            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
+          }}
+          presets
+          clearable
+          onChange={handleDateFilter}
+        />
         <FilterPopup />
         <Button variant="outline" aria-label={__('Sort', 'kirki-ecommerce')} onClick={handleSortChange}>
           <ArrowDownUp />

@@ -14,10 +14,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection as DataCollection;
 
 use Exception;
-use Kirki\Ecommerce\App\Constants\DateTimeFormats;
-use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
-use function Kirki\Ecommerce\Framework\dd;
 use function Kirki\Ecommerce\Framework\user;
 
 class CollectionService
@@ -166,18 +163,7 @@ class CollectionService
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['title', 'slug', 'description'], 'like', '%' . $search . '%');
             })
-            ->when(!empty($filters->from_date), function (QueryBuilder $query) use ($filters) {
-                if (!empty($filters->from_date)) {
-                    if (!empty($filters->to_date)) {
-                        return $query->where_between('created_at', [
-                            Date::parse($filters->from_date)->set_timezone('UTC')->format(DateTimeFormats::DB_DATETIME),
-                            Date::parse($filters->to_date)->set_timezone('UTC')->format(DateTimeFormats::DB_DATETIME)
-                        ]);
-                    }
-
-                    return $query->where('created_at', '>=', Date::parse($filters->from_date)->set_timezone('UTC')->format(DateTimeFormats::DB_DATETIME));
-                }
-            })
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
