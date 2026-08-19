@@ -25,8 +25,8 @@
     @include flex-column();
     flex-direction: column-reverse;
     align-items: start;
+    justify-content: space-between;
     gap: $spacing-0;
-    min-height: auto;
   }
 }
 

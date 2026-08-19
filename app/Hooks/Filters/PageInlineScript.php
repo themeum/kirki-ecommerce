@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -56,7 +57,27 @@ class PageInlineScript extends BaseHook
             $config = $this->set_shop_single_page_data(view_data(), $config);
         } elseif (Route::is('cart')) {
             $config = $this->set_cart_page_data(view_data(), $config);
+        } elseif (Route::is('account.addresses')) {
+            $config = $this->set_addresses_page_data(view_data(), $config);
         }
+
+        return $config;
+    }
+
+    /**
+     * Add addresses page data to the inline config.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed $view_data  Data from the view context.
+     * @param array $config     Existing config array.
+     *
+     * @return array Updated config.
+     */
+    protected function set_addresses_page_data($view_data, $config)
+    {
+        $data = (object) $view_data;
+        $config['countries'] = $data->countries ?? Utils::get_countries();
 
         return $config;
     }

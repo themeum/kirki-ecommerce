@@ -108,7 +108,6 @@ $addresses_config = [
     'customerId'   => $customer_id,
     'customerData' => $customer_data,
     'addresses'    => $addresses_payload,
-    'countries'    => $countries,
 ];
 ?>
 
@@ -133,7 +132,7 @@ $addresses_config = [
                     </div>
 
                     <!-- Edit Address Form Box -->
-                    <?php include_view('site.account.parts.address-form', compact('countries')); ?>
+                    <?php include_view('site.account.parts.address-form'); ?>
                 </div>
             </main>
         </div>

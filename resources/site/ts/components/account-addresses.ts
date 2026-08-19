@@ -4,6 +4,7 @@
  */
 
 import { type CustomerAddressPayload, customerApi } from '../api/customer';
+import { config as siteConfig } from '../utils';
 import { toastMeta } from './toast';
 
 export interface AddressItem {
@@ -59,7 +60,8 @@ export function accountAddresses(config: AccountAddressesConfig) {
       billing: {},
       shipping: {},
     },
-    countries: config.countries ?? [],
+    countries:
+      siteConfig?.countries ?? window.kirki_ecommerce?.countries ?? config?.countries ?? [],
     editingAddress: null as 'billing' | 'shipping' | null,
     sameAsBilling: initialSameAsBilling,
     customShippingAddress: { ...(config.addresses?.shipping ?? {}) },

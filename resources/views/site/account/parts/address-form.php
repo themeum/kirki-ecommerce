@@ -10,8 +10,6 @@
  */
 
 defined('ABSPATH') || exit;
-
-$countries = $data['countries'] ?? [];
 ?>
 
 <div class="kecom-card" x-show="editingAddress" x-cloak>
@@ -21,7 +19,7 @@ $countries = $data['countries'] ?? [];
 
     <form @submit.prevent="saveAddress" class="kecom-form">
         <template x-if="errorMessage">
-            <div class="kecom-alert kecom-alert-danger" x-text="errorMessage"></div>
+            <div class="kecom-alert kecom-alert-error" x-text="errorMessage"></div>
         </template>
 
         <div class="kecom-form-row">
@@ -69,14 +67,9 @@ $countries = $data['countries'] ?? [];
                 @change="formData.state = ''"
             >
                 <option value=""><?php esc_html_e('Select country', 'kirki-ecommerce'); ?></option>
-                <?php foreach ($countries as $country) :
-                    $country_code = $country['code'] ?? ($country['id'] ?? '');
-                    $country_title = $country['name'] ?? $country_code;
-                ?>
-                    <option value="<?php echo esc_attr($country_code); ?>">
-                        <?php echo esc_html($country_title); ?>
-                    </option>
-                <?php endforeach; ?>
+                <template x-for="country in countries" :key="country.code || country.id">
+                    <option :value="country.code || country.id" x-text="country.name"></option>
+                </template>
             </select>
         </div>
 
