@@ -1,11 +1,10 @@
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
+import CheckboxField from '@/components/form/checkbox-field';
 import CountryField from '@/components/form/country-field';
 import StateField from '@/components/form/state-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import Checkbox from '@/components/ui/checkbox';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
@@ -36,33 +35,14 @@ const BillingAddress = () => {
         <Flex direction="column" gap={2}>
           <Card cssOverride={cardStyles.innerDarkCard}>
             <CardContent cssOverride={cardStyles.innerDarkContent}>
-              <Controller
-                control={control}
+              <CheckboxField
                 name="is_billing_same_as_shipping"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <Field orientation="horizontal">
-                      <Checkbox
-                        id="is-billing-same-as-shipping"
-                        checked={Boolean(field.value)}
-                        onCheckedChange={(checked) => {
-                          const nextValue = checked === true;
-                          field.onChange(nextValue);
-                          if (nextValue) {
-                            setValue('billing_address', {});
-                          }
-                        }}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      <FieldLabel htmlFor="is-billing-same-as-shipping">
-                        Same as shipping address
-                      </FieldLabel>
-                    </Field>
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} />
-                    )}
-                  </Field>
-                )}
+                label={__('Same as shipping address', 'kirki-ecommerce')}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setValue('billing_address', {});
+                  }
+                }}
               />
             </CardContent>
           </Card>

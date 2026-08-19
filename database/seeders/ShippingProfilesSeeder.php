@@ -27,11 +27,11 @@ class ShippingProfilesSeeder extends Seeder
     protected function get_shipping_profiles()
     {
         return [
-            ['name' => 'Standard Shipping'],
-            ['name' => 'Express Delivery'],
-            ['name' => 'Fragile Items'],
-            ['name' => 'Heavy & Oversized'],
-            ['name' => 'Free Shipping Eligible'],
+            ['name' => 'Standard Shipping', 'is_default' => true],
+            ['name' => 'Express Delivery', 'is_default' => false],
+            ['name' => 'Fragile Items', 'is_default' => false],
+            ['name' => 'Heavy & Oversized', 'is_default' => false],
+            ['name' => 'Free Shipping Eligible', 'is_default' => false],
         ];
     }
 }

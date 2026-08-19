@@ -1,20 +1,14 @@
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import NumberField from '@/components/form/number-field';
+import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { generateSku } from '@/features/products/lib/utils';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { WandIcon } from '@/icons';
@@ -86,47 +80,14 @@ const Inventory = () => {
             </CardContent>
           </Card>
         ) : (
-          <Controller
-            control={control}
+          <SelectField
             name="variants.0.in_stock"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="variants.0.in_stock">
-                  {__('Status', 'kirki-ecommerce')}
-                </FieldLabel>
-                <Select
-                  value={
-                    field.value === undefined || field.value === null
-                      ? 'true'
-                      : String(field.value)
-                  }
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                  }}
-                >
-                  <SelectTrigger
-                    id="variants.0.in_stock"
-                    error={Boolean(fieldState.error)}
-                    aria-invalid={fieldState.invalid}
-                  >
-                    <SelectValue
-                      placeholder={__('In Stock', 'kirki-ecommerce')}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="true">
-                      {__('In Stock', 'kirki-ecommerce')}
-                    </SelectItem>
-                    <SelectItem value="false">
-                      {__('Out of Stock', 'kirki-ecommerce')}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
+            label={__('Status', 'kirki-ecommerce')}
+            placeholder={__('In Stock', 'kirki-ecommerce')}
+            options={[
+              { value: 'true', label: __('In Stock', 'kirki-ecommerce') },
+              { value: 'false', label: __('Out of Stock', 'kirki-ecommerce') },
+            ]}
           />
         )}
 

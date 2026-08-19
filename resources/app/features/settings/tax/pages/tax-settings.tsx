@@ -1,19 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { Controller, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
+import TaxCollectionField from '@/features/settings/tax/components/fields/tax-collection-field';
 import type { TaxRegion } from '@/features/settings/tax/lib/utils';
 import TaxProfile from '@/features/settings/tax/pages/tax-profile/tax-profile';
 import TaxRegions from '@/features/settings/tax/pages/tax-region/tax-region';
@@ -61,58 +60,6 @@ const TaxCollectionOptions = () => {
         />
       )}
     </div>
-  );
-};
-
-const TaxCollectionRadio = () => {
-  const { control } = useFormContext<TaxSettingsFormInput>();
-
-  const optionsArray = [
-    {
-      title: __(
-        'Tax should be calculated & displayed in the checkout page',
-        'kirki-ecommerce',
-      ),
-      value: 'not_inclusive',
-    },
-    {
-      title: __(
-        'Tax is already included in product price and shipping rate',
-        'kirki-ecommerce',
-      ),
-      value: 'inclusive',
-      disabled: true,
-    },
-  ];
-
-  return (
-    <Controller
-      control={control}
-      name="is_tax_inclusive_price"
-      render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid || undefined}>
-          <RadioGroup
-            value={field.value ? 'inclusive' : 'not_inclusive'}
-            onValueChange={(value) => field.onChange(value === 'inclusive')}
-            aria-invalid={fieldState.invalid}
-          >
-            {optionsArray.map((option) => (
-              <Field key={option.value} orientation="horizontal">
-                <RadioGroupItem
-                  value={option.value}
-                  id={`tax-collection-${option.value}`}
-                  disabled={option.disabled ?? false}
-                />
-                <FieldLabel htmlFor={`tax-collection-${option.value}`}>
-                  {option.title}
-                </FieldLabel>
-              </Field>
-            ))}
-          </RadioGroup>
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-        </Field>
-      )}
-    />
   );
 };
 
@@ -202,7 +149,7 @@ const TaxSettings = () => {
                     )}</Text>
                   </Flex>
                   <Flex direction="column" gap={3}>
-                    <TaxCollectionRadio />
+                    <TaxCollectionField />
                     {/* @TODO: will be handled in the future */}
                     {/* eslint-disable-next-line no-constant-binary-expression -- kept in place until the feature is enabled */}
                     {false && <TaxCollectionOptions />}

@@ -97,10 +97,10 @@ class ProductUpdateRequest extends Request
             'variants.*.attribute_values.*' => 'integer',
 
             'variants.*.media' => 'integer|nullable',
-            'variants.*.sku' => 'string|nullable|max:100',
+            'variants.*.sku' => 'string|nullable|max:100', // @todo: add unique rule when value supported
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required|number|min:0',
+            'variants.*.base_price' => 'required|nullable|number|min:0',
             'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
