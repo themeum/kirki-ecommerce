@@ -83,7 +83,7 @@
     gap: $spacing-1;
 
     .kecom-account-order-status-title {
-      @include typography();
+      @include typography(base, medium, $text-primary);
     }
 
     .kecom-account-order-status-sub {
@@ -109,5 +109,75 @@
     display: inline-flex;
     align-items: center;
     gap: $spacing-4;
+  }
+
+  // --------------------------------------------------------------------------
+  // Mobile Grid Layout (Top: Col 1, 2, 3 | Bottom: Col 4, 5)
+  // --------------------------------------------------------------------------
+  @include breakpoint-down(sm) {
+    display: block;
+    width: 100%;
+    min-width: 100%;
+    margin-block: 0;
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-6;
+    }
+
+    tbody tr {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: $spacing-6 $spacing-4;
+      padding: $spacing-6;
+      border-radius: $radius-2xl;
+      background-color: $background-surface;
+
+      td {
+        padding: 0;
+        background-color: transparent;
+
+        &:first-child,
+        &:last-child {
+          border-radius: 0;
+        }
+      }
+    }
+
+    // Top Row: Col 1, 2, 3
+    .kecom-orders-table-col-thumb {
+      grid-column: 1;
+      grid-row: 1;
+      width: auto;
+      padding-right: 0;
+    }
+
+    .kecom-orders-table-col-info {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .kecom-orders-table-col-status {
+      grid-column: 3;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    // Bottom Row: Col 4, 5
+    .kecom-orders-table-col-price {
+      grid-column: 1 / 3;
+      grid-row: 2;
+      min-width: 0;
+      text-align: left;
+    }
+
+    .kecom-orders-table-col-actions {
+      grid-column: 3;
+      grid-row: 2;
+      text-align: right;
+    }
   }
 }
