@@ -148,7 +148,7 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
   media: null,
   sku: null,
   barcode: null,
-  base_price: null,
+  base_price: 0,
   show_unit_price: false,
   base_unit: null,
   base_unit_amount: null,
