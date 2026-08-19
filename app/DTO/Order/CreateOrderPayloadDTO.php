@@ -113,4 +113,7 @@ class CreateOrderPayloadDTO extends DTO
 
     /** @var string|null */
     public $cart_token;
+
+    /** @var int|null */
+    public $user_id;
 }

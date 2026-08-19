@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 
 use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
@@ -23,8 +24,10 @@ class CheckoutController
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = $user_id ?: null;
+        $dto->customer_id = !empty($user_id) ? customer($user_id)->get_customer_id() : null;
         $dto->currency_code = $currency_code;
-        $dto->cart_token = $request->get_header(Cart::HEADER_TOKEN);
+        $dto->cart_token = $this->cart_token($request);
+        $dto->user_id = !empty($user_id) ? (int) $user_id : null;
 
         $order = $action->execute($dto);
 
@@ -32,5 +35,22 @@ class CheckoutController
             'data' => OrderResource::make($order),
             'message' => __('Order created successfully.', 'kirki-ecommerce'),
         ], 201);
+    }
+
+    protected function cart_token(OrderCreateRequest $request): ?string
+    {
+        $token = $request->cookie(Cart::COOKIE_TOKEN);
+
+        if (empty($token)) {
+            $token = $request->get_header(Cart::HEADER_TOKEN);
+        }
+
+        if (empty($token)) {
+            return null;
+        }
+
+        $token = sanitize_text_field((string) $token);
+
+        return $token !== '' ? $token : null;
     }
 }
