@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource as BaseOrderResource;
 use Kirki\Ecommerce\App\Services\CountryService;
@@ -15,7 +16,7 @@ class OrderResource extends BaseOrderResource
         return array_merge(parent::to_array(), [
             'shipping_country' => app(CountryService::class)->find($this->shipping_country),
             'billing_country' => app(CountryService::class)->find($this->billing_country),
-            'formatted_status' => $this->format_order_status(),
+            'formatted_status' => FulfillmentStatus::format_fulfillment_status($this->fulfillment_status),
             'payment_next_step' => Payment::pay($this->resource),
             'item_product_data' => $this->items->map(function ($item) {
                 return $item->product_data;
@@ -28,29 +29,5 @@ class OrderResource extends BaseOrderResource
                 'delivered_at' => ['status' => __('Order Delivered', 'kirki-ecommerce'), 'date' => $this->delivered_at],
             ]
         ]);
-    }
-
-    protected function format_order_status()
-    {
-        switch ($this->fulfillment_status) {
-            case 'unfulfilled':
-                return __('Pending', 'kirki-ecommerce');
-            case 'on_hold':
-                return __('On Hold', 'kirki-ecommerce');
-            case 'processing':
-                return __('Processing', 'kirki-ecommerce');
-            case 'shipped':
-                return __('Shipped', 'kirki-ecommerce');
-            case 'delivered':
-                return __('Delivered', 'kirki-ecommerce');
-            case 'cancelled':
-                return __('Cancelled', 'kirki-ecommerce');
-            case 'refunded':
-                return __('Refunded', 'kirki-ecommerce');
-            case 'failed':
-                return __('Failed', 'kirki-ecommerce');
-            default:
-                return __('Unknown', 'kirki-ecommerce');
-        }
     }
 }

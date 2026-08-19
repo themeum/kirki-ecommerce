@@ -90,4 +90,44 @@ final class OrderStatus
 
         throw new Exception(__('Cannot resolve order status.', 'kirki-ecommerce'));
     }
+
+    public static function format_order_status(string $order_status)
+    {
+        switch ($order_status) {
+            case self::PENDING:
+            case self::PAID_UNFULFILLED:
+                return __('Pending', 'kirki-ecommerce');
+            case self::ON_HOLD_UNPAID:
+            case self::ON_HOLD_PAID:
+                return __('On Hold', 'kirki-ecommerce');
+            case self::UNPAID_PROCESSING:
+            case self::PAID_PROCESSING:
+                return __('Processing', 'kirki-ecommerce');
+            case self::PAID_SHIPPED:
+            case self::SHIPPED_UNPAID:
+                return __('Shipped', 'kirki-ecommerce');
+            case self::DELIVERED_UNPAID:
+            case self::COMPLETED:
+                return __('Delivered', 'kirki-ecommerce');
+            case self::PAID_CANCELLED:
+            case self::UNPAID_CANCELLED:
+            case self::FAILED_CANCELLED:
+                return __('Cancelled', 'kirki-ecommerce');
+            case self::REFUNDED:
+            case self::REFUND_DECLINED:
+            case self::RETURNED_PENDING_REFUND:
+            case self::REFUNDED_PARTIALLY:
+            case self::REFUND_REQUESTED:
+            case self::REFUND_IN_PROGRESS:
+                return __('Refunded', 'kirki-ecommerce');
+            case self::FAILED_UNFULFILLED:
+            case self::FAILED_PROCESSING:
+            case self::FAILED_SHIPPED:
+            case self::FAILED_DELIVERED:
+            case self::FAILED_ON_HOLD:
+                return __('Failed', 'kirki-ecommerce');
+            default:
+                return __('Unknown', 'kirki-ecommerce');
+        }
+    }
 }
