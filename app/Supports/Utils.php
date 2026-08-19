@@ -67,6 +67,8 @@ class Utils
             'advance.pages.cart' => __('Cart', 'kirki-ecommerce'),
             'advance.pages.checkout' => __('Checkout', 'kirki-ecommerce'),
             'advance.pages.account' => __('Account', 'kirki-ecommerce'),
+            'advance.pages.login' => __('Login', 'kirki-ecommerce'),
+            'advance.pages.register' => __('Register', 'kirki-ecommerce'),
         ];
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
@@ -173,6 +175,30 @@ class Utils
     }
 
     /**
+     * Get login page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The login page id.
+     */
+    public static function get_login_page_id()
+    {
+        return Settings::get('advance.pages.login', 0);
+    }
+
+    /**
+     * Get registration page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The registration page id.
+     */
+    public static function get_registration_page_id()
+    {
+        return Settings::get('advance.pages.register', 0);
+    }
+
+    /**
      * Get cart page id.
      *
      * @since 1.0.0
@@ -238,5 +264,17 @@ class Utils
     {
         $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
         return json_decode($countries_json, true);
+    }
+
+    /**
+     * Check if user can register.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if user can register, false otherwise.
+     */
+    public static function registration_enabled()
+    {
+        return (int) get_option('users_can_register', 0);
     }
 }

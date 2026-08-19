@@ -1,0 +1,141 @@
+// Styles for auth pages - Login, Registration, Forget Password
+
+@use "../tokens" as *;
+@use "../mixins" as *;
+
+.kecom-auth {
+  &-container {
+    max-width: 1440px;
+    padding: $spacing-18 $spacing-0;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $background-surface-alt;
+  }
+
+  &-form-wrapper {
+    max-width: 480px;
+    width: 100%;
+    border-radius: $radius-xl;
+    background-color: $background-surface;
+    box-shadow: $shadow-sm;
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-12;
+
+    @include breakpoint-down(md) {
+      max-width: 348px;
+      padding: $spacing-10;
+    }
+  }
+
+  &-header {
+
+    &-title {
+      @include typography(2xl, semibold, $text-primary);
+      line-height: $line-height-xl;
+      margin: 0;
+      margin-bottom: $spacing-4;
+    }
+
+    &-content {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+
+      span {
+        @include typography(md, regular, $text-secondary);
+      }
+
+      a {
+        @include typography(md, medium, $text-primary);
+        text-decoration: none;
+      }
+    }
+
+    margin-bottom: $spacing-12;
+  }
+
+  &-form {
+    @include flex(column, stretch, flex-start);
+    margin-bottom: $spacing-12;
+
+    .kecom-field {
+      margin-bottom: $spacing-9;
+
+      .kecom-password-field-label {
+        @include flex(row, center, space-between);
+
+        .kecom-forgot-password-label {
+          @include typography(base, medium, $text-emphasis);
+          text-decoration: none;
+        }
+      }
+
+      .kecom-password-input {
+        position: relative;
+
+        &-show {
+          @include flex-center;
+          position: absolute;
+          right: $spacing-5;
+          top: 50%;
+          transform: translateY(-50%);
+          cursor: pointer;
+          color: $icon-secondary;
+
+        }
+      }
+    }
+
+    .kecom-checkbox {
+      margin-bottom: $spacing-12;
+    }
+
+    .kecom-checkbox-link {
+      @include typography(base, medium, $text-emphasis);
+      text-decoration: none;
+    }
+  }
+
+  &-social {
+    &-divider {
+      @include flex(row, center, center);
+      margin-bottom: $spacing-12;
+
+      .kecom-divider {
+        border: 1px solid $border-default;
+        width: 100%;
+      }
+
+      .kecom-divider-text {
+        @include typography(base, normal, $text-subdued);
+        white-space: nowrap;
+        margin: 0 $spacing-8;
+      }
+    }
+
+    &-btn-container {
+      @include flex(row, stretch, stretch);
+      gap: $spacing-6;
+
+      .kecom-google-btn,
+      .kecom-facebook-btn {
+        min-height: 51px;
+        width: 100%;
+      }
+    }
+  }
+}
+
+.kecom-registration-terms-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-12;
+
+  .kecom-checkbox {
+    margin-bottom: 0;
+  }
+}
