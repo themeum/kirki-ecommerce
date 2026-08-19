@@ -20,5 +20,4 @@ include_view('site.account.dashboard', [
     'orders'           => view_data('orders'),
     'billing_address'  => view_data('billing_address'),
     'shipping_address' => view_data('shipping_address'),
-    'pages'            => view_data('pages'),
 ]);

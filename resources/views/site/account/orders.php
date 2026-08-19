@@ -15,7 +15,8 @@ use Kirki\Ecommerce\App\Supports\Template;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
-$pages = view_data('pages');
+$orders   = view_data('orders', []);
+$has_more_pages = $orders['has_more_pages'] ?? false;
 ?>
 
 <?php Template::get_header(); ?>
@@ -25,10 +26,10 @@ $pages = view_data('pages');
         <!-- Account Center 2-Column Grid -->
         <div class="kecom-account-grid">
             <!-- Left Sidebar Navigation -->
-            <?php include_view('site.account.sidebar', ['pages' => $pages]); ?>
+            <?php include_view('site.account.sidebar'); ?>
 
             <!-- Right Content Area -->
-            <main class="kecom-account-content">
+            <main class="kecom-account-content" x-data="accountOrders()">
                 <div class="kecom-account-orders">
                     <div class="kecom-account-panel-header">
                         <h3 class="kecom-account-panel-header-title">
@@ -37,7 +38,19 @@ $pages = view_data('pages');
                     </div>
 
                     <!-- Shared Orders Table Partial -->
-                    <?php include_view('site.account.orders-table'); ?>
+                    <?php include_view('site.account.orders.table', ['orders' => $orders['results']]); ?>
+
+                    <?php if ($has_more_pages) { ?>
+                        <div class="kecom-flex kecom-justify-center kecom-mt-9">
+                            <button class="kecom-btn kecom-btn-primary"
+                                :class="{ 'kecom-btn-loading': isLoading }"
+                                :disabled="isLoading"
+                                x-show="hasMorePages" 
+                                @click="fetchOrders()">
+                                <?php esc_html_e('Load More', 'kirki-ecommerce'); ?>
+                            </button>
+                        </div>
+                    <?php } ?>
                 </div>
             </main>
         </div>
