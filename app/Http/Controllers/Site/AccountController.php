@@ -4,7 +4,8 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
-use Kirki\Ecommerce\App\DTO\Account\UpdateProfileDTO;
+use Kirki\Ecommerce\App\DTO\Account\UpdateAddressPayloadDTO;
+use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\AddressUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
@@ -18,8 +19,10 @@ class AccountController
 {
     public function update_profile(ProfileUpdateRequest $request, UpdateAccountProfileAction $action)
     {
-        $profile_payload = UpdateProfileDTO::from_array($request->sanitized());
-        $customer = $action->execute(user()->get_id(), $profile_payload, $request->display_name);
+        $profile_payload = UpdateProfilePayloadDTO::from_array($request->sanitized());
+        $profile_payload->user_id = user()->get_id();
+
+        $customer = $action->execute($profile_payload);
 
         return response()->json([
             'data' => CustomerResource::make($customer),
@@ -41,12 +44,10 @@ class AccountController
 
     public function update_addresses(AddressUpdateRequest $request, UpdateAccountAddressesAction $action)
     {
-        $customer = $action->execute(
-            user()->get_id(),
-            $request->type,
-            $request->sanitized(),
-            $request->is_billing_same_as_shipping ?? false
-        );
+        $address_payload = UpdateAddressPayloadDTO::from_array($request->sanitized());
+        $address_payload->user_id = user()->get_id();
+
+        $customer = $action->execute($address_payload);
 
         return response()->json([
             'data' => CustomerResource::make($customer),

@@ -11,20 +11,31 @@ class AddressUpdateRequest extends Request
 {
     public function rules()
     {
+        $address_field = Rule::when(
+            fn($data) => ($data['type'] ?? null) !== AddressType::BILLING || empty($data['is_billing_same_as_shipping']),
+            ['required', 'string'],
+            ['nullable', 'string']
+        );
+
+        $is_billing_same_as_shipping_field = Rule::when(
+            fn($data) => ($data['type'] ?? null) === AddressType::BILLING,
+            ['required', 'boolean'],
+            ['nullable', 'boolean']
+        );
 
         return [
-            'first_name' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'last_name' => 'nullable|string',
-            'email' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'phone' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'address_line1' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'address_line2' => 'nullable|string',
-            'city' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'state' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'postal_code' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
-            'country' => 'required_if:is_billing_same_as_shipping,0|nullable|string',
             'type' => 'required|string|in:' . implode(',', [AddressType::SHIPPING, AddressType::BILLING]),
-            'is_billing_same_as_shipping' => 'required_if:type,' . AddressType::BILLING . '|nullable|boolean',
+            'is_billing_same_as_shipping' => $is_billing_same_as_shipping_field,
+            'first_name' => $address_field,
+            'last_name' => 'nullable|string',
+            'email' => $address_field,
+            'phone' => $address_field,
+            'address_line1' => $address_field,
+            'address_line2' => 'nullable|string',
+            'city' => $address_field,
+            'state' => $address_field,
+            'postal_code' => $address_field,
+            'country' => $address_field,
         ];
     }
 

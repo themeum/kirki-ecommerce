@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Actions\Account;
 
 use Kirki\Ecommerce\App\Constants\AddressType;
+use Kirki\Ecommerce\App\DTO\Account\UpdateAddressPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -30,17 +31,14 @@ class UpdateAccountAddressesAction
      * the customer; when true, the billing address is copied from the
      * customer's current shipping address instead of the submitted fields.
      *
-     * @param int $user_id
-     * @param string $type AddressType::SHIPPING or AddressType::BILLING
-     * @param array $address_data
-     * @param bool $is_billing_same_as_shipping Required when $type is AddressType::BILLING.
+     * @param UpdateAddressPayloadDTO $data
      * @return Customer
      * @throws NotFoundException
      * @throws Throwable
      */
-    public function execute(int $user_id, string $type, array $address_data, bool $is_billing_same_as_shipping = false)
+    public function execute(UpdateAddressPayloadDTO $data)
     {
-        $customer = $this->customer_service->find_by_user_id($user_id);
+        $customer = $this->customer_service->find_by_user_id($data->user_id);
 
         if (empty($customer) || empty($customer->shipping_address) || empty($customer->billing_address)) {
             throw new NotFoundException(__('Customer address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -49,10 +47,10 @@ class UpdateAccountAddressesAction
         DB::begin_transaction();
 
         try {
-            if ($type === AddressType::BILLING) {
-                $this->update_billing_address($customer, $address_data, (bool) $is_billing_same_as_shipping);
+            if ($data->type === AddressType::BILLING) {
+                $this->update_billing_address($customer, $data);
             } else {
-                $this->update_shipping_address($customer, $address_data);
+                $this->update_shipping_address($customer, $data);
             }
 
             DB::commit();
@@ -65,9 +63,9 @@ class UpdateAccountAddressesAction
         }
     }
 
-    protected function update_shipping_address(Customer $customer, array $address_data)
+    protected function update_shipping_address(Customer $customer, UpdateAddressPayloadDTO $data)
     {
-        $payload = UpdateAddressDTO::from_array($address_data);
+        $payload = UpdateAddressDTO::from_array($data->all());
         $payload->id = $customer->shipping_address->id;
         $payload->customer_id = $customer->id;
         $payload->type = AddressType::SHIPPING;
@@ -75,13 +73,15 @@ class UpdateAccountAddressesAction
         $this->address_service->update($payload);
     }
 
-    protected function update_billing_address(Customer $customer, array $address_data, bool $is_billing_same_as_shipping)
+    protected function update_billing_address(Customer $customer, UpdateAddressPayloadDTO $data)
     {
+        $is_billing_same_as_shipping = (bool) $data->is_billing_same_as_shipping;
+
         $this->customer_service->set_billing_same_as_shipping($customer->id, $is_billing_same_as_shipping);
 
         $billing_source = $is_billing_same_as_shipping
             ? $customer->shipping_address->to_array()
-            : $address_data;
+            : $data->all();
 
         $payload = UpdateAddressDTO::from_array($billing_source);
         $payload->id = $customer->billing_address->id;

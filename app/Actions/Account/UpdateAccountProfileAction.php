@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Actions\Account;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\UserService;
-use Kirki\Ecommerce\App\DTO\Account\UpdateProfileDTO;
+use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -23,19 +23,17 @@ class UpdateAccountProfileAction
     }
 
     /**
-     * Update the profile of the customer linked to the given WordPress user,
-     * including their WordPress display name.
+     * Update the profile of the customer linked to the WordPress user in the
+     * payload, including their WordPress display name.
      *
-     * @param int $user_id
-     * @param UpdateProfileDTO $data
-     * @param string $display_name
+     * @param UpdateProfilePayloadDTO $data
      * @return Customer
      * @throws NotFoundException
      * @throws Throwable
      */
-    public function execute(int $user_id, UpdateProfileDTO $data, string $display_name)
+    public function execute(UpdateProfilePayloadDTO $data)
     {
-        $customer = $this->customer_service->find_by_user_id($user_id);
+        $customer = $this->customer_service->find_by_user_id($data->user_id);
 
         if (empty($customer)) {
             throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -44,9 +42,10 @@ class UpdateAccountProfileAction
         DB::begin_transaction();
 
         try {
-            $customer = $this->customer_service->update_profile($customer->id, $data);
+            $profile_fields = $data->only(['first_name', 'last_name', 'phone']);
+            $customer = $this->customer_service->update_profile($customer->id, $profile_fields);
 
-            $this->user_service->update_display_name($user_id, $display_name);
+            $this->user_service->update_display_name($data->user_id, $data->display_name);
 
             DB::commit();
 

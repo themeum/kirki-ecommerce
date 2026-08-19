@@ -9,7 +9,6 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
-use Kirki\Ecommerce\App\DTO\Account\UpdateProfileDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
@@ -133,17 +132,20 @@ class CustomerService
     }
 
     /**
-     * Updates a customer's own profile fields (first name, last name, phone).
+     * Partially updates a customer's own record.
      *
-     * Unlike update(), this only touches the fields present on UpdateProfileDTO,
-     * so admin-only fields (tags, notes, is_billing_same_as_shipping) are left untouched.
+     * Unlike update(), this writes only the columns present in $data -
+     * anything not present is left untouched. The caller is responsible for
+     * only passing profile-appropriate columns (first_name, last_name,
+     * phone); this method itself does not restrict which fillable Customer
+     * columns can be written.
      *
      * @param int $customer_id
-     * @param UpdateProfileDTO $data
+     * @param array $data
      * @throws NotFoundException
      * @return Customer
      */
-    public function update_profile(int $customer_id, UpdateProfileDTO $data)
+    public function update_profile(int $customer_id, array $data)
     {
         $customer = $this->find($customer_id);
 
@@ -151,10 +153,9 @@ class CustomerService
             throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $data_array = $data->all();
-        $data_array['updated_by'] = user()->get_id();
+        $data['updated_by'] = user()->get_id();
 
-        $is_updated = (bool) $customer->update($data_array);
+        $is_updated = (bool) $customer->update($data);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
