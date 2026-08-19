@@ -37,4 +37,10 @@
     @include typography(base, normal, $text-primary);
     font-style: normal;
   }
+
+  .kecom-empty-text {
+    @include typography(base, normal, $text-subdued);
+    font-style: italic;
+    margin: 0px;
+  }
 }

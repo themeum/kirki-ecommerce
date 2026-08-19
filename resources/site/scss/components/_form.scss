@@ -108,11 +108,11 @@
     color: $text-subdued;
   }
 
-  &:hover:not(:disabled):not(:read-only):not(:focus) {
+  &:hover:not(:disabled):not(:focus) {
     border-color: $border-hover;
   }
 
-  &:focus:not(:read-only) {
+  &:focus {
     outline: none;
     border-color: $border-default;
     box-shadow: 0px 1.5px 2px 0px $border-ring;
@@ -125,6 +125,12 @@
     color: $text-disabled;
     border-color: $border-default;
   }
+}
+
+// ── Text input ───────────────────────────────────────────────────────────────
+
+.kecom-input.kecom-input {
+  @extend %kecom-control;
 
   &:read-only,
   &[readonly] {
@@ -134,18 +140,13 @@
     border-color: transparent;
     user-select: none;
 
+    &:hover,
     &:focus {
       outline: none;
       box-shadow: none;
       border-color: transparent;
     }
   }
-}
-
-// ── Text input ───────────────────────────────────────────────────────────────
-
-.kecom-input.kecom-input {
-  @extend %kecom-control;
 
   &-sm {
     padding: $spacing-2 $spacing-4;
@@ -212,6 +213,22 @@
   @extend %kecom-control;
   resize: vertical;
   min-height: 6rem;
+
+  &:read-only,
+  &[readonly] {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+    border-color: transparent;
+    user-select: none;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
 }
 
 // ── Select ───────────────────────────────────────────────────────────────────

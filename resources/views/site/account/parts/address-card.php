@@ -68,7 +68,7 @@ $title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-e
             </address>
         </template>
         <template x-if="!hasAddress('<?php echo esc_attr($type); ?>')">
-            <p class="kecom-text-subdued"><?php esc_html_e('You have not set up this type of address yet.', 'kirki-ecommerce'); ?></p>
+            <p class="kecom-empty-text"><?php esc_html_e('You have not set up this type of address yet.', 'kirki-ecommerce'); ?></p>
         </template>
     </div>
 </div>
