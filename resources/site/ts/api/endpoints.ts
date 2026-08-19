@@ -18,4 +18,8 @@ export const ENDPOINTS = {
     root: '/customers',
     single: (id: number) => `/customers/${id}`,
   },
+  account: {
+    profile: '/account/profile',
+    passwordChange: '/account/password-change',
+  },
 } as const;

@@ -9,6 +9,7 @@ import Alpine from 'alpinejs';
 
 // Import components
 import { accountAddresses } from './components/account-addresses';
+import { accountDetails } from './components/account-details';
 import { addToCart } from './components/add-to-cart';
 import { cart } from './components/cart';
 import { checkout } from './components/checkout';
@@ -30,6 +31,7 @@ import '../scss/index.scss';
 
 // Register components
 Alpine.data('accountAddresses', accountAddresses);
+Alpine.data('accountDetails', accountDetails);
 Alpine.data('addToCart', addToCart);
 Alpine.data('cart', cart);
 Alpine.data('productFilter', productFilter);

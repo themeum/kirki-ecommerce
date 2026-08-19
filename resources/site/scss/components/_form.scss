@@ -41,11 +41,11 @@
 .kecom-field {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2;
+  gap: $spacing-4;
   width: 100%;
 
   &-label {
-    @include typography(sm, medium, $text-primary);
+    @include typography(base, medium, $text-primary);
     display: inline-flex;
     align-items: center;
     gap: $spacing-2;
@@ -108,11 +108,11 @@
     color: $text-subdued;
   }
 
-  &:hover:not(:disabled):not(:focus) {
+  &:hover:not(:disabled):not(:read-only):not(:focus) {
     border-color: $border-hover;
   }
 
-  &:focus {
+  &:focus:not(:read-only) {
     outline: none;
     border-color: $border-default;
     box-shadow: 0px 1.5px 2px 0px $border-ring;
@@ -124,6 +124,21 @@
     background-color: $background-surface-alt;
     color: $text-disabled;
     border-color: $border-default;
+  }
+
+  &:read-only,
+  &[readonly] {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+    border-color: transparent;
+    user-select: none;
+
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
   }
 }
 

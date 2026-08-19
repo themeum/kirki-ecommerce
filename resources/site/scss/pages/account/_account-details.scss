@@ -8,6 +8,8 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-6;
+  max-width: 630px;
+  margin: 0 auto;
 
   .kecom-account-details-title {
     @include typography(xl, semibold, $text-primary);
@@ -16,20 +18,93 @@
 }
 
 .kecom-account-details-form {
-  gap: $spacing-5;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-9;
 
-  .kecom-card {
-    gap: $spacing-5;
+  .kecom-account-details-card {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
   }
 
-  .kecom-account-details-actions {
-    margin-top: $spacing-2;
+  .kecom-field-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+  }
 
-    .kecom-btn-primary {
-      padding: 10px 24px;
-      font-size: $font-size-sm;
-      font-weight: $font-weight-medium;
-      border-radius: $radius-md;
+  .kecom-info-tip {
+    display: inline-flex;
+    align-items: center;
+    color: $text-secondary;
+    cursor: help;
+
+    svg {
+      width: 15px;
+      height: 15px;
     }
+  }
+}
+
+// Modal specific styling for Password Change
+.kecom-modal-header-with-icon {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: $icon-primary;
+  }
+
+  .kecom-modal-header-title {
+    @include typography(md, semibold, $text-primary);
+    margin: 0;
+  }
+}
+
+.kecom-modal-body {
+  @include flex-column();
+  gap: $spacing-8;
+  background-color: $background-surface-alt;
+}
+
+.kecom-input-password-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  .kecom-input {
+    padding-right: $spacing-10;
+  }
+
+  .kecom-password-toggle-btn {
+    position: absolute;
+    right: $spacing-4;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    cursor: pointer;
+    color: $icon-secondary;
+    @include flex-center();
+    @include transition(color);
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+}
+
+.kecom-forgot-password-link {
+  @include typography(sm, medium, $text-emphasis);
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    text-decoration: underline;
   }
 }

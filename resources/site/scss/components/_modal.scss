@@ -71,7 +71,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: $spacing-4 $spacing-5;
+  padding: $spacing-5 $spacing-6 $spacing-5 $spacing-10;
   border-bottom: 1px solid $border-default;
 
   &-title {
@@ -85,7 +85,7 @@
     width: 2rem;
     height: 2rem;
     border-radius: $radius-md;
-    color: $icon-secondary;
+    color: $icon-primary;
     @include transition((background-color, color));
 
     &:hover {
@@ -103,7 +103,7 @@
 
 .kecom-modal-body {
   flex: 1;
-  padding: $spacing-5;
+  padding: $spacing-8;
   overflow-y: auto;
 
   // Custom scrollbar
@@ -116,8 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: $spacing-3;
-  padding: $spacing-4 $spacing-5;
+  gap: $spacing-6;
+  padding: $spacing-6 $spacing-10;
   border-top: 1px solid $border-default;
-  background-color: $background-surface-alt;
 }
