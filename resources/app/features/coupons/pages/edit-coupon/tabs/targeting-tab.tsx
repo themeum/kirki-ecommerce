@@ -11,17 +11,18 @@ import { CustomerSelectionField } from '@/features/customers';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-const specificGroupsOption = {
-  value: 'specific-groups',
-  label: __('Specific customer group (Coming Soon)', 'kirki-ecommerce'),
-  disabled: true,
-};
-
-const customerEligibilityOptions = [
-  { value: 'none', label: __('None', 'kirki-ecommerce') },
-  { value: 'all', label: __('All customers', 'kirki-ecommerce') },
+const customerIncludeEligibilityOptions = [
+  { value: 'everyone', label: __('Everyone', 'kirki-ecommerce') },
   { value: 'specific-customers', label: __('Specific customers', 'kirki-ecommerce') },
-  specificGroupsOption,
+  { value: 'all-customers', label: __('Only customers', 'kirki-ecommerce') },
+  { value: 'guests', label: __('Only guests', 'kirki-ecommerce') },
+];
+
+const customerExcludeEligibilityOptions = [
+  { value: 'none', label: __('None', 'kirki-ecommerce') },
+  { value: 'specific-customers', label: __('Specific customers', 'kirki-ecommerce') },
+  { value: 'all-customers', label: __('All customers', 'kirki-ecommerce') },
+  { value: 'guests', label: __('All guests', 'kirki-ecommerce') },
 ];
 
 const TargetingTab = () => {
@@ -71,8 +72,8 @@ const TargetingTab = () => {
             />
             <SelectField
               name="customer_include_eligibility"
-              label={__('Select Specific Customers', 'kirki-ecommerce')}
-              options={customerEligibilityOptions}
+              label={__('Eligible customers', 'kirki-ecommerce')}
+              options={customerIncludeEligibilityOptions}
             />
             {customerIncludeEligibility === 'specific-customers' && (
               <CustomerSelectionField name="include_customers" />
@@ -89,8 +90,8 @@ const TargetingTab = () => {
             </Flex>
             <SelectField
               name="customer_exclude_eligibility"
-              label={__('Select Specific Customers', 'kirki-ecommerce')}
-              options={customerEligibilityOptions}
+              label={__('Excluded customers', 'kirki-ecommerce')}
+              options={customerExcludeEligibilityOptions}
             />
             {customerExcludeEligibility === 'specific-customers' && (
               <CustomerSelectionField name="exclude_customers" />

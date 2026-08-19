@@ -64,7 +64,7 @@ class UpdateCouponDTO extends DTO
     public $first_time_buyer_only = false;
 
     /** @var string */
-    public $customer_include_eligibility = 'all';
+    public $customer_include_eligibility = 'everyone';
 
     /** @var string */
     public $customer_exclude_eligibility = 'none';

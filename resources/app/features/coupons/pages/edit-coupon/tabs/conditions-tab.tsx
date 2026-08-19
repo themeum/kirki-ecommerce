@@ -3,8 +3,6 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import CheckboxField from '@/components/form/checkbox-field';
 import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Checkbox from '@/components/ui/checkbox';
-import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
@@ -14,11 +12,12 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-const combinationOptions = [
-  { id: 'amount-off', label: __('Amount off discounts', 'kirki-ecommerce') },
-  { id: 'order', label: __('Order discounts', 'kirki-ecommerce') },
-  { id: 'shipping', label: __('Shipping discounts', 'kirki-ecommerce') },
-];
+// TODO: implement later
+// const combinationOptions = [
+//   { id: 'amount-off', label: __('Amount off discounts', 'kirki-ecommerce') },
+//   { id: 'order', label: __('Order discounts', 'kirki-ecommerce') },
+//   { id: 'shipping', label: __('Shipping discounts', 'kirki-ecommerce') },
+// ];
 
 type UsageLimitRowProps = {
   checkboxName: 'has_usage_limit' | 'has_customer_limit';
@@ -64,8 +63,9 @@ const UsageLimitRow = ({
 };
 
 const ConditionsTab = () => {
-  const { control } = useFormContext<CouponFormInput>();
-  const discountType = useWatch({ control, name: 'discount_type' });
+  // TODO: implement later
+  // const { control } = useFormContext<CouponFormInput>();
+  // const discountType = useWatch({ control, name: 'discount_type' });
   return (
     <Flex direction="column" gap={4}>
       <Card cssOverride={cardStyles.formCard}>
@@ -102,33 +102,34 @@ const ConditionsTab = () => {
         </CardContent>
       </Card>
       {
-        discountType !== 'free-shipping' && (
-          <Card cssOverride={cardStyles.formCard}>
-            <CardHeader>
-              <CardTitle>{__('Combinations', 'kirki-ecommerce')}</CardTitle>
-              <Text variant="small" color="secondary">
-                {__(
-                  'Define how the coupon can be combined with other coupons',
-                  'kirki-ecommerce',
-                )}
-              </Text>
-            </CardHeader>
-            <CardContent>
-              <Flex direction="column" gap={3}>
-                {combinationOptions.map((option) => {
-                  const optionId = `combination-${option.id}`;
+        // @todo: implement later
+        // discountType !== 'free-shipping' && (
+        //   <Card cssOverride={cardStyles.formCard}>
+        //     <CardHeader>
+        //       <CardTitle>{__('Combinations', 'kirki-ecommerce')}</CardTitle>
+        //       <Text variant="small" color="secondary">
+        //         {__(
+        //           'Define how the coupon can be combined with other coupons',
+        //           'kirki-ecommerce',
+        //         )}
+        //       </Text>
+        //     </CardHeader>
+        //     <CardContent>
+        //       <Flex direction="column" gap={3}>
+        //         {combinationOptions.map((option) => {
+        //           const optionId = `combination-${option.id}`;
 
-                  return (
-                    <Field key={option.id} orientation="horizontal">
-                      <Checkbox id={optionId} checked={false} disabled />
-                      <FieldLabel htmlFor={optionId}>{option.label}</FieldLabel>
-                    </Field>
-                  );
-                })}
-              </Flex>
-            </CardContent>
-          </Card>
-        )
+        //           return (
+        //             <Field key={option.id} orientation="horizontal">
+        //               <Checkbox id={optionId} checked={false} disabled />
+        //               <FieldLabel htmlFor={optionId}>{option.label}</FieldLabel>
+        //             </Field>
+        //           );
+        //         })}
+        //       </Flex>
+        //     </CardContent>
+        //   </Card>
+        // )
       }
     </Flex>
   );

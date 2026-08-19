@@ -53,7 +53,7 @@ describe('CouponFormSchema', () => {
       target_country_type: 'all-countries',
       target_countries: null,
       first_time_buyer_only: false,
-      customer_include_eligibility: 'all',
+      customer_include_eligibility: 'everyone',
       customer_ids: [],
       customer_exclude_eligibility: 'none',
       exclude_customer_ids: [],
@@ -272,7 +272,7 @@ describe('CouponFormSchema', () => {
   it('empties each customer list when its eligibility is not specific-customers', () => {
     const result = CouponFormSchema.parse({
       ...base,
-      customer_include_eligibility: 'all',
+      customer_include_eligibility: 'everyone',
       include_customers: [customer(1)],
       customer_exclude_eligibility: 'none',
       exclude_customers: [customer(3)],
@@ -281,16 +281,25 @@ describe('CouponFormSchema', () => {
     expect(result.exclude_customer_ids).toEqual([]);
   });
 
-  it('carries a guests-only pairing of include none and exclude all', () => {
+  it('carries an audience-only pairing without touching either customer list', () => {
     const result = CouponFormSchema.parse({
       ...base,
-      customer_include_eligibility: 'none',
-      customer_exclude_eligibility: 'all',
+      customer_include_eligibility: 'guests',
+      customer_exclude_eligibility: 'all-customers',
     });
-    expect(result.customer_include_eligibility).toBe('none');
-    expect(result.customer_exclude_eligibility).toBe('all');
+    expect(result.customer_include_eligibility).toBe('guests');
+    expect(result.customer_exclude_eligibility).toBe('all-customers');
     expect(result.customer_ids).toEqual([]);
     expect(result.exclude_customer_ids).toEqual([]);
+  });
+
+  it('rejects an eligibility value that belongs to the other side', () => {
+    expect(
+      CouponFormSchema.safeParse({ ...base, customer_include_eligibility: 'none' }).success,
+    ).toBe(false);
+    expect(
+      CouponFormSchema.safeParse({ ...base, customer_exclude_eligibility: 'everyone' }).success,
+    ).toBe(false);
   });
 
   it('requires a customer selection when either eligibility is specific-customers', () => {

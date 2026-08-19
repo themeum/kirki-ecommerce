@@ -46,14 +46,25 @@ export const CouponTargetCountryTypeSchema = z.enum([
 
 export type CouponTargetCountryType = z.infer<typeof CouponTargetCountryTypeSchema>;
 
-export const CouponCustomerEligibilitySchema = z.enum([
-  'none',
-  'all',
+export const CouponCustomerIncludeEligibilitySchema = z.enum([
+  'everyone',
+  'all-customers',
+  'guests',
   'specific-customers',
   'specific-groups',
 ]);
 
-export type CouponCustomerEligibility = z.infer<typeof CouponCustomerEligibilitySchema>;
+export type CouponCustomerIncludeEligibility = z.infer<typeof CouponCustomerIncludeEligibilitySchema>;
+
+export const CouponCustomerExcludeEligibilitySchema = z.enum([
+  'none',
+  'all-customers',
+  'guests',
+  'specific-customers',
+  'specific-groups',
+]);
+
+export type CouponCustomerExcludeEligibility = z.infer<typeof CouponCustomerExcludeEligibilitySchema>;
 
 export const CouponDiscountValueTypeSchema = z.enum(['fixed', 'percentage']);
 
@@ -91,8 +102,8 @@ export const CouponSchema = z.object({
   target_country_type: CouponTargetCountryTypeSchema.default('all-countries'),
   target_countries: z.array(RegionSchema).nullish(),
   first_time_buyer_only: z.boolean().default(false),
-  customer_include_eligibility: CouponCustomerEligibilitySchema.default('all'),
-  customer_exclude_eligibility: CouponCustomerEligibilitySchema.default('none'),
+  customer_include_eligibility: CouponCustomerIncludeEligibilitySchema.default('everyone'),
+  customer_exclude_eligibility: CouponCustomerExcludeEligibilitySchema.default('none'),
   has_usage_limit: z.boolean().default(false),
   usage_limit: z.number().nullish(),
   has_customer_limit: z.boolean().default(false),

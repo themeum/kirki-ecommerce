@@ -3,7 +3,8 @@
 namespace Kirki\Ecommerce\App\Resources\Coupon;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
@@ -48,8 +49,8 @@ class CouponResource extends Resource
             'target_country_type' => $this->target_country_type ?? TargetCountryType::ALL_COUNTRIES,
             'target_countries' => $this->target_countries,
             'first_time_buyer_only' => filter_var($this->first_time_buyer_only, FILTER_VALIDATE_BOOLEAN),
-            'customer_include_eligibility' => $this->customer_include_eligibility ?? CustomerEligibility::ALL,
-            'customer_exclude_eligibility' => $this->customer_exclude_eligibility ?? CustomerEligibility::NONE,
+            'customer_include_eligibility' => $this->customer_include_eligibility ?? CustomerIncludeEligibility::EVERYONE,
+            'customer_exclude_eligibility' => $this->customer_exclude_eligibility ?? CustomerExcludeEligibility::NONE,
             'has_usage_limit' => filter_var($this->has_usage_limit, FILTER_VALIDATE_BOOLEAN),
             'usage_limit' => $this->usage_limit,
             'has_customer_limit' => filter_var($this->has_customer_limit, FILTER_VALIDATE_BOOLEAN),

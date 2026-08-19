@@ -4,7 +4,8 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
@@ -294,7 +295,8 @@ class CouponApiTest extends RestTestCase
         $original = $this->create_coupon([
             'title' => 'Coupon With Associations',
             'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
-            'customer_include_eligibility' => CustomerEligibility::SPECIFIC_CUSTOMERS,
+            'customer_include_eligibility' => CustomerIncludeEligibility::SPECIFIC_CUSTOMERS,
+            'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'category_ids' => [$category['id']],
             'product_ids' => [$product['id']],
             'reward_product_ids' => [$reward_product['id']],
@@ -450,7 +452,8 @@ class CouponApiTest extends RestTestCase
             'discount_amount' => 10,
             'start_datetime' => '2025-01-01T00:00:00+00:00',
             'has_end_datetime' => false,
-            'customer_include_eligibility' => CustomerEligibility::ALL,
+            'customer_include_eligibility' => CustomerIncludeEligibility::EVERYONE,
+            'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'is_active' => true,
         ];
 

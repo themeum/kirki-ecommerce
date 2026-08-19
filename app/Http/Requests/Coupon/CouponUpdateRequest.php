@@ -3,7 +3,8 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Coupon;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
@@ -49,8 +50,8 @@ class CouponUpdateRequest extends Request
             'target_country_type' => 'string|in:' . implode(',', TargetCountryType::get_constant_values()) . '|nullable',
             'target_countries' => 'required_if:target_country_type,' . TargetCountryType::SPECIFIC_COUNTRIES . '|array|nullable',
             'first_time_buyer_only' => 'boolean|nullable',
-            'customer_include_eligibility' => 'string|in:' . implode(',', CustomerEligibility::get_constant_values()) . '|nullable',
-            'customer_exclude_eligibility' => 'string|in:' . implode(',', CustomerEligibility::get_constant_values()) . '|nullable',
+            'customer_include_eligibility' => 'string|in:' . implode(',', CustomerIncludeEligibility::get_constant_values()) . '|nullable',
+            'customer_exclude_eligibility' => 'string|in:' . implode(',', CustomerExcludeEligibility::get_constant_values()) . '|nullable',
             'has_usage_limit' => 'boolean|nullable',
             'usage_limit' => 'required_if:has_usage_limit,1|integer|nullable',
             'has_customer_limit' => 'boolean|nullable',
@@ -60,9 +61,9 @@ class CouponUpdateRequest extends Request
             'category_ids.*' => 'integer',
             'product_ids' => 'required_if:eligible_item_type,' . EligibleItemType::SPECIFIC_PRODUCTS . '|array|nullable',
             'product_ids.*' => 'integer',
-            'customer_ids' => 'required_if:customer_include_eligibility,' . CustomerEligibility::SPECIFIC_CUSTOMERS . '|array|nullable',
+            'customer_ids' => 'required_if:customer_include_eligibility,' . CustomerIncludeEligibility::SPECIFIC_CUSTOMERS . '|array|nullable',
             'customer_ids.*' => 'integer',
-            'exclude_customer_ids' => 'required_if:customer_exclude_eligibility,' . CustomerEligibility::SPECIFIC_CUSTOMERS . '|array|nullable',
+            'exclude_customer_ids' => 'required_if:customer_exclude_eligibility,' . CustomerExcludeEligibility::SPECIFIC_CUSTOMERS . '|array|nullable',
             'exclude_customer_ids.*' => 'integer',
             'reward_product_ids' => 'array|nullable',
             'reward_product_ids.*' => 'integer',

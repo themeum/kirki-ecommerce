@@ -5,7 +5,8 @@ import { CategorySchema } from '@/features/categories';
 import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import type { CouponEligibleItemType } from '@/features/coupons/schemas/catalog/coupon';
 import {
-  CouponCustomerEligibilitySchema,
+  CouponCustomerExcludeEligibilitySchema,
+  CouponCustomerIncludeEligibilitySchema,
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
@@ -123,7 +124,7 @@ const CouponFormShape = z.object({
     __('Select at least one region', 'kirki-ecommerce'),
   ),
   first_time_buyer_only: z.boolean().default(false),
-  customer_include_eligibility: CouponCustomerEligibilitySchema.default('all'),
+  customer_include_eligibility: CouponCustomerIncludeEligibilitySchema.default('everyone'),
   include_customers: requiredWhen(
     z.array(CustomerInfoSchema).nullish().default([]),
     (values) =>
@@ -131,7 +132,7 @@ const CouponFormShape = z.object({
       isEmptyValue(values.include_customers),
     __('Select at least one customer', 'kirki-ecommerce'),
   ),
-  customer_exclude_eligibility: CouponCustomerEligibilitySchema.default('none'),
+  customer_exclude_eligibility: CouponCustomerExcludeEligibilitySchema.default('none'),
   exclude_customers: requiredWhen(
     z.array(CustomerInfoSchema).nullish().default([]),
     (values) =>
