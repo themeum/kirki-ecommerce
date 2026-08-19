@@ -15,11 +15,27 @@ use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $pages = view_data('pages');
 $fallback_image_url = Assets::get_url('images/product-fallback.webp');
+$order = view_data('order');
+$customer = customer();
+
+$first_name = ucfirst($customer->get_first_name());
+$last_name = ucfirst($customer->get_last_name());
+$email = $customer->get_email();
+
+$order_placed = isset($order['created_at']) ? date('M j, Y', strtotime($order['created_at'])) : '';
+$shipping_address = $order['shipping_address'] ?? [];
+$shipping_country = $order['shipping_country'] ?? [];
+$shipping_state = array_find($shipping_country['states'] ?? [], fn($item) => $item['id'] == $shipping_address['state']);
+$billing_country = $order['billing_country'] ?? [];
+$billing_address = $order['billing_address'] ?? [];
+$billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item['id'] == $billing_address['state']);
 ?>
 
 <?php Template::get_header(); ?>
@@ -42,12 +58,12 @@ $fallback_image_url = Assets::get_url('images/product-fallback.webp');
                             </a>
                             <div class="kecom-order-details-title-wrap">
                                 <div class="kecom-order-details-heading-row">
-                                    <h1 class="kecom-order-details-title"><?php esc_html_e('Orders #2314', 'kirki-ecommerce'); ?></h1>
+                                    <h1 class="kecom-order-details-title"><?php echo printf(__('Order #%s', 'kirki-ecommerce'), $order['order_number'] ?? ''); ?></h1>
                                     <span class="kecom-badge kecom-badge-success-light">
-                                        <?php esc_html_e('Processing', 'kirki-ecommerce'); ?>
+                                        <?php echo esc_html($order['status'] ?? '') ?>
                                     </span>
                                 </div>
-                                <span class="kecom-order-details-placed"><?php esc_html_e('Placed on Oct 17, 2026', 'kirki-ecommerce'); ?></span>
+                                <span class="kecom-order-details-placed"><?php echo esc_html(__('Placed on ', 'kirki-ecommerce') . $order_placed); ?></span>
                             </div>
                         </div>
                     </div>
@@ -102,8 +118,8 @@ $fallback_image_url = Assets::get_url('images/product-fallback.webp');
                                             <?php esc_html_e('Contact Information', 'kirki-ecommerce'); ?>
                                         </h4>
                                         <div class="kecom-order-info-content">
-                                            <p class="kecom-order-info-text">Bradley Lawlor</p>
-                                            <p class="kecom-order-info-text">bradley.lawlor@email.com</p>
+                                            <p class="kecom-order-info-text"><?php echo esc_html($first_name . ' ' . $last_name) ?></p>
+                                            <p class="kecom-order-info-text"><?php echo esc_html($email); ?></p>
                                         </div>
                                     </div>
 
@@ -113,7 +129,7 @@ $fallback_image_url = Assets::get_url('images/product-fallback.webp');
                                             <?php esc_html_e('Payment', 'kirki-ecommerce'); ?>
                                         </h4>
                                         <div class="kecom-order-info-content">
-                                            <p class="kecom-order-info-text">Visa •••• 1234</p>
+                                            <p class="kecom-order-info-text"><?php echo esc_html($order['payment_provider_name'] ?? ''); ?></p>
                                         </div>
                                     </div>
 
@@ -123,10 +139,25 @@ $fallback_image_url = Assets::get_url('images/product-fallback.webp');
                                             <?php esc_html_e('Shipping Address', 'kirki-ecommerce'); ?>
                                         </h4>
                                         <div class="kecom-order-address-lines">
-                                            <p>Bradley Lawlor</p>
-                                            <p>123 Main Street</p>
-                                            <p>Anytown, CA 90210</p>
-                                            <p>United States</p>
+                                            <?php if (!empty($shipping_address['address_line1'])) : ?>
+                                                <p><?php echo esc_html($shipping_address['address_line1']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($shipping_address['address_line2'])) : ?>
+                                                <p><?php echo esc_html($shipping_address['address_line2']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($shipping_address['city'])) : ?>
+                                                <p><?php echo esc_html($shipping_address['city']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($shipping_state['name']) && !empty($shipping_address['postal_code'])) : ?>
+                                                <p><?php echo esc_html($shipping_state['name'] . ', ' . $shipping_address['postal_code']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($shipping_country['name'])) : ?>
+                                                <p><?php echo esc_html($shipping_country['name']); ?></p>
+                                            <?php endif ?>
                                         </div>
                                     </div>
 
@@ -136,10 +167,25 @@ $fallback_image_url = Assets::get_url('images/product-fallback.webp');
                                             <?php esc_html_e('Billing Address', 'kirki-ecommerce'); ?>
                                         </h4>
                                         <div class="kecom-order-address-lines">
-                                            <p>Bradley Lawlor</p>
-                                            <p>123 Main Street</p>
-                                            <p>Anytown, CA 90210</p>
-                                            <p>United States</p>
+                                            <?php if (!empty($billing_address['address_line1'])) : ?>
+                                                <p><?php echo esc_html($billing_address['address_line1']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($billing_address['address_line2'])) : ?>
+                                                <p><?php echo esc_html($billing_address['address_line2']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($billing_address['city'])) : ?>
+                                                <p><?php echo esc_html($billing_address['city']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($billing_state['name']) && !empty($billing_address['postal_code'])) : ?>
+                                                <p><?php echo esc_html($billing_state['name'] . ', ' . $billing_address['postal_code']); ?></p>
+                                            <?php endif ?>
+
+                                            <?php if (!empty($billing_country['name'])) : ?>
+                                                <p><?php echo esc_html($billing_country['name']); ?></p>
+                                            <?php endif ?>
                                         </div>
                                     </div>
                                 </div>
