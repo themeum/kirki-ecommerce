@@ -16,7 +16,7 @@ class OrderResource extends BaseOrderResource
         return array_merge(parent::to_array(), [
             'shipping_country' => app(CountryService::class)->find($this->shipping_country),
             'billing_country' => app(CountryService::class)->find($this->billing_country),
-            'formatted_status' => FulfillmentStatus::format_fulfillment_status($this->fulfillment_status),
+            'formatted_status' => FulfillmentStatus::get_formatted($this->fulfillment_status),
             'payment_next_step' => Payment::pay($this->resource),
             'item_product_data' => $this->items->map(function ($item) {
                 return $item->product_data;

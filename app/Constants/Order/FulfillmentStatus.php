@@ -16,7 +16,7 @@ final class FulfillmentStatus
     const CANCELLED = 'cancelled';
     const RETURNED = 'returned';
 
-    public static function format_fulfillment_status(string $status)
+    public static function get_formatted(string $status)
     {
         switch ($status) {
             case self::UNFULFILLED:

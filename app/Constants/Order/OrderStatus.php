@@ -91,7 +91,7 @@ final class OrderStatus
         throw new Exception(__('Cannot resolve order status.', 'kirki-ecommerce'));
     }
 
-    public static function format_order_status(string $order_status)
+    public static function get_formatted(string $order_status)
     {
         switch ($order_status) {
             case self::PENDING:
