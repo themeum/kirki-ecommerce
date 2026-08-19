@@ -57,7 +57,7 @@ $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : ''
                         </div>
 
                         <!-- Orders List Partial -->
-                        <?php include_view('site.account.orders-table', ['orders' => $orders['results']]); ?>
+                        <?php include_view('site.account.orders.table', ['orders' => $orders['results']]); ?>
                     </div>
 
                     <!-- Account Details & Saved Addresses Cards -->

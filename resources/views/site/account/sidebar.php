@@ -13,9 +13,8 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Utils;
-use function Kirki\Ecommerce\Framework\view_data;
 
-$menu_items = $data['pages'] ?? (view_data('pages') ?: Utils::get_account_pages());
+$menu_items = Utils::get_account_pages();
 ?>
 
 <aside class="kecom-account-sidebar">
@@ -32,7 +31,7 @@ $menu_items = $data['pages'] ?? (view_data('pages') ?: Utils::get_account_pages(
                 if (!empty($item['class'])) {
                     $classes[] = $item['class'];
                 }
-            ?>
+                ?>
                 <li class="kecom-account-nav-item kecom-account-nav-item-<?php echo esc_attr($key); ?>">
                     <a
                         href="<?php echo esc_url($item['url']); ?>"

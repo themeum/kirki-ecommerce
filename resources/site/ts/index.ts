@@ -21,6 +21,8 @@ import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
 import { miniCart } from "./components/mini-cart";
 
+import { accountOrders } from './components/account-orders';
+
 import '../scss/index.scss';
 
 // ----------------------------------------------------------------------------
@@ -41,6 +43,9 @@ Alpine.data('form', form);
 Alpine.data('stateField', stateField);
 Alpine.data('shop', shop);
 Alpine.data('miniCart', miniCart);
+
+// Account components
+Alpine.data('accountOrders', accountOrders);
 
 // Initialize Alpine
 window.Alpine = Alpine;

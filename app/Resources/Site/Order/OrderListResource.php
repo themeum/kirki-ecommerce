@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\Assets;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 class OrderListResource extends Resource
 {
@@ -18,7 +20,7 @@ class OrderListResource extends Resource
             'customer_email' => $this->customer_email,
             'is_manual' => $this->is_manual,
             'quantity' => $this->items_count,
-            'items_images' => [],
+            'items_images' => $this->get_items_images(),
             'invoiced_total' => Money::prepare_amount_from_minor($this->invoiced_total, $this->currency_code),
             'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
             'base_total' => Money::prepare_amount_from_minor($this->base_total),
@@ -36,6 +38,30 @@ class OrderListResource extends Resource
             'shipping_method_name' => $this->shipping_metadata['shipping_method']['name'] ?? null,
             'created_at' => $this->created_at,
         ];
+    }
+
+    /**
+     * Get items images.
+     *
+     * @since 1.0.0
+     *
+     * @return array
+     */
+    protected function get_items_images(): array
+    {
+        $defaultImage = Assets::get_url('images/product-fallback.webp');
+
+        $images = $this->items()
+            ->get()
+            ->map(function ($item) {
+                $media = MediaAttachment::make($item->product_image);
+                return $media['url'] ?? null;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return $images ?: [$defaultImage];
     }
 
     /**

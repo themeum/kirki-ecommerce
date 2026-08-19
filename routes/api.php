@@ -27,6 +27,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
@@ -242,6 +243,7 @@ Route::get('/items', [SiteProductController::class, 'index']);
 
 // Site api endpoints.
 Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+Route::get('/account/orders-html', [AccountController::class, 'orders_html']);
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);
