@@ -5,7 +5,9 @@ import { useId, useState } from 'react';
 import Calendar from '@/components/ui/calendar/calendar';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, {
+  type PickerTriggerSize,
+} from '@/components/ui/calendar/picker-trigger';
 import TimePicker, { type HourCycle } from '@/components/ui/calendar/time-picker';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
@@ -31,6 +33,7 @@ type DateTimePickerProps = {
   maxDate?: Date | null;
   hourCycle?: HourCycle;
   clearable?: boolean;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   id?: string;
@@ -46,6 +49,7 @@ const DateTimePicker = ({
   maxDate,
   hourCycle = 24,
   clearable = false,
+  size = 'md',
   disabled = false,
   error = false,
   id,
@@ -105,6 +109,7 @@ const DateTimePicker = ({
         placeholder={placeholder}
         clearLabel={__('Clear date and time', 'kirki-ecommerce')}
         onClear={showClear ? () => onChange(null) : undefined}
+        size={size}
         disabled={disabled}
         error={error}
         cssOverride={cssOverride}
@@ -127,6 +132,7 @@ const DateTimePicker = ({
             value={timePart}
             onChange={handleTimeChange}
             hourCycle={hourCycle}
+            size={size}
             disabled={disabled}
           />
         </Flex>

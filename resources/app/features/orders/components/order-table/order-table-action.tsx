@@ -44,6 +44,7 @@ const OrderTableAction = memo(() => {
           presets
           clearable
           onChange={handleDateFilter}
+          size="sm"
         />
         <FilterPopup />
         <Button variant="outline" aria-label={__('Sort', 'kirki-ecommerce')} onClick={handleSortChange}>

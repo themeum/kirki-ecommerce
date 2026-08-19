@@ -8,6 +8,8 @@ import { PopoverAnchor, PopoverTrigger } from '@/components/ui/popover';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss, scoped, uiFocusRing } from '@/theme/mixins';
 
+type PickerTriggerSize = 'sm' | 'md' | 'lg';
+
 type PickerTriggerProps = {
   id?: string;
   controlsId: string;
@@ -17,6 +19,7 @@ type PickerTriggerProps = {
   placeholder: string;
   clearLabel: string;
   onClear?: () => void;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   cssOverride?: CSSObject;
@@ -32,6 +35,7 @@ const PickerTrigger = ({
   placeholder,
   clearLabel,
   onClear,
+  size = 'md',
   disabled = false,
   error = false,
   cssOverride,
@@ -43,7 +47,12 @@ const PickerTrigger = ({
         gap={2}
         data-error={error ? 'true' : undefined}
         data-disabled={disabled ? 'true' : undefined}
-        cssOverride={mergeCss(styles.trigger, error ? styles.triggerError : {}, cssOverride ?? {})}
+        cssOverride={mergeCss(
+          styles.trigger,
+          styles.triggerSizes[size],
+          error ? styles.triggerError : {},
+          cssOverride ?? {},
+        )}
       >
         <PopoverTrigger asChild>
           <Button
@@ -55,12 +64,14 @@ const PickerTrigger = ({
             aria-expanded={open}
             aria-invalid={error || undefined}
             disabled={disabled}
-            cssOverride={styles.triggerControl}
+            cssOverride={mergeCss(styles.triggerControl, styles.controlSizes[size])}
           >
-            <span css={scoped(styles.value)}>
+            <span css={scoped(mergeCss(styles.value, styles.valueSizes[size]))}>
               {label ?? <span css={scoped(styles.placeholder)}>{placeholder}</span>}
             </span>
-            {!onClear && <CalendarDays css={scoped(styles.icon)} />}
+            {!onClear && (
+              <CalendarDays css={scoped(mergeCss(styles.icon, styles.iconSizes[size]))} />
+            )}
           </Button>
         </PopoverTrigger>
         {onClear && (
@@ -68,7 +79,7 @@ const PickerTrigger = ({
             variant="ghost"
             size="icon-xs"
             aria-label={clearLabel}
-            cssOverride={styles.clear}
+            cssOverride={mergeCss(styles.clear, { '& svg': styles.iconSizes[size] })}
             onClick={onClear}
           >
             <X />
@@ -82,14 +93,12 @@ const PickerTrigger = ({
 PickerTrigger.displayName = 'PickerTrigger';
 
 export default PickerTrigger;
-export type { PickerTriggerProps };
+export type { PickerTriggerProps, PickerTriggerSize };
 
 const styles = defineStyles({
   trigger: {
     width: '100%',
-    minHeight: '36px',
     border: `1px solid ${theme.colors.border.default}`,
-    padding: `0 ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     '&:focus-within, &:has([data-state="open"])': {
@@ -102,6 +111,56 @@ const styles = defineStyles({
       opacity: 0.8,
       borderColor: 'transparent',
       pointerEvents: 'none',
+    },
+  },
+  triggerSizes: {
+    sm: {
+      minHeight: '32px',
+      padding: `0 ${theme.spacing[2]}`,
+    },
+    md: {
+      minHeight: '36px',
+      padding: `0 ${theme.spacing[3]}`,
+    },
+    lg: {
+      minHeight: '44px',
+      padding: `0 ${theme.spacing[4]}`,
+    },
+  },
+  controlSizes: {
+    sm: {
+      padding: `${theme.spacing[1]} 0`,
+    },
+    md: {
+      padding: `${theme.spacing[2]} 0`,
+    },
+    lg: {
+      padding: `${theme.spacing[3]} 0`,
+    },
+  },
+  iconSizes: {
+    sm: {
+      width: theme.spacing[3],
+      height: theme.spacing[3],
+    },
+    md: {
+      width: '14px',
+      height: '14px',
+    },
+    lg: {
+      width: theme.spacing[4],
+      height: theme.spacing[4],
+    },
+  },
+  valueSizes: {
+    sm: {
+      ...theme.typography.tiny(),
+    },
+    md: {
+      ...theme.typography.small(),
+    },
+    lg: {
+      ...theme.typography.paragraph(),
     },
   },
   triggerError: {
@@ -117,7 +176,6 @@ const styles = defineStyles({
     minWidth: 0,
     width: 'auto',
     height: 'auto',
-    padding: `${theme.spacing[2]} 0`,
     justifyContent: 'space-between',
     borderRadius: theme.radius.none,
     backgroundColor: 'transparent',
@@ -140,7 +198,6 @@ const styles = defineStyles({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    ...theme.typography.small(),
     color: theme.colors.text.primary,
   },
   placeholder: {
@@ -154,10 +211,6 @@ const styles = defineStyles({
     backgroundColor: 'transparent',
     color: theme.colors.text.secondary,
     transition: 'none',
-    '& svg': {
-      width: '14px',
-      height: '14px',
-    },
     '&:hover': {
       backgroundColor: 'transparent',
       color: theme.colors.text.primary,

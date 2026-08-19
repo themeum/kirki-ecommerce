@@ -13,5 +13,6 @@ export type {
 export { default as DateRangePicker } from '@/components/ui/calendar/date-range-picker';
 export type { DateTimePickerProps } from '@/components/ui/calendar/date-time-picker';
 export { default as DateTimePicker } from '@/components/ui/calendar/date-time-picker';
+export type { PickerTriggerSize } from '@/components/ui/calendar/picker-trigger';
 export type { HourCycle, TimePickerProps } from '@/components/ui/calendar/time-picker';
 export { default as TimePicker } from '@/components/ui/calendar/time-picker';

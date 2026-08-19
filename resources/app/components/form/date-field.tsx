@@ -2,6 +2,9 @@ import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 import { Controller, type ControllerRenderProps, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
+import type {
+  PickerTriggerSize,
+} from '@/components/ui/calendar';
 import {
   DatePicker,
   DateRangePicker,
@@ -36,6 +39,7 @@ type DateFieldProps<
   clearable?: boolean;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  size?: PickerTriggerSize
 };
 
 const DateField = <
@@ -58,6 +62,7 @@ const DateField = <
   clearable,
   disabled,
   cssOverride,
+  size = 'md',
 }: DateFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -95,9 +100,9 @@ const DateField = <
             field.onChange(
               nextValue
                 ? {
-                    from: formatDateValue(nextValue.from),
-                    to: formatDateValue(nextValue.to),
-                  }
+                  from: formatDateValue(nextValue.from),
+                  to: formatDateValue(nextValue.to),
+                }
                 : null,
             )
           }
@@ -111,6 +116,7 @@ const DateField = <
           clearable={clearable}
           disabled={disabled}
           error={error}
+          size={size}
         />
       );
     }
@@ -124,6 +130,7 @@ const DateField = <
           hourCycle={hourCycle}
           disabled={disabled}
           error={error}
+          size={size}
         />
       );
     }
@@ -144,6 +151,7 @@ const DateField = <
           clearable={clearable}
           disabled={disabled}
           error={error}
+          size={size}
         />
       );
     }
@@ -160,6 +168,7 @@ const DateField = <
         clearable={clearable}
         disabled={disabled}
         error={error}
+        size={size}
       />
     );
   };

@@ -45,6 +45,7 @@ const InventoryTableFilters = ({
           presets
           clearable
           onChange={handleDateFilter}
+          size="sm"
         />
         <DropdownButton
           buttonProps={{

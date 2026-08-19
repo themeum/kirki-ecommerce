@@ -40,6 +40,7 @@ const CollectionTableFilters = () => {
           presets
           clearable
           onChange={handleDateFilter}
+          size="sm"
         />
         <Button
           variant="outline"

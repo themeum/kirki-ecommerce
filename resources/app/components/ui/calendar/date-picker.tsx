@@ -4,7 +4,9 @@ import { useId, useState } from 'react';
 import Calendar from '@/components/ui/calendar/calendar';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, {
+  type PickerTriggerSize,
+} from '@/components/ui/calendar/picker-trigger';
 import { Popover, PopoverContent } from '@/components/ui/popover';
 import { DATE_FORMATS, formatDateValue, toValidDate } from '@/libs/date';
 import { noop } from '@/utils/function';
@@ -18,6 +20,7 @@ type DatePickerProps = {
   minDate?: Date | null;
   maxDate?: Date | null;
   clearable?: boolean;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   id?: string;
@@ -32,6 +35,7 @@ const DatePicker = ({
   minDate,
   maxDate,
   clearable = false,
+  size = 'md',
   disabled = false,
   error = false,
   id,
@@ -61,6 +65,7 @@ const DatePicker = ({
         placeholder={placeholder}
         clearLabel={__('Clear date', 'kirki-ecommerce')}
         onClear={showClear ? () => onChange(null) : undefined}
+        size={size}
         disabled={disabled}
         error={error}
         cssOverride={cssOverride}

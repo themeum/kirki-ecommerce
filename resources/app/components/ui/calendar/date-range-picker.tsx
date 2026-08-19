@@ -12,7 +12,9 @@ import {
 } from '@/components/ui/calendar/calendar-presets';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, {
+  type PickerTriggerSize,
+} from '@/components/ui/calendar/picker-trigger';
 import RangePresets, {
   type RangePresetOption,
 } from '@/components/ui/calendar/range-presets';
@@ -38,6 +40,7 @@ type DateRangePickerProps = {
   presets?: boolean | DateRangePresetKey[];
   presetsPosition?: DateRangePresetsPosition;
   clearable?: boolean;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   id?: string;
@@ -112,6 +115,7 @@ const DateRangePicker = ({
   presets = false,
   presetsPosition = 'left',
   clearable = false,
+  size = 'md',
   disabled = false,
   error = false,
   id,
@@ -219,6 +223,7 @@ const DateRangePicker = ({
         placeholder={placeholder}
         clearLabel={__('Clear date range', 'kirki-ecommerce')}
         onClear={showClear ? handleClear : undefined}
+        size={size}
         disabled={disabled}
         error={error}
         cssOverride={cssOverride}

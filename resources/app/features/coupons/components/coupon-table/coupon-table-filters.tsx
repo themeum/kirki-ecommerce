@@ -43,6 +43,7 @@ const CouponTableFilter = memo(() => {
           presets
           clearable
           onChange={handleDateFilter}
+          size="sm"
         />
         <FilterPopup />
         <Button

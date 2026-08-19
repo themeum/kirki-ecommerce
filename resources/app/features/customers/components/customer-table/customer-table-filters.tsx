@@ -40,6 +40,7 @@ const CustomerTableFilters = () => {
           presets
           clearable
           onChange={handleDateFilter}
+          size="sm"
         />
         <Button
           variant="outline"
