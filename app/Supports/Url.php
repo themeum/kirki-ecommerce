@@ -20,6 +20,21 @@ use Kirki\Ecommerce\Framework\Route;
  */
 class Url
 {
+
+    /**
+     * Get registration URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $slug
+     *
+     * @return string
+     */
+    public static function get_registration_url()
+    {
+        return Route::site_url('register');
+    }
+
     /**
      * Get product URL.
      *
@@ -136,7 +151,7 @@ class Url
      */
     public static function get_login_url($redirect = '')
     {
-        return wp_login_url($redirect);
+        return Route::site_url('login', $redirect ? ['redirect' => $redirect] : []);
     }
 
     /**
