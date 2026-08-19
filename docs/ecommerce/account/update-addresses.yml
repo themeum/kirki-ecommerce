@@ -1,0 +1,452 @@
+info:
+  name: Update Addresses
+  type: http
+  seq: 3
+  tags:
+    - account
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/account/addresses"
+  body:
+    type: json
+    data: |-
+      {
+        "type": "shipping",
+        "first_name": "Sarah",
+        "last_name": "Johnson",
+        "email": "sarah.johnson@example.com",
+        "phone": "+1-555-9999",
+        "address_line1": "123 New St",
+        "address_line2": "",
+        "city": "Boston",
+        "state": "MA",
+        "postal_code": "02101",
+        "country": "US",
+        "is_billing_same_as_shipping": false
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response (shipping)
+    description: Success — updates only the shipping address, billing is untouched
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "shipping",
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "email": "sarah.johnson@example.com",
+            "phone": "+1-555-9999",
+            "address_line1": "123 New St",
+            "address_line2": "",
+            "city": "Boston",
+            "state": "MA",
+            "postal_code": "02101",
+            "country": "US"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 1,
+              "user_id": 2,
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "email": "sarah.johnson@example.com",
+              "phone": "+1-555-9999",
+              "photo": null,
+              "shipping_address": {
+                "id": 1,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "123 New St",
+                "address_line2": null,
+                "city": "Boston",
+                "state": "MA",
+                "country": "US",
+                "postal_code": "02101",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-9999",
+                "type": "shipping",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "is_billing_same_as_shipping": true,
+              "billing_address": {
+                "id": 2,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "742 Evergreen Terrace",
+                "address_line2": null,
+                "city": "Springfield",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90210",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-0101",
+                "type": "billing",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:06:55"
+              },
+              "tags": [
+                "vip",
+                "repeat-buyer"
+              ],
+              "created_at": "2026-08-18T10:19:28.000000Z",
+              "updated_at": "2026-08-19T10:09:05.000000Z"
+            },
+            "message": "Address updated successfully.",
+            "success": true
+          }
+  - name: 200 Response (billing, is_billing_same_as_shipping=false)
+    description: Success — billing address is set from the submitted fields
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "billing",
+            "is_billing_same_as_shipping": false,
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "email": "sarah.johnson@example.com",
+            "phone": "+1-555-1111",
+            "address_line1": "456 Billing Ave",
+            "address_line2": "",
+            "city": "Chicago",
+            "state": "IL",
+            "postal_code": "60601",
+            "country": "US"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 1,
+              "user_id": 2,
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "email": "sarah.johnson@example.com",
+              "phone": "+1-555-9999",
+              "photo": null,
+              "shipping_address": {
+                "id": 1,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "123 New St",
+                "address_line2": null,
+                "city": "Boston",
+                "state": "MA",
+                "country": "US",
+                "postal_code": "02101",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-9999",
+                "type": "shipping",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "is_billing_same_as_shipping": false,
+              "billing_address": {
+                "id": 2,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "456 Billing Ave",
+                "address_line2": null,
+                "city": "Chicago",
+                "state": "IL",
+                "country": "US",
+                "postal_code": "60601",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-1111",
+                "type": "billing",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "tags": [
+                "vip",
+                "repeat-buyer"
+              ],
+              "created_at": "2026-08-18T10:19:28.000000Z",
+              "updated_at": "2026-08-19T10:09:05.000000Z"
+            },
+            "message": "Address updated successfully.",
+            "success": true
+          }
+  - name: 200 Response (billing, is_billing_same_as_shipping=true)
+    description: Success — billing address fields are ignored; billing is copied from the current shipping address instead
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "billing",
+            "is_billing_same_as_shipping": true
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 1,
+              "user_id": 2,
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "email": "sarah.johnson@example.com",
+              "phone": "+1-555-9999",
+              "photo": null,
+              "shipping_address": {
+                "id": 1,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "123 New St",
+                "address_line2": null,
+                "city": "Boston",
+                "state": "MA",
+                "country": "US",
+                "postal_code": "02101",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-9999",
+                "type": "shipping",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "is_billing_same_as_shipping": true,
+              "billing_address": {
+                "id": 2,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "123 New St",
+                "address_line2": null,
+                "city": "Boston",
+                "state": "MA",
+                "country": "US",
+                "postal_code": "02101",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-9999",
+                "type": "billing",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "tags": [
+                "vip",
+                "repeat-buyer"
+              ],
+              "created_at": "2026-08-18T10:19:28.000000Z",
+              "updated_at": "2026-08-19T10:09:05.000000Z"
+            },
+            "message": "Address updated successfully.",
+            "success": true
+          }
+  - name: 422 Response (missing required field)
+    description: Failure — shipping update missing city
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "shipping",
+            "first_name": "Sarah",
+            "email": "sarah.johnson@example.com",
+            "phone": "+1-555-9999",
+            "address_line1": "123 New St",
+            "state": "MA",
+            "postal_code": "02101",
+            "country": "US"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "city": [
+                "The city field is required.",
+                "The city field must be a string."
+              ]
+            },
+            "success": false
+          }
+  - name: 422 Response (billing missing is_billing_same_as_shipping)
+    description: Failure
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "billing",
+            "first_name": "X",
+            "last_name": "Y",
+            "email": "x@y.com",
+            "phone": "1",
+            "address_line1": "x",
+            "city": "x",
+            "state": "x",
+            "postal_code": "x",
+            "country": "x"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "is_billing_same_as_shipping": [
+                "The is_billing_same_as_shipping field is required.",
+                "The is_billing_same_as_shipping field must be a boolean."
+              ]
+            },
+            "success": false
+          }
+  - name: 422 Response (invalid type)
+    description: Failure
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "X",
+            "last_name": "Y",
+            "email": "x@y.com",
+            "phone": "1",
+            "address_line1": "x",
+            "city": "x",
+            "state": "x",
+            "postal_code": "x",
+            "country": "x"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "type": [
+                "The type field must be in the list of \"shipping, billing\"."
+              ]
+            },
+            "success": false
+          }
+  - name: 404 Response
+    description: No Customer record linked to the logged-in WordPress user
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "shipping",
+            "first_name": "A",
+            "last_name": "B",
+            "email": "a@b.com",
+            "phone": "1",
+            "address_line1": "x",
+            "city": "x",
+            "state": "x",
+            "postal_code": "x",
+            "country": "x"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Customer address could not be found.",
+            "success": false
+          }
+
+docs: |-
+  ## Update Addresses
+
+  Updates **one** of the currently authenticated customer's addresses per
+  request — shipping or billing, discriminated by `type`. This never touches
+  both addresses at once (unlike the admin `PUT /customers/{id}` endpoint,
+  which updates shipping and billing together).
+
+  - `type` is required: `shipping` or `billing`.
+  - A **billing** update (`type: "billing"`) also requires
+    `is_billing_same_as_shipping`, which is persisted on the customer's own
+    record:
+    - `true` — the billing address is set to match the customer's *current*
+      shipping address; any address fields in the body are ignored. This is a
+      one-time copy, not an ongoing link — a later shipping update in a
+      separate request won't automatically re-sync billing.
+    - `false` — the billing address is updated from the submitted fields,
+      which are then required.
+  - A **shipping** update (`type: "shipping"`) never needs
+    `is_billing_same_as_shipping`, and the customer's existing value for it is
+    left unchanged.
+  - Requires a logged-in WordPress user (401 otherwise) whose account already
+    has a linked `Customer` record with both a shipping and billing address
+    (404 otherwise).

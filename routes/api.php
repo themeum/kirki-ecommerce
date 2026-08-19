@@ -27,6 +27,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
@@ -252,3 +253,10 @@ Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
 Route::delete('/cart', [CartController::class, 'empty_cart']);
 Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);
+
+// Account api endpoints (self-service, logged-in customer only).
+Route::group(['middleware' => AuthMiddleware::class], function () {
+    Route::put('/account/profile', [AccountController::class, 'update_profile']);
+    Route::put('/account/password-change', [AccountController::class, 'change_password']);
+    Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+});

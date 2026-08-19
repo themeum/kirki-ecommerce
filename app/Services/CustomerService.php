@@ -9,6 +9,7 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\App\DTO\Account\UpdateProfileDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
@@ -129,6 +130,61 @@ class CustomerService
         }
 
         return $this->find($data->id);
+    }
+
+    /**
+     * Updates a customer's own profile fields (first name, last name, phone).
+     *
+     * Unlike update(), this only touches the fields present on UpdateProfileDTO,
+     * so admin-only fields (tags, notes, is_billing_same_as_shipping) are left untouched.
+     *
+     * @param int $customer_id
+     * @param UpdateProfileDTO $data
+     * @throws NotFoundException
+     * @return Customer
+     */
+    public function update_profile(int $customer_id, UpdateProfileDTO $data)
+    {
+        $customer = $this->find($customer_id);
+
+        if (empty($customer)) {
+            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $data_array = $data->all();
+        $data_array['updated_by'] = user()->get_id();
+
+        $is_updated = (bool) $customer->update($data_array);
+
+        if (!$is_updated) {
+            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return $this->find($customer_id);
+    }
+
+    /**
+     * Set whether a customer's billing address should mirror their shipping address.
+     *
+     * @param int $customer_id
+     * @param bool $value
+     * @throws NotFoundException
+     * @return Customer
+     */
+    public function set_billing_same_as_shipping(int $customer_id, bool $value)
+    {
+        $customer = Customer::find($customer_id);
+
+        if (empty($customer)) {
+            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $customer->update([
+            'is_billing_same_as_shipping' => $value,
+            'updated_by' => user()->get_id(),
+        ]);
+
+        return $customer;
     }
 
     /**
