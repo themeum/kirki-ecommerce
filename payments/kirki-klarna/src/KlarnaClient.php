@@ -32,11 +32,12 @@ class KlarnaClient
     {
     }
 
-    public function send(array $payload, string $method_name)
+    public function post(array $payload, string $method_name)
     {
         $endpoint = call_user_func([$this, $method_name]);
 
         $response = Http::with_token($this->get_auth(), 'Basic')
+            //->with_headers(['Klarna-Idempotency-Key' => $this->order->uuid])
             ->with_body(wp_json_encode($payload))
             ->post($endpoint);
 

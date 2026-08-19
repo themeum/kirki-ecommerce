@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -156,6 +157,8 @@ class Klarna extends PaymentProvider
      */
     public function webhook()
     {
+        $payload = @file_get_contents('php://input');
+
         $this->client = $this->get_client();
         $event = $this->verify_and_parse_notification();
 
@@ -261,7 +264,7 @@ class Klarna extends PaymentProvider
             'intent' => 'buy'
         ];
 
-        return $this->client->send($payload, 'create_payment_session_id');
+        return $this->client->post($payload, 'create_payment_session_id');
     }
 
     protected function create_hpp_session($session_id)
@@ -276,6 +279,6 @@ class Klarna extends PaymentProvider
             'payment_session_url' => $payment_session_url
         ];
 
-        return $this->client->send($payload, 'hhp_session_url');
+        return $this->client->post($payload, 'hhp_session_url');
     }
 }
