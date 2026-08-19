@@ -20,7 +20,7 @@ if (empty($order)) {
 
 $order_uuid = $order['uuid'] ?? '';
 $order_number = $order['order_number'] ?? '';
-$order_status = $order['status'] ?? '';
+$fulfillment_status = $order['fulfillment_status'] ?? '';
 $order_status_desc = $order['status_desc'] ?? '';
 $order_url = Url::get_account_url('orders/' . $order_uuid);
 $invoiced_total = $order['invoiced_total_money_object']->display ?? '';
@@ -33,9 +33,9 @@ $items_images = $order['items_images'] ?? [];
     <td class="kecom-orders-table-col-thumb">
         <div class="kecom-account-order-thumb-wrap">
             <div class="kecom-account-order-thumb kecom-thumb-placeholder">
-                <?php foreach ($items_images as $image_url) : ?>
-                    <img src="<?php echo esc_url($image_url); ?>" alt="">
-                <?php endforeach; ?>
+                <?php if (!empty($items_images)) : ?>
+                    <img src="<?php echo esc_url($items_images[0]); ?>" alt="<?php esc_attr_e('Product image', 'kirki-ecommerce'); ?>">
+                <?php endif; ?>
             </div>
         </div>
     </td>
@@ -56,7 +56,7 @@ $items_images = $order['items_images'] ?? [];
     <td class="kecom-orders-table-col-status">
         <div class="kecom-account-order-status-block">
             <span class="kecom-account-order-status-title">
-                <?php echo esc_html(ucfirst($order_status)); ?>
+                <?php echo esc_html(ucfirst($fulfillment_status)); ?>
             </span>
             <span class="kecom-account-order-status-sub">
                 <?php echo esc_html($order_status_desc); ?>

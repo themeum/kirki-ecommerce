@@ -11,8 +11,6 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
-use Kirki\Ecommerce\App\Constants\Login;
-use Kirki\Ecommerce\App\Constants\Registration;
 use Kirki\Ecommerce\App\Http\Requests\Account\LoginRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\RegistrationRequest;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
@@ -251,7 +249,7 @@ class SiteController
     {
         if (is_user_logged_in()) {
             wp_safe_redirect(Url::get_account_url());
-            return view('site.account')->layout(false);
+            exit;
         }
 
         return view('site.login')->layout(false);
@@ -280,7 +278,7 @@ class SiteController
 
         if (is_user_logged_in()) {
             wp_safe_redirect(Url::get_account_url());
-            return view('site.account')->layout(false);
+            exit;
         }
 
         return view('site.register')->layout(false);
@@ -301,14 +299,8 @@ class SiteController
         }
 
         if (!Utils::is_nonce_verified()) {
-            //@TODO : will be replaced by reusable flash message.
-            set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
-                'invalid_nonce' => [
-                    'code' => 'invalid_nonce',
-                    'message' => __('Invalid nonce', 'kirki-ecommerce'),
-                ]
-            ]);
-            return redirect(Route::site_url('login'));
+            return redirect(Route::site_url('login'))
+                ->with('errors', [__('Invalid nonce', 'kirki-ecommerce')]);
         }
 
         $sanitized_input = $request->sanitized();
@@ -316,20 +308,14 @@ class SiteController
         $creds = [
             'user_login'    => $sanitized_input['email'],
             'user_password' => $sanitized_input['password'],
-            'remember'      => $sanitized_input['remember'],
+            'remember'      => $sanitized_input['remember'] ?? false,
         ];
 
         $user = wp_signon($creds, is_ssl());
 
         if (is_wp_error($user)) {
-            //@TODO : will be replaced by reusable flash message.
-            set_transient(Login::LOGIN_TRANSIENT_ERROR_KEY, [
-                'invalid_user' => [
-                    'code' => 'invalid_user',
-                    'message' => __('Invalid email or password', 'kirki-ecommerce'),
-                ]
-            ]);
-            return redirect(Route::site_url('login'));
+            return redirect(Route::site_url('login'))
+                    ->with('errors', [__('Invalid email or password', 'kirki-ecommerce')]);
         }
 
         return redirect(Url::get_account_url());
@@ -351,14 +337,8 @@ class SiteController
         }
 
         if (!Utils::is_nonce_verified()) {
-            //@TODO : will be replaced by reusable flash message.
-            set_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY, [
-                'invalid_nonce' => [
-                    'code' => 'invalid_nonce',
-                    'message' => __('Invalid nonce', 'kirki-ecommerce'),
-                ]
-            ]);
-            return redirect(Route::site_url('register'));
+            return redirect(Route::site_url('register'))
+                ->with('errors', [__('Invalid nonce', 'kirki-ecommerce')]);
         }
 
         $sanitized_input = $request->sanitized();
@@ -372,24 +352,11 @@ class SiteController
         ]);
 
         if (is_wp_error($user)) {
-            //@TODO : will be replaced by reusable flash message.
-            set_transient(Registration::REGISTRATION_TRANSIENT_ERROR_KEY, [
-                'invalid_user' => [
-                    'code' => 'invalid_user',
-                    'message' => $user->get_error_message(),
-                ]
-            ]);
-            return redirect(Route::site_url('register'));
+            return redirect(Route::site_url('register'))
+                    ->with('errors', [$user->get_error_message()]);
         }
 
-        //@TODO : will be replaced by reusable flash message.
-        set_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY, [
-            'registration_success' => [
-                'code' => 'registration_success',
-                'message' => __('Your account has been created successfully. Please Log In.', 'kirki-ecommerce'),
-            ]
-        ]);
-
-        return redirect(Url::get_login_url());
+        return redirect(Url::get_login_url())
+            ->with('success', __('Your account has been created successfully. Please Log In.', 'kirki-ecommerce'));
     }
 }

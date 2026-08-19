@@ -9,23 +9,21 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Constants\Login;
-use Kirki\Ecommerce\App\Constants\Registration;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 
-$validation_errors = get_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
-$registration_sucess = get_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY);
+use function Kirki\Ecommerce\Framework\session;
 ?>
+
 <?php Template::get_header(); ?>
 
 <div class="kecom-auth-container">
     <div class="kecom-auth-form-wrapper">
         <div class="kecom-auth-header">
             <h3 class="kecom-auth-header-title"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></h3>
-            <?php if (Utils::registration_enabled()): ?>
+            <?php if (Utils::registration_enabled()) : ?>
                 <div class="kecom-auth-header-content">
                     <span><?php esc_html_e('Don\'t have an account?', 'kirki-ecommerce'); ?></span>
                     <a href="<?php echo esc_url(Url::get_registration_url()); ?>">
@@ -34,18 +32,17 @@ $registration_sucess = get_transient(Registration::REGISTRATION_TRANSIENT_SUCCES
                 </div>
             <?php endif; ?>
         </div>
-        <?php if (!empty($validation_errors)): ?>
+        <?php if (session()->has('errors')) : ?>
             <div class="kecom-alert kecom-alert-error">
-                <?php foreach ($validation_errors as $error): ?>
-                    <?php echo esc_html($error['message']); ?>
+                <?php foreach (session('errors') as $error) : ?>
+                    <?php echo esc_html($error); ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-        <?php if (!empty($registration_sucess)): ?>
+
+        <?php if (session()->has('success')) : ?>
             <div class="kecom-alert kecom-alert-success">
-                <?php foreach ($registration_sucess as $success): ?>
-                    <?php echo esc_html($success['message']); ?>
-                <?php endforeach; ?>
+                <?php echo esc_html(session('success')); ?>
             </div>
         <?php endif; ?>
         <form class="kecom-auth-form" x-data="form({
@@ -92,8 +89,4 @@ $registration_sucess = get_transient(Registration::REGISTRATION_TRANSIENT_SUCCES
         </form>
     </div>
 </div>
-<?php
-delete_transient(Login::LOGIN_TRANSIENT_ERROR_KEY);
-delete_transient(Registration::REGISTRATION_TRANSIENT_SUCCESS_KEY);
-Template::get_footer()
-?>
+<?php Template::get_footer() ?>

@@ -77,19 +77,19 @@ class Utils
     }
 
     /**
-     * Get account pages.
+     * Get account route config.
      *
      * @since 1.0.0
      *
-     * @return array The account pages.
+     * @return array The account route config.
      */
-    public static function get_account_pages()
+    public static function get_account_route_config()
     {
         $account_page_id = Utils::get_account_page_id();
         $account_page = get_post($account_page_id);
         $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
 
-        $pages = [
+        $route_config = [
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),
                 'icon'      => 'dashboard',
@@ -98,6 +98,7 @@ class Utils
                 'route_path' => $account_page_slug,
                 'route_name' => 'account',
                 'callback'  => [AccountController::class, 'dashboard'],
+                'is_menu'   => true,
             ],
             'orders' => [
                 'title'     => __('Orders', 'kirki-ecommerce'),
@@ -107,6 +108,13 @@ class Utils
                 'route_path' => $account_page_slug . '/orders',
                 'route_name' => 'account.orders',
                 'callback'  => [AccountController::class, 'orders'],
+                'is_menu'   => true,
+            ],
+            'orders.show' => [
+                'title'     => __('Order Details', 'kirki-ecommerce'),
+                'route_path' => $account_page_slug . '/orders/{uuid}',
+                'route_name' => 'account.orders.show',
+                'callback'  => [AccountController::class, 'order_details'],
             ],
             'addresses' => [
                 'title'     => __('Addresses', 'kirki-ecommerce'),
@@ -116,6 +124,7 @@ class Utils
                 'route_path' => $account_page_slug . '/addresses',
                 'route_name' => 'account.addresses',
                 'callback'  => [AccountController::class, 'addresses'],
+                'is_menu'   => true,
             ],
             'manage' => [
                 'title'     => __('Account', 'kirki-ecommerce'),
@@ -125,19 +134,44 @@ class Utils
                 'route_path' => $account_page_slug . '/manage',
                 'route_name' => 'account.manage',
                 'callback'  => [AccountController::class, 'account_details'],
+                'is_menu'   => true,
             ],
             'logout' => [
                 'title'     => __('Log Out', 'kirki-ecommerce'),
                 'icon'      => 'log-out',
-                'url'       => wp_logout_url(Url::get_account_url()),
+                'url'       => wp_logout_url(Url::get_login_url()),
                 'is_active' => false,
                 'class'     => 'kecom-account-nav-link-logout',
+                'is_menu'   => true,
             ],
         ];
 
-        $pages = apply_filters('kirki_ecommerce_account_pages', $pages);
+        $route_config = apply_filters('kirki_ecommerce_account_route_config', $route_config);
 
-        return $pages;
+        return $route_config;
+    }
+
+    /**
+     * Get account menu items.
+     *
+     * @since 1.0.0
+     *
+     * @return array The account menu items.
+     */
+    public static function get_account_menu_items()
+    {
+        $route_config = static::get_account_route_config();
+        $menu_items = [];
+
+        foreach ($route_config as $key => $route) {
+            if (isset($route['is_menu']) && $route['is_menu']) {
+                $menu_items[$key] = $route;
+            }
+        }
+
+        $menu_items = apply_filters('kirki_ecommerce_account_menu_items', $menu_items);
+
+        return $menu_items;
     }
 
     /**
