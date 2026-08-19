@@ -90,11 +90,20 @@
     padding: 0;
     cursor: pointer;
     color: $icon-secondary;
+    border-radius: $radius-sm;
     @include flex-center();
     @include transition(color);
 
+    span {
+      @include flex-center();
+    }
+
     &:hover {
       color: $text-primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring();
     }
   }
 }

@@ -40,12 +40,16 @@ export function accountDetails(config: AccountDetailsConfig) {
     },
 
     closePasswordModal() {
-      if (this.passwordLoading) {return;}
+      if (this.passwordLoading) {
+        return;
+      }
       this.passwordModalOpen = false;
     },
 
     async saveProfile() {
-      if (this.profileLoading) {return;}
+      if (this.profileLoading) {
+        return;
+      }
       this.profileLoading = true;
 
       try {
@@ -64,15 +68,17 @@ export function accountDetails(config: AccountDetailsConfig) {
       }
     },
 
-    async updatePassword(values: Record<string, unknown>, resetForm?: () => void) {
-      if (this.passwordLoading) {return;}
+    async updatePassword(values: Record<string, string>, resetForm?: () => void) {
+      if (this.passwordLoading) {
+        return;
+      }
       this.passwordLoading = true;
 
       try {
         const payload: PasswordChangePayload = {
-          current_password: String(values.current_password || ''),
-          password: String(values.password || ''),
-          password_confirmation: String(values.password_confirmation || ''),
+          current_password: values.current_password || '',
+          password: values.password || '',
+          password_confirmation: values.password_confirmation || '',
         };
 
         const res = await accountApi.changePassword(payload);

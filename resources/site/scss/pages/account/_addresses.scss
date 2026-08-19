@@ -18,13 +18,18 @@
 .kecom-account-addresses-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-6;
+  gap: $spacing-9;
 
   @include breakpoint-down(md) {
     grid-template-columns: 1fr;
   }
 
+  .kecom-card-header {
+    margin-bottom: $spacing-6;
+  }
+
   .kecom-address-card-same {
+    display: flex;
     margin-bottom: $spacing-6;
   }
 

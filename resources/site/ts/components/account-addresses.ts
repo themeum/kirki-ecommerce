@@ -3,7 +3,7 @@
  * Handles viewing and saving billing & shipping addresses via PUT {{baseUrl}}/customers/{id}
  */
 
-import { customerApi, type CustomerAddressPayload } from '../api/customer';
+import { type CustomerAddressPayload, customerApi } from '../api/customer';
 import { toastMeta } from './toast';
 
 export interface AddressItem {
@@ -41,11 +41,11 @@ export interface AccountAddressesConfig {
     billing: AddressItem;
     shipping: AddressItem;
   };
-  countries?: Array<{
+  countries?: {
     code: string;
     name: string;
-    states?: Array<{ id: string | number; name: string }>;
-  }>;
+    states?: { id: string | number; name: string }[];
+  }[];
 }
 
 export function accountAddresses(config: AccountAddressesConfig) {
@@ -54,15 +54,15 @@ export function accountAddresses(config: AccountAddressesConfig) {
 
   return {
     customerId: Number(config.customerId) || 1,
-    customerData: config.customerData || {},
-    addresses: config.addresses || {
-      billing: {} as AddressItem,
-      shipping: {} as AddressItem,
+    customerData: config.customerData ?? {},
+    addresses: config.addresses ?? {
+      billing: {},
+      shipping: {},
     },
-    countries: config.countries || [],
+    countries: config.countries ?? [],
     editingAddress: null as 'billing' | 'shipping' | null,
     sameAsBilling: initialSameAsBilling,
-    customShippingAddress: { ...(config.addresses?.shipping || {}) } as AddressItem,
+    customShippingAddress: { ...(config.addresses?.shipping ?? {}) },
     togglingSameAsBilling: false,
     loading: false,
     errorMessage: '',
@@ -80,27 +80,29 @@ export function accountAddresses(config: AccountAddressesConfig) {
     },
 
     get availableStates() {
-      if (!this.formData.country) return [];
-      const country = this.countries.find(
-        (c: any) => (c.code || c.id) === this.formData.country,
-      );
-      return country && country.states ? country.states : [];
+      if (!this.formData.country) {
+        return [];
+      }
+      const country = this.countries.find((c: any) => (c.code || c.id) === this.formData.country);
+      return country?.states ?? [];
     },
 
     getCountryName(code?: string): string {
-      if (!code) return '';
-      const country = this.countries.find(
-        (c: any) => (c.code || c.id) === code,
-      );
+      if (!code) {
+        return '';
+      }
+      const country = this.countries.find((c: any) => (c.code || c.id) === code);
       return country ? country.name : code;
     },
 
     getStateName(countryCode?: string, stateVal?: string | number): string {
-      if (!stateVal || !countryCode) return String(stateVal || '');
-      const country = this.countries.find(
-        (c: any) => (c.code || c.id) === countryCode,
-      );
-      if (!country || !country.states) return String(stateVal);
+      if (!stateVal || !countryCode) {
+        return String(stateVal || '');
+      }
+      const country = this.countries.find((c: any) => (c.code || c.id) === countryCode);
+      if (!country?.states) {
+        return String(stateVal);
+      }
       const state = country.states.find(
         (s: any) => String(s.id) === String(stateVal) || s.name === String(stateVal),
       );
@@ -108,19 +110,25 @@ export function accountAddresses(config: AccountAddressesConfig) {
     },
 
     getAddress(type: 'billing' | 'shipping'): AddressItem {
-      return type === 'shipping' && this.sameAsBilling ? (this.addresses.billing || {}) : (this.addresses[type] || {});
+      return type === 'shipping' && this.sameAsBilling
+        ? this.addresses.billing || {}
+        : this.addresses[type] || {};
     },
 
     getDisplayName(type: 'billing' | 'shipping'): string {
       const addr = this.getAddress(type);
-      if (!addr) return '';
+      if (!addr) {
+        return '';
+      }
       const name = `${addr.first_name || ''} ${addr.last_name || ''}`.trim();
       return name || this.customerData.first_name || '';
     },
 
     getCityStateZip(type: 'billing' | 'shipping'): string {
       const addr = this.getAddress(type);
-      if (!addr) return '';
+      if (!addr) {
+        return '';
+      }
       const state = this.getStateName(addr.country, addr.state);
       const parts = [addr.city, state].filter(Boolean).join(', ');
       return `${parts} ${addr.postal_code || ''}`.trim();
@@ -128,7 +136,10 @@ export function accountAddresses(config: AccountAddressesConfig) {
 
     hasAddress(type: 'billing' | 'shipping'): boolean {
       if (type === 'shipping' && this.sameAsBilling) {
-        return Boolean(this.addresses.billing && (this.addresses.billing.address_line1 || this.addresses.billing.first_name));
+        return Boolean(
+          this.addresses.billing &&
+          (this.addresses.billing.address_line1 || this.addresses.billing.first_name),
+        );
       }
       const addr = this.addresses[type];
       return Boolean(addr && (addr.address_line1 || addr.first_name));
@@ -158,7 +169,9 @@ export function accountAddresses(config: AccountAddressesConfig) {
     },
 
     async onSameAsBillingChange() {
-      if (this.togglingSameAsBilling) return;
+      if (this.togglingSameAsBilling) {
+        return;
+      }
       this.togglingSameAsBilling = true;
 
       try {
@@ -221,7 +234,9 @@ export function accountAddresses(config: AccountAddressesConfig) {
     },
 
     async saveAddress() {
-      if (!this.editingAddress || this.loading) return;
+      if (!this.editingAddress || this.loading) {
+        return;
+      }
       this.loading = true;
       this.errorMessage = '';
 

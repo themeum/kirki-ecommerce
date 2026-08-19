@@ -56,7 +56,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                     password: '',
                     password_confirmation: ''
                 },
-                mode: 'onBlur'
+                mode: 'onChange'
             })"
             @submit.prevent="handleSubmit((values) => updatePassword(values, () => reset()))"
         >
