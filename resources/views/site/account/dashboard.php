@@ -18,7 +18,6 @@ use function Kirki\Ecommerce\Framework\view_data;
 
 $user = view_data('user');
 $customer = view_data('customer');
-$pages = view_data('pages');
 $orders = view_data('orders', []);
 
 $display_name = $user->display_name ?: $user->user_login ?: __('Customer', 'kirki-ecommerce');
@@ -36,7 +35,7 @@ $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : ''
         <!-- Account Center 2-Column Grid -->
         <div class="kecom-account-grid">
             <!-- Left Sidebar Navigation -->
-            <?php include_view('site.account.sidebar', ['pages' => $pages]); ?>
+            <?php include_view('site.account.sidebar'); ?>
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">

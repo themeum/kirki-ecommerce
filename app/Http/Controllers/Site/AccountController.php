@@ -112,14 +112,7 @@ class AccountController
      */
     public function orders(Request $request, OrderService $order_service)
     {
-        $customer = customer();
-        $customer_id = (int) $customer->get_customer_id();
-        $filters = [
-            'customer' => $customer_id,
-            'limit' => $this->list_limit,
-        ];
-
-        $order_data = $order_service->get_current_customer_orders($filters);
+        $order_data = $order_service->get_current_customer_orders(['limit' => $this->list_limit]);
 
         $data = [
             'orders' => $order_data['orders'],
