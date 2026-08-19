@@ -148,25 +148,42 @@ if (!current_user_can('manage_options')) {
 <section>
     <p class="kds-section-title">Badges</p>
 
-    <p class="kds-label">Variants</p>
+    <p class="kds-label">Solid Variants</p>
     <div class="kds-row">
         <span class="kecom-badge kecom-badge-default">Default</span>
         <span class="kecom-badge kecom-badge-primary">Primary</span>
         <span class="kecom-badge kecom-badge-success">Success</span>
-        <span class="kecom-badge kecom-badge-success-light">Success Light</span>
         <span class="kecom-badge kecom-badge-error">Error</span>
-        <span class="kecom-badge kecom-badge-error-light">Error Light</span>
         <span class="kecom-badge kecom-badge-warning">Warning</span>
+        <span class="kecom-badge kecom-badge-caution">Caution</span>
+        <span class="kecom-badge kecom-badge-info">Info</span>
+        <span class="kecom-badge kecom-badge-purple">Purple</span>
         <span class="kecom-badge kecom-badge-outline">Outline</span>
     </div>
 
-    <p class="kds-label">Ecommerce contexts</p>
+    <p class="kds-label">Light / Subtle Variants</p>
     <div class="kds-row">
-        <span class="kecom-badge kecom-badge-success-light">In Stock</span>
-        <span class="kecom-badge kecom-badge-warning">Low Stock</span>
-        <span class="kecom-badge kecom-badge-error-light">Out of Stock</span>
-        <span class="kecom-badge kecom-badge-primary">Sale</span>
-        <span class="kecom-badge kecom-badge-default">New</span>
+        <span class="kecom-badge kecom-badge-info-light">Info Light</span>
+        <span class="kecom-badge kecom-badge-warning-light">Warning Light</span>
+        <span class="kecom-badge kecom-badge-caution-light">Caution Light</span>
+        <span class="kecom-badge kecom-badge-success-light">Success Light</span>
+        <span class="kecom-badge kecom-badge-error-light">Error Light</span>
+        <span class="kecom-badge kecom-badge-purple-light">Purple Light</span>
+        <span class="kecom-badge kecom-badge-muted-light">Muted Light</span>
+    </div>
+
+    <p class="kds-label">Ecommerce & Status Contexts</p>
+    <div class="kds-row">
+        <span class="kecom-badge kecom-badge-info-light">Processing</span>
+        <span class="kecom-badge kecom-badge-warning-light">Pending</span>
+        <span class="kecom-badge kecom-badge-caution-light">On hold</span>
+        <span class="kecom-badge kecom-badge-success-light">Completed</span>
+        <span class="kecom-badge kecom-badge-error-light">Cancelled</span>
+        <span class="kecom-badge kecom-badge-muted-light">Refunded</span>
+        <span class="kecom-badge kecom-badge-error-light">Failed</span>
+        <span class="kecom-badge kecom-badge-purple-light">Refund Requested</span>
+        <span class="kecom-badge kecom-badge-muted-light">Partially Refunded</span>
+        <span class="kecom-badge kecom-badge-success-light">Rewarded</span>
     </div>
 
     <p class="kds-label">Sizes</p>
