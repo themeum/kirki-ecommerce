@@ -180,7 +180,8 @@ class AccountController
 
         $order = $order_service->find_order_by_uuid($request->uuid);
         if (!$order) {
-            return redirect(Route::site_url('account.orders'));
+            wp_safe_redirect(Route::site_url('account.orders'));
+            exit;
         }
 
         $order_resource = $order ? OrderResource::make($order) : null;
