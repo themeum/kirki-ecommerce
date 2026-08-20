@@ -1,13 +1,13 @@
 info:
-  name: Set Enabled
+  name: Authorize.Net
   type: http
-  seq: 1
+  seq: 3
   tags:
     - online-payments
 
 http:
   method: PATCH
-  url: "{{baseUrl}}/online-payments/stripe"
+  url: "{{baseUrl}}/online-payments/authorizenet"
   body:
     type: json
     data: |-
@@ -26,7 +26,7 @@ examples:
   - name: 200 Response
     description: Success
     request:
-      url: "{{baseUrl}}/online-payments/stripe"
+      url: "{{baseUrl}}/online-payments/authorizenet"
       method: PATCH
       body:
         type: json
@@ -51,7 +51,7 @@ examples:
   - name: 404 Response
     description: Failure
     request:
-      url: "{{baseUrl}}/online-payments/stripe"
+      url: "{{baseUrl}}/online-payments/authorizenet"
       method: PATCH
       body:
         type: json

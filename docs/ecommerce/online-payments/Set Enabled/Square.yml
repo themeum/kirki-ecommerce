@@ -1,18 +1,18 @@
 info:
-  name: Install Authorize.Net
+  name: Square
   type: http
-  seq: 5
+  seq: 10
   tags:
     - online-payments
 
 http:
-  method: POST
-  url: "{{baseUrl}}/online-payments/install"
+  method: PATCH
+  url: "{{baseUrl}}/online-payments/square"
   body:
     type: json
     data: |-
       {
-        "id": "authorizenet"
+        "is_enabled": true
       }
   auth: inherit
 
@@ -26,13 +26,13 @@ examples:
   - name: 200 Response
     description: Success
     request:
-      url: "{{baseUrl}}/online-payments/install"
-      method: POST
+      url: "{{baseUrl}}/online-payments/square"
+      method: PATCH
       body:
         type: json
         data: |-
           {
-            "id": "authorizenet"
+            "is_enabled": true
           }
     response:
       status: 200
@@ -44,28 +44,20 @@ examples:
         type: json
         data: |-
           {
-            "success": true,
-            "data": {
-              "id": "ec615e96-78bc-40b5-b944-dc69ae570d31",
-              "name": "Authorize.Net",
-              "icon": "authorizenet",
-              "is_enabled": null,
-              "is_offline": null,
-              "instructions": null,
-              "config": null
-            },
-            "message": "Payment method installed successfully."
+            "data": true,
+            "message": "Payment method updated successfully.",
+            "success": true
           }
   - name: 404 Response
     description: Failure
     request:
-      url: "{{baseUrl}}/online-payments/install"
-      method: POST
+      url: "{{baseUrl}}/online-payments/square"
+      method: PATCH
       body:
         type: json
         data: |-
           {
-            "id": "authorizenet"
+            "is_enabled": true
           }
     response:
       status: 404
@@ -78,10 +70,14 @@ examples:
         data: |-
           {
             "success": false,
-            "errors": {},
-            "message": "Payment method already installed."
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
           }
 
 docs: |-
-  ## Install a Payment Method by ID
-  Install a paymemt method by id
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.
