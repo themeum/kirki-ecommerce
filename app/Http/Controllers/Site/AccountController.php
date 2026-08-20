@@ -20,7 +20,7 @@ use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Services\UserService;
-use Kirki\Ecommerce\App\Resources\Order\OrderResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -29,7 +29,6 @@ use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
 use function Kirki\Ecommerce\Framework\user;
@@ -74,7 +73,7 @@ class AccountController
         ]);
     }
 
-      
+
     /**
      * Data list limit.
      *
@@ -124,7 +123,7 @@ class AccountController
         $page = $request->int('page', 1);
 
         $filters = [
-            'page' => $page ,
+            'page' => $page,
             'limit' => $this->list_limit
         ];
 
@@ -179,8 +178,9 @@ class AccountController
     {
 
         $order = $order_service->find_order_by_uuid($request->uuid);
-        if (!$order) {
-            return redirect(Route::site_url('account.orders'));
+        if (!$order || $order->customer_id !== customer()->get_customer_id()) {
+            wp_safe_redirect(Route::site_url('account.orders'));
+            exit;
         }
 
         $order_resource = $order ? OrderResource::make($order) : null;
