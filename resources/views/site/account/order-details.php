@@ -76,6 +76,9 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                     <span class="kecom-badge kecom-badge-success-light">
                                         <?php echo esc_html($order['formatted_status'] ?? '') ?>
                                     </span>
+                                    <span class="kecom-badge kecom-badge-success-light">
+                                        <?php echo esc_html($order['payment_status'] === 'paid' ? __('Paid', 'kirki-ecommerce') : __('Unpaid', 'kirki-ecommerce')); ?>
+                                    </span>
                                 </div>
                                 <span class="kecom-order-details-placed"><?php echo esc_html(__('Placed on ', 'kirki-ecommerce') . $order_placed); ?></span>
                             </div>
@@ -88,7 +91,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <div class="kecom-order-details-col-left">
                             <!-- Card 1: Order Status Timeline -->
                             <div class="kecom-card kecom-order-status-card">
-                                <h3 class="kecom-card-title"><?php esc_html_e('Order Status', 'kirki-ecommerce'); ?></h3>
+                                <h3 class="kecom-card-title"><?php esc_html_e('Order Timeline', 'kirki-ecommerce'); ?></h3>
 
                                 <div class="kecom-order-stepper">
                                     <div class="kecom-order-step">
