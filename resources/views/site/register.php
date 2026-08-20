@@ -48,7 +48,7 @@ use function Kirki\Ecommerce\Framework\session;
                 password_confirmation: '',
                 ajax_nonce: window.kirki_ecommerce.ajax_nonce,
             },
-            mode: 'onBlur'
+            mode: 'onChange'
         })" method="post" @submit.prevent="handleSubmit(() => $el.submit(), () => { return false; })">
             <input type="hidden" name="ajax_nonce" x-bind="register('ajax_nonce')">
             <div class="kecom-field" :class="errors.first_name ? 'kecom-field-error-state' : ''">

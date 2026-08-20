@@ -55,7 +55,7 @@ use function Kirki\Ecommerce\Framework\session;
                 remember: '',
                 ajax_nonce: window.kirki_ecommerce.ajax_nonce,
             },
-            mode: 'onBlur'
+            mode: 'onChange'
             })" method="post" @submit.prevent="handleSubmit(() => $el.submit(), () => { return false; })">
             <input type="hidden" name="ajax_nonce" x-bind="register('ajax_nonce')">
             <input type="hidden" name="redirect" value="<?php echo request('redirect', ''); ?>">
@@ -70,7 +70,7 @@ use function Kirki\Ecommerce\Framework\session;
             <div class="kecom-field" :class="errors.password ? 'kecom-field-error-state' : ''">
                 <div class="kecom-password-field-label">
                     <label class="kecom-field-label" for="kecom-password"><?php esc_html_e('Password', 'kirki-ecommerce'); ?></label>
-                    <a class="kecom-forgot-password-label" href="<?php echo esc_url(wp_lostpassword_url(Url::get_login_url())); ?>"><?php esc_html_e('Forgot password ?', 'kirki-ecommerce'); ?></a>
+                    <a class="kecom-forgot-password-label" href="<?php echo esc_url(wp_lostpassword_url(Url::get_login_url())); ?>"><?php esc_html_e('Forgot password?', 'kirki-ecommerce'); ?></a>
                 </div>
                 <div class="kecom-password-input" x-data="{ showPassword: false }">
                     <input class="kecom-input" :type="showPassword ? 'text' : 'password'" id="kecom-password" name="password" x-bind="<?php printf("register('password', {
