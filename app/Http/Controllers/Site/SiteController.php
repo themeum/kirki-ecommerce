@@ -298,8 +298,10 @@ class SiteController
             return redirect(Url::get_account_url());
         }
 
+        $redirect_url = $request->input('redirect') ?? '';
+
         if (!Utils::is_nonce_verified()) {
-            return redirect(Route::site_url('login'))
+            return redirect(Url::get_login_url($redirect_url))
                 ->with('errors', [__('Invalid nonce', 'kirki-ecommerce')]);
         }
 
@@ -314,8 +316,12 @@ class SiteController
         $user = wp_signon($creds, is_ssl());
 
         if (is_wp_error($user)) {
-            return redirect(Route::site_url('login'))
-                    ->with('errors', [__('Invalid email or password', 'kirki-ecommerce')]);
+            return redirect(Url::get_login_url($redirect_url))
+                ->with('errors', [__('Invalid email or password', 'kirki-ecommerce')]);
+        }
+
+        if (!empty($redirect_url)) {
+            return redirect($redirect_url);
         }
 
         return redirect(Url::get_account_url());
@@ -353,7 +359,7 @@ class SiteController
 
         if (is_wp_error($user)) {
             return redirect(Route::site_url('register'))
-                    ->with('errors', [$user->get_error_message()]);
+                ->with('errors', [$user->get_error_message()]);
         }
 
         return redirect(Url::get_login_url())
