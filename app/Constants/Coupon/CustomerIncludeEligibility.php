@@ -10,6 +10,6 @@ class CustomerIncludeEligibility
     const EVERYONE = 'everyone';
     const SPECIFIC_CUSTOMERS = 'specific-customers';
     const SPECIFIC_GROUPS = 'specific-groups';
-    const ALL_CUSTOMERS = 'all-customers';
+    const CUSTOMERS = 'customers';
     const GUESTS = 'guests';
 }

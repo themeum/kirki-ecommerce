@@ -14,14 +14,14 @@ import { __ } from '@/wpi18n';
 const customerIncludeEligibilityOptions = [
   { value: 'everyone', label: __('Everyone', 'kirki-ecommerce') },
   { value: 'specific-customers', label: __('Specific customers', 'kirki-ecommerce') },
-  { value: 'all-customers', label: __('Only customers', 'kirki-ecommerce') },
+  { value: 'customers', label: __('Only customers', 'kirki-ecommerce') },
   { value: 'guests', label: __('Only guests', 'kirki-ecommerce') },
 ];
 
 const customerExcludeEligibilityOptions = [
   { value: 'none', label: __('None', 'kirki-ecommerce') },
   { value: 'specific-customers', label: __('Specific customers', 'kirki-ecommerce') },
-  { value: 'all-customers', label: __('All customers', 'kirki-ecommerce') },
+  { value: 'customers', label: __('All customers', 'kirki-ecommerce') },
   { value: 'guests', label: __('All guests', 'kirki-ecommerce') },
 ];
 

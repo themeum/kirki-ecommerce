@@ -104,7 +104,7 @@ const CouponPreview = () => {
 
   const includeCustomerEligibility = useCallback(() => {
     switch (values.customer_include_eligibility) {
-      case 'all-customers':
+      case 'customers':
         return __('Included all customers', 'kirki-ecommerce');
       case 'specific-customers':
         return __('Included specific customers', 'kirki-ecommerce');
@@ -121,7 +121,7 @@ const CouponPreview = () => {
 
   const excludeCustomerEligibility = useCallback(() => {
     switch (values.customer_exclude_eligibility) {
-      case 'all-customers':
+      case 'customers':
         return __('Excluded all customers', 'kirki-ecommerce');
       case 'specific-customers':
         return __('Excluded specific customers', 'kirki-ecommerce');

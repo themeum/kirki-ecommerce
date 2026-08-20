@@ -2,6 +2,9 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
@@ -28,13 +31,13 @@ class CouponSeeder extends Seeder
 
             $customer_sync_data = [];
 
-            if ($coupon_data['customer_include_eligibility'] === 'specific-customers') {
+            if ($coupon_data['customer_include_eligibility'] === CustomerIncludeEligibility::SPECIFIC_CUSTOMERS) {
                 foreach ($customer_ids as $customer_id) {
                     $customer_sync_data[$customer_id] = ['is_excluded' => 0];
                 }
             }
 
-            if ($coupon_data['customer_exclude_eligibility'] === 'specific-customers') {
+            if ($coupon_data['customer_exclude_eligibility'] === CustomerExcludeEligibility::SPECIFIC_CUSTOMERS) {
                 foreach ($exclude_customer_ids as $customer_id) {
                     $customer_sync_data[$customer_id] = ['is_excluded' => 1];
                 }
@@ -44,9 +47,9 @@ class CouponSeeder extends Seeder
                 $coupon->customers()->sync($customer_sync_data);
             }
 
-            if ($coupon_data['eligible_item_type'] === 'specific-products' && !empty($product_ids)) {
+            if ($coupon_data['eligible_item_type'] === EligibleItemType::SPECIFIC_PRODUCTS && !empty($product_ids)) {
                 $coupon->products()->sync($product_ids);
-            } elseif ($coupon_data['eligible_item_type'] === 'specific-categories' && !empty($category_ids)) {
+            } elseif ($coupon_data['eligible_item_type'] === EligibleItemType::SPECIFIC_CATEGORIES && !empty($category_ids)) {
                 $coupon->categories()->sync($category_ids);
             }
         }

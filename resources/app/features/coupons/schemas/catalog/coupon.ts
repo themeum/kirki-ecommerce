@@ -48,7 +48,7 @@ export type CouponTargetCountryType = z.infer<typeof CouponTargetCountryTypeSche
 
 export const CouponCustomerIncludeEligibilitySchema = z.enum([
   'everyone',
-  'all-customers',
+  'customers',
   'guests',
   'specific-customers',
   'specific-groups',
@@ -58,7 +58,7 @@ export type CouponCustomerIncludeEligibility = z.infer<typeof CouponCustomerIncl
 
 export const CouponCustomerExcludeEligibilitySchema = z.enum([
   'none',
-  'all-customers',
+  'customers',
   'guests',
   'specific-customers',
   'specific-groups',
@@ -154,6 +154,5 @@ export const CouponListItemSchema = CouponSchema.pick({
 
 export type CouponListItem = z.infer<typeof CouponListItemSchema>;
 
-export type { ProductAttribute } from '@/features/products';
-export type { InventoryVariant, ProductVariant } from '@/features/products';
+export type { InventoryVariant, ProductAttribute, ProductVariant } from '@/features/products';
 

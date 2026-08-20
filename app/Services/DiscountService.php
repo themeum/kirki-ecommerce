@@ -91,7 +91,7 @@ class DiscountService
         $is_registered_customer = !empty($context->customer_id);
 
         // Include only registered customers
-        if ($coupon->customer_include_eligibility === CustomerIncludeEligibility::ALL_CUSTOMERS && !$is_registered_customer) {
+        if ($coupon->customer_include_eligibility === CustomerIncludeEligibility::CUSTOMERS && !$is_registered_customer) {
             throw new ValidationException(esc_html__('Please login to use this coupon.', 'kirki-ecommerce'));
         }
 
@@ -101,7 +101,7 @@ class DiscountService
         }
 
         // Exclude all registered customers
-        if ($coupon->customer_exclude_eligibility === CustomerExcludeEligibility::ALL_CUSTOMERS && $is_registered_customer) {
+        if ($coupon->customer_exclude_eligibility === CustomerExcludeEligibility::CUSTOMERS && $is_registered_customer) {
             throw new ValidationException(esc_html__('This coupon is not available for you.', 'kirki-ecommerce'));
         }
 

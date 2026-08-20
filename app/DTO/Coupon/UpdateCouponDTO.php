@@ -2,6 +2,9 @@
 
 namespace Kirki\Ecommerce\App\DTO\Coupon;
 
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\Framework\DTO;
 
 class UpdateCouponDTO extends DTO
@@ -55,7 +58,7 @@ class UpdateCouponDTO extends DTO
     public $end_datetime;
 
     /** @var string */
-    public $target_country_type = 'all-countries';
+    public $target_country_type = TargetCountryType::ALL_COUNTRIES;
 
     /** @var array|null */
     public $target_countries;
@@ -64,10 +67,10 @@ class UpdateCouponDTO extends DTO
     public $first_time_buyer_only = false;
 
     /** @var string */
-    public $customer_include_eligibility = 'everyone';
+    public $customer_include_eligibility = CustomerIncludeEligibility::EVERYONE;
 
     /** @var string */
-    public $customer_exclude_eligibility = 'none';
+    public $customer_exclude_eligibility = CustomerExcludeEligibility::NONE;
 
     /** @var bool */
     public $has_usage_limit = false;
