@@ -91,43 +91,50 @@ final class OrderStatus
         throw new Exception(__('Cannot resolve order status.', 'kirki-ecommerce'));
     }
 
-    public static function get_formatted(string $order_status)
+    /**
+     * Get all order statuses.
+     *
+     * @return array<string, string>
+     */
+    public static function get_list()
     {
-        switch ($order_status) {
-            case self::PENDING:
-            case self::PAID_UNFULFILLED:
-                return __('Pending', 'kirki-ecommerce');
-            case self::ON_HOLD_UNPAID:
-            case self::ON_HOLD_PAID:
-                return __('On Hold', 'kirki-ecommerce');
-            case self::UNPAID_PROCESSING:
-            case self::PAID_PROCESSING:
-                return __('Processing', 'kirki-ecommerce');
-            case self::PAID_SHIPPED:
-            case self::SHIPPED_UNPAID:
-                return __('Shipped', 'kirki-ecommerce');
-            case self::DELIVERED_UNPAID:
-            case self::COMPLETED:
-                return __('Delivered', 'kirki-ecommerce');
-            case self::PAID_CANCELLED:
-            case self::UNPAID_CANCELLED:
-            case self::FAILED_CANCELLED:
-                return __('Cancelled', 'kirki-ecommerce');
-            case self::REFUNDED:
-            case self::REFUND_DECLINED:
-            case self::RETURNED_PENDING_REFUND:
-            case self::REFUNDED_PARTIALLY:
-            case self::REFUND_REQUESTED:
-            case self::REFUND_IN_PROGRESS:
-                return __('Refunded', 'kirki-ecommerce');
-            case self::FAILED_UNFULFILLED:
-            case self::FAILED_PROCESSING:
-            case self::FAILED_SHIPPED:
-            case self::FAILED_DELIVERED:
-            case self::FAILED_ON_HOLD:
-                return __('Failed', 'kirki-ecommerce');
-            default:
-                return __('Unknown', 'kirki-ecommerce');
-        }
+        return [
+            self::PENDING               => __('Pending', 'kirki-ecommerce'),
+            self::ON_HOLD_UNPAID        => __('On Hold', 'kirki-ecommerce'),
+            self::UNPAID_PROCESSING     => __('Processing', 'kirki-ecommerce'),
+            self::PAID_UNFULFILLED      => __('Paid (Unfulfilled)', 'kirki-ecommerce'),
+            self::PAID_PROCESSING       => __('Paid (Processing)', 'kirki-ecommerce'),
+            self::PAID_SHIPPED          => __('Paid (Shipped)', 'kirki-ecommerce'),
+            self::SHIPPED_UNPAID        => __('Shipped (Unpaid)', 'kirki-ecommerce'),
+            self::DELIVERED_UNPAID      => __('Delivered (Unpaid)', 'kirki-ecommerce'),
+            self::COMPLETED             => __('Completed', 'kirki-ecommerce'),
+            self::ON_HOLD_PAID          => __('On Hold (Paid)', 'kirki-ecommerce'),
+            self::PAID_CANCELLED        => __('Cancelled (Paid)', 'kirki-ecommerce'),
+            self::UNPAID_CANCELLED      => __('Cancelled (Unpaid)', 'kirki-ecommerce'),
+            self::FAILED_CANCELLED      => __('Cancelled (Failed)', 'kirki-ecommerce'),
+            self::FAILED_UNFULFILLED    => __('Failed (Unfulfilled)', 'kirki-ecommerce'),
+            self::FAILED_PROCESSING     => __('Failed (Processing)', 'kirki-ecommerce'),
+            self::FAILED_SHIPPED        => __('Failed (Shipped)', 'kirki-ecommerce'),
+            self::FAILED_DELIVERED      => __('Failed (Delivered)', 'kirki-ecommerce'),
+            self::FAILED_ON_HOLD        => __('On Hold (Failed)', 'kirki-ecommerce'),
+            self::REFUND_REQUESTED      => __('Refund Requested', 'kirki-ecommerce'),
+            self::REFUND_IN_PROGRESS    => __('Refund in Progress', 'kirki-ecommerce'),
+            self::REFUNDED              => __('Refunded', 'kirki-ecommerce'),
+            self::REFUND_DECLINED       => __('Refund Declined', 'kirki-ecommerce'),
+            self::RETURNED_PENDING_REFUND => __('Returned (Pending Refund)', 'kirki-ecommerce'),
+            self::REFUNDED_PARTIALLY    => __('Refunded (Partially)', 'kirki-ecommerce'),
+        ];
+    }
+
+    /**
+     * Get the formatted status.
+     *
+     * @param string $status
+     *
+     * @return string
+     */
+    public static function get_formatted(string $status)
+    {
+        return static::get_list()[$status] ?? '';
     }
 }
