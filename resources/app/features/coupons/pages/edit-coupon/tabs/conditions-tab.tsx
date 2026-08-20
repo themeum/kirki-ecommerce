@@ -52,11 +52,14 @@ const UsageLimitRow = ({
             <InfoIcon />
           </Tooltip>
         </Flex>
-        <NumberField
-          name={inputName}
-          disabled={!isEnabled}
-          cssOverride={styles.rowInput}
-        />
+        {isEnabled && (
+          <NumberField
+            name={inputName}
+            disabled={!isEnabled}
+            cssOverride={styles.rowInput}
+            min={1}
+          />
+        )}
       </Flex>
     </Flex>
   );

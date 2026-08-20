@@ -100,6 +100,7 @@ class CreateOrderAction
                     'order_id' => $order->id,
                     'customer_id' => $create_order_dto->customer_id,
                 ]);
+                $this->coupon_service->increment($coupon->id, 'current_usage_count');
             }
 
             foreach ($dto->items as $item_data) {
