@@ -22,6 +22,7 @@ use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -874,9 +875,8 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Placing an order empties the authenticated shopper's cart - matched
-     * by the cart_token sent on the checkout request, which also lets the
-     * cart get linked to the customer newly provisioned for this order.
+     * Placing a checkout order empties the authenticated shopper's owned
+     * cart, resolved by their user id.
      *
      * @return void
      */
@@ -890,20 +890,49 @@ class OrderApiTest extends RestTestCase
             'quantity' => 1,
         ]);
         $cart_payload = $this->assert_api_success($add_response)['data'];
-        $cart_token = $cart_payload['cart_token'];
 
         $this->assertNotEmpty($cart_payload['items']);
 
-        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]), [
-            'kecom-cart-token' => $cart_token,
-        ]);
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+        ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
-        $cart_response = $this->request('GET', 'cart', [], ['kecom-cart-token' => $cart_token]);
+        $cart_response = $this->request('GET', 'cart');
         $cart_after = $this->assert_api_success($cart_response);
 
         $this->assertEmpty($cart_after['data']);
+    }
+
+    /**
+     * Checkout reuses an authenticated shopper's existing customer record
+     * instead of creating a duplicate one.
+     *
+     * @return void
+     */
+    public function test_checkout_reuses_existing_customer(): void
+    {
+        $user_id = $this->create_shopper_user();
+        $existing_customer = $this->provision_customer_for_user($user_id);
+
+        wp_set_current_user($user_id);
+
+        $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 1,
+        ]);
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $this->assertEquals($existing_customer->id, $payload['data']['customer_id']);
+        $this->assertEquals(1, Customer::where('user_id', $user_id)->count());
     }
 
     /**
@@ -947,6 +976,32 @@ class OrderApiTest extends RestTestCase
         $this->order_id = $order->id;
 
         $this->assertNull(Cart::where('cart_token', $cart_token)->first());
+    }
+
+    public function test_checkout_rejects_consumed_guest_cart_token(): void
+    {
+        $this->logout();
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = app()->make(VariantService::class)->find($this->variant_id)->product_id;
+        $add_to_cart_dto->variant_id = $this->variant_id;
+        $add_to_cart_dto->quantity = 1;
+
+        $guest_cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart_token = $guest_cart->cart_token;
+        $user_id = $this->create_shopper_user();
+
+        app()->make(CartService::class)->get_cart($user_id, $cart_token);
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload(['is_manual' => false]));
+        $dto->created_by = null;
+        $dto->currency_code = 'USD';
+        $dto->cart_token = $cart_token;
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cart not found.');
+
+        app()->make(CreateOrderAction::class)->execute($dto);
     }
 
     /**

@@ -80,6 +80,10 @@ class CreateOrderAction
             $dto->customer_id = $this->resolve_checkout_customer_id($dto);
         }
 
+        if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
+            $this->resolve_checkout_cart($dto);
+        }
+
         $context = $this->prepare_calculation_context_dto($dto);
 
         if (!$this->shipping_service->has_valid_shipping_method($context)) {
@@ -115,8 +119,8 @@ class CreateOrderAction
 
             if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
-                $empty_cart_dto->customer_id = $create_order_dto->customer_id;
                 $empty_cart_dto->token = $dto->cart_token;
+                $empty_cart_dto->user_id = $dto->user_id;
 
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
@@ -127,6 +131,39 @@ class CreateOrderAction
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
+        }
+    }
+
+    protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
+    {
+        $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
+
+        if (empty($cart) || empty($cart->items)) {
+            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
+        }
+
+        $items = [];
+
+        foreach ($cart->items as $item) {
+            $items[] = [
+                'variant_id' => $item->variant_id,
+                'quantity' => $item->quantity,
+            ];
+        }
+
+        if (empty($items)) {
+            throw new Exception(__('Cart is empty.', 'kirki-ecommerce'));
+        }
+
+        $dto->items = $items;
+        $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
+
+        if (empty($dto->coupon_code) && !empty($cart->discount_details['code'])) {
+            $dto->coupon_code = $cart->discount_details['code'];
+        }
+
+        if (empty($dto->shipping_method) && !empty($cart->shipping_method)) {
+            $dto->shipping_method = $cart->shipping_method;
         }
     }
 

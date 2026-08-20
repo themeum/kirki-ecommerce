@@ -9,7 +9,7 @@ class UpdateCartItemDTO extends DTO
     /**
      * @var int|null
      */
-    public $customer_id;
+    public $user_id;
 
     /**
      * @var string|null

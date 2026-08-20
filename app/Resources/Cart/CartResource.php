@@ -63,7 +63,7 @@ class CartResource extends Resource
 
         return [
             'id' => $this->id,
-            'customer_id' => $this->customer_id,
+            'user_id' => $this->user_id,
             'cart_token' => $this->cart_token,
 
             'currency' => [

@@ -27,6 +27,15 @@ class Cart
     public const COOKIE_TOKEN = 'kecom_cart_token';
 
     /**
+     * Cookie expiration time in minutes for the cart token.
+     *
+     * @since 1.0.0
+     *
+     * @var string
+     */
+    public const COOKIE_TOKEN_EXPIRE_IN_MINUTES = 43200; // 30 days
+
+    /**
      * Header name for the skip tax.
      *
      * @since 1.0.0

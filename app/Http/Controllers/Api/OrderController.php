@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
-use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
@@ -69,7 +68,6 @@ class OrderController
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = !empty($user_id) ? $user_id : null;
         $dto->currency_code = $currency_code;
-        $dto->cart_token = $request->get_header(Cart::HEADER_TOKEN);
 
         $order = $action->execute($dto);
 
