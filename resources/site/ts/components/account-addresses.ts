@@ -252,7 +252,6 @@ export function accountAddresses() {
         { field: 'country', message: __('Country is required.', 'kirki-ecommerce') },
         { field: 'address_line1', message: __('Street address is required.', 'kirki-ecommerce') },
         { field: 'city', message: __('Town / City is required.', 'kirki-ecommerce') },
-        { field: 'state', message: __('State is required.', 'kirki-ecommerce') },
         { field: 'postal_code', message: __('Postcode / ZIP is required.', 'kirki-ecommerce') },
         { field: 'phone', message: __('Phone number is required.', 'kirki-ecommerce') },
         { field: 'email', message: __('Email address is required.', 'kirki-ecommerce') },
@@ -262,6 +261,14 @@ export function accountAddresses() {
         const val = this.formData[rule.field];
         if (!val || (typeof val === 'string' && val.trim() === '')) {
           this.errors[rule.field] = rule.message;
+        }
+      }
+
+      // State is only required if the selected country has states available
+      if (this.availableStates.length > 0) {
+        const stateVal = this.formData.state;
+        if (!stateVal || (typeof stateVal === 'string' && stateVal.trim() === '')) {
+          this.errors.state = __('State is required.', 'kirki-ecommerce');
         }
       }
 

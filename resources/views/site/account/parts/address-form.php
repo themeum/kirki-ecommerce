@@ -70,7 +70,7 @@ defined('ABSPATH') || exit;
                 class="kecom-select"
                 :class="{ 'kecom-input-error': errors.country }"
                 x-model="formData.country"
-                @change="formData.state = ''; delete errors.country"
+                @change="formData.state = ''; delete errors.country; delete errors.state"
             >
                 <option value=""><?php esc_html_e('Select country', 'kirki-ecommerce'); ?></option>
                 <template x-for="country in countries" :key="country.code || country.id">
@@ -132,9 +132,10 @@ defined('ABSPATH') || exit;
                     class="kecom-select"
                     :class="{ 'kecom-input-error': errors.state }"
                     x-model="formData.state"
+                    :disabled="availableStates.length === 0"
                     @change="delete errors.state"
                 >
-                    <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
+                    <option value="" x-text="availableStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
                     <template x-for="state in availableStates" :key="state.id">
                         <option :value="state.id" x-text="state.name"></option>
                     </template>
