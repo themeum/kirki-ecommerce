@@ -81,7 +81,7 @@ class UpdateAccountAddressesAction
 
     protected function update_address(Customer $customer, array $address_data, string $type)
     {
-        if (empty($customer->{ $type . '_address' })) {
+        if (empty($customer->{$type . '_address'})) {
             $payload = CreateAddressDTO::from_array($address_data);
             $payload->customer_id = $customer->id;
             $payload->type = $type;
@@ -89,7 +89,7 @@ class UpdateAccountAddressesAction
             $this->address_service->create($payload);
         } else {
             $payload = UpdateAddressDTO::from_array($address_data);
-            $payload->id = $customer->{ $type . '_address' }->id;
+            $payload->id = $customer->{$type . '_address'}->id;
             $payload->customer_id = $customer->id;
             $payload->type = $type;
 
