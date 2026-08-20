@@ -12,7 +12,7 @@ http:
     type: json
     data: |-
       {
-        "id": "authorizenet"
+        "id": "square"
       }
   auth: inherit
 
@@ -32,7 +32,7 @@ examples:
         type: json
         data: |-
           {
-            "id": "authorizenet"
+            "id": "square"
           }
     response:
       status: 200
@@ -47,8 +47,8 @@ examples:
             "success": true,
             "data": {
               "id": "ec615e96-78bc-40b5-b944-dc69ae570d31",
-              "name": "Authorize.Net",
-              "icon": "authorizenet",
+              "name": "Square",
+              "icon": "square",
               "is_enabled": null,
               "is_offline": null,
               "instructions": null,
@@ -65,7 +65,7 @@ examples:
         type: json
         data: |-
           {
-            "id": "authorizenet"
+            "id": "square"
           }
     response:
       status: 404

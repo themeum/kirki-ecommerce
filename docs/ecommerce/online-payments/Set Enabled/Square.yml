@@ -26,7 +26,7 @@ examples:
   - name: 200 Response
     description: Success
     request:
-      url: "{{baseUrl}}/online-payments/authorizenet"
+      url: "{{baseUrl}}/online-payments/square"
       method: PATCH
       body:
         type: json
@@ -51,7 +51,7 @@ examples:
   - name: 404 Response
     description: Failure
     request:
-      url: "{{baseUrl}}/online-payments/authorizenet"
+      url: "{{baseUrl}}/online-payments/square"
       method: PATCH
       body:
         type: json
