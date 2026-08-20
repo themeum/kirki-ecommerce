@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Route;
@@ -310,5 +312,38 @@ class Utils
     public static function registration_enabled()
     {
         return (int) get_option('users_can_register', 0);
+    }
+
+    /**
+     * Get status badge class.
+     *
+     * @since 1.0.0
+     *
+     * @param string $status The status.
+     *
+     * @return string The badge class.
+     */
+    public static function get_status_badge_class(string $status): string
+    {
+        switch ($status) {
+            case FulfillmentStatus::PROCESSING:
+                return 'kecom-badge-info-light';
+            case FulfillmentStatus::SHIPPED:
+                return 'kecom-badge-info-light';
+            case FulfillmentStatus::CANCELLED:
+                return 'kecom-badge-error-light';
+            case FulfillmentStatus::ON_HOLD:
+                return 'kecom-badge-caution-light';
+            case FulfillmentStatus::UNFULFILLED:
+                return 'kecom-badge-warning-light';
+            case FulfillmentStatus::DELIVERED:
+                return 'kecom-badge-success-light';
+            case PaymentStatus::PAID:
+                return 'kecom-badge-success-light';
+            case PaymentStatus::UNPAID:
+                return 'kecom-badge-warning-light';
+            default:
+                return 'kecom-badge-default';
+        }
     }
 }
