@@ -35,15 +35,37 @@
     width: 64px;
     height: 64px;
     border-radius: $radius-xl;
-    overflow: hidden;
     background-color: $background-surface-alt;
     @include flex-center();
+    position: relative;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+      border-radius: $radius-md;
+    }
+
+    &.kecom-multiple-thumb {
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        inset-inline-start: 4.5px;
+        box-shadow: -1px 1px 8px #0000001c inset;
+        background: radial-gradient(91.62% 91.62% at 96.07% 5.34%, #e3e4ec, #d4d5dc);
+        transform: rotate(6.66deg);
+        height: 100%;
+        width: 100%;
+        border-radius: $radius-md;
+        z-index: 0;
+      }
+
+      img {
+        box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.4);
+        z-index: 1;
+      }
     }
   }
 
