@@ -149,6 +149,9 @@ class CreateOrderAction
         $customer = $dto->customer_id ? $this->customer_service->find($dto->customer_id) : null;
 
         if (!empty($customer) && !empty($customer->shipping_address) && !empty($customer->billing_address)) {
+            $this->update_address($dto, $customer, AddressType::SHIPPING);
+            $this->update_address($dto, $customer, AddressType::BILLING);
+            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
             return $customer->id;
         }
 
@@ -162,12 +165,14 @@ class CreateOrderAction
 
         if (!empty($customer) && !empty($customer->billing_address) && empty($customer->shipping_address)) {
             $this->create_address($dto, $customer, AddressType::SHIPPING);
+            $this->update_address($dto, $customer, AddressType::BILLING);
             $this->customer_service->set_billing_same_as_shipping($customer->id, false);
             return $customer->id;
         }
         
         if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
             $this->create_address($dto, $customer, AddressType::BILLING);
+            $this->update_address($dto, $customer, AddressType::SHIPPING);
             $this->customer_service->set_billing_same_as_shipping($customer->id, false);
             return $customer->id;
         }
@@ -197,6 +202,15 @@ class CreateOrderAction
         $address_dto->customer_id = $customer->id;
 
         $this->address_service->create($address_dto);
+    }
+    
+    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $type)
+    {
+        $address_dto = $this->prepare_checkout_address_dto($dto, $type, true);
+        $address_dto->customer_id = $customer->id;
+        $address_dto->id = $customer->{$type . '_address'}->id;
+
+        $this->address_service->update($address_dto);
     }
    
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
@@ -233,9 +247,9 @@ class CreateOrderAction
         ];
     }
 
-    protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix)
+    protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix, bool $is_update = false)
     {
-        $address_payload = new CreateAddressDTO();
+        $address_payload = $is_update ? new UpdateAddressDTO() : new CreateAddressDTO();
         $address_payload->first_name = $dto->{"{$prefix}_first_name"};
         $address_payload->last_name = $dto->{"{$prefix}_last_name"};
         $address_payload->address_line1 = $dto->{"{$prefix}_address_line1"};
@@ -246,6 +260,7 @@ class CreateOrderAction
         $address_payload->postal_code = $dto->{"{$prefix}_postcode"};
         $address_payload->email = $dto->{"{$prefix}_email"};
         $address_payload->phone = $dto->{"{$prefix}_phone"};
+        $address_payload->type = $prefix;
 
         return $address_payload;
     }
