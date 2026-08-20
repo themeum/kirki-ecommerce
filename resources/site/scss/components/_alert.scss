@@ -8,28 +8,28 @@
 @use '../mixins' as *;
 
 .kecom-alert {
-  padding: $spacing-5 $spacing-10;
-  @include typography(base, normal, $text-primary);
+  padding: $spacing-4 $spacing-6;
+  @include typography(base, normal);
   border-radius: $radius-md;
   background-color: $background-fill;
-  border: 1px solid $border-default;
-  margin-bottom: $spacing-6;
+  margin-top: $spacing-6;
+  box-shadow: $shadow-default;
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
 
   &-error {
     color: $text-critical;
-    border-color: $border-critical;
     background-color: $background-fill-critical-secondary;
   }
 
   &-success {
     color: $text-success;
-    border-color: $background-fill-success;
     background-color: $background-fill-success-secondary;
   }
 
   &-warning {
     color: $text-warning;
-    border-color: $background-fill-warning;
     background-color: $background-fill-warning-secondary;
   }
 }
