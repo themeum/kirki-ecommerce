@@ -19,7 +19,6 @@ class Coupon extends Model
         'id' => 'integer',
         'has_end_datetime' => 'boolean',
         'first_time_buyer_only' => 'boolean',
-        'exclude_customers' => 'boolean',
         'has_usage_limit' => 'boolean',
         'usage_limit' => 'integer',
         'has_customer_limit' => 'boolean',
@@ -58,10 +57,11 @@ class Coupon extends Model
         'start_datetime',
         'has_end_datetime',
         'end_datetime',
+        'target_country_type',
         'target_countries',
         'first_time_buyer_only',
-        'customer_eligibility',
-        'exclude_customers',
+        'customer_include_eligibility',
+        'customer_exclude_eligibility',
         'has_usage_limit',
         'usage_limit',
         'has_customer_limit',
@@ -131,7 +131,7 @@ class Coupon extends Model
 
     public function customers()
     {
-        return $this->belongs_to_many(Customer::class, 'kirki_ecommerce_coupon_customers', 'coupon_id', 'customer_id');
+        return $this->belongs_to_many(Customer::class, 'kirki_ecommerce_coupon_customers', 'coupon_id', 'customer_id')->with_pivot('is_excluded');
     }
 
     public function usage()

@@ -61,13 +61,21 @@ class CreateCouponAction
                 $coupon->products()->sync($product_sync_data);
             }
 
+            $customer_sync_data = [];
+
             if (!empty($payload->customer_ids)) {
-                $customer_sync_data = [];
-
                 foreach ($payload->customer_ids as $customer_id) {
-                    $customer_sync_data[$customer_id] = ['is_excluded' => $payload->exclude_customers ? 1 : 0];
+                    $customer_sync_data[$customer_id] = ['is_excluded' => 0];
                 }
+            }
 
+            if (!empty($payload->exclude_customer_ids)) {
+                foreach ($payload->exclude_customer_ids as $customer_id) {
+                    $customer_sync_data[$customer_id] = ['is_excluded' => 1];
+                }
+            }
+
+            if (!empty($customer_sync_data)) {
                 $coupon->customers()->sync($customer_sync_data);
             }
 

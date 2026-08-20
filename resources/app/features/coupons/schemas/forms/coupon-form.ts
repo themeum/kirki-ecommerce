@@ -1,15 +1,34 @@
 import { z } from 'zod';
 
+import { CategorySchema } from '@/features/categories';
+import type {
+  CouponEligibleItemType,
+} from '@/features/coupons/schemas/catalog/coupon';
 import {
+  CouponCustomerExcludeEligibilitySchema,
+  CouponCustomerIncludeEligibilitySchema,
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
+  CouponEligibleItemTypeSchema,
   CouponMethodSchema,
+  CouponTargetCountryTypeSchema,
 } from '@/features/coupons/schemas/catalog/coupon';
+import { CustomerInfoSchema } from '@/features/customers';
+import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
 import { END_OF_DAY_TIME, formatAtomDateTime, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
 import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { RegionSchema } from '@/schemas/shared/region';
 import { __ } from '@/wpi18n';
+
+const isProductEligibility = (
+  values: Record<string, unknown>,
+  eligibleItemType: CouponEligibleItemType,
+) =>
+  values.discount_type === 'amount-off' &&
+  values.discount_target === 'products' &&
+  values.eligible_item_type === eligibleItemType;
 
 const CouponFormShape = z.object({
   method: CouponMethodSchema.default('code'),
@@ -76,10 +95,57 @@ const CouponFormShape = z.object({
     (values) => Boolean(values.has_customer_limit) && isEmptyValue(values.customer_limit),
     __('Customer usage limit required', 'kirki-ecommerce'),
   ),
+  eligible_item_type: requiredWhen(
+    CouponEligibleItemTypeSchema.nullish().default('all-products'),
+    (values) =>
+      values.discount_type === 'amount-off' &&
+      values.discount_target === 'products' &&
+      isEmptyValue(values.eligible_item_type),
+    __('Eligible items is required', 'kirki-ecommerce'),
+  ),
+  products: requiredWhen(
+    z.array(ProductSelectionSchema).nullish().default([]),
+    (values) =>
+      isProductEligibility(values, 'specific-products') && isEmptyValue(values.products),
+    __('Select at least one product', 'kirki-ecommerce'),
+  ),
+  categories: requiredWhen(
+    z.array(CategorySchema).nullish().default([]),
+    (values) =>
+      isProductEligibility(values, 'specific-categories') && isEmptyValue(values.categories),
+    __('Select at least one category', 'kirki-ecommerce'),
+  ),
+  target_country_type: CouponTargetCountryTypeSchema.default('all-countries'),
+  target_countries: requiredWhen(
+    z.array(RegionSchema).nullish().default([]),
+    (values) =>
+      values.target_country_type === 'specific-countries' &&
+      isEmptyValue(values.target_countries),
+    __('Select at least one region', 'kirki-ecommerce'),
+  ),
+  first_time_buyer_only: z.boolean().default(false),
+  customer_include_eligibility: CouponCustomerIncludeEligibilitySchema.default('everyone'),
+  include_customers: requiredWhen(
+    z.array(CustomerInfoSchema).nullish().default([]),
+    (values) =>
+      values.customer_include_eligibility === 'specific-customers' &&
+      isEmptyValue(values.include_customers),
+    __('Select at least one customer', 'kirki-ecommerce'),
+  ),
+  customer_exclude_eligibility: CouponCustomerExcludeEligibilitySchema.default('none'),
+  exclude_customers: requiredWhen(
+    z.array(CustomerInfoSchema).nullish().default([]),
+    (values) =>
+      values.customer_exclude_eligibility === 'specific-customers' &&
+      isEmptyValue(values.exclude_customers),
+    __('Select at least one customer', 'kirki-ecommerce'),
+  ),
 });
 
 const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) => {
   const isAmountOff = values.discount_type === 'amount-off';
+  const isProductTarget = isAmountOff && values.discount_target === 'products';
+  const eligibleItemType = isProductTarget ? values.eligible_item_type ?? null : null;
 
   return {
     method: values.method,
@@ -87,6 +153,7 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     code: values.method === 'code' ? values.code?.trim() || null : null,
     discount_type: values.discount_type,
     discount_target: isAmountOff ? values.discount_target ?? null : null,
+    eligible_item_type: eligibleItemType,
     discount_value_type: isAmountOff ? values.discount_value_type ?? null : null,
     discount_amount:
       isAmountOff && values.discount_amount ? values.discount_amount : null,
@@ -104,6 +171,30 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     usage_limit: values.has_usage_limit ? values.usage_limit : null,
     has_customer_limit: values.has_customer_limit,
     customer_limit: values.has_customer_limit ? values.customer_limit : null,
+    product_ids:
+      eligibleItemType === 'specific-products'
+        ? (values.products ?? []).map((product) => product.productId)
+        : [],
+    category_ids:
+      eligibleItemType === 'specific-categories'
+        ? (values.categories ?? []).map((category) => category.id)
+        : [],
+    target_country_type: values.target_country_type,
+    target_countries:
+      values.target_country_type === 'specific-countries'
+        ? values.target_countries ?? []
+        : null,
+    first_time_buyer_only: values.first_time_buyer_only,
+    customer_include_eligibility: values.customer_include_eligibility,
+    customer_ids:
+      values.customer_include_eligibility === 'specific-customers'
+        ? (values.include_customers ?? []).map((customer) => customer.id)
+        : [],
+    customer_exclude_eligibility: values.customer_exclude_eligibility,
+    exclude_customer_ids:
+      values.customer_exclude_eligibility === 'specific-customers'
+        ? (values.exclude_customers ?? []).map((customer) => customer.id)
+        : [],
   };
 });
 
@@ -111,5 +202,6 @@ type CouponFormPayload = z.output<typeof CouponFormSchema>;
 
 type CouponFormInput = z.input<typeof CouponFormSchema>;
 
-export { type CouponFormInput, type CouponFormPayload, CouponFormSchema };
+export { CouponFormSchema };
+export type { CouponFormInput, CouponFormPayload };
 

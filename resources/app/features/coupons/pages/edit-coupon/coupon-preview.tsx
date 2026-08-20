@@ -1,4 +1,5 @@
 import { Copy } from 'lucide-react';
+import { useCallback } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -12,17 +13,9 @@ import { DATE_FORMATS, END_OF_DAY_TIME, formatDateValue, mergeDateAndTime, START
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
-const formatDisplayDate = (date?: string | null, time?: string | null): string | null => {
-  const merged = mergeDateAndTime(date ?? '', time ?? '');
-
-  if (!merged) {
-    return null;
-  }
-
-  return formatDateValue(merged, DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
-};
+const formatDisplayDate = (date?: string | null, time?: string | null) => formatDateValue(mergeDateAndTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
 
 type PreviewSectionProps = {
   title: string;
@@ -36,7 +29,7 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
     </Text>
     {lines && lines.length > 0 ? (
       <Flex direction="column" gap={1}>
-        {lines.map((line) => (
+        {lines.filter(Boolean).map((line) => (
           <Text key={line} variant="small">
             {`• ${line}`}
           </Text>
@@ -108,12 +101,54 @@ const CouponPreview = () => {
       : __('Start date not set yet', 'kirki-ecommerce'),
   ];
 
-  // const conditionsLines = [
-  //   values.has_usage_limit && values.usage_limit
-  //     ? `${__('Limited to', 'kirki-ecommerce')} ${values.usage_limit} ${__('uses', 'kirki-ecommerce')}`
-  //     : __('No usage limits', 'kirki-ecommerce'),
-  //   __("Can't combine with other discounts", 'kirki-ecommerce'),
-  // ];
+  const includeCustomerEligibility = useCallback(() => {
+    switch (values.customer_include_eligibility) {
+      case 'customers':
+        return __('Included all customers', 'kirki-ecommerce');
+      case 'specific-customers':
+        return __('Included specific customers', 'kirki-ecommerce');
+      case 'specific-groups':
+        return __('Included specific groups', 'kirki-ecommerce');
+      case 'guests':
+        return __('Included only guests', 'kirki-ecommerce');
+      case 'everyone':
+        return __('Included everyone', 'kirki-ecommerce');
+      default:
+        return '';
+    }
+  }, [values.customer_include_eligibility]);
+
+  const excludeCustomerEligibility = useCallback(() => {
+    switch (values.customer_exclude_eligibility) {
+      case 'customers':
+        return __('Excluded all customers', 'kirki-ecommerce');
+      case 'specific-customers':
+        return __('Excluded specific customers', 'kirki-ecommerce');
+      case 'specific-groups':
+        return __('Excluded specific groups', 'kirki-ecommerce');
+      case 'guests':
+        return __('Excluded only guests', 'kirki-ecommerce');
+      default:
+        return '';
+    }
+  }, [values.customer_exclude_eligibility]);
+
+  const targetingLines = [
+    values.target_country_type === 'specific-countries' ?
+      __('Specific countries', 'kirki-ecommerce')
+      : __('All countries', 'kirki-ecommerce'),
+    includeCustomerEligibility(),
+    excludeCustomerEligibility(),
+  ];
+
+  const conditionsLines = [
+    values.has_usage_limit && values.usage_limit
+      ? sprintf(_n('Limited to %s use', 'Limited to %s uses', values.usage_limit, 'kirki-ecommerce'), values.usage_limit)
+      : __('No usage limits', 'kirki-ecommerce'),
+    values.has_customer_limit && values.customer_limit
+      ? sprintf(_n('Limited to %s customer', 'Limited to %s customers', values.customer_limit, 'kirki-ecommerce'), values.customer_limit)
+      : __('No customer limits', 'kirki-ecommerce'),
+  ];
 
   return (
     <Flex direction="column">
@@ -175,9 +210,8 @@ const CouponPreview = () => {
           <Flex direction="column" gap={4}>
             <PreviewSection title={__('Type', 'kirki-ecommerce')} lines={typeLines} />
             <PreviewSection title={__('Details', 'kirki-ecommerce')} lines={detailsLines} />
-            {/* TODO: Add these sections later */}
-            {/* <PreviewSection title={__('Targeting', 'kirki-ecommerce')} /> */}
-            {/* <PreviewSection title={__('Conditions', 'kirki-ecommerce')} lines={conditionsLines} /> */}
+            <PreviewSection title={__('Targeting', 'kirki-ecommerce')} lines={targetingLines} />
+            <PreviewSection title={__('Conditions', 'kirki-ecommerce')} lines={conditionsLines} />
           </Flex>
         </CardContent>
       </Card>

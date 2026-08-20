@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
 import { CouponFormSchema } from '@/features/coupons/schemas/forms/coupon-form';
+import type { ProductSelection } from '@/features/products/schemas/catalog/product-selection';
 import { DATE_FORMATS, mergeDateAndTime } from '@/libs/date';
 import { getDefaults } from '@/libs/zod';
 
@@ -36,6 +37,7 @@ describe('CouponFormSchema', () => {
       code: 'SUMMER10',
       discount_type: 'amount-off',
       discount_target: 'order',
+      eligible_item_type: null,
       discount_value_type: 'fixed',
       discount_amount: '10',
       start_datetime: expectedDateTime('2026-06-01', '09:00'),
@@ -45,6 +47,15 @@ describe('CouponFormSchema', () => {
       usage_limit: null,
       has_customer_limit: false,
       customer_limit: null,
+      product_ids: [],
+      category_ids: [],
+      target_country_type: 'all-countries',
+      target_countries: null,
+      first_time_buyer_only: false,
+      customer_include_eligibility: 'everyone',
+      customer_ids: [],
+      customer_exclude_eligibility: 'none',
+      exclude_customer_ids: [],
     });
   });
 
@@ -140,6 +151,183 @@ describe('CouponFormSchema', () => {
       customer_limit: null,
     });
     expect(missingCustomer.success).toBe(false);
+  });
+
+  const productSelection = (productId: number): ProductSelection => ({
+    productId,
+    productTitle: `Product ${productId}`,
+    thumbnail: null,
+    inStock: true,
+    regularPrice: { raw: 10, display: '$10', currency: { code: 'USD', symbol: '$' } },
+    salePrice: null,
+    variants: [],
+  });
+
+  const productTarget = {
+    ...base,
+    discount_target: 'products',
+    eligible_item_type: 'specific-products',
+    products: [productSelection(1), productSelection(2)],
+  };
+
+  const shoesCategory = { id: 7, name: 'Shoes', slug: 'shoes' };
+
+  it('sends product_ids only when eligible items is specific-products', () => {
+    const result = CouponFormSchema.parse(productTarget);
+    expect(result.eligible_item_type).toBe('specific-products');
+    expect(result.product_ids).toEqual([1, 2]);
+    expect(result.category_ids).toEqual([]);
+  });
+
+  it('flattens selected categories to category_ids when eligible items is specific-categories', () => {
+    const result = CouponFormSchema.parse({
+      ...productTarget,
+      eligible_item_type: 'specific-categories',
+      categories: [shoesCategory],
+    });
+    expect(result.product_ids).toEqual([]);
+    expect(result.category_ids).toEqual([7]);
+  });
+
+  it('clears eligible items and both id lists when discount_target is order', () => {
+    const result = CouponFormSchema.parse({
+      ...productTarget,
+      discount_target: 'order',
+      categories: [shoesCategory],
+    });
+    expect(result.eligible_item_type).toBeNull();
+    expect(result.product_ids).toEqual([]);
+    expect(result.category_ids).toEqual([]);
+  });
+
+  it('requires a selection matching the chosen eligible item type', () => {
+    const missingProducts = CouponFormSchema.safeParse({ ...productTarget, products: [] });
+    expect(missingProducts.success).toBe(false);
+
+    const missingCategories = CouponFormSchema.safeParse({
+      ...productTarget,
+      eligible_item_type: 'specific-categories',
+      categories: [],
+    });
+    expect(missingCategories.success).toBe(false);
+
+    const allProducts = CouponFormSchema.safeParse({
+      ...productTarget,
+      eligible_item_type: 'all-products',
+      products: [],
+    });
+    expect(allProducts.success).toBe(true);
+  });
+
+  it('requires at least one region when targeting specific countries', () => {
+    const missingRegions = CouponFormSchema.safeParse({
+      ...base,
+      target_country_type: 'specific-countries',
+      target_countries: [],
+    });
+    expect(missingRegions.success).toBe(false);
+    expect(missingRegions.error?.issues[0].message).toBe('Select at least one region');
+  });
+
+  it('passes the selected regions through untouched', () => {
+    const regions = [{ country: 'US', states: ['5'] }];
+    const result = CouponFormSchema.parse({
+      ...base,
+      target_country_type: 'specific-countries',
+      target_countries: regions,
+    });
+    expect(result.target_country_type).toBe('specific-countries');
+    expect(result.target_countries).toEqual(regions);
+  });
+
+  it('empties the regions when targeting all countries', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      target_country_type: 'all-countries',
+      target_countries: [{ country: 'US', states: [] }],
+    });
+    expect(result.target_countries).toEqual(null);
+  });
+
+  const customer = (id: number) => ({
+    id,
+    first_name: `Customer ${id}`,
+    last_name: null,
+    email: `customer${id}@example.com`,
+  });
+
+  it('flattens both customer selections to their id lists', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'specific-customers',
+      include_customers: [customer(1), customer(2)],
+      customer_exclude_eligibility: 'specific-customers',
+      exclude_customers: [customer(3)],
+    });
+    expect(result.customer_ids).toEqual([1, 2]);
+    expect(result.exclude_customer_ids).toEqual([3]);
+  });
+
+  it('empties each customer list when its eligibility is not specific-customers', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'everyone',
+      include_customers: [customer(1)],
+      customer_exclude_eligibility: 'none',
+      exclude_customers: [customer(3)],
+    });
+    expect(result.customer_ids).toEqual([]);
+    expect(result.exclude_customer_ids).toEqual([]);
+  });
+
+  it('carries an audience-only pairing without touching either customer list', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'guests',
+      customer_exclude_eligibility: 'customers',
+    });
+    expect(result.customer_include_eligibility).toBe('guests');
+    expect(result.customer_exclude_eligibility).toBe('customers');
+    expect(result.customer_ids).toEqual([]);
+    expect(result.exclude_customer_ids).toEqual([]);
+  });
+
+  it('rejects an eligibility value that belongs to the other side', () => {
+    expect(
+      CouponFormSchema.safeParse({ ...base, customer_include_eligibility: 'none' }).success,
+    ).toBe(false);
+    expect(
+      CouponFormSchema.safeParse({ ...base, customer_exclude_eligibility: 'everyone' }).success,
+    ).toBe(false);
+  });
+
+  it('requires a customer selection when either eligibility is specific-customers', () => {
+    const missingInclude = CouponFormSchema.safeParse({
+      ...base,
+      customer_include_eligibility: 'specific-customers',
+      include_customers: [],
+    });
+    expect(missingInclude.success).toBe(false);
+    expect(missingInclude.error?.issues[0].message).toBe('Select at least one customer');
+
+    const missingExclude = CouponFormSchema.safeParse({
+      ...base,
+      customer_exclude_eligibility: 'specific-customers',
+      exclude_customers: [],
+    });
+    expect(missingExclude.success).toBe(false);
+  });
+
+  it('keeps a customer present in both lists on both sides of the payload', () => {
+    const result = CouponFormSchema.parse({
+      ...base,
+      customer_include_eligibility: 'specific-customers',
+      include_customers: [customer(1)],
+      customer_exclude_eligibility: 'specific-customers',
+      exclude_customers: [customer(1)],
+    });
+    expect(result.customer_ids).toEqual([1]);
+    expect(result.exclude_customer_ids).toEqual([1]);
   });
 
   it('rejects a blank required title or start_date', () => {

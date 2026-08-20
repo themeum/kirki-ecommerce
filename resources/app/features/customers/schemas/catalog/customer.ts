@@ -21,6 +21,18 @@ export const CustomerAddressSchema = z.object({
 
 export type CustomerAddress = z.infer<typeof CustomerAddressSchema>;
 
+export const CustomerInfoSchema = z.object({
+  id: z.number(),
+  user_id: z.number().nullish(),
+  first_name: z.string(),
+  last_name: z.string().nullish(),
+  email: z.string(),
+  phone: z.string().nullish(),
+  photo: MediaRefSchema.nullish(),
+});
+
+export type CustomerInfo = z.infer<typeof CustomerInfoSchema>;
+
 export const CustomerListItemSchema = z.object({
   id: z.number(),
   user_id: z.number().nullish(),

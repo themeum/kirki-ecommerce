@@ -2,6 +2,7 @@ import type { Dispatch, ReactNode, SetStateAction } from 'react';
 
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import type { Country } from '@/schemas/reference/country';
+import type { Region } from '@/schemas/shared/region';
 import type { ToastVariant } from '@/types/pages/common';
 
 type CountryState = {
@@ -17,12 +18,7 @@ type CountryWithStates = Country & {
   states?: CountryState[];
 };
 
-type ShippingRegion = {
-  country: string;
-  states: (string | number)[];
-  hasDeselectedState?: boolean;
-  flag?: string;
-};
+type ShippingRegion = Region;
 
 type ShippingRuleCondition = {
   type: string;
@@ -77,13 +73,6 @@ type ShippingZone = {
   shipping_careers?: unknown[];
 };
 
-type RegionTag = {
-  id: string;
-  title: string;
-  tagIcon: ReactNode;
-  subText: string;
-};
-
 type SaveShippingZonesParams = {
   zones: ShippingZone[];
   from?: string;
@@ -99,7 +88,7 @@ type SelectOption = {
 
 export type {
   CountryState,
-  CountryWithStates, RegionTag,
+  CountryWithStates,
   SaveShippingZonesParams,
   SelectOption, ShippingMethodData, ShippingRegion,
   ShippingRule, ShippingRuleAction, ShippingRuleCondition, ShippingZone,

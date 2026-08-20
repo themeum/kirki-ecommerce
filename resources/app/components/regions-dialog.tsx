@@ -11,33 +11,35 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import {
-  type ShippingRegionFormInput,
-  type ShippingRegionFormPayload,
-  ShippingRegionFormSchema,
-} from '@/features/settings/shipping/schemas/forms/shipping-region-form';
-import type { CountryWithStates, ShippingRegion } from '@/features/settings/shipping/types';
 import { getDefaults } from '@/libs/zod';
+import type { Country } from '@/schemas/reference/country';
+import {
+  type Region,
+  type RegionsDialogFormInput,
+  type RegionsDialogFormPayload,
+  RegionsDialogFormSchema,
+} from '@/schemas/shared/region';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
-type ShippingRegionPopupProps = {
+type RegionsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  filteredCountries: CountryWithStates[];
+  filteredCountries: Country[];
   onSearchChange?: (value: string) => void;
   initialCountries?: string[];
-  initialRegions?: ShippingRegion[];
+  initialRegions?: Region[];
   initialTitle?: string;
+  dialogTitle?: string;
   from?: 'add' | 'edit' | '';
-  onDone: (values: ShippingRegionFormPayload) => void;
+  onDone: (values: RegionsDialogFormPayload) => void;
   errors?: FormErrors;
 };
 
-export const ShippingRegionPopup = ({
+export const RegionsDialog = ({
   open,
   onOpenChange,
   filteredCountries,
@@ -45,15 +47,16 @@ export const ShippingRegionPopup = ({
   initialCountries = [],
   initialRegions = [],
   initialTitle = '',
+  dialogTitle = __('Add region', 'kirki-ecommerce'),
   from = '',
   onDone,
   errors,
-}: ShippingRegionPopupProps) => {
+}: RegionsDialogProps) => {
   const [searchValue, setSearchValue] = useState('');
 
-  const form = useForm<ShippingRegionFormInput, unknown, ShippingRegionFormPayload>({
-    resolver: zodResolver(ShippingRegionFormSchema),
-    defaultValues: getDefaults(ShippingRegionFormSchema),
+  const form = useForm<RegionsDialogFormInput, unknown, RegionsDialogFormPayload>({
+    resolver: zodResolver(RegionsDialogFormSchema),
+    defaultValues: getDefaults(RegionsDialogFormSchema),
   });
 
   const formCountries =
@@ -73,8 +76,7 @@ export const ShippingRegionPopup = ({
       regions: initialRegions,
     });
     setSearchValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the initial props only as the dialog opens; tracking them would reset the form while the user is picking regions
-  }, [open]);
+  }, [form, initialCountries, initialRegions, initialTitle, open]);
 
   useEffect(() => {
     if (errors?.title) {
@@ -85,7 +87,7 @@ export const ShippingRegionPopup = ({
     }
   }, [errors, form]);
 
-  const handleSelectCountries = (country: CountryWithStates) => {
+  const handleSelectCountries = (country: Country) => {
     const countries = form.getValues('countries') || [];
     const regions = form.getValues('regions') || [];
     const isSelected = countries.includes(country.code);
@@ -189,9 +191,7 @@ export const ShippingRegionPopup = ({
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>
-            {__('Add shipping region', 'kirki-ecommerce')}
-          </DialogTitle>
+          <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
@@ -204,11 +204,11 @@ export const ShippingRegionPopup = ({
             )}
 
             <Flex direction="column" gap={2}>
-              <Label htmlFor="shipping-region-search">
+              <Label htmlFor="regions-dialog-search">
                 {__('Select countries', 'kirki-ecommerce')}
               </Label>
               <Input
-                id="shipping-region-search"
+                id="regions-dialog-search"
                 type="search"
                 placeholder={__('Search country or state', 'kirki-ecommerce')}
                 value={searchValue}
@@ -234,7 +234,7 @@ export const ShippingRegionPopup = ({
                           <div css={scoped(styles.checkboxItem)}>
                             <Flex gap={2} align="center">
                               <Checkbox
-                                id={`shipping-region-country-${country.code}`}
+                                id={`regions-dialog-country-${country.code}`}
                                 checked={
                                   regionInfo?.hasDeselectedState
                                     ? 'indeterminate'
@@ -245,7 +245,7 @@ export const ShippingRegionPopup = ({
                                 }
                               />
                               <Label
-                                htmlFor={`shipping-region-country-${country.code}`}
+                                htmlFor={`regions-dialog-country-${country.code}`}
                               >
                                 {country?.flag}
                                 {country.name}
@@ -259,7 +259,7 @@ export const ShippingRegionPopup = ({
                                 <div key={stateIndex} css={scoped(styles.checkboxItem)}>
                                   <Flex gap={2} align="center">
                                     <Checkbox
-                                      id={`shipping-region-state-${country.code}-${state.id}`}
+                                      id={`regions-dialog-state-${country.code}-${state.id}`}
                                       checked={formRegions
                                         ?.find((r) => r.country === country.code)
                                         ?.states.includes(state.id)}
@@ -267,12 +267,12 @@ export const ShippingRegionPopup = ({
                                         handleSelectStates(
                                           state.id,
                                           country.code,
-                                          country.states,
+                                          country.states ?? [],
                                         )
                                       }
                                     />
                                     <Label
-                                      htmlFor={`shipping-region-state-${country.code}-${state.id}`}
+                                      htmlFor={`regions-dialog-state-${country.code}-${state.id}`}
                                     >
                                       {state.name}
                                     </Label>
@@ -280,9 +280,7 @@ export const ShippingRegionPopup = ({
                                 </div>
                               ))}
                             </div>
-                          ) : (
-                            ''
-                          )}
+                          ) : null}
                         </div>
                       );
                     })}
@@ -311,7 +309,7 @@ export const ShippingRegionPopup = ({
   );
 };
 
-ShippingRegionPopup.displayName = 'ShippingRegionPopup';
+RegionsDialog.displayName = 'RegionsDialog';
 
 const styles = defineStyles({
   scrollArea: {

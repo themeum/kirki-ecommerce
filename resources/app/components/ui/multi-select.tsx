@@ -37,6 +37,13 @@ type MultiSelectProps<TOption extends MultiSelectOption> = {
   /** Renders a selected option's content inside its chip. */
   renderChip?: (option: TOption) => ReactNode;
   /**
+   * Hands the search text to the caller so it can fetch matching options
+   * itself. Supplying it also turns off cmdk's own filtering — server
+   * results are already filtered, and matches on anything outside `title`
+   * (an email, a SKU) would otherwise be filtered back out.
+   */
+  onSearchChange?: (query: string) => void;
+  /**
    * Called with the trimmed search text when the create row is chosen. If it
    * returns a promise, the create row stays pending until it settles and the
    * search text is only cleared once it resolves — so a failed create leaves
@@ -71,6 +78,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   getOptionId = (option) => String(option.value),
   renderOption = (option) => option.title,
   renderChip = (option) => option.title,
+  onSearchChange,
   onCreate,
   createLabel = __('Add item', 'kirki-ecommerce'),
   placeholder = __('Type to search..', 'kirki-ecommerce'),
@@ -159,6 +167,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                 css={scoped(chipFieldControlCss)}
                 onValueChange={(nextValue) => {
                   setSearch(nextValue);
+                  onSearchChange?.(nextValue);
                   if (!isOpen) {
                     setIsOpen(true);
                   }

@@ -1,8 +1,8 @@
 import Checkbox from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
-import ProductPickerRow from '@/features/products/components/select-products-dialog/product-picker-row';
-import type { ProductSelection, ProductVariantSelection } from '@/features/products/components/select-products-dialog/types';
+import ProductPickerRow from '@/features/products/components/shared/select-products-dialog/product-picker-row';
+import type { ProductSelection, ProductVariantSelection } from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
 import ProductPickerSkeleton from '@/features/products/skeletons/product-picker-skeleton';
 import { __ } from '@/wpi18n';
@@ -21,6 +21,7 @@ type ProductTableProps = {
   pageSelectableCount: number;
   onToggleAllOnPage: (checked: boolean) => void;
   expandedProductIds: Set<number>;
+  expandAll?: boolean;
   onToggleExpand: (productId: number) => void;
   selectedProductIds: Set<number>;
   selectedVariantIds: Set<number>;
@@ -42,6 +43,7 @@ const ProductTable = (props: ProductTableProps) => {
     pageSelectableCount,
     onToggleAllOnPage,
     expandedProductIds,
+    expandAll = false,
     onToggleExpand,
     selectedProductIds,
     selectedVariantIds,
@@ -88,7 +90,7 @@ const ProductTable = (props: ProductTableProps) => {
             key={item.product.id}
             product={item.product}
             selection={item.selection}
-            expanded={expandedProductIds.has(item.product.id)}
+            expanded={expandAll || expandedProductIds.has(item.product.id)}
             onToggleExpand={() => onToggleExpand(item.product.id)}
             selectVariants={selectVariants}
             isProductSelected={selectedProductIds.has(item.product.id)}

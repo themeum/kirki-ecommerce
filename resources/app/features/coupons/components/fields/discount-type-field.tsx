@@ -14,7 +14,7 @@ const options = [
     value: 'free-shipping',
     label: __('Free Shipping', 'kirki-ecommerce'),
     icon: <Truck size={20} />,
-    hidden: true,
+    hidden: false,
   },
   {
     value: 'buy-x-get-y',
@@ -24,7 +24,7 @@ const options = [
   },
 ] as const;
 
-const DiscountTypeSelector = () => {
+const DiscountTypeField = () => {
   return (
     <RadioCardField
       name="discount_type"
@@ -35,11 +35,10 @@ const DiscountTypeSelector = () => {
           label: option.label,
           icon: option.icon,
         }))}
-      disabled
     />
   );
 };
 
-DiscountTypeSelector.displayName = 'DiscountTypeSelector';
+DiscountTypeField.displayName = 'DiscountTypeField';
 
-export default DiscountTypeSelector;
+export default DiscountTypeField;

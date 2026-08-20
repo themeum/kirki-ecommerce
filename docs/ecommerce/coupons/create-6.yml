@@ -27,10 +27,20 @@ http:
         "start_datetime": "2026-07-24T00:00:00+06:00",
         "has_end_datetime": true,
         "end_datetime": "2026-12-31T23:59:00+06:00",
+        "target_country_type": "specific-countries",
         "target_countries": [
-          "EU",
-          "BD",
-          "US"
+          {
+            "country": "EU",
+            "states": []
+          },
+          {
+            "country": "BD",
+            "states": []
+          },
+          {
+            "country": "US",
+            "states": []
+          }
         ],
         "first_time_buyer_only": false,
         "customer_eligibility": "all",
@@ -78,10 +88,20 @@ examples:
             "start_datetime": "2026-07-24T00:00:00+06:00",
             "has_end_datetime": true,
             "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_country_type": "specific-countries",
             "target_countries": [
-              "EU",
-              "BD",
-              "US"
+              {
+                "country": "EU",
+                "states": []
+              },
+              {
+                "country": "BD",
+                "states": []
+              },
+              {
+                "country": "US",
+                "states": []
+              }
             ],
             "first_time_buyer_only": false,
             "customer_eligibility": "all",
@@ -177,10 +197,20 @@ examples:
             "start_datetime": "2026-07-24T00:00:00+06:00",
             "has_end_datetime": true,
             "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_country_type": "specific-countries",
             "target_countries": [
-              "EU",
-              "BD",
-              "US"
+              {
+                "country": "EU",
+                "states": []
+              },
+              {
+                "country": "BD",
+                "states": []
+              },
+              {
+                "country": "US",
+                "states": []
+              }
             ],
             "first_time_buyer_only": false,
             "customer_eligibility": "all",
@@ -243,6 +273,7 @@ examples:
             "start_datetime": "2026-07-24T00:00:00+06:00",
             "has_end_datetime": true,
             "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_country_type": "all-countries",
             "target_countries": null,
             "first_time_buyer_only": false,
             "customer_eligibility": "all",
@@ -287,10 +318,20 @@ examples:
             "start_datetime": "2026-07-24T00:00:00+06:00",
             "has_end_datetime": true,
             "end_datetime": "2026-12-31T23:59:00+06:00",
+            "target_country_type": "specific-countries",
             "target_countries": [
-              "EU",
-              "BD",
-              "US"
+              {
+                "country": "EU",
+                "states": []
+              },
+              {
+                "country": "BD",
+                "states": []
+              },
+              {
+                "country": "US",
+                "states": []
+              }
             ],
             "first_time_buyer_only": false,
             "customer_eligibility": "all",

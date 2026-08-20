@@ -15,8 +15,8 @@ const CustomerProfileCard = ({ name, email, phone, photo }: CustomerProfileCardP
     <Flex gap={2} align="center">
       <Thumbnail type="circle" src={photo?.url} alt={name} />
       <Flex direction="column" gap={1}>
-        <Text weight="medium">{name}</Text>
-        <Text variant="small" color="secondary">
+        <Text variant="small" weight="medium">{name}</Text>
+        <Text variant="tiny" color="secondary">
           {email || phone || ''}
         </Text>
       </Flex>
