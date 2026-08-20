@@ -1,7 +1,7 @@
 import type { ProductVariantSelection } from '@/features/products';
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import type { ListFilterConfig } from '@/types/list-state';
-import { parseDateString, parseString } from '@/types/list-state';
+import { parseString } from '@/types/list-state';
 import type { SuggestionOption } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
@@ -29,15 +29,11 @@ const orderListFilterConfig: ListFilterConfig<OrderListFilter> = {
     'search',
     'fulfillment_status',
     'payment_status',
-    'from_date',
-    'to_date',
   ],
   parsers: {
     search: { parse: parseString },
     fulfillment_status: { parse: parseString },
     payment_status: { parse: parseString },
-    from_date: { parse: parseDateString },
-    to_date: { parse: parseDateString },
   },
 };
 

@@ -304,4 +304,30 @@ class CouponService
 
         return $coupon;
     }
+
+    /**
+     * Increment a coupon by ID.
+     *
+     * @param int $id
+     * @param string $column
+     * @param int $count
+     * @return bool
+     */
+    public function increment(int $id, string $column, int $count = 1)
+    {
+        return (bool) Coupon::query()->where('id', $id)->increment($column, $count);
+    }
+
+    /**
+     * Decrement a coupon by ID.
+
+     * @param int $id
+     * @param string $column
+     * @param int $count
+     * @return bool
+     */
+    public function decrement(int $id, string $column, int $count = 1)
+    {
+        return (bool) Coupon::query()->where('id', $id)->decrement($column, $count);
+    }
 }

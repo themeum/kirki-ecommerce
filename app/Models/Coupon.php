@@ -8,6 +8,8 @@ use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+use function Kirki\Ecommerce\App\to_utc_datetime_string;
+
 class Coupon extends Model
 {
     use HasDateRangeFilter;
@@ -95,28 +97,12 @@ class Coupon extends Model
 
     public function set_start_datetime_attribute(?string $value)
     {
-        $this->attributes['start_datetime'] = $this->to_utc($value);
+        $this->attributes['start_datetime'] = to_utc_datetime_string($value);
     }
 
     public function set_end_datetime_attribute(?string $value)
     {
-        $this->attributes['end_datetime'] = $this->to_utc($value);
-    }
-
-    /**
-     * Parse a datetime value and normalize it to GMT.
-     *
-     * @param string|null $value ATOM string (with offset) or a plain GMT datetime string.
-     *
-     * @return \Kirki\Ecommerce\Framework\Contracts\SomoyInterface|null
-     */
-    protected function to_utc($value)
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        return Date::parse($value, 'UTC');
+        $this->attributes['end_datetime'] = to_utc_datetime_string($value);
     }
 
     public function categories()
