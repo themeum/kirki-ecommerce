@@ -181,7 +181,7 @@
 
   // Coupon Form
   .kecom-coupon-form {
-    display: flex;
+    @include flex();
     gap: $spacing-6;
     align-items: start;
 

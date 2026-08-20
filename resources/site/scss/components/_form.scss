@@ -41,11 +41,11 @@
 .kecom-field {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2;
+  gap: $spacing-4;
   width: 100%;
 
   &-label {
-    @include typography(sm, medium, $text-primary);
+    @include typography(base, medium, $text-primary);
     display: inline-flex;
     align-items: center;
     gap: $spacing-2;
@@ -62,10 +62,10 @@
   }
 
   &-help {
-    @include typography(xs, normal, $text-secondary);
+    @include typography(sm, normal, $text-secondary);
   }
   &-error {
-    @include typography(xs, normal, $background-fill-critical);
+    @include typography(sm, normal, $background-fill-critical);
   }
 
   // Error state
@@ -132,6 +132,22 @@
 .kecom-input.kecom-input {
   @extend %kecom-control;
 
+  &:read-only,
+  &[readonly] {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+    border-color: transparent;
+    user-select: none;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
+
   &-sm {
     padding: $spacing-2 $spacing-4;
     font-size: $font-size-sm;
@@ -197,6 +213,22 @@
   @extend %kecom-control;
   resize: vertical;
   min-height: 6rem;
+
+  &:read-only,
+  &[readonly] {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+    border-color: transparent;
+    user-select: none;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
 }
 
 // ── Select ───────────────────────────────────────────────────────────────────
@@ -215,13 +247,14 @@
 .kecom-checkbox {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-2;
+  gap: $spacing-4;
   cursor: pointer;
   user-select: none;
 
   &-input.kecom-checkbox-input {
     appearance: none;
     outline: none;
+    margin: 0;
     width: 1rem;
     height: 1rem;
     border: 1.5px solid $border-default;
