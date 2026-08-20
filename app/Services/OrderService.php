@@ -16,8 +16,11 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+
+use function Kirki\Ecommerce\App\customer;
 
 class OrderService
 {
@@ -30,6 +33,29 @@ class OrderService
     public function all_orders(OrderListFilterDTO $filter_dto)
     {
         return $this->list_query($filter_dto)->get();
+    }
+
+    /**
+     * Get account orders.
+     *
+     * @since 1.0.0
+     *
+     * @param array $filters filters.
+     *
+     * @return array
+     */
+    public function get_current_customer_orders($filters)
+    {
+        $dto = OrderListFilterDTO::from_array($filters ?? []);
+        $dto->customer_id = (int) customer()->get_customer_id();
+
+        $orders = $this->paginated_orders($dto);
+        $orders_resource = OrderListResource::paginated($orders);
+
+        return [
+            'orders' => $orders_resource,
+            'filters' => $filters,
+        ];
     }
 
 
@@ -325,7 +351,7 @@ class OrderService
                 '%' . $search . '%'
             );
         })
-            ->when(!empty($filters->customer_id), function (QueryBuilder $query) use ($filters) {
+            ->when(is_numeric($filters->customer_id), function (QueryBuilder $query) use ($filters) {
                 return $query->where('customer_id', $filters->customer_id);
             })
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)

@@ -39,7 +39,7 @@ $billing_email = $billing_address["email"] ?? '';
             phone: '<?php echo esc_js($billing_phone); ?>',
             email: '<?php echo esc_js($billing_email); ?>'
         },
-        mode: 'onBlur'
+        mode: 'onChange'
    })" :inert="billingSameAsShipping" x-on:kecom:billing-form:validate.window="await validateForm(); $dispatch('kecom:billing-form:validated', { isValid })">
         <div class="kecom-field" x-bind="fieldWrapper('country')">
             <label class="kecom-field-label" for="billing-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
@@ -108,8 +108,11 @@ $billing_email = $billing_address["email"] ?? '';
                     class="kecom-select"
                     id="billing-state"
                     name="state"
-                    x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
-                    <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
+                    :disabled="states.length === 0"
+                    x-bind="register('state', {
+                        validate: (val) => (!states.length || (val && String(val).trim() !== '')) || '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>'
+                    })">
+                    <option value="" x-text="states.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
                     <template x-for="state in states" :key="state.id">
                         <option :value="state.id" x-text="state.name"></option>
                     </template>

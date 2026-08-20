@@ -1,0 +1,35 @@
+// Component - Alert
+// Base: .kecom-alert
+// Variants: .kecom-alert-success
+//           .kecom-alert-error
+//           .kecom-alert-warning
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-alert {
+  padding: $spacing-4 $spacing-6;
+  @include typography(base, normal);
+  border-radius: $radius-md;
+  background-color: $background-fill;
+  margin-top: $spacing-6;
+  box-shadow: $shadow-default;
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+
+  &-error {
+    color: $text-critical;
+    background-color: $background-fill-critical-secondary;
+  }
+
+  &-success {
+    color: $text-success;
+    background-color: $background-fill-success-secondary;
+  }
+
+  &-warning {
+    color: $text-warning;
+    background-color: $background-fill-warning-secondary;
+  }
+}

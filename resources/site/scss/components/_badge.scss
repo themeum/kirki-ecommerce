@@ -1,9 +1,14 @@
 // Component - Badge
 // Base: .kecom-badge
-// Variants: .kecom-badge-default  .kecom-badge-primary
-//           .kecom-badge-success  .kecom-badge-success-light
-//           .kecom-badge-error    .kecom-badge-error-light
-//           .kecom-badge-warning  .kecom-badge-outline
+// Generic Variants:
+//   Solid:  .kecom-badge-default  .kecom-badge-primary  .kecom-badge-success
+//           .kecom-badge-error    .kecom-badge-warning  .kecom-badge-caution
+//           .kecom-badge-info     .kecom-badge-purple
+//   Light:  .kecom-badge-success-light  .kecom-badge-error-light
+//           .kecom-badge-warning-light  .kecom-badge-caution-light
+//           .kecom-badge-info-light     .kecom-badge-purple-light
+//           .kecom-badge-muted-light
+//   Other:  .kecom-badge-outline
 // Sizes:    .kecom-badge-sm       .kecom-badge-lg
 
 @use '../tokens' as *;
@@ -20,9 +25,8 @@
   border-radius: $radius-sm;
   white-space: nowrap;
 
-  // ── Variants ──────────────────────────────────────────────────────────────
-
-  &-default {
+  &-default,
+  &-neutral {
     background-color: $background-surface-alt;
     color: $text-secondary;
   }
@@ -35,26 +39,69 @@
   &-success {
     background-color: $background-fill-success;
     color: $text-light;
+
+    &-light {
+      background-color: $background-fill-success-secondary;
+      color: $text-success;
+    }
   }
 
-  &-success-light {
-    background-color: $background-fill-success-secondary;
-    color: $text-success;
-  }
-
-  &-error {
+  &-error,
+  &-critical {
     background-color: $background-fill-critical;
     color: $text-light;
-  }
 
-  &-error-light {
-    background-color: $background-fill-critical-secondary;
-    color: $background-fill-critical;
+    &-light {
+      background-color: $background-fill-critical-secondary;
+      color: $background-fill-critical;
+    }
   }
 
   &-warning {
-    background-color: $background-fill-warning-secondary;
-    color: $background-fill-warning;
+    background-color: $background-fill-warning;
+    color: $text-light;
+
+    &-light {
+      background-color: $background-fill-warning-secondary;
+      color: $text-warning;
+    }
+  }
+
+  &-caution {
+    background-color: $background-fill-caution;
+    color: $text-light;
+
+    &-light {
+      background-color: $background-fill-caution-secondary;
+      color: $text-caution;
+    }
+  }
+
+  &-info {
+    background-color: $background-fill-special;
+    color: $text-light;
+
+    &-light {
+      background-color: $background-fill-special-secondary;
+      color: $text-special2;
+    }
+  }
+
+  &-purple {
+    background-color: $background-fill-special2;
+    color: $text-light;
+
+    &-light {
+      background-color: $background-fill-special2-secondary;
+      color: $text-special3;
+    }
+  }
+
+  &-muted,
+  &-muted-light,
+  &-slate {
+    background-color: $background-fill-secondary;
+    color: $text-secondary;
   }
 
   &-outline {
@@ -62,8 +109,6 @@
     border: 1px solid $border-default;
     color: $text-secondary;
   }
-
-  // ── Sizes ─────────────────────────────────────────────────────────────────
 
   &-sm {
     font-size: $font-size-xs;

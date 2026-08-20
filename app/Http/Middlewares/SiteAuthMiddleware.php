@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Http\Middlewares;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Contracts\Middleware;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Exceptions\AuthorizationException;
@@ -42,7 +43,7 @@ class SiteAuthMiddleware implements Middleware
             return $next($request);
         }
 
-        $login_url = wp_login_url();
+        $login_url = Url::get_login_url();
         wp_redirect($login_url);
         exit;
     }

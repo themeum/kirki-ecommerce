@@ -18,6 +18,24 @@
 @use '../tokens' as *;
 @use '../mixins' as *;
 
+// ── Form wrapper & rows ───────────────────────────────────────────────────────
+
+.kecom-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+
+  &-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-5;
+
+    @include breakpoint-down(sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 // ── Field wrapper ────────────────────────────────────────────────────────────
 
 .kecom-field {
@@ -28,10 +46,18 @@
 
   &-label {
     @include typography(base, medium, $text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
 
     &-required::after {
       content: ' *';
       color: $background-fill-critical;
+    }
+
+    .kecom-info-tip {
+      @include typography(xs, medium, $text-subdued);
+      cursor: help;
     }
   }
 
@@ -106,6 +132,22 @@
 .kecom-input.kecom-input {
   @extend %kecom-control;
 
+  &:read-only,
+  &[readonly] {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+    border-color: transparent;
+    user-select: none;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
+
   &-sm {
     padding: $spacing-2 $spacing-4;
     font-size: $font-size-sm;
@@ -143,6 +185,26 @@
       }
     }
   }
+
+  .kecom-input-icon-btn {
+    position: absolute;
+    right: $spacing-3;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: $text-secondary;
+    cursor: pointer;
+    @include flex-center;
+    @include transition(color);
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  &:has(.kecom-input-icon-btn) .kecom-input {
+    padding-right: $spacing-8;
+  }
 }
 
 // ── Textarea ─────────────────────────────────────────────────────────────────
@@ -151,6 +213,22 @@
   @extend %kecom-control;
   resize: vertical;
   min-height: 6rem;
+
+  &:read-only,
+  &[readonly] {
+    cursor: not-allowed;
+    background-color: $background-surface-alt;
+    color: $text-secondary;
+    border-color: transparent;
+    user-select: none;
+
+    &:hover,
+    &:focus {
+      outline: none;
+      box-shadow: none;
+      border-color: transparent;
+    }
+  }
 }
 
 // ── Select ───────────────────────────────────────────────────────────────────
@@ -169,13 +247,14 @@
 .kecom-checkbox {
   display: inline-flex;
   align-items: center;
-  gap: $spacing-2;
+  gap: $spacing-4;
   cursor: pointer;
   user-select: none;
 
   &-input.kecom-checkbox-input {
     appearance: none;
     outline: none;
+    margin: 0;
     width: 1rem;
     height: 1rem;
     border: 1.5px solid $border-default;

@@ -21,6 +21,20 @@ use Kirki\Ecommerce\Framework\Route;
 class Url
 {
     /**
+     * Get registration URL.
+     *
+     * @since 1.0.0
+     *
+     * @param string $slug
+     *
+     * @return string
+     */
+    public static function get_registration_url()
+    {
+        return Route::site_url('register');
+    }
+
+    /**
      * Get product URL.
      *
      * @since 1.0.0
@@ -115,11 +129,14 @@ class Url
      *
      * @since 1.0.0
      *
-     * @return string
+     * @param string|null $path Path to append to the account URL.
+     *
+     * @return string The account URL.
      */
-    public static function get_account_url()
+    public static function get_account_url($path = null)
     {
-        return Route::site_url('account');
+        $url = Route::site_url('account');
+        return $path ? $url . '/' . ltrim($path, '/') : $url;
     }
 
     /**
@@ -133,6 +150,15 @@ class Url
      */
     public static function get_login_url($redirect = '')
     {
+        $login_page_id = Utils::get_login_page_id();
+        if ($login_page_id && get_post($login_page_id)) {
+            $login_url = Route::site_url('login');
+            if (!empty($redirect)) {
+                $login_url = self::add_query_params($login_url, ['redirect' => urlencode($redirect)]);
+            }
+            return $login_url;
+        }
+
         return wp_login_url($redirect);
     }
 

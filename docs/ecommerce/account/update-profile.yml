@@ -1,0 +1,180 @@
+info:
+  name: Update Profile
+  type: http
+  seq: 1
+  tags:
+    - account
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/account/profile"
+  body:
+    type: json
+    data: |-
+      {
+        "first_name": "Md",
+        "last_name": "Ashraful"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/account/profile"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "phone": "+1-555-9999",
+            "display_name": "Sarah J."
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 1,
+              "user_id": 2,
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "email": "sarah.johnson@example.com",
+              "phone": "+1-555-9999",
+              "photo": null,
+              "shipping_address": {
+                "id": 1,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "742 Evergreen Terrace",
+                "address_line2": null,
+                "city": "Springfield",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90210",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-0101",
+                "type": "shipping",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "is_billing_same_as_shipping": true,
+              "billing_address": {
+                "id": 2,
+                "customer_id": 1,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "742 Evergreen Terrace",
+                "address_line2": null,
+                "city": "Springfield",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90210",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-0101",
+                "type": "billing",
+                "created_at": "2026-08-18 10:19:28",
+                "updated_at": "2026-08-19 10:09:05"
+              },
+              "tags": [
+                "vip",
+                "repeat-buyer"
+              ],
+              "created_at": "2026-08-18T10:19:28.000000Z",
+              "updated_at": "2026-08-19T10:09:05.000000Z"
+            },
+            "message": "Profile updated successfully.",
+            "success": true
+          }
+  - name: 422 Response
+    description: Validation failure (missing display_name)
+    request:
+      url: "{{baseUrl}}/account/profile"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "phone": "+1-555-9999"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "display_name": [
+                "The display_name field is required.",
+                "The display_name field must be a string."
+              ]
+            },
+            "success": false
+          }
+  - name: 404 Response
+    description: No Customer record linked to the logged-in WordPress user
+    request:
+      url: "{{baseUrl}}/account/profile"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "phone": "+1-555-9999",
+            "display_name": "Sarah J."
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Customer could not be found.",
+            "success": false
+          }
+
+docs: |-
+  ## Update Profile
+
+  Updates the **currently authenticated customer's own** profile — first name,
+  last name, phone, and their WordPress display name. There is no `id` in the
+  URL or body: identity always comes from the logged-in session
+  (`AuthMiddleware` + `user()->get_id()`), never from client input.
+
+  - **Email is not editable** through this endpoint. Any `email` value sent in
+    the body is ignored.
+  - `display_name` updates the linked WordPress user's `display_name`
+    (`wp_update_user()`), not a `Customer` table column — it has no `email`
+    equivalent to keep in sync.
+  - Requires a logged-in WordPress user (401 otherwise) whose account already
+    has a linked `Customer` record (404 otherwise — a user can't reach the
+    account page without already being a customer, so this is a genuine error
+    case, not something this endpoint provisions).
