@@ -200,14 +200,12 @@ class AccountController
     public function addresses(Request $request)
     {
         $customer = customer();
-        $user = wp_get_current_user();
         $billing_address = $customer ? $customer->get_billing_address() : null;
         $shipping_address = $customer ? $customer->get_shipping_address() : null;
         $countries = Utils::get_countries();
 
         $data = [
             'customer'         => $customer,
-            'user'             => $user,
             'billing_address'  => $billing_address,
             'shipping_address' => $shipping_address,
             'countries'        => $countries,

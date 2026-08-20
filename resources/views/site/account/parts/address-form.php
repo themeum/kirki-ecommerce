@@ -18,10 +18,6 @@ defined('ABSPATH') || exit;
     </div>
 
     <form @submit.prevent="saveAddress" class="kecom-form">
-        <template x-if="errorMessage">
-            <div class="kecom-alert kecom-alert-error" x-text="errorMessage"></div>
-        </template>
-
         <div class="kecom-form-row">
             <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.first_name }">
                 <label for="address_first_name" class="kecom-field-label"><?php esc_html_e('First name', 'kirki-ecommerce'); ?></label>
@@ -173,6 +169,20 @@ defined('ABSPATH') || exit;
                 @input="delete errors.phone"
             />
             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
+        </div>
+
+        <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.email }">
+            <label for="address_email" class="kecom-field-label"><?php esc_html_e('Email address', 'kirki-ecommerce'); ?></label>
+            <input
+                type="email"
+                id="address_email"
+                name="email"
+                class="kecom-input"
+                :class="{ 'kecom-input-error': errors.email }"
+                x-model="formData.email"
+                @input="delete errors.email"
+            />
+            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
         </div>
 
         <div class="kecom-card-footer" style="gap: 12px;">

@@ -92,16 +92,16 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
   }
   // Map API field names to human-readable labels for error messages
   const fieldLabels: Record<string, string> = {
-    first_name: __('First name', 'kirki-ecommerce'),
-    last_name: __('Last name', 'kirki-ecommerce'),
-    email: __('Email address', 'kirki-ecommerce'),
-    phone: __('Phone number', 'kirki-ecommerce'),
-    address_line1: __('Address', 'kirki-ecommerce'),
-    address_line2: __('Apartment / suite', 'kirki-ecommerce'),
-    city: __('City', 'kirki-ecommerce'),
-    state: __('State', 'kirki-ecommerce'),
-    postal_code: __('Postal code', 'kirki-ecommerce'),
-    country: __('Country', 'kirki-ecommerce'),
+    first_name: __('first name', 'kirki-ecommerce'),
+    last_name: __('last name', 'kirki-ecommerce'),
+    email: __('email address', 'kirki-ecommerce'),
+    phone: __('phone number', 'kirki-ecommerce'),
+    address_line1: __('address', 'kirki-ecommerce'),
+    address_line2: __('apartment / suite', 'kirki-ecommerce'),
+    city: __('city', 'kirki-ecommerce'),
+    state: __('state', 'kirki-ecommerce'),
+    postal_code: __('postal code', 'kirki-ecommerce'),
+    country: __('country', 'kirki-ecommerce'),
   };
 
   // Produce a clean user-facing message from an API validation error message
