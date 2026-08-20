@@ -14,30 +14,40 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Icon;
 ?>
 
-<form @submit.prevent="saveProfile" class="kecom-account-details-form kecom-form">
+<form
+    class="kecom-account-details-form kecom-form"
+    x-data="form({
+        defaultValues: {
+            first_name: profileData.first_name,
+            last_name: profileData.last_name
+        },
+        mode: 'onBlur'
+    })"
+    @submit.prevent="handleSubmit((values) => saveProfile(values, (field, msg) => setError(field, msg)))"
+>
     <!-- Personal Information Card -->
     <div class="kecom-card kecom-account-details-card">
         <div class="kecom-form-row">
-            <div class="kecom-field">
+            <div class="kecom-field" x-bind="fieldWrapper('first_name')">
                 <label for="kecom_first_name" class="kecom-field-label"><?php esc_html_e('First name', 'kirki-ecommerce'); ?></label>
                 <input
                     type="text"
                     id="kecom_first_name"
-                    name="first_name"
                     class="kecom-input"
-                    x-model="profileData.first_name"
+                    x-bind="register('first_name', { required: '<?php esc_html_e('First name is required', 'kirki-ecommerce'); ?>' })"
                 />
+                <span class="kecom-field-error" x-show="errors.first_name" x-text="errors.first_name"></span>
             </div>
 
-            <div class="kecom-field">
+            <div class="kecom-field" x-bind="fieldWrapper('last_name')">
                 <label for="kecom_last_name" class="kecom-field-label"><?php esc_html_e('Last name', 'kirki-ecommerce'); ?></label>
                 <input
                     type="text"
                     id="kecom_last_name"
-                    name="last_name"
                     class="kecom-input"
-                    x-model="profileData.last_name"
+                    x-bind="register('last_name', { required: '<?php esc_html_e('Last name is required', 'kirki-ecommerce'); ?>' })"
                 />
+                <span class="kecom-field-error" x-show="errors.last_name" x-text="errors.last_name"></span>
             </div>
         </div>
 

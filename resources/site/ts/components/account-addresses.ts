@@ -47,6 +47,7 @@ export function accountAddresses() {
     togglingSameAsBilling: false,
     loading: false,
     errorMessage: '',
+    errors: {} as Record<string, string>,
     formData: {
       first_name: '',
       last_name: '',
@@ -128,6 +129,7 @@ export function accountAddresses() {
     startEdit(type: 'billing' | 'shipping') {
       this.editingAddress = type;
       this.errorMessage = '';
+      this.errors = {};
       const current = this.addresses[type] || {};
       this.formData = {
         first_name: current.first_name || '',
@@ -146,6 +148,7 @@ export function accountAddresses() {
     cancelEdit() {
       this.editingAddress = null;
       this.errorMessage = '';
+      this.errors = {};
     },
 
     async onSameAsBillingChange() {
@@ -217,6 +220,7 @@ export function accountAddresses() {
       }
       this.loading = true;
       this.errorMessage = '';
+      this.errors = {};
 
       const type = this.editingAddress;
 
@@ -261,6 +265,22 @@ export function accountAddresses() {
         this.editingAddress = null;
         toast.success(res?.message || 'Address updated successfully.');
       } catch (err: any) {
+        if (err?.errors && typeof err.errors === 'object') {
+          let hasFieldErrors = false;
+          for (const [key, messages] of Object.entries(err.errors)) {
+            const field = key.replace(/^(billing|shipping)_address\./, '');
+            const msg = Array.isArray(messages) ? messages[0] : (messages as string);
+            if (msg) {
+              this.errors[field] = msg;
+              hasFieldErrors = true;
+            }
+          }
+          if (hasFieldErrors) {
+            this.errorMessage = err.message || 'Validation failed!';
+            toast.error(this.errorMessage);
+            return;
+          }
+        }
         const msg = err?.message || 'Failed to update address. Please try again.';
         this.errorMessage = msg;
         toast.error(msg);
