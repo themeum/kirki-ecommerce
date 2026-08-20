@@ -13,19 +13,38 @@
     @include typography(xl, semibold, $text-primary);
     margin: 0;
   }
+
+  .kecom-card {
+    max-width: 732px;
+  }
 }
 
 .kecom-account-addresses-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-6;
+  gap: $spacing-9;
 
   @include breakpoint-down(md) {
     grid-template-columns: 1fr;
   }
 
+  .kecom-card-header {
+    margin-bottom: $spacing-6;
+  }
+
+  .kecom-address-card-same {
+    display: flex;
+    margin-bottom: $spacing-6;
+  }
+
   .kecom-address-text {
-    @include typography(base, medium, $text-primary);
+    @include typography(base, normal, $text-primary);
     font-style: normal;
+  }
+
+  .kecom-empty-text {
+    @include typography(base, normal, $text-subdued);
+    font-style: italic;
+    margin: 0px;
   }
 }

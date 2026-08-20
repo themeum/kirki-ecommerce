@@ -9,7 +9,7 @@
 
 .kecom-alert {
   padding: $spacing-5 $spacing-10;
-  @include typography(md, normal, sm);
+  @include typography(base, normal, $text-primary);
   border-radius: $radius-md;
   background-color: $background-fill;
   border: 1px solid $border-default;

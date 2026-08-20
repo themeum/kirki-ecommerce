@@ -14,4 +14,13 @@ export const ENDPOINTS = {
   checkout: {
     root: '/checkout',
   },
+  customer: {
+    root: '/customers',
+    single: (id: number) => `/customers/${id}`,
+  },
+  account: {
+    profile: '/account/profile',
+    passwordChange: '/account/password-change',
+    addresses: '/account/addresses',
+  },
 } as const;

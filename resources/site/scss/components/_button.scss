@@ -110,7 +110,7 @@
 
 .kecom-btn-link.kecom-btn-link {
   background-color: transparent;
-  color: $text-brand;
+  color: $text-emphasis;
   border-color: transparent;
   padding: 0;
   text-decoration: none;
@@ -143,11 +143,14 @@
 // ── Sizes ────────────────────────────────────────────────────────────────────
 
 .kecom-btn-sm.kecom-btn-sm {
-  padding: $spacing-3 $spacing-4; // 32px height
   font-size: $font-size-sm;
+
+  &:not(.kecom-btn-link.kecom-btn-link) {
+    padding: $spacing-3 $spacing-4; // 32px height
+  }
 }
 
-.kecom-btn-lg.kecom-btn-lg {
+.kecom-btn-lg.kecom-btn-lg:not(.kecom-btn-link.kecom-btn-link) {
   padding: $spacing-5 $spacing-12; // 40px height
 }
 

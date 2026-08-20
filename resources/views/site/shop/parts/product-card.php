@@ -72,7 +72,7 @@ $product_url = Url::get_product_url($product->slug);
             <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
-            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>">
+            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>" loading="lazy">
         <?php endif; ?>
     </a>
 

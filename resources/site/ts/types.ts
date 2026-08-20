@@ -1,5 +1,7 @@
 // Shared TypeScript interfaces for the site bundle
 
+import type { AddressItem } from './components/account-addresses';
+
 export type ShippingMethod = {
   id: string;
   name: string;
@@ -11,6 +13,11 @@ export type ShippingMethod = {
 };
 
 export type KirkiEcommerceConfig = {
+  customer_id: any;
+  customerId: any;
+  is_billing_same_as_shipping: any;
+  isBillingSameAsShipping: any;
+  addresses: Record<'billing' | 'shipping', AddressItem>;
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];

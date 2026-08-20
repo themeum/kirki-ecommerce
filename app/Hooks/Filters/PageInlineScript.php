@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -56,9 +57,61 @@ class PageInlineScript extends BaseHook
             $config = $this->set_shop_single_page_data(view_data(), $config);
         } elseif (Route::is('cart')) {
             $config = $this->set_cart_page_data(view_data(), $config);
+        } elseif (Route::is('account.addresses')) {
+            $config = $this->set_addresses_page_data(view_data(), $config);
         }
 
         return $config;
+    }
+
+    /**
+     * Add addresses page data to the inline config.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed $view_data  Data from the view context.
+     * @param array $config     Existing config array.
+     *
+     * @return array Updated config.
+     */
+    protected function set_addresses_page_data($view_data, $config)
+    {
+        $data             = (object) $view_data;
+        $customer         = $data->customer ?? null;
+        $billing_address  = $data->billing_address ?? [];
+        $shipping_address = $data->shipping_address ?? [];
+
+        $config['countries']                   = $data->countries ?? Utils::get_countries();
+        $config['customer_id']                 = $customer->id ?? 1;
+        $config['is_billing_same_as_shipping'] = (bool) ($customer->is_billing_same_as_shipping ?? false);
+        $config['addresses']                   = [
+            'billing'  => $this->format_address($billing_address),
+            'shipping' => $this->format_address($shipping_address),
+        ];
+
+        return $config;
+    }
+
+    /**
+     * Format address model or data to an array.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed $address Address model or array.
+     *
+     * @return array
+     */
+    protected function format_address($address): array
+    {
+        if (empty($address)) {
+            return [];
+        }
+
+        if (is_object($address) && method_exists($address, 'to_array')) {
+            return $address->to_array();
+        }
+
+        return (array) $address;
     }
 
     /**
