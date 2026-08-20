@@ -181,3 +181,43 @@
     }
   }
 }
+
+// ----------------------------------------------------------------------------
+// Orders Empty State
+// ----------------------------------------------------------------------------
+.kecom-orders-empty-card {
+  border-radius: $radius-xl;
+  background-color: $background-surface;
+  padding: $spacing-12 $spacing-8 $spacing-14 $spacing-8;
+  @include flex-center();
+}
+
+.kecom-orders-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto;
+
+  .kecom-orders-empty-icon {
+    @include flex-center();
+    margin-bottom: $spacing-6;
+
+    img {
+      width: 88px;
+      height: 88px;
+      display: block;
+    }
+  }
+
+  .kecom-orders-empty-title {
+    @include typography(md, semibold, $text-primary);
+    margin: 0 0 $spacing-3 0;
+  }
+
+  .kecom-orders-empty-desc {
+    @include typography(base, normal, $text-secondary);
+    margin: 0 0 $spacing-10 0;
+  }
+}

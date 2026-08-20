@@ -38,7 +38,7 @@ $has_more_pages = $orders['has_more_pages'] ?? false;
                     </div>
 
                     <!-- Shared Orders Table Partial -->
-                    <?php include_view('site.account.orders.table', ['orders' => $orders['results']]); ?>
+                    <?php include_view('site.account.orders.table', ['orders' => $orders['results'] ?? []]); ?>
 
                     <?php if ($has_more_pages) { ?>
                         <div class="kecom-flex kecom-justify-center kecom-mt-9">
