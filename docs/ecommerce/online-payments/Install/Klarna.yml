@@ -32,7 +32,7 @@ examples:
         type: json
         data: |-
           {
-            "id": "stripe"
+            "id": "klarna"
           }
     response:
       status: 200
@@ -47,8 +47,8 @@ examples:
             "success": true,
             "data": {
               "id": "ec615e96-78bc-40b5-b944-dc69ae570d31",
-              "name": "Paddle",
-              "icon": "paddle",
+              "name": "Klarna",
+              "icon": "klarna",
               "is_enabled": null,
               "is_offline": null,
               "instructions": null,
@@ -65,7 +65,7 @@ examples:
         type: json
         data: |-
           {
-            "id": "stripe"
+            "id": "klarna"
           }
     response:
       status: 404
