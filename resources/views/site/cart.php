@@ -23,7 +23,7 @@ $items = $cart['items'] ?? [];
 
 ?>
 <?php Template::get_header(); ?>
-<div class="kecom-page-wrapper kecom-cart-page" x-data='cart()'>
+<div class="kecom-cart-page" x-data='cart()'>
     <div class="kecom-cart-grid">
         <!-- Left Part -->
         <div class="kecom-cart-items">
@@ -39,7 +39,7 @@ $items = $cart['items'] ?? [];
             <?php if (count($items)) : ?>
                 <?php foreach ($items as $item) :
                     include_view('site.cart.parts.cart-item', ['item' => $item]);
-                    ?>
+                ?>
                 <?php endforeach; ?>
             <?php else : ?>
                 <h4 class="kecom-cart-items-empty-text"><?php _e('No items currently in cart.', 'kirki-ecommerce'); ?></h4>
