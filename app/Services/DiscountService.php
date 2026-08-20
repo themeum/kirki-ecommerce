@@ -34,6 +34,7 @@ class DiscountService
     public function validate_coupon(Coupon $coupon, CalculationContextDTO $context)
     {
         $this->validate_status($coupon);
+        $this->validate_items_eligibility($coupon, $context);
         $this->validate_conditions($coupon, $context);
         $this->validate_region($coupon, $context);
         $this->validate_customers_eligibility($coupon, $context);
@@ -52,6 +53,15 @@ class DiscountService
                 throw new ValidationException(esc_html__('Coupon has not started yet.', 'kirki-ecommerce'));
             default:
                 break;
+        }
+    }
+
+    protected function validate_items_eligibility(Coupon $coupon, CalculationContextDTO $context)
+    {
+        $eligible_items = $this->get_eligible_items($context, $coupon);
+
+        if ($eligible_items->is_empty()) {
+            throw new ValidationException(esc_html__('No eligible items found.', 'kirki-ecommerce'));
         }
     }
 
