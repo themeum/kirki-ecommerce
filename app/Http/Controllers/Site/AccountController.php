@@ -29,7 +29,6 @@ use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
 use function Kirki\Ecommerce\Framework\user;
@@ -179,7 +178,7 @@ class AccountController
     {
 
         $order = $order_service->find_order_by_uuid($request->uuid);
-        if (!$order) {
+        if (!$order || $order->customer_id !== customer()->get_customer_id()) {
             wp_safe_redirect(Route::site_url('account.orders'));
             exit;
         }
