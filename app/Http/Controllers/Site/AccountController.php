@@ -33,8 +33,32 @@ use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Class AccountController
+ *
+ * @since 1.0.0
+ */
 class AccountController
 {
+    /**
+     * Data list limit.
+     *
+     * @since 1.0.0
+     *
+     * @var int
+     */
+    protected $list_limit = 10;
+
+    /**
+     * Update profile.
+     *
+     * @since 1.0.0
+     *
+     * @param ProfileUpdateRequest $request Request.
+     * @param UpdateAccountProfileAction $action Action.
+     *
+     * @return Response response.
+     */
     public function update_profile(ProfileUpdateRequest $request, UpdateAccountProfileAction $action)
     {
         $profile_payload = UpdateProfilePayloadDTO::from_array($request->sanitized());
@@ -48,6 +72,16 @@ class AccountController
         ]);
     }
 
+    /**
+     * Change password.
+     *
+     * @since 1.0.0
+     *
+     * @param PasswordChangeRequest $request Request.
+     * @param UserService $user_service User service.
+     *
+     * @return Response response.
+     */
     public function change_password(PasswordChangeRequest $request, UserService $user_service)
     {
         $validated = $request->validated();
@@ -60,6 +94,16 @@ class AccountController
         ]);
     }
 
+    /**
+     * Update addresses.
+     *
+     * @since 1.0.0
+     *
+     * @param AddressUpdateRequest $request Request.
+     * @param UpdateAccountAddressesAction $action Action.
+     *
+     * @return Response response.
+     */
     public function update_addresses(AddressUpdateRequest $request, UpdateAccountAddressesAction $action)
     {
         $address_payload = UpdateAddressPayloadDTO::from_array($request->sanitized());
@@ -72,16 +116,6 @@ class AccountController
             'message' => __('Address updated successfully.', 'kirki-ecommerce'),
         ]);
     }
-
-
-    /**
-     * Data list limit.
-     *
-     * @since 1.0.0
-     *
-     * @var int
-     */
-    protected $list_limit = 10;
 
     /**
      * Dashboard page.
