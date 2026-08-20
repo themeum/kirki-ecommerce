@@ -1,30 +1,4 @@
 // Page - Account
-// Styles for account page
+// Main stylesheet for customer account center
 
-@use '../tokens' as *;
-@use '../mixins' as *;
-
-.kecom-account-page {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: $spacing-0 $spacing-10;
-
-  &-title {
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-    font-family: var(--kecom-font-family);
-    color: var(--kecom-text-primary, hsl(255, 4%, 20%));
-    font-weight: 800;
-    margin: 0;
-    padding: 0;
-    margin-top: 30px;
-  }
-
-  &-info {
-    color: var(--kecom-text-secondary, hsl(255, 4%, 54%));
-    font-size: 1rem;
-    line-height: 1.5rem;
-    margin: $spacing-6 0 $spacing-0;
-    padding: 0;
-  }
-}
+@use './account/index';

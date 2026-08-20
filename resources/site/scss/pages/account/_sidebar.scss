@@ -1,0 +1,107 @@
+// Account - Sidebar
+// Styling for account sidebar profile badge and navigation links
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-sidebar {
+  position: sticky;
+  top: $spacing-12;
+  padding: $spacing-14 $spacing-12;
+  border-right: 1px solid $border-default;
+  height: 100%;
+
+  @include breakpoint-down(md) {
+    background-color: $background-surface-alt;
+    border-right: none;
+    border-top: 1px solid $border-default;
+    padding: $spacing-4;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
+.kecom-account-nav {
+  &-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+
+    @include breakpoint-down(md) {
+      flex-direction: row;
+      width: 100%;
+      gap: $spacing-0;
+    }
+  }
+
+  &-item {
+    margin: 0;
+    padding: 0;
+
+    @include breakpoint-down(md) {
+      flex-shrink: 0;
+      flex: 1;
+    }
+  }
+
+  &-link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    width: 100%;
+    padding: $spacing-5 $spacing-6;
+    border-radius: $radius-lg;
+    @include typography(base, normal, $text-secondary);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    text-align: left;
+    @include transition((color));
+
+    &:hover {
+      color: $text-primary;
+    }
+
+    &:focus-visible {
+      @include focus-ring();
+    }
+
+    &.is-active,
+    &[aria-selected='true'] {
+      background-color: $background-surface;
+      color: $text-primary;
+      box-shadow: $shadow-card;
+      font-weight: 500;
+
+      svg {
+        color: $icon-emphasis;
+      }
+    }
+
+    &-logout {
+      border-top: 1px solid $border-default;
+      margin-top: $spacing-4;
+      padding-top: $spacing-8;
+      border-radius: $radius-none;
+    }
+
+    @include breakpoint-down(md) {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      @include typography(xs, normal, $text-secondary);
+      padding: $spacing-4;
+
+      &-logout {
+        border: none;
+        margin: 0;
+      }
+    }
+  }
+}

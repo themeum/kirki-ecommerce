@@ -1,0 +1,222 @@
+// Account - Order Details
+// Styling for single order inspection page matching the design mockup
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-order-details-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-9;
+}
+
+// ----------------------------------------------------------------------------
+// Top Header & Actions
+// ----------------------------------------------------------------------------
+.kecom-order-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-4;
+
+  @include breakpoint-down(sm) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-4;
+  }
+
+  &-left {
+    display: flex;
+    align-items: start;
+    gap: $spacing-4;
+  }
+
+  .kecom-order-details-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  .kecom-order-details-heading-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+  }
+
+  .kecom-order-details-title {
+    @include typography(xl, semibold, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-order-details-placed {
+    @include typography(base, normal, $text-secondary);
+  }
+}
+
+// ----------------------------------------------------------------------------
+// 2-Column Content Grid
+// ----------------------------------------------------------------------------
+.kecom-order-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-9;
+
+  @include breakpoint-down(lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Left Column
+// ----------------------------------------------------------------------------
+.kecom-order-details-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-9;
+}
+
+// Card 1: Order Status Timeline
+.kecom-order-status-card {
+  .kecom-order-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-9;
+    margin-top: $spacing-9;
+  }
+
+  .kecom-order-step {
+    @include flex();
+    align-items: center;
+    gap: $spacing-6;
+
+    &:not(:last-of-type) {
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 31px;
+        inset-inline-start: 11px;
+        width: 1.5px;
+        height: 100%;
+        background-color: $background-fill-secondary;
+      }
+    }
+
+    &-indicator {
+      @include flex-center();
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      background-color: $background-fill-secondary;
+      border-radius: $radius-lg;
+    }
+
+    &-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: $radius-full;
+      background-color: $icon-emphasis;
+    }
+
+    &-content {
+      @include flex-column();
+      gap: $spacing-2;
+    }
+
+    &-title {
+      @include typography(base, medium, $text-primary);
+      margin: 0;
+    }
+
+    &-date {
+      @include typography(sm, normal, $text-secondary);
+      display: block;
+    }
+  }
+}
+
+// Card 2: Contact, Payment & Address Information
+.kecom-order-info-card {
+  .kecom-order-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-10 $spacing-6;
+
+    @include breakpoint-down(xs) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .kecom-order-info-block {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+  }
+
+  .kecom-order-info-title {
+    @include typography(base, semibold, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-order-info-text {
+    @include typography(base, normal, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-order-address-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    p {
+      @include typography(base, normal, $text-primary);
+      margin: 0;
+
+      &.kecom-empty-text {
+        @include typography(base, normal, $text-subdued);
+        font-style: italic;
+      }
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Right Column: Summary Card with Items & Totals
+// ----------------------------------------------------------------------------
+.kecom-order-details-col-right {
+  .kecom-order-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-10;
+    min-height: 100%;
+  }
+
+  // Pricing Breakdown
+  .kecom-order-pricing-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+  }
+
+  .kecom-pricing-row {
+    @include flex-between();
+    @include typography(base, normal, $text-secondary);
+
+    .kecom-pricing-value {
+      font-weight: $font-weight-medium;
+      color: $text-primary;
+    }
+
+    &-total {
+      padding-top: $spacing-6;
+      margin-top: $spacing-6;
+      border-top: 1px solid $border-default;
+
+      .kecom-pricing-label,
+      .kecom-pricing-value {
+        @include typography(md, bold, $text-primary);
+      }
+    }
+  }
+}
