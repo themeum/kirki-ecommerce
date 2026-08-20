@@ -34,8 +34,8 @@ $pages = view_data('pages');
 
                     <!-- Address Cards Grid -->
                     <div class="kecom-account-addresses-grid" x-show="!editingAddress">
-                        <?php include_view('site.account.parts.address-card', ['type' => 'billing', 'title' => __('Billing Address', 'kirki-ecommerce')]); ?>
                         <?php include_view('site.account.parts.address-card', ['type' => 'shipping', 'title' => __('Shipping Address', 'kirki-ecommerce')]); ?>
+                        <?php include_view('site.account.parts.address-card', ['type' => 'billing', 'title' => __('Billing Address', 'kirki-ecommerce')]); ?>
                     </div>
 
                     <!-- Edit Address Form Box -->

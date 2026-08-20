@@ -35,15 +35,37 @@
     width: 64px;
     height: 64px;
     border-radius: $radius-xl;
-    overflow: hidden;
     background-color: $background-surface-alt;
     @include flex-center();
+    position: relative;
 
     img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
+      border-radius: $radius-md;
+    }
+
+    &.kecom-multiple-thumb {
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        inset-inline-start: 4.5px;
+        box-shadow: -1px 1px 8px #0000001c inset;
+        background: radial-gradient(91.62% 91.62% at 96.07% 5.34%, #e3e4ec, #d4d5dc);
+        transform: rotate(6.66deg);
+        height: 100%;
+        width: 100%;
+        border-radius: $radius-md;
+        z-index: 0;
+      }
+
+      img {
+        box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.4);
+        z-index: 1;
+      }
     }
   }
 
@@ -179,5 +201,45 @@
       grid-row: 2;
       text-align: right;
     }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Orders Empty State
+// ----------------------------------------------------------------------------
+.kecom-orders-empty-card {
+  border-radius: $radius-xl;
+  background-color: $background-surface;
+  padding: $spacing-12 $spacing-8 $spacing-14 $spacing-8;
+  @include flex-center();
+}
+
+.kecom-orders-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto;
+
+  .kecom-orders-empty-icon {
+    @include flex-center();
+    margin-bottom: $spacing-6;
+
+    img {
+      width: 88px;
+      height: 88px;
+      display: block;
+    }
+  }
+
+  .kecom-orders-empty-title {
+    @include typography(md, semibold, $text-primary);
+    margin: 0 0 $spacing-3 0;
+  }
+
+  .kecom-orders-empty-desc {
+    @include typography(base, normal, $text-secondary);
+    margin: 0 0 $spacing-10 0;
   }
 }

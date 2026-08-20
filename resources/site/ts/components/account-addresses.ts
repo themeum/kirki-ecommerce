@@ -21,10 +21,47 @@ export interface AddressItem {
   country?: string;
 }
 
+export interface AddressFormData {
+  first_name: string;
+  last_name: string;
+  company: string;
+  country: string;
+  address_line1: string;
+  address_line2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  phone: string;
+  email: string;
+}
+
 export function accountAddresses() {
+  const { __ } = window.wp.i18n;
   const toast = toastMeta.component();
 
-  const initialSameAsBilling = Boolean(
+  // Map API field names to human-readable labels for error messages
+  const fieldLabels: Record<string, string> = {
+    first_name: __('first name', 'kirki-ecommerce'),
+    last_name: __('last name', 'kirki-ecommerce'),
+    email: __('email address', 'kirki-ecommerce'),
+    phone: __('phone number', 'kirki-ecommerce'),
+    address_line1: __('address', 'kirki-ecommerce'),
+    address_line2: __('apartment / suite', 'kirki-ecommerce'),
+    city: __('city', 'kirki-ecommerce'),
+    state: __('state', 'kirki-ecommerce'),
+    postal_code: __('postal code', 'kirki-ecommerce'),
+    country: __('country', 'kirki-ecommerce'),
+  };
+
+  function humanizeFieldError(rawMessage: string, fieldName: string): string {
+    const label = fieldLabels[fieldName] ?? fieldName.replace(/_/g, ' ');
+    return rawMessage
+      .replace(new RegExp(`\\b${fieldName}\\b`, 'g'), label)
+      .replace(/shipping_address\.\w+/g, label)
+      .replace(/billing_address\.\w+/g, label);
+  }
+
+  const initialSameAsShipping = Boolean(
     config?.is_billing_same_as_shipping ?? config?.isBillingSameAsShipping,
   );
   const addresses = config?.addresses ?? {
@@ -42,11 +79,12 @@ export function accountAddresses() {
     addresses,
     countries,
     editingAddress: null as 'billing' | 'shipping' | null,
-    sameAsBilling: initialSameAsBilling,
-    customShippingAddress: { ...(addresses?.shipping ?? {}) },
-    togglingSameAsBilling: false,
+    sameAsShipping: initialSameAsShipping,
+    customBillingAddress: { ...(addresses?.billing ?? {}) },
+    togglingSameAsShipping: false,
     loading: false,
     errorMessage: '',
+    errors: {} as Record<string, string>,
     formData: {
       first_name: '',
       last_name: '',
@@ -58,6 +96,7 @@ export function accountAddresses() {
       state: '',
       postal_code: '',
       phone: '',
+      email: '',
     },
 
     get availableStates() {
@@ -91,8 +130,8 @@ export function accountAddresses() {
     },
 
     getAddress(type: 'billing' | 'shipping'): AddressItem {
-      return type === 'shipping' && this.sameAsBilling
-        ? this.addresses.billing || {}
+      return type === 'billing' && this.sameAsShipping
+        ? this.addresses.shipping || {}
         : this.addresses[type] || {};
     },
 
@@ -115,10 +154,10 @@ export function accountAddresses() {
     },
 
     hasAddress(type: 'billing' | 'shipping'): boolean {
-      if (type === 'shipping' && this.sameAsBilling) {
+      if (type === 'billing' && this.sameAsShipping) {
         return Boolean(
-          this.addresses.billing &&
-          (this.addresses.billing.address_line1 || this.addresses.billing.first_name),
+          this.addresses.shipping &&
+          (this.addresses.shipping.address_line1 || this.addresses.shipping.first_name),
         );
       }
       const addr = this.addresses[type];
@@ -128,6 +167,7 @@ export function accountAddresses() {
     startEdit(type: 'billing' | 'shipping') {
       this.editingAddress = type;
       this.errorMessage = '';
+      this.errors = {};
       const current = this.addresses[type] || {};
       this.formData = {
         first_name: current.first_name || '',
@@ -140,83 +180,117 @@ export function accountAddresses() {
         state: current.state || '',
         postal_code: current.postal_code || '',
         phone: current.phone || '',
+        email: current.email || '',
       };
     },
 
     cancelEdit() {
       this.editingAddress = null;
       this.errorMessage = '';
+      this.errors = {};
     },
 
-    async onSameAsBillingChange() {
-      if (this.togglingSameAsBilling) {
+    async onSameAsShippingChange() {
+      if (this.togglingSameAsShipping) {
         return;
       }
-      this.togglingSameAsBilling = true;
+      this.togglingSameAsShipping = true;
 
       try {
-        if (this.sameAsBilling) {
-          // Backup current custom shipping address in memory
-          this.customShippingAddress = { ...this.addresses.shipping };
-          // Mirror billing to shipping
-          this.addresses.shipping = { ...this.addresses.billing };
-
-          const payload: AccountAddressPayload = {
-            type: 'shipping',
-            first_name: this.addresses.billing.first_name || '',
-            last_name: this.addresses.billing.last_name || '',
-            company: this.addresses.billing.company || '',
-            country: this.addresses.billing.country || '',
-            address_line1: this.addresses.billing.address_line1 || '',
-            address_line2: this.addresses.billing.address_line2 || '',
-            city: this.addresses.billing.city || '',
-            state: String(this.addresses.billing.state || ''),
-            postal_code: this.addresses.billing.postal_code || '',
-            phone: this.addresses.billing.phone || '',
-            email: this.addresses.billing.email || '',
-            is_billing_same_as_shipping: true,
-          };
-
-          await accountApi.updateAddress(payload);
-          toast.success('Shipping address set to same as billing.');
+        if (this.sameAsShipping) {
+          // Backup current custom billing address in memory
+          this.customBillingAddress = { ...this.addresses.billing };
+          // Mirror shipping to billing
+          this.addresses.billing = { ...this.addresses.shipping };
         } else {
-          // Restore previous custom shipping address
-          this.addresses.shipping = { ...this.customShippingAddress };
+          // Restore previous custom billing address
+          this.addresses.billing = { ...this.customBillingAddress };
+        }
 
-          const payload: AccountAddressPayload = {
-            type: 'shipping',
-            first_name: this.addresses.shipping.first_name || '',
-            last_name: this.addresses.shipping.last_name || '',
-            company: this.addresses.shipping.company || '',
-            country: this.addresses.shipping.country || '',
-            address_line1: this.addresses.shipping.address_line1 || '',
-            address_line2: this.addresses.shipping.address_line2 || '',
-            city: this.addresses.shipping.city || '',
-            state: String(this.addresses.shipping.state || ''),
-            postal_code: this.addresses.shipping.postal_code || '',
-            phone: this.addresses.shipping.phone || '',
-            email: this.addresses.shipping.email || '',
-            is_billing_same_as_shipping: false,
-          };
+        const payload: AccountAddressPayload = {
+          type: 'billing',
+          first_name: this.addresses.billing?.first_name || '',
+          last_name: this.addresses.billing?.last_name || '',
+          company: this.addresses.billing?.company || '',
+          country: this.addresses.billing?.country || '',
+          address_line1: this.addresses.billing?.address_line1 || '',
+          address_line2: this.addresses.billing?.address_line2 || '',
+          city: this.addresses.billing?.city || '',
+          state: String(this.addresses.billing?.state || ''),
+          postal_code: this.addresses.billing?.postal_code || '',
+          phone: this.addresses.billing?.phone || '',
+          email: this.addresses.billing?.email || '',
+          is_billing_same_as_shipping: this.sameAsShipping,
+        };
 
-          await accountApi.updateAddress(payload);
-          toast.info('Separate shipping address enabled.');
+        await accountApi.updateAddress(payload);
+
+        if (this.sameAsShipping) {
+          toast.success('Billing address set to same as shipping.');
+        } else {
+          toast.info('Separate billing address enabled.');
         }
       } catch (err: any) {
         // Revert UI toggle on error
-        this.sameAsBilling = !this.sameAsBilling;
-        toast.error(err?.message || 'Failed to update shipping address preference.');
+        this.sameAsShipping = !this.sameAsShipping;
+        if (this.sameAsShipping) {
+          this.addresses.billing = { ...this.addresses.shipping };
+        } else {
+          this.addresses.billing = { ...this.customBillingAddress };
+        }
+        toast.error(err?.message || 'Failed to update billing address preference.');
       } finally {
-        this.togglingSameAsBilling = false;
+        this.togglingSameAsShipping = false;
       }
+    },
+
+    validateForm(): boolean {
+      this.errors = {};
+
+      const requiredRules: { field: keyof AddressFormData; message: string }[] = [
+        { field: 'first_name', message: __('First name is required.', 'kirki-ecommerce') },
+        { field: 'country', message: __('Country is required.', 'kirki-ecommerce') },
+        { field: 'address_line1', message: __('Street address is required.', 'kirki-ecommerce') },
+        { field: 'city', message: __('Town / City is required.', 'kirki-ecommerce') },
+        { field: 'postal_code', message: __('Postcode / ZIP is required.', 'kirki-ecommerce') },
+        { field: 'phone', message: __('Phone number is required.', 'kirki-ecommerce') },
+        { field: 'email', message: __('Email address is required.', 'kirki-ecommerce') },
+      ];
+
+      for (const rule of requiredRules) {
+        const val = this.formData[rule.field];
+        if (!val || (typeof val === 'string' && val.trim() === '')) {
+          this.errors[rule.field] = rule.message;
+        }
+      }
+
+      // State is only required if the selected country has states available
+      if (this.availableStates.length > 0) {
+        const stateVal = this.formData.state;
+        if (!stateVal || (typeof stateVal === 'string' && stateVal.trim() === '')) {
+          this.errors.state = __('State is required.', 'kirki-ecommerce');
+        }
+      }
+
+      if (this.formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email)) {
+        this.errors.email = __('Please enter a valid email address.', 'kirki-ecommerce');
+      }
+
+      return Object.keys(this.errors).length === 0;
     },
 
     async saveAddress() {
       if (!this.editingAddress || this.loading) {
         return;
       }
+
+      if (!this.validateForm()) {
+        return;
+      }
+
       this.loading = true;
       this.errorMessage = '';
+      this.errors = {};
 
       const type = this.editingAddress;
 
@@ -233,7 +307,8 @@ export function accountAddresses() {
           state: String(this.formData.state || ''),
           postal_code: this.formData.postal_code || '',
           phone: this.formData.phone || '',
-          email: this.addresses[type]?.email || '',
+          email: this.formData.email || '',
+          ...(type === 'billing' ? { is_billing_same_as_shipping: false } : {}),
         };
 
         const res = await accountApi.updateAddress(payload);
@@ -251,16 +326,37 @@ export function accountAddresses() {
           state: this.formData.state,
           postal_code: this.formData.postal_code,
           phone: this.formData.phone,
+          email: this.formData.email,
         };
 
-        // If billing updated and sameAsBilling is active, update shipping copy as well
-        if (type === 'billing' && this.sameAsBilling) {
-          this.addresses.shipping = { ...this.addresses.billing };
+        if (type === 'billing') {
+          this.sameAsShipping = false;
+        }
+
+        // If shipping updated and sameAsShipping is active, update billing copy as well
+        if (type === 'shipping' && this.sameAsShipping) {
+          this.addresses.billing = { ...this.addresses.shipping };
         }
 
         this.editingAddress = null;
         toast.success(res?.message || 'Address updated successfully.');
       } catch (err: any) {
+        if (err?.errors && typeof err.errors === 'object') {
+          let hasFieldErrors = false;
+          for (const [key, messages] of Object.entries(err.errors)) {
+            const field = key.replace(/^(billing|shipping)_address\./, '');
+            const rawMsg = Array.isArray(messages) ? messages[0] : (messages as string);
+            if (rawMsg) {
+              const cleanMsg = humanizeFieldError(rawMsg, field);
+              this.errors[field] = cleanMsg;
+              hasFieldErrors = true;
+            }
+          }
+          if (hasFieldErrors) {
+            toast.error(err.message || 'Validation failed!');
+            return;
+          }
+        }
         const msg = err?.message || 'Failed to update address. Please try again.';
         this.errorMessage = msg;
         toast.error(msg);

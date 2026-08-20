@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-$type = $data['type'] ?? 'billing';
+$type = $data['type'] ?? 'shipping';
 $title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-ecommerce') : __('Shipping Address', 'kirki-ecommerce'));
 ?>
 
@@ -21,7 +21,7 @@ $title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-e
         <button
             type="button"
             class="kecom-btn kecom-btn-link kecom-btn-sm"
-            <?php if ($type === 'shipping') : ?>x-show="!sameAsBilling"<?php endif; ?>
+            <?php if ($type === 'billing') : ?>x-show="!sameAsShipping"<?php endif; ?>
             @click.prevent="startEdit('<?php echo esc_attr($type); ?>')"
         >
             <?php esc_html_e('Edit', 'kirki-ecommerce'); ?>
@@ -29,17 +29,17 @@ $title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-e
     </div>
 
     <div class="kecom-card-body">
-        <?php if ($type === 'shipping') : ?>
+        <?php if ($type === 'billing') : ?>
             <div class="kecom-address-card-same">
                 <label class="kecom-checkbox">
                     <input
                         class="kecom-checkbox-input"
                         type="checkbox"
-                        x-model="sameAsBilling"
-                        :disabled="togglingSameAsBilling"
-                        @change="onSameAsBillingChange"
+                        x-model="sameAsShipping"
+                        :disabled="togglingSameAsShipping"
+                        @change="onSameAsShippingChange"
                     >
-                    <span class="kecom-checkbox-label"><?php esc_html_e('Same as billing address', 'kirki-ecommerce'); ?></span>
+                    <span class="kecom-checkbox-label"><?php esc_html_e('Same as shipping address', 'kirki-ecommerce'); ?></span>
                 </label>
             </div>
         <?php endif; ?>

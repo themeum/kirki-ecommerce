@@ -15,7 +15,7 @@ defined('ABSPATH') || exit;
 
 $orders = $data['orders'] ?? [];
 if (empty($orders)) {
-    echo __('No orders found', 'kirki-ecommerce');
+    include_view('site.account.orders.empty');
     return;
 }
 ?>

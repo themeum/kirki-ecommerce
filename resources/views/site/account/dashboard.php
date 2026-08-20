@@ -50,13 +50,15 @@ $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : ''
                     <div class="kecom-account-recent-orders-section">
                         <div class="kecom-account-section-header">
                             <h2 class="kecom-account-section-title"><?php esc_html_e('Recent Orders', 'kirki-ecommerce'); ?></h2>
-                            <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>" class="kecom-account-section-link">
-                                <?php esc_html_e('View All Orders', 'kirki-ecommerce'); ?>
-                            </a>
+                            <?php if (!empty($orders['results'])) : ?>
+                                <a href="<?php echo esc_url(Url::get_account_url('orders')); ?>" class="kecom-account-section-link">
+                                    <?php esc_html_e('View All Orders', 'kirki-ecommerce'); ?>
+                                </a>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Orders List Partial -->
-                        <?php include_view('site.account.orders.table', ['orders' => $orders['results']]); ?>
+                        <?php include_view('site.account.orders.table', ['orders' => $orders['results'] ?? []]); ?>
                     </div>
 
                     <!-- Account Details & Saved Addresses Cards -->

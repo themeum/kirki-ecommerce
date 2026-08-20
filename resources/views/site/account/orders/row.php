@@ -32,7 +32,7 @@ $items_images = $order['items_images'] ?? [];
     <!-- 1. Product Image / Collage Placeholder -->
     <td class="kecom-orders-table-col-thumb">
         <div class="kecom-account-order-thumb-wrap">
-            <div class="kecom-account-order-thumb kecom-thumb-placeholder">
+            <div class="kecom-account-order-thumb <?php echo esc_attr(count($items_images) > 1 ? 'kecom-multiple-thumb' : ''); ?>">
                 <?php if (!empty($items_images)) : ?>
                     <img src="<?php echo esc_url($items_images[0]); ?>" alt="<?php esc_attr_e('Product image', 'kirki-ecommerce'); ?>">
                 <?php endif; ?>
