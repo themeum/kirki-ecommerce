@@ -21,6 +21,20 @@ export interface AddressItem {
   country?: string;
 }
 
+export interface AddressFormData {
+  first_name: string;
+  last_name: string;
+  company: string;
+  country: string;
+  address_line1: string;
+  address_line2: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  phone: string;
+  email: string;
+}
+
 export function accountAddresses() {
   const { __ } = window.wp.i18n;
   const toast = toastMeta.component();
@@ -230,10 +244,43 @@ export function accountAddresses() {
       }
     },
 
+    validateForm(): boolean {
+      this.errors = {};
+
+      const requiredRules: { field: keyof AddressFormData; message: string }[] = [
+        { field: 'first_name', message: __('First name is required.', 'kirki-ecommerce') },
+        { field: 'country', message: __('Country is required.', 'kirki-ecommerce') },
+        { field: 'address_line1', message: __('Street address is required.', 'kirki-ecommerce') },
+        { field: 'city', message: __('Town / City is required.', 'kirki-ecommerce') },
+        { field: 'state', message: __('State is required.', 'kirki-ecommerce') },
+        { field: 'postal_code', message: __('Postcode / ZIP is required.', 'kirki-ecommerce') },
+        { field: 'phone', message: __('Phone number is required.', 'kirki-ecommerce') },
+        { field: 'email', message: __('Email address is required.', 'kirki-ecommerce') },
+      ];
+
+      for (const rule of requiredRules) {
+        const val = this.formData[rule.field];
+        if (!val || (typeof val === 'string' && val.trim() === '')) {
+          this.errors[rule.field] = rule.message;
+        }
+      }
+
+      if (this.formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email)) {
+        this.errors.email = __('Please enter a valid email address.', 'kirki-ecommerce');
+      }
+
+      return Object.keys(this.errors).length === 0;
+    },
+
     async saveAddress() {
       if (!this.editingAddress || this.loading) {
         return;
       }
+
+      if (!this.validateForm()) {
+        return;
+      }
+
       this.loading = true;
       this.errorMessage = '';
       this.errors = {};
@@ -299,8 +346,7 @@ export function accountAddresses() {
             }
           }
           if (hasFieldErrors) {
-            this.errorMessage = err.message || 'Validation failed!';
-            toast.error(this.errorMessage);
+            toast.error(err.message || 'Validation failed!');
             return;
           }
         }
