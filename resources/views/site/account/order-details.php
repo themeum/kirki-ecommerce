@@ -247,7 +247,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                                 </div>
 
                                                 <div class="kecom-product-info">
-                                                    <a href="#" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
+                                                    <a href="<?php echo esc_url(Url::get_product_url($item_product['slug'] ?? '')); ?>" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
                                                     <span class="kecom-product-category"><?php echo esc_html($categories[count($categories) - 1]['name'] ?? ''); ?></span>
                                                     <div class="kecom-product-variant">
                                                         <?php echo esc_html($item['variant_name'] ?? '') ?>
