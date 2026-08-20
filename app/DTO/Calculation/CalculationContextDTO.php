@@ -62,7 +62,7 @@ class CalculationContextDTO extends DTO
         $customer = null;
 
         if (!empty($cart->user_id)) {
-            $customer = customer($cart->user_id)->get_customer_id();
+            $customer = customer($cart->user_id)->get_customer();
             $dto->customer_id = $customer ? $customer->id : null;
         }
 

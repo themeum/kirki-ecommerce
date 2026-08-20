@@ -73,7 +73,7 @@ class RecalculateCartAction
                 $item_discount_money = $item_net_total_money;
             }
 
-            $item_subtotal_money = $item_net_total_money->minus($item_discount_money);
+            $item_total_money = $item_net_total_money->minus($item_discount_money);
 
             // Calculate Tax
             $tax_breakdown = [];
@@ -83,7 +83,7 @@ class RecalculateCartAction
             if ($tax_strategy) {
                 $tax_context = new ProductTaxContextDTO([
                     'shipping_address' => $context->shipping_address,
-                    'base_product_price' => $item_subtotal_money->getMinorAmount()->toInt(),
+                    'base_product_price' => $item_total_money->getMinorAmount()->toInt(),
                     'product_categories' => $item->product_categories,
                     'tax_profile' => $item->tax_profile_id
                 ]);
@@ -94,15 +94,12 @@ class RecalculateCartAction
                 $tax_rate = collection($tax_result->breakdown)->sum(fn($item) => $item->rate);
             }
 
-            // Calculate Item Result Total
-            $item_total_money = $item_subtotal_money;
-
             if (!$is_inclusive_tax) {
                 $item_total_money = $item_total_money->plus($item_tax_amount_money);
             }
 
             // Populate Item Result
-            $item_result->base_subtotal = $item_subtotal_money->getMinorAmount()->toInt();
+            $item_result->base_subtotal = $item_net_total_money->getMinorAmount()->toInt();
             $item_result->base_tax_amount = $item_tax_amount_money->getMinorAmount()->toInt();
             $item_result->tax_rate = $tax_rate;
             $item_result->tax_breakdown = $tax_breakdown;
@@ -113,7 +110,7 @@ class RecalculateCartAction
             // Aggregate Cart Totals
             $result->items[$item->variant_id] = $item_result;
 
-            $total_subtotal_money = $total_subtotal_money->plus($item_subtotal_money);
+            $total_subtotal_money = $total_subtotal_money->plus($item_net_total_money);
             $total_tax_money = $total_tax_money->plus($item_tax_amount_money);
             $total_discount_money = $total_discount_money->plus($item_discount_money);
             $total_grand_money = $total_grand_money->plus($item_total_money);

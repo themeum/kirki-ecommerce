@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
+use Kirki\Ecommerce\App\Concerns\HasCartToken;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
@@ -16,6 +17,7 @@ use function Kirki\Ecommerce\Framework\user;
 
 class CheckoutController
 {
+    use HasCartToken;
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
         $currency_code = $request->string('currency_code') ?? $request->get_header(CookieNames::CURRENCY_CODE) ?? base_currency()->code;
@@ -35,22 +37,5 @@ class CheckoutController
             'data' => OrderResource::make($order),
             'message' => __('Order created successfully.', 'kirki-ecommerce'),
         ], 201);
-    }
-
-    protected function cart_token(OrderCreateRequest $request): ?string
-    {
-        $token = $request->cookie(Cart::COOKIE_TOKEN);
-
-        if (empty($token)) {
-            $token = $request->get_header(Cart::HEADER_TOKEN);
-        }
-
-        if (empty($token)) {
-            return null;
-        }
-
-        $token = sanitize_text_field((string) $token);
-
-        return $token !== '' ? $token : null;
     }
 }

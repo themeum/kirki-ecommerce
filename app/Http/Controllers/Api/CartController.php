@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Cart\RemoveCartItemAction;
 use Kirki\Ecommerce\App\Actions\Cart\UpdateCartAction;
 use Kirki\Ecommerce\App\Actions\Cart\UpdateCartItemAction;
+use Kirki\Ecommerce\App\Concerns\HasCartToken;
 use Kirki\Ecommerce\App\Http\Requests\Cart\AddToCartRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\CartUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\UpdateCartItemRequest;
@@ -20,13 +21,14 @@ use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
 class CartController
 {
+    use HasCartToken;
+
     protected $service;
 
     public function __construct(
@@ -148,23 +150,6 @@ class CartController
     protected function should_calculate_tax(Request $request): bool
     {
         return !filter_var($request->get_header(Cart::HEADER_SKIP_TAX), FILTER_VALIDATE_BOOLEAN);
-    }
-
-    protected function cart_token(Request $request): ?string
-    {
-        $token = $request->cookie(Cart::COOKIE_TOKEN);
-
-        if (empty($token)) {
-            $token = $request->get_header(Cart::HEADER_TOKEN);
-        }
-
-        if (empty($token)) {
-            return null;
-        }
-
-        $token = Sanitizer::apply_rule($token, Sanitizer::TEXT);
-
-        return $token !== '' ? $token : null;
     }
 
     protected function current_user_id(): ?int

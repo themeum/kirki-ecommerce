@@ -50,19 +50,19 @@ class CartService
         $guest_cart = $this->find_by_token($token);
 
         if (!$guest_cart) {
-            $this->queue_guest_cart_cookie_forget();
+            $this->forget_cart_cookie();
         }
 
         return $guest_cart;
     }
 
-    protected function resolve_owned_cart(int $user_id, ?string $token)
+    protected function resolve_owned_cart(int $user_id, ?string $token = null)
     {
         $owned_cart = $this->find_by_user($user_id);
         $guest_cart = $token ? $this->find_by_token($token) : null;
 
         if (!$guest_cart && $token) {
-            $this->queue_guest_cart_cookie_forget();
+            $this->forget_cart_cookie();
         }
 
         if (!$guest_cart) {
@@ -84,7 +84,6 @@ class CartService
 
         $cart = CartModel::where('cart_token', $token)
             ->with($this->cart_relations())
-            ->order_by('id', 'desc')
             ->first();
 
         if (!$cart || $this->is_expired($cart) || !empty($cart->user_id)) {
@@ -102,7 +101,6 @@ class CartService
 
         return CartModel::where('user_id', (int) $user_id)
             ->with($this->cart_relations())
-            ->order_by('id', 'desc')
             ->first();
     }
 
@@ -150,7 +148,7 @@ class CartService
         $cart = $this->create_cart($data)->load_missing('items', 'items.product', 'items.variant');
 
         if (empty($user_id) && !empty($cart->cart_token)) {
-            $this->queue_guest_cart_cookie($cart->cart_token);
+            $this->create_cart_cookie($cart->cart_token);
         }
 
         return $cart;
@@ -255,7 +253,7 @@ class CartService
         }
 
         if (empty($dto->user_id)) {
-            $this->queue_guest_cart_cookie_forget();
+            $this->forget_cart_cookie();
         }
 
         return null;
@@ -303,7 +301,7 @@ class CartService
             'expires_at' => null,
         ]);
 
-        $this->queue_guest_cart_cookie_forget();
+        $this->forget_cart_cookie();
 
         return $cart;
     }
@@ -337,7 +335,7 @@ class CartService
 
             DB::commit();
 
-            $this->queue_guest_cart_cookie_forget();
+            $this->forget_cart_cookie();
 
             return $this->find($owned_cart->id);
         } catch (Exception $e) {
@@ -353,12 +351,12 @@ class CartService
         }
     }
 
-    protected function queue_guest_cart_cookie(string $token): void
+    protected function create_cart_cookie(string $token): void
     {
         CookieFacade::queue(CartConstants::COOKIE_TOKEN, $token, CartConstants::COOKIE_TOKEN_EXPIRE_IN_MINUTES);
     }
 
-    protected function queue_guest_cart_cookie_forget(): void
+    protected function forget_cart_cookie(): void
     {
         CookieFacade::expire(CartConstants::COOKIE_TOKEN);
     }
