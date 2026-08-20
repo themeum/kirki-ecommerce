@@ -14,6 +14,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection as DataCollection;
 
 use Exception;
+
 use function Kirki\Ecommerce\Framework\user;
 
 class CollectionService
@@ -162,6 +163,7 @@ class CollectionService
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['title', 'slug', 'description'], 'like', '%' . $search . '%');
             })
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {

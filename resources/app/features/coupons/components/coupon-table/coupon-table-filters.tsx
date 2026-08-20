@@ -2,20 +2,20 @@ import { memo } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { CouponListFilter} from '@/features/coupons';
 import { couponListOptions } from '@/features/coupons';
-import FilterPopup from '@/features/coupons/pages/coupon-table/filter-popup/filter-popup';
-import { useListParams } from '@/hooks';
+import FilterPopup from '@/features/coupons/components/coupon-table/filter-popup/filter-popup';
+import { useDataTableParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const CouponTableFilter = memo(() => {
-  const { params, setParam } = useListParams<CouponListFilter>(couponListOptions);
+  const { params, setParam, handleDateFilter } = useDataTableParams(couponListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -35,12 +35,16 @@ const CouponTableFilter = memo(() => {
         />
       </div>
       <ActionGroup>
-        <Select disabled>
-          <SelectTrigger cssOverride={styles.selectTrigger}>
-            <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
+        <DateRangePicker
+          value={{
+            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
+            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
+          }}
+          presets
+          clearable
+          onChange={handleDateFilter}
+          size="sm"
+        />
         <FilterPopup />
         <Button
           variant="outline"

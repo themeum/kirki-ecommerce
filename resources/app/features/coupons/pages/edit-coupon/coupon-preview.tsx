@@ -8,15 +8,14 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
-import { DATE_FORMATS, END_OF_DAY_TIME, formatDateValue, START_OF_DAY_TIME } from '@/libs/date';
+import { DATE_FORMATS, END_OF_DAY_TIME, formatDateValue, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
 
-const formatDisplayDate = (date?: string | null, time?: string | null) => formatDateValue(mergeDateTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
+const formatDisplayDate = (date?: string | null, time?: string | null) => formatDateValue(mergeDateAndTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
 
 type PreviewSectionProps = {
   title: string;

@@ -1,22 +1,22 @@
 import type { Matcher } from 'react-day-picker';
 
-import { parseDateValue } from '@/libs/date';
+import { toValidDate } from '@/libs/date';
 
 /**
- * Resolve the picker's min/max date strings into the calendar's navigation
- * bounds and the matchers that disable out-of-bounds days.
+ * Resolve the picker's min/max dates into the calendar's navigation bounds and
+ * the matchers that disable out-of-bounds days.
  *
  * @param minDate Earliest selectable date.
  * @param maxDate Latest selectable date.
  *
- * @returns Parsed bounds and disabled-day matchers.
+ * @returns Bounds and disabled-day matchers.
  */
 const getDateBounds = (
-  minDate: string | null | undefined,
-  maxDate: string | null | undefined,
+  minDate?: Date | null,
+  maxDate?: Date | null,
 ) => {
-  const startDate = parseDateValue(minDate);
-  const endDate = parseDateValue(maxDate);
+  const startDate = toValidDate(minDate);
+  const endDate = toValidDate(maxDate);
   const disabledDays: Matcher[] = [];
 
   if (startDate) {

@@ -3,6 +3,7 @@ import { Clock } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
+import type { PickerTriggerSize } from '@/components/ui/calendar/picker-trigger';
 import Flex from '@/components/ui/flex';
 import {
   InputGroup,
@@ -24,6 +25,7 @@ type TimePickerProps = {
   value: string | null;
   onChange?: (value: string | null) => void;
   hourCycle?: HourCycle;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   id?: string;
@@ -44,6 +46,12 @@ type TimeColumnProps = {
 
 const MERIDIEM_AM = 'AM';
 const MERIDIEM_PM = 'PM';
+
+const CLOCK_ICON_SIZES: Record<PickerTriggerSize, number> = {
+  sm: 12,
+  md: 14,
+  lg: 16,
+};
 
 const padTimePart = (part: number) => String(part).padStart(2, '0');
 
@@ -102,6 +110,7 @@ const TimePicker = ({
   value,
   onChange = noop,
   hourCycle = 24,
+  size = 'md',
   disabled = false,
   error = false,
   id,
@@ -179,14 +188,19 @@ const TimePicker = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor asChild>
-        <InputGroup ref={fieldRef} error={error} disabled={disabled} cssOverride={cssOverride}>
+        <InputGroup
+          ref={fieldRef}
+          error={error}
+          disabled={disabled}
+          cssOverride={mergeCss(styles.fieldSizes[size], cssOverride ?? {})}
+        >
           <InputGroupInput
             id={id}
             type="time"
             value={fieldValue}
             disabled={disabled}
             aria-invalid={error || undefined}
-            cssOverride={styles.timeInput}
+            cssOverride={mergeCss(styles.timeInput, styles.inputSizes[size])}
             onChange={(event) => {
               setFieldValue(event.target.value);
 
@@ -203,7 +217,7 @@ const TimePicker = ({
           />
           <InputGroupAddon align="inline-end" cssOverride={styles.timeAddon}>
             <InputGroupButton
-              size="icon-sm"
+              size={size === 'sm' ? 'icon-xs' : 'icon-sm'}
               variant="ghost"
               disabled={disabled}
               cssOverride={styles.timeTrigger}
@@ -213,7 +227,7 @@ const TimePicker = ({
               aria-label={__('Choose time', 'kirki-ecommerce')}
               onClick={() => setOpen((isOpen) => !isOpen)}
             >
-              <Text color="disabled"><Clock size={14} /></Text>
+              <Text color="disabled"><Clock size={CLOCK_ICON_SIZES[size]} /></Text>
             </InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
@@ -270,6 +284,34 @@ const styles = defineStyles({
   timeInput: {
     '&::-webkit-calendar-picker-indicator': {
       display: 'none',
+    },
+  },
+  fieldSizes: {
+    sm: {
+      minHeight: '32px',
+    },
+    md: {
+      minHeight: '36px',
+    },
+    lg: {
+      minHeight: '44px',
+    },
+  },
+  inputSizes: {
+    sm: {
+      minHeight: '32px',
+      padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
+      ...theme.typography.tiny(),
+    },
+    md: {
+      minHeight: '36px',
+      padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
+      ...theme.typography.small(),
+    },
+    lg: {
+      minHeight: '44px',
+      padding: `${theme.spacing[1]} ${theme.spacing[4]}`,
+      ...theme.typography.paragraph(),
     },
   },
   timeAddon: {

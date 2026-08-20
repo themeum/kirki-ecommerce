@@ -10,7 +10,7 @@ import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
-import CustomerTable from '@/features/customers/pages/customer-table/customer-table';
+import CustomerTable from '@/features/customers/components/customer-table/customer-table';
 import { CustomerInfoIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { flexCenter, scoped } from '@/theme/mixins';

@@ -3,12 +3,15 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
+use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 class Coupon extends Model
 {
+    use HasDateRangeFilter;
+
     protected $table = 'kirki_ecommerce_coupons';
     protected $primary_key = 'id';
 
@@ -113,7 +116,7 @@ class Coupon extends Model
             return null;
         }
 
-        return Date::parse($value)->set_timezone('UTC');
+        return Date::parse($value, 'UTC');
     }
 
     public function categories()

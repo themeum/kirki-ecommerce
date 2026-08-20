@@ -5,7 +5,9 @@ import { useId, useState } from 'react';
 import Calendar from '@/components/ui/calendar/calendar';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, {
+  type PickerTriggerSize,
+} from '@/components/ui/calendar/picker-trigger';
 import TimePicker, { type HourCycle } from '@/components/ui/calendar/time-picker';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
@@ -13,8 +15,9 @@ import { Separator } from '@/components/ui/separator';
 import {
   DATE_FORMATS,
   formatDateValue,
-  parseDateValue,
+  mergeDateAndTime,
   START_OF_DAY_TIME,
+  toValidDate,
 } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -22,14 +25,15 @@ import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type DateTimePickerProps = {
-  value: string | null;
-  onChange?: (value: string | null) => void;
+  value: Date | null;
+  onChange?: (value: Date | null) => void;
   placeholder?: string;
   displayFormat?: string;
-  minDate?: string | null;
-  maxDate?: string | null;
+  minDate?: Date | null;
+  maxDate?: Date | null;
   hourCycle?: HourCycle;
   clearable?: boolean;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   id?: string;
@@ -45,6 +49,7 @@ const DateTimePicker = ({
   maxDate,
   hourCycle = 24,
   clearable = false,
+  size = 'md',
   disabled = false,
   error = false,
   id,
@@ -54,10 +59,9 @@ const DateTimePicker = ({
   const [displayedMonth, setDisplayedMonth] = useState<Date | undefined>();
   const calendarId = useId();
 
-  const selectedDateTime = parseDateValue(value, DATE_FORMATS.DATE_TIME_INPUT);
+  const selectedDateTime = toValidDate(value);
   const { startDate, endDate, disabledDays } = getDateBounds(minDate, maxDate);
 
-  const datePart = formatDateValue(selectedDateTime);
   const timePart = formatDateValue(selectedDateTime, DATE_FORMATS.TIME_INPUT);
   const displayValue = formatDateValue(selectedDateTime, displayFormat);
   const showClear = clearable && Boolean(selectedDateTime) && !disabled;
@@ -80,7 +84,7 @@ const DateTimePicker = ({
       return;
     }
 
-    onChange(`${nextDatePart} ${timePart ?? START_OF_DAY_TIME}`);
+    onChange(mergeDateAndTime(nextDatePart, timePart ?? START_OF_DAY_TIME));
   };
 
   const handleTimeChange = (nextTime: string | null) => {
@@ -88,9 +92,10 @@ const DateTimePicker = ({
       return;
     }
 
-    const anchorDatePart = datePart ?? formatDateValue(getAnchorDate());
+    const anchorDatePart =
+      formatDateValue(selectedDateTime) ?? formatDateValue(getAnchorDate());
 
-    onChange(`${anchorDatePart} ${nextTime}`);
+    onChange(mergeDateAndTime(anchorDatePart ?? '', nextTime));
   };
 
   return (
@@ -104,6 +109,7 @@ const DateTimePicker = ({
         placeholder={placeholder}
         clearLabel={__('Clear date and time', 'kirki-ecommerce')}
         onClear={showClear ? () => onChange(null) : undefined}
+        size={size}
         disabled={disabled}
         error={error}
         cssOverride={cssOverride}
@@ -126,6 +132,7 @@ const DateTimePicker = ({
             value={timePart}
             onChange={handleTimeChange}
             hourCycle={hourCycle}
+            size={size}
             disabled={disabled}
           />
         </Flex>

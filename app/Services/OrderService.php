@@ -328,12 +328,7 @@ class OrderService
             ->when(!empty($filters->customer_id), function (QueryBuilder $query) use ($filters) {
                 return $query->where('customer_id', $filters->customer_id);
             })
-            ->when(!empty($filters->start_date), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('created_at', '>=', $filters->start_date);
-            })
-            ->when(!empty($filters->end_date), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('created_at', '<=', $filters->end_date);
-            })
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('order_status', $filters->status);
             })

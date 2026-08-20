@@ -4,6 +4,7 @@ export const DATE_FORMATS = {
   ATOM: "yyyy-MM-dd'T'HH:mm:ssxxx",
   YEAR_MONTH_DAY: 'yyyy/MM/dd',
   HUMAN_READABLE: 'MMMM d, yyyy',
+  HUMAN_READABLE_SHORT: 'd MMM, yy',
   HUMAN_READABLE_WITH_TIME: 'MMMM d, yyyy HH:mm a',
   DATE_TIME_INPUT: 'yyyy-MM-dd HH:mm',
   DATE_INPUT: 'yyyy-MM-dd',
@@ -45,7 +46,7 @@ export const parseDateValue = (
  * @returns Formatted string, or null.
  */
 export const formatDateValue = (
-  date: Date | null | undefined,
+  date?: Date | null,
   pattern: string = DATE_FORMATS.DATE_INPUT,
 ): string | null => {
   if (!date || !isValid(date)) {
@@ -53,4 +54,43 @@ export const formatDateValue = (
   }
 
   return format(date, pattern);
+};
+
+/** Formats to the same ATOM string the wire layer expects — no Date object survives into the payload. */
+export const formatAtomDateTime = (date?: Date | null): string | null =>
+  formatDateValue(date, DATE_FORMATS.ATOM);
+
+export const splitIsoDateTime = (iso?: string | null): { date: string; time: string } => {
+  if (!iso) {
+    return { date: '', time: '' };
+  }
+
+  const parsed = new Date(iso);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return { date: '', time: '' };
+  }
+
+  return {
+    date: format(parsed, DATE_FORMATS.DATE_INPUT),
+    time: format(parsed, DATE_FORMATS.TIME_INPUT),
+  };
+};
+
+export const mergeDateAndTime = (date: string, time: string): Date | null => {
+  if (!date || !time) {
+    return null;
+  }
+
+  const merged = new Date(`${date}T${time}`);
+
+  return Number.isNaN(merged.getTime()) ? null : merged;
+};
+
+export const toValidDate = (value?: Date | null): Date | null => {
+  if (!value || !isValid(value)) {
+    return null;
+  }
+
+  return value;
 };

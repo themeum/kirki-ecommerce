@@ -1,8 +1,11 @@
 import type { OnChangeFn, PaginationState, SortingState } from '@tanstack/react-table';
 import { useCallback, useMemo, useRef } from 'react';
 
-import type { ListParamsUpdate, UseListParamsOptions } from '@/hooks/use-list-params';
+import type { DateRangeValue } from '@/components/ui/calendar';
+import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import useListParams from '@/hooks/use-list-params';
+import { formatDateValue } from '@/libs/date';
+import { isDefined } from '@/utils/object';
 
 const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
   options: UseListParamsOptions<TFilter> = {},
@@ -36,7 +39,7 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
       const next =
         typeof updater === 'function' ? updater(paginationRef.current) : updater;
 
-      setParams({ page: next.pageIndex + 1, limit: next.pageSize } as ListParamsUpdate<TFilter>);
+      setParams({ page: next.pageIndex + 1, limit: next.pageSize });
     },
     [setParams],
   );
@@ -50,7 +53,7 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
         return;
       }
 
-      setParams({ sort_by: nextSort.id, sort_order: nextSort.desc ? 'desc' : 'asc' } as ListParamsUpdate<TFilter>);
+      setParams({ sort_by: nextSort.id, sort_order: nextSort.desc ? 'desc' : 'asc' });
     },
     [setParams],
   );
@@ -61,6 +64,22 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
     return JSON.stringify(rest);
   }, [params]);
 
+  const handleDateFilter = useCallback((value: DateRangeValue | null) => {
+    if (!isDefined(value) || !isDefined(value.from)) {
+      setParams({
+        from_date: null,
+        to_date: null,
+      });
+      return;
+    }
+
+    setParams({
+      from_date: formatDateValue(value.from),
+      to_date: formatDateValue(!isDefined(value.to) ? value.from : value.to),
+    });
+  }, [setParams]);
+
+
   return {
     params,
     pagination,
@@ -70,6 +89,7 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
     selectionResetKey,
     setParam,
     setParams,
+    handleDateFilter,
   };
 };
 

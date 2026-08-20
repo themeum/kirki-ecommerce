@@ -2,10 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class Variant extends Model
 {
+    use HasDateRangeFilter;
+    
     protected $table = 'kirki_ecommerce_variants';
     protected $primary_key = 'id';
 

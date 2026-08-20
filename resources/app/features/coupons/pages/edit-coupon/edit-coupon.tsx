@@ -17,7 +17,6 @@ import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
-import { splitIsoDateTime } from '@/features/coupons/lib/coupon-datetime';
 import CouponPreview from '@/features/coupons/pages/edit-coupon/coupon-preview';
 import ConditionsTab from '@/features/coupons/pages/edit-coupon/tabs/conditions-tab';
 import DetailsTab from '@/features/coupons/pages/edit-coupon/tabs/details-tab';
@@ -34,6 +33,7 @@ import {
 } from '@/features/coupons/services/coupon';
 import { buildProductSelection } from '@/features/products';
 import type { ErrorResponse } from '@/libs/api';
+import { splitIsoDateTime } from '@/libs/date';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { theme } from '@/theme';

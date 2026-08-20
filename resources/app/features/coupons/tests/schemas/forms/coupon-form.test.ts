@@ -1,14 +1,13 @@
 import { format } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
-import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import { CouponFormSchema } from '@/features/coupons/schemas/forms/coupon-form';
 import type { ProductSelection } from '@/features/products/schemas/catalog/product-selection';
-import { DATE_FORMATS } from '@/libs/date';
+import { DATE_FORMATS, mergeDateAndTime } from '@/libs/date';
 import { getDefaults } from '@/libs/zod';
 
 const expectedDateTime = (date: string, time: string) =>
-  format(mergeDateTime(date, time)!, DATE_FORMATS.ATOM);
+  format(mergeDateAndTime(date, time)!, DATE_FORMATS.ATOM);
 
 describe('CouponFormSchema', () => {
   const base = {
@@ -285,10 +284,10 @@ describe('CouponFormSchema', () => {
     const result = CouponFormSchema.parse({
       ...base,
       customer_include_eligibility: 'guests',
-      customer_exclude_eligibility: 'all-customers',
+      customer_exclude_eligibility: 'customers',
     });
     expect(result.customer_include_eligibility).toBe('guests');
-    expect(result.customer_exclude_eligibility).toBe('all-customers');
+    expect(result.customer_exclude_eligibility).toBe('customers');
     expect(result.customer_ids).toEqual([]);
     expect(result.exclude_customer_ids).toEqual([]);
   });

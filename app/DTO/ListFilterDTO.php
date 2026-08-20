@@ -20,4 +20,10 @@ class ListFilterDTO extends DTO
 
     /** @var string */
     public $sort_order = 'desc';
+
+    /** @var string */
+    public $from_date;
+
+    /** @var string */
+    public $to_date;
 }

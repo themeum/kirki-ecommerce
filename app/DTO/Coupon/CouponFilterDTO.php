@@ -15,12 +15,6 @@ class CouponFilterDTO extends ListFilterDTO
     /** @var string */
     public $discount_type;
 
-    /** @var bool|int */
+    /** @var bool */
     public $is_active;
-
-    /** @var string */
-    public $start_date;
-
-    /** @var string */
-    public $end_date;
 }
