@@ -13,6 +13,7 @@ import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types/pages/common';
 import { makeSuggestionList } from '@/utils/common';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type FilterValue = string | number | (string | number)[];
@@ -66,6 +67,10 @@ const ProductTableFilterBar = memo(() => {
   });
 
   const getFilterValue = (key: ProductFilterKey): FilterValue => {
+    if (!isDefined(params[key])) {
+      return '';
+    }
+
     if (key === 'category_ids') {
       return (params.category_ids ?? []);
     }
@@ -81,6 +86,7 @@ const ProductTableFilterBar = memo(() => {
     if (key === 'stock_status') {
       return params.stock_status ?? '';
     }
+
     return (params[key] ?? '');
   };
 

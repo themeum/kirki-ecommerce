@@ -1,8 +1,9 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
-import TextField from '@/components/form/text-field';
+import NumberField from '@/components/form/number-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
@@ -52,12 +53,17 @@ const UsageLimitRow = ({
             <InfoIcon />
           </Tooltip>
         </Flex>
-        <TextField
-          name={inputName}
-          disabled={!isEnabled}
-          cssOverride={styles.rowInput}
-        />
+        {isEnabled && (
+          <NumberField
+            name={inputName}
+            disabled={!isEnabled}
+            cssOverride={styles.rowInput}
+            showError={false}
+            min={1}
+          />
+        )}
       </Flex>
+      <FieldError errors={[formState.errors[inputName]]} />
     </Flex>
   );
 };

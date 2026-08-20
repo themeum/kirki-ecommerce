@@ -1,6 +1,6 @@
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import type { ListFilterConfig } from '@/types/list-state';
-import { parseDateString, parseNumberArray, parseStatus, parseString } from '@/types/list-state';
+import { parseNumberArray, parseStatus, parseString } from '@/types/list-state';
 
 type UnitPriceValue = {
   total_unit_amount?: number | string | null;
@@ -36,8 +36,6 @@ const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
     'collection_ids',
     'status',
     'stock_status',
-    'from_date',
-    'to_date',
   ],
   parsers: {
     search: { parse: parseString },
@@ -46,8 +44,6 @@ const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
     collection_ids: { parse: parseNumberArray },
     status: { parse: parseStatus },
     stock_status: { parse: parseString },
-    from_date: { parse: parseDateString },
-    to_date: { parse: parseDateString },
   },
 };
 

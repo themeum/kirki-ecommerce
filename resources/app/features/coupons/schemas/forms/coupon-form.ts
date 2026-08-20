@@ -86,13 +86,13 @@ const CouponFormShape = z.object({
   has_usage_limit: z.boolean().default(false),
   usage_limit: requiredWhen(
     z.number().nullish().default(null),
-    (values) => Boolean(values.has_usage_limit) && isEmptyValue(values.usage_limit),
+    (values) => Boolean(values.has_usage_limit) && (isEmptyValue(values.usage_limit) || Number(values.usage_limit) <= 0),
     __('Usage limit required', 'kirki-ecommerce'),
   ),
   has_customer_limit: z.boolean().default(false),
   customer_limit: requiredWhen(
     z.number().nullish().default(null),
-    (values) => Boolean(values.has_customer_limit) && isEmptyValue(values.customer_limit),
+    (values) => Boolean(values.has_customer_limit) && (isEmptyValue(values.customer_limit) || Number(values.customer_limit) <= 0),
     __('Customer usage limit required', 'kirki-ecommerce'),
   ),
   eligible_item_type: requiredWhen(

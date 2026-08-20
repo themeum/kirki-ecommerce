@@ -23,8 +23,12 @@ class UpdateCartItemAction
 
     public function execute(UpdateCartItemDTO $dto)
     {
-        $cart = $this->cart_service->get_cart($dto->customer_id, $dto->token);
+        $cart = $this->cart_service->get_cart($dto->user_id, $dto->token);
         $item = $this->cart_service->find_item($dto->item_id);
+
+        if (empty($cart)) {
+            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
+        }
 
         if (empty($item)) {
             throw new NotFoundException(__('Cart item not found.', 'kirki-ecommerce'));
@@ -36,6 +40,6 @@ class UpdateCartItemAction
 
         $this->cart_service->update_item_quantity($cart->id, $dto->item_id, $dto->quantity);
 
-        return $this->cart_service->get_cart($dto->customer_id, $dto->token);
+        return $this->cart_service->get_cart($dto->user_id, $dto->token);
     }
 }

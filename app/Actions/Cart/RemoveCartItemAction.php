@@ -19,6 +19,6 @@ class RemoveCartItemAction
     {
         $this->cart_service->remove_item($dto);
 
-        return $this->cart_service->get_cart($dto->customer_id, $dto->token);
+        return $this->cart_service->get_cart($dto->user_id, $dto->token);
     }
 }

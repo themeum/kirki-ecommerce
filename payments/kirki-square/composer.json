@@ -1,0 +1,8 @@
+{
+    "name": "kirki-apps/kirki-square",
+    "autoload": {
+        "psr-4": {
+            "Kirki\\Ecommerce\\Payments\\": "src/"
+        }
+    }
+}

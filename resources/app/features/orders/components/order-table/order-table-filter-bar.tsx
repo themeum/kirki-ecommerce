@@ -49,7 +49,6 @@ const OrderTableFilterBar = memo(() => {
     return params[key];
   }
 
-
   const handleFilterChange = (val: FilterValue, key: OrderFilterKey) => {
     setParam(key, val || undefined);
   };

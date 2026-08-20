@@ -9,7 +9,7 @@ class Cart extends Model
     protected $table = 'kirki_ecommerce_carts';
 
     protected $fillable = [
-        'customer_id',
+        'user_id',
         'cart_token',
         'currency_code',
         'base_currency_code',
@@ -28,7 +28,7 @@ class Cart extends Model
     ];
 
     protected $casts = [
-        'customer_id' => 'integer',
+        'user_id' => 'integer',
         'items_count' => 'integer',
         'expires_at' => 'datetime',
         'discount_details' => 'json',
@@ -41,11 +41,6 @@ class Cart extends Model
     public function items()
     {
         return $this->has_many(CartItem::class, 'cart_id');
-    }
-
-    public function customer()
-    {
-        return $this->belongs_to(Customer::class, 'customer_id');
     }
 
     public function currency()
