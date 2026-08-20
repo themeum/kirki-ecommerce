@@ -1,0 +1,195 @@
+info:
+  name: Get Order By Id
+  type: http
+  seq: 5
+  tags:
+    - account
+
+http:
+  method: GET
+  url: "{{baseUrl}}/account/orders/42"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/account/orders/42"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 42,
+              "uuid": "d9249ee1-b100-4f2e-b34b-a5caf2ef9725",
+              "order_number": "ORD-695CEA20C3A9D",
+              "customer_id": 7,
+              "status": "pending",
+              "fulfillment_status": "unfulfilled",
+              "is_refund_initiated": false,
+              "is_manual": false,
+              "currency_code": "USD",
+              "totals": {
+                "invoiced_subtotal": 79.00,
+                "invoiced_subtotal_money_object": { "raw": 79.00, "display": "$79.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_subtotal": 79.00,
+                "base_subtotal_money_object": { "raw": 79.00, "display": "$79.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_shipping": 10.00,
+                "invoiced_shipping_money_object": { "raw": 10.00, "display": "$10.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping": 10.00,
+                "base_shipping_money_object": { "raw": 10.00, "display": "$10.00", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_discount": 0,
+                "invoiced_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_discount": 0,
+                "base_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "discount_details": null,
+                "invoiced_tax": 0.58,
+                "invoiced_tax_money_object": { "raw": 0.58, "display": "$0.58", "currency": { "code": "USD", "symbol": "$" } },
+                "base_tax": 0.58,
+                "base_tax_money_object": { "raw": 0.58, "display": "$0.58", "currency": { "code": "USD", "symbol": "$" } },
+                "invoiced_total": 89.58,
+                "invoiced_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } },
+                "base_total": 89.58,
+                "base_total_money_object": { "raw": 89.58, "display": "$89.58", "currency": { "code": "USD", "symbol": "$" } }
+              },
+              "items_count": 1,
+              "items": [
+                {
+                  "id": 58,
+                  "product_id": 12,
+                  "variant_id": 35,
+                  "product_name": "Classic Cotton T-Shirt",
+                  "variant_name": "Red, M",
+                  "quantity": 2,
+                  "invoiced_price": 39.50,
+                  "invoiced_price_money_object": { "raw": 39.50, "display": "$39.50", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_price": 39.50,
+                  "base_price_money_object": { "raw": 39.50, "display": "$39.50", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_subtotal": 79.00,
+                  "invoiced_subtotal_money_object": { "raw": 79.00, "display": "$79.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_subtotal": 79.00,
+                  "base_subtotal_money_object": { "raw": 79.00, "display": "$79.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_discount_amount": 0,
+                  "invoiced_discount_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_discount_amount": 0,
+                  "base_discount_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "invoiced_total": 79.00,
+                  "invoiced_total_money_object": { "raw": 79.00, "display": "$79.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_total": 79.00,
+                  "base_total_money_object": { "raw": 79.00, "display": "$79.00", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_rate": 0.0073,
+                  "invoiced_tax_total": 0.58,
+                  "invoiced_tax_total_money_object": { "raw": 0.58, "display": "$0.58", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_tax_total": 0.58,
+                  "base_tax_total_money_object": { "raw": 0.58, "display": "$0.58", "currency": { "code": "USD", "symbol": "$" } },
+                  "tax_breakdown": [],
+                  "sku": "T-SHIRT-1-4",
+                  "image": null
+                }
+              ],
+              "shipping_address": {
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "742 Evergreen Terrace",
+                "address_line2": null,
+                "city": "Springfield",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90210",
+                "phone": "+1-555-0101",
+                "email": "sarah.johnson@example.com"
+              },
+              "is_billing_same_as_shipping": true,
+              "billing_address": {
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "742 Evergreen Terrace",
+                "address_line2": null,
+                "city": "Springfield",
+                "state": "CA",
+                "country": "US",
+                "postal_code": "90210",
+                "phone": "+1-555-0101",
+                "email": "sarah.johnson@example.com"
+              },
+              "payment_provider": "paypal",
+              "payment_provider_name": "PayPal",
+              "payment_provider_icon": "{{baseUrl}}/payments/kirki-paypal/assets/logo.svg",
+              "payment_provider_is_offline": false,
+              "payment_status": "unpaid",
+              "payment_next_step": {
+                "type": "redirect",
+                "value": "https://www.paypal.com/checkoutnow?token=EC-6XX123456X789012Y"
+              },
+              "shipping_method": "method-0001",
+              "shipping_method_name": "Standard Delivery",
+              "shipping_method_type": "flat_rate",
+              "customer_notes": "Please leave at the front door.",
+              "shipping_tracking": {
+                "carrier": null,
+                "tracking_number": null,
+                "tracking_url": null
+              },
+              "refunds": [],
+              "archived_at": null,
+              "created_at": "2026-08-18 10:19:28"
+            },
+            "message": "Order retrieved successfully."
+          }
+  - name: 404 Response
+    description: Order belongs to another customer, or the id does not exist, or the requester has no linked Customer record — all three fail identically
+    request:
+      url: "{{baseUrl}}/account/orders/42"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Order not found."
+          }
+
+docs: |-
+  ## Get Order By Id (Account)
+
+  Returns the full details of a single order, but only when it belongs to the
+  **currently authenticated customer**. Identity always comes from the
+  logged-in session (`AuthMiddleware` + resolving the `Customer` linked to
+  `user()->get_id()`), never from client input.
+
+  - An order that exists but belongs to a **different** customer returns the
+    exact same `404` / `"Order not found."` response as an order id that
+    doesn't exist at all — ownership is never revealed to the requester.
+  - If the authenticated user has no linked `Customer` record, every request
+    to this endpoint fails the same way (`404`) — there's no order they could
+    own.
+  - Requires a logged-in WordPress user (401 otherwise).
+  - The response body intentionally **omits** the admin-only `admin_notes` and
+    `flags` fields present on the admin order details response
+    (`App\Resources\Order\OrderResource`) — this endpoint uses its own
+    `App\Resources\Site\Account\OrderResource`, which lists only
+    customer-safe fields explicitly rather than inheriting and subtracting.
+  - Includes `payment_next_step` (same shape as the checkout-confirmation
+    response: `{ "type": "redirect" | "html", "value": "..." }`), so an unpaid
+    order can offer a "pay now" retry. It resolves to `null` when the order's
+    `payment_provider` has no matching registered/enabled gateway.

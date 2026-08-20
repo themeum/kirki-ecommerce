@@ -261,4 +261,6 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/account/profile', [AccountController::class, 'update_profile']);
     Route::put('/account/password-change', [AccountController::class, 'change_password']);
     Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+    Route::get('/account/orders', [AccountController::class, 'get_orders']);
+    Route::get('/account/orders/{id}', [AccountController::class, 'show_order']);
 });

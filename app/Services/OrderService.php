@@ -176,6 +176,30 @@ class OrderService
     }
 
     /**
+     * Find an order by ID, scoped to a specific customer, or throw an exception.
+     *
+     * A null or empty $customer_id (e.g. an authenticated user with no linked
+     * Customer record) never matches, including a guest order whose own
+     * customer_id is null.
+     *
+     * @param int $id
+     * @param int|null $customer_id
+     * @return Order
+     *
+     * @throws NotFoundException
+     */
+    public function find_order_for_customer_or_fail($id, $customer_id)
+    {
+        $order = $this->find_order($id);
+
+        if (!$order || empty($customer_id) || (int) $order->customer_id !== (int) $customer_id) {
+            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return $order;
+    }
+
+    /**
      * Update an order by ID.
      *
      * @param UpdateOrderDTO $dto
