@@ -3,8 +3,6 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Payment\PaymentProvider;
-use Kirki\Ecommerce\Framework\Supports\Str;
 
 defined('ABSPATH') || exit;
 
@@ -14,6 +12,12 @@ defined('ABSPATH') || exit;
  */
 class SquareTransactionBuilder
 {
+    /**
+     * Build Square order line_items for an order's items, shipping, and tax.
+     *
+     * @param Order $order
+     * @return array
+     */
     public static function build_line_items(Order $order): array
     {
         $line_items = [];
@@ -35,7 +39,7 @@ class SquareTransactionBuilder
                 'name' => __('Shipping Charge', 'kirki-ecommerce-square'),
                 'quantity' => '1',
                 'base_price_money' => [
-                    'amount' => (int) $item->invoiced_shipping_total,
+                    'amount' => (int) $order->invoiced_shipping_total,
                     'currency' => strtoupper($order->currency_code)
                 ],
             ];
@@ -46,7 +50,7 @@ class SquareTransactionBuilder
                 'name' => __('Tax', 'kirki-ecommerce-square'),
                 'quantity' => '1',
                 'base_price_money' => [
-                    'amount' => (int) $item->invoiced_tax_total,
+                    'amount' => (int) $order->invoiced_tax_total,
                     'currency' => strtoupper($order->currency_code)
                 ],
             ];

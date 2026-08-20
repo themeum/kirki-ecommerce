@@ -17,12 +17,11 @@ use Kirki\Ecommerce\Framework\Validation\Validator;
 defined('ABSPATH') || exit;
 
 /**
- * Razorpay payment gateway.
+ * Square payment gateway.
  */
 class Square extends PaymentProvider
 {
     protected ?SquareClient $client = null;
-    protected Order $order;
 
     public function __construct()
     {
@@ -68,7 +67,7 @@ class Square extends PaymentProvider
      * Pay for an order.
      *
      * @param Order $order
-     * @return PaymentActionDTO returns HTML markup
+     * @return PaymentActionDTO
      * @throws Exception
      */
     public function pay(Order $order)
@@ -78,8 +77,6 @@ class Square extends PaymentProvider
         }
 
         try {
-            $this->client = $this->get_client();
-
             $payload = [
                 'idempotency_key' => SquareConstant::PREFIX . $order->uuid,
                 'order' => [
@@ -104,7 +101,7 @@ class Square extends PaymentProvider
                 ]
             ];
 
-            $response = $this->client->create_payment_link($payload);
+            $response = $this->get_client()->create_payment_link($payload);
 
             if (empty($response['payment_link']['long_url'])) {
                 throw new Exception(__('Square checkout link not found.', 'kirki-ecommerce-square'));
@@ -159,14 +156,13 @@ class Square extends PaymentProvider
     }
 
     /**
-     * Handle a Razorpay webhook notification.
+     * Handle a Square webhook notification.
      *
      * @return bool True if the notification was processed, false if ignored.
      * @throws Exception If the payload is missing, invalid, or the API lookup fails.
      */
     public function webhook()
     {
-        $this->client = $this->get_client();
         $payload = $this->verify_and_parse_notification();
 
         $allowed_event_types = [
@@ -184,7 +180,7 @@ class Square extends PaymentProvider
         $reference_id = $payment->reference_id ?? null;
 
         if (!$reference_id && !empty($payment->order_id)) {
-            $order_details = $this->client->fetch_square_ref_id($payment->order_id);
+            $order_details = $this->get_client()->get_order($payment->order_id);
             $reference_id = $order_details['order']['reference_id'] ?? null;
         }
 
@@ -193,6 +189,11 @@ class Square extends PaymentProvider
         }
 
         $order = OrderManager::find_by_uuid($reference_id);
+
+        if (!$order) {
+            throw new Exception(__('Square Error: Order Not Found.', 'kirki-ecommerce-square'));
+        }
+
         if ($order->payment_status === PaymentStatus::PAID) {
             return false;
         }
@@ -202,23 +203,27 @@ class Square extends PaymentProvider
     }
 
     /**
-     * Razorpay API client.
+     * Square API client.
      *
      * @return SquareClient
      * @throws Exception If credentials are missing.
      */
     protected function get_client(): SquareClient
     {
+        if ($this->client) {
+            return $this->client;
+        }
+
         $location_id = $this->settings['location_id'] ?? '';
         $access_token = $this->settings['access_token'] ?? '';
         $signature_key = $this->settings['signature_key'] ?? '';
-        $sandbox = $this->settings['sandbox'] ?? true;
+        $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
         if (empty($location_id) || empty($access_token) || empty($signature_key)) {
             throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
         }
 
-        return new SquareClient($location_id, $access_token, $signature_key, $sandbox);
+        return $this->client = new SquareClient($location_id, $access_token, $signature_key, $sandbox);
     }
 
     /**
@@ -238,7 +243,7 @@ class Square extends PaymentProvider
             throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-square'));
         }
 
-        if (!$this->client->is_verified($payload, $this->webhook_url())) {
+        if (!$this->get_client()->is_verified($payload, $this->webhook_url())) {
             throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
         }
 
@@ -246,9 +251,10 @@ class Square extends PaymentProvider
     }
 
     /**
-     * Update the order based on a Razorpay payment event's status.
+     * Update the order based on a Square payment event's status.
      *
-     * @param object $payload
+     * @param object $payload The payment object from the Square webhook event.
+     * @param Order $order The local order.
      * @return void
      * @throws Exception If the order update fails.
      */
@@ -287,6 +293,13 @@ class Square extends PaymentProvider
     }
 
 
+    /**
+     * Record the Square payment ID and raw payment payload against the local order.
+     *
+     * @param Order $order The local order.
+     * @param object $payload The payment object from the Square webhook event.
+     * @return void
+     */
     protected function record_transaction(Order $order, object $payload): void
     {
         OrderManager::set_transaction_id($order->id, $payload->id);

@@ -3,7 +3,7 @@
 /**
  * Plugin Name:       Kirki Square
  * Plugin URI:        https://kirki.com/
- * Description:       Razorpay payment gateway for Kirki ecommerce.
+ * Description:       Square payment gateway for Kirki ecommerce.
  * Version:           1.0.0
  * Author:            Kirki
  * Author URI:        https://kirki.com/
@@ -25,6 +25,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 add_action('plugins_loaded', 'kirki_square_register_payment_provider');
 register_activation_hook(__FILE__, 'kirki_square_register_payment_provider');
 
+/**
+ * Register the Square payment provider with kirki-ecommerce.
+ *
+ * @return void
+ */
 function kirki_square_register_payment_provider()
 {
     if (!class_exists(HookNames::class)) {

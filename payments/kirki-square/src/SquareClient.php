@@ -3,27 +3,25 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
-use InvalidArgumentException;
-use Kirki\Ecommerce\App\Models\Order;
-use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
 
 /**
- * HTTP client for the Razorpay Payments API.
+ * HTTP client for the Square Payments API.
  */
 class SquareClient
 {
-    protected $location_id;
-    protected $access_token;
-    protected $sandbox;
-    protected $signature_key;
+    protected string $location_id;
+    protected string $access_token;
+    protected bool $sandbox;
+    protected string $signature_key;
 
     /**
-     * @param string $location_id
-     * @param string $access_token
-     * @param string $signature_key
+     * @param string $location_id Square location ID.
+     * @param string $access_token Square API access token.
+     * @param string $signature_key Signature key used to verify webhook notifications.
+     * @param bool $sandbox Whether to use the sandbox API endpoint.
      */
     public function __construct(string $location_id, string $access_token, string $signature_key, bool $sandbox = false)
     {
@@ -34,44 +32,60 @@ class SquareClient
     }
 
     /**
-     * Send a POST request to the Razorpay API.
+     * Verify a webhook payload against Square's HMAC-SHA256 signature header.
      *
-     * @param array $payload
-     * @param string $endpoint
-     * @return mixed Decoded JSON response.
-     * @throws Exception If the request fails.
+     * @param string $raw_payload The raw webhook request body.
+     * @param string $webhook_url The notification URL configured in Square, as sent to it verbatim.
+     * @return bool
      */
-    public function post(array $payload, string $endpoint)
-    {
-        $response = Http::with_token($this->get_auth(), 'Basic')
-            ->with_body(wp_json_encode($payload))
-            ->post($endpoint);
-
-        if ($response->failed()) {
-            throw new Exception($response->body());
-        }
-
-        return $response->json();
-    }
-
-
     public function is_verified(string $raw_payload, string $webhook_url): bool
     {
         $given_signature = $_SERVER['HTTP_X_SQUARE_HMACSHA256_SIGNATURE'] ?? $_SERVER['HTTP_X_SQUARE_SIGNATURE'] ?? '';
 
-        if (empty(strlen($raw_payload)) || empty(strlen($given_signature))) {
+        if ('' === $raw_payload || '' === $given_signature) {
             return false;
         }
 
-        $payload =  $webhook_url . $raw_payload;
-
-        $hash = hash_hmac('sha256', $payload, $this->signature_key, true);
+        $hash = hash_hmac('sha256', $webhook_url . $raw_payload, $this->signature_key, true);
         $expected_signature = base64_encode($hash);
 
         return $expected_signature === $given_signature;
     }
 
-    public function send(string $endpoint, string $method, array $payload = [])
+    /**
+     * Create a Square Payment Link for an order.
+     *
+     * @param array $payload The payment link request payload.
+     * @return array The decoded JSON response, including the payment_link.
+     * @throws Exception If the API request fails.
+     */
+    public function create_payment_link(array $payload): array
+    {
+        return $this->send($this->payment_link_url(), SquareConstant::POST_METHOD, $payload);
+    }
+
+    /**
+     * Fetch an order from Square's Orders API.
+     *
+     * @param string $square_order_id Square's order ID.
+     * @return array The decoded JSON response.
+     * @throws Exception If the API request fails.
+     */
+    public function get_order(string $square_order_id): array
+    {
+        return $this->send($this->order_url($square_order_id), SquareConstant::GET_METHOD);
+    }
+
+    /**
+     * Send a request to the Square API and decode the JSON response.
+     *
+     * @param string $endpoint The full request URL.
+     * @param string $method Either SquareConstant::POST_METHOD or SquareConstant::GET_METHOD.
+     * @param array $payload The request payload, for POST requests.
+     * @return array The decoded JSON response.
+     * @throws Exception If the API request fails.
+     */
+    protected function send(string $endpoint, string $method, array $payload = []): array
     {
         $request = Http::with_token($this->access_token)
                     ->with_headers(['Square-Version' => SquareConstant::SQUARE_VERSION]);
@@ -87,28 +101,31 @@ class SquareClient
         return $response->json();
     }
 
+    /**
+     * Endpoint for creating a new payment link.
+     * @return string
+     */
     protected function payment_link_url(): string
     {
         return $this->get_base_url() . SquareConstant::PAYMENT_LINK;
     }
 
-    public function create_payment_link(array $payload)
+    /**
+     * Endpoint for a specific Square order.
+     *
+     * @param string $square_order_id Square's order ID.
+     * @return string
+     */
+    protected function order_url(string $square_order_id): string
     {
-        return $this->send($this->payment_link_url(), SquareConstant::POST_METHOD, $payload);
+        return $this->get_base_url() . SquareConstant::ORDER_LINK . "/{$square_order_id}";
     }
 
-    public function fetch_square_ref_id(string $order_id)
+    /**
+     * @return string The API base URL for the configured environment.
+     */
+    protected function get_base_url(): string
     {
-        return $this->send($this->retrieve_order_url($order_id), SquareConstant::GET_METHOD);
-    }
-
-    protected function retrieve_order_url(string $order_id)
-    {
-        return $this->get_base_url() . SquareConstant::ORDER_LINK . "/{$order_id}";
-    }
-
-    protected function get_base_url()
-    {
-        return  $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
+        return $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
     }
 }
