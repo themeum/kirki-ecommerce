@@ -5,8 +5,10 @@
 @use '../mixins' as *;
 
 .kecom-product-page {
-  margin: 0px;
-  padding-block: $spacing-10;
+  &.kecom-page-wrapper {
+    margin: 0px;
+    padding-block: $spacing-10;
+  }
 
   .kecom-product-grid {
     display: grid;
