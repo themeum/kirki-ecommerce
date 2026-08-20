@@ -5,8 +5,8 @@ namespace Kirki\Ecommerce\App\Traits;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
-use Kirki\Ecommerce\Framework\Supports\Facades\Date;
-use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+
+use function Kirki\Ecommerce\App\to_utc_datetime_string;
 
 trait HasDateRangeFilter
 {
@@ -25,10 +25,10 @@ trait HasDateRangeFilter
         return $query->when(!empty($from_date), function (QueryBuilder $query) use ($from_date, $to_date, $column) {
             if (!empty($from_date)) {
                 if (!empty($to_date)) {
-                    return $query->where_between($column, [Date::parse($from_date, 'UTC')->to_date_time_string(), Date::parse($to_date, 'UTC')->to_date_time_string()]);
+                    return $query->where_between($column, [to_utc_datetime_string($from_date), to_utc_datetime_string($to_date)]);
                 }
 
-                return $query->where($column, '>=', Date::parse($from_date, 'UTC')->to_date_time_string());
+                return $query->where($column, '>=', to_utc_datetime_string($from_date));
             }
         });
     }
