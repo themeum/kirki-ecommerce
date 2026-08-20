@@ -190,11 +190,16 @@ class SiteController
             ])->layout(false);
         }
 
-        $customer = customer();
-        $payment_gateways =  Payment::get_available_providers();
         $cart = $cart_service->get_current_cart();
-        $cart = CartResource::make($cart);
 
+        if (! $cart || empty($cart->items) || $cart->items->is_empty()) {
+            wp_safe_redirect(Url::get_cart_url());
+            exit;
+        }
+
+        $customer = customer();
+        $payment_gateways = Payment::get_available_providers();
+        $cart = CartResource::make($cart);
 
         $data = [
             'customer'         => $customer,
