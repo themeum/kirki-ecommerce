@@ -65,6 +65,9 @@ $title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-e
                 <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.phone">
                     <div><span><?php esc_html_e('Phone:', 'kirki-ecommerce'); ?> <span x-text="getAddress('<?php echo esc_attr($type); ?>')?.phone"></span></span></div>
                 </template>
+                <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.email">
+                    <div><span><?php esc_html_e('Email:', 'kirki-ecommerce'); ?> <span x-text="getAddress('<?php echo esc_attr($type); ?>')?.email"></span></span></div>
+                </template>
             </address>
         </template>
         <template x-if="!hasAddress('<?php echo esc_attr($type); ?>')">
