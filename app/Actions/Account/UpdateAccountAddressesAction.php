@@ -2,9 +2,12 @@
 
 namespace Kirki\Ecommerce\App\Actions\Account;
 
+use Exception;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Account\UpdateAddressPayloadDTO;
+use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CustomerService;
@@ -40,18 +43,31 @@ class UpdateAccountAddressesAction
     {
         $customer = $this->customer_service->find_by_user_id($data->user_id);
 
-        if (empty($customer) || empty($customer->shipping_address) || empty($customer->billing_address)) {
-            throw new NotFoundException(__('Customer address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        if (empty($customer)) {
+            $customer = $this->customer_service->create(CreateCustomerDTO::from_array([
+                'first_name' => $data->first_name,
+                'last_name'  => $data->last_name,
+                'email'      => $data->email,
+                'user_id'    => $data->user_id,
+            ]));
         }
 
         DB::begin_transaction();
 
         try {
-            if ($data->type === AddressType::BILLING) {
-                $this->update_billing_address($customer, $data);
-            } else {
-                $this->update_shipping_address($customer, $data);
+            $address_data = $data->all();
+
+            if ($data->type === AddressType::BILLING && $data->is_billing_same_as_shipping && !empty($customer->shipping_address)) {
+                $this->customer_service->set_billing_same_as_shipping($customer->id, $data->is_billing_same_as_shipping);
+                $address_data = $customer->shipping_address->to_array();
             }
+
+            if ($data->type === AddressType::BILLING && $data->is_billing_same_as_shipping && empty($customer->shipping_address)) {
+                throw new Exception(__('Shipping address is not set.', 'kirki-ecommerce'));
+            }
+                
+
+            $this->update_address($customer, $address_data, $data->type);
 
             DB::commit();
 
@@ -63,31 +79,21 @@ class UpdateAccountAddressesAction
         }
     }
 
-    protected function update_shipping_address(Customer $customer, UpdateAddressPayloadDTO $data)
+    protected function update_address(Customer $customer, array $address_data, string $type)
     {
-        $payload = UpdateAddressDTO::from_array($data->all());
-        $payload->id = $customer->shipping_address->id;
-        $payload->customer_id = $customer->id;
-        $payload->type = AddressType::SHIPPING;
+        if (empty($customer->{$type . '_address'})) {
+            $payload = CreateAddressDTO::from_array($address_data);
+            $payload->customer_id = $customer->id;
+            $payload->type = $type;
 
-        $this->address_service->update($payload);
-    }
+            $this->address_service->create($payload);
+        } else {
+            $payload = UpdateAddressDTO::from_array($address_data);
+            $payload->id = $customer->{$type . '_address'}->id;
+            $payload->customer_id = $customer->id;
+            $payload->type = $type;
 
-    protected function update_billing_address(Customer $customer, UpdateAddressPayloadDTO $data)
-    {
-        $is_billing_same_as_shipping = (bool) $data->is_billing_same_as_shipping;
-
-        $this->customer_service->set_billing_same_as_shipping($customer->id, $is_billing_same_as_shipping);
-
-        $billing_source = $is_billing_same_as_shipping
-            ? $customer->shipping_address->to_array()
-            : $data->all();
-
-        $payload = UpdateAddressDTO::from_array($billing_source);
-        $payload->id = $customer->billing_address->id;
-        $payload->customer_id = $customer->id;
-        $payload->type = AddressType::BILLING;
-
-        $this->address_service->update($payload);
+            $this->address_service->update($payload);
+        }
     }
 }
