@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Assets;
@@ -26,8 +27,8 @@ class OrderListResource extends Resource
             'base_total' => Money::prepare_amount_from_minor($this->base_total),
             'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             'status' => $this->order_status,
-            'status_desc' => $this->get_order_status_desc(),
             'fulfillment_status' => $this->fulfillment_status,
+            'fulfillment_status_desc' => $this->get_fulfillment_status_desc(),
             'is_refund_initiated' => $this->is_refund_initiated,
             'payment_status' => $this->payment_status,
             'payment_provider' => $this->payment_provider,
@@ -65,24 +66,30 @@ class OrderListResource extends Resource
     }
 
     /**
-     * Get order status description.
+     * Get fulfillment status description.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
-    protected function get_order_status_desc()
+    protected function get_fulfillment_status_desc()
     {
         // TODO: need to populate this based on order status, payment status.
-        switch ($this->order_status) {
-            case 'pending':
-                return __('Ready to ship', 'kirki-ecommerce');
-            case 'processing':
+        switch ($this->fulfillment_status) {
+            case FulfillmentStatus::UNFULFILLED:
+                return __('Not fulfilled', 'kirki-ecommerce');
+            case FulfillmentStatus::PROCESSING:
                 return __('In progress', 'kirki-ecommerce');
-            case 'shipped':
+            case FulfillmentStatus::SHIPPED:
                 return __('Shipped', 'kirki-ecommerce');
-            case 'delivered':
-                return __('Delivered', 'kirki-ecommerce');
-            case 'cancelled':
+            case FulfillmentStatus::DELIVERED:
+                return sprintf(__('Delivered on %s', 'kirki-ecommerce'), date('M d, Y', strtotime($this->delivered_at)));
+            case FulfillmentStatus::ON_HOLD:
+                return __('On hold', 'kirki-ecommerce');
+            case FulfillmentStatus::CANCELLED:
                 return __('Cancelled', 'kirki-ecommerce');
+            case FulfillmentStatus::RETURNED:
+                return __('Returned', 'kirki-ecommerce');
             default:
                 return '';
         }

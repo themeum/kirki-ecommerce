@@ -21,7 +21,7 @@ if (empty($order)) {
 $order_uuid = $order['uuid'] ?? '';
 $order_number = $order['order_number'] ?? '';
 $fulfillment_status = $order['fulfillment_status'] ?? '';
-$order_status_desc = $order['status_desc'] ?? '';
+$fullfillment_status_desc = $order['fulfillment_status_desc'] ?? '';
 $order_url = Url::get_account_url('orders/' . $order_uuid);
 $invoiced_total = $order['invoiced_total_money_object']->display ?? '';
 $order_items = $order['quantity'] ?? 0;
@@ -59,7 +59,7 @@ $items_images = $order['items_images'] ?? [];
                 <?php echo esc_html(ucfirst($fulfillment_status)); ?>
             </span>
             <span class="kecom-account-order-status-sub">
-                <?php echo esc_html($order_status_desc); ?>
+                <?php echo esc_html($fullfillment_status_desc); ?>
             </span>
         </div>
     </td>
