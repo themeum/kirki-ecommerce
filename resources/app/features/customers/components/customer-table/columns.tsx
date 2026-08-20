@@ -54,13 +54,13 @@ const customerColumns: ColumnDef<CustomerListItem>[] = [
     id: 'last_order_date',
     header: __('Last Order', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => isDefined(row.original.last_order_date) ? formatDateValue(new Date(row.original?.last_order_date), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
+    cell: ({ row }) => isDefined(row.original.last_order_date) ? formatDateValue(new Date(row.original.last_order_date), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
   },
   {
     id: 'created_at',
     header: __('Joined at', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => isDefined(row.original.created_at) ? formatDateValue(new Date(row.original?.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
+    cell: ({ row }) => isDefined(row.original.created_at) ? formatDateValue(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
   },
 ];
 

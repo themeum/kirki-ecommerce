@@ -34,7 +34,7 @@ const collectionColumns: ColumnDef<Collection>[] = [
     id: 'created_at',
     header: __('Created at', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => isDefined(row.original.created_at) ? format(row.original?.created_at, DATE_FORMATS.HUMAN_READABLE) : '--',
+    cell: ({ row }) => isDefined(row.original.created_at) ? format(row.original.created_at, DATE_FORMATS.HUMAN_READABLE) : '--',
   },
 ];
 

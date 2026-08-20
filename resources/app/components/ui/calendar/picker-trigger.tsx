@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import { PopoverAnchor, PopoverTrigger } from '@/components/ui/popover';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss, scoped, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
 type PickerTriggerSize = 'sm' | 'md' | 'lg';
 
@@ -66,11 +66,11 @@ const PickerTrigger = ({
             disabled={disabled}
             cssOverride={mergeCss(styles.triggerControl, styles.controlSizes[size])}
           >
-            <span css={scoped(mergeCss(styles.value, styles.valueSizes[size]))}>
+            <span css={scopedMerge(styles.value, styles.valueSizes[size])}>
               {label ?? <span css={scoped(styles.placeholder)}>{placeholder}</span>}
             </span>
             {!onClear && (
-              <CalendarDays css={scoped(mergeCss(styles.icon, styles.iconSizes[size]))} />
+              <CalendarDays css={scopedMerge(styles.icon, styles.iconSizes[size])} />
             )}
           </Button>
         </PopoverTrigger>
