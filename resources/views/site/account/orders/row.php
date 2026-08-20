@@ -11,7 +11,6 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Supports\Url;
 
 $order = $data['order'] ?? [];
@@ -57,7 +56,7 @@ $items_images = $order['items_images'] ?? [];
     <td class="kecom-orders-table-col-status">
         <div class="kecom-account-order-status-block">
             <span class="kecom-account-order-status-title">
-                <?php echo esc_html(FulfillmentStatus::get_formatted($fulfillment_status)); ?>
+                <?php echo esc_html($fulfillment_status); ?>
             </span>
             <span class="kecom-account-order-status-sub">
                 <?php echo esc_html($fullfillment_status_desc); ?>
