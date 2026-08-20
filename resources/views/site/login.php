@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 
+use function Kirki\Ecommerce\Framework\request;
 use function Kirki\Ecommerce\Framework\session;
 ?>
 
@@ -31,20 +32,22 @@ use function Kirki\Ecommerce\Framework\session;
                     </a>
                 </div>
             <?php endif; ?>
-        </div>
-        <?php if (session()->has('errors')) : ?>
-            <div class="kecom-alert kecom-alert-error">
-                <?php foreach (session('errors') as $error) : ?>
-                    <?php echo esc_html($error); ?>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+            <?php if (session()->has('errors')) : ?>
+                <div class="kecom-alert kecom-alert-error">
+                    <?php Icon::render('information'); ?>
+                    <?php foreach (session('errors') as $error) : ?>
+                        <?php echo esc_html($error); ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
 
-        <?php if (session()->has('success')) : ?>
-            <div class="kecom-alert kecom-alert-success">
-                <?php echo esc_html(session('success')); ?>
-            </div>
-        <?php endif; ?>
+            <?php if (session()->has('success')) : ?>
+                <div class="kecom-alert kecom-alert-success">
+                    <?php Icon::render('information'); ?>
+                    <?php echo esc_html(session('success')); ?>
+                </div>
+            <?php endif; ?>
+        </div>
         <form class="kecom-auth-form" x-data="form({
             defaultValues: {
                 email: '',
@@ -55,6 +58,7 @@ use function Kirki\Ecommerce\Framework\session;
             mode: 'onBlur'
             })" method="post" @submit.prevent="handleSubmit(() => $el.submit(), () => { return false; })">
             <input type="hidden" name="ajax_nonce" x-bind="register('ajax_nonce')">
+            <input type="hidden" name="redirect" value="<?php echo request('redirect', ''); ?>">
             <div class="kecom-field" :class="errors.email ? 'kecom-field-error-state' : ''">
                 <label class="kecom-field-label" for="kecom-email"><?php esc_html_e('Email', 'kirki-ecommerce'); ?></label>
                 <input class="kecom-input" type="email" id="kecom-email" name="email" x-bind="<?php printf("register('email', {

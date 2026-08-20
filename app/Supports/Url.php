@@ -152,7 +152,11 @@ class Url
     {
         $login_page_id = Utils::get_login_page_id();
         if ($login_page_id && get_post($login_page_id)) {
-            return Route::site_url('login', $redirect ? ['redirect' => $redirect] : []);
+            $login_url = Route::site_url('login');
+            if (!empty($redirect)) {
+                $login_url = self::add_query_params($login_url, ['redirect' => urlencode($redirect)]);
+            }
+            return $login_url;
         }
 
         return wp_login_url($redirect);

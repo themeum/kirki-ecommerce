@@ -20,7 +20,7 @@ use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Services\UserService;
-use Kirki\Ecommerce\App\Resources\Order\OrderResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -29,13 +29,36 @@ use Kirki\Ecommerce\Framework\Route;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\view;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Class AccountController
+ *
+ * @since 1.0.0
+ */
 class AccountController
 {
+    /**
+     * Data list limit.
+     *
+     * @since 1.0.0
+     *
+     * @var int
+     */
+    protected $list_limit = 10;
+
+    /**
+     * Update profile.
+     *
+     * @since 1.0.0
+     *
+     * @param ProfileUpdateRequest $request Request.
+     * @param UpdateAccountProfileAction $action Action.
+     *
+     * @return Response response.
+     */
     public function update_profile(ProfileUpdateRequest $request, UpdateAccountProfileAction $action)
     {
         $profile_payload = UpdateProfilePayloadDTO::from_array($request->sanitized());
@@ -49,6 +72,16 @@ class AccountController
         ]);
     }
 
+    /**
+     * Change password.
+     *
+     * @since 1.0.0
+     *
+     * @param PasswordChangeRequest $request Request.
+     * @param UserService $user_service User service.
+     *
+     * @return Response response.
+     */
     public function change_password(PasswordChangeRequest $request, UserService $user_service)
     {
         $validated = $request->validated();
@@ -61,6 +94,16 @@ class AccountController
         ]);
     }
 
+    /**
+     * Update addresses.
+     *
+     * @since 1.0.0
+     *
+     * @param AddressUpdateRequest $request Request.
+     * @param UpdateAccountAddressesAction $action Action.
+     *
+     * @return Response response.
+     */
     public function update_addresses(AddressUpdateRequest $request, UpdateAccountAddressesAction $action)
     {
         $address_payload = UpdateAddressPayloadDTO::from_array($request->sanitized());
@@ -73,16 +116,6 @@ class AccountController
             'message' => __('Address updated successfully.', 'kirki-ecommerce'),
         ]);
     }
-
-      
-    /**
-     * Data list limit.
-     *
-     * @since 1.0.0
-     *
-     * @var int
-     */
-    protected $list_limit = 10;
 
     /**
      * Dashboard page.
@@ -124,7 +157,7 @@ class AccountController
         $page = $request->int('page', 1);
 
         $filters = [
-            'page' => $page ,
+            'page' => $page,
             'limit' => $this->list_limit
         ];
 
@@ -179,8 +212,9 @@ class AccountController
     {
 
         $order = $order_service->find_order_by_uuid($request->uuid);
-        if (!$order) {
-            return redirect(Route::site_url('account.orders'));
+        if (!$order || $order->customer_id !== customer()->get_customer_id()) {
+            wp_safe_redirect(Route::site_url('account.orders'));
+            exit;
         }
 
         $order_resource = $order ? OrderResource::make($order) : null;

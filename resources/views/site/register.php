@@ -29,17 +29,16 @@ use function Kirki\Ecommerce\Framework\session;
                     <?php _e('Login', 'kirki-ecommerce'); ?>
                 </a>
             </div>
+            <!-- Errors -->
+            <?php if (session()->has('errors')) : ?>
+                <div class="kecom-alert kecom-alert-error">
+                    <?php Icon::render('information'); ?>
+                    <?php foreach (session('errors') as $error) : ?>
+                        <?php echo esc_html($error); ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
-
-        <!-- Errors -->
-        <?php if (session()->has('errors')) : ?>
-            <div class="kecom-alert kecom-alert-error">
-                <?php foreach (session('errors') as $error) : ?>
-                    <?php echo esc_html($error); ?>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-
         <form class="kecom-auth-form" x-data="form({
             defaultValues: {
                 first_name: '',
