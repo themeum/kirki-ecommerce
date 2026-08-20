@@ -132,6 +132,63 @@ class CustomerService
     }
 
     /**
+     * Partially updates a customer's own record.
+     *
+     * Unlike update(), this writes only the columns present in $data -
+     * anything not present is left untouched. The caller is responsible for
+     * only passing profile-appropriate columns (first_name, last_name,
+     * phone); this method itself does not restrict which fillable Customer
+     * columns can be written.
+     *
+     * @param int $customer_id
+     * @param array $data
+     * @throws NotFoundException
+     * @return Customer
+     */
+    public function update_profile(int $customer_id, array $data)
+    {
+        $customer = $this->find($customer_id);
+
+        if (empty($customer)) {
+            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $data['updated_by'] = user()->get_id();
+
+        $is_updated = (bool) $customer->update($data);
+
+        if (!$is_updated) {
+            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return $this->find($customer_id);
+    }
+
+    /**
+     * Set whether a customer's billing address should mirror their shipping address.
+     *
+     * @param int $customer_id
+     * @param bool $value
+     * @throws NotFoundException
+     * @return Customer
+     */
+    public function set_billing_same_as_shipping(int $customer_id, bool $value)
+    {
+        $customer = Customer::find($customer_id);
+
+        if (empty($customer)) {
+            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $customer->update([
+            'is_billing_same_as_shipping' => $value,
+            'updated_by' => user()->get_id(),
+        ]);
+
+        return $customer;
+    }
+
+    /**
      * Deletes a customer by ID.
      *
      * @param int $id The ID of the customer to delete.

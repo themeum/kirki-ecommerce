@@ -242,11 +242,6 @@ Route::get('/test-public', function (Request $request) {
 // Site api endpoints.
 Route::get('/shop/products-html', [SiteController::class, 'products_html']);
 
-// Customer account api endpoints.
-Route::group(['middleware' => AuthMiddleware::class], function () {
-    Route::get('/account/orders-html', [AccountController::class, 'orders_html']);
-});
-
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);
 Route::post('/cart/items', [CartController::class, 'add_item']);
@@ -255,3 +250,11 @@ Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
 Route::delete('/cart', [CartController::class, 'empty_cart']);
 Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);
+
+// Account api endpoints (self-service, logged-in customer only).
+Route::group(['middleware' => AuthMiddleware::class], function () {
+    Route::get('/account/orders-html', [AccountController::class, 'orders_html']);
+    Route::put('/account/profile', [AccountController::class, 'update_profile']);
+    Route::put('/account/password-change', [AccountController::class, 'change_password']);
+    Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+});

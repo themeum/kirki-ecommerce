@@ -1,0 +1,57 @@
+## 1. Profile update (`PUT /account/profile`)
+
+- [x] 1.1 Create `app/DTO/Account/UpdateProfileDTO.php` (`first_name`, `last_name`, `email`, `phone`).
+- [x] 1.2 Create `app/Http/Requests/Account/ProfileUpdateRequest.php` with `rules()`/`filters()` for those fields (no `id`), following `CustomerUpdateRequest`'s pattern.
+- [x] 1.3 Create `app/Actions/Account/UpdateAccountProfileAction.php`: resolve the customer via `CustomerService::find_by_user_id(user()->get_id())` (throw `NotFoundException` if missing), update the `Customer` row via `CustomerService::update()`, and when the email changed, call `wp_update_user()` to sync the WordPress user's email — wrapped in a `DB` transaction, rolling back the `Customer` update if `wp_update_user()` returns a `WP_Error`.
+  - **Correction during implementation**: `CustomerService::update()` is typed to `UpdateCustomerDTO` and its `all()` dumps every declared property, so passing the narrower `UpdateProfileDTO` through it would silently null out `tags`/`notes`/`is_billing_same_as_shipping`. Added a new `CustomerService::update_profile(int $customer_id, UpdateProfileDTO $data)` method instead (existing `update()` untouched) and call that.
+- [x] 1.4 Add `update_profile` to `app/Http/Controllers/Site/AccountController.php`, returning `CustomerResource`.
+- [x] 1.5 Verify: `composer test:unit`.
+
+## 2. Password change (`PUT /account/password-change`)
+
+- [x] 2.1 Create `app/DTO/Account/ChangePasswordDTO.php` (`current_password`, `new_password`).
+- [x] 2.2 Create `app/Http/Requests/Account/PasswordChangeRequest.php` validating `current_password` required, `new_password` required with `min:` `Constants\Password::MIN_LENGTH`, `new_password_confirmation` matching.
+  - **Correction during implementation**: used `Sanitizer::ANY` (pass-through) for the three password fields instead of `Sanitizer::TEXT`. `Sanitizer::TEXT` runs WordPress's `sanitize_text_field()`, which strips tags and trims/collapses whitespace — applying that to a password field risks silently mutating a legitimate password. (In practice `$request->validated()` — what the controller uses to build the DTO — is captured before `filters()` sanitization runs, so this wasn't reachable through the DTO path either way, but `Sanitizer::ANY` is the correct, defensive choice regardless of which accessor is used.)
+- [x] 2.3 Create `app/Actions/Account/ChangePasswordAction.php`: verify `wp_check_password($current, $user->user_pass, $user_id)`, reject with an authorization/validation error if it fails, otherwise `wp_set_password($new, $user_id)` then `wp_set_auth_cookie($user_id)` to keep the session alive.
+- [x] 2.4 Add `change_password` to `AccountController`, returning a success message (no resource body needed).
+- [x] 2.5 Verify: `composer test:unit`.
+
+## 3. Address update (`PUT /account/addresses`)
+
+- [x] 3.1 Create `app/Http/Requests/Account/AddressUpdateRequest.php` validating `shipping_address` and `billing_address` objects (same field rules as `CustomerUpdateRequest`'s embedded addresses, minus any customer-level fields).
+- [x] 3.2 Create `app/Actions/Account/UpdateAccountAddressesAction.php`: resolve the customer via `find_by_user_id`, load its existing `shipping_address`/`billing_address`, build `UpdateAddressDTO` for each from the request, and update both via `AddressService::update()` inside a `DB` transaction (mirroring `UpdateCustomerAction`'s address-handling, narrowed to addresses only).
+- [x] 3.3 Add `update_addresses` to `AccountController`, returning `CustomerResource`.
+- [x] 3.4 Verify: `composer test:unit`.
+
+## 4. Routing
+
+- [x] 4.1 In `routes/api.php`, add a new `Route::group(['middleware' => AuthMiddleware::class], ...)` near the existing `/cart` and `/checkout` site routes with:
+  - `Route::put('/account/profile', [AccountController::class, 'update_profile']);`
+  - `Route::put('/account/password-change', [AccountController::class, 'change_password']);`
+  - `Route::put('/account/addresses', [AccountController::class, 'update_addresses']);`
+- [x] 4.2 Add the `Site\AccountController` use statement.
+- [x] 4.3 Verify: `composer test:unit`.
+
+## 5. Final verification
+
+- [x] 5.1 Manually exercise all three endpoints against a real logged-in customer (valid update, validation failure, wrong current password, unauthenticated request) since there is no browser-based verification in this workflow — confirm behavior with the user if UI testing isn't possible.
+  - Exercised via the local Docker dev stack (`docker-compose.yml`, http://localhost:20100) using `rest_do_request()` against a real WP user with `wp_set_current_user()`, not a browser. Temporarily linked seeded demo customer #1 to WP user #2 (`john`) to get an authenticated customer session, then reverted the link and all field values back to their original seed data afterward — the one thing that couldn't be reverted is `john`'s password, since establishing a known baseline password necessarily overwrote the original (unknown) one before testing began; it's now a known test value. Confirmed unauthenticated requests are rejected (401) on all three routes, and for the authenticated flows: profile update success + validation failure + a client-supplied `id` being ignored + 404 when no `Customer` row is linked; password change success (hash verified changed, WP's `set_auth_cookie` action fired confirming the session was re-issued) + wrong-current-password rejection + too-short rejection + confirmation-mismatch rejection; address update success (shipping and billing updated independently) + validation failure + 404 when no `Customer` row is linked. All matched the spec's scenarios exactly. Also caught and fixed one unrelated environment issue along the way: the running `php`/`nginx` containers had a stale bind-mount of `docker/wp-config.php` predating a since-edited version on disk — a container restart (`docker restart kirki-ecommerce-php-1 kirki-ecommerce-nginx-1`) resolved it; not caused by this change.
+- [x] 5.2 Run the full suite: `composer test`.
+  - `composer test:unit` passes (117 tests, 209 assertions) and was re-run after every task group throughout implementation. The Integration suite (`composer test:integration`, part of the combined `composer test`) requires a WP test library that isn't installed in this environment (`composer test:docker:install` first) — a pre-existing local setup gap unrelated to this change, not something this task should install as a side effect. No existing Integration tests target the new Account endpoints, so this doesn't leave a coverage regression; manual verification in 5.1 covers the new behavior directly.
+
+## 6. Post-review redesign
+
+After reviewing the first implementation pass, the user requested four changes: drop the password Action/DTO in favor of a `UserService`, remove email from profile update, add a WordPress display-name field to profile update, and rework address update to one type per request with `is_billing_same_as_shipping` persisted on the customer. See design.md's "Correction during implementation" section for the full rationale.
+
+- [x] 6.1 Delete `app/Actions/Account/ChangePasswordAction.php` and `app/DTO/Account/ChangePasswordDTO.php`.
+- [x] 6.2 Create `app/Services/UserService.php` with `update_password(int $user_id, string $current_password, string $new_password)` (moved verbatim from the deleted Action, same `wp_check_password`/`wp_set_password`/`wp_set_auth_cookie` sequence) and `update_display_name(int $user_id, string $display_name)`.
+- [x] 6.3 Update `AccountController::change_password()` to call `UserService::update_password()` directly (no Action, no DTO — `current_password`/`new_password` passed straight from `$request->validated()`).
+- [x] 6.4 Remove `email` from `app/DTO/Account/UpdateProfileDTO.php` and `ProfileUpdateRequest`; add required `display_name` to both the request rules/filters and as a separate parameter `UpdateAccountProfileAction::execute()` takes alongside the DTO (not on the DTO itself — `Customer` has no `display_name` column, so adding it to the DTO would throw `MassAssignmentException` when the DTO's array is passed to `Customer::update()`).
+- [x] 6.5 Update `UpdateAccountProfileAction` to inject `UserService` and call `update_display_name()` inside the same `DB` transaction as the `Customer` update; remove the old email/`wp_update_user` sync logic entirely.
+- [x] 6.6 Add `CustomerService::set_billing_same_as_shipping(int $customer_id, bool $value)`.
+- [x] 6.7 Rework `app/Http/Requests/Account/AddressUpdateRequest.php` to a flat, `type`-discriminated shape (`type`, `is_billing_same_as_shipping`, and the address fields at the top level instead of nested `shipping_address`/`billing_address` objects), with `Rule::when()` closures expressing "address fields required unless this is a billing update with `is_billing_same_as_shipping` true" and "`is_billing_same_as_shipping` required only when `type` is billing."
+  - **Bug found and fixed during re-verification**: the first attempt used `'is_billing_same_as_shipping' => 'nullable|boolean|required_if:type,billing'`, which doesn't work in this framework — `nullable` always runs first regardless of declared order and short-circuits the rest of the chain (including `required_if`) whenever the value is absent, so a billing update with the flag omitted silently succeeded and defaulted it to `false` instead of failing validation. Fixed with `Rule::when(fn($data) => ($data['type'] ?? null) === 'billing', ['required','boolean'], ['nullable','boolean'])` instead.
+- [x] 6.8 Rework `UpdateAccountAddressesAction::execute()` to take `(int $user_id, string $type, array $address_data, ?bool $is_billing_same_as_shipping)` and branch: a shipping update goes straight to `AddressService::update()`; a billing update calls `CustomerService::set_billing_same_as_shipping()` first, then updates the billing `Address` either from the customer's current `shipping_address->to_array()` (when the flag is true) or from the submitted fields (when false) — both paths inside the existing `DB` transaction.
+- [x] 6.9 Update `AccountController::update_addresses()` to pass `type`/address fields (via `Arr::only()`)/`is_billing_same_as_shipping` instead of the old `shipping_address`/`billing_address` pair.
+- [x] 6.10 Verify: `composer test:unit` (117 tests, 209 assertions, unaffected by these changes since none are covered by the existing unit suite).
+- [x] 6.11 Re-ran the same real-environment verification approach as task 5.1 (Docker dev stack, `rest_do_request()`, real WP user) against every changed behavior: profile update with `display_name` syncing to the WP user and a submitted `email` being silently ignored (WP user's `user_email` and `Customer.email` both unchanged) + missing-`display_name` validation error; password change via the new service path (successful change, wrong-current-password rejection); shipping-only update leaving billing untouched; billing update with `is_billing_same_as_shipping=false` using submitted fields; billing update with `is_billing_same_as_shipping=true` copying the current shipping address; the 6.7 bug reproduced and then confirmed fixed; missing required field for a shipping update; invalid `type` value. All matched the updated spec scenarios. Reverted all test data (customer-user link, profile/address field values, `is_billing_same_as_shipping`) back to original seed state afterward — `john`'s password remains at the known test value set during the original 5.1 verification, as noted there.
