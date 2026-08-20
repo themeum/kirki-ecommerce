@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode, WheelEvent } from 'react';
-import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
+import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Input from '@/components/ui/input';
@@ -20,6 +20,7 @@ type NumberFieldProps<
   min?: number | null;
   max?: number | null;
   readOnly?: boolean
+  showError?: boolean;
 };
 
 const NumberField = <
@@ -36,8 +37,10 @@ const NumberField = <
   min,
   max,
   readOnly,
+  showError = true,
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
+  const currentValue = useWatch({ control, name });
   const fieldId = String(name);
 
   const preventStepKeys = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -79,7 +82,7 @@ const NumberField = <
           <Input
             {...field}
             id={fieldId}
-            value={field.value ?? ''}
+            value={currentValue ?? ''}
             type="number"
             placeholder={placeholder}
             disabled={disabled}
@@ -93,15 +96,15 @@ const NumberField = <
             onBlur={(event: FocusEvent<HTMLInputElement>) => {
               field.onBlur();
 
-              const currentValue = Number(event.target.value);
+              const enteredValue = Number(event.target.value);
 
-              if (event.target.value === '' || Number.isNaN(currentValue)) {
+              if (event.target.value === '' || Number.isNaN(enteredValue)) {
                 return;
               }
 
-              const clampedValue = clampValue(currentValue);
+              const clampedValue = clampValue(enteredValue);
 
-              if (clampedValue !== currentValue) {
+              if (clampedValue !== enteredValue) {
                 field.onChange(clampedValue);
               }
             }}
@@ -112,7 +115,7 @@ const NumberField = <
             onFocus={event => event.target.select()}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
-          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          {fieldState.invalid && showError && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}
     />
