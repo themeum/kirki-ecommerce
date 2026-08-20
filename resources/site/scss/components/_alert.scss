@@ -8,12 +8,12 @@
 @use '../mixins' as *;
 
 .kecom-alert {
-  padding: $spacing-5 $spacing-10;
-  @include typography(md, normal, sm);
+  padding: $spacing-4 $spacing-6;
+  @include typography(sm, normal, sm);
   border-radius: $radius-md;
   background-color: $background-fill;
-  border: 1px solid $border-default;
   margin-bottom: $spacing-6;
+  box-shadow: $shadow-default;
 
   &-error {
     color: $text-critical;
