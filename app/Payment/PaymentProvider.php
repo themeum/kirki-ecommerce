@@ -436,8 +436,7 @@ class PaymentProvider
      */
     public function webhook_url()
     {
-        //return Route::url('payment/webhook/' . $this->id());
-        return 'https://44f9-103-203-92-12.ngrok-free.app/wp-json/kirki/ecommerce/v1/payment/webhook/square';
+        return Route::url('payment/webhook/' . $this->id());
     }
 
     /**
