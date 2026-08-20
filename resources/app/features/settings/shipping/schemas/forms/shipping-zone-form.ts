@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { ShippingRegionFormShape } from '@/features/settings/shipping/schemas/forms/shipping-region-form';
 import { prepareFormSchema, required } from '@/libs/zod';
+import { RegionSchema } from '@/schemas/shared/region';
 import { __ } from '@/wpi18n';
 
 const ShippingZoneFormShape = z.object({
   title: required(z.string().default(''), __('Title is required', 'kirki-ecommerce')),
-  regions: z.array(ShippingRegionFormShape).min(1, {
+  regions: z.array(RegionSchema).min(1, {
     message: __('Select at least one destination', 'kirki-ecommerce'),
   }),
 });

@@ -8,7 +8,6 @@ import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import { getShippingMethodData as getZoneShippingMethods, removeZone, toggleMethod } from '@/features/settings/shipping/lib/shipping-zone-operations';
-import type { ShippingRegionFormPayload } from '@/features/settings/shipping/schemas/forms/shipping-region-form';
 import {
   type ShippingSettingsFormInput,
   type ShippingSettingsFormPayload,
@@ -18,6 +17,7 @@ import type { CountryWithStates, ShippingMethodData, ShippingZone } from '@/feat
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import type { RegionsDialogFormPayload } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors } from '@/types/pages/common';
@@ -50,7 +50,7 @@ type UseShippingSettingsResult = {
   handleDeleteMethod: (method: ShippingMethodData) => void;
   handleToggleZoneItem: (item: ShippingZone) => void;
   handleDeleteItem: (item: ShippingZone) => Promise<void>;
-  handleCreateZone: (values: ShippingRegionFormPayload) => Promise<void>;
+  handleCreateZone: (values: RegionsDialogFormPayload) => Promise<void>;
 };
 
 export const useShippingSettings = (): UseShippingSettingsResult => {
@@ -204,7 +204,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     );
   };
 
-  const handleCreateZone = async (values: ShippingRegionFormPayload) => {
+  const handleCreateZone = async (values: RegionsDialogFormPayload) => {
     const updatedZones: ShippingZone[] = [
       ...shippingZonesObj,
       {

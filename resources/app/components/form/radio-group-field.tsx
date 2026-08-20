@@ -4,7 +4,7 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { scoped } from '@/theme/mixins';
+import { theme } from '@/theme';
 
 type RadioGroupFieldOption = {
   label: string;
@@ -22,6 +22,7 @@ type RadioGroupFieldProps<
   options: RadioGroupFieldOption[];
   disabled?: boolean;
   cssOverride?: CSSObject;
+  direction?: 'row' | 'column';
 };
 
 const RadioGroupField = <
@@ -35,6 +36,7 @@ const RadioGroupField = <
   options,
   disabled,
   cssOverride,
+  direction = 'row',
 }: RadioGroupFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -50,7 +52,7 @@ const RadioGroupField = <
             onValueChange={field.onChange}
             disabled={disabled}
             aria-invalid={fieldState.invalid}
-            cssOverride={styles.groupField}
+            cssOverride={{ flexDirection: direction, gap: theme.spacing[4] }}
           >
             {options.map((option) => {
               const optionId = `${String(name)}-${option.value}`;
@@ -74,10 +76,3 @@ const RadioGroupField = <
 RadioGroupField.displayName = 'RadioGroupField';
 
 export default RadioGroupField;
-
-const styles = {
-  groupField: scoped({
-    display: 'flex',
-    flexDirection: 'row',
-  }),
-}

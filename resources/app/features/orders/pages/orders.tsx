@@ -4,7 +4,7 @@ import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { RouteConfig } from '@/config/route-config';
-import OrderTable from '@/features/orders/pages/order-table/order-table';
+import OrderTable from '@/features/orders/components/order-table/order-table';
 import { __ } from '@/wpi18n';
 
 const Orders = () => {

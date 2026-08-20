@@ -1,7 +1,8 @@
 import { type CSSObject } from '@emotion/react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check, Minus } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type CSSProperties, type ElementRef, forwardRef, type MouseEvent, type ReactNode, useId } from 'react';
+import type { ComponentRef } from 'react';
+import { type ComponentPropsWithoutRef, type CSSProperties, forwardRef, type MouseEvent, type ReactNode, useId } from 'react';
 
 import { Field, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
@@ -21,7 +22,7 @@ type CheckboxProps = Omit<
 };
 
 const Checkbox = forwardRef<
-  ElementRef<typeof CheckboxPrimitive.Root>,
+  ComponentRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
 >((props, ref) => {
   const {
@@ -46,6 +47,8 @@ const Checkbox = forwardRef<
   const resolvedChecked = isPartialChecked
     ? 'indeterminate'
     : (checked ?? value ?? false);
+
+  const isIndeterminate = resolvedChecked === 'indeterminate';
 
   const handleCheckedChange = (next: boolean | 'indeterminate') => {
     const nextValue = next === true;
@@ -74,7 +77,7 @@ const Checkbox = forwardRef<
       {...rest}
     >
       <CheckboxPrimitive.Indicator css={scoped(styles.indicator)}>
-        {isPartialChecked ? (
+        {isIndeterminate ? (
           <Minus size={12} strokeWidth={3} />
         ) : (
           <Check size={12} strokeWidth={3} />

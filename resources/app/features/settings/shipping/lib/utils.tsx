@@ -1,14 +1,11 @@
 import type { ReactNode } from 'react';
 import { toast } from 'sonner';
 
-import { getNestedSearchedValue, setUnsavedDataStatus } from '@/features/settings/lib/utils';
+import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type {
-  CountryWithStates,
-  RegionTag,
   SaveShippingZonesParams,
   SelectOption,
   ShippingMethodData,
-  ShippingRegion,
   ShippingZone,
 } from '@/features/settings/shipping/types';
 import { StoreIcon, TruckIcon, WeightIcon } from '@/icons';
@@ -17,38 +14,6 @@ import { settingsKeys } from '@/libs/query-keys';
 import { getErrorMessage } from '@/services/helpers';
 import { updateSettings } from '@/services/settings';
 import { __, _n, sprintf } from '@/wpi18n';
-
-export const getSelectedRegionTags = (
-  regions: ShippingRegion[] = [],
-  countryList: CountryWithStates[] | null | undefined = [],
-): RegionTag[] => {
-  return regions
-    .map((region) => {
-      const selectedCountry = countryList?.find(
-        (country) =>
-          country?.code?.toLowerCase() === region?.country?.toLowerCase(),
-      );
-
-      if (!selectedCountry) {
-        return null;
-      }
-
-      const statesCount = region?.states?.length || 0;
-
-      return {
-        id: selectedCountry?.code,
-        title: statesCount ? `${selectedCountry.name}-` : selectedCountry.name,
-        tagIcon: <span>{selectedCountry.flag}</span>,
-        subText: statesCount
-          ? sprintf(
-            _n('%d State', '%d States', statesCount, 'kirki-ecommerce'),
-            statesCount,
-          )
-          : '',
-      };
-    })
-    .filter(Boolean) as RegionTag[];
-};
 
 export const getShippingZoneSummary = (zone: ShippingZone): string => {
   const regionCount = zone?.regions?.length ?? 0;
@@ -70,18 +35,6 @@ export const getShippingZoneSummary = (zone: ShippingZone): string => {
       methodCount,
     ),
   );
-};
-
-export const getSearchedCountries = (
-  searchValue: string,
-  countryList: CountryWithStates[] | null | undefined,
-): CountryWithStates[] => {
-  if (!searchValue) {
-    return countryList ?? [];
-  }
-  return getNestedSearchedValue(searchValue, countryList ?? [], [
-    'states',
-  ]);
 };
 
 export const saveShippingZones = async ({

@@ -11,9 +11,8 @@ import {
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
-import { useCustomersQuery } from '@/features/customers';
+import { CustomerProfileCard, useCustomersQuery } from '@/features/customers';
 import CustomerSearchSkeleton from '@/features/customers/skeletons/customer-search-skeleton';
-import CustomerProfileCard from '@/features/orders/pages/order-create/components/customer/customer-profile-card';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';

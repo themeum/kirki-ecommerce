@@ -4,7 +4,8 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
@@ -263,7 +264,8 @@ class CartApiTest extends RestTestCase
             'discount_amount' => 10,
             'start_datetime' => '2025-01-01T00:00:00+00:00',
             'has_end_datetime' => false,
-            'customer_eligibility' => CustomerEligibility::ALL,
+            'customer_include_eligibility' => CustomerIncludeEligibility::EVERYONE,
+            'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'is_active' => true,
         ]);
 

@@ -96,61 +96,6 @@ export const getSearchedValue = <T extends SearchableItem>(
   });
 };
 
-export const getNestedSearchedValue = <T extends SearchableItem>(
-  value: string,
-  data: T[] = [],
-  nestedKeys: string[] = [],
-): T[] => {
-  if (!value) {
-    return data;
-  }
-
-  const search = value.toLowerCase().trim();
-
-  return data.reduce<T[]>((acc, item) => {
-    const parentMatch = item?.name?.toLowerCase().includes(search);
-
-    const matchedChildren = nestedKeys.reduce<Record<string, unknown[]>>(
-      (childAcc, key) => {
-        const nested = item[key];
-        if (!Array.isArray(nested)) {
-          return childAcc;
-        }
-
-        const matches = nested.filter((child) => {
-          const nestedChild = child as SearchableItem;
-          return nestedChild?.name?.toLowerCase().includes(search);
-        });
-
-        if (matches.length) {
-          childAcc[key] = matches;
-        }
-
-        return childAcc;
-      },
-      {},
-    );
-
-    if (parentMatch || Object.keys(matchedChildren).length) {
-      acc.push({
-        ...item,
-        ...matchedChildren,
-      });
-    }
-
-    return acc;
-  }, []);
-};
-
-export const getSearchedCountries = <T extends SearchableItem>(
-  searchValue: string,
-  countryList: T[],
-): T[] => {
-  if (!searchValue) {
-    return countryList;
-  }
-  return getNestedSearchedValue(searchValue, countryList, ['states']);
-};
 
 const navIconProps = { size: 16, strokeWidth: 1.5, 'aria-hidden': true as const };
 

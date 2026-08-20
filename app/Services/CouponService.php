@@ -22,6 +22,21 @@ use function Kirki\Ecommerce\Framework\user;
 class CouponService
 {
     /**
+     * Relations required to render a single coupon through CouponResource.
+     *
+     * @var array
+     */
+    const DETAIL_RELATIONS = [
+        'categories',
+        'customers',
+        'products.media',
+        'products.attributes',
+        'products.attribute_values',
+        'products.variants.attribute_values',
+        'products.variants.product',
+    ];
+
+    /**
      * Return paginated coupons
      *
      * @param CouponFilterDTO $filters
@@ -52,7 +67,7 @@ class CouponService
      */
     public function find(int $id)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
+        $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
         if (!$coupon) {
             throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -115,7 +130,7 @@ class CouponService
             throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'reward_product_ids']);
+        $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'exclude_customer_ids', 'reward_product_ids']);
         $attributes['updated_by'] = user()->get_id();
 
         if ($data->discount_value_type === DiscountValueType::FIXED) {
@@ -199,12 +214,7 @@ class CouponService
             ->when(isset($filters->is_active), function (QueryBuilder $query) use ($filters) {
                 return $query->where('is_active', (int) $filters->is_active);
             })
-            ->when(!empty($filters->start_date), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('start_datetime', '>=', $filters->start_date);
-            })
-            ->when(!empty($filters->end_date), function (QueryBuilder $query) use ($filters) {
-                return $query->where_date('end_datetime', '<=', $filters->end_date);
-            })
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
                 return $query->order_by($filters->sort_by, $filters->sort_order);
             }, function (QueryBuilder $query) {
@@ -279,7 +289,7 @@ class CouponService
      */
     public function change_activation_state(int $id, bool $is_active)
     {
-        $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
+        $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
         if ($is_active && $coupon->is_active) {
             throw new Exception(__('The coupon is already activated', 'kirki-ecommerce'));

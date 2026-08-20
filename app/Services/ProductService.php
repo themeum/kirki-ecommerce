@@ -310,6 +310,8 @@ class ProductService
             return $query->where('status', $filters->status);
         });
 
+        $query->filter_with_datetime_range($filters->from_date, $filters->to_date);
+
         $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
             return $query->order_by($filters->sort_by, $filters->sort_order);
         }, function (QueryBuilder $query) use ($filters) {

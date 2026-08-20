@@ -1,6 +1,6 @@
-import { getSearchedCountries } from '@/features/settings/lib/utils';
 import type { GroupedCountryList } from '@/features/settings/tax/lib/helper';
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/features/settings/tax/lib/utils';
+import { getSearchedCountries } from '@/utils/region';
 
 type CountryStateOption = {
   id: string | number;

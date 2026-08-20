@@ -222,6 +222,7 @@ class CustomerService
     protected function list_query(ListFilterDTO $filters)
     {
         return Customer::query()
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->with_max('orders', 'created_at')
             ->with_count('orders')
             ->with_sum(['orders' => fn($query) => $query->where('payment_status', PaymentStatus::PAID)], 'base_total')

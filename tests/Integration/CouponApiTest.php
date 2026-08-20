@@ -4,7 +4,8 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
@@ -294,7 +295,8 @@ class CouponApiTest extends RestTestCase
         $original = $this->create_coupon([
             'title' => 'Coupon With Associations',
             'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
-            'customer_eligibility' => CustomerEligibility::SPECIFIC_CUSTOMERS,
+            'customer_include_eligibility' => CustomerIncludeEligibility::SPECIFIC_CUSTOMERS,
+            'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'category_ids' => [$category['id']],
             'product_ids' => [$product['id']],
             'reward_product_ids' => [$reward_product['id']],
@@ -312,9 +314,40 @@ class CouponApiTest extends RestTestCase
 
         $this->assertNotEquals($this->coupon_id, $duplicated['id']);
         $this->assertEquals('Coupon With Associations - Copy', $duplicated['title']);
-        $this->assertEqualsCanonicalizing([$category['id']], $duplicated['categories']);
+        $this->assertEqualsCanonicalizing([$category['id']], array_column($duplicated['categories'], 'id'));
         $this->assertEqualsCanonicalizing([$customer['id']], $duplicated['customers']);
-        $this->assertEqualsCanonicalizing([$product['id'], $reward_product['id']], $duplicated['products']);
+        $this->assertEqualsCanonicalizing([$product['id'], $reward_product['id']], array_column($duplicated['products'], 'id'));
+    }
+
+    /**
+     * Show coupon returns targeted products with the details the edit form renders.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_coupon_returns_detailed_products(): void
+    {
+        $product = $this->create_product();
+
+        $coupon = $this->create_coupon([
+            'title' => 'Coupon With Product Details',
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'product_ids' => [$product['id']],
+        ]);
+
+        $this->coupon_id = $coupon['id'];
+
+        $response = $this->request('GET', 'coupons/' . $this->coupon_id);
+        $payload = $this->assert_api_success($response);
+
+        $products = $payload['data']['products'];
+        $this->assertCount(1, $products);
+        $this->assertEquals($product['id'], $products[0]['id']);
+        $this->assertEquals($product['title'], $products[0]['title']);
+        $this->assertArrayHasKey('image', $products[0]);
+        $this->assertArrayHasKey('attributes', $products[0]);
+        $this->assertNotEmpty($products[0]['variants']);
     }
 
     /**
@@ -419,7 +452,8 @@ class CouponApiTest extends RestTestCase
             'discount_amount' => 10,
             'start_datetime' => '2025-01-01T00:00:00+00:00',
             'has_end_datetime' => false,
-            'customer_eligibility' => CustomerEligibility::ALL,
+            'customer_include_eligibility' => CustomerIncludeEligibility::EVERYONE,
+            'customer_exclude_eligibility' => CustomerExcludeEligibility::NONE,
             'is_active' => true,
         ];
 

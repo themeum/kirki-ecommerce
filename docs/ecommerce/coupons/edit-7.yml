@@ -29,11 +29,24 @@ http:
         "has_end_date": true,
         "end_date": "2026-01-31",
         "end_time": "23:59",
+        "target_country_type": "specific-countries",
         "target_countries": [
-          "EU",
-          "CA",
-          "UK",
-          "BD"
+          {
+            "country": "EU",
+            "states": []
+          },
+          {
+            "country": "CA",
+            "states": []
+          },
+          {
+            "country": "UK",
+            "states": []
+          },
+          {
+            "country": "BD",
+            "states": []
+          }
         ],
         "first_time_buyer_only": false,
         "customer_eligibility": "all",
@@ -79,11 +92,24 @@ examples:
             "has_end_date": true,
             "end_date": "2026-01-31",
             "end_time": "23:59",
+            "target_country_type": "specific-countries",
             "target_countries": [
-              "EU",
-              "CA",
-              "UK",
-              "BD"
+              {
+                "country": "EU",
+                "states": []
+              },
+              {
+                "country": "CA",
+                "states": []
+              },
+              {
+                "country": "UK",
+                "states": []
+              },
+              {
+                "country": "BD",
+                "states": []
+              }
             ],
             "first_time_buyer_only": false,
             "customer_eligibility": "all",
@@ -172,11 +198,24 @@ examples:
             "has_end_date": true,
             "end_date": "2026-01-31",
             "end_time": "23:59",
+            "target_country_type": "specific-countries",
             "target_countries": [
-              "EU",
-              "CA",
-              "UK",
-              "BD"
+              {
+                "country": "EU",
+                "states": []
+              },
+              {
+                "country": "CA",
+                "states": []
+              },
+              {
+                "country": "UK",
+                "states": []
+              },
+              {
+                "country": "BD",
+                "states": []
+              }
             ],
             "first_time_buyer_only": false,
             "customer_eligibility": "all",

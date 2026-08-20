@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import OptionAccordion from '@/components/option-accordion';
+import { RegionsDialog } from '@/components/regions-dialog';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
@@ -11,11 +12,10 @@ import { ItemGroup, ItemSeparator } from '@/components/ui/item';
 import Text from '@/components/ui/text';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useShippingSettings } from '@/features/settings/shipping/hooks/use-shipping-settings';
-import { getSearchedCountries, getSelectedRegionTags, getShippingZoneSummary } from '@/features/settings/shipping/lib/utils';
+import { getShippingZoneSummary } from '@/features/settings/shipping/lib/utils';
 import ShippingBox from '@/features/settings/shipping/pages/shipping-box/shipping-box';
 import ShippingMethodRow from '@/features/settings/shipping/pages/shipping-method-row';
 import ShippingProfile from '@/features/settings/shipping/pages/shipping-profile/shipping-profile';
-import { ShippingRegionPopup } from '@/features/settings/shipping/pages/shipping-zone/shipping-region-dialog';
 import ShippingZoneActions from '@/features/settings/shipping/pages/shipping-zone-actions';
 import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
 import type { CountryWithStates } from '@/features/settings/shipping/types';
@@ -23,6 +23,7 @@ import { LocationIcon, TruckIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { getSearchedCountries, getSelectedRegionTags } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingSettings = () => {
@@ -167,8 +168,9 @@ const ShippingSettings = () => {
         )}
       </Container>
       {showCreateZonePopup && (
-        <ShippingRegionPopup
+        <RegionsDialog
           from="add"
+          dialogTitle={__('Add shipping region', 'kirki-ecommerce')}
           open={showCreateZonePopup}
           onOpenChange={setShowCreateZonePopup}
           onSearchChange={setSearchValue}

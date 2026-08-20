@@ -13,6 +13,7 @@ type RadioCardFieldOption = {
   label: string;
   value: string;
   icon?: ReactNode;
+  disabled?: boolean;
 };
 
 type RadioCardFieldProps<
@@ -71,6 +72,7 @@ const RadioCardField = <
                     value={option.value}
                     id={optionId}
                     cssOverride={styles.hiddenRadio}
+                    disabled={option.disabled}
                   />
                   {isSelected && (
                     <span css={styles.checkBadge} aria-hidden="true">
