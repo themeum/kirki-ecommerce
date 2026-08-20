@@ -2,14 +2,15 @@
 
 namespace Kirki\Ecommerce\App\Actions\Account;
 
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
-use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
+use function Kirki\Ecommerce\Framework\user;
 
 class UpdateAccountProfileAction
 {
@@ -36,7 +37,14 @@ class UpdateAccountProfileAction
         $customer = $this->customer_service->find_by_user_id($data->user_id);
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            $user = user($data->user_id);
+
+            $customer = $this->customer_service->create(CreateCustomerDTO::from_array([
+                'first_name' => $data->first_name,
+                'last_name'  => $data->last_name,
+                'email'      => $user->get_email(),
+                'user_id'    => $data->user_id,
+            ]));
         }
 
         DB::begin_transaction();
