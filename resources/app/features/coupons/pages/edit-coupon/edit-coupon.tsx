@@ -25,6 +25,7 @@ import {
   useUpdateCouponMutation,
 } from '@/features/coupons/services/coupon';
 import type { ErrorResponse } from '@/libs/api';
+import { splitIsoDateTime } from '@/libs/date';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { theme } from '@/theme';
@@ -32,7 +33,6 @@ import { defineStyles, scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-import { splitIsoDateTime } from '../../lib/coupon-datetime';
 import CouponPreview from './components/coupon-preview';
 import DetailsTab from './components/tabs/details-tab';
 

@@ -3,11 +3,12 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
+use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class Collection extends Model
 {
-    use HasSlug;
+    use HasSlug, HasDateRangeFilter;
 
     protected $table = 'kirki_ecommerce_collections';
 

@@ -1,14 +1,12 @@
-import { format } from 'date-fns';
 import { z } from 'zod';
 
-import { mergeDateTime } from '@/features/coupons/lib/coupon-datetime';
 import {
   CouponDiscountTargetSchema,
   CouponDiscountTypeSchema,
   CouponDiscountValueTypeSchema,
   CouponMethodSchema,
 } from '@/features/coupons/schemas/catalog/coupon';
-import { DATE_FORMATS, END_OF_DAY_TIME, START_OF_DAY_TIME } from '@/libs/date';
+import { END_OF_DAY_TIME, formatAtomDateTime, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
 import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
@@ -80,10 +78,6 @@ const CouponFormShape = z.object({
   ),
 });
 
-/** Formats to the same ATOM string the wire layer expects — no Date object survives into the payload. */
-const formatDateTime = (date: Date | null): string | null =>
-  date ? format(date, DATE_FORMATS.ATOM) : null;
-
 const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) => {
   const isAmountOff = values.discount_type === 'amount-off';
 
@@ -96,14 +90,14 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
     discount_value_type: isAmountOff ? values.discount_value_type ?? null : null,
     discount_amount:
       isAmountOff && values.discount_amount ? values.discount_amount : null,
-    start_datetime: formatDateTime(mergeDateTime(
+    start_datetime: formatAtomDateTime(mergeDateAndTime(
       values.start_date ?? '',
       values.start_time ?? START_OF_DAY_TIME,
     )),
     has_end_datetime: values.has_end_datetime,
-    end_datetime: formatDateTime(
+    end_datetime: formatAtomDateTime(
       values.has_end_datetime
-        ? mergeDateTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
+        ? mergeDateAndTime(values.end_date ?? '', values.end_time ?? END_OF_DAY_TIME)
         : null,
     ),
     has_usage_limit: values.has_usage_limit,

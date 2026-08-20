@@ -1,16 +1,18 @@
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { customerListOptions } from '@/features/customers/types';
-import { useListParams } from '@/hooks';
-import { ArrowDownUp, ListFilter } from '@/icons';
+import { useDataTableParams } from '@/hooks';
+import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
+import { __ } from '@/wpi18n';
 
 const CustomerTableFilters = () => {
-  const { params, setParam } = useListParams(customerListOptions);
+  const { params, setParam, handleDateFilter } = useDataTableParams(customerListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -25,23 +27,24 @@ const CustomerTableFilters = () => {
       <div style={{ width: '180px' }}>
         <Searchbox
           value={params.search || ''}
-          onChange={(value) => handleSearchChange(value as string)}
+          onChange={(value) => handleSearchChange(String(value))}
+          clearable
         />
       </div>
       <ActionGroup>
-        <Select disabled>
-          <SelectTrigger cssOverride={styles.selectTrigger}>
-            <SelectValue placeholder="Date: This Month" />
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
-        <Button variant="outline">
-          <ListFilter />
-          Filter
-        </Button>
+        <DateRangePicker
+          value={{
+            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
+            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
+          }}
+          presets
+          clearable
+          onChange={handleDateFilter}
+          size="sm"
+        />
         <Button
           variant="outline"
-          aria-label="Sort"
+          aria-label={__('Sort', 'kirki-ecommerce')}
           onClick={handleSortChange}
         >
           <ArrowDownUp />

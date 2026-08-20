@@ -2,20 +2,20 @@ import { memo } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
+import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { Select, SelectContent, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { ProductListFilter} from '@/features/products';
 import { productListOptions } from '@/features/products';
 import FilterPopup from '@/features/products/components/product-table/filter-popup/filter-popup';
-import { useListParams } from '@/hooks';
+import { useDataTableParams } from '@/hooks';
 import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const ProductTableFilter = memo(() => {
-  const { params, setParam } = useListParams<ProductListFilter>(productListOptions);
+  const { params, setParam, handleDateFilter } = useDataTableParams(productListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -24,6 +24,7 @@ const ProductTableFilter = memo(() => {
   const handleSortChange = () => {
     setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
   };
+
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -35,12 +36,16 @@ const ProductTableFilter = memo(() => {
         />
       </div>
       <ActionGroup>
-        <Select disabled>
-          <SelectTrigger cssOverride={styles.selectTrigger}>
-            <SelectValue placeholder={__('Date: This Month', 'kirki-ecommerce')} />
-          </SelectTrigger>
-          <SelectContent />
-        </Select>
+        <DateRangePicker
+          value={{
+            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
+            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
+          }}
+          presets
+          clearable
+          onChange={handleDateFilter}
+          size="sm"
+        />
         <FilterPopup />
         <Button
           variant="outline"

@@ -8,6 +8,7 @@ const collectionListOptions: UseListParamsOptions = {
     page: 1,
     limit: 10,
   },
+
 };
 
 export { collectionListOptions };

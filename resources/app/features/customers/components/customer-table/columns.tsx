@@ -4,7 +4,9 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
+import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { displayMoney } from '@/utils/money';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const customerColumns: ColumnDef<CustomerListItem>[] = [
@@ -52,13 +54,13 @@ const customerColumns: ColumnDef<CustomerListItem>[] = [
     id: 'last_order_date',
     header: __('Last Order', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => row.original?.last_order_date || '--',
+    cell: ({ row }) => isDefined(row.original.last_order_date) ? formatDateValue(new Date(row.original.last_order_date), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
   },
   {
     id: 'created_at',
     header: __('Joined at', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => row.original?.created_at || '--',
+    cell: ({ row }) => isDefined(row.original.created_at) ? formatDateValue(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
   },
 ];
 

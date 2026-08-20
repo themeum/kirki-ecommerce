@@ -5,7 +5,7 @@ import Container from '@/components/ui/container';
 import PageHeading from '@/components/ui/page-heading';
 import { useUpdateBulkVariantsMutation } from '@/features/bulk-edit';
 import { InventoryFormProvider, useInventoryForm } from '@/features/inventory';
-import InventoryTable from '@/features/inventory/pages/inventory-table/inventory-table';
+import InventoryTable from '@/features/inventory/components/inventory-table/inventory-table';
 import { useInventoryQuery } from '@/features/inventory/services/inventory';
 import { inventoryListOptions } from '@/features/inventory/types';
 import { useDataTableParams } from '@/hooks';

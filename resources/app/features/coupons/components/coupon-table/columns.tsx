@@ -124,7 +124,7 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
     header: __('Created at', 'kirki-ecommerce'),
     enableSorting: false,
     cell: ({ row }) =>
-      row.original.created_at ? format(new Date(row.original.created_at), DATE_FORMATS.YEAR_MONTH_DAY) : '-',
+      row.original.created_at ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '-',
   },
   {
     id: 'actions',

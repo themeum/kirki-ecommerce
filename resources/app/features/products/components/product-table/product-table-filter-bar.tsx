@@ -6,9 +6,9 @@ import Flex from '@/components/ui/flex';
 import { useBrandsQuery } from '@/features/brands';
 import { useCategoriesQuery } from '@/features/categories';
 import { useCollectionsQuery } from '@/features/collections';
-import type { ProductListFilter} from '@/features/products';
+import type { ProductListFilter } from '@/features/products';
 import { productListFilterConfig, productListOptions } from '@/features/products';
-import { useListParams } from '@/hooks';
+import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SuggestionOption } from '@/types/pages/common';
@@ -39,7 +39,7 @@ const filterActionBarCss = defineStyles({
 });
 
 const ProductTableFilterBar = memo(() => {
-  const { params, setParam, setParams } = useListParams<ProductListFilter>(productListOptions);
+  const { params, setParam, setParams } = useDataTableParams(productListOptions);
 
   const { data: brandsData } = useBrandsQuery({ limit: -1 });
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });

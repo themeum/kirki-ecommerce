@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { endOfMonth, endOfWeek } from 'date-fns';
 import { useState } from 'react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -9,6 +10,9 @@ import {
   DateTimePicker,
   TimePicker,
 } from '@/components/ui/calendar';
+import { WEEK_STARTS_ON } from '@/libs/date';
+
+const weekOptions = { weekStartsOn: WEEK_STARTS_ON } as const;
 
 beforeAll(() => {
   Element.prototype.hasPointerCapture = vi.fn(() => false);
@@ -31,7 +35,7 @@ const getTimeField = (container: HTMLElement) => {
   return field;
 };
 
-const renderDatePicker = (value: string | null) => {
+const renderDatePicker = (value: Date | null) => {
   const onChange = vi.fn();
 
   render(<DatePicker value={value} onChange={onChange} placeholder="Pick a date" />);
@@ -75,20 +79,20 @@ describe('DatePicker', () => {
     expect(screen.getByRole('combobox')).toHaveTextContent('Pick a date');
   });
 
-  it('renders the placeholder when the value is unparseable', () => {
-    renderDatePicker('not-a-date');
+  it('renders the placeholder when the value is an invalid date', () => {
+    renderDatePicker(new Date('not-a-date'));
 
     expect(screen.getByRole('combobox')).toHaveTextContent('Pick a date');
   });
 
-  it('emits a yyyy-MM-dd string when a day is selected', async () => {
-    const { onChange } = renderDatePicker('2026-06-10');
+  it('emits a Date when a day is selected', async () => {
+    const { onChange } = renderDatePicker(new Date(2026, 5, 10));
 
     fireEvent.click(screen.getByRole('combobox'));
 
     fireEvent.click(await screen.findByRole('button', { name: /June 3rd, 2026/ }));
 
-    expect(onChange).toHaveBeenCalledWith('2026-06-03');
+    expect(onChange).toHaveBeenCalledWith(new Date(2026, 5, 3));
   });
 });
 
@@ -224,7 +228,7 @@ describe('DateRangePicker presets', () => {
     props: {
       presets?: boolean | DateRangePresetKey[];
       value?: DateRangeValue | null;
-      minDate?: string;
+      minDate?: Date;
     } = {},
   ) => {
     const { value = null, ...rest } = props;
@@ -294,7 +298,10 @@ describe('DateRangePicker presets', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Today' }));
 
-    expect(onChange).toHaveBeenCalledWith({ from: '2026-06-10', to: '2026-06-10' });
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 5, 10),
+      to: new Date(2026, 5, 10),
+    });
     expect(screen.queryAllByRole('grid')).toHaveLength(0);
   });
 
@@ -303,11 +310,14 @@ describe('DateRangePicker presets', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Last week' }));
 
-    expect(onChange).toHaveBeenCalledWith({ from: '2026-05-31', to: '2026-06-06' });
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 4, 31),
+      to: endOfWeek(new Date(2026, 5, 3), weekOptions),
+    });
   });
 
   it('disables a preset that falls entirely before minDate', () => {
-    renderRangePicker({ presets: ['last-month'], minDate: '2026-06-01' });
+    renderRangePicker({ presets: ['last-month'], minDate: new Date(2026, 5, 1) });
 
     expect(screen.getByRole('button', { name: 'Last month' })).toBeDisabled();
   });
@@ -315,18 +325,21 @@ describe('DateRangePicker presets', () => {
   it('clamps a preset that only partly overlaps the bounds', () => {
     const { onChange } = renderRangePicker({
       presets: ['this-month'],
-      minDate: '2026-06-15',
+      minDate: new Date(2026, 5, 15),
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'This month' }));
 
-    expect(onChange).toHaveBeenCalledWith({ from: '2026-06-15', to: '2026-06-30' });
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 5, 15),
+      to: endOfMonth(new Date(2026, 5, 10)),
+    });
   });
 
   it('marks the preset matching the current value as pressed', () => {
     renderRangePicker({
       presets: ['today', 'this-month'],
-      value: { from: '2026-06-01', to: '2026-06-30' },
+      value: { from: new Date(2026, 5, 1), to: new Date(2026, 5, 30) },
     });
 
     expect(screen.getByRole('button', { name: 'This month' })).toHaveAttribute(
@@ -340,13 +353,103 @@ describe('DateRangePicker presets', () => {
   });
 });
 
+describe('DateRangePicker range selection', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 5, 10));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const openRangePicker = () => {
+    const onChange = vi.fn();
+
+    render(
+      <DateRangePicker
+        value={null}
+        onChange={onChange}
+        placeholder="Pick a date range"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('combobox'));
+
+    return { onChange };
+  };
+
+  const clickDay = (name: RegExp) => {
+    fireEvent.click(screen.getByRole('button', { name }));
+  };
+
+  const getDayCell = (name: RegExp) => {
+    return screen.getByRole('button', { name }).closest('[role="gridcell"]');
+  };
+
+  it('emits nothing and keeps the popover open when only the start day is picked', () => {
+    const { onChange } = openRangePicker();
+
+    clickDay(/June 3rd, 2026/);
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryAllByRole('grid')).not.toHaveLength(0);
+  });
+
+  it('marks the start day while the end day is still missing', () => {
+    openRangePicker();
+
+    clickDay(/June 3rd, 2026/);
+
+    expect(getDayCell(/June 3rd, 2026/)).toHaveAttribute('data-selected', 'true');
+  });
+
+  it('emits the range and closes the popover once the end day is picked', () => {
+    const { onChange } = openRangePicker();
+
+    clickDay(/June 3rd, 2026/);
+    clickDay(/June 12th, 2026/);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 5, 3),
+      to: new Date(2026, 5, 12),
+    });
+    expect(screen.queryAllByRole('grid')).toHaveLength(0);
+  });
+
+  it('commits a single day range when the popover closes with only a start day', () => {
+    const { onChange } = openRangePicker();
+
+    clickDay(/June 3rd, 2026/);
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
+
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 5, 3),
+      to: new Date(2026, 5, 3),
+    });
+  });
+
+  it('commits a single day range when the start day is picked twice', () => {
+    const { onChange } = openRangePicker();
+
+    clickDay(/June 3rd, 2026/);
+    clickDay(/June 3rd, 2026/);
+
+    expect(onChange).toHaveBeenCalledWith({
+      from: new Date(2026, 5, 3),
+      to: new Date(2026, 5, 3),
+    });
+  });
+});
+
 describe('DateTimePicker', () => {
   it('combines an entered time with the selected date', () => {
     const onChange = vi.fn();
 
     const { container } = render(
       <DateTimePicker
-        value="2026-06-03 09:00"
+        value={new Date(2026, 5, 3, 9, 0)}
         onChange={onChange}
         placeholder="Pick a date and time"
       />,
@@ -357,13 +460,13 @@ describe('DateTimePicker', () => {
       target: { value: '14:30' },
     });
 
-    expect(onChange).toHaveBeenLastCalledWith('2026-06-03 14:30');
+    expect(onChange).toHaveBeenLastCalledWith(new Date(2026, 5, 3, 14, 30));
   });
 
   it('opens the time overlay without dismissing the calendar', () => {
     const { container } = render(
       <DateTimePicker
-        value="2026-06-03 09:00"
+        value={new Date(2026, 5, 3, 9, 0)}
         onChange={vi.fn()}
         placeholder="Pick a date and time"
       />,

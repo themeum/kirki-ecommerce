@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { startOfDay } from 'date-fns';
+import { isSameDay, startOfDay } from 'date-fns';
 import { useId, useMemo, useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 
@@ -12,19 +12,21 @@ import {
 } from '@/components/ui/calendar/calendar-presets';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, {
+  type PickerTriggerSize,
+} from '@/components/ui/calendar/picker-trigger';
 import RangePresets, {
   type RangePresetOption,
 } from '@/components/ui/calendar/range-presets';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
-import { DATE_FORMATS, formatDateValue, parseDateValue } from '@/libs/date';
+import { DATE_FORMATS, formatDateValue, toValidDate } from '@/libs/date';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type DateRangeValue = {
-  from: string | null;
-  to: string | null;
+  from: Date | null;
+  to: Date | null;
 };
 
 type DateRangePickerProps = {
@@ -32,12 +34,13 @@ type DateRangePickerProps = {
   onChange?: (value: DateRangeValue | null) => void;
   placeholder?: string;
   displayFormat?: string;
-  minDate?: string | null;
-  maxDate?: string | null;
+  minDate?: Date | null;
+  maxDate?: Date | null;
   numberOfMonths?: number;
   presets?: boolean | DateRangePresetKey[];
   presetsPosition?: DateRangePresetsPosition;
   clearable?: boolean;
+  size?: PickerTriggerSize;
   disabled?: boolean;
   error?: boolean;
   id?: string;
@@ -69,11 +72,18 @@ const PresetBar = ({ presets, position, value, onSelect, startDate, endDate }: {
   }, [presets, startDate, endDate]);
 
   const activePresetKey = useMemo(() => {
+    const from = toValidDate(value?.from);
+    const to = toValidDate(value?.to);
+
+    if (!from || !to) {
+      return null;
+    }
+
     return presetOptions.find((option) => {
       return (
         option.range &&
-        formatDateValue(option.range.from) === value?.from &&
-        formatDateValue(option.range.to) === value?.to
+        isSameDay(option.range.from, from) &&
+        isSameDay(option.range.to, to)
       );
     })?.key ?? null
   }, [presetOptions, value]);
@@ -98,23 +108,25 @@ const DateRangePicker = ({
   value,
   onChange = noop,
   placeholder = __('Pick a range', 'kirki-ecommerce'),
-  displayFormat = DATE_FORMATS.HUMAN_READABLE,
+  displayFormat = DATE_FORMATS.HUMAN_READABLE_SHORT,
   minDate,
   maxDate,
   numberOfMonths = 2,
   presets = false,
   presetsPosition = 'left',
   clearable = false,
+  size = 'md',
   disabled = false,
   error = false,
   id,
   cssOverride,
 }: DateRangePickerProps) => {
   const [open, setOpen] = useState(false);
+  const [pendingRange, setPendingRange] = useState<DateRange | undefined>(undefined);
   const calendarId = useId();
 
-  const fromDate = parseDateValue(value?.from);
-  const toDate = parseDateValue(value?.to);
+  const fromDate = toValidDate(value?.from);
+  const toDate = toValidDate(value?.to);
   const { startDate, endDate, disabledDays } = useMemo(() => {
     return getDateBounds(minDate, maxDate);
   }, [minDate, maxDate]);
@@ -123,24 +135,61 @@ const DateRangePicker = ({
   const toLabel = formatDateValue(toDate, displayFormat);
   const showClear = clearable && Boolean(fromLabel) && !disabled;
 
-  const selectedRange: DateRange | undefined = fromDate
-    ? { from: fromDate, to: toDate ?? undefined }
-    : undefined;
+  const selectedRange: DateRange | undefined =
+    pendingRange ??
+    (fromDate ? { from: fromDate, to: toDate ?? undefined } : undefined);
+
+  const commitRange = (from: Date, to: Date) => {
+    setPendingRange(undefined);
+    onChange({ from, to });
+    setOpen(false);
+  };
 
   const handleSelect = (nextRange: DateRange | undefined) => {
-    const nextFrom = formatDateValue(nextRange?.from ?? null);
-    const nextTo = formatDateValue(nextRange?.to ?? null);
+    const nextFrom = nextRange?.from ?? null;
+    const nextTo = nextRange?.to ?? null;
 
     if (!nextFrom) {
+      const pendingFrom = pendingRange?.from;
+
+      if (pendingFrom) {
+        commitRange(pendingFrom, pendingFrom);
+        return;
+      }
+
+      setPendingRange(undefined);
       onChange(null);
       return;
     }
 
-    onChange({ from: nextFrom, to: nextTo });
-
-    if (nextTo) {
-      setOpen(false);
+    if (!nextTo) {
+      setPendingRange({ from: nextFrom, to: undefined });
+      return;
     }
+
+    commitRange(nextFrom, nextTo);
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setPendingRange(undefined);
+      setOpen(true);
+      return;
+    }
+
+    const pendingFrom = pendingRange?.from;
+
+    if (pendingFrom) {
+      setPendingRange(undefined);
+      onChange({ from: pendingFrom, to: pendingFrom });
+    }
+
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    setPendingRange(undefined);
+    onChange(null);
   };
 
   const handlePresetSelect = (option: RangePresetOption) => {
@@ -164,7 +213,7 @@ const DateRangePicker = ({
   };
 
   return (
-    <Popover modal open={open} onOpenChange={setOpen}>
+    <Popover modal open={open} onOpenChange={handleOpenChange}>
       <PickerTrigger
         id={id}
         controlsId={calendarId}
@@ -173,7 +222,8 @@ const DateRangePicker = ({
         label={triggerLabel()}
         placeholder={placeholder}
         clearLabel={__('Clear date range', 'kirki-ecommerce')}
-        onClear={showClear ? () => onChange(null) : undefined}
+        onClear={showClear ? handleClear : undefined}
+        size={size}
         disabled={disabled}
         error={error}
         cssOverride={cssOverride}
@@ -201,6 +251,7 @@ const DateRangePicker = ({
             startMonth={startDate ?? undefined}
             endMonth={endDate ?? undefined}
             disabled={disabledDays}
+            resetOnSelect
           />
           {presetsPosition !== 'left' && <PresetBar
             presets={presets}

@@ -349,6 +349,8 @@ class VariantService
             });
         });
 
+        $query->filter_with_datetime_range($filters->from_date, $filters->to_date);
+
         $query->when($filters->sort_by, function ($query) use ($filters) {
             return $query->order_by($filters->sort_by, $filters->sort_order);
         });
