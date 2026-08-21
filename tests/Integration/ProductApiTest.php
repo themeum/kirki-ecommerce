@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
@@ -227,6 +228,30 @@ class ProductApiTest extends RestTestCase
     }
 
     /**
+     * Resolve an attribute value label that is not taken yet.
+     *
+     * Attribute values are globally unique, and this class creates the same
+     * colours more than once, so a taken label gets a numbered suffix.
+     *
+     * @param string $value Desired value label.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    protected function unused_attribute_value(string $value): string
+    {
+        $candidate = $value;
+        $suffix = 1;
+
+        while (AttributeValue::where('value', $candidate)->first()) {
+            $suffix++;
+            $candidate = $value . ' ' . $suffix;
+        }
+
+        return $candidate;
+    }
+
+    /**
      * Create a variant product with a single Color attribute.
      *
      * @return array
@@ -246,7 +271,7 @@ class ProductApiTest extends RestTestCase
         foreach (['Red', 'Blue'] as $value) {
             $created = $this->request('POST', 'attributes/' . $attribute_id . '/values', [
                 'attribute_id' => $attribute_id,
-                'value' => $value,
+                'value' => $this->unused_attribute_value($value),
             ]);
             $value_ids[] = $this->assert_api_success($created, 201)['data']['id'];
         }
