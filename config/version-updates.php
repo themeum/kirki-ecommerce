@@ -19,6 +19,6 @@ return [
         $seeder();
     },
     '1.0.0-alpha.2' => function () {
-        // Run version update related functionalities
+        Utils::generate_site_pages();
     }
 ];

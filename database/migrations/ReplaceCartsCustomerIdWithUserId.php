@@ -11,15 +11,15 @@ class ReplaceCartsCustomerIdWithUserId implements Migration
     public function up()
     {
         Schema::table('kirki_ecommerce_carts', function (Structure $table) {
-            $table->drop_foreign(['customer_id']);
-            $table->drop_index('idx_customer_carts');
+            $table->drop_foreign('fk_kirki_ecommerce_carts_customer_id');
+            $table->drop_index('idx_kirki_ecommerce_carts_customer_id_created_at');
             $table->drop_column('customer_id');
 
             $table->unsigned_big_integer('user_id')->nullable()->comment('WordPress user ID for owned carts')->after('id');
 
-            $table->index(['user_id', 'created_at'], 'idx_user_carts');
+            $table->index(['user_id', 'created_at'], 'idx_kirki_ecommerce_carts_user_id_created_at');
 
-            $table->foreign('user_id')
+            $table->foreign('user_id', 'fk_kirki_ecommerce_carts_user_id')
                 ->references('ID')
                 ->on('users')
                 ->cascade_on_delete();
@@ -29,15 +29,15 @@ class ReplaceCartsCustomerIdWithUserId implements Migration
     public function down()
     {
         Schema::table('kirki_ecommerce_carts', function (Structure $table) {
-            $table->drop_foreign(['user_id']);
-            $table->drop_index('idx_user_carts');
+            $table->drop_foreign('fk_kirki_ecommerce_carts_user_id');
+            $table->drop_index('idx_kirki_ecommerce_carts_user_id_created_at');
             $table->drop_column('user_id');
 
             $table->unsigned_big_integer('customer_id')->nullable()->after('id');
 
-            $table->index(['customer_id', 'created_at'], 'idx_customer_carts');
+            $table->index(['customer_id', 'created_at'], 'idx_kirki_ecommerce_carts_customer_id_created_at');
 
-            $table->foreign('customer_id')
+            $table->foreign('customer_id', 'fk_kirki_ecommerce_carts_customer_id')
                 ->references('id')
                 ->on('kirki_ecommerce_customers')
                 ->cascade_on_delete();

@@ -49,19 +49,18 @@ use Kirki\Ecommerce\Database\Migrations\CreateMediaProductTable;
 use Kirki\Ecommerce\Database\Migrations\CreateProductSchemaTable;
 use Kirki\Ecommerce\Database\Migrations\CreateSchedulerJobsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchedulerJobsStatusColumnToString;
+use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 
 return [
     CreateLanguagesTable::class,
     CreateCurrenciesTable::class,
     CreateCustomersTable::class,
     CreateAddressesTable::class,
-    AlterAddressesTypeColumnToString::class,
     CreateBrandsTable::class,
     CreateCategoriesTable::class,
     CreateTagsTable::class,
     CreateCollectionsTable::class,
     CreateAttributesTable::class,
-    AlterAttributesTypeColumnToString::class,
     CreateAttributeValuesTable::class,
     CreateProductSchemaTable::class,
     CreateProductsTable::class,
@@ -75,29 +74,38 @@ return [
     CreateAttributeProductTable::class,
     CreateAttributeValueProductTable::class,
     CreateCartsTable::class,
-    ReplaceCartsCustomerIdWithUserId::class,
     CreateCartItemsTable::class,
-    AlterCartItemsVariantForeignKeyToCascade::class,
     CreateOrdersTable::class,
     CreateOrderItemsTable::class,
     CreateOrderActivitiesTable::class,
     CreateRefundsTable::class,
-    AlterRefundsEnumColumnsToString::class,
     CreateCouponsTable::class,
-    AlterCouponsEligibilityColumns::class,
-    AlterCouponsEnumColumnsToString::class,
     CreateCouponCategoriesTable::class,
     CreateCouponCustomersTable::class,
-    AlterCouponCustomersCompositePrimaryKey::class,
     CreateCouponProductsTable::class,
     CreateCouponUsageTable::class,
     CreateCollectionTranslationsTable::class,
     CreateAttributeTranslationsTable::class,
     CreateShippingProfilesTable::class,
-    AddIsDefaultToShippingProfilesTable::class,
     CreateShippingBoxesTable::class,
     CreateTaxProfilesTable::class,
-    AddIsDefaultToTaxProfilesTable::class,
     CreateSchedulerJobsTable::class,
+
+    // Gives every key an explicit, project-owned name. Must stay after every Create* migration and
+    // before every Alter* migration: at this point an upgraded database and a fresh install hold
+    // the same tables, which is what lets one code path serve both. Never reorder, never edit.
+    AlterSchemaKeysToExplicitNames::class,
+
+    // Altering the tables structures
+    AlterAddressesTypeColumnToString::class,
+    AlterAttributesTypeColumnToString::class,
+    ReplaceCartsCustomerIdWithUserId::class,
+    AlterCartItemsVariantForeignKeyToCascade::class,
+    AlterRefundsEnumColumnsToString::class,
+    AlterCouponsEligibilityColumns::class,
+    AlterCouponsEnumColumnsToString::class,
+    AlterCouponCustomersCompositePrimaryKey::class,
+    AddIsDefaultToShippingProfilesTable::class,
+    AddIsDefaultToTaxProfilesTable::class,
     AlterSchedulerJobsStatusColumnToString::class,
 ];
