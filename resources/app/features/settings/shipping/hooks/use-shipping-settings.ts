@@ -39,8 +39,6 @@ type UseShippingSettingsResult = {
   loaded: boolean;
   shippingZonesObj: ShippingZone[];
   countryList: CountryWithStates[];
-  searchValue: string;
-  setSearchValue: (value: string) => void;
   showCreateZonePopup: boolean;
   setShowCreateZonePopup: (open: boolean) => void;
   popupErrors: FormErrors;
@@ -58,7 +56,6 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
 
   const newZoneIdRef = useRef(uuid());
-  const [searchValue, setSearchValue] = useState('');
   const [showCreateZonePopup, setShowCreateZonePopup] = useState(false);
   const [popupErrors, setPopupErrors] = useState<FormErrors>({});
 
@@ -261,8 +258,6 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     loaded,
     shippingZonesObj,
     countryList,
-    searchValue,
-    setSearchValue,
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,

@@ -398,7 +398,7 @@ class SettingsUpdateRequest extends Request
             'data.tax_regions.*.code' => 'required|string',
             'data.tax_regions.*.name' => 'required|string',
             'data.tax_regions.*.is_enabled' => 'required|boolean',
-            'data.tax_regions.*.type' => 'required_if:code,EU|string',
+            'data.tax_regions.*.type' => 'required_if:code,EU|string|nullable',
             'data.tax_regions.*.is_central_tax_enabled' => 'nullable|boolean',
             'data.tax_regions.*.central_product_tax' => 'required_if:is_central_tax_enabled,true|number',
             'data.tax_regions.*.central_shipping_tax' => 'nullable|number',
