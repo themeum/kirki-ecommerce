@@ -12,7 +12,7 @@ class CreateCartsTable implements Migration
     {
         Schema::create('kirki_ecommerce_carts', function (Structure $table) {
             $table->id();
-            $table->unsigned_big_integer('user_id')->nullable()->comment('WordPress user ID for owned carts');
+            $table->unsigned_big_integer('customer_id')->nullable();
             $table->string('cart_token')->nullable()->comment('For guest cart tracking');
 
             $table->string('currency_code', 3);
@@ -36,13 +36,13 @@ class CreateCartsTable implements Migration
             $table->timestamps();
 
             $table->index('cart_token');
-            $table->index(['user_id', 'created_at'], 'idx_user_carts');
+            $table->index(['customer_id', 'created_at'], 'idx_customer_carts');
             $table->index('expires_at');
             $table->index(['cart_token', 'expires_at'], 'idx_guest_cart_cleanup');
 
-            $table->foreign('user_id')
-                ->references('ID')
-                ->on('users')
+            $table->foreign('customer_id')
+                ->references('id')
+                ->on('kirki_ecommerce_customers')
                 ->cascade_on_delete();
         });
     }
