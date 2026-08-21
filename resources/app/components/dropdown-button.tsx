@@ -1,11 +1,12 @@
 import type { CSSObject } from '@emotion/react';
+import { EllipseIcon, EllipsisVertical } from 'lucide-react';
 import { type ComponentProps, type CSSProperties, type ReactNode, useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { theme } from '@/theme';
-import type { ButtonSize, ButtonState, ButtonType, DropdownSize, SelectOption } from '@/types';
+import type { ButtonState, DropdownSize, SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 
 type DropdownOption = SelectOption & {
@@ -14,50 +15,14 @@ type DropdownOption = SelectOption & {
   type?: 'separator';
 };
 
-type DropdownTriggerButtonProps = {
-  text?: ReactNode;
-  type?: ButtonType;
-  size?: ButtonSize;
-  state?: ButtonState;
-  icon?: ReactNode;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
-  cssOverride?: CSSObject;
-  style?: CSSProperties;
-  onClick?: () => void;
-};
-
 type ButtonVariant = NonNullable<ComponentProps<typeof Button>['variant']>;
-type NewButtonSize = NonNullable<ComponentProps<typeof Button>['size']>;
 
-const LEGACY_VARIANT_MAP: Record<ButtonType, ButtonVariant> = {
-  primary: 'primary',
-  secondary: 'secondary',
-  destructive: 'destructive',
-  outlined: 'outline',
-  ghost: 'ghost',
-  primarySoft: 'secondary',
-  destructiveSoft: 'secondary',
-  link: 'link',
-  inverse: 'ghost',
-  blank: 'ghost',
-  tartiary: 'ghost',
-  invisible: 'ghost',
+type DropdownTriggerButtonProps = {
+  state?: ButtonState;
+  cssOverride?: CSSObject;
+  direction?: 'vertical' | 'horizontal';
+  variant?: ButtonVariant;
 };
-
-const LEGACY_SIZE_MAP: Record<ButtonSize, NewButtonSize> = {
-  small: 'sm',
-  xsm: 'sm',
-  large: 'lg',
-  icon: 'icon',
-  fullWidth: 'default',
-};
-
-const mapButtonVariant = (type?: ButtonType): ButtonVariant =>
-  type ? LEGACY_VARIANT_MAP[type] : 'ghost';
-
-const mapButtonSize = (size?: ButtonSize): NewButtonSize =>
-  size ? LEGACY_SIZE_MAP[size] : 'default';
 
 type DropdownButtonProps = {
   buttonProps?: DropdownTriggerButtonProps;
@@ -126,39 +91,23 @@ const DropdownButton = ({
   };
 
   const {
-    text,
-    type,
-    size: buttonSize,
     state,
-    icon,
-    leftIcon,
-    rightIcon,
     cssOverride: buttonCss,
-    style: buttonStyle = {},
+    direction = 'vertical',
+    variant = 'ghost',
   } = buttonProps ?? {};
 
   return (
     <DropdownMenu open={openDropdown} onOpenChange={openCloseDropdown}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant={mapButtonVariant(type)}
-          size={mapButtonSize(buttonSize)}
+          variant={variant}
+          size="icon-sm"
           loading={state === 'loading'}
           disabled={state === 'disabled'}
           cssOverride={buttonCss}
-          style={
-            buttonSize === 'fullWidth'
-              ? { width: '100%', ...buttonStyle }
-              : buttonStyle
-          }
         >
-          {icon ?? (
-            <>
-              {leftIcon}
-              {text}
-              {rightIcon}
-            </>
-          )}
+          {direction === 'vertical' ? <EllipsisVertical /> : <EllipseIcon />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent style={dropdownStyle}>

@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
 import vitest from '@vitest/eslint-plugin';
+import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -8,6 +9,138 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+
+// The features/ restructure (see openspec/changes/restructure-app-features)
+// was migrated feature by feature with this at `warn`, so violations were a
+// visible, shrinking count rather than an all-or-nothing gate. Every feature
+// has now moved (0 warnings as of group 7) — promoted to `error`.
+const FEATURE_BOUNDARY_SEVERITY = 'error';
+
+const FEATURES = [
+  'brands',
+  'tags',
+  'categories',
+  'collections',
+  'customers',
+  'coupons',
+  'inventory',
+  'bulk-edit',
+  'orders',
+  'products',
+  'settings',
+  'system',
+];
+
+const SHARED_ROOT_DIRS = [
+  'components',
+  'hooks',
+  'utils',
+  'libs',
+  'theme',
+  'types',
+  'schemas',
+  'services',
+  'contexts',
+  'config',
+];
+
+const featureBoundaryConfigs = FEATURES.map((feature) => ({
+  name: `kirki/feature-boundary-${feature}`,
+  files: ['**/*.{ts,tsx}'],
+  ignores: [`features/${feature}/**`],
+  rules: {
+    'no-restricted-imports': [
+      FEATURE_BOUNDARY_SEVERITY,
+      {
+        patterns: [
+          {
+            group: [`@/features/${feature}/*`, `@/features/${feature}/**`],
+            message: `Import from '@/features/${feature}' (its public API) instead of reaching into its internals.`,
+          },
+        ],
+      },
+    ],
+  },
+}));
+
+const sharedNoFeatureImportConfig = {
+  name: 'kirki/shared-no-feature-import',
+  files: SHARED_ROOT_DIRS.map((dir) => `${dir}/**/*.{ts,tsx}`),
+  rules: {
+    'no-restricted-imports': [
+      FEATURE_BOUNDARY_SEVERITY,
+      {
+        patterns: [
+          {
+            group: ['@/features/*', '@/features/**'],
+            message: 'Shared code may not depend on a feature. Move this file into the feature that owns the data it needs.',
+          },
+        ],
+      },
+    ],
+  },
+};
+
+// Field components own the react-hook-form binding: they are generic over
+// `<TFieldValues, TName>`, read `control` from `useFormContext()`, and render
+// the Field/FieldLabel/FieldError envelope. Screens bind by rendering one of
+// them, so an error-rendering or a11y fix made in a field reaches every screen.
+// Generic fields live in components/form/; fields carrying feature knowledge
+// (their own option query, create mutation, or cross-field side effects) live
+// in features/<feature>/components/fields/, because shared code may not import
+// from a feature (see sharedNoFeatureImportConfig).
+//
+// Expressed as `no-restricted-syntax` rather than `no-restricted-imports`
+// deliberately: flat-config rule entries replace rather than merge, so adding
+// a broad-glob `no-restricted-imports` block here would silently drop the
+// feature-boundary patterns those configs set.
+// `features/**` rather than `features/*`: settings nests sub-features, so its
+// field components sit at features/settings/<area>/components/fields/.
+const CONTROLLER_FIELD_DIRS = [
+  'components/form/**/*.{ts,tsx}',
+  'features/**/components/fields/**/*.{ts,tsx}',
+];
+
+const controllerOnlyInFieldsConfig = {
+  name: 'kirki/controller-only-in-fields',
+  files: ['**/*.{ts,tsx}'],
+  rules: {
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector:
+          "ImportDeclaration[source.value='react-hook-form'] > ImportSpecifier[imported.name='Controller']",
+        message:
+          'Bind inputs through a field component, not a Controller. Generic fields live in components/form/; fields needing feature data live in features/<feature>/components/fields/.',
+      },
+    ],
+  },
+};
+
+const controllerFieldAllowlistConfig = {
+  name: 'kirki/controller-field-allowlist',
+  files: CONTROLLER_FIELD_DIRS,
+  rules: {
+    'no-restricted-syntax': 'off',
+  },
+};
+
+const importNoCycleConfig = {
+  name: 'kirki/import-no-cycle',
+  files: ['**/*.{ts,tsx}'],
+  plugins: { import: importPlugin },
+  settings: {
+    'import/resolver': {
+      typescript: { project: './tsconfig.json' },
+    },
+  },
+  rules: {
+    // Not gated by FEATURE_BOUNDARY_SEVERITY — a cycle is always a real
+    // defect (undefined at module init), never a migration-in-progress
+    // warning.
+    'import/no-cycle': 'error',
+  },
+};
 
 export default tseslint.config(
   {
@@ -158,7 +291,7 @@ export default tseslint.config(
     // A route manifest is a data module, not a component module — the lazy()
     // route entries it declares are never the thing Fast Refresh reloads.
     name: 'kirki/route-manifest',
-    files: ['routes.tsx'],
+    files: ['**/routes.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
     },
@@ -180,11 +313,14 @@ export default tseslint.config(
   },
 
   {
-    // Internal component playgrounds — not shipped, and logging is the point.
-    name: 'kirki/preview-sandboxes',
-    files: ['preview-pages/**/*.tsx', 'tryouts.tsx'],
+    // A list table's columns.tsx module-scope ColumnDef[] is deliberately
+    // paired with the small cell components that need hooks (e.g. a cell
+    // that navigates or fires a mutation) — see list-table-composition spec.
+    // Splitting those components into their own files would separate a
+    // column from the one thing its cell renders.
+    name: 'kirki/data-table-columns',
+    files: ['**/columns.tsx'],
     rules: {
-      'no-console': 'off',
       'react-refresh/only-export-components': 'off',
     },
   },
@@ -215,6 +351,27 @@ export default tseslint.config(
     },
     rules: {
       'react-refresh/only-export-components': 'off',
+    },
+  },
+
+  importNoCycleConfig,
+  ...featureBoundaryConfigs,
+  sharedNoFeatureImportConfig,
+  controllerOnlyInFieldsConfig,
+  controllerFieldAllowlistConfig,
+
+  {
+    // `lazy(() => import(...))` needs a concrete file target for its own
+    // code-split chunk, which is a structurally different dependency than a
+    // feature's internals being reused elsewhere — route composition is
+    // exempt from the deep-import boundary rules for that reason. Must come
+    // after the boundary configs above: flat config resolves per-rule by
+    // last-matching block, and this is the one place that reopens a rule
+    // those configs close.
+    name: 'kirki/route-manifest-lazy-imports',
+    files: ['**/routes.tsx'],
+    rules: {
+      'no-restricted-imports': 'off',
     },
   },
 );

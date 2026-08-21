@@ -7,13 +7,18 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\migrator;
 
 return [
-    '1.0.0-alpha.1' => function () {
+    'before_each' => function () {
         migrator()->run();
+    },
+    '1.0.0-alpha.1' => function () {
         Utils::generate_site_pages();
 
         // run() only queues the child seeders; invoking the seeder drains the queue.
         $seeder = app()->make(OnBoardingSeeder::class);
         $seeder->run();
         $seeder();
+    },
+    '1.0.0-alpha.2' => function () {
+        Utils::generate_site_pages();
     }
 ];

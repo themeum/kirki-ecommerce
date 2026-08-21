@@ -41,7 +41,9 @@
 // Breakpoint up (min-width)
 @mixin breakpoint-up($bp) {
   @if map.has-key($breakpoints, $bp) {
-    @media (min-width: map.get($breakpoints, $bp)) { @content; }
+    @media (min-width: map.get($breakpoints, $bp)) {
+      @content;
+    }
   } @else {
     @warn "Unknown breakpoint: #{$bp}";
   }
@@ -50,7 +52,9 @@
 // Breakpoint down (max-width)
 @mixin breakpoint-down($bp) {
   @if map.has-key($breakpoints, $bp) {
-    @media (max-width: #{map.get($breakpoints, $bp) - 1px}) { @content; }
+    @media (max-width: #{map.get($breakpoints, $bp) - 1px}) {
+      @content;
+    }
   } @else {
     @warn "Unknown breakpoint: #{$bp}";
   }

@@ -27,7 +27,12 @@ $url = user()->is_logged_in() ? $checkout_url : $login_url;
         <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-total-value" x-text="cartData.pricing.display_subtotal_money_object.display"></span>
     </div>
-    <a href="<?php echo esc_url($url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-cart-summary-checkout-btn">
+    <a
+        href="<?php echo esc_url($url); ?>"
+        class="kecom-btn kecom-btn-primary kecom-btn-block"
+        :class="{ 'kecom-btn-disabled': !cartData.items_count }"
+        :aria-disabled="!cartData.items_count"
+    >
         <?php _e('Proceed to Checkout', 'kirki-ecommerce'); ?>
     </a>
 </div>

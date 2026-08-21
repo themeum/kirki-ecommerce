@@ -10,7 +10,7 @@ import { MinusIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import type { SelectOption } from '@/types';
+import type { SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -116,6 +116,8 @@ const GroupTagTable = (props: GroupTagTableProps) => {
     clearSelectedData(filteredArray, groupName);
   };
 
+  const hasSelectedValues = Object.keys(groupedValueData).length > 0;
+
   return (
     <div css={scoped(styles.shell)}>
       {hasSelect && (
@@ -126,64 +128,66 @@ const GroupTagTable = (props: GroupTagTableProps) => {
           checkboxField
           onChange={(value) => handleSelectionChange(value)}
           dropdownFooter
+          isAttached={hasSelectedValues}
         />
       )}
-      {Object.keys(groupedValueData).length ? (
+      {hasSelectedValues ? (
         <Card
           cssOverride={mergeCss(cardStyles.innerCard,
             hasSelect ? styles.cardBottomRounded : styles.cardAllRounded,
             styles.cardBorder)}
         >
           <CardContent cssOverride={cardStyles.innerContent}>
-          <Flex gap={2} direction="column">
-            {(Object.keys(groupedValueData) || []).map((groupName, index) => (
-              <div key={index} css={scoped(styles.hoverParent)}>
-                <Flex
-                  key={index}
-                  align="center" justify="space-between">
-                  <Flex gap={2} align="center">
-                    {groupDetails[groupName]?.icon}
-                    <Text
-                      variant="small"
-                      color="subdued"
-                      cssOverride={styles.mutedText}
-                    >
-                      {groupDetails[groupName]?.title}
-                    </Text>
-                  </Flex>
+            <Flex gap={2} direction="column">
+              {(Object.keys(groupedValueData) || []).map((groupName, index) => (
+                <div key={index} css={scoped(styles.hoverParent)}>
                   <Flex
-                    gap={2}
+                    key={index}
                     align="center" justify="space-between">
-                    {isEditable && (
-                      <Button
-                        variant="link"
-                        data-hover-reveal="true"
-                        cssOverride={styles.hoverReveal}
-                        onClick={() => handleClearSingleGroup(groupName)}
+                    <Flex gap={2} align="center">
+                      {groupDetails[groupName]?.icon}
+                      <Text
+                        variant="small"
+                        color="subdued"
+                        cssOverride={styles.mutedText}
                       >
-                        {__('Clear all', 'kirki-ecommerce')}
-                      </Button>
-                    )}
-                    {groupedValueData[groupName].map((tagName, innerIndex) => (
-                      <Chip
-                        text={String(tagName)}
-                        key={innerIndex}
-                        closeIcon={
-                          isEditable &&
-                          !requiredFields[groupName]?.includes(tagName) ? (
-                            <MinusIcon />
-                          ) : null
-                        }
-                        onRemove={() =>
-                          handleDeleteSingleTag(tagName, groupName)
-                        }
-                      />
-                    ))}
+                        {groupDetails[groupName]?.title}
+                      </Text>
+                    </Flex>
+                    <Flex
+                      gap={2}
+                      align="center" justify="space-between">
+                      {isEditable && (
+                        <Button
+                          variant="link"
+                          data-hover-reveal="true"
+                          size="xs"
+                          cssOverride={styles.hoverReveal}
+                          onClick={() => handleClearSingleGroup(groupName)}
+                        >
+                          {__('Clear All', 'kirki-ecommerce')}
+                        </Button>
+                      )}
+                      {groupedValueData[groupName].map((tagName, innerIndex) => (
+                        <Chip
+                          text={String(tagName)}
+                          key={innerIndex}
+                          closeIcon={
+                            isEditable &&
+                              !requiredFields[groupName]?.includes(tagName) ? (
+                              <MinusIcon />
+                            ) : null
+                          }
+                          onRemove={() =>
+                            handleDeleteSingleTag(tagName, groupName)
+                          }
+                        />
+                      ))}
+                    </Flex>
                   </Flex>
-                </Flex>
-              </div>
-            ))}
-          </Flex>
+                </div>
+              ))}
+            </Flex>
           </CardContent>
         </Card>
       ) : null}

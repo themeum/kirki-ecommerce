@@ -7,6 +7,9 @@ use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
+use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
@@ -22,6 +25,7 @@ use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -310,6 +314,9 @@ class OrderApiTest extends RestTestCase
     /**
      * Create refund on order.
      *
+     * A refund is only accepted once the order has been paid for and either
+     * delivered or cancelled, so the order is moved into that state first.
+     *
      * @return void
      * @since 1.0.0
      */
@@ -317,6 +324,11 @@ class OrderApiTest extends RestTestCase
     {
         $order = $this->create_order();
         $this->order_id = $order['id'];
+
+        Order::where('id', $this->order_id)->update([
+            'payment_status' => PaymentStatus::PAID,
+            'fulfillment_status' => FulfillmentStatus::DELIVERED,
+        ]);
 
         $response = $this->request('POST', 'orders/' . $this->order_id . '/refunds', [
             'order_id' => $this->order_id,
@@ -501,33 +513,50 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Guest checkout is unaffected by customer auto-provisioning: no
-     * customer record is created and the order's customer_id stays null.
+     * A guest checkout is auto-provisioned a customer built from the billing
+     * fields, backed by a newly created subscriber account.
      *
      * Exercised directly through CreateOrderAction rather than the HTTP
      * `/checkout` endpoint: guest requests there currently fail with an
      * unrelated, pre-existing database error (CheckoutController passes
      * user()->get_id() - 0 for a guest, not null - as orders.created_by,
-     * which violates that column's foreign key). That bug predates and is
-     * unrelated to this change; calling the action directly isolates this
-     * regression check from it.
+     * which violates that column's foreign key). Calling the action directly
+     * isolates this check from it. For the same reason the WordPress session
+     * is left signed in: CustomerService::create() stamps customers.created_by
+     * with user()->get_id(), which is 0 - and therefore an invalid foreign key
+     * - for a signed out request. The order itself still goes through the
+     * guest path, with created_by null.
      *
      * @return void
      */
-    public function test_checkout_guest_order_has_no_customer(): void
+    public function test_checkout_guest_order_provisions_customer_from_billing(): void
     {
-        $this->logout();
-        $customer_count_before = Customer::count();
+        $billing_email = 'guest-' . wp_generate_password(8, false) . '@example.com';
 
-        $dto = CreateOrderPayloadDTO::from_array($this->order_payload(['is_manual' => false]));
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'billing_first_name' => 'Guest',
+            'billing_last_name' => 'Buyer',
+            'billing_email' => $billing_email,
+        ]));
         $dto->created_by = null;
         $dto->currency_code = 'USD';
 
         $order = app()->make(CreateOrderAction::class)->execute($dto);
         $this->order_id = $order->id;
 
-        $this->assertNull($order->customer_id);
-        $this->assertEquals($customer_count_before, Customer::count());
+        $customer = Customer::where('email', $billing_email)->first();
+
+        $this->assertNotNull($customer);
+        $this->assertEquals($customer->id, $order->customer_id);
+        $this->assertEquals('Guest', $customer->first_name);
+        $this->assertEquals('Buyer', $customer->last_name);
+
+        $user = get_user_by('email', $billing_email);
+
+        $this->assertNotFalse($user);
+        $this->assertEquals($customer->user_id, $user->ID);
+        $this->assertContains('subscriber', $user->roles);
     }
 
     /**
@@ -626,20 +655,24 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * A guest checkout (no WordPress user) sources the order's customer
-     * contact snapshot entirely from the billing fields.
+     * A guest checkout (no WordPress user behind the order) sources the
+     * order's customer contact snapshot entirely from the billing fields.
+     *
+     * The session is left signed in so that customers.created_by stays a
+     * valid foreign key while the order itself takes the guest path - see
+     * test_checkout_guest_order_provisions_customer_from_billing.
      *
      * @return void
      */
     public function test_order_customer_contact_uses_billing_for_guest_checkout(): void
     {
-        $this->logout();
+        $billing_email = 'guest-shopper-' . wp_generate_password(8, false) . '@example.com';
 
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
             'billing_first_name' => 'Guest',
             'billing_last_name' => 'Shopper',
-            'billing_email' => 'guest-shopper@example.com',
+            'billing_email' => $billing_email,
             'billing_phone' => '555-1234',
         ]));
         $dto->created_by = null;
@@ -650,7 +683,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertEquals('Guest', $order->customer_first_name);
         $this->assertEquals('Shopper', $order->customer_last_name);
-        $this->assertEquals('guest-shopper@example.com', $order->customer_email);
+        $this->assertEquals($billing_email, $order->customer_email);
         $this->assertEquals('555-1234', $order->customer_phone);
     }
 
@@ -785,6 +818,7 @@ class OrderApiTest extends RestTestCase
             'title' => 'First Time Buyer',
             'code' => 'FIRSTBUY' . wp_generate_password(6, false),
             'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
             'first_time_buyer_only' => true,
             'is_active' => true,
         ]);
@@ -827,6 +861,7 @@ class OrderApiTest extends RestTestCase
             'title' => 'First Time Buyer',
             'code' => 'FIRSTBUY' . wp_generate_password(6, false),
             'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
             'first_time_buyer_only' => true,
             'is_active' => true,
         ]);
@@ -856,6 +891,7 @@ class OrderApiTest extends RestTestCase
             'title' => 'Limited Per Customer',
             'code' => 'LIMITED' . wp_generate_password(6, false),
             'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
             'has_customer_limit' => true,
             'customer_limit' => 1,
             'is_active' => true,
@@ -874,9 +910,8 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Placing an order empties the authenticated shopper's cart - matched
-     * by the cart_token sent on the checkout request, which also lets the
-     * cart get linked to the customer newly provisioned for this order.
+     * Placing a checkout order empties the authenticated shopper's owned
+     * cart, resolved by their user id.
      *
      * @return void
      */
@@ -890,29 +925,62 @@ class OrderApiTest extends RestTestCase
             'quantity' => 1,
         ]);
         $cart_payload = $this->assert_api_success($add_response)['data'];
-        $cart_token = $cart_payload['cart_token'];
 
         $this->assertNotEmpty($cart_payload['items']);
 
-        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]), [
-            'kecom-cart-token' => $cart_token,
-        ]);
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+        ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
-        $cart_response = $this->request('GET', 'cart', [], ['kecom-cart-token' => $cart_token]);
+        $cart_response = $this->request('GET', 'cart');
         $cart_after = $this->assert_api_success($cart_response);
 
         $this->assertEmpty($cart_after['data']);
     }
 
     /**
-     * Placing a guest order empties the cart matched by its token - the
-     * only identifier available for a guest, since there's no customer_id.
+     * Checkout reuses an authenticated shopper's existing customer record
+     * instead of creating a duplicate one.
+     *
+     * @return void
+     */
+    public function test_checkout_reuses_existing_customer(): void
+    {
+        $user_id = $this->create_shopper_user();
+        $existing_customer = $this->provision_customer_for_user($user_id);
+
+        wp_set_current_user($user_id);
+
+        $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 1,
+        ]);
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $this->assertEquals($existing_customer->id, $payload['data']['customer_id']);
+        $this->assertEquals(1, Customer::where('user_id', $user_id)->count());
+    }
+
+    /**
+     * Placing a guest order empties the cart matched by its token - the only
+     * identifier available for a guest, since there's no customer_id.
      *
      * Exercised directly through CreateOrderAction rather than the HTTP
      * `/checkout` endpoint, for the same reason as
-     * test_checkout_guest_order_has_no_customer above.
+     * test_checkout_guest_order_provisions_customer_from_billing above. The
+     * cart is built signed out so it is a genuine token-owned guest cart,
+     * then the admin session is restored for the checkout itself to keep
+     * customers.created_by a valid foreign key - cart resolution reads the
+     * token off the DTO, not the session, so the guest path is unaffected.
      *
      * @return void
      */
@@ -920,6 +988,7 @@ class OrderApiTest extends RestTestCase
     {
         $product = $this->create_product();
         $variant_id = $this->default_variant_id($product);
+        $admin_id = get_current_user_id();
 
         $this->logout();
 
@@ -933,8 +1002,11 @@ class OrderApiTest extends RestTestCase
 
         $this->assertNotNull(Cart::where('cart_token', $cart_token)->first());
 
+        wp_set_current_user($admin_id);
+
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
+            'billing_email' => 'guest-cart-' . wp_generate_password(8, false) . '@example.com',
             'items' => [
                 ['variant_id' => $variant_id, 'quantity' => 1],
             ],
@@ -947,6 +1019,50 @@ class OrderApiTest extends RestTestCase
         $this->order_id = $order->id;
 
         $this->assertNull(Cart::where('cart_token', $cart_token)->first());
+    }
+
+    /**
+     * A guest cart token that has already been adopted by an account no
+     * longer resolves, so checking out with it is rejected.
+     *
+     * Session handling matches test_checkout_empties_guest_cart_by_token
+     * above: signed out while the guest cart is built, signed back in for the
+     * checkout so customer provisioning - which now runs before the cart is
+     * resolved - gets far enough for the cart error to surface.
+     *
+     * @return void
+     */
+    public function test_checkout_rejects_consumed_guest_cart_token(): void
+    {
+        $admin_id = get_current_user_id();
+
+        $this->logout();
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = app()->make(VariantService::class)->find($this->variant_id)->product_id;
+        $add_to_cart_dto->variant_id = $this->variant_id;
+        $add_to_cart_dto->quantity = 1;
+
+        $guest_cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart_token = $guest_cart->cart_token;
+        $user_id = $this->create_shopper_user();
+
+        app()->make(CartService::class)->get_cart($user_id, $cart_token);
+
+        wp_set_current_user($admin_id);
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'billing_email' => 'guest-consumed-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+        $dto->created_by = null;
+        $dto->currency_code = 'USD';
+        $dto->cart_token = $cart_token;
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Cart not found.');
+
+        app()->make(CreateOrderAction::class)->execute($dto);
     }
 
     /**

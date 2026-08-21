@@ -1,10 +1,10 @@
 import type { CSSObject } from '@emotion/react';
-import { type ComponentPropsWithoutRef, type CSSProperties, forwardRef, type ReactNode } from 'react';
+import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
 import Flex from '@/components/ui/flex';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
-import type { GapValue } from '@/types';
+import type { GapValue } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -36,7 +36,7 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
   const chipStyle = defineStyles({
     ...(color !== undefined ? { '--chip-swatch-color': color } : {}),
     ...style,
-  })as CSSProperties;
+  });
 
   return (
     <div ref={ref} style={chipStyle} css={scopedMerge(styles.root, cssOverride)} {...rest}>
@@ -80,8 +80,8 @@ const styles = defineStyles({
   },
   swatch: {
     borderRadius: theme.radius.full,
-    height: '16px',
-    width: '16px',
+    height: theme.spacing[4],
+    width: theme.spacing[4],
     backgroundColor: 'var(--chip-swatch-color)',
   },
   close: {

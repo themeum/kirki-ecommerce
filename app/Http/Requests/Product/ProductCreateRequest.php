@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -45,7 +47,7 @@ class ProductCreateRequest extends Request
         return [
             //product
             'title' => 'required|string|max:500',
-            'slug' => 'string|nullable|max:500',
+            'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug',
             'status' => 'string|nullable|in:' . implode(',', ProductStatus::get_constant_values()),
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',
@@ -95,10 +97,10 @@ class ProductCreateRequest extends Request
             'variants.*.attribute_values.*' => 'required_if:has_variants,true|integer',
 
             'variants.*.media' => 'integer|nullable',
-            'variants.*.sku' => 'string|nullable|max:100',
+            'variants.*.sku' => 'string|nullable|max:100|unique:' . Variant::get_table_name() . ',sku',
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required|number|min:0',
+            'variants.*.base_price' => 'required_if:status,'. ProductStatus::PUBLISHED . '|nullable|number|min:0',
             'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',

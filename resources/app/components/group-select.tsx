@@ -1,4 +1,3 @@
-import { ChevronsUpDown } from 'lucide-react';
 import { type CSSProperties, type ReactNode, useEffect, useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -9,9 +8,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
+import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { defineStyles, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
-import type { LabelFieldProps, SelectOption, SelectState } from '@/types';
+import { defineStyles, itemCenter, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import type { LabelFieldProps, SelectOption, SelectState } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -34,6 +34,8 @@ type GroupSelectProps = LabelFieldProps & {
   checkboxField?: boolean;
   dropdownHeader?: ReactNode;
   dropdownFooter?: ReactNode;
+  /** Square off the bottom edge so the trigger reads as one surface with the panel below it. */
+  isAttached?: boolean;
 };
 
 /**
@@ -57,6 +59,7 @@ const GroupSelect = (props: GroupSelectProps) => {
     checkboxField,
     dropdownHeader,
     dropdownFooter,
+    isAttached,
   } = props;
 
   const [selectedValues, setSelectedValues] = useState<GroupedValues>(valueArray);
@@ -74,7 +77,15 @@ const GroupSelect = (props: GroupSelectProps) => {
     setIsOpen(false);
   };
 
-  const handleOptionClick = (option: string | number, groupName: string) => {
+  const handleOptionClick = (
+    option: string | number,
+    groupName: string,
+    isRequired?: boolean,
+  ) => {
+    if (isRequired) {
+      return;
+    }
+
     let newValues = selectedValues[groupName];
     if (selectedValues[groupName]?.includes(option)) {
       newValues = selectedValues[groupName].filter((item) => item !== option);
@@ -100,10 +111,13 @@ const GroupSelect = (props: GroupSelectProps) => {
           <button
             type="button"
             data-error={error ? 'true' : undefined}
-            css={scopedMerge(styles.trigger, error && styles.triggerError)}
+            css={scopedMerge(
+              styles.trigger,
+              isAttached && styles.triggerAttached,
+              error && styles.triggerError,
+            )}
           >
-            <span css={scoped(styles.placeholder)}>{placeholder}</span>
-            <ChevronsUpDown size={16} css={scoped(styles.chevron)} aria-hidden="true" />
+            <Text variant="small" color="secondary">{placeholder}</Text>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -118,19 +132,22 @@ const GroupSelect = (props: GroupSelectProps) => {
           {optionsArray.map((option, index) =>
             option?.heading ? (
               <DropdownMenuLabel key={index}>
-                <FieldLabel cssOverride={styles.headingLabel}>
+                <FieldLabel
+                  cssOverride={styles.headingLabel}
+                  infoText={option?.infoText}
+                >
                   {String(option.heading)}
                 </FieldLabel>
-                {option?.infoText && (
-                  <FieldDescription>{option.infoText}</FieldDescription>
-                )}
               </DropdownMenuLabel>
             ) : (
               <DropdownMenuItem
                 key={index}
-                disabled={option.isRequired}
                 onSelect={() =>
-                  handleOptionClick(option.value, String(option.group ?? ''))
+                  handleOptionClick(
+                    option.value,
+                    String(option.group ?? ''),
+                    option.isRequired,
+                  )
                 }
               >
                 <Flex gap={2} align="center">
@@ -150,6 +167,7 @@ const GroupSelect = (props: GroupSelectProps) => {
                         handleOptionClick(
                           option.value,
                           String(option?.group ?? ''),
+                          option?.isRequired,
                         )
                       }
                     />
@@ -169,7 +187,7 @@ const GroupSelect = (props: GroupSelectProps) => {
             <Flex cssOverride={styles.footer}>
               <ActionGroup>
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   onClick={handleSelectionClose}
                 >
                   {__('Cancel', 'kirki-ecommerce')}
@@ -214,6 +232,10 @@ const styles = defineStyles({
       ...uiFocusRing(theme),
     },
   },
+  triggerAttached: {
+    borderRadius: `${theme.radius.lg} ${theme.radius.lg} ${theme.radius.none} ${theme.radius.none}`,
+    borderBottom: 'none',
+  },
   triggerError: {
     border: `1px solid ${theme.colors.border.critical}`,
     boxShadow: 'none',
@@ -221,20 +243,6 @@ const styles = defineStyles({
       borderColor: theme.colors.border.critical,
       ...uiFocusRing(theme, theme.colors.border.critical),
     },
-  },
-  placeholder: {
-    flex: 1,
-    minWidth: 0,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    color: theme.colors.text.secondary,
-    opacity: 0.8,
-  },
-  chevron: {
-    flexShrink: 0,
-    color: theme.colors.text.secondary,
-    opacity: 0.5,
   },
   contentWithFooter: {
     paddingBottom: theme.spacing[0],

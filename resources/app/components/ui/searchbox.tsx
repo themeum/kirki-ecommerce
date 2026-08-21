@@ -1,12 +1,14 @@
 import type { CSSObject } from '@emotion/react';
+import { Cross2Icon } from '@radix-ui/react-icons';
 import { Search } from 'lucide-react';
 import { type CSSProperties, forwardRef, type KeyboardEvent, type RefObject, useEffect, useRef, useState } from 'react';
 
+import Button from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { InputState } from '@/types';
+import type { InputState } from '@/types/components/common';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -25,6 +27,7 @@ type SearchboxProps = {
   error?: string | boolean;
   readOnly?: boolean;
   delay?: number;
+  clearable?: boolean;
 };
 
 /**
@@ -71,6 +74,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
     error,
     readOnly,
     delay = 300,
+    clearable = false,
   } = props;
 
   const fallbackRef = useRef<HTMLInputElement>(null);
@@ -125,6 +129,14 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
         <InputGroupAddon align="inline-start">
           <Search size={16} aria-hidden="true" />
         </InputGroupAddon>
+        {
+          searchValue && clearable && (
+            <InputGroupAddon align="inline-end">
+              <Button variant="ghost" size="icon-xs" onClick={() => handleSearchChange('')}><Cross2Icon aria-hidden="true" /></Button>
+            </InputGroupAddon>
+          )
+        }
+
       </InputGroup>
       {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
       {typeof error === 'string' && <FieldError>{error}</FieldError>}

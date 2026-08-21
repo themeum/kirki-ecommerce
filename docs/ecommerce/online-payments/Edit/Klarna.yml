@@ -1,0 +1,152 @@
+info:
+  name: Klarna
+  type: http
+  seq: 4
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/authorizenet"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
+          "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+          "region": "na",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/klarna"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
+              "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+              "region": "na",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "klarna",
+              "name": "Klarna",
+              "icon": "klarna",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "Klarna payment gateway",
+              "settings": {
+               "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
+              "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+              "region": "na",
+              "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "username",
+                  "label": "Username",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "password",
+                  "label": "Password",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "region",
+                  "label": "Region",
+                  "type": "select",
+                  "required": true,
+                  "options": [
+                    { "label": "Europe", "value": "eu" },
+                    { "label": "North America", "value": "na" },
+                    { "label": "Oceania", "value": "oc" }
+                  ]
+                },
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/klarna",
+              "webhook_events": [
+                "checkout.session.completed",
+                "checkout.session.async_payment_succeeded",
+                "checkout.session.async_payment_failed",
+                "charge.refunded",
+                "charge.dispute.created",
+                "charge.dispute.closed",
+                "charge.succeeded"
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/klarna"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+              "username": "7be63db8-8b63-4949-a7fa-d3f1b80e4dba",
+              "password": "klarna_test_api_WWVvKm03bHlvUj9pUzcvU2UkN0tzLz9qc0lrdHRaeWYsN2JlNjNkYjgtOGI2My00OTQ5LWE3ZmEtZDNmMWI4MGU0ZGJhLDEsdjVPc0JMMlhad1N0WERYUlFER3Q2SFZNdVJXT3VIak1GSGg2a3QxQktNZz0",
+              "region": "na",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.

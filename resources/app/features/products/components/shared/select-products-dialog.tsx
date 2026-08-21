@@ -1,0 +1,351 @@
+import { useMemo, useState } from 'react';
+
+import Button from '@/components/ui/button';
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPageSelect,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import Searchbox from '@/components/ui/searchbox';
+import Text from '@/components/ui/text';
+import { buildProductSelection } from '@/features/products/components/shared/select-products-dialog/build-selection';
+import ProductFilterPopup, { type ProductFilterValue } from '@/features/products/components/shared/select-products-dialog/product-filter-popup';
+import ProductTable from '@/features/products/components/shared/select-products-dialog/product-table';
+import type {
+  ProductSelection,
+  ProductVariantSelection,
+} from '@/features/products/components/shared/select-products-dialog/types';
+import { useProductsWithVariantsQuery } from '@/features/products/services/product';
+import { BoxIcon, ListFilter } from '@/icons';
+import { ELLIPSIS, getPageItems } from '@/utils/pagination';
+import { __, _n, sprintf } from '@/wpi18n';
+
+type SelectProductsDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: (selections: ProductSelection[]) => void;
+  selectedProducts: ProductSelection[];
+  selectVariants?: boolean;
+};
+
+const LIMIT = 12;
+
+const applyProductToggle = (
+  selection: Map<number, ProductSelection>,
+  product: ProductSelection,
+  checked: boolean,
+): Map<number, ProductSelection> => {
+  const next = new Map(selection);
+
+  if (checked) {
+    next.set(product.productId, product);
+  } else {
+    next.delete(product.productId);
+  }
+
+  return next;
+};
+
+const applyVariantToggle = (
+  selection: Map<number, ProductSelection>,
+  product: ProductSelection,
+  variants: ProductVariantSelection[],
+  checked: boolean,
+): Map<number, ProductSelection> => {
+  const next = new Map(selection);
+  const selectedVariantIds = new Set(
+    (next.get(product.productId)?.variants ?? []).map(
+      (variant) => variant.variantId,
+    ),
+  );
+
+  variants.forEach((variant) => {
+    if (checked) {
+      selectedVariantIds.add(variant.variantId);
+      return;
+    }
+
+    selectedVariantIds.delete(variant.variantId);
+  });
+
+  const selectedVariants = product.variants.filter((variant) =>
+    selectedVariantIds.has(variant.variantId),
+  );
+
+  if (selectedVariants.length === 0) {
+    next.delete(product.productId);
+    return next;
+  }
+
+  next.set(product.productId, { ...product, variants: selectedVariants });
+
+  return next;
+};
+
+const SelectProductsDialog = ({
+  open,
+  onOpenChange,
+  onAdd,
+  selectedProducts,
+  selectVariants = true,
+}: SelectProductsDialogProps) => {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [filters, setFilters] = useState<ProductFilterValue>({
+    category_ids: [],
+    stock_status: '',
+    collection_ids: undefined,
+    brand_ids: undefined,
+  });
+  const [expandedProductIds, setExpandedProductIds] = useState<Set<number>>(
+    new Set(),
+  );
+  const [selection, setSelection] = useState<Map<number, ProductSelection>>(
+    () =>
+      new Map(
+        selectedProducts.map((product) => [product.productId, product]),
+      ),
+  );
+
+  const { data, isLoading } = useProductsWithVariantsQuery({
+    search,
+    page,
+    limit: LIMIT,
+    sort_by: 'title',
+    sort_order: 'asc',
+    status: 'published',
+    category_ids: filters.category_ids.length ? filters.category_ids : undefined,
+    stock_status: filters.stock_status || undefined,
+    collection_ids: filters.collection_ids ? [filters.collection_ids] : undefined,
+    brand_ids: filters.brand_ids ? [filters.brand_ids] : undefined,
+  }, open);
+
+  const products = useMemo(() => data?.results ?? [], [data?.results]);
+  const pickerItems = useMemo(
+    () =>
+      products.map((product) => ({
+        product,
+        selection: buildProductSelection(product),
+      })),
+    [products],
+  );
+
+  const selectedProductIds = useMemo(
+    () => new Set(selection.keys()),
+    [selection],
+  );
+  const selectedVariantIds = useMemo(
+    () =>
+      new Set(
+        Array.from(selection.values()).flatMap((product) =>
+          product.variants.map((variant) => variant.variantId),
+        ),
+      ),
+    [selection],
+  );
+  const selectedCount = selectVariants
+    ? selectedVariantIds.size
+    : selectedProductIds.size;
+
+  const pageSelectableCount = selectVariants
+    ? pickerItems.reduce((total, item) => total + item.selection.variants.length, 0)
+    : pickerItems.length;
+  const selectedOnPageCount = selectVariants
+    ? pickerItems.reduce(
+      (total, item) =>
+        total +
+        item.selection.variants.filter((variant) =>
+          selectedVariantIds.has(variant.variantId),
+        ).length,
+      0,
+    )
+    : pickerItems.filter((item) => selectedProductIds.has(item.selection.productId))
+      .length;
+  const allOnPageSelected =
+    pageSelectableCount > 0 && selectedOnPageCount === pageSelectableCount;
+  const partialOnPageSelected =
+    selectedOnPageCount > 0 && selectedOnPageCount < pageSelectableCount;
+
+  const totalPages = data?.last_page ?? 1;
+  const totalResults = data?.total ?? 0;
+  const pageItems = useMemo(() => getPageItems(page, totalPages), [page, totalPages]);
+
+  const toggleExpand = (productId: number) => {
+    setExpandedProductIds((previous) => {
+      const next = new Set(previous);
+
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+
+      return next;
+    });
+  };
+
+  const toggleProduct = (product: ProductSelection, checked: boolean) => {
+    setSelection((previous) => applyProductToggle(previous, product, checked));
+  };
+
+  const toggleVariants = (
+    product: ProductSelection,
+    variants: ProductVariantSelection[],
+    checked: boolean,
+  ) => {
+    setSelection((previous) =>
+      applyVariantToggle(previous, product, variants, checked),
+    );
+  };
+
+  const toggleAllOnPage = (checked: boolean) => {
+    setSelection((previous) =>
+      pickerItems.reduce(
+        (accumulator, item) =>
+          selectVariants
+            ? applyVariantToggle(
+              accumulator,
+              item.selection,
+              item.selection.variants,
+              checked,
+            )
+            : applyProductToggle(accumulator, item.selection, checked),
+        previous,
+      ),
+    );
+  };
+
+  const handleAdd = () => {
+    onAdd(Array.from(selection.values()));
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent cssOverride={{ width: '860px' }}>
+        <DialogHeader>
+          <Flex gap={2} align="center">
+            <BoxIcon />
+            <DialogTitle>{__('Select products', 'kirki-ecommerce')}</DialogTitle>
+          </Flex>
+          <DialogCloseButton />
+        </DialogHeader>
+        <DialogBody cssOverride={{ height: '80vh' }}>
+          <Flex gap={2}>
+            <div style={{ flex: 1 }}>
+              <Searchbox
+                placeholder={__('Search..', 'kirki-ecommerce')}
+                onChange={(value) => {
+                  setSearch(String(value));
+                  setPage(1);
+                }}
+              />
+            </div>
+            <ProductFilterPopup
+              value={filters}
+              onApply={(next) => {
+                setFilters(next);
+                setPage(1);
+              }}
+            >
+              <Button variant="outline">
+                <ListFilter />
+                {__('Filter', 'kirki-ecommerce')}
+              </Button>
+            </ProductFilterPopup>
+          </Flex>
+
+          <ProductTable
+            isLoading={isLoading}
+            pickerItems={pickerItems}
+            selectVariants={selectVariants}
+            allOnPageSelected={allOnPageSelected}
+            partialOnPageSelected={partialOnPageSelected}
+            pageSelectableCount={pageSelectableCount}
+            onToggleAllOnPage={toggleAllOnPage}
+            expandedProductIds={expandedProductIds}
+            expandAll
+            onToggleExpand={toggleExpand}
+            selectedProductIds={selectedProductIds}
+            selectedVariantIds={selectedVariantIds}
+            onToggleProduct={toggleProduct}
+            onToggleVariants={toggleVariants}
+          />
+        </DialogBody>
+        <DialogFooter cssOverride={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          {totalResults > 0 && (
+            <Pagination disabled={isLoading}>
+              <Flex align="center" gap={2}>
+                <PaginationPageSelect
+                  currentPage={page}
+                  totalPages={totalPages}
+                  onChange={setPage}
+                />
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      disabled={page <= 1}
+                      onClick={() => setPage(page - 1)}
+                    />
+                  </PaginationItem>
+                  {pageItems.map((item, index) =>
+                    item === ELLIPSIS ? (
+                      <PaginationItem key={`ellipsis-${index}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={item}>
+                        <PaginationLink isActive={item === page} onClick={() => setPage(item)}>
+                          {item}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ),
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      disabled={page >= totalPages}
+                      onClick={() => setPage(page + 1)}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Flex>
+            </Pagination>
+          )}
+          <Flex gap={2} align="center">
+            <Text variant="small" color="secondary">
+              {sprintf(
+                _n('%d selected', '%d selected', selectedCount, 'kirki-ecommerce'),
+                selectedCount,
+              )}
+            </Text>
+            <Button variant="ghost" onClick={() => onOpenChange(false)}>
+              {__('Cancel', 'kirki-ecommerce')}
+            </Button>
+            <Button variant="primary" onClick={handleAdd}>
+              {__('Done', 'kirki-ecommerce')}
+            </Button>
+          </Flex>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+SelectProductsDialog.displayName = 'SelectProductsDialog';
+
+export default SelectProductsDialog;

@@ -3,13 +3,16 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Coupon;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
+use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Supports\Somoy;
@@ -27,40 +30,41 @@ class CouponUpdateRequest extends Request
 
     public function rules()
     {
-        $id = $this->get_int('id');
-
         return [
             'id' => 'required|integer',
-            'method' => 'required|string|in:' . implode(',', CouponMethod::get_constant_values()),
+            'method' => 'required|string|in:' . CouponMethod::join(),
             'title' => 'required|string|max:255',
-            'code' => "required_if:method,code|string|max:100|unique:kirki_ecommerce_coupons,code,{$id}|nullable",
-            'discount_type' => 'required|string|in:' . implode(',', DiscountType::get_constant_values()),
-            'discount_target' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . implode(',', DiscountTarget::get_constant_values()) . '|nullable',
-            'discount_value_type' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . implode(',', DiscountValueType::get_constant_values()) . '|nullable',
-            'discount_amount' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|integer|nullable',
-            'eligible_item_type' => 'string|in:' . implode(',', EligibleItemType::get_constant_values()) . '|nullable',
-            'spend_condition_type' => 'string|in:' . implode(',', SpendConditionType::get_constant_values()) . '|nullable',
+            'code' => 'required_if:method,' . CouponMethod::CODE . '|string|max:100|unique:' . Coupon::get_table_name() . ',code,' . $this->int('id') . '|nullable',
+            'discount_type' => 'required|string|in:' . DiscountType::join(),
+            'discount_target' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . DiscountTarget::join() . '|nullable',
+            'discount_value_type' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . DiscountValueType::join() . '|nullable',
+            'discount_amount' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|number|nullable',
+            'eligible_item_type' => 'string|in:' . EligibleItemType::join() . '|nullable',
+            'spend_condition_type' => 'string|in:' . SpendConditionType::join() . '|nullable',
             'spend_condition_value' => 'integer|nullable',
             'reward_quantity' => 'integer|nullable',
             'reward_value' => 'integer|nullable',
             'start_datetime' => 'date|format:' . Somoy::ATOM,
             'has_end_datetime' => 'boolean|nullable',
             'end_datetime' => 'required_if:has_end_datetime,true|date|format:' . Somoy::ATOM . '|nullable',
-            'target_countries' => 'array|nullable',
+            'target_country_type' => 'string|in:' . TargetCountryType::join() . '|nullable',
+            'target_countries' => 'required_if:target_country_type,' . TargetCountryType::SPECIFIC_COUNTRIES . '|array|nullable',
             'first_time_buyer_only' => 'boolean|nullable',
-            'customer_eligibility' => 'string|in:' . implode(',', CustomerEligibility::get_constant_values()) . '|nullable',
-            'exclude_customers' => 'boolean|nullable',
+            'customer_include_eligibility' => 'string|in:' . CustomerIncludeEligibility::join() . '|nullable',
+            'customer_exclude_eligibility' => 'string|in:' . CustomerExcludeEligibility::join() . '|nullable',
             'has_usage_limit' => 'boolean|nullable',
-            'usage_limit' => 'required_if:has_usage_limit,1|integer|nullable',
+            'usage_limit' => 'required_if:has_usage_limit,1|integer|min:1|nullable',
             'has_customer_limit' => 'boolean|nullable',
-            'customer_limit' => 'required_if:has_customer_limit,1|integer|nullable',
+            'customer_limit' => 'required_if:has_customer_limit,1|integer|min:1|nullable',
             'is_active' => 'boolean|nullable',
-            'category_ids' => 'array|nullable',
+            'category_ids' => 'required_if:eligible_item_type,' . EligibleItemType::SPECIFIC_CATEGORIES . '|array|nullable',
             'category_ids.*' => 'integer',
-            'product_ids' => 'array|nullable',
+            'product_ids' => 'required_if:eligible_item_type,' . EligibleItemType::SPECIFIC_PRODUCTS . '|array|nullable',
             'product_ids.*' => 'integer',
-            'customer_ids' => 'array|nullable',
+            'customer_ids' => 'required_if:customer_include_eligibility,' . CustomerIncludeEligibility::SPECIFIC_CUSTOMERS . '|array|nullable',
             'customer_ids.*' => 'integer',
+            'exclude_customer_ids' => 'required_if:customer_exclude_eligibility,' . CustomerExcludeEligibility::SPECIFIC_CUSTOMERS . '|array|nullable',
+            'exclude_customer_ids.*' => 'integer',
             'reward_product_ids' => 'array|nullable',
             'reward_product_ids.*' => 'integer',
         ];
@@ -76,7 +80,7 @@ class CouponUpdateRequest extends Request
             'discount_type' => Sanitizer::TEXT,
             'discount_target' => Sanitizer::TEXT,
             'discount_value_type' => Sanitizer::TEXT,
-            'discount_amount' => Sanitizer::INT,
+            'discount_amount' => $this->input('discount_value_type') === DiscountValueType::FIXED ? Sanitizer::INT : Sanitizer::FLOAT,
             'eligible_item_type' => Sanitizer::TEXT,
             'spend_condition_type' => Sanitizer::TEXT,
             'spend_condition_value' => Sanitizer::INT,
@@ -85,10 +89,11 @@ class CouponUpdateRequest extends Request
             'start_datetime' => Sanitizer::TEXT,
             'has_end_datetime' => Sanitizer::BOOL,
             'end_datetime' => Sanitizer::TEXT,
+            'target_country_type' => Sanitizer::TEXT,
             'target_countries' => Sanitizer::ARRAY,
             'first_time_buyer_only' => Sanitizer::BOOL,
-            'customer_eligibility' => Sanitizer::TEXT,
-            'exclude_customers' => Sanitizer::BOOL,
+            'customer_include_eligibility' => Sanitizer::TEXT,
+            'customer_exclude_eligibility' => Sanitizer::TEXT,
             'has_usage_limit' => Sanitizer::BOOL,
             'usage_limit' => Sanitizer::INT,
             'has_customer_limit' => Sanitizer::BOOL,
@@ -100,6 +105,8 @@ class CouponUpdateRequest extends Request
             'product_ids.*' => Sanitizer::INT,
             'customer_ids' => Sanitizer::ARRAY,
             'customer_ids.*' => Sanitizer::INT,
+            'exclude_customer_ids' => Sanitizer::ARRAY,
+            'exclude_customer_ids.*' => Sanitizer::INT,
             'reward_product_ids' => Sanitizer::ARRAY,
             'reward_product_ids.*' => Sanitizer::INT,
         ];

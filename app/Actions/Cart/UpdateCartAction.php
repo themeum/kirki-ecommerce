@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Actions\Cart;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
 class UpdateCartAction
 {
@@ -19,9 +20,14 @@ class UpdateCartAction
         $this->shipping_service = $shipping_service;
     }
 
-    public function execute($cart_token, $customer_id, array $data)
+    public function execute($cart_token, array $data, $user_id = null)
     {
-        $cart = $this->cart_service->get_cart($customer_id, $cart_token);
+        $cart = $this->cart_service->get_cart($user_id, $cart_token);
+
+        if (empty($cart)) {
+            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
+        }
+
         $cart = $this->cart_service->partial_update($cart->id, $data);
         $context = CalculationContextDTO::from_cart($cart);
 

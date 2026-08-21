@@ -1,24 +1,21 @@
 import type { CSSObject } from '@emotion/react';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { Minus } from 'lucide-react';
-import { useState } from 'react';
-import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
+import { useMemo, useState } from 'react';
+import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch } from 'react-hook-form';
 
+import { RegionsDialog } from '@/components/regions-dialog';
+import Button from '@/components/ui/button';
 import Chip from '@/components/ui/chip';
 import ChipField from '@/components/ui/chip-field';
 import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import Input from '@/components/ui/input';
 import { LocationIcon } from '@/icons';
-import { ShippingRegionPopup } from '@/pages/settings/shipping-settings/shipping-zone/shipping-region-dialog';
-import {
-  type CountryWithStates,
-  getSearchedCountries,
-  getSelectedRegionTags,
-  type ShippingRegion,
-} from '@/pages/settings/shipping-settings/utils';
+import type { Region } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, mergeCss, scoped } from '@/theme/mixins';
+import { getSelectedRegionTags } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 type RegionsFieldProps<
@@ -28,9 +25,13 @@ type RegionsFieldProps<
   name: TName;
   label?: string;
   infoText?: string;
+  placeholder?: string;
+  emptyText?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
+
+const emptyRegions: Region[] = [];
 
 const RegionsField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -39,37 +40,32 @@ const RegionsField = <
   name,
   label,
   infoText,
+  placeholder = __('Select destinations..', 'kirki-ecommerce'),
+  emptyText = __('Added destinations will appear here', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: RegionsFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
-  const [searchValue, setSearchValue] = useState('');
-  const [pickingCountry, setPickingCountry] = useState<CountryWithStates | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
-  const countryList = countryData as CountryWithStates[];
+  const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
+
+  const regions = (useWatch({ control, name }) as Region[] | null) ?? emptyRegions;
+
+  const dialogDefaultValue = useMemo(
+    () => ({
+      countryCodes: regions.map((region) => region.country),
+      regions,
+    }),
+    [regions],
+  );
 
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => {
-        const regions = (field.value as ShippingRegion[] | null) ?? [];
         const tags = getSelectedRegionTags(regions, countryList);
-        const searchMatches = searchValue
-          ? getSearchedCountries(searchValue, countryList).filter(
-            (country) => !regions.some((region) => region.country === country.code),
-          )
-          : [];
-
-        const addCountry = (country: CountryWithStates) => {
-          setSearchValue('');
-          if ((country.states?.length ?? 0) > 0) {
-            setPickingCountry(country);
-            return;
-          }
-          field.onChange([...regions, { country: country.code, states: [], flag: country.flag }]);
-        };
 
         const removeRegion = (countryCode: string) => {
           field.onChange(regions.filter((region) => region.country !== countryCode));
@@ -83,84 +79,51 @@ const RegionsField = <
                 <ChipField
                   error={Boolean(fieldState.error)}
                   control={
-                    <Input
-                      value={searchValue}
-                      placeholder={__('Type to add destinations..', 'kirki-ecommerce')}
+                    <Button
+                      variant="ghost"
                       disabled={disabled}
-                      cssOverride={chipFieldControlCss}
-                      onChange={(event) => setSearchValue(event.target.value)}
-                    />
+                      cssOverride={mergeCss(chipFieldControlCss, styles.trigger)}
+                      onClick={() => setIsDialogOpen(true)}
+                    >
+                      <span css={scoped(styles.value)}>{placeholder}</span>
+                      <span css={scoped(styles.chevron)}>
+                        <ChevronDownIcon width={16} height={16} />
+                      </span>
+                    </Button>
                   }
                   chips={
-                    tags.length > 0
-                      ? tags.map((tag) => (
-                        <Chip
-                          key={tag.id}
-                          text={tag.title}
-                          img={tag.tagIcon}
-                          subText={tag.subText}
-                          closeIcon={<Minus size={14} aria-hidden="true" />}
-                          onRemove={() => removeRegion(tag.id)}
-                        />
-                      ))
-                      : undefined
+                    tags.length > 0 && tags.map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        text={tag.title}
+                        img={<span>{tag.tagIcon}</span>}
+                        subText={tag.subText}
+                        closeIcon={<Minus size={14} aria-hidden="true" />}
+                        onRemove={() => removeRegion(tag.id)}
+                      />
+                    ))
                   }
                 />
-                {searchMatches.length > 0 && (
-                  <div css={scoped(styles.dropdown)}>
-                    {searchMatches.map((country) => (
-                      <button
-                        key={country.code}
-                        type="button"
-                        css={scoped(styles.dropdownItem)}
-                        onMouseDown={(event) => {
-                          event.preventDefault();
-                          addCountry(country);
-                        }}
-                      >
-                        {country.flag} {country.name}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {tags.length === 0 && !searchValue && (
-                  <div css={scoped(mergeCss(styles.emptyState))}>
+                {tags.length === 0 && (
+                  <div css={scoped(styles.emptyState)}>
                     <LocationIcon />
-                    <span css={scoped(styles.emptyStateText)}>
-                      {__('Added destinations will appear here', 'kirki-ecommerce')}
-                    </span>
+                    <span css={scoped(styles.emptyStateText)}>{emptyText}</span>
                   </div>
                 )}
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
-            {pickingCountry && (
-              <ShippingRegionPopup
-                open={Boolean(pickingCountry)}
-                onOpenChange={(open) => {
-                  if (!open) {
-                    setPickingCountry(null);
-                  }
-                }}
-                filteredCountries={[pickingCountry]}
-                initialCountries={[pickingCountry.code]}
-                initialRegions={[
-                  {
-                    country: pickingCountry.code,
-                    states: (pickingCountry.states ?? []).map((state) => state.id),
-                    flag: pickingCountry.flag,
-                  },
-                ]}
-                from="edit"
-                onDone={(values) => {
-                  const pickedRegion = values.regions.find((region) => region.country === pickingCountry.code);
-                  field.onChange(
-                    pickedRegion ? [...regions, pickedRegion] : regions,
-                  );
-                  setPickingCountry(null);
-                }}
-              />
-            )}
+            <RegionsDialog
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              countries={countryList}
+              defaultValue={dialogDefaultValue}
+              from="edit"
+              onDone={(values) => {
+                field.onChange(values.regions);
+                setIsDialogOpen(false);
+              }}
+            />
           </>
         );
       }}
@@ -176,32 +139,34 @@ const styles = defineStyles({
   wrapper: {
     position: 'relative',
   },
-  dropdown: {
-    position: 'absolute',
-    top: 'calc(100% + 4px)',
-    left: 0,
-    right: 0,
-    zIndex: theme.zIndex.dropdown,
-    maxHeight: '240px',
-    overflowY: 'auto',
-    backgroundColor: theme.colors.background.surface,
-    border: `1px solid ${theme.colors.border.default}`,
-    borderRadius: theme.radius.md,
-    boxShadow: theme.shadow.md,
-  },
-  dropdownItem: {
-    display: 'block',
-    width: '100%',
-    textAlign: 'left',
-    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-    border: 'none',
-    background: 'transparent',
-    cursor: 'pointer',
+  trigger: {
+    ...itemCenter(),
     ...theme.typography.small(),
-    color: theme.colors.text.primary,
+    height: '36px',
+    justifyContent: 'space-between',
+    gap: theme.spacing[2],
+    textAlign: 'left',
+    color: theme.colors.text.secondary,
+    cursor: 'pointer',
     '&:hover': {
-      background: theme.colors.background.surfaceSecondary,
+      backgroundColor: 'transparent',
+      color: theme.colors.text.secondary,
     },
+    '&:active:not([aria-haspopup])': {
+      transform: 'none',
+    },
+  },
+  value: {
+    ...itemCenter(),
+    columnGap: theme.spacing[2],
+    maxWidth: '85%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  chevron: {
+    ...flexCenter(),
+    flexShrink: 0,
   },
   emptyState: {
     display: 'flex',
@@ -209,6 +174,9 @@ const styles = defineStyles({
     alignItems: 'center',
     gap: theme.spacing[2],
     padding: `${theme.spacing[9]} ${theme.spacing[0]}`,
+    marginTop: theme.spacing[2],
+    backgroundColor: theme.colors.background.surfaceSecondary,
+    borderRadius: theme.radius.lg,
   },
   emptyStateText: {
     color: theme.colors.text.subdued,

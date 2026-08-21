@@ -5,7 +5,7 @@ import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type ReactN
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
 import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
-import type { TooltipPosition } from '@/types';
+import type { TooltipPosition } from '@/types/components/common';
 
 const TooltipProvider = TooltipPrimitive.Provider;
 

@@ -121,13 +121,13 @@ if (!current_user_can('manage_options')) {
 
     <p class="kds-label">Icon-only</p>
     <div class="kds-row">
-        <button class="kecom-btn kecom-btn-primary kecom-btn-icon-sm" aria-label="Search">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon kecom-btn-sm" aria-label="Search">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
         <button class="kecom-btn kecom-btn-primary kecom-btn-icon" aria-label="Settings">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
-        <button class="kecom-btn kecom-btn-primary kecom-btn-icon-lg" aria-label="Menu">
+        <button class="kecom-btn kecom-btn-primary kecom-btn-icon kecom-btn-lg" aria-label="Menu">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m6 8 1.333 1.333L10 6.667m-7.433-.92a2.667 2.667 0 0 1 3.186-3.18 2.667 2.667 0 0 1 4.494 0 2.667 2.667 0 0 1 3.186 3.186 2.666 2.666 0 0 1 0 4.494 2.667 2.667 0 0 1-3.18 3.186 2.667 2.667 0 0 1-4.5 0 2.667 2.667 0 0 1-3.186-3.18 2.667 2.667 0 0 1 0-4.506"/></svg>
         </button>
     </div>
@@ -148,25 +148,42 @@ if (!current_user_can('manage_options')) {
 <section>
     <p class="kds-section-title">Badges</p>
 
-    <p class="kds-label">Variants</p>
+    <p class="kds-label">Solid Variants</p>
     <div class="kds-row">
         <span class="kecom-badge kecom-badge-default">Default</span>
         <span class="kecom-badge kecom-badge-primary">Primary</span>
         <span class="kecom-badge kecom-badge-success">Success</span>
-        <span class="kecom-badge kecom-badge-success-light">Success Light</span>
         <span class="kecom-badge kecom-badge-error">Error</span>
-        <span class="kecom-badge kecom-badge-error-light">Error Light</span>
         <span class="kecom-badge kecom-badge-warning">Warning</span>
+        <span class="kecom-badge kecom-badge-caution">Caution</span>
+        <span class="kecom-badge kecom-badge-info">Info</span>
+        <span class="kecom-badge kecom-badge-purple">Purple</span>
         <span class="kecom-badge kecom-badge-outline">Outline</span>
     </div>
 
-    <p class="kds-label">Ecommerce contexts</p>
+    <p class="kds-label">Light / Subtle Variants</p>
     <div class="kds-row">
-        <span class="kecom-badge kecom-badge-success-light">In Stock</span>
-        <span class="kecom-badge kecom-badge-warning">Low Stock</span>
-        <span class="kecom-badge kecom-badge-error-light">Out of Stock</span>
-        <span class="kecom-badge kecom-badge-primary">Sale</span>
-        <span class="kecom-badge kecom-badge-default">New</span>
+        <span class="kecom-badge kecom-badge-info-light">Info Light</span>
+        <span class="kecom-badge kecom-badge-warning-light">Warning Light</span>
+        <span class="kecom-badge kecom-badge-caution-light">Caution Light</span>
+        <span class="kecom-badge kecom-badge-success-light">Success Light</span>
+        <span class="kecom-badge kecom-badge-error-light">Error Light</span>
+        <span class="kecom-badge kecom-badge-purple-light">Purple Light</span>
+        <span class="kecom-badge kecom-badge-muted-light">Muted Light</span>
+    </div>
+
+    <p class="kds-label">Ecommerce & Status Contexts</p>
+    <div class="kds-row">
+        <span class="kecom-badge kecom-badge-info-light">Processing</span>
+        <span class="kecom-badge kecom-badge-warning-light">Pending</span>
+        <span class="kecom-badge kecom-badge-caution-light">On hold</span>
+        <span class="kecom-badge kecom-badge-success-light">Completed</span>
+        <span class="kecom-badge kecom-badge-error-light">Cancelled</span>
+        <span class="kecom-badge kecom-badge-muted-light">Refunded</span>
+        <span class="kecom-badge kecom-badge-error-light">Failed</span>
+        <span class="kecom-badge kecom-badge-purple-light">Refund Requested</span>
+        <span class="kecom-badge kecom-badge-muted-light">Partially Refunded</span>
+        <span class="kecom-badge kecom-badge-success-light">Rewarded</span>
     </div>
 
     <p class="kds-label">Sizes</p>

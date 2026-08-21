@@ -16,6 +16,7 @@ class CartItem extends Model
     ];
 
     protected $casts = [
+        'cart_id' => 'integer',
         'product_id' => 'integer',
         'variant_id' => 'integer',
         'quantity' => 'integer',

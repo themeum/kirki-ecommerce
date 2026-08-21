@@ -2,35 +2,31 @@ import { type CSSObject } from '@emotion/react';
 import { forwardRef, type HTMLAttributes, type TdHTMLAttributes, type ThHTMLAttributes } from 'react';
 
 import { theme } from '@/theme';
-import { defineStyles, scopedMerge } from '@/theme/mixins';
-import type { TableAlignment, TableType } from '@/types';
-
-type TableEditMode = 'multiCell' | 'singleCell';
+import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
+import type { TableAlignment, TableDensity } from '@/types/components/common';
 
 type TableProps = Omit<HTMLAttributes<HTMLTableElement>, 'css'> & {
-  type?: TableType;
-  scrollable?: boolean;
-  editMode?: TableEditMode;
+  density?: TableDensity;
   fixed?: boolean;
   cssOverride?: CSSObject;
 };
 
 const Table = forwardRef<HTMLTableElement, TableProps>((props, ref) => {
   const {
-    type = 'default',
-    scrollable,
-    editMode,
+    density = 'default',
     fixed,
     cssOverride,
     ...rest
   } = props;
 
   return (
-    <table
-      ref={ref}
-      css={scopedMerge(styles.base, styles.types[type], scrollable && styles.scrollable, fixed && styles.fixed, editMode && styles.editModes[editMode], cssOverride)}
-      {...rest}
-    />
+    <div data-slot="table-container" css={scoped(styles.container)}>
+      <table
+        ref={ref}
+        css={scopedMerge(styles.base, styles.densities[density], fixed && styles.fixed, cssOverride)}
+        {...rest}
+      />
+    </div>
   );
 });
 
@@ -47,7 +43,7 @@ const TableHeader = forwardRef<HTMLTableSectionElement, TableHeaderProps>(
   (props, ref) => {
     const { cssOverride, ...rest } = props;
 
-    return <thead ref={ref} css={cssOverride} {...rest} />;
+    return <thead ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
   },
 );
 
@@ -61,11 +57,30 @@ const TableBody = forwardRef<HTMLTableSectionElement, TableBodyProps>(
   (props, ref) => {
     const { cssOverride, ...rest } = props;
 
-    return <tbody ref={ref} css={cssOverride} {...rest} />;
+    return <tbody ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
   },
 );
 
 TableBody.displayName = 'TableBody';
+
+type TableFooterProps = Omit<
+  HTMLAttributes<HTMLTableSectionElement>,
+  'css'
+> & {
+  cssOverride?: CSSObject;
+};
+
+const TableFooter = forwardRef<HTMLTableSectionElement, TableFooterProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
+
+    return (
+      <tfoot ref={ref} css={scopedMerge(styles.footer, cssOverride)} {...rest} />
+    );
+  },
+);
+
+TableFooter.displayName = 'TableFooter';
 
 type TableRowProps = Omit<HTMLAttributes<HTMLTableRowElement>, 'css'> & {
   active?: boolean;
@@ -80,7 +95,7 @@ const TableRow = forwardRef<HTMLTableRowElement, TableRowProps>(
       <tr
         ref={ref}
         data-active={active ? 'true' : undefined}
-        css={cssOverride}
+        css={scopedMerge(cssOverride)}
         {...rest}
       />
     );
@@ -143,9 +158,41 @@ const TableCell = forwardRef<HTMLTableCellElement, TableCellProps>(
 
 TableCell.displayName = 'TableCell';
 
-export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow };
+type TableCaptionProps = Omit<
+  HTMLAttributes<HTMLTableCaptionElement>,
+  'css'
+> & {
+  cssOverride?: CSSObject;
+};
+
+const TableCaption = forwardRef<HTMLTableCaptionElement, TableCaptionProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
+
+    return (
+      <caption ref={ref} css={scopedMerge(styles.caption, cssOverride)} {...rest} />
+    );
+  },
+);
+
+TableCaption.displayName = 'TableCaption';
+
+export {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow
+};
 
 const styles = defineStyles({
+  container: {
+    width: '100%',
+    overflowX: 'auto',
+  },
   base: {
     width: '100%',
     borderCollapse: 'collapse',
@@ -175,9 +222,9 @@ const styles = defineStyles({
       },
     },
   },
-  types: {
+  densities: {
     default: {},
-    variation: {
+    compact: {
       '& th, & td': {
         padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
       },
@@ -188,125 +235,16 @@ const styles = defineStyles({
       },
     },
   },
-  scrollable: {
-    width: 'max-content',
-  },
   fixed: {
     tableLayout: 'fixed',
     '& [data-only-checkbox="true"]': {
       width: '40px',
     },
   },
-  editModes: {
-    multiCell: {
-      userSelect: 'none',
-      borderCollapse: 'separate',
-      borderSpacing: '0 0',
-      '& thead': {
-        backgroundColor: theme.colors.background.fill,
-      },
-      '& thead th': {
-        border: `1px solid ${theme.colors.border.secondary}`,
-        borderTopColor: 'transparent',
-        borderLeftColor: 'transparent',
-        backgroundColor: theme.colors.background.fill,
-        zIndex: 10,
-        '&[data-sticky-cell="true"]': {
-          position: 'sticky',
-          left: 0,
-          zIndex: 11,
-          borderTopColor: theme.colors.border.secondary,
-        },
-      },
-      '& tbody tr:hover': {
-        backgroundColor: theme.colors.background.fill,
-      },
-      '& td': {
-        position: 'relative',
-        border: `1px solid ${theme.colors.border.secondary}`,
-        borderTopColor: 'transparent',
-        borderLeftColor: 'transparent',
-        padding: theme.spacing[1],
-        minWidth: '110px',
-        overflow: 'visible',
-        '&[data-sticky-cell="true"]': {
-          position: 'sticky',
-          left: 0,
-          background: theme.colors.background.fill,
-          zIndex: 11,
-        },
-        '&:hover': {
-          backgroundColor: theme.colors.background.surfaceAlt,
-        },
-        '&:first-of-type': {
-          paddingLeft: theme.spacing[3],
-        },
-        '& [data-grabber="true"]': {
-          position: 'absolute',
-          bottom: '-7px',
-          right: '-4px',
-          width: '8px',
-          height: '14px',
-          backgroundColor: theme.colors.background.fillBrand,
-          border: `0.5px solid ${theme.colors.background.surface}`,
-          borderRadius: theme.radius.lg,
-          cursor: 'crosshair',
-          boxShadow: theme.shadow.md,
-          zIndex: 10,
-          visibility: 'hidden',
-        },
-        '&[data-bulk-cell="selected"]': {
-          backgroundColor: theme.colors.background.fillSecondary,
-          borderLeftColor: theme.colors.background.fillBrand,
-          borderRightColor: theme.colors.background.fillBrand,
-          '&[data-bulk-edge="min"]': {
-            borderBottomColor: theme.colors.background.fillBrand,
-          },
-          '&[data-bulk-edge="max"]': {
-            borderTopColor: theme.colors.background.fillBrand,
-          },
-          '& [data-grabber="true"]': {
-            visibility: 'visible',
-            zIndex: 10,
-          },
-        },
-        '&[data-bulk-cell="fill"]': {
-          backgroundColor: theme.colors.background.surfaceAlt,
-          borderLeftStyle: 'dashed',
-          borderRightStyle: 'dashed',
-          borderLeftColor: theme.colors.border.hover,
-          borderRightColor: theme.colors.border.hover,
-          '&[data-bulk-edge="min"]': {
-            borderBottomStyle: 'dashed',
-            borderBottomColor: theme.colors.border.hover,
-          },
-          '&[data-bulk-edge="max"]': {
-            borderTopStyle: 'dashed',
-            borderTopColor: theme.colors.border.hover,
-          },
-          '& [data-grabber="true"]': {
-            visibility: 'visible',
-          },
-        },
-        '&[data-bulk-edge="base"]': {
-          border: `1px solid ${theme.colors.background.fillBrand}`,
-        },
-        '&[data-disabled="true"]': {
-          opacity: 1,
-          cursor: 'no-drop',
-          pointerEvents: 'visible',
-          backgroundColor: theme.colors.background.fill,
-        },
-      },
-    },
-    singleCell: {
-      '& tbody tr:hover': {
-        backgroundColor: 'transparent',
-      },
-      '& tbody td:hover': {
-        backgroundColor: theme.colors.background.surfaceSecondary,
-      },
-    },
+  footer: {
+    borderTop: `1px solid ${theme.colors.border.tertiary}`,
+    backgroundColor: theme.colors.background.surfaceAlt,
+    ...theme.typography.tiny('medium'),
   },
   head: {
     textAlign: 'left',
@@ -323,6 +261,11 @@ const styles = defineStyles({
       display: 'inline-flex',
       visibility: 'hidden',
     },
+  },
+  caption: {
+    marginTop: theme.spacing[4],
+    ...theme.typography.small(),
+    color: theme.colors.text.secondary,
   },
   onlyCheckbox: {
     width: '1%',

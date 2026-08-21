@@ -2,25 +2,44 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
+use Exception;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
+use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
 class UpdateCartItemAction
 {
     protected $cart_service;
+    protected $inventory_service;
 
     public function __construct(
-        CartService $cart_service
+        CartService $cart_service,
+        InventoryService $inventory_service
     ) {
         $this->cart_service = $cart_service;
+        $this->inventory_service = $inventory_service;
     }
 
     public function execute(UpdateCartItemDTO $dto)
     {
-        $cart = $this->cart_service->get_cart($dto->customer_id, $dto->token);
+        $cart = $this->cart_service->get_cart($dto->user_id, $dto->token);
+        $item = $this->cart_service->find_item($dto->item_id);
+
+        if (empty($cart)) {
+            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
+        }
+
+        if (empty($item)) {
+            throw new NotFoundException(__('Cart item not found.', 'kirki-ecommerce'));
+        }
+
+        if (!$this->inventory_service->has_stock($item->variant_id, $dto->quantity)) {
+            throw new Exception(__('Not enough stock for this variant', 'kirki-ecommerce'));
+        }
 
         $this->cart_service->update_item_quantity($cart->id, $dto->item_id, $dto->quantity);
 
-        return $this->cart_service->get_cart($dto->customer_id, $dto->token);
+        return $this->cart_service->get_cart($dto->user_id, $dto->token);
     }
 }

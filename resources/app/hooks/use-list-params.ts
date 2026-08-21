@@ -1,19 +1,16 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
-import type {
-  ListFilterConfig,
-  ListParams,
-  ListQueryParams,
-  SortOrder,
-} from '@/types';
+import { applyTimeToDate, END_OF_DAY_TIME, formatAtomDateTime, START_OF_DAY_TIME } from '@/libs/date';
+import type { ListFilterConfig, ListParams, ListQueryParams, SortOrder } from '@/types/list-state';
 import { serializeFilterValue } from '@/types/list-state';
+import { isDefined } from '@/utils/object';
 
 type ListParamsDefaults = ListQueryParams;
 
 type ListParamsUpdate<
   TFilter extends Record<string, unknown> = {},
-> = Partial<ListQueryParams & TFilter>;
+> = Partial<ListQueryParams & TFilter> | Partial<ListQueryParams>;
 
 type UseListParamsOptions<
   TFilter extends Record<string, unknown> = {},
@@ -61,6 +58,8 @@ const useListParams = <
     const pageValue = searchParams.get('page');
     const limitValue = searchParams.get('limit');
     const sortOrder = searchParams.get('sort_order') as SortOrder | null;
+    const fromDate = searchParams.get('from_date');
+    const toDate = searchParams.get('to_date');
 
     const parsedFilter: Partial<TFilter> = {};
 
@@ -84,6 +83,8 @@ const useListParams = <
       limit: limitValue
         ? Number(limitValue) || limitValue
         : (defaults.limit ?? 10),
+      from_date: isDefined(fromDate) ? formatAtomDateTime(applyTimeToDate(new Date(fromDate), START_OF_DAY_TIME)) : null,
+      to_date: isDefined(toDate) ? formatAtomDateTime(applyTimeToDate(new Date(toDate), END_OF_DAY_TIME)) : null,
       ...parsedFilter,
     } as ListParams<TFilter>;
   }, [searchParams, defaults, filterConfig]);
@@ -108,7 +109,7 @@ const useListParams = <
           const next = new URLSearchParams(prev);
 
           const shouldResetPage = Object.keys(updates).some((key) =>
-            ['search', 'sort_by', 'sort_order', 'limit', ...filterKeys].includes(
+            ['search', 'sort_by', 'sort_order', 'limit', 'from_date', 'to_date', ...filterKeys].includes(
               key,
             ),
           );
@@ -158,7 +159,7 @@ const useListParams = <
         setParams(value, replace);
         return;
       }
-      setParams({ [key]: value } as ListParamsUpdate<TFilter>, replace);
+      setParams({ [key]: value }, replace);
     },
     [setParams],
   );

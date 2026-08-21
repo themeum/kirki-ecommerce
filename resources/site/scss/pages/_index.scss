@@ -2,7 +2,9 @@
 @use 'products';
 @use 'product-details';
 @use 'cart';
+@use 'mini-cart';
 @use 'checkout';
 @use 'order-success';
 @use 'order-failed';
 @use 'account';
+@use 'auth';

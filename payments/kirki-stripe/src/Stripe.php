@@ -146,7 +146,7 @@ class Stripe extends PaymentProvider
                 $data['customer_email'] = $order->billing_email;
             }
 
-            $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => 'checkout_' . $order->id]);
+            $session = $stripe->checkout->sessions->create($data, ['idempotency_key' => 'kirki-stripe-' . $order->uuid]);
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,

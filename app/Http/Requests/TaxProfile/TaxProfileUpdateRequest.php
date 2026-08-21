@@ -12,6 +12,7 @@ class TaxProfileUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
+            'is_default' => 'nullable|boolean',
         ];
     }
 
@@ -20,6 +21,7 @@ class TaxProfileUpdateRequest extends Request
         return [
             'id' => Sanitizer::INT,
             'name' => Sanitizer::TEXT,
+            'is_default' => Sanitizer::BOOL,
         ];
     }
 }

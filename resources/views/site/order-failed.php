@@ -24,7 +24,7 @@ if (empty($order)) {
 
 <?php Template::get_header(); ?>
 
-<div class="kecom-order-failed-page">
+<div class="kecom-page-wrapper kecom-order-failed-page">
     <div class="kecom-order-failed-card">
         <div class="kecom-order-failed-hero">
             <div class="kecom-order-failed-icon">

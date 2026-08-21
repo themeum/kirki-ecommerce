@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
@@ -226,6 +228,30 @@ class ProductApiTest extends RestTestCase
     }
 
     /**
+     * Resolve an attribute value label that is not taken yet.
+     *
+     * Attribute values are globally unique, and this class creates the same
+     * colours more than once, so a taken label gets a numbered suffix.
+     *
+     * @param string $value Desired value label.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    protected function unused_attribute_value(string $value): string
+    {
+        $candidate = $value;
+        $suffix = 1;
+
+        while (AttributeValue::where('value', $candidate)->first()) {
+            $suffix++;
+            $candidate = $value . ' ' . $suffix;
+        }
+
+        return $candidate;
+    }
+
+    /**
      * Create a variant product with a single Color attribute.
      *
      * @return array
@@ -245,7 +271,7 @@ class ProductApiTest extends RestTestCase
         foreach (['Red', 'Blue'] as $value) {
             $created = $this->request('POST', 'attributes/' . $attribute_id . '/values', [
                 'attribute_id' => $attribute_id,
-                'value' => $value,
+                'value' => $this->unused_attribute_value($value),
             ]);
             $value_ids[] = $this->assert_api_success($created, 201)['data']['id'];
         }
@@ -427,5 +453,137 @@ class ProductApiTest extends RestTestCase
         ]));
 
         $this->assert_validation_error($response);
+    }
+
+    /**
+     * Duplicating a product copies its associations and resets identifying/stock variant fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_duplicate_product_preserves_associations_and_resets_variant_fields(): void
+    {
+        $category = $this->request('POST', 'categories', [
+            'name' => 'Duplicate Test Category',
+            'slug' => 'duplicate-test-category-' . wp_generate_password(6, false),
+        ]);
+        $category = $this->assert_api_success($category, 201)['data'];
+
+        $tag = $this->request('POST', 'tags', [
+            'name' => 'Duplicate Test Tag',
+            'slug' => 'duplicate-test-tag-' . wp_generate_password(6, false),
+        ]);
+        $tag = $this->assert_api_success($tag, 201)['data'];
+
+        $collection = $this->request('POST', 'collections', [
+            'title' => 'Duplicate Test Collection',
+            'slug' => 'duplicate-test-collection-' . wp_generate_password(6, false),
+        ]);
+        $collection = $this->assert_api_success($collection, 201)['data'];
+
+        $attribute = $this->request('POST', 'attributes', [
+            'name' => 'Duplicate Size ' . wp_generate_password(6, false),
+            'slug' => 'duplicate-size-' . wp_generate_password(6, false),
+            'type' => 'list',
+        ]);
+        $attribute_id = $this->assert_api_success($attribute, 201)['data']['id'];
+
+        $value = $this->request('POST', 'attributes/' . $attribute_id . '/values', [
+            'attribute_id' => $attribute_id,
+            'value' => 'Small',
+        ]);
+        $value_id = $this->assert_api_success($value, 201)['data']['id'];
+
+        $product = $this->create_product([
+            'title' => 'Duplicate Source Product',
+            'status' => ProductStatus::PUBLISHED,
+            'has_variants' => true,
+            'categories' => [$category['id']],
+            'tags' => [$tag['id']],
+            'collections' => [$collection['id']],
+            'attributes' => [
+                ['id' => $attribute_id, 'values' => [$value_id]],
+            ],
+            'variants' => [
+                [
+                    'base_price' => 49.5,
+                    'weight' => 1.25,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 40,
+                    'committed_quantity' => 5,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'attribute_values' => [$value_id],
+                ],
+            ],
+        ]);
+        $this->product_id = $product['id'];
+
+        $response = $this->request('POST', 'products/' . $this->product_id . '/duplicate');
+
+        $payload = $this->assert_api_success($response, 201);
+        $duplicated = $payload['data'];
+
+        $this->assertNotEquals($this->product_id, $duplicated['id']);
+        $this->assertEquals('Duplicate Source Product - Copy', $duplicated['title']);
+        $this->assertEquals(ProductStatus::DRAFT, $duplicated['status']);
+
+        $this->assertEqualsCanonicalizing([$category['id']], array_column($duplicated['categories'], 'id'));
+        $this->assertEqualsCanonicalizing([$tag['id']], array_column($duplicated['tags'], 'id'));
+        $this->assertEqualsCanonicalizing([$collection['id']], array_column($duplicated['collections'], 'id'));
+
+        $this->assertCount(1, $duplicated['attributes']);
+        $this->assertEquals($attribute_id, $duplicated['attributes'][0]['id']);
+        $this->assertEqualsCanonicalizing([$value_id], array_column($duplicated['attributes'][0]['values'], 'id'));
+
+        $duplicated_variant = $duplicated['variants'][0];
+        $this->assertNull($duplicated_variant['sku']);
+        $this->assertEquals(0, $duplicated_variant['available_quantity']);
+        $this->assertEquals(0, $duplicated_variant['committed_quantity']);
+        $this->assertFalse($duplicated_variant['in_stock']);
+        $this->assertEquals(49.5, $duplicated_variant['base_price']);
+        $this->assertEquals(1.25, $duplicated_variant['weight']);
+        $this->assertEquals([$value_id], $duplicated_variant['attribute_values']);
+    }
+
+    /**
+     * Duplicating a missing product returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_duplicate_missing_product_returns_404(): void
+    {
+        $response = $this->request('POST', 'products/999999/duplicate');
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * Duplicating a product with no categories/tags/collections/attributes
+     * and a single default variant with no attribute values does not error.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_duplicate_bare_product_without_associations_succeeds(): void
+    {
+        $product = $this->create_product(['title' => 'Bare Product']);
+        $this->product_id = $product['id'];
+
+        $response = $this->request('POST', 'products/' . $this->product_id . '/duplicate');
+
+        $payload = $this->assert_api_success($response, 201);
+        $duplicated = $payload['data'];
+
+        $this->assertNotEquals($this->product_id, $duplicated['id']);
+        $this->assertEquals('Bare Product - Copy', $duplicated['title']);
+        $this->assertEquals([], $duplicated['categories']);
+        $this->assertEquals([], $duplicated['tags']);
+        $this->assertEquals([], $duplicated['collections']);
+        $this->assertEquals([], $duplicated['attributes']);
+        $this->assertCount(1, $duplicated['variants']);
+        $this->assertNull($duplicated['variants'][0]['sku']);
+        $this->assertEquals([], $duplicated['variants'][0]['attribute_values']);
     }
 }

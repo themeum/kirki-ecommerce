@@ -10,12 +10,6 @@ class OrderListFilterDTO extends ListFilterDTO
     public $customer_id;
 
     /** @var string|null */
-    public $start_date;
-
-    /** @var string|null */
-    public $end_date;
-
-    /** @var string|null */
     public $status;
 
     /** @var string|null */

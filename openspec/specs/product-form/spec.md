@@ -8,7 +8,7 @@ Provides a unified product create and edit form backed by a single React Hook Fo
 
 ### Requirement: Single form instance with form context
 
-The product form SHALL use exactly one `useForm()` instance owned by `ProductForm`. All section components MUST consume the form via `useFormContext()` and bind fields through `Controller` or shared form field components from `resources/app/components/form/`.
+The product form SHALL use exactly one `useForm()` instance owned by `ProductForm`. All section components MUST consume the form via `useFormContext()` and bind fields through shared form field components from `resources/app/components/form/`, or through product-scoped field components under `resources/app/features/products/components/fields/` where the binding carries product domain knowledge. Section components MUST NOT construct a `Controller` themselves.
 
 #### Scenario: Sections read shared form state
 
@@ -19,7 +19,8 @@ The product form SHALL use exactly one `useForm()` instance owned by `ProductFor
 #### Scenario: Form field components use Controller
 
 - **WHEN** a section renders an input
-- **THEN** it uses a form directory component or RHF `Controller` bound to the shared form control
+- **THEN** it uses a shared form field component or a product-scoped field component bound to the shared form control
+- **AND** the `Controller` lives inside that field component rather than in the section
 
 ### Requirement: Separate create and edit pages
 

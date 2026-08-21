@@ -9,35 +9,48 @@
  *   })">
  */
 
-import { cartApi } from "../api/cart";
-import { checkoutApi } from "../api/checkout";
-import { toastManager } from "../services/toast/runtime";
-import type { CheckoutRequest } from "../types";
+import { buildCartApi } from '../api/cart';
 
-export interface CheckoutConfig {
+const cartApi = buildCartApi({ skipTax: false });
+import { checkoutApi } from '../api/checkout';
+import { emit, listen } from '../events';
+import { toastManager } from '../services/toast/runtime';
+import type { CheckoutRequest, ShippingMethod } from '../types';
+import { config } from '../utils';
+
+/** Detail shape emitted by *-form-validated custom events */
+type FormValidatedDetail = {
+  isValid: boolean;
+};
+
+/** Subset of Alpine $data() returned for the form component */
+type AlpineFormData = {
+  values: Record<string, string>;
+  setError: (field: string, message: string) => void;
+  clearErrors: () => void;
+};
+
+/** Alpine magic properties available inside x-data component objects */
+type AlpineContext = {
+  $el: HTMLElement;
+  $dispatch: (event: string, detail?: unknown) => void;
+  $nextTick: (fn: () => void) => void;
+};
+
+export type CheckoutConfig = {
   cartTotal?: number;
-}
+};
 
-export interface Country {
+export type Country = {
   code: string;
   name: string;
-  states: Array<{
+  states: {
     id: string;
     name: string;
-  }>;
-}
+  }[];
+};
 
-export interface ShippingMethod {
-  id: string;
-  name: string;
-  description: string;
-  display_cost_money_object: {
-    display: string;
-    row: number;
-  };
-}
-
-export function checkout(config: CheckoutConfig = {}) {
+export function checkout(componentConfig: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
 
   // Debounce helper — cancels previous call if invoked again within `delay` ms
@@ -50,7 +63,7 @@ export function checkout(config: CheckoutConfig = {}) {
   }
 
   // Wait for a one-shot window event, resolving with its detail
-  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<any> {
+  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<FormValidatedDetail> {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         window.removeEventListener(eventName, handler);
@@ -72,58 +85,43 @@ export function checkout(config: CheckoutConfig = {}) {
   // than querying x-show spans whose display style may not yet be updated.
   function scrollToFirstError() {
     requestAnimationFrame(() => {
-      const firstErrorField = document.querySelector<HTMLElement>(".kecom-field-error-state");
+      const firstErrorField = document.querySelector<HTMLElement>('.kecom-field-error-state');
       if (firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     });
   }
-  // Map API field names to human-readable labels for error messages
-  const fieldLabels: Record<string, string> = {
-    first_name: __("First name", "kirki-ecommerce"),
-    last_name: __("Last name", "kirki-ecommerce"),
-    email: __("Email address", "kirki-ecommerce"),
-    phone: __("Phone number", "kirki-ecommerce"),
-    address_line1: __("Address", "kirki-ecommerce"),
-    address_line2: __("Apartment / suite", "kirki-ecommerce"),
-    city: __("City", "kirki-ecommerce"),
-    state: __("State", "kirki-ecommerce"),
-    postal_code: __("Postal code", "kirki-ecommerce"),
-    country: __("Country", "kirki-ecommerce"),
-  };
-
-  // Produce a clean user-facing message from an API validation error message
-  // by replacing the raw "address_type.field_name" token with a readable label.
-  function humanizeFieldError(rawMessage: string, fieldName: string): string {
-    const label = fieldLabels[fieldName] ?? fieldName.replace(/_/g, " ");
-    // Replace patterns like "The shipping_address.email field" or
-    // "The billing_address.first_name field" with the clean label
-    return rawMessage.replace(/shipping_address\.\w+/g, label).replace(/billing_address\.\w+/g, label);
-  }
 
   // Keys follow "shipping_address.field" / "billing_address.field" patterns.
-  function handleApiErrors(err: Error & { errors?: Record<string, string[]> }, fallbackMessage: string) {
+  function handleApiErrors(
+    err: Error & { errors?: Record<string, string[]> },
+    fallbackMessage: string,
+  ) {
     if (!err.errors) {
       toastManager.error(err.message ?? fallbackMessage);
       return;
     }
 
-    const shippingFormEl = document.querySelector("#shipping-form");
-    const billingFormEl = document.querySelector("#billing-form");
-    const shippingForm = shippingFormEl ? (window as any).Alpine.$data(shippingFormEl) : null;
-    const billingForm = billingFormEl ? (window as any).Alpine.$data(billingFormEl) : null;
+    const shippingFormEl = document.querySelector('#shipping-form');
+    const billingFormEl = document.querySelector('#billing-form');
+    const shippingForm: AlpineFormData | null = shippingFormEl
+      ? window.Alpine.$data(shippingFormEl)
+      : null;
+    const billingForm: AlpineFormData | null = billingFormEl
+      ? window.Alpine.$data(billingFormEl)
+      : null;
 
     let hasFieldErrors = false;
 
     for (const [key, messages] of Object.entries(err.errors)) {
       const rawMessage = messages[0];
-      if (key.startsWith("shipping_address.")) {
-        const field = key.replace("shipping_address.", "");
-        shippingForm?.setError(field, humanizeFieldError(rawMessage, field));
+      if (key.startsWith('shipping_')) {
+        const field = key.replace('shipping_', '');
+        shippingForm?.setError(field, rawMessage);
         hasFieldErrors = true;
-      } else if (key.startsWith("billing_address.")) {
-        const field = key.replace("billing_address.", "");
-        billingForm?.setError(field, humanizeFieldError(rawMessage, field));
+      } else if (key.startsWith('billing_')) {
+        const field = key.replace('billing_', '');
+        billingForm?.setError(field, rawMessage);
         hasFieldErrors = true;
       }
     }
@@ -137,19 +135,19 @@ export function checkout(config: CheckoutConfig = {}) {
   }
 
   return {
-    cartTotal: config.cartTotal ?? 0,
-    currency: window.kirki_ecommerce?.currency ?? "USD",
-    cartData: window.kirki_ecommerce?.checkout_cart ?? null,
-    countries: window.kirki_ecommerce?.countries ?? [],
+    cartTotal: componentConfig.cartTotal ?? 0,
+    currency: config.currency ?? 'USD',
+    cartData: config.checkout_cart ?? null,
+    countries: config.countries ?? [],
 
-    selectedPaymentMethod: "",
-    selectedShippingMethod: "",
-    couponCode: "",
-    appliedCouponCode: "" as string,
+    selectedPaymentMethod: '',
+    selectedShippingMethod: '',
+    couponCode: '',
+    appliedCouponCode: '' as string,
     discount: null as string | null,
     billingFormValid: false,
     shippingFormValid: false,
-    billingSameAsShipping: false,
+    billingSameAsShipping: true,
 
     loading: false,
     couponLoading: false,
@@ -159,35 +157,42 @@ export function checkout(config: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
-      (this as any).$el.addEventListener("billing-form-validated", (e: any) => {
-        this.billingFormValid = e.detail.isValid;
-      });
-      (this as any).$el.addEventListener("shipping-form-validated", (e: any) => {
-        this.shippingFormValid = e.detail.isValid;
-      });
+      (this as unknown as AlpineContext).$el.addEventListener(
+        'kecom:billing-form:validated',
+        (e: Event) => {
+          this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
+        },
+      );
+      (this as unknown as AlpineContext).$el.addEventListener(
+        'kecom:shipping-form:validated',
+        (e: Event) => {
+          this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
+        },
+      );
 
       // Pre-select the first payment method
-      const firstPaymentRadio = document.querySelector<HTMLInputElement>('input[name="payment_provider"]');
+      const firstPaymentRadio = document.querySelector<HTMLInputElement>(
+        'input[name="payment_provider"]',
+      );
       if (firstPaymentRadio) {
         this.selectedPaymentMethod = firstPaymentRadio.value;
       }
-
-      // Watch for billingSameAsShipping changes
-      (this as any).$watch("billingSameAsShipping", (value: boolean) => {
-        if (value) {
-          this.syncBillingFromShipping();
-        }
-      });
 
       // Initialize available shipping methods from cart data
       if (this.cartData?.available_shipping_methods) {
         this.availableShippingMethods = this.cartData.available_shipping_methods;
         if (this.cartData.shipping_method) {
           // shipping_method from the cart is an object; extract the id for radio binding
-          this.selectedShippingMethod = this.cartData.shipping_method?.id ?? this.cartData.shipping_method;
+          this.selectedShippingMethod =
+            this.cartData.shipping_method?.id ?? this.cartData.shipping_method;
         } else if (this.availableShippingMethods.length > 0) {
           // Select first shipping method if none selected
           this.selectedShippingMethod = this.availableShippingMethods[0].id;
+
+          // Persist the default selection so the displayed totals include shipping cost.
+          // Deferred via $nextTick — #shipping-form's Alpine component isn't initialized
+          // yet at this point in the tree walk, and updateCart() reads its live values.
+          (this as unknown as AlpineContext).$nextTick(() => this.updateCart());
         }
       }
 
@@ -199,21 +204,23 @@ export function checkout(config: CheckoutConfig = {}) {
       // Initialize discount state from cart data
       if (this.cartData?.pricing?.discount_details) {
         this.discount = this.cartData.pricing.display_discount_total_money_object.display || null;
-        this.appliedCouponCode = this.cartData.pricing.discount_details?.code ?? "";
+        this.appliedCouponCode = this.cartData.pricing.discount_details?.code ?? '';
       }
 
       // Debounced cart update — prevents hammering the API on rapid field changes
       const debouncedUpdateCart = debounce(() => this.updateCart(), 400);
 
-      window.addEventListener("address-changed", () => debouncedUpdateCart());
+      listen('kecom:address:changed', () => debouncedUpdateCart());
     },
 
     async updateCart() {
       try {
-        const shippingFormEl = document.querySelector("#shipping-form") as any;
-        const billingFormEl = document.querySelector("#billing-form") as any;
-        const shippingForm = (window as any).Alpine.$data(shippingFormEl);
-        const billingForm = (window as any).Alpine.$data(billingFormEl);
+        const shippingFormEl = document.querySelector('#shipping-form');
+        const billingFormEl = document.querySelector('#billing-form');
+        const shippingForm: AlpineFormData = window.Alpine.$data(shippingFormEl);
+        const billingForm: AlpineFormData | null = this.billingSameAsShipping
+          ? null
+          : window.Alpine.$data(billingFormEl);
 
         const cartData = {
           shipping_address: {
@@ -222,26 +229,30 @@ export function checkout(config: CheckoutConfig = {}) {
             email: shippingForm.values.email,
             phone: shippingForm.values.phone,
             address_line1: shippingForm.values.address_line1,
-            address_line2: shippingForm.values.address_line2 || "",
+            address_line2: shippingForm.values.address_line2 || '',
             city: shippingForm.values.city,
             state: shippingForm.values.state,
             postal_code: shippingForm.values.postal_code,
             country: shippingForm.values.country,
           },
-          billing_address: {
-            first_name: billingForm.values.first_name,
-            last_name: billingForm.values.last_name,
-            email: billingForm.values.email,
-            phone: billingForm.values.phone,
-            address_line1: billingForm.values.address_line1,
-            address_line2: billingForm.values.address_line2 || "",
-            city: billingForm.values.city,
-            state: billingForm.values.state,
-            postal_code: billingForm.values.postal_code,
-            country: billingForm.values.country,
-          },
           is_billing_same_as_shipping: this.billingSameAsShipping,
           shipping_method: this.selectedShippingMethod,
+          ...(billingForm
+            ? {
+                billing_address: {
+                  first_name: billingForm.values.first_name,
+                  last_name: billingForm.values.last_name,
+                  email: billingForm.values.email,
+                  phone: billingForm.values.phone,
+                  address_line1: billingForm.values.address_line1,
+                  address_line2: billingForm.values.address_line2 || '',
+                  city: billingForm.values.city,
+                  state: billingForm.values.state,
+                  postal_code: billingForm.values.postal_code,
+                  country: billingForm.values.country,
+                },
+              }
+            : {}),
         };
 
         const response = await cartApi.update(cartData);
@@ -250,50 +261,28 @@ export function checkout(config: CheckoutConfig = {}) {
 
         // Update selected shipping method if it changed
         if (response.data.shipping_method) {
-          this.selectedShippingMethod = response.data.shipping_method?.id ?? response.data.shipping_method;
+          this.selectedShippingMethod =
+            response.data.shipping_method?.id ?? response.data.shipping_method;
         }
 
         // Keep discount state in sync with the refreshed cart
         if (response.data?.pricing?.discount_details) {
-          this.discount = response.data.pricing?.display_discount_total_money_object.display || null;
-          this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? "";
+          this.discount =
+            response.data.pricing?.display_discount_total_money_object.display || null;
+          this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? '';
         }
       } catch (e: unknown) {
         handleApiErrors(
           e as Error & { errors?: Record<string, string[]> },
-          __("Failed to update cart", "kirki-ecommerce"),
+          __('Failed to update cart', 'kirki-ecommerce'),
         );
       }
     },
 
     setShippingMethod(methodId: string) {
       this.selectedShippingMethod = methodId;
-      (this as any).$dispatch("shipping-method-change", { methodId });
-      this.updateCart();
-    },
-
-    syncBillingFromShipping() {
-      const shippingFormEl = document.querySelector("#shipping-form") as any;
-      const billingFormEl = document.querySelector("#billing-form") as any;
-
-      const shippingForm = (window as any).Alpine.$data(shippingFormEl);
-      const billingForm = (window as any).Alpine.$data(billingFormEl);
-
-      if (shippingForm?.values && billingForm?.values) {
-        billingForm.values.country = shippingForm.values.country;
-        billingForm.values.first_name = shippingForm.values.first_name;
-        billingForm.values.last_name = shippingForm.values.last_name;
-        billingForm.values.address_line1 = shippingForm.values.address_line1;
-        billingForm.values.address_line2 = shippingForm.values.address_line2;
-        billingForm.values.city = shippingForm.values.city;
-        billingForm.values.state = shippingForm.values.state;
-        billingForm.values.postal_code = shippingForm.values.postal_code;
-        billingForm.values.phone = shippingForm.values.phone;
-        billingForm.values.email = shippingForm.values.email;
-
-        // Clear any stale errors without triggering re-validation
-        billingForm.clearErrors();
-      }
+      (this as unknown as AlpineContext).$dispatch('shipping-method-change', { methodId });
+      void this.updateCart();
     },
 
     async applyCoupon() {
@@ -305,10 +294,11 @@ export function checkout(config: CheckoutConfig = {}) {
         this.cartData = response.data;
         this.discount = response.data.pricing.display_discount_total_money_object.display || null;
         this.appliedCouponCode = this.couponCode;
-        this.couponCode = "";
-        toastManager.success(__("Coupon applied successfully!", "kirki-ecommerce"));
+        this.couponCode = '';
+        toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
-        const error = e instanceof Error ? e.message : __("Failed to apply coupon", "kirki-ecommerce");
+        const error =
+          e instanceof Error ? e.message : __('Failed to apply coupon', 'kirki-ecommerce');
         this.error = error;
         toastManager.error(error);
       } finally {
@@ -323,12 +313,13 @@ export function checkout(config: CheckoutConfig = {}) {
       try {
         const response = await cartApi.removeCoupon();
         this.cartData = response.data;
-        this.couponCode = "";
-        this.appliedCouponCode = "";
+        this.couponCode = '';
+        this.appliedCouponCode = '';
         this.discount = null;
-        toastManager.success(__("Coupon removed successfully!", "kirki-ecommerce"));
+        toastManager.success(__('Coupon removed successfully!', 'kirki-ecommerce'));
       } catch (e: unknown) {
-        const error = e instanceof Error ? e.message : __("Failed to remove coupon", "kirki-ecommerce");
+        const error =
+          e instanceof Error ? e.message : __('Failed to remove coupon', 'kirki-ecommerce');
         this.error = error;
         toastManager.error(error);
       } finally {
@@ -338,7 +329,7 @@ export function checkout(config: CheckoutConfig = {}) {
 
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
-      (this as any).$dispatch("payment-method-change", { method });
+      (this as unknown as AlpineContext).$dispatch('payment-method-change', { method });
     },
 
     async placeOrder() {
@@ -347,16 +338,18 @@ export function checkout(config: CheckoutConfig = {}) {
       try {
         // Validate both forms concurrently — dispatch triggers each form's
         // validateForm() which fires back *-form-validated on the window
-        (this as any).$dispatch("validate-shipping-form");
+        (this as unknown as AlpineContext).$dispatch('kecom:shipping-form:validate');
 
         // Only validate billing independently when it differs from shipping
         if (!this.billingSameAsShipping) {
-          (this as any).$dispatch("validate-billing-form");
+          (this as unknown as AlpineContext).$dispatch('kecom:billing-form:validate');
         }
 
-        const validationPromises: Promise<any>[] = [
-          waitForEvent("shipping-form-validated"),
-          this.billingSameAsShipping ? Promise.resolve({ isValid: true }) : waitForEvent("billing-form-validated"),
+        const validationPromises: Promise<FormValidatedDetail>[] = [
+          waitForEvent('kecom:shipping-form:validated'),
+          this.billingSameAsShipping
+            ? Promise.resolve({ isValid: true })
+            : waitForEvent('kecom:billing-form:validated'),
         ];
 
         const [shippingResult, billingResult] = await Promise.all(validationPromises);
@@ -375,7 +368,7 @@ export function checkout(config: CheckoutConfig = {}) {
         }
 
         if (!this.cartData?.items?.length) {
-          toastManager.error(__("Your cart is empty", "kirki-ecommerce"));
+          toastManager.error(__('Your cart is empty', 'kirki-ecommerce'));
           return;
         }
 
@@ -383,14 +376,16 @@ export function checkout(config: CheckoutConfig = {}) {
         this.loading = true;
 
         // Collect form data
-        const shippingFormEl = document.querySelector("#shipping-form") as any;
-        const billingFormEl = document.querySelector("#billing-form") as any;
-        const shippingForm = (window as any).Alpine.$data(shippingFormEl);
-        const billingForm = (window as any).Alpine.$data(billingFormEl);
+        const shippingFormEl = document.querySelector('#shipping-form');
+        const billingFormEl = document.querySelector('#billing-form');
+        const shippingForm: AlpineFormData = window.Alpine.$data(shippingFormEl);
+        const billingForm: AlpineFormData | null = this.billingSameAsShipping
+          ? null
+          : window.Alpine.$data(billingFormEl);
 
         // Prepare order data
         const orderData: CheckoutRequest = {
-          items: this.cartData.items.map((item: any) => ({
+          items: this.cartData.items.map((item) => ({
             variant_id: item.product.variant_id,
             quantity: item.quantity,
           })),
@@ -402,7 +397,7 @@ export function checkout(config: CheckoutConfig = {}) {
           shipping_first_name: shippingForm.values.first_name,
           shipping_last_name: shippingForm.values.last_name,
           shipping_address_line1: shippingForm.values.address_line1,
-          shipping_address_line2: shippingForm.values.address_line2 || "",
+          shipping_address_line2: shippingForm.values.address_line2 || '',
           shipping_city: shippingForm.values.city,
           shipping_state: shippingForm.values.state,
           shipping_postcode: shippingForm.values.postal_code,
@@ -410,43 +405,47 @@ export function checkout(config: CheckoutConfig = {}) {
           shipping_phone: shippingForm.values.phone,
           shipping_email: shippingForm.values.email,
           shipping_company: null,
-          billing_first_name: billingForm.values.first_name,
-          billing_last_name: billingForm.values.last_name,
-          billing_address_line1: billingForm.values.address_line1,
-          billing_address_line2: billingForm.values.address_line2 || "",
-          billing_city: billingForm.values.city,
-          billing_state: billingForm.values.state,
-          billing_postcode: billingForm.values.postal_code,
-          billing_country: billingForm.values.country,
-          billing_phone: billingForm.values.phone,
-          billing_email: billingForm.values.email,
-          billing_company: null,
-          customer_email: billingForm.values.email,
-          customer_phone: billingForm.values.phone,
+          ...(billingForm
+            ? {
+                billing_first_name: billingForm.values.first_name,
+                billing_last_name: billingForm.values.last_name,
+                billing_address_line1: billingForm.values.address_line1,
+                billing_address_line2: billingForm.values.address_line2 || '',
+                billing_city: billingForm.values.city,
+                billing_state: billingForm.values.state,
+                billing_postcode: billingForm.values.postal_code,
+                billing_country: billingForm.values.country,
+                billing_phone: billingForm.values.phone,
+                billing_email: billingForm.values.email,
+                billing_company: null,
+              }
+            : {}),
+          customer_email: shippingForm.values.email,
+          customer_phone: shippingForm.values.phone,
           customer_notes: null,
         };
 
         // Create order
         const { data } = await checkoutApi.create(orderData);
-        toastManager.success(__("Order placed successfully!", "kirki-ecommerce"));
+        toastManager.success(__('Order placed successfully!', 'kirki-ecommerce'));
 
         if (data.payment_next_step) {
           const { type, value } = data.payment_next_step;
           if (type === 'redirect') {
             window.location.href = value;
           } else if (type === 'html') {
-            this.renderPaymentGatewayHTML(value);
+            await this.renderPaymentGatewayHTML(value);
           }
         } else {
           const url = new URL(window.location.href);
-          url.searchParams.set("order", "success");
-          url.searchParams.set("uuid", data.uuid);
+          url.searchParams.set('order', 'success');
+          url.searchParams.set('uuid', data.uuid);
           window.location.href = url.toString();
         }
       } catch (e: unknown) {
         const err = e as Error & { errors?: Record<string, string[]> };
-        this.error = err.message ?? __("Checkout failed", "kirki-ecommerce");
-        handleApiErrors(err, __("Checkout failed", "kirki-ecommerce"));
+        this.error = err.message ?? __('Checkout failed', 'kirki-ecommerce');
+        handleApiErrors(err, __('Checkout failed', 'kirki-ecommerce'));
       } finally {
         this.loading = false;
       }
@@ -470,8 +469,7 @@ export function checkout(config: CheckoutConfig = {}) {
           // External script: wait until it has loaded
           await new Promise<void>((resolve, reject) => {
             newScript.onload = () => resolve();
-            newScript.onerror = () =>
-              reject(new Error(`Failed to load script: ${oldScript.src}`));
+            newScript.onerror = () => reject(new Error(`Failed to load script: ${oldScript.src}`));
 
             document.head.appendChild(newScript);
           });
@@ -490,6 +488,78 @@ export function checkout(config: CheckoutConfig = {}) {
       if (form) {
         form.submit();
       }
-    }
+    },
+  };
+}
+
+/**
+ * Alpine component: stateField
+ * Handles country→state dropdown population for address forms in checkout.
+ * Must be used inside a form() scope so it can watch values.country
+ * and read values.state via the parent form's register() binding.
+ *
+ * PHP usage:
+ *   <div x-data="stateField()">
+ *     <select x-bind="register('state', { required: '...' })">
+ *       <template x-for="state in states" :key="state.id">
+ *         <option :value="state.id" x-text="state.name"></option>
+ *       </template>
+ *     </select>
+ *   </div>
+ */
+export function stateField({
+  notifyAddressChange = false,
+}: { notifyAddressChange?: boolean } = {}) {
+  return {
+    states: [] as { id: string; name: string }[],
+
+    init() {
+      const loadStates = (countryCode: string) => {
+        if (!countryCode) {
+          this.states = [];
+          return;
+        }
+        const countries: { code: string; states: { id: string; name: string }[] }[] =
+          config.countries ?? [];
+        const country = countries.find((c) => c.code === countryCode);
+        this.states = country?.states ?? [];
+      };
+
+      // Watch parent form's country value
+      (this as any).$watch('values.country', (newCountry: string) => {
+        loadStates(newCountry);
+        if ((this as any).values) {
+          (this as any).values.state = '';
+        }
+        if ((this as any).errors?.state) {
+          delete (this as any).errors.state;
+        }
+        if (notifyAddressChange) {
+          emit('kecom:address:changed');
+        }
+      });
+
+      // Watch parent form's state value
+      if (notifyAddressChange) {
+        (this as any).$watch('values.state', () => {
+          emit('kecom:address:changed');
+        });
+      }
+
+      // Populate states for the current country immediately
+      const currentCountry = (this as any).values?.country ?? '';
+      loadStates(currentCountry);
+
+      // Re-assert the saved state value after x-for stamps the options
+      (this as any).$nextTick(() =>
+        (this as any).$nextTick(() => {
+          const select = (this as any).$el.querySelector('select');
+          const savedState = (this as any).values?.state ?? '';
+          if (select && savedState) {
+            select.value = savedState;
+          }
+        }),
+      );
+    },
   };
 }

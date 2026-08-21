@@ -25,6 +25,7 @@ class TaxProfileApiTest extends RestTestCase
     {
         $response = $this->request('POST', 'tax-profiles', [
             'name' => 'Standard Tax',
+            'is_default' => false,
         ]);
 
         $payload = $this->assert_api_success($response, 201);
@@ -189,6 +190,7 @@ class TaxProfileApiTest extends RestTestCase
     {
         $response = $this->request('POST', 'tax-profiles', array_merge([
             'name' => 'Test Tax Profile',
+            'is_default' => false,
         ], $overrides));
 
         $payload = $this->assert_api_success($response, 201);

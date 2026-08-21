@@ -3,10 +3,13 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Constants\AddressType;
+use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 class Customer extends Model
 {
+    use HasDateRangeFilter;
+
     protected $table = 'kirki_ecommerce_customers';
 
     protected $primary_key = 'id';

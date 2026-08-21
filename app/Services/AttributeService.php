@@ -3,8 +3,9 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\Attribute;
-use Kirki\Ecommerce\App\Repositories\AttributeRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Attribute\AttributeListFilterDTO;
 use Kirki\Ecommerce\App\DTO\Attribute\CreateAttributeDTO;
@@ -17,13 +18,6 @@ use function Kirki\Ecommerce\Framework\user;
 
 class AttributeService
 {
-    protected $repository;
-
-    public function __construct(AttributeRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return paginated attributes
      *
@@ -32,7 +26,7 @@ class AttributeService
      */
     public function paginated(AttributeListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -43,7 +37,7 @@ class AttributeService
      */
     public function all(AttributeListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -55,7 +49,7 @@ class AttributeService
      */
     public function find(int $id)
     {
-        $attribute = $this->repository->find($id);
+        $attribute = Attribute::with('values')->find($id);
 
         if (empty($attribute)) {
             throw new NotFoundException(__('Attribute not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -75,12 +69,13 @@ class AttributeService
     public function create(CreateAttributeDTO $data)
     {
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
+        $data->slug = Attribute::generate_unique_slug($data->slug);
 
         $attributes = $data->to_array();
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
 
-        return $this->repository->create($attributes);
+        return Attribute::create($attributes);
     }
 
     /**
@@ -94,22 +89,19 @@ class AttributeService
      */
     public function update(UpdateAttributeDTO $data)
     {
-        $attribute = $this->repository->find($data->id);
+        $attribute = Attribute::find($data->id);
 
         if (empty($attribute)) {
             throw new NotFoundException(__('Attribute could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
-
-        if ($attribute->slug !== $data->slug && $this->repository->find_by_slug($data->slug)) {
-            throw new Exception(__('Attribute slug already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        $data->slug = Attribute::generate_unique_slug($data->slug, $data->id);
 
         $attributes = $data->except(['values']);
         $attributes['updated_by'] = user()->get_id();
 
-        $is_updated = $this->repository->update($data->id, $attributes);
+        $is_updated = (bool) $attribute->update($attributes);
 
         if (!$is_updated) {
             throw new Exception(__('Attribute could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -128,13 +120,7 @@ class AttributeService
      */
     public function delete(int $id)
     {
-        $attribute = $this->repository->find($id);
-
-        if (empty($attribute)) {
-            throw new NotFoundException(__('Attribute could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) Attribute::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Attribute could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -157,7 +143,7 @@ class AttributeService
             throw new NotFoundException(__('No attributes selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) Attribute::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new Exception(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
@@ -176,6 +162,22 @@ class AttributeService
      */
     public function delete_all(AttributeListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    protected function list_query(AttributeListFilterDTO $filters)
+    {
+        return Attribute::with('values')
+            ->when($filters->search, function (QueryBuilder $query, $search) {
+                return $query->where_any(['name', 'slug', 'type'], 'like', '%' . $search . '%');
+            })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            })
+            ->when($filters->type, function (QueryBuilder $query, $type) {
+                return $query->where('type', $type);
+            });
     }
 }

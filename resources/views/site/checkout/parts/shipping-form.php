@@ -40,8 +40,8 @@ $shipping_email = $shipping_address["email"] ?? '';
             phone: '<?php echo esc_js($shipping_phone); ?>',
             email: '<?php echo esc_js($shipping_email); ?>',
         },
-        mode: 'onBlur'
-   })" @validate-shipping-form.window="await validateForm(); $dispatch('shipping-form-validated', { isValid })">
+        mode: 'onChange'
+   })" x-on:kecom:shipping-form:validate.window="await validateForm(); $dispatch('kecom:shipping-form:validated', { isValid })">
         <div class="kecom-field" x-bind="fieldWrapper('country')">
             <label class="kecom-field-label" for="shipping-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
             <select class="kecom-select" id="shipping-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
@@ -109,8 +109,11 @@ $shipping_email = $shipping_address["email"] ?? '';
                     class="kecom-select"
                     id="shipping-state"
                     name="state"
-                    x-bind="register('state', { required: '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>' })">
-                    <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
+                    :disabled="states.length === 0"
+                    x-bind="register('state', {
+                        validate: (val) => (!states.length || (val && String(val).trim() !== '')) || '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>'
+                    })">
+                    <option value="" x-text="states.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
                     <template x-for="state in states" :key="state.id">
                         <option :value="state.id" x-text="state.name"></option>
                     </template>

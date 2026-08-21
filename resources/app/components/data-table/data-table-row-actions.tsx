@@ -1,4 +1,4 @@
-import { Edit3, MoreVertical } from 'lucide-react';
+import { Edit3 } from 'lucide-react';
 import { useState } from 'react';
 
 import type { DataTableRowActionsConfig } from '@/components/data-table/types';
@@ -16,7 +16,7 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
   }
 
   return (
-    <ActionGroup style={{ visibility: isOpen ? 'visible' : undefined }}>
+    <ActionGroup cssOverride={{ visibility: isOpen ? 'visible' : undefined }}>
       {edit && (
         <Button
           variant="secondary"
@@ -32,9 +32,7 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
       {actions.length > 0 && (
         <DropdownButton
           buttonProps={{
-            type: 'secondary',
-            size: 'icon',
-            icon: <MoreVertical size={12} />,
+            variant: 'secondary',
             cssOverride: actionCssOverride,
           }}
           options={actions.map((action, index) =>

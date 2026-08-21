@@ -2,9 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Customer;
-use Kirki\Ecommerce\App\Repositories\CustomerRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
@@ -18,13 +20,6 @@ use function Kirki\Ecommerce\Framework\user;
 
 class CustomerService
 {
-    protected $repository;
-
-    public function __construct(CustomerRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return paginated customers
      *
@@ -33,7 +28,7 @@ class CustomerService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -44,7 +39,7 @@ class CustomerService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -56,7 +51,7 @@ class CustomerService
      */
     public function find(int $id)
     {
-        $customer = $this->repository->find($id);
+        $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
         if (empty($customer)) {
             throw new NotFoundException(__('Customer not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -73,7 +68,7 @@ class CustomerService
      */
     public function find_by_user_id(int $user_id)
     {
-        $customer = $this->repository->find_by_user_id($user_id);
+        $customer = Customer::with('billing_address', 'shipping_address')->where('user_id', $user_id)->first();
 
         return $customer;
     }
@@ -97,7 +92,7 @@ class CustomerService
         $data_array['created_by'] = $data->created_by ?? user()->get_id();
         $data_array['updated_by'] = $data->updated_by ?? user()->get_id();
 
-        return $this->repository->create($data_array);
+        return Customer::create($data_array)->load('addresses');
     }
 
     /**
@@ -111,8 +106,7 @@ class CustomerService
      */
     public function update(UpdateCustomerDTO $data)
     {
-        // var_dump($data);die();
-        $customer = $this->repository->find($data->id);
+        $customer = Customer::with('billing_address', 'shipping_address')->find($data->id);
 
         if (empty($customer)) {
             throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -121,7 +115,7 @@ class CustomerService
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
 
-        $is_updated = $this->repository->update($data->id, $data_array);
+        $is_updated = (bool) $customer->update($data_array);
 
         if (!$is_updated) {
             throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -138,6 +132,63 @@ class CustomerService
     }
 
     /**
+     * Partially updates a customer's own record.
+     *
+     * Unlike update(), this writes only the columns present in $data -
+     * anything not present is left untouched. The caller is responsible for
+     * only passing profile-appropriate columns (first_name, last_name,
+     * phone); this method itself does not restrict which fillable Customer
+     * columns can be written.
+     *
+     * @param int $customer_id
+     * @param array $data
+     * @throws NotFoundException
+     * @return Customer
+     */
+    public function update_profile(int $customer_id, array $data)
+    {
+        $customer = $this->find($customer_id);
+
+        if (empty($customer)) {
+            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $data['updated_by'] = user()->get_id();
+
+        $is_updated = (bool) $customer->update($data);
+
+        if (!$is_updated) {
+            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return $this->find($customer_id);
+    }
+
+    /**
+     * Set whether a customer's billing address should mirror their shipping address.
+     *
+     * @param int $customer_id
+     * @param bool $value
+     * @throws NotFoundException
+     * @return Customer
+     */
+    public function set_billing_same_as_shipping(int $customer_id, bool $value)
+    {
+        $customer = Customer::find($customer_id);
+
+        if (empty($customer)) {
+            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $customer->update([
+            'is_billing_same_as_shipping' => $value,
+            'updated_by' => user()->get_id(),
+        ]);
+
+        return $customer;
+    }
+
+    /**
      * Deletes a customer by ID.
      *
      * @param int $id The ID of the customer to delete.
@@ -146,13 +197,13 @@ class CustomerService
      */
     public function delete(int $id)
     {
-        $customer = $this->repository->find($id);
+        $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
         if (empty($customer)) {
             throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) Customer::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Customer could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -176,8 +227,8 @@ class CustomerService
      */
     public function bulk_delete(array $ids)
     {
-        $user_ids = $this->repository->get_user_ids_by_customer_ids($ids);
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $user_ids = Customer::where_in('id', $ids)->get()->pluck('user_id')->all();
+        $is_deleted = (bool) Customer::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Customers could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -214,7 +265,7 @@ class CustomerService
                 wp_delete_user($customer->user_id);
             });
 
-            $is_deleted = (bool) $this->repository->delete_all($filters->to_array());
+            $is_deleted = (bool) $this->list_query($filters)->delete();
 
             DB::commit();
 
@@ -223,5 +274,23 @@ class CustomerService
             DB::roll_back();
             throw $e;
         }
+    }
+
+    protected function list_query(ListFilterDTO $filters)
+    {
+        return Customer::query()
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
+            ->with_max('orders', 'created_at')
+            ->with_count('orders')
+            ->with_sum(['orders' => fn($query) => $query->where('payment_status', PaymentStatus::PAID)], 'base_total')
+            ->with('billing_address')
+            ->when($filters->search, function (QueryBuilder $query, $search) {
+                return $query->where_any(['first_name', 'last_name', 'email', 'phone'], 'like', '%' . $search . '%');
+            })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
     }
 }

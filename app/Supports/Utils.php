@@ -11,7 +11,11 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
@@ -65,11 +69,111 @@ class Utils
             'advance.pages.cart' => __('Cart', 'kirki-ecommerce'),
             'advance.pages.checkout' => __('Checkout', 'kirki-ecommerce'),
             'advance.pages.account' => __('Account', 'kirki-ecommerce'),
+            'advance.pages.login' => __('Login', 'kirki-ecommerce'),
+            'advance.pages.register' => __('Register', 'kirki-ecommerce'),
         ];
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
 
         return $pages;
+    }
+
+    /**
+     * Get account route config.
+     *
+     * @since 1.0.0
+     *
+     * @return array The account route config.
+     */
+    public static function get_account_route_config()
+    {
+        $account_page_id = Utils::get_account_page_id();
+        $account_page = get_post($account_page_id);
+        $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
+
+        $route_config = [
+            'dashboard' => [
+                'title'     => __('Dashboard', 'kirki-ecommerce'),
+                'icon'      => 'dashboard',
+                'url'       => Url::get_account_url(),
+                'is_active' => Route::is('account'),
+                'route_path' => $account_page_slug,
+                'route_name' => 'account',
+                'callback'  => [AccountController::class, 'dashboard'],
+                'is_menu'   => true,
+            ],
+            'orders' => [
+                'title'     => __('Orders', 'kirki-ecommerce'),
+                'icon'      => 'box',
+                'url'       => Url::get_account_url('orders'),
+                'is_active' => Route::is('account.orders') || Route::is('account.orders.details'),
+                'route_path' => $account_page_slug . '/orders',
+                'route_name' => 'account.orders',
+                'callback'  => [AccountController::class, 'orders'],
+                'is_menu'   => true,
+            ],
+            'orders.show' => [
+                'title'     => __('Order Details', 'kirki-ecommerce'),
+                'route_path' => $account_page_slug . '/orders/{uuid}',
+                'route_name' => 'account.orders.show',
+                'callback'  => [AccountController::class, 'order_details'],
+            ],
+            'addresses' => [
+                'title'     => __('Addresses', 'kirki-ecommerce'),
+                'icon'      => 'map-pin',
+                'url'       => Url::get_account_url('addresses'),
+                'is_active' => Route::is('account.addresses'),
+                'route_path' => $account_page_slug . '/addresses',
+                'route_name' => 'account.addresses',
+                'callback'  => [AccountController::class, 'addresses'],
+                'is_menu'   => true,
+            ],
+            'manage' => [
+                'title'     => __('Account', 'kirki-ecommerce'),
+                'icon'      => 'user',
+                'url'       => Url::get_account_url('manage'),
+                'is_active' => Route::is('account.manage'),
+                'route_path' => $account_page_slug . '/manage',
+                'route_name' => 'account.manage',
+                'callback'  => [AccountController::class, 'account_details'],
+                'is_menu'   => true,
+            ],
+            'logout' => [
+                'title'     => __('Log Out', 'kirki-ecommerce'),
+                'icon'      => 'log-out',
+                'url'       => wp_logout_url(Url::get_login_url()),
+                'is_active' => false,
+                'class'     => 'kecom-account-nav-link-logout',
+                'is_menu'   => true,
+            ],
+        ];
+
+        $route_config = apply_filters('kirki_ecommerce_account_route_config', $route_config);
+
+        return $route_config;
+    }
+
+    /**
+     * Get account menu items.
+     *
+     * @since 1.0.0
+     *
+     * @return array The account menu items.
+     */
+    public static function get_account_menu_items()
+    {
+        $route_config = static::get_account_route_config();
+        $menu_items = [];
+
+        foreach ($route_config as $key => $route) {
+            if (isset($route['is_menu']) && $route['is_menu']) {
+                $menu_items[$key] = $route;
+            }
+        }
+
+        $menu_items = apply_filters('kirki_ecommerce_account_menu_items', $menu_items);
+
+        return $menu_items;
     }
 
     /**
@@ -104,6 +208,30 @@ class Utils
         } catch (\Exception $e) {
             error_log('Error generating site pages: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get login page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The login page id.
+     */
+    public static function get_login_page_id()
+    {
+        return Settings::get('advance.pages.login', 0);
+    }
+
+    /**
+     * Get registration page id.
+     *
+     * @since 1.0.0
+     *
+     * @return int The registration page id.
+     */
+    public static function get_registration_page_id()
+    {
+        return Settings::get('advance.pages.register', 0);
     }
 
     /**
@@ -150,6 +278,62 @@ class Utils
     }
 
     /**
+     * Detect whether the current request is on the account page or any of its sub-pages.
+     *
+     * Usage:
+     *   Utils::is_account_page();           // true for any account page/sub-page
+     *   Utils::is_account_page('orders');   // true only on /account/orders
+     *   Utils::is_account_page('orders/*'); // true on /account/orders/anything
+     *
+     * The $sub_path argument is matched against the URL path that follows the
+     * account page's base path. A single `*` token acts as a wildcard that
+     * matches any non-empty path segment(s).
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $sub_path Optional sub-path to match. Supports `*` as
+     *                              a wildcard (e.g. 'orders/*').
+     *
+     * @return bool
+     */
+    public static function is_account_page(?string $sub_path = null): bool
+    {
+        $account_page_id = static::get_account_page_id();
+
+        if (!$account_page_id) {
+            return false;
+        }
+
+        // Resolve the account page base path (e.g. "/account" or "/shop/account").
+        $account_url  = get_permalink($account_page_id);
+        $account_path = rtrim(parse_url($account_url, PHP_URL_PATH), '/');
+
+        // Current request path, stripped of query string.
+        $current_path = rtrim(strtok($_SERVER['REQUEST_URI'] ?? '', '?'), '/');
+
+        // No sub-path given: match the account root or any page beneath it.
+        if ($sub_path === null) {
+            return $current_path === $account_path
+                || str_starts_with($current_path, $account_path . '/');
+        }
+
+        // Build the full expected path including the sub-path.
+        $sub_path     = trim($sub_path, '/');
+        $target_path  = $account_path . '/' . $sub_path;
+
+        // When the sub-path contains a wildcard, convert to a regex pattern.
+        if (str_contains($sub_path, '*')) {
+            // Escape everything except `*`, then replace `*` with a regex
+            // fragment that matches one or more path characters.
+            $pattern = preg_quote($target_path, '#');
+            $pattern = str_replace('\\*', '[^/]+(?:/[^/]+)*', $pattern);
+            return (bool) preg_match('#^' . $pattern . '$#', $current_path);
+        }
+
+        return $current_path === $target_path;
+    }
+
+    /**
      * Get design system page id.
      *
      * @since 1.0.0
@@ -172,5 +356,50 @@ class Utils
     {
         $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
         return json_decode($countries_json, true);
+    }
+
+    /**
+     * Check if user can register.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if user can register, false otherwise.
+     */
+    public static function registration_enabled()
+    {
+        return (int) get_option('users_can_register', 0);
+    }
+
+    /**
+     * Get status badge class.
+     *
+     * @since 1.0.0
+     *
+     * @param string $status The status.
+     *
+     * @return string The badge class.
+     */
+    public static function get_status_badge_class(string $status): string
+    {
+        switch ($status) {
+            case FulfillmentStatus::PROCESSING:
+                return 'kecom-badge-info-light';
+            case FulfillmentStatus::SHIPPED:
+                return 'kecom-badge-info-light';
+            case FulfillmentStatus::CANCELLED:
+                return 'kecom-badge-error-light';
+            case FulfillmentStatus::ON_HOLD:
+                return 'kecom-badge-caution-light';
+            case FulfillmentStatus::UNFULFILLED:
+                return 'kecom-badge-warning-light';
+            case FulfillmentStatus::DELIVERED:
+                return 'kecom-badge-success-light';
+            case PaymentStatus::PAID:
+                return 'kecom-badge-success-light';
+            case PaymentStatus::UNPAID:
+                return 'kecom-badge-warning-light';
+            default:
+                return 'kecom-badge-default';
+        }
     }
 }

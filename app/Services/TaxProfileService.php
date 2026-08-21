@@ -3,8 +3,9 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Models\TaxProfile;
-use Kirki\Ecommerce\App\Repositories\TaxProfileRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\DTO\TaxProfile\CreateTaxProfileDTO;
@@ -14,13 +15,6 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 class TaxProfileService
 {
-    protected $repository;
-
-    public function __construct(TaxProfileRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Return paginated tax profiles
      *
@@ -29,7 +23,7 @@ class TaxProfileService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
 
     /**
@@ -40,7 +34,7 @@ class TaxProfileService
      */
     public function all(ListFilterDTO $filters)
     {
-        return $this->repository->all($filters->to_array());
+        return $this->list_query($filters)->get();
     }
 
     /**
@@ -52,7 +46,7 @@ class TaxProfileService
      */
     public function find(int $id)
     {
-        $tax_profile = $this->repository->find($id);
+        $tax_profile = TaxProfile::find($id);
 
         if (!$tax_profile) {
             throw new NotFoundException(__('Tax profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -69,7 +63,7 @@ class TaxProfileService
      */
     public function create(CreateTaxProfileDTO $data)
     {
-        $tax_profile = $this->repository->create($data->to_array());
+        $tax_profile = TaxProfile::create($data->to_array());
 
         return $tax_profile;
     }
@@ -83,19 +77,19 @@ class TaxProfileService
      */
     public function update(UpdateTaxProfileDTO $data)
     {
-        $tax_profile = $this->repository->find($data->id);
+        $tax_profile = TaxProfile::find($data->id);
 
         if (empty($tax_profile)) {
             throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_updated = $this->repository->update($data->id, $data->to_array());
+        $is_updated = (bool) $tax_profile->update($data->to_array());
 
         if (!$is_updated) {
             throw new NotFoundException(__('Tax profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        return $this->repository->find($data->id);
+        return TaxProfile::find($data->id);
     }
 
     /**
@@ -107,13 +101,7 @@ class TaxProfileService
      */
     public function delete(int $id)
     {
-        $tax_profile = $this->repository->find($id);
-
-        if (empty($tax_profile)) {
-            throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
-
-        $is_deleted = $this->repository->delete($id);
+        $is_deleted = (bool) TaxProfile::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Tax profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -131,7 +119,7 @@ class TaxProfileService
      */
     public function bulk_delete(array $ids)
     {
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) TaxProfile::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Tax profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -148,6 +136,18 @@ class TaxProfileService
      */
     public function delete_all(ListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    protected function list_query(ListFilterDTO $filters)
+    {
+        return TaxProfile::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%');
+        })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
     }
 }

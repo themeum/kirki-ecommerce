@@ -90,4 +90,51 @@ final class OrderStatus
 
         throw new Exception(__('Cannot resolve order status.', 'kirki-ecommerce'));
     }
+
+    /**
+     * Get all order statuses.
+     *
+     * @return array<string, string>
+     */
+    public static function get_list()
+    {
+        return [
+            self::PENDING               => __('Pending', 'kirki-ecommerce'),
+            self::ON_HOLD_UNPAID        => __('On Hold', 'kirki-ecommerce'),
+            self::UNPAID_PROCESSING     => __('Processing', 'kirki-ecommerce'),
+            self::PAID_UNFULFILLED      => __('Paid (Unfulfilled)', 'kirki-ecommerce'),
+            self::PAID_PROCESSING       => __('Paid (Processing)', 'kirki-ecommerce'),
+            self::PAID_SHIPPED          => __('Paid (Shipped)', 'kirki-ecommerce'),
+            self::SHIPPED_UNPAID        => __('Shipped (Unpaid)', 'kirki-ecommerce'),
+            self::DELIVERED_UNPAID      => __('Delivered (Unpaid)', 'kirki-ecommerce'),
+            self::COMPLETED             => __('Completed', 'kirki-ecommerce'),
+            self::ON_HOLD_PAID          => __('On Hold (Paid)', 'kirki-ecommerce'),
+            self::PAID_CANCELLED        => __('Cancelled (Paid)', 'kirki-ecommerce'),
+            self::UNPAID_CANCELLED      => __('Cancelled (Unpaid)', 'kirki-ecommerce'),
+            self::FAILED_CANCELLED      => __('Cancelled (Failed)', 'kirki-ecommerce'),
+            self::FAILED_UNFULFILLED    => __('Failed (Unfulfilled)', 'kirki-ecommerce'),
+            self::FAILED_PROCESSING     => __('Failed (Processing)', 'kirki-ecommerce'),
+            self::FAILED_SHIPPED        => __('Failed (Shipped)', 'kirki-ecommerce'),
+            self::FAILED_DELIVERED      => __('Failed (Delivered)', 'kirki-ecommerce'),
+            self::FAILED_ON_HOLD        => __('On Hold (Failed)', 'kirki-ecommerce'),
+            self::REFUND_REQUESTED      => __('Refund Requested', 'kirki-ecommerce'),
+            self::REFUND_IN_PROGRESS    => __('Refund in Progress', 'kirki-ecommerce'),
+            self::REFUNDED              => __('Refunded', 'kirki-ecommerce'),
+            self::REFUND_DECLINED       => __('Refund Declined', 'kirki-ecommerce'),
+            self::RETURNED_PENDING_REFUND => __('Returned (Pending Refund)', 'kirki-ecommerce'),
+            self::REFUNDED_PARTIALLY    => __('Refunded (Partially)', 'kirki-ecommerce'),
+        ];
+    }
+
+    /**
+     * Get the formatted status.
+     *
+     * @param string $status
+     *
+     * @return string
+     */
+    public static function get_formatted(string $status)
+    {
+        return static::get_list()[$status] ?? '';
+    }
 }

@@ -1,11 +1,8 @@
-import DropdownButton from '@/components/dropdown-button';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { PlusIcon } from '@/icons';
-import { noop } from '@/utils/function';
-import { __ } from '@/wpi18n';
 
 type HeaderActionsCardProps = {
   header?: string;
@@ -24,8 +21,6 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
     buttonText,
     onAdd,
     hideButton = false,
-    dropDownButton = false,
-    handleOptionSelect = noop,
   } = props;
   return (
     <>
@@ -34,34 +29,10 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
           <Text variant="heading6" weight="semibold" color="primary">{header}</Text>
           {!hideButton && (
             <ActionGroup>
-              {dropDownButton ? (
-                <DropdownButton
-                  buttonProps={{
-                    text: buttonText,
-                    size: 'small',
-                    type: 'secondary',
-                    leftIcon: <PlusIcon />,
-                    onClick: onAdd,
-                  }}
-                  size="small"
-                  options={[
-                    {
-                      title: __('Color', 'kirki-ecommerce'),
-                      value: 'color',
-                    },
-                    {
-                      title: __('List', 'kirki-ecommerce'),
-                      value: 'list',
-                    },
-                  ]}
-                  onOptionSelect={(value) => handleOptionSelect(value)}
-                />
-              ) : (
-                <Button variant="secondary" onClick={onAdd}>
-                  <PlusIcon />
-                  {buttonText}
-                </Button>
-              )}
+              <Button variant="secondary" onClick={onAdd}>
+                <PlusIcon />
+                {buttonText}
+              </Button>
             </ActionGroup>
           )}
         </Flex>

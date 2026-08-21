@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Wordpress\Customer;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -98,5 +99,39 @@ if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
         $content = file_get_contents($file_path);
 
         return json_decode($content, $associative);
+    }
+}
+
+if (!function_exists('Kirki\Ecommerce\App\to_utc_date_string')) {
+    /**
+     * Convert a datetime value to a UTC date string.
+     *
+     * @param string|null $value
+     * @return string|null Null when no value was given.
+     */
+    function to_utc_date_string($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return Date::parse($value)->set_timezone('UTC')->to_date_string();
+    }
+}
+
+if (!function_exists('Kirki\Ecommerce\App\to_utc_datetime_string')) {
+    /**
+     * Convert a datetime value to a UTC datetime string.
+     *
+     * @param string|null $value
+     * @return string|null Null when no value was given.
+     */
+    function to_utc_datetime_string($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        return Date::parse($value)->set_timezone('UTC')->to_date_time_string();
     }
 }

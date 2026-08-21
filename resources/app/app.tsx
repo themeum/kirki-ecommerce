@@ -55,7 +55,7 @@ const checkActiveSubmenu = (root: HTMLElement): void => {
   if (searchParams.has('page') && searchParams.get('page') === 'kirki-ecommerce') {
     const hash = getLeadingRouteHash(window.location.hash || '#');
 
-    const currentUrl = `admin.php?page=ecommerce${hash}`;
+    const currentUrl = `admin.php?page=kirki-ecommerce${hash}`;
     const menuItems = [...root.querySelectorAll('& > ul > li')];
 
     for (const menuItem of menuItems) {
@@ -68,7 +68,7 @@ const checkActiveSubmenu = (root: HTMLElement): void => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  const ecommerceAdminMenu = document.getElementById('toplevel_page_ecommerce');
+  const ecommerceAdminMenu = document.getElementById('toplevel_page_kirki-ecommerce');
   if (!ecommerceAdminMenu) {
     return;
   }
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('popstate', () => {
-  const ecommerceAdminMenu = document.getElementById('toplevel_page_ecommerce');
+  const ecommerceAdminMenu = document.getElementById('toplevel_page_kirki-ecommerce');
   if (!ecommerceAdminMenu) {
     return;
   }

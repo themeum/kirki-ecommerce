@@ -11,6 +11,7 @@ class TaxProfileCreateRequest extends Request
     {
         return [
             'name' => 'required|string',
+            'is_default' => 'boolean|nullable',
         ];
     }
 
@@ -18,6 +19,7 @@ class TaxProfileCreateRequest extends Request
     {
         return [
             'name' => Sanitizer::TEXT,
+            'is_default' => Sanitizer::BOOL,
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Category;
 
+use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -13,7 +14,7 @@ class CategoryUpdateRequest extends Request
             'id' => 'required|integer',
             'parent_id' => 'integer|nullable',
             'name' => 'required|string',
-            'slug' => 'string|nullable',
+            'slug' => 'string|nullable|unique:' . Category::get_table_name() . ',slug,' . $this->int('id'),
             'description' => 'string|nullable',
             'image' => 'integer|nullable',
             'level' => 'integer|nullable',

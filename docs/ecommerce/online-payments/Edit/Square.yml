@@ -1,0 +1,141 @@
+info:
+  name: Square
+  type: http
+  seq: 3
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/authorizenet"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "location_id": "LEGT83VZEV5V2",
+          "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+          "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/authorizenet"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "location_id": "LEGT83VZEV5V2",
+              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "square",
+              "name": "Square",
+              "icon": "square",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "Square payment gateway",
+              "settings": {
+                "login_id": "LEGT83VZEV5V2",
+                "transaction_key": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+                "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "location_id",
+                  "label": "Location ID",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "access_token",
+                  "label": "Access Token",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "signature_key",
+                  "label": "Signature Key",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/square",
+              "webhook_events": [
+                
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/authorizenet"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "location_id": "LEGT83VZEV5V2",
+              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
+              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.

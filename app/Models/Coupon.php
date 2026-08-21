@@ -3,12 +3,17 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
+use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+use function Kirki\Ecommerce\App\to_utc_datetime_string;
+
 class Coupon extends Model
 {
+    use HasDateRangeFilter;
+
     protected $table = 'kirki_ecommerce_coupons';
     protected $primary_key = 'id';
 
@@ -16,7 +21,6 @@ class Coupon extends Model
         'id' => 'integer',
         'has_end_datetime' => 'boolean',
         'first_time_buyer_only' => 'boolean',
-        'exclude_customers' => 'boolean',
         'has_usage_limit' => 'boolean',
         'usage_limit' => 'integer',
         'has_customer_limit' => 'boolean',
@@ -55,10 +59,11 @@ class Coupon extends Model
         'start_datetime',
         'has_end_datetime',
         'end_datetime',
+        'target_country_type',
         'target_countries',
         'first_time_buyer_only',
-        'customer_eligibility',
-        'exclude_customers',
+        'customer_include_eligibility',
+        'customer_exclude_eligibility',
         'has_usage_limit',
         'usage_limit',
         'has_customer_limit',
@@ -92,28 +97,12 @@ class Coupon extends Model
 
     public function set_start_datetime_attribute(?string $value)
     {
-        $this->attributes['start_datetime'] = $this->to_utc($value);
+        $this->attributes['start_datetime'] = to_utc_datetime_string($value);
     }
 
     public function set_end_datetime_attribute(?string $value)
     {
-        $this->attributes['end_datetime'] = $this->to_utc($value);
-    }
-
-    /**
-     * Parse a datetime value and normalize it to GMT.
-     *
-     * @param string|null $value ATOM string (with offset) or a plain GMT datetime string.
-     *
-     * @return \Kirki\Ecommerce\Framework\Contracts\SomoyInterface|null
-     */
-    protected function to_utc($value)
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        return Date::parse($value)->set_timezone('UTC');
+        $this->attributes['end_datetime'] = to_utc_datetime_string($value);
     }
 
     public function categories()
@@ -123,12 +112,12 @@ class Coupon extends Model
 
     public function products()
     {
-        return $this->belongs_to_many(Product::class, 'kirki_ecommerce_coupon_products', 'coupon_id', 'product_id');
+        return $this->belongs_to_many(Product::class, 'kirki_ecommerce_coupon_products', 'coupon_id', 'product_id')->with_pivot('is_reward_item');
     }
 
     public function customers()
     {
-        return $this->belongs_to_many(Customer::class, 'kirki_ecommerce_coupon_customers', 'coupon_id', 'customer_id');
+        return $this->belongs_to_many(Customer::class, 'kirki_ecommerce_coupon_customers', 'coupon_id', 'customer_id')->with_pivot('is_excluded');
     }
 
     public function usage()

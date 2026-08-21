@@ -2,7 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Constants\AddressType;
+use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
+use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\CustomerService;
@@ -33,6 +37,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\uuid;
 
@@ -47,6 +52,7 @@ class CreateOrderAction
     protected $customer_service;
     protected $create_customer_action;
     protected $cart_service;
+    protected $address_service;
     protected $variants_map = [];
     protected $base_currency_code;
 
@@ -59,7 +65,8 @@ class CreateOrderAction
         CouponService $coupon_service,
         CustomerService $customer_service,
         CreateCustomerAction $create_customer_action,
-        CartService $cart_service
+        CartService $cart_service,
+        AddressService $address_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
         $this->variant_service = $variant_service;
@@ -70,13 +77,23 @@ class CreateOrderAction
         $this->customer_service = $customer_service;
         $this->create_customer_action = $create_customer_action;
         $this->cart_service = $cart_service;
+        $this->address_service = $address_service;
 
         $this->base_currency_code = base_currency()->code;
     }
 
     public function execute(CreateOrderPayloadDTO $dto)
     {
-        if (empty($dto->customer_id) && !$dto->is_manual && !empty($dto->created_by)) {
+        if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
+            $this->resolve_checkout_cart($dto);
+        }
+
+        // Only resolve a customer when there is one to resolve: an explicitly
+        // chosen customer, or a storefront checkout by a signed-in shopper.
+        // The provisioning fallback builds the customer from the acting
+        // WordPress user, so a manual order with no customer picked would
+        // provision one for the admin, and a guest checkout has no user at all.
+        if (!empty($dto->customer_id) || (!$dto->is_manual && !empty($dto->created_by))) {
             $dto->customer_id = $this->resolve_checkout_customer_id($dto);
         }
 
@@ -100,6 +117,7 @@ class CreateOrderAction
                     'order_id' => $order->id,
                     'customer_id' => $create_order_dto->customer_id,
                 ]);
+                $this->coupon_service->increment($coupon->id, 'current_usage_count');
             }
 
             foreach ($dto->items as $item_data) {
@@ -113,10 +131,10 @@ class CreateOrderAction
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
             }
 
-            if (!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) {
+            if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
-                $empty_cart_dto->customer_id = $create_order_dto->customer_id;
                 $empty_cart_dto->token = $dto->cart_token;
+                $empty_cart_dto->user_id = $dto->user_id;
 
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
@@ -130,6 +148,39 @@ class CreateOrderAction
         }
     }
 
+    protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
+    {
+        $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
+
+        if (empty($cart) || empty($cart->items)) {
+            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
+        }
+
+        $items = [];
+
+        foreach ($cart->items as $item) {
+            $items[] = [
+                'variant_id' => $item->variant_id,
+                'quantity' => $item->quantity,
+            ];
+        }
+
+        if (empty($items)) {
+            throw new Exception(__('Cart is empty.', 'kirki-ecommerce'));
+        }
+
+        $dto->items = $items;
+        $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
+
+        if (empty($dto->coupon_code) && !empty($cart->discount_details['code'])) {
+            $dto->coupon_code = $cart->discount_details['code'];
+        }
+
+        if (empty($dto->shipping_method) && !empty($cart->shipping_method)) {
+            $dto->shipping_method = $cart->shipping_method;
+        }
+    }
+
     /**
      * Resolve the customer_id to link a checkout order to, provisioning a
      * Customer record (with addresses) for the authenticated user placing
@@ -140,11 +191,42 @@ class CreateOrderAction
      */
     protected function resolve_checkout_customer_id(CreateOrderPayloadDTO $dto)
     {
+        $customer = $dto->customer_id ? $this->customer_service->find($dto->customer_id) : null;
+
+        if (!empty($customer) && !empty($customer->shipping_address) && !empty($customer->billing_address)) {
+            $this->update_address($dto, $customer, AddressType::SHIPPING);
+            $this->update_address($dto, $customer, AddressType::BILLING);
+            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
+            return $customer->id;
+        }
+
+        if (!empty($customer) && empty($customer->shipping_address) && empty($customer->billing_address)) {
+            $this->create_address($dto, $customer, AddressType::BILLING);
+            $this->create_address($dto, $customer, AddressType::SHIPPING);
+            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
+
+            return $customer->id;
+        }
+
+        if (!empty($customer) && !empty($customer->billing_address) && empty($customer->shipping_address)) {
+            $this->create_address($dto, $customer, AddressType::SHIPPING);
+            $this->update_address($dto, $customer, AddressType::BILLING);
+            $this->customer_service->set_billing_same_as_shipping($customer->id, false);
+            return $customer->id;
+        }
+        
+        if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
+            $this->create_address($dto, $customer, AddressType::BILLING);
+            $this->update_address($dto, $customer, AddressType::SHIPPING);
+            $this->customer_service->set_billing_same_as_shipping($customer->id, false);
+            return $customer->id;
+        }
+
         try {
             $customer = $this->create_customer_action->execute(
                 $this->prepare_checkout_customer_dto($dto),
-                $this->prepare_checkout_address_dto($dto, 'shipping'),
-                $this->prepare_checkout_address_dto($dto, 'billing')
+                $this->prepare_checkout_address_dto($dto, AddressType::SHIPPING),
+                $this->prepare_checkout_address_dto($dto, AddressType::BILLING)
             );
 
             return $customer->id;
@@ -159,6 +241,23 @@ class CreateOrderAction
         }
     }
 
+    protected function create_address(CreateOrderPayloadDTO $dto, $customer, $type)
+    {
+        $address_dto = $this->prepare_checkout_address_dto($dto, $type);
+        $address_dto->customer_id = $customer->id;
+
+        $this->address_service->create($address_dto);
+    }
+    
+    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $type)
+    {
+        $address_dto = $this->prepare_checkout_address_dto($dto, $type, true);
+        $address_dto->customer_id = $customer->id;
+        $address_dto->id = $customer->{$type . '_address'}->id;
+
+        $this->address_service->update($address_dto);
+    }
+   
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
     {
         $wp_user = get_userdata($dto->created_by) ?: null;
@@ -193,9 +292,9 @@ class CreateOrderAction
         ];
     }
 
-    protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix)
+    protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix, bool $is_update = false)
     {
-        $address_payload = new CreateAddressDTO();
+        $address_payload = $is_update ? new UpdateAddressDTO() : new CreateAddressDTO();
         $address_payload->first_name = $dto->{"{$prefix}_first_name"};
         $address_payload->last_name = $dto->{"{$prefix}_last_name"};
         $address_payload->address_line1 = $dto->{"{$prefix}_address_line1"};
@@ -206,6 +305,7 @@ class CreateOrderAction
         $address_payload->postal_code = $dto->{"{$prefix}_postcode"};
         $address_payload->email = $dto->{"{$prefix}_email"};
         $address_payload->phone = $dto->{"{$prefix}_phone"};
+        $address_payload->type = $prefix;
 
         return $address_payload;
     }

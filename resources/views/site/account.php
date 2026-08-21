@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Account Page Template.
+ * Account Page Template (Alias for Dashboard).
  *
  * @package Kirki\Ecommerce\Templates
  * @author Themeum <support@themeum.com>
@@ -11,16 +11,13 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Supports\Template;
-?>
+use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\view_data;
 
-<?php Template::get_header(); ?>
-
-<div class="kecom-container">
-    <div class="kecom-account-page">
-        <h1 class="kecom-account-page-title"><?php esc_html_e('Account', 'kirki-ecommerce'); ?></h1>
-        <div class="kecom-account-page-info"><?php esc_html_e('Comming Soon', 'kirki-ecommerce'); ?></div>
-    </div>
-</div>
-
-<?php Template::get_footer(); ?>
+include_view('site.account.dashboard', [
+    'customer'         => view_data('customer'),
+    'user'             => view_data('user'),
+    'orders'           => view_data('orders'),
+    'billing_address'  => view_data('billing_address'),
+    'shipping_address' => view_data('shipping_address'),
+]);

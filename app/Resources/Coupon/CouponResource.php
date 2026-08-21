@@ -3,9 +3,14 @@
 namespace Kirki\Ecommerce\App\Resources\Coupon;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
-use Kirki\Ecommerce\App\Constants\Coupon\CustomerEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
+use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
+use Kirki\Ecommerce\App\Resources\CategoryResource;
+use Kirki\Ecommerce\App\Resources\Customer\CustomerInfoResource;
+use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
@@ -41,10 +46,11 @@ class CouponResource extends Resource
             'start_datetime' => $this->start_datetime,
             'has_end_datetime' => filter_var($this->has_end_datetime, FILTER_VALIDATE_BOOLEAN),
             'end_datetime' => $this->end_datetime,
+            'target_country_type' => $this->target_country_type ?? TargetCountryType::ALL_COUNTRIES,
             'target_countries' => $this->target_countries,
             'first_time_buyer_only' => filter_var($this->first_time_buyer_only, FILTER_VALIDATE_BOOLEAN),
-            'customer_eligibility' => $this->customer_eligibility ?? CustomerEligibility::ALL,
-            'exclude_customers' => $this->exclude_customers,
+            'customer_include_eligibility' => $this->customer_include_eligibility ?? CustomerIncludeEligibility::EVERYONE,
+            'customer_exclude_eligibility' => $this->customer_exclude_eligibility ?? CustomerExcludeEligibility::NONE,
             'has_usage_limit' => filter_var($this->has_usage_limit, FILTER_VALIDATE_BOOLEAN),
             'usage_limit' => $this->usage_limit,
             'has_customer_limit' => filter_var($this->has_customer_limit, FILTER_VALIDATE_BOOLEAN),
@@ -52,9 +58,10 @@ class CouponResource extends Resource
             'current_usage_count' => $this->current_usage_count ?? 0,
             'is_active' => filter_var($this->is_active, FILTER_VALIDATE_BOOLEAN),
             'status' => $this->get_status(),
-            'categories' => !empty($this->categories) ? $this->categories->pluck('id')->all() : [],
-            'products' => !empty($this->products) ? $this->products->pluck('id')->all() : [],
-            'customers' => !empty($this->customers) ? $this->customers->pluck('id')->all() : [],
+            'categories' => !empty($this->categories) ? CategoryResource::collection($this->categories) : [],
+            'products' => !empty($this->products) ? ProductListWithVariantsResource::collection($this->products) : [],
+            'customers' => !empty($this->customers) ? CustomerInfoResource::collection($this->customers->reject(fn($customer) => !empty($customer->pivot['is_excluded']))) : [],
+            'excluded_customers' => !empty($this->customers) ? CustomerInfoResource::collection($this->customers->filter(fn($customer) => !empty($customer->pivot['is_excluded']))) : [],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

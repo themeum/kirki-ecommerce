@@ -1,13 +1,13 @@
 // Kirki Ecommerce – Site Design System
 // Entry point for the site bundle
 
-@use "tokens" as *;
-@use "mixins" as *;
-@use "components";
-@use "utilities";
-@use "pages";
+@use 'tokens' as *;
+@use 'mixins' as *;
+@use 'components';
+@use 'utilities';
+@use 'pages';
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 // =============================================================================
 // BASE RESET
@@ -40,7 +40,7 @@ body {
 }
 
 // =============================================================================
-// HR STYLE
+// GLOBAL STYLES
 // =============================================================================
 
 hr {
@@ -48,4 +48,14 @@ hr {
   background-color: $border-default;
   height: 1px;
   margin: 0;
+}
+
+.kecom-page-wrapper {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  &:has(.kecom-account-page) {
+    background-color: $background-surface-secondary;
+  }
 }

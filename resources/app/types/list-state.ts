@@ -1,3 +1,5 @@
+import { formatAtomDateTime } from '@/libs/date';
+
 type SortOrder = 'asc' | 'desc';
 
 type ListQueryParams = {
@@ -6,25 +8,12 @@ type ListQueryParams = {
   sort_order?: SortOrder;
   page?: number;
   limit?: string | number;
+  from_date?: string | null;
+  to_date?: string | null;
 };
 
 type ListParams<TFilter extends Record<string, unknown> = {}> =
   ListQueryParams & TFilter;
-
-type ListState<
-  TData = unknown,
-  TFilter extends Record<string, unknown> = {},
-> = {
-  loaded: boolean;
-  data: TData | null;
-  search: string;
-  page: number;
-  sort_order: SortOrder;
-  sort_by: string;
-  limit: string | number;
-  toggler?: boolean | number;
-  filter?: TFilter;
-};
 
 type ListFilterParser<T = unknown> = {
   parse: (value: string | null) => T | undefined;
@@ -82,12 +71,12 @@ const parseString = (value: string | null): string | undefined => {
   return value;
 };
 
-const parseBoolean = (value: unknown): 0 | 1 => {
+const parseDateString = (value: string | null): string | null => {
   if (!value) {
-    return 0;
+    return null;
   }
 
-  return value ? 1 : 0;
+  return formatAtomDateTime(new Date(value));
 }
 
 const serializeFilterValue = (value: unknown): string | null => {
@@ -113,9 +102,8 @@ export type {
   ListFilterParser,
   ListParams,
   ListQueryParams,
-  ListState,
   SortOrder,
 };
 
-export { parseArray, parseBoolean, parseNumberArray, parseStatus, parseString, serializeFilterValue };
+export { parseArray, parseDateString, parseNumberArray, parseStatus, parseString, serializeFilterValue };
 

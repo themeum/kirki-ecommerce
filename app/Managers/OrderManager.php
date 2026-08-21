@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 /**
@@ -34,6 +35,7 @@ class OrderManager
     protected $inventory_service;
     protected $create_refund_action;
     protected $update_refund_action;
+    protected $coupon_service;
 
     public function __construct(
         CreateOrderAction $create_order_action,
@@ -41,7 +43,8 @@ class OrderManager
         OrderService $order_service,
         InventoryService $inventory_service,
         CreateRefundAction $create_refund_action,
-        UpdateRefundAction $update_refund_action
+        UpdateRefundAction $update_refund_action,
+        CouponService $coupon_service
     ) {
         $this->create_order_action = $create_order_action;
         $this->update_order_action = $update_order_action;
@@ -49,6 +52,7 @@ class OrderManager
         $this->inventory_service = $inventory_service;
         $this->create_refund_action = $create_refund_action;
         $this->update_refund_action = $update_refund_action;
+        $this->coupon_service = $coupon_service;
     }
 
     /**
@@ -98,7 +102,9 @@ class OrderManager
 
         if ($is_cancelled) {
             if (!empty($order->coupon_usage)) {
+                $coupon_id = $order->coupon_usage->coupon_id;
                 $order->coupon_usage->delete();
+                $this->coupon_service->decrement($coupon_id, 'current_usage_count');
             }
             $this->inventory_service->release_all_reserved_stock($order);
             $this->order_service->partial_update_order($id, [

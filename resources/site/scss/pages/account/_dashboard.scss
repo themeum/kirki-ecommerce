@@ -1,0 +1,122 @@
+// Account - Dashboard
+// Styling for the dashboard overview tab matching the design mockup
+
+@use '../../tokens' as *;
+@use '../../mixins' as *;
+
+.kecom-account-dashboard {
+  display: flex;
+  flex-direction: column;
+
+  // 1. Welcome Greeting
+  .kecom-account-welcome {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    margin-bottom: $spacing-12;
+
+    &-label {
+      @include typography(base, normal, $text-secondary);
+    }
+
+    &-name {
+      @include typography(3xl, semibold, $text-primary);
+      line-height: $line-height-2xl;
+      margin: 0;
+    }
+  }
+
+  // 2. Recent Orders Section
+  .kecom-account-recent-orders-section {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+
+    .kecom-account-section-header {
+      @include flex-between();
+
+      .kecom-account-section-title {
+        @include typography(md, semibold, $text-primary);
+        margin: 0;
+      }
+
+      .kecom-account-section-link {
+        @include typography(sm, medium, $text-emphasis);
+        text-decoration: none;
+        @include transition(color);
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  // 3. Bottom Cards Grid
+  .kecom-account-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-9;
+    margin-top: $spacing-9;
+
+    @include breakpoint-down(md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-5;
+    }
+
+    .kecom-card-body {
+      gap: $spacing-6;
+    }
+
+    .kecom-account-field {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      &-label {
+        @include typography(sm, normal, $text-subdued);
+        text-transform: uppercase;
+      }
+
+      &-value {
+        @include typography(base, medium, $text-primary);
+
+        &.kecom-password-dots {
+          @include typography(base, medium, $text-primary);
+        }
+      }
+    }
+
+    .kecom-addresses-split {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: $spacing-8;
+
+      @include breakpoint-down(xs) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kecom-account-address-col {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      .kecom-account-address-lines {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-1;
+
+        p {
+          @include typography(base, medium, $text-primary);
+          margin: 0;
+
+          &.kecom-empty-text {
+            @include typography(base, normal, $text-subdued);
+            font-style: italic;
+          }
+        }
+      }
+    }
+  }
+}

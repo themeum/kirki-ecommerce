@@ -27,8 +27,8 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
-use Kirki\Ecommerce\App\Http\Controllers\Site\ProductController as SiteProductController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
@@ -141,6 +141,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'delete']);
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
+    Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
     Route::put('/variants/bulk', [VariantController::class, 'bulk_update']);
@@ -238,8 +239,6 @@ Route::get('/test-public', function (Request $request) {
     ]);
 });
 
-Route::get('/items', [SiteProductController::class, 'index']);
-
 // Site api endpoints.
 Route::get('/shop/products-html', [SiteController::class, 'products_html']);
 
@@ -251,3 +250,11 @@ Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
 Route::delete('/cart', [CartController::class, 'empty_cart']);
 Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);
+
+// Account api endpoints (self-service, logged-in customer only).
+Route::group(['middleware' => AuthMiddleware::class], function () {
+    Route::get('/account/orders', [AccountController::class, 'customer_orders']);
+    Route::put('/account/profile', [AccountController::class, 'update_profile']);
+    Route::put('/account/password-change', [AccountController::class, 'change_password']);
+    Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+});

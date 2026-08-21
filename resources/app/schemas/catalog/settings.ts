@@ -1,8 +1,25 @@
 import { z } from 'zod';
 
-import { OfflinePaymentSettingsSchema } from '@/schemas/catalog/payment';
-import { ShippingZoneSchema } from '@/schemas/catalog/shipping';
-import { TaxRegionSchema } from '@/schemas/catalog/tax';
+/**
+ * This file backs `services/settings.ts`'s generic per-section settings CRUD
+ * (`SettingsSchemaMap`), which is why it stays at root alongside that
+ * service rather than moving into `features/settings/` — but the map it
+ * builds necessarily embeds every section's real schema, so it structurally
+ * cannot avoid depending on the settings sub-features. This is the same
+ * "genuine wart" design.md records for `services/settings.ts` itself:
+ * accepted here rather than duplicating whole schemas (unlike the small
+ * `ProductCurrencySchema` case in `app-config.ts`, `ShippingZoneSchema` and
+ * `TaxRegionSchema` are large and change with their owning feature — copying
+ * them would be a maintenance hazard, not a fix). Splitting this file's
+ * app-wide pieces from its settings-section pieces is the tidier end state
+ * and is deferred with the rest of the `services/settings.ts` split.
+ */
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { TaxRegionSchema } from '@/features/settings/tax/schemas/catalog/tax';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 /**

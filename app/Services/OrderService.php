@@ -7,26 +7,23 @@ use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
-use Kirki\Ecommerce\App\Repositories\OrderRepository;
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\App\customer;
+
 class OrderService
 {
-    protected $repository;
-
-    public function __construct(OrderRepository $repository)
-    {
-        $this->repository = $repository;
-    }
-
     /**
      * Get all orders with optional search and sorting.
      *
@@ -35,19 +32,44 @@ class OrderService
      */
     public function all_orders(OrderListFilterDTO $filter_dto)
     {
-        return $this->repository->all($filter_dto->to_array());
+        return $this->list_query($filter_dto)->get();
+    }
+
+    /**
+     * Get account orders.
+     *
+     * @since 1.0.0
+     *
+     * @param array $filters filters.
+     *
+     * @return array
+     */
+    public function get_current_customer_orders($filters)
+    {
+        $dto = OrderListFilterDTO::from_array($filters ?? []);
+        $dto->customer_id = (int) customer()->get_customer_id();
+
+        $orders = $this->paginated_orders($dto);
+        $orders_resource = OrderListResource::paginated($orders);
+
+        return [
+            'orders' => $orders_resource,
+            'filters' => $filters,
+        ];
     }
 
 
     /**
      * Return paginated brands
      *
-     * @param OrderListFilterDTO $filters
+     * @param OrderListFilterDTO $dto
      * @return Paginator
      */
-    public function paginated_orders(OrderListFilterDTO $filters)
+    public function paginated_orders(OrderListFilterDTO $dto)
     {
-        return $this->repository->paginate($filters->to_array());
+        return $this->list_query($dto)
+            ->with('items')
+            ->paginate($dto->limit ?? Pagination::LIMIT, $dto->page ?? 1);
     }
 
     /**
@@ -58,8 +80,9 @@ class OrderService
      */
     public function create_order(CreateOrderDTO $dto)
     {
-        $order = $this->repository->create_order($dto->to_array());
-        return $order;
+        $order = Order::create($dto->to_array());
+
+        return $this->find_order($order->id);
     }
 
     /**
@@ -70,7 +93,7 @@ class OrderService
      */
     public function create_order_item(CreateOrderItemDTO $dto)
     {
-        $order_item = $this->repository->create_order_item($dto->to_array());
+        $order_item = OrderItem::create($dto->to_array());
         return $order_item;
     }
 
@@ -82,7 +105,13 @@ class OrderService
      */
     public function update_order_item(UpdateOrderItemDTO $dto)
     {
-        return $this->repository->update_order_item($dto->id, $dto->to_array());
+        $order_item = OrderItem::find($dto->id);
+
+        if (empty($order_item)) {
+            return false;
+        }
+
+        return (bool) $order_item->update($dto->to_array());
     }
 
     /**
@@ -93,7 +122,7 @@ class OrderService
      */
     public function delete_order_item($id)
     {
-        return $this->repository->delete_order_item($id);
+        return (bool) OrderItem::query()->where('id', $id)->delete();
     }
 
     /**
@@ -104,7 +133,7 @@ class OrderService
      */
     public function find_order_by_uuid($uuid)
     {
-        return $this->repository->find_by_uuid($uuid);
+        return Order::with('items', 'refunds')->where('uuid', $uuid)->first();
     }
 
     /**
@@ -115,7 +144,7 @@ class OrderService
      */
     public function find_order_by_transaction_id($transaction_id)
     {
-        return $this->repository->find_by_transaction_id($transaction_id);
+        return Order::with('items', 'refunds')->where('payment_transaction_id', $transaction_id)->first();
     }
 
     /**
@@ -126,7 +155,7 @@ class OrderService
      */
     public function find_order($id)
     {
-        return $this->repository->find($id);
+        return Order::with('items', 'refunds')->find($id);
     }
 
     /**
@@ -156,7 +185,13 @@ class OrderService
      */
     public function update_order(UpdateOrderDTO $dto)
     {
-        return $this->repository->update($dto->id, $dto->to_array());
+        $order = Order::find($dto->id);
+
+        if (empty($order)) {
+            return false;
+        }
+
+        return (bool) $order->update($dto->to_array());
     }
 
     /**
@@ -168,7 +203,13 @@ class OrderService
      */
     public function partial_update_order(int $id, array $data)
     {
-        return $this->repository->update($id, $data);
+        $order = Order::find($id);
+
+        if (empty($order)) {
+            return false;
+        }
+
+        return (bool) $order->update($data);
     }
 
     /**
@@ -194,13 +235,23 @@ class OrderService
 
         $target_state = OrderStatus::get_state($target_status);
 
-        $order = $this->find_order_or_fail($id);
+        $order = Order::find($id);
 
-        return $order->update([
+        if (empty($order)) {
+            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
+        }
+
+        $is_updated = (bool) $order->update([
             'order_status' => $target_status,
             'fulfillment_status' => $target_state['fulfillment_status'],
             'payment_status' => $target_state['payment_status'],
         ]);
+
+        if (!$is_updated) {
+            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
+        }
+
+        return $is_updated;
     }
 
     /**
@@ -211,16 +262,16 @@ class OrderService
      */
     public function mark_refund_as_completed(int $id)
     {
-        $order = $this->find_order_or_fail($id);
+        $order = Order::find($id);
 
-        if (!$order->is_refund_initiated) {
+        if (empty($order) || !$order->is_refund_initiated) {
             return false;
         }
 
-        return $order->update([
+        return (bool) $order->update([
             'payment_status' => PaymentStatus::REFUNDED,
             'fulfillment_status' => FulfillmentStatus::RETURNED,
-            'order_status' => OrderStatus::REFUNDED
+            'order_status' => OrderStatus::REFUNDED,
         ]);
     }
 
@@ -232,7 +283,7 @@ class OrderService
      */
     public function delete_order($id)
     {
-        return $this->repository->delete($id);
+        return (bool) Order::query()->where('id', $id)->delete();
     }
 
     /**
@@ -267,7 +318,7 @@ class OrderService
             throw new NotFoundException(__('No orders selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = $this->repository->bulk_delete($ids);
+        $is_deleted = (bool) Order::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Orders could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -284,6 +335,41 @@ class OrderService
      */
     public function delete_all(OrderListFilterDTO $filters)
     {
-        return $this->repository->delete_all($filters->to_array());
+        return (bool) $this->list_query($filters)->delete();
+    }
+
+    /**
+     * Get the query builder for the list of orders.
+     *
+     * @param OrderListFilterDTO $filters
+     * @return QueryBuilder
+     */
+    protected function list_query(OrderListFilterDTO $filters)
+    {
+        return Order::when($filters->search, function (QueryBuilder $query, $search) {
+            return $query->where_any(
+                ['order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
+                'like',
+                '%' . $search . '%'
+            );
+        })
+            ->when(is_numeric($filters->customer_id), function (QueryBuilder $query) use ($filters) {
+                return $query->where('customer_id', $filters->customer_id);
+            })
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
+            ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
+                return $query->where('order_status', $filters->status);
+            })
+            ->when(!empty($filters->fulfillment_status), function (QueryBuilder $query) use ($filters) {
+                return $query->where('fulfillment_status', $filters->fulfillment_status);
+            })
+            ->when(!empty($filters->payment_status), function (QueryBuilder $query) use ($filters) {
+                return $query->where('payment_status', $filters->payment_status);
+            })
+            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
+                return $query->order_by($filters->sort_by, $filters->sort_order);
+            }, function (QueryBuilder $query) {
+                return $query->order_by('id', 'desc');
+            });
     }
 }
