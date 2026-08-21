@@ -52,8 +52,7 @@ class OrderListResource extends Resource
     {
         $defaultImage = Assets::get_url('images/product-fallback.webp');
 
-        $images = $this->items()
-            ->get()
+        $images = $this->items
             ->map(function ($item) {
                 $media = MediaAttachment::make($item->product_image);
                 return $media['url'] ?? null;

@@ -315,8 +315,9 @@ class CouponApiTest extends RestTestCase
         $this->assertNotEquals($this->coupon_id, $duplicated['id']);
         $this->assertEquals('Coupon With Associations - Copy', $duplicated['title']);
         $this->assertEqualsCanonicalizing([$category['id']], array_column($duplicated['categories'], 'id'));
-        $this->assertEqualsCanonicalizing([$customer['id']], $duplicated['customers']);
+        $this->assertEqualsCanonicalizing([$customer['id']], array_column($duplicated['customers'], 'id'));
         $this->assertEqualsCanonicalizing([$product['id'], $reward_product['id']], array_column($duplicated['products'], 'id'));
+        $this->assertEquals($original['base_discount_amount'], $duplicated['base_discount_amount']);
     }
 
     /**

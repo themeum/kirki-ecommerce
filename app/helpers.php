@@ -102,28 +102,36 @@ if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
     }
 }
 
-if (!function_exists('Kirki\Ecommerce\to_utc_date_string')) {
+if (!function_exists('Kirki\Ecommerce\App\to_utc_date_string')) {
     /**
-     * Get the app instance.
+     * Convert a datetime value to a UTC date string.
      *
-     * @param string $value
-     * @return string
+     * @param string|null $value
+     * @return string|null Null when no value was given.
      */
     function to_utc_date_string($value)
     {
+        if (empty($value)) {
+            return null;
+        }
+
         return Date::parse($value)->set_timezone('UTC')->to_date_string();
     }
 }
 
-if (!function_exists('Kirki\Ecommerce\to_utc_datetime_string')) {
+if (!function_exists('Kirki\Ecommerce\App\to_utc_datetime_string')) {
     /**
-     * Get the app instance.
+     * Convert a datetime value to a UTC datetime string.
      *
-     * @param string $value
-     * @return string
+     * @param string|null $value
+     * @return string|null Null when no value was given.
      */
     function to_utc_datetime_string($value)
     {
+        if (empty($value)) {
+            return null;
+        }
+
         return Date::parse($value)->set_timezone('UTC')->to_date_time_string();
     }
 }

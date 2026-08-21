@@ -58,7 +58,7 @@ use function Kirki\Ecommerce\Framework\session;
             mode: 'onChange'
             })" method="post" @submit.prevent="handleSubmit(() => $el.submit(), () => { return false; })">
             <input type="hidden" name="ajax_nonce" x-bind="register('ajax_nonce')">
-            <input type="hidden" name="redirect" value="<?php echo request('redirect', ''); ?>">
+            <input type="hidden" name="redirect" value="<?php echo esc_url(request('redirect', '')); ?>">
             <div class="kecom-field" :class="errors.email ? 'kecom-field-error-state' : ''">
                 <label class="kecom-field-label" for="kecom-email"><?php esc_html_e('Email', 'kirki-ecommerce'); ?></label>
                 <input class="kecom-input" type="email" id="kecom-email" name="email" x-bind="<?php printf("register('email', {
@@ -89,7 +89,7 @@ use function Kirki\Ecommerce\Framework\session;
                 <input class="kecom-checkbox-input" type="checkbox" id="kecom-input-remember" name="remember" x-bind="register('remember')">
                 <label class="kecom-checkbox-label" for="kecom-input-remember"><?php esc_html_e('Remember me', 'kirki-ecommerce'); ?></label>
             </div>
-            <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></button>
+            <button type="submit" class="kecom-btn kecom-btn-primary" :disabled="isSubmitting"><?php esc_html_e('Login', 'kirki-ecommerce'); ?></button>
         </form>
     </div>
 </div>

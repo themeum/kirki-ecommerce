@@ -211,13 +211,15 @@ class AccountController
     public function order_details(Request $request, OrderService $order_service)
     {
 
+        $customer_id = customer()->get_customer_id();
         $order = $order_service->find_order_by_uuid($request->uuid);
-        if (!$order || $order->customer_id !== customer()->get_customer_id()) {
+
+        if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
             wp_safe_redirect(Route::site_url('account.orders'));
             exit;
         }
 
-        $order_resource = $order ? OrderResource::make($order) : null;
+        $order_resource = OrderResource::make($order);
 
         return view('site.account.order-details', ['order' => $order_resource])->layout(false);
     }

@@ -38,7 +38,7 @@ class CouponUpdateRequest extends Request
             'discount_type' => 'required|string|in:' . DiscountType::join(),
             'discount_target' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . DiscountTarget::join() . '|nullable',
             'discount_value_type' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|string|in:' . DiscountValueType::join() . '|nullable',
-            'discount_amount' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|integer|nullable',
+            'discount_amount' => 'required_if:discount_type,' . DiscountType::AMOUNT_OFF . '|number|nullable',
             'eligible_item_type' => 'string|in:' . EligibleItemType::join() . '|nullable',
             'spend_condition_type' => 'string|in:' . SpendConditionType::join() . '|nullable',
             'spend_condition_value' => 'integer|nullable',
