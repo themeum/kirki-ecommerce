@@ -227,3 +227,24 @@
     position: static;
   }
 }
+
+.kecom-cart-empty {
+  width: 100%;
+  min-height: 60vh;
+  @include flex(column, center, center);
+  padding: $spacing-18 $spacing-19;
+  background-color: $background-surface-secondary;
+  text-align: center;
+
+  &-title {
+    @include typography(xl, semibold, $text-primary);
+    margin: 0;
+    margin-bottom: $spacing-4;
+  }
+
+  &-desc {
+    @include typography(md, normal, $text-secondary);
+    margin: 0;
+    margin-bottom: $spacing-10;
+  }
+}
