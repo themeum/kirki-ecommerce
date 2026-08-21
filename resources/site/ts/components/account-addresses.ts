@@ -277,6 +277,10 @@ export function accountAddresses() {
         this.errors.email = __('Please enter a valid email address.', 'kirki-ecommerce');
       }
 
+      if (this.formData.phone && !/^\+?[\d\s\-().]{7,20}$/.test(this.formData.phone)) {
+        this.errors.phone = __('Please enter a valid phone number.', 'kirki-ecommerce');
+      }
+
       return Object.keys(this.errors).length === 0;
     },
 
