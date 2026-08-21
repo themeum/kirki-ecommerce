@@ -15,20 +15,7 @@ export interface AccountDetailsConfig {
 }
 
 export function accountDetails(config: AccountDetailsConfig) {
-  const { __ } = window.wp.i18n;
   const toast = toastMeta.component();
-
-  // Map API field names to human-readable labels for error messages
-  const fieldLabels: Record<string, string> = {
-    first_name: __('first name', 'kirki-ecommerce'),
-    last_name: __('last name', 'kirki-ecommerce'),
-    email: __('email address', 'kirki-ecommerce'),
-  };
-
-  function humanizeFieldError(rawMessage: string, fieldName: string): string {
-    const label = fieldLabels[fieldName] ?? fieldName.replace(/_/g, ' ');
-    return rawMessage.replace(new RegExp(`\\b${fieldName}\\b`, 'g'), label);
-  }
 
   return {
     profileData: {
@@ -87,8 +74,7 @@ export function accountDetails(config: AccountDetailsConfig) {
           for (const [key, messages] of Object.entries(err.errors)) {
             const rawMsg = Array.isArray(messages) ? messages[0] : (messages as string);
             if (rawMsg) {
-              const cleanMsg = humanizeFieldError(rawMsg, key);
-              setFieldError?.(key, cleanMsg);
+              setFieldError?.(key, rawMsg);
               hasFieldErrors = true;
             }
           }

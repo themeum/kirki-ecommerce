@@ -39,28 +39,6 @@ export function accountAddresses() {
   const { __ } = window.wp.i18n;
   const toast = toastMeta.component();
 
-  // Map API field names to human-readable labels for error messages
-  const fieldLabels: Record<string, string> = {
-    first_name: __('first name', 'kirki-ecommerce'),
-    last_name: __('last name', 'kirki-ecommerce'),
-    email: __('email address', 'kirki-ecommerce'),
-    phone: __('phone number', 'kirki-ecommerce'),
-    address_line1: __('address', 'kirki-ecommerce'),
-    address_line2: __('apartment / suite', 'kirki-ecommerce'),
-    city: __('city', 'kirki-ecommerce'),
-    state: __('state', 'kirki-ecommerce'),
-    postal_code: __('postal code', 'kirki-ecommerce'),
-    country: __('country', 'kirki-ecommerce'),
-  };
-
-  function humanizeFieldError(rawMessage: string, fieldName: string): string {
-    const label = fieldLabels[fieldName] ?? fieldName.replace(/_/g, ' ');
-    return rawMessage
-      .replace(new RegExp(`\\b${fieldName}\\b`, 'g'), label)
-      .replace(/shipping_address\.\w+/g, label)
-      .replace(/billing_address\.\w+/g, label);
-  }
-
   const initialSameAsShipping = Boolean(
     config?.is_billing_same_as_shipping ?? config?.isBillingSameAsShipping,
   );
@@ -352,8 +330,7 @@ export function accountAddresses() {
             const field = key.replace(/^(billing|shipping)_address\./, '');
             const rawMsg = Array.isArray(messages) ? messages[0] : (messages as string);
             if (rawMsg) {
-              const cleanMsg = humanizeFieldError(rawMsg, field);
-              this.errors[field] = cleanMsg;
+              this.errors[field] = rawMsg;
               hasFieldErrors = true;
             }
           }
