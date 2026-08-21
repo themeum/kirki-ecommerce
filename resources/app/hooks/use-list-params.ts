@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { formatAtomDateTime } from '@/libs/date';
+import { applyTimeToDate, END_OF_DAY_TIME, formatAtomDateTime, START_OF_DAY_TIME } from '@/libs/date';
 import type { ListFilterConfig, ListParams, ListQueryParams, SortOrder } from '@/types/list-state';
 import { serializeFilterValue } from '@/types/list-state';
 import { isDefined } from '@/utils/object';
@@ -83,8 +83,8 @@ const useListParams = <
       limit: limitValue
         ? Number(limitValue) || limitValue
         : (defaults.limit ?? 10),
-      from_date: isDefined(fromDate) ? formatAtomDateTime(new Date(fromDate)) : null,
-      to_date: isDefined(toDate) ? formatAtomDateTime(new Date(toDate)) : null,
+      from_date: isDefined(fromDate) ? formatAtomDateTime(applyTimeToDate(new Date(fromDate), START_OF_DAY_TIME)) : null,
+      to_date: isDefined(toDate) ? formatAtomDateTime(applyTimeToDate(new Date(toDate), END_OF_DAY_TIME)) : null,
       ...parsedFilter,
     } as ListParams<TFilter>;
   }, [searchParams, defaults, filterConfig]);
