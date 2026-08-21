@@ -252,6 +252,12 @@ class CartService
             throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN);
         }
 
+        $is_last_item = $cart->items->count() === 1;
+
+        if ($is_last_item) {
+            return $cart->delete();
+        }
+
         return CartItem::destroy($item->id);
     }
 
