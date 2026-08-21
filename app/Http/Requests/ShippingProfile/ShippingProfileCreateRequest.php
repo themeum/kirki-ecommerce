@@ -11,7 +11,7 @@ class ShippingProfileCreateRequest extends Request
     {
         return [
             'name' => 'required|string',
-            'is_default' => 'nullable|boolean',
+            'is_default' => 'boolean|nullable',
         ];
     }
 

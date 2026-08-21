@@ -109,7 +109,7 @@ use function Kirki\Ecommerce\Framework\session;
                 </div>
                 <span class="kecom-field-error" x-show="errors.password_confirmation" x-text="errors.password_confirmation"></span>
             </div>
-            <button type="submit" class="kecom-btn kecom-btn-primary" :disable="isSubmitting"><?php esc_html_e('Sign up', 'kirki-ecommerce'); ?></button>
+            <button type="submit" class="kecom-btn kecom-btn-primary" :disabled="isSubmitting"><?php esc_html_e('Sign up', 'kirki-ecommerce'); ?></button>
         </form>
     </div>
 </div>
