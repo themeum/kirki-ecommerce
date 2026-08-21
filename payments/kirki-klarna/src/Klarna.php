@@ -113,9 +113,9 @@ class Klarna extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'username' => 'required|string',
-            'password' => 'required|string',
-            'region' => 'required|string',
+            'username' => 'sometimes|string',
+            'password' => 'sometimes|string',
+            'region' => 'sometimes|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 

@@ -87,6 +87,19 @@ export const mergeDateAndTime = (date: string, time: string): Date | null => {
   return Number.isNaN(merged.getTime()) ? null : merged;
 };
 
+export const applyTimeToDate = (
+  date: Date | null | undefined,
+  time: string,
+): Date | null => {
+  const datePart = formatDateValue(date);
+
+  if (!datePart) {
+    return null;
+  }
+
+  return mergeDateAndTime(datePart, time);
+};
+
 export const toValidDate = (value?: Date | null): Date | null => {
   if (!value || !isValid(value)) {
     return null;

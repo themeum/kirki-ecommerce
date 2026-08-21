@@ -38,7 +38,7 @@ const ColorVariation = () => {
         <Flex direction="column" gap={4}>
           <SettingsPageHeader
             icon={<ColorPaletteIcon />}
-            title={__('Color', 'kirki-ecommerce')}
+            title={selectedItem?.name ?? __('Color', 'kirki-ecommerce')}
             onBack={() => navigate('/settings/essentials')}
             rightAction={
               <div>

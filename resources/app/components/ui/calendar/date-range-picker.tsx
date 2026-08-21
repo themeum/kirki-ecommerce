@@ -20,7 +20,14 @@ import RangePresets, {
 } from '@/components/ui/calendar/range-presets';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
-import { DATE_FORMATS, formatDateValue, toValidDate } from '@/libs/date';
+import {
+  applyTimeToDate,
+  DATE_FORMATS,
+  END_OF_DAY_TIME,
+  formatDateValue,
+  START_OF_DAY_TIME,
+  toValidDate,
+} from '@/libs/date';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -125,10 +132,10 @@ const DateRangePicker = ({
   const [pendingRange, setPendingRange] = useState<DateRange | undefined>(undefined);
   const calendarId = useId();
 
-  const fromDate = toValidDate(value?.from);
-  const toDate = toValidDate(value?.to);
+  const fromDate = applyTimeToDate(toValidDate(value?.from), START_OF_DAY_TIME);
+  const toDate = applyTimeToDate(toValidDate(value?.to), END_OF_DAY_TIME);
   const { startDate, endDate, disabledDays } = useMemo(() => {
-    return getDateBounds(minDate, maxDate);
+    return getDateBounds(applyTimeToDate(minDate, START_OF_DAY_TIME), applyTimeToDate(maxDate, END_OF_DAY_TIME));
   }, [minDate, maxDate]);
 
   const fromLabel = formatDateValue(fromDate, displayFormat);
@@ -141,7 +148,10 @@ const DateRangePicker = ({
 
   const commitRange = (from: Date, to: Date) => {
     setPendingRange(undefined);
-    onChange({ from, to });
+    onChange({
+      from: applyTimeToDate(from, START_OF_DAY_TIME),
+      to: applyTimeToDate(to, END_OF_DAY_TIME),
+    });
     setOpen(false);
   };
 
@@ -180,8 +190,7 @@ const DateRangePicker = ({
     const pendingFrom = pendingRange?.from;
 
     if (pendingFrom) {
-      setPendingRange(undefined);
-      onChange({ from: pendingFrom, to: pendingFrom });
+      commitRange(pendingFrom, pendingFrom);
     }
 
     setOpen(false);

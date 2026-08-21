@@ -8,7 +8,14 @@ import PickerTrigger, {
   type PickerTriggerSize,
 } from '@/components/ui/calendar/picker-trigger';
 import { Popover, PopoverContent } from '@/components/ui/popover';
-import { DATE_FORMATS, formatDateValue, toValidDate } from '@/libs/date';
+import {
+  applyTimeToDate,
+  DATE_FORMATS,
+  END_OF_DAY_TIME,
+  formatDateValue,
+  START_OF_DAY_TIME,
+  toValidDate,
+} from '@/libs/date';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -44,13 +51,13 @@ const DatePicker = ({
   const [open, setOpen] = useState(false);
   const calendarId = useId();
 
-  const selectedDate = toValidDate(value);
-  const { startDate, endDate, disabledDays } = getDateBounds(minDate, maxDate);
+  const selectedDate = applyTimeToDate(toValidDate(value), START_OF_DAY_TIME);
+  const { startDate, endDate, disabledDays } = getDateBounds(applyTimeToDate(minDate, START_OF_DAY_TIME), applyTimeToDate(maxDate, END_OF_DAY_TIME));
   const displayValue = formatDateValue(selectedDate, displayFormat);
   const showClear = clearable && Boolean(selectedDate) && !disabled;
 
   const handleSelect = (nextDate: Date | undefined) => {
-    onChange(nextDate ?? null);
+    onChange(applyTimeToDate(nextDate, START_OF_DAY_TIME));
     setOpen(false);
   };
 

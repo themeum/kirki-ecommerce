@@ -15,7 +15,7 @@ import { RouteConfig } from '@/config/route-config';
 import type { SelectedTaxRegionDraft, TaxRegion } from '@/features/settings/tax/lib/utils';
 import TaxRegionPopup from '@/features/settings/tax/pages/tax-region/tax-region-dialog';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/schemas/forms/tax-settings-form';
-import { EditIcon, LocationIcon, ShowMoreIcon, TrashIcon } from '@/icons';
+import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -204,12 +204,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                             onCheckedChange={() => handleToggleRegion(item)}
                           />
                           <DropdownButton
-                            buttonProps={{
-                              size: 'small',
-                              style: { transform: 'rotate(90deg)' },
-                              icon: <ShowMoreIcon />,
-                            }}
-                            dropdownStyle={{ width: '115px' }}
+                            dropdownStyle={{ width: 120 }}
                             options={[
                               {
                                 title: __('Edit', 'kirki-ecommerce'),
