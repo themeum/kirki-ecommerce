@@ -13,7 +13,6 @@ class CreateShippingProfilesTable implements Migration
         Schema::create('kirki_ecommerce_shipping_profiles', function (Structure $table) {
             $table->id();
             $table->string('name', 100);
-            $table->boolean('is_default')->default(0);
             $table->timestamps();
         });
     }
