@@ -1,15 +1,6 @@
-import { apiRequest } from '../api/client';
+import { accountApi } from '../api/account';
 import { toastManager } from '../services/toast/runtime';
 
-type OrdersResponse = {
-  success?: boolean;
-  message?: string;
-  data: {
-    results: string;
-    current_page: number;
-    has_more_pages: boolean;
-  };
-};
 
 export function accountOrders() {
   const { __ } = window.wp.i18n;
@@ -28,9 +19,10 @@ export function accountOrders() {
 
       try {
         this.currentPage++;
-        const res = await apiRequest<OrdersResponse>(
-          `/account/orders-html?page=${this.currentPage}`,
-        );
+        const res = await accountApi.getOrders({
+          page: this.currentPage,
+          format: 'html',
+        });
 
         const tableBody = document.querySelector('.kecom-orders-table tbody');
         const html = res.data.results;
