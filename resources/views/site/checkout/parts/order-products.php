@@ -4,6 +4,8 @@
  * Order Products Part
  *
  * @package Kirki\Ecommerce\Templates
+ * 
+ * @var array $data
  */
 
 defined('ABSPATH') || exit;
@@ -12,6 +14,7 @@ extract($data);
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Url;
+
 
 $cart_items = $cart['items'] ?? [];
 $items_count = $cart['items_count'] ?? count($cart_items);
@@ -46,32 +49,26 @@ $currency_code = $cart['currency']['code'] ?? 'USD';
                 $image_url = Assets::get_url('images/product-fallback.webp');
             }
 
-            // Prices from CartResource.
-            $price = $product['base_price'] ?? 0;
-            $sale_price = $product['base_sale_price'] ?? 0;
             $quantity = $item['quantity'] ?? 1;
-            $item_total = $item['base_total'] ?? 0;
-            $item_subtotal = $item['base_subtotal'] ?? 0;
 
-            $formatted_total = Money::format_from_decimal($item_total, $currency_code);
-            $has_sale = $sale_price > 0 && $sale_price !== $price;
-            $formatted_regular_total = $has_sale ? Money::format_from_decimal($price * $quantity, $currency_code) : '';
-            ?>
-        <div class="kecom-product-item">
-            <div class="kecom-product-image-wrapper">
-                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product['title'] ?? ''); ?>" class="kecom-product-image">
-                <span class="kecom-product-qty-badge"><?php echo esc_html($quantity); ?></span>
+            // @TODO: will be handled later with proper breakdown
+            $formatted_regular_total = null;
+        ?>
+            <div class="kecom-product-item">
+                <div class="kecom-product-image-wrapper">
+                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product['title'] ?? ''); ?>" class="kecom-product-image">
+                    <span class="kecom-product-qty-badge"><?php echo esc_html($quantity); ?></span>
+                </div>
+                <div class="kecom-product-info">
+                    <a href="<?php echo esc_url(Url::get_product_url($product['slug'])) ?>" class="kecom-product-name"><?php echo esc_html($product['title'] ?? ''); ?></a>
+                </div>
+                <div class="kecom-product-price-wrapper">
+                    <span class="kecom-product-price"><?php echo esc_html($item['display_product_total_money_object']->display); ?></span>
+                    <?php if ($formatted_regular_total) : ?>
+                        <span class="kecom-product-discount"><?php echo esc_html($formatted_regular_total); ?></span>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="kecom-product-info">
-                <a href="<?php echo esc_url(Url::get_product_url($product['slug'])) ?>" class="kecom-product-name"><?php echo esc_html($product['title'] ?? ''); ?></a>
-            </div>
-            <div class="kecom-product-price-wrapper">
-                <span class="kecom-product-price"><?php echo esc_html($formatted_total); ?></span>
-                <?php if ($formatted_regular_total) : ?>
-                    <span class="kecom-product-discount"><?php echo esc_html($formatted_regular_total); ?></span>
-                <?php endif; ?>
-            </div>
-        </div>
         <?php endforeach; ?>
     </div>
 </div>

@@ -16,7 +16,7 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
   }
 
   return (
-    <ActionGroup style={{ visibility: isOpen ? 'visible' : undefined }}>
+    <ActionGroup cssOverride={{ visibility: isOpen ? 'visible' : undefined }}>
       {edit && (
         <Button
           variant="secondary"

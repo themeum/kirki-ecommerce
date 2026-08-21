@@ -190,59 +190,60 @@ export function accountAddresses() {
       this.errors = {};
     },
 
-    async onSameAsShippingChange() {
-      if (this.togglingSameAsShipping) {
-        return;
-      }
-      this.togglingSameAsShipping = true;
+    // @todo: we don't need this
+    // async onSameAsShippingChange() {
+    //   if (this.togglingSameAsShipping) {
+    //     return;
+    //   }
+    //   this.togglingSameAsShipping = true;
 
-      try {
-        if (this.sameAsShipping) {
-          // Backup current custom billing address in memory
-          this.customBillingAddress = { ...this.addresses.billing };
-          // Mirror shipping to billing
-          this.addresses.billing = { ...this.addresses.shipping };
-        } else {
-          // Restore previous custom billing address
-          this.addresses.billing = { ...this.customBillingAddress };
-        }
+    //   try {
+    //     if (this.sameAsShipping) {
+    //       // Backup current custom billing address in memory
+    //       this.customBillingAddress = { ...this.addresses.billing };
+    //       // Mirror shipping to billing
+    //       this.addresses.billing = { ...this.addresses.shipping };
+    //     } else {
+    //       // Restore previous custom billing address
+    //       this.addresses.billing = { ...this.customBillingAddress };
+    //     }
 
-        const payload: AccountAddressPayload = {
-          type: 'billing',
-          first_name: this.addresses.billing?.first_name || '',
-          last_name: this.addresses.billing?.last_name || '',
-          company: this.addresses.billing?.company || '',
-          country: this.addresses.billing?.country || '',
-          address_line1: this.addresses.billing?.address_line1 || '',
-          address_line2: this.addresses.billing?.address_line2 || '',
-          city: this.addresses.billing?.city || '',
-          state: String(this.addresses.billing?.state || ''),
-          postal_code: this.addresses.billing?.postal_code || '',
-          phone: this.addresses.billing?.phone || '',
-          email: this.addresses.billing?.email || '',
-          is_billing_same_as_shipping: this.sameAsShipping,
-        };
+    //     const payload: AccountAddressPayload = {
+    //       type: 'billing',
+    //       first_name: this.addresses.billing?.first_name || '',
+    //       last_name: this.addresses.billing?.last_name || '',
+    //       company: this.addresses.billing?.company || '',
+    //       country: this.addresses.billing?.country || '',
+    //       address_line1: this.addresses.billing?.address_line1 || '',
+    //       address_line2: this.addresses.billing?.address_line2 || '',
+    //       city: this.addresses.billing?.city || '',
+    //       state: String(this.addresses.billing?.state || ''),
+    //       postal_code: this.addresses.billing?.postal_code || '',
+    //       phone: this.addresses.billing?.phone || '',
+    //       email: this.addresses.billing?.email || '',
+    //       is_billing_same_as_shipping: this.sameAsShipping,
+    //     };
 
-        await accountApi.updateAddress(payload);
+    //     await accountApi.updateAddress(payload);
 
-        if (this.sameAsShipping) {
-          toast.success('Billing address set to same as shipping.');
-        } else {
-          toast.info('Separate billing address enabled.');
-        }
-      } catch (err: any) {
-        // Revert UI toggle on error
-        this.sameAsShipping = !this.sameAsShipping;
-        if (this.sameAsShipping) {
-          this.addresses.billing = { ...this.addresses.shipping };
-        } else {
-          this.addresses.billing = { ...this.customBillingAddress };
-        }
-        toast.error(err?.message || 'Failed to update billing address preference.');
-      } finally {
-        this.togglingSameAsShipping = false;
-      }
-    },
+    //     if (this.sameAsShipping) {
+    //       toast.success('Billing address set to same as shipping.');
+    //     } else {
+    //       toast.info('Separate billing address enabled.');
+    //     }
+    //   } catch (err: any) {
+    //     // Revert UI toggle on error
+    //     this.sameAsShipping = !this.sameAsShipping;
+    //     if (this.sameAsShipping) {
+    //       this.addresses.billing = { ...this.addresses.shipping };
+    //     } else {
+    //       this.addresses.billing = { ...this.customBillingAddress };
+    //     }
+    //     toast.error(err?.message || 'Failed to update billing address preference.');
+    //   } finally {
+    //     this.togglingSameAsShipping = false;
+    //   }
+    // },
 
     validateForm(): boolean {
       this.errors = {};

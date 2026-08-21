@@ -229,6 +229,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
   const currentPage = table.getState().pagination.pageIndex + 1;
   const totalPages = table.getPageCount();
   const pageItems = getPageItems(currentPage, totalPages);
+  const shouldShowPagination = !hidePagination && totalPages > 1;
 
   return (
     <Flex direction="column" gap={4}>
@@ -354,7 +355,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
           </Table>
         </CardContent>
       </Card>
-      {!hidePagination && (
+      {shouldShowPagination && (
         <Pagination disabled={isLoading}>
           <Flex align="center" justify="space-between" cssOverride={styles.paginationWrapper}>
             <PaginationPageSelect

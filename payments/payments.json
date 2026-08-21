@@ -25,6 +25,16 @@
     "is_available": true
   },
   {
+    "id": "klarna",
+    "name": "Klarna",
+    "is_available": true
+  },
+  {
+    "id": "square",
+    "name": "Square",
+    "is_available": true
+  },
+  {
     "id": "paddle",
     "name": "Paddle",
     "is_available": false
@@ -32,11 +42,6 @@
   {
     "id": "paystack",
     "name": "Paystack",
-    "is_available": false
-  },
-  {
-    "id": "klarna",
-    "name": "Klarna",
     "is_available": false
   },
   {
@@ -72,11 +77,6 @@
   {
     "id": "payu",
     "name": "PayU",
-    "is_available": false
-  },
-  {
-    "id": "square",
-    "name": "Square",
     "is_available": false
   }
 ]
