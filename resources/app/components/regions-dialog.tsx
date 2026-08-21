@@ -7,10 +7,12 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import EmptyState from '@/components/ui/empty-state';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
+import { SearchIcon } from '@/icons';
 import { getDefaults } from '@/libs/zod';
 import type { Country } from '@/schemas/reference/country';
 import {
@@ -23,36 +25,44 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types/pages/common';
+import { getSearchedCountries } from '@/utils/region';
 import { __ } from '@/wpi18n';
+
+type RegionsDialogDefaultValue = {
+  countryCodes?: string[];
+  regions?: Region[];
+  title?: string;
+};
 
 type RegionsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  filteredCountries: Country[];
-  onSearchChange?: (value: string) => void;
-  initialCountries?: string[];
-  initialRegions?: Region[];
-  initialTitle?: string;
+  countries: Country[];
+  defaultValue?: RegionsDialogDefaultValue;
   dialogTitle?: string;
   from?: 'add' | 'edit' | '';
   onDone: (values: RegionsDialogFormPayload) => void;
   errors?: FormErrors;
 };
 
+const emptyDefaultValue: RegionsDialogDefaultValue = {
+  countryCodes: [],
+  regions: [],
+  title: '',
+};
+
 export const RegionsDialog = ({
   open,
   onOpenChange,
-  filteredCountries,
-  onSearchChange,
-  initialCountries = [],
-  initialRegions = [],
-  initialTitle = '',
+  countries,
+  defaultValue = emptyDefaultValue,
   dialogTitle = __('Add region', 'kirki-ecommerce'),
   from = '',
   onDone,
   errors,
 }: RegionsDialogProps) => {
   const [searchValue, setSearchValue] = useState('');
+  const [expandedCountries, setExpandedCountries] = useState<string[]>([]);
 
   const form = useForm<RegionsDialogFormInput, unknown, RegionsDialogFormPayload>({
     resolver: zodResolver(RegionsDialogFormSchema),
@@ -66,17 +76,18 @@ export const RegionsDialog = ({
   const formTitle = useWatch({ control: form.control, name: 'title' }) || '';
 
   useEffect(() => {
+    setExpandedCountries([]);
+
     if (!open) {
       return;
     }
 
     form.reset({
-      title: initialTitle,
-      countries: initialCountries,
-      regions: initialRegions,
+      title: defaultValue.title ?? '',
+      countries: defaultValue.countryCodes ?? [],
+      regions: defaultValue.regions ?? [],
     });
-    setSearchValue('');
-  }, [form, initialCountries, initialRegions, initialTitle, open]);
+  }, [form, defaultValue, open]);
 
   useEffect(() => {
     if (errors?.title) {
@@ -88,42 +99,93 @@ export const RegionsDialog = ({
   }, [errors, form]);
 
   const handleSelectCountries = (country: Country) => {
-    const countries = form.getValues('countries') || [];
+    const countryCodes = form.getValues('countries') || [];
     const regions = form.getValues('regions') || [];
-    const isSelected = countries.includes(country.code);
+    const allStates = country.states ?? [];
+    const regionInfo = regions.find((r) => r.country === country.code);
+    const isFullySelected = Boolean(regionInfo) && !regionInfo?.hasDeselectedState;
 
-    const nextCountries = isSelected
-      ? countries.filter((c) => c !== country.code)
-      : [...countries, country.code];
+    if (isFullySelected) {
+      form.setValue(
+        'countries',
+        countryCodes.filter((countryCode) => countryCode !== country.code),
+        { shouldValidate: true },
+      );
+      form.setValue(
+        'regions',
+        regions.filter((region) => region.country !== country.code),
+        { shouldValidate: true },
+      );
+      setExpandedCountries((prev) => prev.filter((c) => c !== country.code));
+      return;
+    }
 
-    const nextRegions = isSelected
-      ? regions.filter((r) => r.country !== country.code)
-      : [
-        ...regions,
-        {
-          country: country.code,
-          states: (country.states ?? []).map((s) => s.id),
-          hasDeselectedState: false,
-          flag: country?.flag,
-        },
-      ];
+    const selectedRegion = {
+      country: country.code,
+      states: allStates.map((state) => state.id),
+      hasDeselectedState: false,
+      flag: country?.flag,
+    };
 
-    form.setValue('countries', nextCountries, { shouldValidate: true });
+    const nextCountryCodes = countryCodes.includes(country.code)
+      ? countryCodes
+      : [...countryCodes, country.code];
+
+    const nextRegions = regionInfo
+      ? regions.map((region) => (region.country === country.code ? selectedRegion : region))
+      : [...regions, selectedRegion];
+
+    form.setValue('countries', nextCountryCodes, { shouldValidate: true });
     form.setValue('regions', nextRegions, { shouldValidate: true });
+
+    if (allStates.length > 0) {
+      setExpandedCountries((prev) =>
+        prev.includes(country.code) ? prev : [...prev, country.code],
+      );
+    }
   };
 
-  const handleSelectStates = (
-    stateId: string | number,
-    countryCode: string,
-    allStates: { id: string | number; name: string }[] = [],
-  ) => {
+  const handleCountryRowClick = (country: Country) => {
+    if ((country.states?.length ?? 0) === 0) {
+      handleSelectCountries(country);
+      return;
+    }
+
+    setExpandedCountries((prev) =>
+      prev.includes(country.code)
+        ? prev.filter((countryCode) => countryCode !== country.code)
+        : [...prev, country.code],
+    );
+  };
+
+  const handleSelectStates = (stateId: string | number, country: Country) => {
     const regions = form.getValues('regions') || [];
-    const countries = form.getValues('countries') || [];
+    const countryCodes = form.getValues('countries') || [];
+    const allStates = country.states ?? [];
+    const countryCode = country.code;
     const countryIndex = regions.findIndex(
       (item) => item.country === countryCode,
     );
 
     if (countryIndex === -1) {
+      const nextCountryCodes = countryCodes.includes(countryCode)
+        ? countryCodes
+        : [...countryCodes, countryCode];
+
+      form.setValue('countries', nextCountryCodes, { shouldValidate: true });
+      form.setValue(
+        'regions',
+        [
+          ...regions,
+          {
+            country: countryCode,
+            states: [stateId],
+            hasDeselectedState: allStates.length !== 1,
+            flag: country?.flag,
+          },
+        ],
+        { shouldValidate: true },
+      );
       return;
     }
 
@@ -135,9 +197,9 @@ export const RegionsDialog = ({
       : [...countryItem.states, stateId];
 
     if (updatedStates.length === 0) {
-      const nextCountries = countries.filter((c) => c !== countryCode);
+      const nextCountryCodes = countryCodes.filter((country) => country !== countryCode);
       const nextRegions = regions.filter((_, i) => i !== countryIndex);
-      form.setValue('countries', nextCountries, { shouldValidate: true });
+      form.setValue('countries', nextCountryCodes, { shouldValidate: true });
       form.setValue('regions', nextRegions, { shouldValidate: true });
       return;
     }
@@ -158,17 +220,14 @@ export const RegionsDialog = ({
 
   const handleCancelButton = () => {
     form.reset({
-      title: initialTitle,
-      countries: [...initialCountries],
-      regions: [...initialRegions],
+      title: defaultValue.title ?? '',
+      countries: defaultValue.countryCodes ?? [],
+      regions: defaultValue.regions ?? [],
     });
     onOpenChange(false);
   };
 
-  const handleSearchRegion = (value: string) => {
-    setSearchValue(value);
-    onSearchChange?.(value);
-  };
+  const filteredCountries = getSearchedCountries(searchValue, countries);
 
   const buttonState =
     (from === 'add' && !String(formTitle || '').trim()) ||
@@ -212,7 +271,7 @@ export const RegionsDialog = ({
                 type="search"
                 placeholder={__('Search country or state', 'kirki-ecommerce')}
                 value={searchValue}
-                onChange={(e) => handleSearchRegion(e.target.value)}
+                onChange={(e) => setSearchValue(e.target.value)}
                 error={Boolean(searchError)}
               />
             </Flex>
@@ -220,19 +279,17 @@ export const RegionsDialog = ({
             <Card cssOverride={cardStyles.tableCardRounded}>
               <CardContent cssOverride={cardStyles.tableContent}>
                 <div css={scoped(styles.scrollArea)}>
-                  <Flex>
-                    {__('Name', 'kirki-ecommerce')}
-                  </Flex>
-
-                  {filteredCountries?.length > 0 &&
+                  {filteredCountries?.length > 0 ? (
                     filteredCountries.map((country, index) => {
                       const regionInfo = formRegions.find(
-                        (r) => r.country === country.code,
+                        (region) => region.country === country.code,
                       );
                       return (
                         <div key={index}>
                           <div css={scoped(styles.checkboxItem)}>
-                            <Flex gap={2} align="center">
+                            <Flex gap={2} align="center" onClick={() => handleCountryRowClick(country)}
+                              cssOverride={styles.countryRow}
+                            >
                               <Checkbox
                                 id={`regions-dialog-country-${country.code}`}
                                 checked={
@@ -244,15 +301,13 @@ export const RegionsDialog = ({
                                   handleSelectCountries(country)
                                 }
                               />
-                              <Label
-                                htmlFor={`regions-dialog-country-${country.code}`}
-                              >
+                              <Label cssOverride={styles.countryLabel}>
                                 {country?.flag}
                                 {country.name}
                               </Label>
                             </Flex>
                           </div>
-                          {formCountries.includes(country.code) &&
+                          {expandedCountries.includes(country.code) &&
                             (country?.states?.length ?? 0) > 0 ? (
                             <div css={scoped(styles.nestedStates)}>
                               {(country?.states ?? []).map((state, stateIndex) => (
@@ -264,11 +319,7 @@ export const RegionsDialog = ({
                                         ?.find((r) => r.country === country.code)
                                         ?.states.includes(state.id)}
                                       onCheckedChange={() =>
-                                        handleSelectStates(
-                                          state.id,
-                                          country.code,
-                                          country.states ?? [],
-                                        )
+                                        handleSelectStates(state.id, country)
                                       }
                                     />
                                     <Label
@@ -283,7 +334,13 @@ export const RegionsDialog = ({
                           ) : null}
                         </div>
                       );
-                    })}
+                    })
+                  ) : (
+                    <EmptyState
+                      icon={<SearchIcon />}
+                      text={__('No country or state available', 'kirki-ecommerce')}
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -327,5 +384,11 @@ const styles = defineStyles({
   },
   nestedStates: {
     padding: `${theme.spacing[0]} ${theme.spacing[3]}`,
+  },
+  countryLabel: {
+    cursor: 'pointer',
+  },
+  countryRow: {
+    cursor: 'pointer',
   },
 });

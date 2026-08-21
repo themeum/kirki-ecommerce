@@ -18,7 +18,7 @@ import { useAvailableCurrencyList } from '@/features/settings/multi-currency/hoo
 import type { CurrencyListItem } from '@/features/settings/multi-currency/lib/currency-list';
 import AddCurrencyPopup from '@/features/settings/multi-currency/pages/add-currency-dialog';
 import EditCurrencyDialog from '@/features/settings/multi-currency/pages/edit-currency-dialog';
-import { InfoIcon, ShowMoreIcon } from '@/icons';
+import { InfoIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -49,9 +49,7 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
       {!item.is_action_disabled && (
         <DropdownButton
           buttonProps={{
-            type: 'secondary',
-            style: { transform: 'rotate(90deg)' },
-            icon: <ShowMoreIcon />,
+            variant: 'secondary',
             cssOverride: styles.actionButton,
           }}
           dropdownStyle={{ minWidth: '170px' }}
