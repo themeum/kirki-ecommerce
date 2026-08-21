@@ -15,7 +15,7 @@ class ReplaceCartsCustomerIdWithUserId implements Migration
             $table->drop_index('idx_customer_carts');
             $table->drop_column('customer_id');
 
-            $table->unsigned_big_integer('user_id')->nullable()->comment('WordPress user ID for owned carts');
+            $table->unsigned_big_integer('user_id')->nullable()->comment('WordPress user ID for owned carts')->after('id');
 
             $table->index(['user_id', 'created_at'], 'idx_user_carts');
 
@@ -33,7 +33,7 @@ class ReplaceCartsCustomerIdWithUserId implements Migration
             $table->drop_index('idx_user_carts');
             $table->drop_column('user_id');
 
-            $table->unsigned_big_integer('customer_id')->nullable();
+            $table->unsigned_big_integer('customer_id')->nullable()->after('id');
 
             $table->index(['customer_id', 'created_at'], 'idx_customer_carts');
 

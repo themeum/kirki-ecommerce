@@ -11,7 +11,7 @@ class AddIsDefaultToTaxProfilesTable implements Migration
     public function up()
     {
         Schema::table('kirki_ecommerce_tax_profiles', function (Structure $table) {
-            $table->boolean('is_default')->default(0);
+            $table->boolean('is_default')->default(0)->after('name');
         });
     }
 
