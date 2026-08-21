@@ -34,12 +34,25 @@ export interface AccountAddressPayload {
   is_billing_same_as_shipping?: boolean;
 }
 
+export interface OrdersPayload {
+  [key: string]: number | string;
+  page: number;
+  format: 'html'|'json';
+};
+
 export interface ApiResponse<T = any> {
   data?: T;
   message: string;
 }
 
 export const accountApi = {
+  getOrders(payload: OrdersPayload): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.orders, {
+      method: 'GET',
+      params: payload,
+    });
+  },
+
   updateProfile(payload: ProfilePayload): Promise<ApiResponse> {
     return apiRequest<ApiResponse>(ENDPOINTS.account.profile, {
       method: 'PUT',

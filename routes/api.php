@@ -253,7 +253,7 @@ Route::post('/checkout', [CheckoutController::class, 'store']);
 
 // Account api endpoints (self-service, logged-in customer only).
 Route::group(['middleware' => AuthMiddleware::class], function () {
-    Route::get('/account/orders-html', [AccountController::class, 'orders_html']);
+    Route::get('/account/orders', [AccountController::class, 'customer_orders']);
     Route::put('/account/profile', [AccountController::class, 'update_profile']);
     Route::put('/account/password-change', [AccountController::class, 'change_password']);
     Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
