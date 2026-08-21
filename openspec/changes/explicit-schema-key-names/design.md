@@ -135,13 +135,27 @@ fails immediately and names the offender.
 Rejected — impossible once Decision 4 leaves `Create*` unnamed, and it would need a maintained
 exemption list. The inventory assertion needs neither and is strictly stronger.
 
-### 7. Ordering within the migration
+### 7. Ordering is schema-wide, not per table
 
-InnoDB retains the backing index when a foreign key is dropped, and refuses to drop an index an
-existing foreign key depends on. So per table: drop foreign keys (capturing definitions first) →
-drop indexes, including any orphan left under a dropped constraint's name → add indexes → add
-foreign keys. The whole run is wrapped in the framework's existing foreign-key-check suspension
-pair with a `finally`, matching what `Migrator::rollback()` already does.
+InnoDB retains the backing index when a foreign key is dropped, and refuses to drop an index any
+existing foreign key depends on. Crucially, *any* foreign key — not just one on the same table. The
+unique index on `languages.code` is what makes the foreign keys on the three `*_translations`
+tables legal, so it cannot be dropped while they exist, and they are not reachable from a pass over
+`languages` alone. A per-table drop order is therefore unsound, and no amount of local reasoning
+about one table can fix it.
+
+The migration runs four schema-wide phases instead: drop **every** foreign key in the schema → drop
+the indexes that need renaming, plus any backing index no longer carrying its constraint's name →
+add the renamed indexes → restore every foreign key from its captured definition. Correctly named
+constraints are dropped and restored along with the rest, because there is no way to ask the
+database which index a given constraint depends on, so the only way to guarantee an index is free
+is for no foreign key to exist at that moment. A plan is built up front and the whole schema is
+checked for staleness before anything is dropped, which is what keeps the migration a no-op on a
+database that has already been through it.
+
+The whole run is wrapped in the framework's existing foreign-key-check suspension pair with a
+`finally`, matching what `Migrator::rollback()` already does. That suspension is *not* what makes
+the index drops legal — see the Risks section.
 
 `down()` is a deliberate no-op. Restoring engine-assigned names is neither possible nor wanted.
 
@@ -173,7 +187,18 @@ it was verified against.
   single request, so exposure is small, but it is real under concurrent writes. Accepted at
   alpha-scale traffic.
 - **Foreign keys owned by other plugins could be caught up in the sweep.** → Introspection filters
-  on the child table being a `kirki_ecommerce_*` table, not merely on the referenced table.
+  on the child table being a `kirki_ecommerce_*` table, not merely on the referenced table. The
+  converse is not defended against: a foreign key another plugin declares *against* one of our
+  tables would block the drop of the index it references, because that constraint is not ours to
+  remove.
+- **`FOREIGN_KEY_CHECKS = 0` does not mean DDL is unconstrained, and the two engines disagree about
+  how much it permits.** Measured directly: MariaDB 12.2 allows dropping an index required by a
+  foreign key while checks are off; MySQL 8.0.46 refuses with `ERROR 1553`. Docker runs
+  `mariadb:latest` while Local WP ships MySQL 8, so the permissive engine is the one under test and
+  the strict one is what customers run. → The design must not depend on the suspension for
+  legality at all, only for skipping row validation on re-add. Ordering is what makes the drops
+  legal, and the ordering itself is asserted by a test (below) rather than inferred from a passing
+  run.
 - **Renaming indexes and uniques carries risk with no correctness benefit** — they already match on
   both populations, so ~75 of the 142 drops-and-recreates are purely for naming uniformity. →
   Accepted deliberately after the finding was raised: leaving four naming styles in place preserves
@@ -186,7 +211,10 @@ it was verified against.
    2.1.15 behaviour it reproduces has been verified from source.
 2. Ship introspection, the migration, and its registration together; they are meaningless apart.
 3. Verify convergence against the fixture in CI before release.
-4. Manually run the upgrade against a restored copy of a real alpha.1 database, and once with the
+4. Run the full integration suite against **both** engines before release, not just the one Docker
+   provides. MySQL 8.0.46 has been wired up and passes; the engines disagree about enough DDL that
+   a MariaDB-only run is not evidence the upgrade works.
+5. Manually run the upgrade against a restored copy of a real alpha.1 database, and once with the
    database image pinned to MariaDB 10.4 to confirm nothing depends on `RENAME INDEX` or
    `IF EXISTS`.
 

@@ -9,6 +9,13 @@
  * engine-assigned name. Indexes and unique keys did not drift; they are renamed here so that a
  * single scheme covers every key and no migration ever has to guess what a key is called.
  *
+ * The work is done in schema-wide phases rather than table by table, because a key's dependencies
+ * are not confined to its own table: the unique index on languages.code is what makes the foreign
+ * keys on the three translation tables legal, so it cannot be dropped while any of them exists.
+ * MySQL raises "Cannot drop index: needed in a foreign key constraint" in that situation even with
+ * FOREIGN_KEY_CHECKS off; MariaDB permits it. Every foreign key in the schema is therefore dropped
+ * before any index is touched, and every index is back in place before any foreign key returns.
+ *
  * ORDERING INVARIANT: this migration must stay registered after the last Create* migration and
  * before the first Alter* migration. At that point an upgraded database and a fresh install hold
  * the same set of tables, which is what lets one code path serve both. Never reorder it, and never
@@ -29,9 +36,7 @@ class AlterSchemaKeysToExplicitNames implements Migration
         Schema::disabled_checking_foreign_key_constraints();
 
         try {
-            foreach (SchemaKeys::get_tables() as $table) {
-                $this->rename_table_keys($table);
-            }
+            $this->rename_keys();
         } finally {
             Schema::enabled_checking_foreign_key_constraints();
         }
@@ -42,41 +47,109 @@ class AlterSchemaKeysToExplicitNames implements Migration
      *
      * @return void
      */
-    public function down()
-    {
-    }
+    public function down() {}
 
     /**
-     * Bring every key on one table in line with the naming scheme.
-     *
-     * @param string $table The table name, without the WordPress table prefix.
+     * Bring every key in the schema in line with the naming scheme.
      *
      * @return void
      */
-    protected function rename_table_keys($table)
+    protected function rename_keys()
     {
-        $foreign_keys = SchemaKeys::get_foreign_keys($table);
-        $indexes = SchemaKeys::get_indexes($table);
+        $plan = $this->build_plan();
 
-        $backing_indexes = $this->collect_backing_indexes($foreign_keys, $indexes);
-
-        $stale_foreign_keys = $this->collect_stale_foreign_keys($table, $foreign_keys);
-        $stale_indexes = $this->collect_stale_indexes($table, $indexes, $backing_indexes);
-
-        if (empty($stale_foreign_keys) && empty($stale_indexes)) {
+        if (!$this->has_work($plan)) {
             return;
         }
 
-        $stale_backing_indexes = [];
+        $this->drop_foreign_keys($plan);
+        $this->drop_indexes($plan);
+        $this->add_indexes($plan);
+        $this->add_foreign_keys($plan);
+    }
 
-        foreach ($stale_foreign_keys as $foreign_key) {
-            if (isset($backing_indexes[$foreign_key['name']])) {
-                $stale_backing_indexes[] = $backing_indexes[$foreign_key['name']];
+    /**
+     * Work out what has to happen to every table before changing anything.
+     *
+     * Each entry holds every foreign key on the table, each carrying the name it should take; the
+     * indexes that need renaming; and the backing indexes that have to go because they no longer
+     * carry the name of the constraint they belong to.
+     *
+     * @return array<string, array>
+     */
+    protected function build_plan()
+    {
+        $plan = [];
+
+        foreach (SchemaKeys::get_tables() as $table) {
+            $foreign_keys = $this->describe_foreign_keys($table);
+            $indexes = SchemaKeys::get_indexes($table);
+            $backing_indexes = $this->collect_backing_indexes($foreign_keys, $indexes);
+
+            $plan[$table] = [
+                'foreign_keys' => $foreign_keys,
+                'stale_indexes' => $this->collect_stale_indexes($table, $indexes, $backing_indexes),
+                'obsolete_backing_indexes' => $this->collect_obsolete_backing_indexes($foreign_keys, $backing_indexes),
+                'has_stale_foreign_key' => $this->has_stale_foreign_key($foreign_keys),
+            ];
+        }
+
+        return $plan;
+    }
+
+    /**
+     * Determine whether the schema needs any renaming at all.
+     *
+     * Nothing is dropped when every key already carries its scheme name, which is what makes the
+     * migration a no-op on a database that has already been through it.
+     *
+     * @param array $plan The plan.
+     *
+     * @return bool
+     */
+    protected function has_work(array $plan)
+    {
+        foreach ($plan as $table) {
+            if ($table['has_stale_foreign_key'] || !empty($table['stale_indexes']) || !empty($table['obsolete_backing_indexes'])) {
+                return true;
             }
         }
 
-        $this->drop_keys($table, $stale_foreign_keys, $stale_indexes, $stale_backing_indexes);
-        $this->add_keys($table, $stale_foreign_keys, $stale_indexes);
+        return false;
+    }
+
+    /**
+     * Get a table's foreign keys, each with the name the scheme derives for it.
+     *
+     * @param string $table The table name, without the WordPress table prefix.
+     *
+     * @return array
+     */
+    protected function describe_foreign_keys($table)
+    {
+        return array_map(function ($foreign_key) use ($table) {
+            $foreign_key['expected'] = SchemaKeys::expected_name($table, [$foreign_key['column']], 'foreign');
+
+            return $foreign_key;
+        }, SchemaKeys::get_foreign_keys($table));
+    }
+
+    /**
+     * Determine whether any of a table's foreign keys is misnamed.
+     *
+     * @param array $foreign_keys The described foreign keys.
+     *
+     * @return bool
+     */
+    protected function has_stale_foreign_key(array $foreign_keys)
+    {
+        foreach ($foreign_keys as $foreign_key) {
+            if ($foreign_key['name'] !== $foreign_key['expected']) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -87,12 +160,7 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * produces either shape for a declared index, so matching them identifies a backing index
      * without any risk of catching a deliberately declared one.
      *
-     * Getting this right is what makes the two populations converge: a database created before
-     * framework 3.x has these indexes named after their column, and one created since has them
-     * named after their constraint. Both are dropped with their constraint and recreated by InnoDB
-     * under the new constraint name.
-     *
-     * @param array $foreign_keys The live foreign keys.
+     * @param array $foreign_keys The described foreign keys.
      * @param array $indexes The live indexes.
      *
      * @return array<string, string> Index name keyed by the constraint it backs.
@@ -119,36 +187,46 @@ class AlterSchemaKeysToExplicitNames implements Migration
     }
 
     /**
-     * Get the foreign keys whose name does not match the scheme, each with the name it should take.
+     * Get the backing indexes that have to be dropped along with their constraint.
      *
-     * @param string $table The table name.
-     * @param array $foreign_keys The live foreign keys.
+     * InnoDB reuses a suitable existing index when a foreign key is added, so a backing index left
+     * behind under its old name would be adopted by the renamed constraint and keep that name
+     * forever. One already carrying the constraint's new name is left alone and reused, which is
+     * both correct and cheaper.
      *
-     * @return array
+     * Getting this right is what makes the two populations converge: a database created before
+     * framework 3.x has these indexes named after their column, and one created since has them
+     * named after their constraint.
+     *
+     * @param array $foreign_keys The described foreign keys.
+     * @param array $backing_indexes Index name keyed by the constraint it backs.
+     *
+     * @return array<int, string>
      */
-    protected function collect_stale_foreign_keys($table, array $foreign_keys)
+    protected function collect_obsolete_backing_indexes(array $foreign_keys, array $backing_indexes)
     {
-        $stale = [];
+        $obsolete = [];
 
         foreach ($foreign_keys as $foreign_key) {
-            $expected = SchemaKeys::expected_name($table, [$foreign_key['column']], 'foreign');
-
-            if ($foreign_key['name'] === $expected) {
+            if (!isset($backing_indexes[$foreign_key['name']])) {
                 continue;
             }
 
-            $foreign_key['expected'] = $expected;
-            $stale[] = $foreign_key;
+            if ($backing_indexes[$foreign_key['name']] === $foreign_key['expected']) {
+                continue;
+            }
+
+            $obsolete[] = $backing_indexes[$foreign_key['name']];
         }
 
-        return $stale;
+        return $obsolete;
     }
 
     /**
      * Get the indexes whose name does not match the scheme, each with the name it should take.
      *
-     * A foreign key's backing index is left out: InnoDB recreates it under the new constraint name
-     * when the constraint is re-added, so naming it here would leave a duplicate behind.
+     * A foreign key's backing index is left out: it is dropped and recreated with its constraint
+     * rather than renamed on its own.
      *
      * @param string $table The table name.
      * @param array $indexes The live indexes.
@@ -181,71 +259,118 @@ class AlterSchemaKeysToExplicitNames implements Migration
     }
 
     /**
-     * Drop the keys that need renaming.
+     * Drop every foreign key in the schema.
      *
-     * Foreign keys go first: InnoDB refuses to drop an index an existing constraint depends on. A
-     * dropped constraint leaves its backing index behind, so that index is dropped in the same
-     * statement, otherwise re-adding the constraint would reuse it and keep the old name.
+     * Correctly named constraints go too. An index can be required by a foreign key on any table,
+     * not only its own, and there is no way to ask the database which index a given constraint
+     * depends on, so the only way to guarantee an index is free to drop is for no foreign key to
+     * exist at that moment. They are all restored from their live definitions in the last phase.
      *
-     * @param string $table The table name.
-     * @param array $foreign_keys The foreign keys to rename.
-     * @param array $indexes The indexes to rename.
-     * @param array $backing_index_names Backing indexes of the foreign keys being renamed.
+     * @param array $plan The plan.
      *
      * @return void
      */
-    protected function drop_keys($table, array $foreign_keys, array $indexes, array $backing_index_names)
+    protected function drop_foreign_keys(array $plan)
     {
-        Schema::table($table, function (Structure $structure) use ($foreign_keys, $indexes, $backing_index_names) {
-            foreach ($foreign_keys as $foreign_key) {
-                $structure->drop_foreign($foreign_key['name']);
+        foreach ($plan as $table => $entry) {
+            if (empty($entry['foreign_keys'])) {
+                continue;
             }
 
-            foreach ($backing_index_names as $index_name) {
-                $structure->drop_index($index_name);
-            }
-
-            foreach ($indexes as $index) {
-                $structure->drop_index($index['name']);
-            }
-        });
+            Schema::table($table, function (Structure $structure) use ($entry) {
+                foreach ($entry['foreign_keys'] as $foreign_key) {
+                    $structure->drop_foreign($foreign_key['name']);
+                }
+            });
+        }
     }
 
     /**
-     * Recreate the dropped keys under their scheme names, with their definitions unchanged.
+     * Drop the indexes that need renaming, along with any orphaned backing index.
      *
-     * @param string $table The table name.
-     * @param array $foreign_keys The foreign keys to recreate.
-     * @param array $indexes The indexes to recreate.
+     * @param array $plan The plan.
      *
      * @return void
      */
-    protected function add_keys($table, array $foreign_keys, array $indexes)
+    protected function drop_indexes(array $plan)
     {
-        Schema::table($table, function (Structure $structure) use ($foreign_keys, $indexes) {
-            foreach ($indexes as $index) {
-                if ($index['unique']) {
-                    $structure->unique($index['columns'], $index['expected']);
-                    continue;
-                }
-
-                $structure->index($index['columns'], $index['expected']);
+        foreach ($plan as $table => $entry) {
+            if (empty($entry['stale_indexes']) && empty($entry['obsolete_backing_indexes'])) {
+                continue;
             }
 
-            foreach ($foreign_keys as $foreign_key) {
-                $definition = $structure->foreign($foreign_key['column'], $foreign_key['expected'])
-                    ->references($foreign_key['references'])
-                    ->on($foreign_key['on']);
-
-                if (!$this->is_default_rule($foreign_key['on_delete'])) {
-                    $definition->on_delete($foreign_key['on_delete']);
+            Schema::table($table, function (Structure $structure) use ($entry) {
+                foreach ($entry['obsolete_backing_indexes'] as $index_name) {
+                    $structure->drop_index($index_name);
                 }
 
-                if (!$this->is_default_rule($foreign_key['on_update'])) {
-                    $definition->on_update($foreign_key['on_update']);
+                foreach ($entry['stale_indexes'] as $index) {
+                    $structure->drop_index($index['name']);
                 }
+            });
+        }
+    }
+
+    /**
+     * Recreate the dropped indexes under their scheme names, with their definitions unchanged.
+     *
+     * This runs before any foreign key is restored, because a foreign key can only be added once
+     * the index it references is in place on the parent table.
+     *
+     * @param array $plan The plan.
+     *
+     * @return void
+     */
+    protected function add_indexes(array $plan)
+    {
+        foreach ($plan as $table => $entry) {
+            if (empty($entry['stale_indexes'])) {
+                continue;
             }
-        });
+
+            Schema::table($table, function (Structure $structure) use ($entry) {
+                foreach ($entry['stale_indexes'] as $index) {
+                    if ($index['unique']) {
+                        $structure->unique($index['columns'], $index['expected']);
+                        continue;
+                    }
+
+                    $structure->index($index['columns'], $index['expected']);
+                }
+            });
+        }
+    }
+
+    /**
+     * Restore every foreign key under its scheme name, with its definition unchanged.
+     *
+     * @param array $plan The plan.
+     *
+     * @return void
+     */
+    protected function add_foreign_keys(array $plan)
+    {
+        foreach ($plan as $table => $entry) {
+            if (empty($entry['foreign_keys'])) {
+                continue;
+            }
+
+            Schema::table($table, function (Structure $structure) use ($entry) {
+                foreach ($entry['foreign_keys'] as $foreign_key) {
+                    $definition = $structure->foreign($foreign_key['column'], $foreign_key['expected'])
+                        ->references($foreign_key['references'])
+                        ->on($foreign_key['on']);
+
+                    if (!$this->is_default_rule($foreign_key['on_delete'])) {
+                        $definition->on_delete($foreign_key['on_delete']);
+                    }
+
+                    if (!$this->is_default_rule($foreign_key['on_update'])) {
+                        $definition->on_update($foreign_key['on_update']);
+                    }
+                }
+            });
+        }
     }
 
     /**

@@ -118,6 +118,46 @@ class SchemaKeyInventoryTest extends WP_UnitTestCase
     }
 
     /**
+     * No index may be dropped while any foreign key still exists.
+     *
+     * An index can be required by a foreign key on a different table — the unique index on
+     * languages.code is what makes the foreign keys on the three translation tables legal — so a
+     * per-table drop order is not enough. MySQL rejects such a drop even with FOREIGN_KEY_CHECKS
+     * off, while MariaDB permits it, so the tests cannot catch this by running the migration.
+     * Asserting the statement order instead is what makes this portable.
+     *
+     * @return void
+     */
+    public function test_indexes_are_only_touched_while_no_foreign_key_exists(): void
+    {
+        $this->rewind_to_legacy_shape();
+
+        $statements = $this->capture_statements_while_renaming();
+
+        $foreign_key_drops = $this->positions_matching($statements, 'DROP FOREIGN KEY');
+        $index_drops = $this->positions_matching($statements, 'DROP INDEX');
+        $index_adds = $this->positions_matching($statements, 'ADD INDEX', 'ADD UNIQUE KEY');
+        $foreign_key_adds = $this->positions_matching($statements, 'ADD CONSTRAINT');
+
+        $this->assertNotEmpty($foreign_key_drops);
+        $this->assertNotEmpty($index_drops);
+        $this->assertNotEmpty($index_adds);
+        $this->assertNotEmpty($foreign_key_adds);
+
+        $this->assertLessThan(
+            min($index_drops),
+            max($foreign_key_drops),
+            'An index was dropped while a foreign key still existed.'
+        );
+
+        $this->assertLessThan(
+            min($foreign_key_adds),
+            max($index_adds),
+            'A foreign key was added before every index was back in place.'
+        );
+    }
+
+    /**
      * Running the rename against an already-correct database must do nothing.
      *
      * @return void
@@ -238,38 +278,56 @@ class SchemaKeyInventoryTest extends WP_UnitTestCase
      * are renamed to something other than their scheme name, since the rename derives a key's new
      * name from its columns and is indifferent to what it was called before.
      *
+     * Like the migration, this works in schema-wide phases rather than table by table, because an
+     * index can be required by a foreign key belonging to another table.
+     *
      * @return void
      */
     protected function rewind_to_legacy_shape(): void
     {
         $prefix = DB::connection()->get_table_prefix();
 
+        $tables = SchemaKeys::get_tables();
+        $foreign_keys = [];
+        $indexes = [];
+
+        foreach ($tables as $table) {
+            $foreign_keys[$table] = SchemaKeys::get_foreign_keys($table);
+            $indexes[$table] = SchemaKeys::get_indexes($table);
+        }
+
         Schema::disabled_checking_foreign_key_constraints();
 
         try {
-            foreach (SchemaKeys::get_tables() as $table) {
-                $foreign_keys = SchemaKeys::get_foreign_keys($table);
-                $indexes = SchemaKeys::get_indexes($table);
-                $constraint_names = array_column($foreign_keys, 'name');
+            foreach ($tables as $table) {
                 $qualified = '`' . $prefix . $table . '`';
 
-                foreach ($foreign_keys as $foreign_key) {
+                foreach ($foreign_keys[$table] as $foreign_key) {
                     DB::connection()->affecting_statement(sprintf(
                         'ALTER TABLE %s DROP FOREIGN KEY `%s`',
                         $qualified,
                         $foreign_key['name']
                     ));
                 }
+            }
 
-                foreach ($indexes as $index) {
+            foreach ($tables as $table) {
+                $qualified = '`' . $prefix . $table . '`';
+
+                foreach ($indexes[$table] as $index) {
                     DB::connection()->affecting_statement(sprintf(
                         'ALTER TABLE %s DROP INDEX `%s`',
                         $qualified,
                         $index['name']
                     ));
                 }
+            }
 
-                foreach ($indexes as $index) {
+            foreach ($tables as $table) {
+                $qualified = '`' . $prefix . $table . '`';
+                $constraint_names = array_column($foreign_keys[$table], 'name');
+
+                foreach ($indexes[$table] as $index) {
                     if (in_array($index['name'], $constraint_names, true)) {
                         continue;
                     }
@@ -282,8 +340,12 @@ class SchemaKeyInventoryTest extends WP_UnitTestCase
                         implode('`, `', $index['columns'])
                     ));
                 }
+            }
 
-                foreach ($foreign_keys as $foreign_key) {
+            foreach ($tables as $table) {
+                $qualified = '`' . $prefix . $table . '`';
+
+                foreach ($foreign_keys[$table] as $foreign_key) {
                     $rules = '';
 
                     foreach (['on_delete' => 'ON DELETE', 'on_update' => 'ON UPDATE'] as $key => $clause) {
@@ -335,6 +397,58 @@ class SchemaKeyInventoryTest extends WP_UnitTestCase
         }
 
         return 'legacy_' . substr(md5($conventional), 0, 16);
+    }
+
+    /**
+     * Run the rename, collecting every ALTER statement it issues, in order.
+     *
+     * @return array<int, string>
+     */
+    protected function capture_statements_while_renaming(): array
+    {
+        $statements = [];
+
+        $recorder = function ($query) use (&$statements) {
+            if (stripos(ltrim($query), 'alter table') === 0) {
+                $statements[] = $query;
+            }
+
+            return $query;
+        };
+
+        add_filter('query', $recorder);
+
+        try {
+            $this->rerun_key_migration();
+        } finally {
+            remove_filter('query', $recorder);
+        }
+
+        return $statements;
+    }
+
+    /**
+     * Get the positions of the statements containing any of the given clauses.
+     *
+     * @param array $statements The captured statements.
+     * @param string ...$clauses The clauses to look for.
+     *
+     * @return array<int, int>
+     */
+    protected function positions_matching(array $statements, string ...$clauses): array
+    {
+        $positions = [];
+
+        foreach ($statements as $position => $statement) {
+            foreach ($clauses as $clause) {
+                if (stripos($statement, $clause) !== false) {
+                    $positions[] = $position;
+                    break;
+                }
+            }
+        }
+
+        return $positions;
     }
 
     /**

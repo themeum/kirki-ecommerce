@@ -81,16 +81,21 @@
       twice leaves the schema unchanged.
 - [x] 5.6 Confirm the invariant test actually catches regressions by temporarily adding an unnamed
       key to a migration and checking it fails with the offender named.
-- [x] 5.7 Run the full suite. **Done:** unit 147/147 pass; integration 220 tests, 3990 assertions,
-      with one failure — `OrderApiTest::test_checkout_guest_order_provisions_customer_from_billing`
-      — confirmed **pre-existing** by reproducing it identically on unmodified `HEAD`.
+- [x] 5.7 Run the full suite. **Done, on both engines:** unit 148/148 pass; integration 222 tests,
+      4061 assertions on MariaDB 12.2 *and* on MySQL 8.0.46, with one failure on each —
+      `OrderApiTest::test_checkout_guest_order_provisions_customer_from_billing` — confirmed
+      **pre-existing** by reproducing it identically on unmodified `HEAD`.
 - [~] 5.8 MariaDB 10.4 compatibility. **Verified by inspection, not by running:** no `RENAME INDEX`
       or `IF EXISTS` appears anywhere in `app/` or `database/`, and the framework emits plain
       `DROP FOREIGN KEY` / `DROP INDEX` (`Compiler.php:353-356`). A real 10.4 run is still worth
       doing before release.
-- [ ] 5.9 **Not done — needs a real alpha.1 database.** Run the upgrade against a restored copy of
-      one and confirm the site loads and carts, orders and coupons behave normally. This is the one
-      check the derived fixture cannot give: real rows exercising the recreated foreign keys.
+- [x] 5.10 Run the integration suite against MySQL 8 as well as MariaDB. **Done:** a `mysql:8.0`
+      container was joined to the compose network and the suite pointed at it via `DB_HOST`. This
+      is what caught defect 7.4, which `mariadb:latest` accepts silently. Worth wiring into CI.
+- [~] 5.9 **Partially done — a real alpha.1 upgrade was run and it failed** (defect 7.4), which is
+      exactly what this task existed to find. After the fix, convergence from the legacy shape
+      passes on both engines, but the real-database pass has not been repeated. Redo it against the
+      restored copy and confirm the site loads and carts, orders and coupons behave normally.
 
 ## 6. Document the scheme
 
@@ -111,3 +116,17 @@
 - [x] 7.3 InnoDB names a foreign key's auto-created backing index after the constraint, or after the
       column when the constraint is unnamed. Handling only the first case made the two populations
       diverge. `collect_backing_indexes()` now matches both.
+- [x] 7.4 **Found by a real alpha.1 upgrade on Local WP, and fatal.** The migration processed one
+      table at a time, dropping only the foreign keys declared *on that table*. The unique index on
+      `languages.code` is the parent-side index for foreign keys on three other tables, so dropping
+      it raised `Cannot drop index 'kirki_ecommerce_languages_code_unique': needed in a foreign key
+      constraint`. Restructured into schema-wide phases (Decision 7).
+
+      The suite could not have caught this: measured directly, MariaDB 12.2 permits that drop while
+      `FOREIGN_KEY_CHECKS` is off and MySQL 8.0.46 refuses it, and Docker runs `mariadb:latest`
+      while Local WP ships MySQL 8. Two follow-ups so it stays caught: the suite now also runs
+      against MySQL 8 (5.10), and `test_indexes_are_only_touched_while_no_foreign_key_exists`
+      asserts the emitted statement order directly, so the invariant is checked even on the
+      permissive engine. Verified by restoring the per-table order and watching only that test fail.
+- [x] 7.5 `SchemaKeyInventoryTest::rewind_to_legacy_shape()` had the same per-table flaw and failed
+      on MySQL 8 for the same reason. The fixture builder now works in schema-wide phases too.
