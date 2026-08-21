@@ -21,7 +21,7 @@ import ShippingBoxPopup from '@/features/settings/shipping/pages/shipping-box/sh
 import type { ShippingBox as ShippingBoxType } from '@/features/settings/shipping/schemas/catalog/shipping';
 import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/features/settings/shipping/services/shipping';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
-import { EditPenIcon, ShowMoreIcon } from '@/icons';
+import { EditPenIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -65,9 +65,6 @@ const ShippingBoxRowActions = (props: ShippingBoxRowActionsProps) => {
       {!item.is_action_disabled && (
         <DropdownButton
           buttonProps={{
-            type: 'secondary',
-            style: { transform: 'rotate(90deg)' },
-            icon: <ShowMoreIcon />,
             cssOverride: styles.actionButton,
           }}
           dropdownStyle={{ minWidth: '170px' }}

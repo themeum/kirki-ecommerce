@@ -67,7 +67,7 @@ $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : ''
                         <div class="kecom-card">
                             <div class="kecom-card-header">
                                 <h3 class="kecom-card-title"><?php esc_html_e('Account Details', 'kirki-ecommerce'); ?></h3>
-                                <a href="<?php echo esc_url(Url::get_account_url('account-details')); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">
+                                <a href="<?php echo esc_url(Url::get_account_url('manage')); ?>" class="kecom-btn kecom-btn-outline kecom-btn-sm">
                                     <?php esc_html_e('Edit', 'kirki-ecommerce'); ?>
                                 </a>
                             </div>

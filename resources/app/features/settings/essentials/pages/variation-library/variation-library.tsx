@@ -1,10 +1,10 @@
 import { type ReactNode, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import {
   StackedItem,
@@ -26,6 +26,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
+import { Package, Palette, PlusIcon } from 'lucide-react';
 
 type AttributeListItem = Attribute & {
   badge1?: string;
@@ -35,7 +36,7 @@ type AttributeListItem = Attribute & {
 const VariationList = () => {
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
-  const [variationType, setVariationType] = useState<string | null>(null);
+  const [variationType, setVariationType] = useState<'color' | 'list' | null>(null);
   const [removedIds, setRemovedIds] = useState<number[]>([]);
 
   const { data: attributeList = [], isLoading, refetch } = useAttributesQuery({ limit: -1 });
@@ -77,22 +78,31 @@ const VariationList = () => {
     }
   };
 
+  const openDialog = (type: 'color' | 'list') => {
+    setVariationType(type);
+    setShowPopup(true);
+  }
+
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardContent >
-        <HeaderActionsCard
-          header={__('Variation Library', 'kirki-ecommerce')}
-          subHeader={__(
-            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
-            'kirki-ecommerce',
-          )}
-          dropDownButton
-          buttonText={__('Add Variation', 'kirki-ecommerce')}
-          handleOptionSelect={(value) => {
-            setVariationType(String(value));
-            setShowPopup(true);
-          }}
-        />
+        <CardTitle>
+          <Flex align="center" justify="space-between">
+            {__('Variation Library', 'kirki-ecommerce')}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant='secondary'>
+                  <PlusIcon />
+                  {__('Add Variation')}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => openDialog('color')}><Palette size={16} /> {__('Color', 'kirki-ecommerce')}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDialog('list')}><Package size={16} /> {__('List', 'kirki-ecommerce')}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Flex>
+        </CardTitle>
         <div css={scoped({ marginTop: theme.spacing[5] })}>
           {isLoading ? (
             <StackedListSkeleton />

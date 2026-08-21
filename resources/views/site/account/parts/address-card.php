@@ -9,28 +9,30 @@
  * @since 1.0.0
  */
 
+use Kirki\Ecommerce\App\Constants\AddressType;
+
 defined('ABSPATH') || exit;
 
-$type = $data['type'] ?? 'shipping';
-$title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-ecommerce') : __('Shipping Address', 'kirki-ecommerce'));
+$type = $data['type'] ?? AddressType::SHIPPING;
+$title = $data['title'] ?? ($type === AddressType::BILLING ? __('Billing Address', 'kirki-ecommerce') : __('Shipping Address', 'kirki-ecommerce'));
 ?>
 
-<div class="kecom-card">
+<div class="kecom-card" x-cloak>
     <div class="kecom-card-header">
         <h3 class="kecom-card-title"><?php echo esc_html($title); ?></h3>
         <button
             type="button"
             class="kecom-btn kecom-btn-link kecom-btn-sm"
-            <?php if ($type === 'billing') : ?>x-show="!sameAsShipping"<?php endif; ?>
-            @click.prevent="startEdit('<?php echo esc_attr($type); ?>')"
-        >
-            <?php esc_html_e('Edit', 'kirki-ecommerce'); ?>
+            @click.prevent="startEdit('<?php echo esc_attr($type); ?>')">
+            <span x-show="hasAddress('<?php echo esc_attr($type); ?>')"><?php esc_html_e('Edit', 'kirki-ecommerce'); ?></span>
+            <span x-show="!hasAddress('<?php echo esc_attr($type); ?>')"><?php esc_html_e('Add', 'kirki-ecommerce'); ?></span>
         </button>
     </div>
 
     <div class="kecom-card-body">
         <?php if ($type === 'billing') : ?>
-            <div class="kecom-address-card-same">
+            <!-- @TODO: We have to handle it in a proper way -->
+            <!-- <div class="kecom-address-card-same">
                 <label class="kecom-checkbox">
                     <input
                         class="kecom-checkbox-input"
@@ -41,7 +43,7 @@ $title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-e
                     >
                     <span class="kecom-checkbox-label"><?php esc_html_e('Same as shipping address', 'kirki-ecommerce'); ?></span>
                 </label>
-            </div>
+            </div> -->
         <?php endif; ?>
 
         <template x-if="hasAddress('<?php echo esc_attr($type); ?>')">

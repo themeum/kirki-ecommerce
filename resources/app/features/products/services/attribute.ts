@@ -241,6 +241,6 @@ const useBulkDeleteAttributeValuesMutation = () => {
 };
 
 export {
-  bulkDeleteAttributeValues, createAttribute, createAttributeValue, deleteAttribute, deleteAttributeValue, getAttribute, getAttributes, getAttributeValues, updateAttribute, updateAttributeValue, useAttributeQuery, useAttributesQuery, useAttributeValuesQuery, useBulkDeleteAttributeValuesMutation, useCreateAttributeMutation, useCreateAttributeValueMutation, useDeleteAttributeMutation, useDeleteAttributeValueMutation, useUpdateAttributeMutation, useUpdateAttributeValueMutation,
+  bulkDeleteAttributeValues, createAttribute, createAttributeValue, deleteAttribute, deleteAttributeValue, getAttribute, getAttributes, getAttributeValues, updateAttribute, updateAttributeValue, useAttributeQuery, useAttributesQuery, useAttributeValuesQuery, useBulkDeleteAttributeValuesMutation, useCreateAttributeMutation, useCreateAttributeValueMutation, useDeleteAttributeMutation, useDeleteAttributeValueMutation, useUpdateAttributeMutation, useUpdateAttributeValueMutation
 };
 
