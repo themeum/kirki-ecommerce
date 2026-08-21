@@ -24,7 +24,7 @@ $items = $cart['items'] ?? [];
 ?>
 <?php Template::get_header(); ?>
 <div class="kecom-cart-page" x-data='cart()'>
-    <?php if (count($items)) : ?>
+    <?php if (!empty($items)) : ?>
         <div class="kecom-cart-grid">
             <!-- Left Part -->
             <div class="kecom-cart-items">
@@ -37,14 +37,9 @@ $items = $cart['items'] ?? [];
                         <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-cart-items-header-actions-link"><?php _e('Continue Shopping', 'kirki-ecommerce'); ?></a>
                     </div>
                 </div>
-                <?php if (count($items)) : ?>
-                    <?php foreach ($items as $item) :
-                        include_view('site.cart.parts.cart-item', ['item' => $item]);
-                    ?>
-                    <?php endforeach; ?>
-                <?php else : ?>
-                    <h4 class="kecom-cart-items-empty-text"><?php _e('No items currently in cart.', 'kirki-ecommerce'); ?></h4>
-                <?php endif; ?>
+                <?php foreach ($items as $item) : ?>
+                    <?php include_view('site.cart.parts.cart-item', ['item' => $item]); ?>
+                <?php endforeach; ?>
             </div>
             <!-- Right Part -->
             <?php include_view('site.cart.parts.cart-summary'); ?>
