@@ -40,6 +40,7 @@ use Kirki\Ecommerce\Database\Migrations\CreateCollectionTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeValueProductTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCartItemsTable;
+use Kirki\Ecommerce\Database\Migrations\AlterCartItemsVariantForeignKeyToCascade;
 use Kirki\Ecommerce\Database\Migrations\CreateCartsTable;
 use Kirki\Ecommerce\Database\Migrations\ReplaceCartsCustomerIdWithUserId;
 use Kirki\Ecommerce\Database\Migrations\CreateCategoryProductTable;
@@ -76,6 +77,7 @@ return [
     CreateCartsTable::class,
     ReplaceCartsCustomerIdWithUserId::class,
     CreateCartItemsTable::class,
+    AlterCartItemsVariantForeignKeyToCascade::class,
     CreateOrdersTable::class,
     CreateOrderItemsTable::class,
     CreateOrderActivitiesTable::class,
