@@ -34,8 +34,7 @@ export interface AccountAddressPayload {
   is_billing_same_as_shipping?: boolean;
 }
 
-export interface OrdersPayload {
-  [key: string]: number | string;
+export type OrdersPayload = {
   page: number;
   format: 'html'|'json';
 };
