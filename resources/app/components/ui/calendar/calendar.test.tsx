@@ -10,7 +10,7 @@ import {
   DateTimePicker,
   TimePicker,
 } from '@/components/ui/calendar';
-import { WEEK_STARTS_ON } from '@/libs/date';
+import { applyTimeToDate, END_OF_DAY_TIME, WEEK_STARTS_ON } from '@/libs/date';
 
 const weekOptions = { weekStartsOn: WEEK_STARTS_ON } as const;
 
@@ -299,8 +299,8 @@ describe('DateRangePicker presets', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Today' }));
 
     expect(onChange).toHaveBeenCalledWith({
-      from: new Date(2026, 5, 10),
-      to: new Date(2026, 5, 10),
+      from: new Date(2026, 5, 10, 0, 0),
+      to: new Date(2026, 5, 10, 23, 59),
     });
     expect(screen.queryAllByRole('grid')).toHaveLength(0);
   });
@@ -311,8 +311,8 @@ describe('DateRangePicker presets', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Last week' }));
 
     expect(onChange).toHaveBeenCalledWith({
-      from: new Date(2026, 4, 31),
-      to: endOfWeek(new Date(2026, 5, 3), weekOptions),
+      from: new Date(2026, 4, 31, 0, 0),
+      to: applyTimeToDate(endOfWeek(new Date(2026, 5, 3), weekOptions), END_OF_DAY_TIME),
     });
   });
 
@@ -331,8 +331,8 @@ describe('DateRangePicker presets', () => {
     fireEvent.click(screen.getByRole('button', { name: 'This month' }));
 
     expect(onChange).toHaveBeenCalledWith({
-      from: new Date(2026, 5, 15),
-      to: endOfMonth(new Date(2026, 5, 10)),
+      from: new Date(2026, 5, 15, 0, 0),
+      to: applyTimeToDate(endOfMonth(new Date(2026, 5, 10)), END_OF_DAY_TIME),
     });
   });
 
@@ -412,8 +412,8 @@ describe('DateRangePicker range selection', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith({
-      from: new Date(2026, 5, 3),
-      to: new Date(2026, 5, 12),
+      from: new Date(2026, 5, 3, 0, 0),
+      to: new Date(2026, 5, 12, 23, 59),
     });
     expect(screen.queryAllByRole('grid')).toHaveLength(0);
   });
@@ -425,8 +425,8 @@ describe('DateRangePicker range selection', () => {
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' });
 
     expect(onChange).toHaveBeenCalledWith({
-      from: new Date(2026, 5, 3),
-      to: new Date(2026, 5, 3),
+      from: new Date(2026, 5, 3, 0, 0),
+      to: new Date(2026, 5, 3, 23, 59),
     });
   });
 
@@ -437,8 +437,8 @@ describe('DateRangePicker range selection', () => {
     clickDay(/June 3rd, 2026/);
 
     expect(onChange).toHaveBeenCalledWith({
-      from: new Date(2026, 5, 3),
-      to: new Date(2026, 5, 3),
+      from: new Date(2026, 5, 3, 0, 0),
+      to: new Date(2026, 5, 3, 23, 59),
     });
   });
 });
