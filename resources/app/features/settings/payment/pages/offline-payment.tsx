@@ -11,7 +11,7 @@ import Text from '@/components/ui/text';
 import OfflinePaymentPopup from '@/features/settings/payment/pages/offline-payment-dialog';
 import type { OfflinePayment } from '@/features/settings/payment/schemas/catalog/payment';
 import { useDeleteOfflinePaymentMutation, useUpdateOfflinePaymentMutation } from '@/features/settings/payment/services/payment';
-import { BankIconLarge, CashIcon, ShowMoreIcon } from '@/icons';
+import { BankIconLarge, CashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -126,7 +126,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
                           {getIconUrl(item?.icon) ? (
                             <img
                               src={getIconUrl(item.icon)!}
-                              alt=""
+                              alt={__('Logo', 'kirki-ecommerce')}
                               height={20}
                               width={20}
                             />
@@ -153,11 +153,6 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
                           />
                           <DropdownButton
                             dropdownStyle={{ width: '115px' }}
-                            buttonProps={{
-                              size: 'small',
-                              style: { transform: 'rotate(90deg)' },
-                              icon: <ShowMoreIcon />,
-                            }}
                             options={[
                               {
                                 title: __('Edit', 'kirki-ecommerce'),

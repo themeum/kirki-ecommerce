@@ -11,8 +11,8 @@ import {
   type AddVariationFormInput,
   type AddVariationFormPayload,
   AddVariationFormSchema,
+  useCreateAttributeMutation,
 } from '@/features/products';
-import { useCreateAttributeMutation } from '@/features/products';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import type { ButtonState } from '@/types/components/common';
@@ -93,6 +93,7 @@ const AddVariationPopup = ({
                   variationType === 'color' ? 'e.g Color' : 'e.g Material',
                   'kirki-ecommerce',
                 )}
+                autoFocus
               />
             </Flex>
           </DialogBody>
