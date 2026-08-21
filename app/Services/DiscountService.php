@@ -290,7 +290,7 @@ class DiscountService
      */
     protected function get_eligible_items(CalculationContextDTO $context, Coupon $coupon)
     {
-        if ($coupon->eligible_item_type === EligibleItemType::ALL_PRODUCTS || $coupon->discount_target === DiscountTarget::ORDER) {
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING || $coupon->eligible_item_type === EligibleItemType::ALL_PRODUCTS || $coupon->discount_target === DiscountTarget::ORDER) {
             return $context->items;
         }
 

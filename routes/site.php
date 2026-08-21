@@ -45,10 +45,10 @@ Route::site(function () {
         ->template_redirect()
         ->name('login');
 
-    if (Utils::registration_enabled()) {
-        Route::get($register_page_slug, [SiteController::class, 'register_page'])
-            ->name('register');
+    Route::get($register_page_slug, [SiteController::class, 'register_page'])
+        ->name('register');
 
+    if (Utils::registration_enabled()) {
         Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
             ->template_redirect()
             ->name('register');

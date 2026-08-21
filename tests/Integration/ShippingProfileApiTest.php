@@ -25,6 +25,7 @@ class ShippingProfileApiTest extends RestTestCase
     {
         $response = $this->request('POST', 'shipping-profiles', [
             'name' => 'Standard Shipping',
+            'is_default' => false,
         ]);
 
         $payload = $this->assert_api_success($response, 201);
@@ -66,6 +67,7 @@ class ShippingProfileApiTest extends RestTestCase
         $response = $this->request('PUT', 'shipping-profiles/' . $this->shipping_profile_id, [
             'id' => $this->shipping_profile_id,
             'name' => 'Updated Profile',
+            'is_default' => false,
         ]);
 
         $payload = $this->assert_api_success($response);
@@ -187,6 +189,7 @@ class ShippingProfileApiTest extends RestTestCase
     {
         $response = $this->request('POST', 'shipping-profiles', array_merge([
             'name' => 'Test Profile',
+            'is_default' => false,
         ], $overrides));
 
         $payload = $this->assert_api_success($response, 201);

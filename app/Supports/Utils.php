@@ -278,6 +278,62 @@ class Utils
     }
 
     /**
+     * Detect whether the current request is on the account page or any of its sub-pages.
+     *
+     * Usage:
+     *   Utils::is_account_page();           // true for any account page/sub-page
+     *   Utils::is_account_page('orders');   // true only on /account/orders
+     *   Utils::is_account_page('orders/*'); // true on /account/orders/anything
+     *
+     * The $sub_path argument is matched against the URL path that follows the
+     * account page's base path. A single `*` token acts as a wildcard that
+     * matches any non-empty path segment(s).
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $sub_path Optional sub-path to match. Supports `*` as
+     *                              a wildcard (e.g. 'orders/*').
+     *
+     * @return bool
+     */
+    public static function is_account_page(?string $sub_path = null): bool
+    {
+        $account_page_id = static::get_account_page_id();
+
+        if (!$account_page_id) {
+            return false;
+        }
+
+        // Resolve the account page base path (e.g. "/account" or "/shop/account").
+        $account_url  = get_permalink($account_page_id);
+        $account_path = rtrim(parse_url($account_url, PHP_URL_PATH), '/');
+
+        // Current request path, stripped of query string.
+        $current_path = rtrim(strtok($_SERVER['REQUEST_URI'] ?? '', '?'), '/');
+
+        // No sub-path given: match the account root or any page beneath it.
+        if ($sub_path === null) {
+            return $current_path === $account_path
+                || str_starts_with($current_path, $account_path . '/');
+        }
+
+        // Build the full expected path including the sub-path.
+        $sub_path     = trim($sub_path, '/');
+        $target_path  = $account_path . '/' . $sub_path;
+
+        // When the sub-path contains a wildcard, convert to a regex pattern.
+        if (str_contains($sub_path, '*')) {
+            // Escape everything except `*`, then replace `*` with a regex
+            // fragment that matches one or more path characters.
+            $pattern = preg_quote($target_path, '#');
+            $pattern = str_replace('\\*', '[^/]+(?:/[^/]+)*', $pattern);
+            return (bool) preg_match('#^' . $pattern . '$#', $current_path);
+        }
+
+        return $current_path === $target_path;
+    }
+
+    /**
      * Get design system page id.
      *
      * @since 1.0.0
