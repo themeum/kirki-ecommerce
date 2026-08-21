@@ -13,7 +13,6 @@ import OnlinePaymentPopup from '@/features/settings/payment/pages/online-payment
 import OnlinePaymentEditPopup from '@/features/settings/payment/pages/online-payment-edit-dialog';
 import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/payment';
 import { getOnlinePayment, useSetEnabledOnlinePaymentMutation } from '@/features/settings/payment/services/payment';
-import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -126,12 +125,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
                         <ActionGroup>
                           <Switch checked={Boolean(item?.is_enabled)} onCheckedChange={() => handleToggleOnlinePayment(item)} />
                           <DropdownButton
-                            dropdownStyle={{ width: '115px' }}
-                            buttonProps={{
-                              size: 'small',
-                              style: { transform: 'rotate(90deg)' },
-                              icon: <ShowMoreIcon />,
-                            }}
+                            dropdownStyle={{ width: 120 }}
                             options={[
                               {
                                 title: __('Edit', 'kirki-ecommerce'),

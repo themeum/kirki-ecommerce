@@ -185,7 +185,7 @@ export {
   TableFooter,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow
 };
 
 const styles = defineStyles({

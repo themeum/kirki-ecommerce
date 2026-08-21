@@ -126,9 +126,9 @@ class Square extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'location_id' => 'required|string',
-            'access_token' => 'required|string',
-            'signature_key' => 'required|string',
+            'location_id' => 'sometimes|string',
+            'access_token' => 'sometimes|string',
+            'signature_key' => 'sometimes|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 
