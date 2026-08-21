@@ -34,6 +34,7 @@ type AlpineFormData = {
 type AlpineContext = {
   $el: HTMLElement;
   $dispatch: (event: string, detail?: unknown) => void;
+  $nextTick: (fn: () => void) => void;
 };
 
 export type CheckoutConfig = {
@@ -211,6 +212,11 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         } else if (this.availableShippingMethods.length > 0) {
           // Select first shipping method if none selected
           this.selectedShippingMethod = this.availableShippingMethods[0].id;
+
+          // Persist the default selection so the displayed totals include shipping cost.
+          // Deferred via $nextTick — #shipping-form's Alpine component isn't initialized
+          // yet at this point in the tree walk, and updateCart() reads its live values.
+          (this as unknown as AlpineContext).$nextTick(() => this.updateCart());
         }
       }
 
