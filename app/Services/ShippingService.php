@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 
+use Kirki\Ecommerce\App\Supports\Tax;
 use function Kirki\Ecommerce\App\decision_engine;
 
 class ShippingService
@@ -21,10 +22,9 @@ class ShippingService
      * Calculate shipping cost for a cart context
      *
      * @param CalculationContextDTO $context
-     * @param array|null $method
      * @return int Shipping cost in base currency (minor units)
      */
-    public function calculate(CalculationContextDTO $context, $method = null)
+    public function calculate(CalculationContextDTO $context)
     {
         return $this->get_selected_shipping_method($context)['base_cost'] ?? 0;
     }
@@ -85,6 +85,7 @@ class ShippingService
                 'id' => $method['id'],
                 'name' => $method['name'],
                 'description' => $method['description'],
+                'is_taxable' => $method['is_taxable'] ?? false,
                 'type' => $method['type'],
                 'base_cost' => $decision_context->get_shipping_cost(),
             ];

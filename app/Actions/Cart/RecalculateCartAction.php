@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
@@ -54,7 +55,7 @@ class RecalculateCartAction
         // Get Tax Settings & Strategy
         $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
         $is_inclusive_tax = $tax_settings->get('is_tax_inclusive_price') ?? false;
-        $tax_strategy = $context->should_calculate_tax ? $this->get_tax_strategy($context->shipping_address) : null;
+        $tax_strategy = $context->should_calculate_tax ? Tax::get_tax_strategy($context->shipping_address) : null;
 
         // Iterate Items and Calculate Item Totals
         foreach ($context->items as $item) {
@@ -130,7 +131,7 @@ class RecalculateCartAction
         // Calculate Shipping Tax
         $shipping_tax_money = Money::zero();
 
-        if ($tax_strategy) {
+        if ($tax_strategy && $this->is_shipping_method_taxable($context)) {
             $shipping_taxable_money = $shipping_subtotal_money->minus($shipping_discount_money);
             $shipping_tax_result = $tax_strategy->calculate_shipping_tax($shipping_taxable_money->getMinorAmount()->toInt());
             $shipping_tax_money = Money::of_minor($shipping_tax_result->base_total);
@@ -190,17 +191,13 @@ class RecalculateCartAction
 
         return $this->shipping_service->calculate($context);
     }
-
-    protected function get_tax_strategy($address)
+    
+    protected function is_shipping_method_taxable(CalculationContextDTO $context)
     {
-        if (empty($address)) {
-            return null;
+        if (empty($context->shipping_address) || empty($context->shipping_method_id)) {
+            return false;
         }
 
-        try {
-            return TaxStrategyFactory::make($address);
-        } catch (Throwable $e) {
-            return null;
-        }
+        return $this->shipping_service->get_selected_shipping_method($context)['is_taxable'] ?? false;
     }
 }
