@@ -27,6 +27,7 @@ import FlagCard from '@/features/orders/pages/order-details/flag-card';
 import ItemsTable from '@/features/orders/pages/order-details/items-table';
 import MarkAsPaidDialog from '@/features/orders/pages/order-details/mark-as-paid-dialog';
 import TakeActionCard from '@/features/orders/pages/order-details/take-action-card';
+import Timeline from '@/features/orders/pages/order-details/timeline';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
 import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -181,15 +182,7 @@ const OrderDetails = () => {
                 }
               />
 
-              {/* @todo: Timeline is not workable now, implement it later */}
-              {/* <Card cssOverride={cardStyles.formCard}>
-                <CardHeader>
-                  <CardTitle>{__('Timeline', 'kirki-ecommerce')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Timeline />
-                </CardContent>
-              </Card> */}
+              <Timeline />
             </Flex>
 
             <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
