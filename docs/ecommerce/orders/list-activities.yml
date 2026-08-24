@@ -1,0 +1,116 @@
+info:
+  name: List Activities (Order)
+  type: http
+  seq: 11
+  tags:
+    - orders
+
+http:
+  method: GET
+  url: "{{baseUrl}}/orders/29/activities"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders/29/activities"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 13,
+                "order_id": 29,
+                "activity_type": "comment-added",
+                "activity_type_label": "Comment Added",
+                "description": "Customer called about the delivery window, promised a callback tomorrow.",
+                "metadata": null,
+                "created_by": 1,
+                "author_name": "Admin",
+                "created_at": "2026-08-24 09:15:42"
+              },
+              {
+                "id": 12,
+                "order_id": 29,
+                "activity_type": "comment-added",
+                "activity_type_label": "Comment Added",
+                "description": "Packed and ready to ship.",
+                "metadata": null,
+                "created_by": 1,
+                "author_name": "Admin",
+                "created_at": "2026-08-23 14:02:10"
+              },
+              {
+                "id": 1,
+                "order_id": 29,
+                "activity_type": "order-placed",
+                "activity_type_label": "Order Placed",
+                "description": "Order placed for Classic Cotton T-Shirt #ORD-695CEA20C3A9D",
+                "metadata": {
+                  "order_number": "ORD-695CEA20C3A9D",
+                  "is_manual": false,
+                  "item_summary": "Classic Cotton T-Shirt"
+                },
+                "created_by": 2,
+                "author_name": "Jane Doe",
+                "created_at": "2026-01-07 17:19:56"
+              }
+            ],
+            "message": "Activities retrieved successfully."
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders/29/activities"
+      method: GET
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Order not found.",
+            "success": false
+          }
+
+docs: |-
+  ## List Order Activities
+
+  Returns the full activity timeline for an order — every system-recorded
+  lifecycle event (`order-placed`, `payment-completed`, `shipped`,
+  `refunded`, ...) plus every admin comment (`comment-added`) — ordered
+  newest first.
+
+  - `description` is generated for display: for `comment-added` it's the
+    admin's message verbatim; for every other type it's built at read time
+    from `activity_type` + `metadata`, so wording can be improved later
+    without touching stored data.
+  - `metadata` carries the structured detail behind a system activity
+    (order number, amount, carrier, from/to status, ...); it's `null` for
+    comments, since their `description` already is the content.
+  - `author_name` resolves the WordPress display name for `created_by`
+    when there is one; a purely system-triggered activity with no acting
+    user has both `created_by` and `author_name` as `null`.
+  - Currently reachable activity types are `order-placed` (recorded when
+    the order is created) and `comment-added` (recorded via **Add
+    Comment**) — the rest of the taxonomy exists and is described, but
+    isn't wired into order lifecycle actions yet.

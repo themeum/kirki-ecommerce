@@ -1,0 +1,126 @@
+info:
+  name: Add Comment (Order)
+  type: http
+  seq: 12
+  tags:
+    - orders
+
+http:
+  method: POST
+  url: "{{baseUrl}}/orders/29/activities"
+  body:
+    type: json
+    data: |-
+      {
+        "message": "Packed and ready to ship."
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders/29/activities"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Packed and ready to ship."
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 12,
+              "order_id": 29,
+              "activity_type": "comment-added",
+              "activity_type_label": "Comment Added",
+              "description": "Packed and ready to ship.",
+              "metadata": null,
+              "created_by": 1,
+              "author_name": "Admin",
+              "created_at": "2026-08-24 10:22:05"
+            },
+            "message": "Comment added successfully.",
+            "success": true
+          }
+  - name: 422 Response
+    description: Validation failure (empty message)
+    request:
+      url: "{{baseUrl}}/orders/29/activities"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "message": ""
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "message": [
+                "The message field is required."
+              ]
+            },
+            "success": false
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/orders/29/activities"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Packed and ready to ship."
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Order not found.",
+            "success": false
+          }
+
+docs: |-
+  ## Add Comment
+
+  Adds a `comment-added` activity to an order — the admin equivalent of a
+  private note on the order timeline, visible to both admin and the owning
+  customer (there is no internal/public split; see **List Order
+  Activities**).
+
+  - `order_id` comes from the URL, not the body.
+  - `message` is required and non-empty; it's stored as the activity's
+    `description` verbatim, with no generated wording.
+  - The authenticated admin is recorded as `created_by` automatically —
+    there is no way to post a comment as another user.

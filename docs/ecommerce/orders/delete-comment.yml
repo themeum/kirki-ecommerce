@@ -1,0 +1,99 @@
+info:
+  name: Delete Comment (Order)
+  type: http
+  seq: 13
+  tags:
+    - orders
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/orders/29/activities/12"
+  body:
+    type: json
+    data: "{}"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/orders/29/activities/12"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": true,
+            "message": "Comment deleted successfully.",
+            "success": true
+          }
+  - name: 422 Response
+    description: Failure (activity is not a comment)
+    request:
+      url: "{{baseUrl}}/orders/29/activities/1"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Only comments can be deleted.",
+            "errors": null,
+            "success": false
+          }
+  - name: 404 Response
+    description: Failure (activity does not exist on this order)
+    request:
+      url: "{{baseUrl}}/orders/29/activities/999999"
+      method: DELETE
+      body:
+        type: json
+        data: "{}"
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Activity not found.",
+            "success": false
+          }
+
+docs: |-
+  ## Delete Comment
+
+  Deletes a single `comment-added` activity from an order.
+
+  - Only `comment-added` activities can be deleted through this endpoint —
+    deleting a system activity (`order-placed`, `shipped`, `refunded`,
+    ...) is rejected with a 422, since those are an immutable record of
+    what actually happened to the order.
+  - The activity `id` must belong to the `order_id` in the URL; an id
+    that exists but belongs to a different order returns 404, same as an
+    id that doesn't exist at all.
