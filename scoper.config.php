@@ -25,7 +25,7 @@ return [
         function (string $filePath, string $prefix, string $contents): string {
             $currentPrefix = str_replace('\\', '\\\\', '\\Framework\\');
             $newPrefix = str_replace('\\', '\\\\', $prefix . '\\Framework\\');
-            $pattern = '/(@(?:method|property|param|return|var|type|see|throws)\s+([^@\n]*?))' . $currentPrefix . '/';
+            $pattern = '/(@(?:method|property|param|return|var|type|see|throws|deprecated)\s+([^@\n]*?))' . $currentPrefix . '/';
 
             return preg_replace(
                 $pattern,
