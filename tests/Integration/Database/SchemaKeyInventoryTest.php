@@ -29,7 +29,8 @@ class SchemaKeyInventoryTest extends WP_UnitTestCase
         remove_filter('query', [$this, '_create_temporary_tables']);
         remove_filter('query', [$this, '_drop_temporary_tables']);
 
-        $this->rebuild_schema_from_scratch();
+        migrator()->fresh();
+        migrator()->run();
     }
 
     /**
@@ -171,36 +172,6 @@ class SchemaKeyInventoryTest extends WP_UnitTestCase
 
         $this->rerun_key_migration();
         $this->assertSame($before, $this->capture_inventory());
-    }
-
-    /**
-     * Drop every plugin table, forget the migration history, and migrate from empty.
-     *
-     * Migrator::fresh() cannot be relied on here. It only calls down() on migrations recorded in
-     * the options table, and Schema::create compiles to CREATE TABLE IF NOT EXISTS, so once any
-     * migration has thrown, the recorded history and the real schema diverge permanently: fresh()
-     * drops nothing and run() no-ops every Create*. Dropping the tables outright is the only way to
-     * guarantee this test starts from the schema the migrations actually describe.
-     *
-     * @return void
-     */
-    protected function rebuild_schema_from_scratch(): void
-    {
-        $prefix = DB::connection()->get_table_prefix();
-
-        Schema::disabled_checking_foreign_key_constraints();
-
-        try {
-            foreach (SchemaKeys::get_tables() as $table) {
-                DB::connection()->affecting_statement(sprintf('DROP TABLE IF EXISTS `%s`', $prefix . $table));
-            }
-        } finally {
-            Schema::enabled_checking_foreign_key_constraints();
-        }
-
-        Option::delete(OptionKeys::MIGRATIONS);
-
-        migrator()->run();
     }
 
     /**

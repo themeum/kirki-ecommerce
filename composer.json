@@ -50,7 +50,8 @@
     "php-stubs/wordpress-stubs": "^6.9",
     "php-stubs/wp-cli-stubs": "^2.12",
     "fakerphp/faker": "^1.24",
-    "humbug/php-scoper": "^0.17"
+    "humbug/php-scoper": "^0.17",
+    "symfony/var-dumper": "^5.4"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
