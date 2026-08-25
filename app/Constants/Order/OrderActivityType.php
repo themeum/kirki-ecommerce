@@ -21,40 +21,4 @@ final class OrderActivityType
     const PARTIALLY_REFUNDED = 'partially-refunded';
     const REFUNDED = 'refunded';
     const COMMENT_ADDED = 'comment-added';
-
-    /**
-     * Get all activity types.
-     *
-     * @return array<string, string>
-     */
-    public static function get_list()
-    {
-        return [
-            self::ORDER_PLACED         => __('Order Placed', 'kirki-ecommerce'),
-            self::PAYMENT_COMPLETED    => __('Payment Completed', 'kirki-ecommerce'),
-            self::PAYMENT_FAILED       => __('Payment Failed', 'kirki-ecommerce'),
-            self::STATUS_CHANGED       => __('Status Changed', 'kirki-ecommerce'),
-            self::SHIPPED              => __('Shipped', 'kirki-ecommerce'),
-            self::DELIVERED            => __('Delivered', 'kirki-ecommerce'),
-            self::CANCELLED            => __('Cancelled', 'kirki-ecommerce'),
-            self::TRACKING_ADDED       => __('Tracking Added', 'kirki-ecommerce'),
-            self::ARCHIVED             => __('Archived', 'kirki-ecommerce'),
-            self::ON_HOLD              => __('On Hold', 'kirki-ecommerce'),
-            self::PARTIALLY_REFUNDED   => __('Partially Refunded', 'kirki-ecommerce'),
-            self::REFUNDED             => __('Refunded', 'kirki-ecommerce'),
-            self::COMMENT_ADDED        => __('Comment Added', 'kirki-ecommerce'),
-        ];
-    }
-
-    /**
-     * Get the formatted activity type label.
-     *
-     * @param string $type
-     *
-     * @return string
-     */
-    public static function get_formatted(string $type)
-    {
-        return static::get_list()[$type] ?? '';
-    }
 }

@@ -7,7 +7,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/orders/29/activities"
+  url: "{{baseUrl}}/orders/4/activities"
   body:
     type: json
     data: |-
@@ -15,6 +15,7 @@ http:
         "message": "Packed and ready to ship."
       }
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

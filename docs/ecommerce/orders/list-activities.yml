@@ -7,8 +7,9 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/orders/29/activities"
+  url: "{{baseUrl}}/orders/4/activities"
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0

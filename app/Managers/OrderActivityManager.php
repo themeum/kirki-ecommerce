@@ -38,20 +38,13 @@ class OrderActivityManager
      */
     public function order_placed(Order $order)
     {
-        $author_id = !empty($order->created_by) ? (int) $order->created_by : null;
-
         $metadata = [
             'order_number' => $order->order_number,
-            'is_manual' => (bool) $order->is_manual,
+            'is_manual' => $order->is_manual,
             'item_summary' => $this->build_item_summary($order),
         ];
 
-        if (!empty($author_id)) {
-            $wp_user = get_userdata($author_id);
-            $metadata['author_name'] = $wp_user ? $wp_user->display_name : null;
-        }
-
-        return $this->record($order->id, OrderActivityType::ORDER_PLACED, $metadata, $author_id);
+        return $this->record($order->id, OrderActivityType::ORDER_PLACED, $metadata, $this->resolve_author());
     }
 
     /**
@@ -302,13 +295,6 @@ class OrderActivityManager
     protected function describe_order_placed(array $metadata)
     {
         $order_number = $metadata['order_number'] ?? '';
-
-        if (!empty($metadata['is_manual'])) {
-            $author_name = $metadata['author_name'] ?? __('Admin', 'kirki-ecommerce');
-
-            return sprintf(__('%s created this draft order.', 'kirki-ecommerce'), $author_name);
-        }
-
         $item_summary = $metadata['item_summary'] ?? '';
 
         return sprintf(__('Order placed for %1$s #%2$s', 'kirki-ecommerce'), $item_summary, $order_number);

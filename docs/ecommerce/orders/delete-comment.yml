@@ -7,11 +7,12 @@ info:
 
 http:
   method: DELETE
-  url: "{{baseUrl}}/orders/29/activities/12"
+  url: "{{baseUrl}}/orders/4/activities/13"
   body:
     type: json
     data: "{}"
   auth: inherit
+
 settings:
   encodeUrl: true
   timeout: 0
