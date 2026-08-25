@@ -1,3 +1,4 @@
+import type { BadgeVariant } from '@/components/ui/badge';
 import { __ } from '@/wpi18n';
 
 export type AvailabilityStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'partially_stocked';
@@ -72,18 +73,33 @@ export const getAvailabilityLabel = (status: AvailabilityStatus): string => {
   return labels[status];
 };
 
-const AVAILABILITY_COLORS: Record<AvailabilityStatus, 'secondary' | 'critical'> = {
-  in_stock: 'secondary',
-  partially_stocked: 'secondary',
-  low_stock: 'critical',
-  out_of_stock: 'critical',
+const AVAILABILITY_BADGE_VARIANTS: Record<AvailabilityStatus, BadgeVariant> = {
+  in_stock: 'success',
+  partially_stocked: 'default',
+  low_stock: 'destructive',
+  out_of_stock: 'destructive',
 };
 
 /**
  * Accepts a plain string, not just AvailabilityStatus, because the product
  * listing's status arrives from the API through a lenient schema that
- * tolerates backend drift — an unrecognized value falls back to 'secondary'
+ * tolerates backend drift — an unrecognized value falls back to 'default'
  * rather than throwing.
  */
-export const getAvailabilityColor = (status: string): 'secondary' | 'critical' =>
-  AVAILABILITY_COLORS[status as AvailabilityStatus] ?? 'secondary';
+export const getAvailabilityBadgeVariant = (status: string): BadgeVariant =>
+  AVAILABILITY_BADGE_VARIANTS[status as AvailabilityStatus] ?? 'default';
+
+const AVAILABILITY_DESCRIPTIONS: Record<AvailabilityStatus, string> = {
+  in_stock: __('All variants have enough quantity available for purchase.', 'kirki-ecommerce'),
+  low_stock: __('At least one variant has reached its low stock threshold.', 'kirki-ecommerce'),
+  out_of_stock: __('All variants are out of stock.', 'kirki-ecommerce'),
+  partially_stocked: __('Some variants are in stock while others are out of stock.', 'kirki-ecommerce'),
+};
+
+/**
+ * Accepts a plain string for the same reason as `getAvailabilityBadgeVariant` —
+ * an unrecognized status (backend drift) has no meaningful explanation, so this
+ * returns undefined rather than a misleading fallback.
+ */
+export const getAvailabilityDescription = (status: string): string | undefined =>
+  AVAILABILITY_DESCRIPTIONS[status as AvailabilityStatus];

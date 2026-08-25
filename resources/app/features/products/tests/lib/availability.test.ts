@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { getAvailabilityLabel, resolveGroupStatus, resolveVariantStatus } from '@/features/products/lib/availability';
+import {
+  getAvailabilityBadgeVariant,
+  getAvailabilityDescription,
+  getAvailabilityLabel,
+  resolveGroupStatus,
+  resolveVariantStatus,
+} from '@/features/products/lib/availability';
 
 describe('resolveVariantStatus', () => {
   it('untracked variant with in_stock true is in stock', () => {
@@ -138,5 +144,42 @@ describe('getAvailabilityLabel', () => {
     ];
 
     expect(new Set(labels).size).toBe(4);
+  });
+});
+
+describe('getAvailabilityBadgeVariant', () => {
+  it('maps in stock to success', () => {
+    expect(getAvailabilityBadgeVariant('in_stock')).toBe('success');
+  });
+
+  it('maps low stock and out of stock to destructive', () => {
+    expect(getAvailabilityBadgeVariant('low_stock')).toBe('destructive');
+    expect(getAvailabilityBadgeVariant('out_of_stock')).toBe('destructive');
+  });
+
+  it('maps partially stocked to default', () => {
+    expect(getAvailabilityBadgeVariant('partially_stocked')).toBe('default');
+  });
+
+  it('falls back to default for an unrecognized value', () => {
+    expect(getAvailabilityBadgeVariant('unknown')).toBe('default');
+  });
+});
+
+describe('getAvailabilityDescription', () => {
+  it('gives every status a distinct explanation', () => {
+    const descriptions = [
+      getAvailabilityDescription('in_stock'),
+      getAvailabilityDescription('low_stock'),
+      getAvailabilityDescription('out_of_stock'),
+      getAvailabilityDescription('partially_stocked'),
+    ];
+
+    expect(descriptions.every((description) => Boolean(description))).toBe(true);
+    expect(new Set(descriptions).size).toBe(4);
+  });
+
+  it('returns undefined for an unrecognized value', () => {
+    expect(getAvailabilityDescription('unknown')).toBeUndefined();
   });
 });

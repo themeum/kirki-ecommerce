@@ -6,8 +6,9 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import Tooltip from '@/components/ui/tooltip';
 import { RouteConfig } from '@/config/route-config';
-import { getAvailabilityColor } from '@/features/products/lib/availability';
+import { getAvailabilityBadgeVariant, getAvailabilityDescription } from '@/features/products/lib/availability';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { DATE_FORMATS } from '@/libs/date';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -61,7 +62,19 @@ const productColumns: ColumnDef<ProductListItem>[] = [
         return '-';
       }
 
-      return <Text color={getAvailabilityColor(status)}>{row.original?.availability_label ?? status}</Text>;
+      const badge = (
+        <Badge variant={getAvailabilityBadgeVariant(status)}>
+          {row.original?.availability_label ?? status}
+        </Badge>
+      );
+
+      const description = getAvailabilityDescription(status);
+
+      if (!description) {
+        return badge;
+      }
+
+      return <Tooltip tip={description}>{badge}</Tooltip>;
     },
   },
   {

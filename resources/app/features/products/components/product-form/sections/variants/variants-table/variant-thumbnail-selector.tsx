@@ -2,6 +2,7 @@ import MediaStack from '@/components/media-stack';
 import Placeholder from '@/components/ui/placeholder';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { MediaRef } from '@/schemas/shared/media';
+import { scoped } from '@/theme/mixins';
 import type { MediaChangePayload } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
@@ -98,7 +99,7 @@ const VariantThumbnailSelector = ({ src, stackMedia, galleryIds, onChange }: Var
     return (
       <div
         onClick={handleOpen}
-        style={{ cursor: 'pointer' }}
+        css={scoped({ cursor: 'pointer' })}
         role="button"
         tabIndex={0}
         aria-label={__('Select Variant Image', 'kirki-ecommerce')}

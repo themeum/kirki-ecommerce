@@ -1,12 +1,17 @@
 import type React from 'react';
 
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { TableCell, TableRow } from '@/components/ui/table';
-import Text from '@/components/ui/text';
-import { getAvailabilityColor, getAvailabilityLabel } from '@/features/products/lib/availability';
+import Tooltip from '@/components/ui/tooltip';
+import {
+  getAvailabilityBadgeVariant,
+  getAvailabilityDescription,
+  getAvailabilityLabel,
+} from '@/features/products/lib/availability';
 import { getAttributeByValueId } from '@/features/products/lib/utils';
 import { ChevronDownIcon } from '@/icons';
 import { defineStyles } from '@/theme/mixins';
@@ -146,7 +151,9 @@ const VariantGroup = ({
         </TableCell>
         <TableCell style={{ width: '170px' }}>
           {groupStatus && (
-            <Text color={getAvailabilityColor(groupStatus)} variant="small">{getAvailabilityLabel(groupStatus)}</Text>
+            <Tooltip tip={getAvailabilityDescription(groupStatus)}>
+              <Badge variant={getAvailabilityBadgeVariant(groupStatus)}>{getAvailabilityLabel(groupStatus)}</Badge>
+            </Tooltip>
           )}
         </TableCell>
       </TableRow>
@@ -202,9 +209,9 @@ const VariantGroup = ({
                 </InputGroup>
               </TableCell>
               <TableCell>
-                <Text color={getAvailabilityColor(childStatuses[index])} variant="tiny">
+                <Badge variant={getAvailabilityBadgeVariant(childStatuses[index])}>
                   {getAvailabilityLabel(childStatuses[index])}
-                </Text>
+                </Badge>
               </TableCell>
             </TableRow>
           ))}
