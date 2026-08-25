@@ -149,120 +149,120 @@ const VariationTable = () => {
 
       <Card cssOverride={mergeCss(cardStyles.innerCard, cardStyles.tableCard)}>
         <CardContent cssOverride={cardStyles.tableContent}>
-        <Table density="compact">
-          <TableHeader>
-            <TableRow style={{ height: '53px' }}>
-              <TableHead onlyCheckbox>
-                <Checkbox
-                  checked={
-                    selectedIndex.length > 0 &&
-                    selectedIndex.length < variants.length
-                      ? 'indeterminate'
-                      : selectedIndex.length === variants.length
-                  }
-                  onCheckedChange={(checked) =>
-                    handleSelectAll(checked === true)
-                  }
-                />
-              </TableHead>
-              {selectedIndex.length ? (
-                <>
-                  <TableHead>
-                    <Flex
-                      gap={5}
-                      align="center">
-                      {selectedIndex.length}{' '}
-                      {selectedIndex.length !== variants.length
-                        ? `${selectedIndex.length === 1 ? 'item' : 'items'} selected`
-                        : `of ${variants.length} ${selectedIndex.length === 1 ? 'item' : 'items'} selected`}
-                      <Button
-                        variant="ghost"
-                        cssOverride={styles.normalWeight}
-                        onClick={() =>
-                          handleSelectAll(
-                            selectedIndex.length !== 0 &&
+          <Table density="compact">
+            <TableHeader>
+              <TableRow style={{ height: '53px' }}>
+                <TableHead onlyCheckbox>
+                  <Checkbox
+                    checked={
+                      selectedIndex.length > 0 &&
+                        selectedIndex.length < variants.length
+                        ? 'indeterminate'
+                        : selectedIndex.length === variants.length
+                    }
+                    onCheckedChange={(checked) =>
+                      handleSelectAll(checked === true)
+                    }
+                  />
+                </TableHead>
+                {selectedIndex.length ? (
+                  <>
+                    <TableHead>
+                      <Flex
+                        gap={5}
+                        align="center">
+                        {selectedIndex.length}{' '}
+                        {selectedIndex.length !== variants.length
+                          ? `${selectedIndex.length === 1 ? 'item' : 'items'} selected`
+                          : `of ${variants.length} ${selectedIndex.length === 1 ? 'item' : 'items'} selected`}
+                        <Button
+                          variant="ghost"
+                          cssOverride={styles.normalWeight}
+                          onClick={() =>
+                            handleSelectAll(
+                              selectedIndex.length !== 0 &&
                               selectedIndex.length < variants.length,
-                          )
-                        }
-                      >
-                        {selectedIndex.length === variants.length
-                          ? __('Deselect All', 'kirki-ecommerce')
-                          : __('Select All', 'kirki-ecommerce')}
-                      </Button>
-                    </Flex>
-                  </TableHead>
-                  <TableHead>
-                    <Input
-                      placeholder={__('$0.00', 'kirki-ecommerce')}
-                      type="number"
-                      style={{ textAlign: 'center' }}
-                      onChange={(event) =>
-                        handleSelectedValueChangeFromHeader(
-                          parseFloat(event.target.value),
-                          'base_price',
-                        )
-                      }
-                    />
-                  </TableHead>
-                  <TableHead>
-                    {!variants[0]?.track_inventory ? (
-                      <Select
-                        onValueChange={(value) =>
-                          handleSelectedValueChangeFromHeader(
-                            value,
-                            'in_stock',
-                          )
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">
-                            {__('In Stock', 'kirki-ecommerce')}
-                          </SelectItem>
-                          <SelectItem value="false">
-                            {__('Out of Stock', 'kirki-ecommerce')}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
+                            )
+                          }
+                        >
+                          {selectedIndex.length === variants.length
+                            ? __('Deselect All', 'kirki-ecommerce')
+                            : __('Select All', 'kirki-ecommerce')}
+                        </Button>
+                      </Flex>
+                    </TableHead>
+                    <TableHead>
                       <Input
-                        placeholder={__('0', 'kirki-ecommerce')}
+                        placeholder={__('$0.00', 'kirki-ecommerce')}
                         type="number"
                         style={{ textAlign: 'center' }}
                         onChange={(event) =>
                           handleSelectedValueChangeFromHeader(
                             parseFloat(event.target.value),
-                            'available_quantity',
+                            'base_price',
                           )
                         }
                       />
-                    )}
-                  </TableHead>
-                </>
-              ) : (
-                <>
-                  <TableHead>{__('Variants', 'kirki-ecommerce')}</TableHead>
-                  <TableHead>{__('Price', 'kirki-ecommerce')}</TableHead>
-                  <TableHead>{__('Inventory', 'kirki-ecommerce')}</TableHead>
-                </>
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {(selectedAttribute?.values ?? []).map((item) => (
-              <SingleGroup
-                parentId={item.id}
-                key={item.id}
-                selectedIndex={selectedIndex}
-                setSelectedIndex={setSelectedIndex}
-                expandVariation={expandVariation}
-                updateVariants={updateVariants}
-              />
-            ))}
-          </TableBody>
-        </Table>
+                    </TableHead>
+                    <TableHead>
+                      {!variants[0]?.track_inventory ? (
+                        <Select
+                          onValueChange={(value) =>
+                            handleSelectedValueChangeFromHeader(
+                              value,
+                              'in_stock',
+                            )
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">
+                              {__('In Stock', 'kirki-ecommerce')}
+                            </SelectItem>
+                            <SelectItem value="false">
+                              {__('Out of Stock', 'kirki-ecommerce')}
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          placeholder={__('0', 'kirki-ecommerce')}
+                          type="number"
+                          style={{ textAlign: 'center' }}
+                          onChange={(event) =>
+                            handleSelectedValueChangeFromHeader(
+                              parseFloat(event.target.value),
+                              'available_quantity',
+                            )
+                          }
+                        />
+                      )}
+                    </TableHead>
+                  </>
+                ) : (
+                  <>
+                    <TableHead>{__('Variants', 'kirki-ecommerce')}</TableHead>
+                    <TableHead>{__('Price', 'kirki-ecommerce')}</TableHead>
+                    <TableHead>{__('Inventory', 'kirki-ecommerce')}</TableHead>
+                  </>
+                )}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(selectedAttribute?.values ?? []).map((item) => (
+                <SingleGroup
+                  parentId={item.id}
+                  key={item.id}
+                  selectedIndex={selectedIndex}
+                  setSelectedIndex={setSelectedIndex}
+                  expandVariation={expandVariation}
+                  updateVariants={updateVariants}
+                />
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </>
