@@ -2,12 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Kirki\Ecommerce\App\Constants\InventoryType;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -240,37 +241,9 @@ class ProductService
                     return $variant_query;
                 });
             });
-
-            $variant_query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::IN_STOCK, function ($query) {
-                $query->where(function ($query) {
-                    $query->where(function ($query) {
-                        $query->where('track_inventory', true);
-                        $query->where('available_quantity', '>', 0);
-                    });
-
-                    $query->or_where(function ($query) {
-                        $query->where('track_inventory', false);
-                        $query->where('in_stock', true);
-                    });
-                });
-
-                return $query;
-            });
-
-            $variant_query->when(!empty($filters->inventory_type) && $filters->inventory_type === InventoryType::OUT_OF_STOCK, function ($query) {
-                return $query->where(function ($query) {
-                    $query->where(function ($query) {
-                        $query->where('track_inventory', true);
-                        $query->where('available_quantity', '<=', 0);
-                    });
-
-                    $query->or_where(function ($query) {
-                        $query->where('track_inventory', false);
-                        $query->where('in_stock', false);
-                    });
-                });
-            });
         });
+
+        $this->apply_availability_status_filter($query, $filters->availability_status);
 
         $query->when($filters->brand_id, function ($query) use ($filters) {
             return $query->where('brand_id', $filters->brand_id);
@@ -329,6 +302,87 @@ class ProductService
         });
 
         return $query;
+    }
+
+    /**
+     * Filter products by their resolved availability status.
+     *
+     * A product's availability is the set-rule combination of its variants' own
+     * statuses: every variant out -> out of stock; any variant low -> low stock;
+     * a mix of available and unavailable variants (with none low) -> partially
+     * stocked; otherwise in stock. See AvailabilityService for the canonical
+     * definition this mirrors in SQL.
+     *
+     * @param QueryBuilder $query
+     * @param string|null $availability_status
+     * @return void
+     */
+    protected function apply_availability_status_filter(QueryBuilder $query, $availability_status)
+    {
+        if (empty($availability_status)) {
+            return;
+        }
+
+        $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
+
+        $is_low = function ($variant_query) use ($store_default_threshold) {
+            $variant_query->where('track_inventory', true);
+            $variant_query->where('available_quantity', '>', 0);
+            $variant_query->where(function ($variant_query) use ($store_default_threshold) {
+                $variant_query->where(function ($variant_query) {
+                    $variant_query->where_not_null('low_stock_threshold');
+                    $variant_query->where_column('available_quantity', '<=', 'low_stock_threshold');
+                });
+                $variant_query->or_where(function ($variant_query) use ($store_default_threshold) {
+                    $variant_query->where_null('low_stock_threshold');
+                    $variant_query->where('available_quantity', '<=', $store_default_threshold);
+                });
+            });
+        };
+
+        $is_out = function ($variant_query) {
+            $variant_query->where(function ($variant_query) {
+                $variant_query->where('track_inventory', true);
+                $variant_query->where('available_quantity', '<=', 0);
+            });
+            $variant_query->or_where(function ($variant_query) {
+                $variant_query->where('track_inventory', false);
+                $variant_query->where('in_stock', false);
+            });
+        };
+
+        $is_not_out = function ($variant_query) {
+            $variant_query->where(function ($variant_query) {
+                $variant_query->where('track_inventory', true);
+                $variant_query->where('available_quantity', '>', 0);
+            });
+            $variant_query->or_where(function ($variant_query) {
+                $variant_query->where('track_inventory', false);
+                $variant_query->where('in_stock', true);
+            });
+        };
+
+        if ($availability_status === AvailabilityStatus::LOW_STOCK) {
+            $query->where_has('variants', $is_low);
+            return;
+        }
+
+        if ($availability_status === AvailabilityStatus::OUT_OF_STOCK) {
+            $query->where_not_has('variants', $is_not_out);
+            return;
+        }
+
+        if ($availability_status === AvailabilityStatus::IN_STOCK) {
+            $query->where_not_has('variants', $is_low);
+            $query->where_not_has('variants', $is_out);
+            return;
+        }
+
+        if ($availability_status === AvailabilityStatus::PARTIALLY_STOCKED) {
+            $query->where_not_has('variants', $is_low);
+            $query->where_has('variants', $is_out);
+            $query->where_has('variants', $is_not_out);
+        }
     }
 
     /**

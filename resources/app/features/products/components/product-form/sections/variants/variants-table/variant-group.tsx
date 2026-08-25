@@ -1,19 +1,19 @@
 import type React from 'react';
 
-import MediaStack from '@/components/media-stack';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
-import Input from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { TableCell, TableRow } from '@/components/ui/table';
+import Text from '@/components/ui/text';
+import { getAvailabilityColor, getAvailabilityLabel } from '@/features/products/lib/availability';
 import { getAttributeByValueId } from '@/features/products/lib/utils';
 import { ChevronDownIcon } from '@/icons';
-import type { MediaRef } from '@/schemas/shared/media';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-import { useSingleGroup } from './use-single-group';
+import GroupPriceCell from './group-price-cell';
+import { useVariantGroup } from './use-variant-group';
 import VariantThumbnailSelector from './variant-thumbnail-selector';
 
 const styles = defineStyles({
@@ -33,29 +33,35 @@ type UpdateVariantsPayload = {
   variant_index?: number[];
 };
 
-type SingleGroupProps = {
+type VariantGroupProps = {
   parentId: number;
   selectedIndex: number[];
   setSelectedIndex: React.Dispatch<React.SetStateAction<number[]>>;
   expandVariation: boolean;
+  currencySymbol: string;
+  storeDefaultThreshold: number;
   updateVariants: (payload: UpdateVariantsPayload) => void;
 };
 
-const SingleGroup = ({
+const VariantGroup = ({
   parentId,
   selectedIndex,
   setSelectedIndex,
   expandVariation,
+  currencySymbol,
+  storeDefaultThreshold,
   updateVariants,
-}: SingleGroupProps) => {
+}: VariantGroupProps) => {
   const {
     thisVariants,
     thisAttribute,
     attributes,
     combinedData,
+    displayMedia,
+    childStatuses,
+    groupStatus,
     hasVariation,
     galleryIds,
-    variants,
     show,
     setShow,
     selectedCheckedIndex,
@@ -65,11 +71,12 @@ const SingleGroup = ({
     handleOnChildValueChange,
     handleParentThumbnailChange,
     handleChildThumbnailChange,
-  } = useSingleGroup({
+  } = useVariantGroup({
     parentId,
     selectedIndex,
     setSelectedIndex,
     expandVariation,
+    storeDefaultThreshold,
     updateVariants,
   });
 
@@ -84,7 +91,7 @@ const SingleGroup = ({
           <Checkbox
             checked={
               selectedCheckedIndex.length > 0 &&
-              selectedCheckedIndex.length < thisVariants.length
+                selectedCheckedIndex.length < thisVariants.length
                 ? 'indeterminate'
                 : selectedCheckedIndex.length === thisVariants.length
             }
@@ -95,26 +102,20 @@ const SingleGroup = ({
         </TableCell>
         <TableCell style={{ width: '242px' }}>
           <Flex gap={3} align="center">
-            {hasVariation ? (
-              <MediaStack
-                size="small"
-                mediaArray={combinedData?.media as { url?: string }[]}
-              />
-            ) : (
-              <VariantThumbnailSelector
-                src={combinedData?.media?.[0]?.url}
-                galleryIds={galleryIds}
-                onChange={handleParentThumbnailChange}
-              />
-            )}
+            <VariantThumbnailSelector
+              src={displayMedia[0]?.url}
+              stackMedia={displayMedia}
+              galleryIds={galleryIds}
+              onChange={handleParentThumbnailChange}
+            />
             <Flex direction="column" gap={1}>
               <div>{thisAttribute?.value ?? ''}</div>
               {thisVariants[0]?.attribute_values.length > 1 && (
                 <div>
                   {thisVariants.length}{' '}
                   {thisVariants.length > 1
-                    ? __('Variations', 'kirki-ecommerce')
-                    : __('Variation', 'kirki-ecommerce')}
+                    ? __('variants', 'kirki-ecommerce')
+                    : __('variant', 'kirki-ecommerce')}
                 </div>
               )}
             </Flex>
@@ -136,55 +137,16 @@ const SingleGroup = ({
           </Flex>
         </TableCell>
         <TableCell style={{ width: '170px' }}>
-          <Input
-            placeholder={__('19.99', 'kirki-ecommerce')}
-            style={{ textAlign: 'center' }}
-            value={combinedData?.base_price || ''}
-            onChange={(event) =>
-              handleOnParentValueChange(
-                !hasVariation
-                  ? parseFloat(event.target.value)
-                  : event.target.value,
-                'base_price',
-              )
-            }
-            disabled={!!hasVariation}
-            type={!hasVariation ? 'number' : 'text'}
+          <GroupPriceCell
+            minPrice={combinedData.minPrice}
+            maxPrice={combinedData.maxPrice}
+            currencySymbol={currencySymbol}
+            onCommit={(value) => handleOnParentValueChange(value, 'base_price')}
           />
         </TableCell>
         <TableCell style={{ width: '170px' }}>
-          {!variants[0]?.track_inventory ? (
-            <Select
-              value={combinedData?.in_stock?.toString()}
-              onValueChange={(value) =>
-                handleOnParentValueChange(value, 'in_stock')
-              }
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="--" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="true">
-                  {__('In Stock', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="false">
-                  {__('Out of Stock', 'kirki-ecommerce')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <Input
-              value={combinedData?.available_quantity}
-              disabled={!!hasVariation}
-              type="number"
-              style={{ textAlign: 'center' }}
-              onChange={(event) =>
-                handleOnParentValueChange(
-                  parseFloat(event.target.value),
-                  'available_quantity',
-                )
-              }
-            />
+          {groupStatus && (
+            <Text color={getAvailabilityColor(groupStatus)} variant="small">{getAvailabilityLabel(groupStatus)}</Text>
           )}
         </TableCell>
       </TableRow>
@@ -202,7 +164,7 @@ const SingleGroup = ({
                     }
                   />
                   <VariantThumbnailSelector
-                    src={(item?.media as MediaRef | null)?.url}
+                    src={item?.media?.url}
                     galleryIds={galleryIds}
                     onChange={(media) => handleChildThumbnailChange(media, item)}
                   />
@@ -223,54 +185,26 @@ const SingleGroup = ({
                 </Flex>
               </TableCell>
               <TableCell>
-                <Input
-                  placeholder={__('19.99', 'kirki-ecommerce')}
-                  style={{ textAlign: 'center' }}
-                  value={item?.base_price || ''}
-                  type="number"
-                  onChange={(event) =>
-                    handleOnChildValueChange(
-                      parseFloat(event.target.value),
-                      'base_price',
-                      item,
-                    )
-                  }
-                />
-              </TableCell>
-              <TableCell>
-                {!variants[0]?.track_inventory ? (
-                  <Select
-                    value={item?.in_stock.toString()}
-                    onValueChange={(value) =>
-                      handleOnChildValueChange(value, 'in_stock', item)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">
-                        {__('In Stock', 'kirki-ecommerce')}
-                      </SelectItem>
-                      <SelectItem value="false">
-                        {__('Out of Stock', 'kirki-ecommerce')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    value={item?.available_quantity}
-                    style={{ textAlign: 'center' }}
+                <InputGroup>
+                  <InputGroupAddon>{currencySymbol}</InputGroupAddon>
+                  <InputGroupInput
+                    placeholder={__('19.99', 'kirki-ecommerce')}
+                    value={item?.base_price || ''}
                     type="number"
                     onChange={(event) =>
                       handleOnChildValueChange(
                         parseFloat(event.target.value),
-                        'available_quantity',
+                        'base_price',
                         item,
                       )
                     }
                   />
-                )}
+                </InputGroup>
+              </TableCell>
+              <TableCell>
+                <Text color={getAvailabilityColor(childStatuses[index])} variant="tiny">
+                  {getAvailabilityLabel(childStatuses[index])}
+                </Text>
               </TableCell>
             </TableRow>
           ))}
@@ -280,6 +214,6 @@ const SingleGroup = ({
   );
 };
 
-SingleGroup.displayName = 'SingleGroup';
+VariantGroup.displayName = 'VariantGroup';
 
-export default SingleGroup;
+export default VariantGroup;

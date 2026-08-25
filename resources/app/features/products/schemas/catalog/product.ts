@@ -14,6 +14,15 @@ export const ProductStatusSchema = z.enum([
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
 
+export const AvailabilityStatusSchema = z.enum([
+  'in_stock',
+  'low_stock',
+  'out_of_stock',
+  'partially_stocked',
+]);
+
+export type AvailabilityStatus = z.infer<typeof AvailabilityStatusSchema>;
+
 export const ProductCurrencySchema = z.object({
   id: z.number(),
   code: z.string(),
@@ -68,7 +77,8 @@ export const ProductListItemSchema = z.object({
   slug: z.string().optional(),
   image: z.string().nullish(),
   sku: z.string().nullish(),
-  inventory: z.number().optional(),
+  availability_status: z.union([AvailabilityStatusSchema, z.string()]).nullish(),
+  availability_label: z.string().nullish(),
   base_price: MoneyAmountSchema,
   base_price_money_object: MoneyObjectSchema,
   display_price: MoneyAmountSchema,

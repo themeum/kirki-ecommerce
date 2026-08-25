@@ -24,7 +24,7 @@ import { __, sprintf } from '@/wpi18n';
 type LocalFilterState = {
   category_ids: number[];
   status: string;
-  stock_status: string;
+  availability_status: string;
   collection_ids: number | undefined;
   brand_ids: number | undefined;
 };
@@ -45,7 +45,7 @@ const FilterPopup = memo(({
   const [filterObject, setFilterObject] = useState<LocalFilterState>({
     category_ids: [],
     status: 'all',
-    stock_status: '',
+    availability_status: '',
     collection_ids: undefined,
     brand_ids: undefined,
   });
@@ -53,7 +53,7 @@ const FilterPopup = memo(({
   const hasFilter = [
     params.category_ids?.length,
     params.status,
-    params.stock_status,
+    params.availability_status,
     params.collection_ids?.length,
     params.brand_ids?.length,
   ].filter(Boolean).length;
@@ -65,7 +65,7 @@ const FilterPopup = memo(({
     setFilterObject({
       category_ids: params.category_ids ?? [],
       status: (params.status as string) || 'all',
-      stock_status: params.stock_status || '',
+      availability_status: params.availability_status || '',
       collection_ids: params.collection_ids?.[0],
       brand_ids: params.brand_ids?.[0],
     });
@@ -91,7 +91,7 @@ const FilterPopup = memo(({
         filterObject.status && filterObject.status !== 'all'
           ? filterObject.status
           : undefined,
-      stock_status: filterObject.stock_status || undefined,
+      availability_status: filterObject.availability_status || undefined,
       collection_ids: filterObject.collection_ids
         ? [filterObject.collection_ids]
         : undefined,
@@ -104,7 +104,7 @@ const FilterPopup = memo(({
     setFilterObject({
       category_ids: [],
       status: 'all',
-      stock_status: '',
+      availability_status: '',
       collection_ids: undefined,
       brand_ids: undefined,
     });
@@ -200,10 +200,10 @@ const FilterPopup = memo(({
             </RadioGroup>
           </Flex>
           <Flex direction="column" gap={2}>
-            <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
+            <Label>{__('Availability', 'kirki-ecommerce')}</Label>
             <Select
-              value={filterObject.stock_status || undefined}
-              onValueChange={(val) => handleOnFilterChange(val, 'stock_status')}
+              value={filterObject.availability_status || undefined}
+              onValueChange={(val) => handleOnFilterChange(val, 'availability_status')}
             >
               <SelectTrigger>
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
@@ -212,8 +212,14 @@ const FilterPopup = memo(({
                 <SelectItem value="in_stock">
                   {__('In stock', 'kirki-ecommerce')}
                 </SelectItem>
+                <SelectItem value="low_stock">
+                  {__('Low stock', 'kirki-ecommerce')}
+                </SelectItem>
                 <SelectItem value="out_of_stock">
                   {__('Out of stock', 'kirki-ecommerce')}
+                </SelectItem>
+                <SelectItem value="partially_stocked">
+                  {__('Partially stocked', 'kirki-ecommerce')}
                 </SelectItem>
               </SelectContent>
             </Select>

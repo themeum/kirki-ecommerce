@@ -118,6 +118,7 @@ class ProductUpdateRequest extends Request
             'variants.*.available_quantity' => 'integer|min:0|nullable',
             'variants.*.in_stock' => 'boolean|nullable',
             'variants.*.committed_quantity' => 'integer|min:0|nullable', // @todo: this should not be sent from client
+            'variants.*.low_stock_threshold' => 'integer|min:0|nullable',
             'variants.*.has_limit_per_order' => 'boolean|nullable',
             'variants.*.max_per_order' => 'integer|nullable',
             'variants.*.tax_profile_id' => 'integer|nullable',
@@ -189,6 +190,7 @@ class ProductUpdateRequest extends Request
             'variants.*.available_quantity' => Sanitizer::INT,
             'variants.*.in_stock' => Sanitizer::BOOL,
             'variants.*.committed_quantity' => Sanitizer::INT,
+            'variants.*.low_stock_threshold' => Sanitizer::INT,
             'variants.*.has_limit_per_order' => Sanitizer::BOOL,
             'variants.*.max_per_order' => Sanitizer::INT,
             'variants.*.tax_profile_id' => Sanitizer::INT,

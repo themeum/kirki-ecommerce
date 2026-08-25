@@ -3,8 +3,12 @@
 namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
+use Kirki\Ecommerce\App\Services\AvailabilityService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
+use function Kirki\Ecommerce\Framework\app;
 
 class ProductResource extends Resource
 {
@@ -15,6 +19,10 @@ class ProductResource extends Resource
      */
     public function to_array()
     {
+        $availability_service = app()->make(AvailabilityService::class);
+        $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
+        $availability_status = $availability_service->resolve_product_status($this->variants->all(), $store_default_threshold);
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -47,6 +55,8 @@ class ProductResource extends Resource
             'schema_id' => $this->schema_id,
             'llm_instructions' => $this->llm_instructions,
             'has_variants' => $this->has_variants,
+            'availability_status' => $availability_status,
+            'availability_label' => !is_null($availability_status) ? AvailabilityStatus::get_formatted($availability_status) : null,
 
             'categories' => $this->categories->map(function ($item) {
                 return [

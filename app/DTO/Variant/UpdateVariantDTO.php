@@ -69,6 +69,9 @@ class UpdateVariantDTO extends DTO
     /** @var int|null */
     public $committed_quantity = null;
 
+    /** @var int|null */
+    public $low_stock_threshold;
+
     /** @var bool|null */
     public $has_limit_per_order = false;
 

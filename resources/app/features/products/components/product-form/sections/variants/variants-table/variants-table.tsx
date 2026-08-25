@@ -12,16 +12,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RouteConfig } from '@/config/route-config';
-import SingleGroup from '@/features/products/components/product-form/sections/variants/variation-table/single-group';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { ChevronUpDownIcon, EditIcon } from '@/icons';
+import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
-const VariationTable = () => {
+import VariantGroup from './variant-group';
+
+const VariantsTable = () => {
   const { control, getValues, setValue } = useFormContext<ProductFormInput>();
   const watchedAttributes = useWatch({ control, name: 'attributes' });
   const attributes = useMemo<NonNullable<typeof watchedAttributes>>(
@@ -29,6 +31,10 @@ const VariationTable = () => {
     [watchedAttributes],
   );
   const variants = useWatch({ control, name: 'variants' }) ?? [];
+  const currency = useWatch({ control, name: 'currency' });
+  const currencySymbol = currency?.symbol || '$';
+  const { data: productSettings } = useSettingsQuery('product');
+  const storeDefaultThreshold = Number(productSettings?.low_stock_threshold ?? 0);
   const [showBy, setShowBy] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number[]>([]);
   const [expandVariation, setExpandVariation] = useState(true);
@@ -142,7 +148,7 @@ const VariationTable = () => {
             <EditIcon />
             {selectedIndex.length > 0
               ? __('Bulk Edit', 'kirki-ecommerce')
-              : __('Edit Variations', 'kirki-ecommerce')}
+              : __('Edit Variants', 'kirki-ecommerce')}
           </Button>
         </ActionGroup>
       </Flex>
@@ -204,60 +210,27 @@ const VariationTable = () => {
                       }
                     />
                   </TableHead>
-                  <TableHead>
-                    {!variants[0]?.track_inventory ? (
-                      <Select
-                        onValueChange={(value) =>
-                          handleSelectedValueChangeFromHeader(
-                            value,
-                            'in_stock',
-                          )
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="true">
-                            {__('In Stock', 'kirki-ecommerce')}
-                          </SelectItem>
-                          <SelectItem value="false">
-                            {__('Out of Stock', 'kirki-ecommerce')}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <Input
-                        placeholder={__('0', 'kirki-ecommerce')}
-                        type="number"
-                        style={{ textAlign: 'center' }}
-                        onChange={(event) =>
-                          handleSelectedValueChangeFromHeader(
-                            parseFloat(event.target.value),
-                            'available_quantity',
-                          )
-                        }
-                      />
-                    )}
-                  </TableHead>
+                  <TableHead />
                 </>
               ) : (
                 <>
                   <TableHead>{__('Variants', 'kirki-ecommerce')}</TableHead>
                   <TableHead>{__('Price', 'kirki-ecommerce')}</TableHead>
-                  <TableHead>{__('Inventory', 'kirki-ecommerce')}</TableHead>
+                  <TableHead>{__('Availability', 'kirki-ecommerce')}</TableHead>
                 </>
               )}
             </TableRow>
           </TableHeader>
           <TableBody>
             {(selectedAttribute?.values ?? []).map((item) => (
-              <SingleGroup
+              <VariantGroup
                 parentId={item.id}
                 key={item.id}
                 selectedIndex={selectedIndex}
                 setSelectedIndex={setSelectedIndex}
                 expandVariation={expandVariation}
+                currencySymbol={currencySymbol}
+                storeDefaultThreshold={storeDefaultThreshold}
                 updateVariants={updateVariants}
               />
             ))}
@@ -269,9 +242,9 @@ const VariationTable = () => {
   );
 };
 
-VariationTable.displayName = 'VariationTable';
+VariantsTable.displayName = 'VariantsTable';
 
-export default VariationTable;
+export default VariantsTable;
 
 const styles = defineStyles({
   normalWeight: {
@@ -282,4 +255,3 @@ const styles = defineStyles({
     width: `calc(100% + ${theme.spacing[8]})`,
   },
 });
-

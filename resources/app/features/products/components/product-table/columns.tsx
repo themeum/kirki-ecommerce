@@ -7,6 +7,7 @@ import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import { RouteConfig } from '@/config/route-config';
+import { getAvailabilityColor } from '@/features/products/lib/availability';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { DATE_FORMATS } from '@/libs/date';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -50,10 +51,18 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     cell: ({ row }) => row.original?.sku || '-',
   },
   {
-    id: 'inventory',
-    header: __('Inventory', 'kirki-ecommerce'),
+    id: 'availability_status',
+    header: __('Availability', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => row.original?.inventory,
+    cell: ({ row }) => {
+      const status = row.original?.availability_status;
+
+      if (!status) {
+        return '-';
+      }
+
+      return <Text color={getAvailabilityColor(status)}>{row.original?.availability_label ?? status}</Text>;
+    },
   },
   {
     id: 'base_price',

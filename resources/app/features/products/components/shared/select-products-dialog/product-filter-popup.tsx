@@ -17,7 +17,7 @@ import { __, sprintf } from '@/wpi18n';
 
 type ProductFilterValue = {
   category_ids: number[];
-  stock_status: string;
+  availability_status: string;
   collection_ids: number | undefined;
   brand_ids: number | undefined;
 };
@@ -30,7 +30,7 @@ type ProductFilterPopupProps = {
 
 const emptyFilter: ProductFilterValue = {
   category_ids: [],
-  stock_status: '',
+  availability_status: '',
   collection_ids: undefined,
   brand_ids: undefined,
 };
@@ -41,14 +41,14 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
 
   const filterCount = [
     value.category_ids?.length,
-    value.stock_status,
+    value.availability_status,
     value.collection_ids,
     value.brand_ids,
   ].filter(Boolean).length;
 
   const hasFilter = Boolean(
     filterObject.category_ids.length ||
-    filterObject.stock_status ||
+    filterObject.availability_status ||
     filterObject.collection_ids ||
     filterObject.brand_ids,
   );
@@ -59,7 +59,7 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
     }
     setFilterObject({
       category_ids: value.category_ids || [],
-      stock_status: value.stock_status || '',
+      availability_status: value.availability_status || '',
       collection_ids: value.collection_ids,
       brand_ids: value.brand_ids,
     });
@@ -139,10 +139,10 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
           />
           <Flex direction="column" gap={2}>
-            <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
+            <Label>{__('Availability', 'kirki-ecommerce')}</Label>
             <Select
-              value={filterObject.stock_status || undefined}
-              onValueChange={(val) => handleOnFilterChange(val, 'stock_status')}
+              value={filterObject.availability_status || undefined}
+              onValueChange={(val) => handleOnFilterChange(val, 'availability_status')}
             >
               <SelectTrigger>
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
@@ -151,8 +151,14 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
                 <SelectItem value="in_stock">
                   {__('In stock', 'kirki-ecommerce')}
                 </SelectItem>
+                <SelectItem value="low_stock">
+                  {__('Low stock', 'kirki-ecommerce')}
+                </SelectItem>
                 <SelectItem value="out_of_stock">
                   {__('Out of stock', 'kirki-ecommerce')}
+                </SelectItem>
+                <SelectItem value="partially_stocked">
+                  {__('Partially stocked', 'kirki-ecommerce')}
                 </SelectItem>
               </SelectContent>
             </Select>
