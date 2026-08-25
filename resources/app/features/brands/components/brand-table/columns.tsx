@@ -2,7 +2,14 @@ import type { ColumnDef } from '@tanstack/react-table';
 
 import Thumbnail from '@/components/ui/thumbnail';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const styles = defineStyles({
+  descriptionCell: {
+    maxWidth: '240px',
+  },
+});
 
 const brandColumns: ColumnDef<Brand>[] = [
   {
@@ -24,7 +31,11 @@ const brandColumns: ColumnDef<Brand>[] = [
     id: 'description',
     header: __('Description', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original?.description || '--',
+    meta: { cssOverride: styles.descriptionCell },
+    cell: ({ row }) => {
+      const description = row.original?.description;
+      return <span title={description || undefined}>{description || '--'}</span>;
+    },
   },
   {
     id: 'slug',
