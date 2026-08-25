@@ -1,5 +1,5 @@
 import { apiRequest } from '../api/client';
-import { emit } from '../events';
+import { emit, EVENTS } from '../events';
 import { toastManager } from '../services/toast/runtime';
 
 type ShopProductsResponse = {
@@ -99,7 +99,7 @@ export function shop() {
           }
 
           // Dispatch event for any other components that need to know products updated
-          emit('kecom:shop:products-updated', result.data);
+          emit(EVENTS.SHOP_PRODUCTS_UPDATED, result.data);
         } else {
           throw new Error(result?.message || 'Failed to fetch products');
         }
