@@ -258,7 +258,7 @@ export {
   InputGroupButton,
   InputGroupInput,
   InputGroupText,
-  InputGroupTextarea,
+  InputGroupTextarea
 };
 
 export type {
@@ -269,7 +269,7 @@ export type {
   InputGroupInputProps,
   InputGroupProps,
   InputGroupTextareaProps,
-  InputGroupTextProps,
+  InputGroupTextProps
 };
 
 const styles = defineStyles({
@@ -363,7 +363,7 @@ const styles = defineStyles({
     background: 'transparent',
     outline: 'none',
     boxShadow: 'none',
-    ...theme.typography.paragraph(),
+    ...theme.typography.small(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -397,10 +397,10 @@ const styles = defineStyles({
       WebkitAppearance: 'none',
       appearance: 'none',
       '&::-webkit-search-cancel-button, &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration':
-        {
-          display: 'none',
-          WebkitAppearance: 'none',
-        },
+      {
+        display: 'none',
+        WebkitAppearance: 'none',
+      },
     },
   },
   textarea: {
