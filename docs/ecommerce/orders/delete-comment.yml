@@ -23,7 +23,7 @@ examples:
   - name: 200 Response
     description: Success
     request:
-      url: "{{baseUrl}}/orders/29/activities/12"
+      url: "{{baseUrl}}/orders/4/activities/12"
       method: DELETE
       body:
         type: json
@@ -45,7 +45,7 @@ examples:
   - name: 422 Response
     description: Failure (activity is not a comment)
     request:
-      url: "{{baseUrl}}/orders/29/activities/1"
+      url: "{{baseUrl}}/orders/4/activities/11"
       method: DELETE
       body:
         type: json
@@ -67,7 +67,7 @@ examples:
   - name: 404 Response
     description: Failure (activity does not exist on this order)
     request:
-      url: "{{baseUrl}}/orders/29/activities/999999"
+      url: "{{baseUrl}}/orders/4/activities/999999"
       method: DELETE
       body:
         type: json

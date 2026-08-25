@@ -26,7 +26,7 @@ examples:
   - name: 201 Response
     description: Success
     request:
-      url: "{{baseUrl}}/orders/29/activities"
+      url: "{{baseUrl}}/orders/4/activities"
       method: POST
       body:
         type: json
@@ -46,11 +46,9 @@ examples:
           {
             "data": {
               "id": 12,
-              "order_id": 29,
+              "order_id": 4,
               "activity_type": "comment-added",
-              "activity_type_label": "Comment Added",
               "description": "Packed and ready to ship.",
-              "metadata": null,
               "created_by": 1,
               "author_name": "Admin",
               "created_at": "2026-08-24 10:22:05"
@@ -61,7 +59,7 @@ examples:
   - name: 422 Response
     description: Validation failure (empty message)
     request:
-      url: "{{baseUrl}}/orders/29/activities"
+      url: "{{baseUrl}}/orders/4/activities"
       method: POST
       body:
         type: json
@@ -90,7 +88,7 @@ examples:
   - name: 404 Response
     description: Failure
     request:
-      url: "{{baseUrl}}/orders/29/activities"
+      url: "{{baseUrl}}/orders/4/activities"
       method: POST
       body:
         type: json

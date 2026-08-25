@@ -3,7 +3,10 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Models\OrderActivity;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -32,17 +35,39 @@ class OrderActivityService
     }
 
     /**
-     * List all activities for an order, newest first.
+     * Paginate an order's activities, newest first.
+     *
+     * @param int $order_id
+     * @param ListFilterDTO $filters
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Paginator
+     */
+    public function paginated_for_order(int $order_id, ListFilterDTO $filters)
+    {
+        return $this->list_query($order_id)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+    }
+
+    /**
+     * Get all of an order's activities, newest first.
      *
      * @param int $order_id
      * @return \Kirki\Ecommerce\Framework\Collections\Collection
      */
-    public function list_for_order(int $order_id)
+    public function all_for_order(int $order_id)
+    {
+        return $this->list_query($order_id)->get();
+    }
+
+    /**
+     * Base query for an order's activities, newest first.
+     *
+     * @param int $order_id
+     * @return QueryBuilder
+     */
+    protected function list_query(int $order_id)
     {
         return OrderActivity::query()
             ->where('order_id', $order_id)
-            ->order_by('created_at', 'desc')
-            ->get();
+            ->order_by('created_at', 'desc');
     }
 
     /**

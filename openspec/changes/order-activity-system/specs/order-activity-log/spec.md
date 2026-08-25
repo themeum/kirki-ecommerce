@@ -63,19 +63,27 @@ The system SHALL present every activity with a human-readable description. For a
 - **WHEN** a system activity (e.g. order-placed) is displayed
 - **THEN** its description is built from the activity's type and recorded details, in the current display wording for that type
 
-### Requirement: Admins can view an order's full activity timeline
-The system SHALL let an admin retrieve the ordered list of all activities recorded for an order, newest first, including both system activities and comments.
+### Requirement: Admins can view an order's full activity timeline, paginated
+The system SHALL let an admin retrieve a paginated list of all activities recorded for an order, newest first, including both system activities and comments. The system SHALL accept optional page and page-size parameters and SHALL return pagination metadata (at minimum: total count, page size, current page) alongside the results. The system SHALL also support retrieving every activity for the order in a single response when explicitly requested.
 
 #### Scenario: Admin views an order's timeline
 - **WHEN** an admin requests the activity timeline for an order
-- **THEN** the system returns every activity recorded for that order, ordered from most recent to oldest
+- **THEN** the system returns a page of activities recorded for that order, ordered from most recent to oldest, together with pagination metadata
 
-### Requirement: Customers can view their own order's activity timeline
-The system SHALL let a customer retrieve the same activity timeline shown to admins for an order they own, including admin comments. A customer SHALL NOT be able to retrieve the activity timeline of an order that does not belong to them.
+#### Scenario: Admin requests a specific page
+- **WHEN** an admin requests the activity timeline for an order with a given page number and page size
+- **THEN** the system returns only the activities belonging to that page, and the pagination metadata reflects the total activity count across all pages
+
+#### Scenario: Admin requests every activity at once
+- **WHEN** an admin explicitly requests all activities for an order without paging
+- **THEN** the system returns every activity for that order in a single response
+
+### Requirement: Customers can view their own order's activity timeline, paginated
+The system SHALL let a customer retrieve the same paginated activity timeline shown to admins for an order they own, including admin comments. A customer SHALL NOT be able to retrieve the activity timeline of an order that does not belong to them.
 
 #### Scenario: Customer views their own order's timeline
 - **WHEN** a signed-in customer requests the activity timeline for an order they placed
-- **THEN** the system returns every activity recorded for that order, including comments, ordered from most recent to oldest
+- **THEN** the system returns a page of activities recorded for that order, including comments, ordered from most recent to oldest, together with pagination metadata
 
 #### Scenario: Customer cannot view another customer's order timeline
 - **WHEN** a signed-in customer requests the activity timeline for an order that belongs to a different customer

@@ -37,7 +37,7 @@ class OrderActivityApiTest extends RestTestCase
         $response = $this->request('GET', 'orders/' . $order['id'] . '/activities');
         $payload = $this->assert_api_success($response);
 
-        $placed = $this->find_activity($payload['data'], 'order-placed');
+        $placed = $this->find_activity($payload['data']['results'], 'order-placed');
 
         $this->assertNotNull($placed);
         $this->assertStringContainsString($order['order_number'], $placed['description']);
@@ -101,7 +101,7 @@ class OrderActivityApiTest extends RestTestCase
         $list_response = $this->request('GET', 'orders/' . $order['id'] . '/activities');
         $list_payload = $this->assert_api_success($list_response);
 
-        $this->assertNull($this->find_activity($list_payload['data'], 'comment-added'));
+        $this->assertNull($this->find_activity($list_payload['data']['results'], 'comment-added'));
     }
 
     /**
@@ -115,7 +115,7 @@ class OrderActivityApiTest extends RestTestCase
 
         $list_response = $this->request('GET', 'orders/' . $order['id'] . '/activities');
         $list_payload = $this->assert_api_success($list_response);
-        $placed = $this->find_activity($list_payload['data'], 'order-placed');
+        $placed = $this->find_activity($list_payload['data']['results'], 'order-placed');
 
         $response = $this->request('DELETE', 'orders/' . $order['id'] . '/activities/' . $placed['id']);
         $this->assert_validation_error($response);
@@ -132,6 +132,51 @@ class OrderActivityApiTest extends RestTestCase
 
         $response = $this->request('DELETE', 'orders/' . $order['id'] . '/activities/999999');
         $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * The activity list is paginated: limit controls page size, and total
+     * reflects every activity on the order regardless of page size.
+     *
+     * @return void
+     */
+    public function test_list_activities_is_paginated(): void
+    {
+        $order = $this->create_order();
+
+        foreach (['First note.', 'Second note.', 'Third note.'] as $message) {
+            $this->request('POST', 'orders/' . $order['id'] . '/activities', [
+                'order_id' => $order['id'],
+                'message' => $message,
+            ]);
+        }
+
+        // 1 order-placed + 3 comments = 4 activities total.
+        $response = $this->request('GET', 'orders/' . $order['id'] . '/activities', [
+            'limit' => 2,
+            'page' => 1,
+        ]);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertCount(2, $payload['data']['results']);
+        $this->assertEquals(4, $payload['data']['total']);
+        $this->assertEquals(2, $payload['data']['per_page']);
+        $this->assertEquals(1, $payload['data']['current_page']);
+        $this->assertEquals(2, $payload['data']['last_page']);
+        $this->assertTrue($payload['data']['has_more_pages']);
+
+        $second_page = $this->request('GET', 'orders/' . $order['id'] . '/activities', [
+            'limit' => 2,
+            'page' => 2,
+        ]);
+        $second_payload = $this->assert_api_success($second_page);
+
+        $this->assertCount(2, $second_payload['data']['results']);
+        $this->assertFalse($second_payload['data']['has_more_pages']);
+
+        $first_page_ids = array_column($payload['data']['results'], 'id');
+        $second_page_ids = array_column($second_payload['data']['results'], 'id');
+        $this->assertEmpty(array_intersect($first_page_ids, $second_page_ids));
     }
 
     /**
@@ -159,8 +204,8 @@ class OrderActivityApiTest extends RestTestCase
         $response = $this->request('GET', 'account/orders/' . $order['id'] . '/activities');
         $payload = $this->assert_api_success($response);
 
-        $this->assertNotNull($this->find_activity($payload['data'], 'order-placed'));
-        $this->assertNotNull($this->find_activity($payload['data'], 'comment-added'));
+        $this->assertNotNull($this->find_activity($payload['data']['results'], 'order-placed'));
+        $this->assertNotNull($this->find_activity($payload['data']['results'], 'comment-added'));
     }
 
     /**
