@@ -9,6 +9,7 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
+import { createAcronym } from '@/utils';
 import { __ } from '@/wpi18n';
 
 type TimelineEntryType = 'comment' | 'event';
@@ -19,12 +20,11 @@ type TimelineEntry = {
   message: string;
   time: string;
   author?: string;
-  initials?: string;
 };
 
 const timelineEntries: TimelineEntry[] = [
-  { id: 1, type: 'comment', author: 'Admin', initials: 'CN', message: 'This is the latest post.', time: '15 minutes ago' },
-  { id: 2, type: 'comment', author: 'Admin', initials: 'CN', message: 'This is the latest post.', time: '15 minutes ago' },
+  { id: 1, type: 'comment', author: 'Admin', message: 'This is the latest post.', time: '15 minutes ago' },
+  { id: 2, type: 'comment', author: 'Admin', message: 'This is the latest post.', time: '15 minutes ago' },
   { id: 3, type: 'event', message: 'Order placed for Neuvlette #2231', time: '15 minutes ago' },
   { id: 4, type: 'event', message: 'Admin created this draft order.', time: '15 minutes ago' },
 ];
@@ -50,33 +50,36 @@ const Timeline = () => {
 
           <div css={scoped(styles.timelineList)}>
             <Flex direction="column" gap={3}>
-              {timelineEntries.map((entry) => (
-                entry.type === 'comment' ? (
-                  <Flex key={entry.id} gap={3} align="center" cssOverride={styles.commentRow}>
-                    <div css={scoped(styles.leadingIcon)}>
-                      <div css={scoped(styles.avatar)}>{entry.initials}</div>
-                    </div>
-                    <Flex direction="column" gap={1} grow={1}>
-                      <Text variant="small" weight="medium">{entry.author}</Text>
-                      <Text variant="small" color="secondary">{entry.message}</Text>
+              {timelineEntries.map((entry, index) => {
+                const acronym = createAcronym({ first_name: entry.author });
+                return (
+                  entry.type === 'comment' ? (
+                    <Flex key={index} gap={3} align="center" cssOverride={styles.commentRow}>
+                      <div css={scoped(styles.leadingIcon)}>
+                        <div css={scoped(styles.avatar)}>{acronym}</div>
+                      </div>
+                      <Flex direction="column" gap={1} grow={1}>
+                        <Text variant="small" weight="medium">{entry.author}</Text>
+                        <Text variant="small" color="secondary">{entry.message}</Text>
+                      </Flex>
+                      <Flex gap={2} align="center">
+                        <Text variant="tiny" color="subdued" data-comment-time="true">{entry.time}</Text>
+                        <Button variant="ghost" size="icon-sm" aria-label="Delete comment" data-action-group="true">
+                          <Trash2 size={12} />
+                        </Button>
+                      </Flex>
                     </Flex>
-                    <Flex gap={2} align="center">
-                      <Text variant="tiny" color="subdued" data-comment-time="true">{entry.time}</Text>
-                      <Button variant="ghost" size="icon-sm" aria-label="Delete comment" data-action-group="true">
-                        <Trash2 size={12} />
-                      </Button>
+                  ) : (
+                    <Flex key={index} gap={3} align="center" cssOverride={styles.actionRow}>
+                      <div css={scoped(styles.leadingIcon)}>
+                        <span css={scoped(styles.eventIcon)} />
+                      </div>
+                      <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>{entry.message}</Text>
+                      <Text variant="tiny" color="subdued">{entry.time}</Text>
                     </Flex>
-                  </Flex>
-                ) : (
-                  <Flex key={entry.id} gap={3} align="center" cssOverride={styles.actionRow}>
-                    <div css={scoped(styles.leadingIcon)}>
-                      <span css={scoped(styles.eventIcon)} />
-                    </div>
-                    <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>{entry.message}</Text>
-                    <Text variant="tiny" color="subdued">{entry.time}</Text>
-                  </Flex>
+                  )
                 )
-              ))}
+              })}
             </Flex>
           </div>
         </Flex>

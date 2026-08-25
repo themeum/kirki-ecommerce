@@ -6,7 +6,7 @@ import Flex from '@/components/ui/flex';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
-import QuantityStepper from '@/features/orders/pages/order-create/components/order-item/quantity-stepper';
+import QuantityStepper from '@/features/orders/components/order-create/order-item/quantity-stepper';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { OrderItem } from '@/features/orders/types';
 
