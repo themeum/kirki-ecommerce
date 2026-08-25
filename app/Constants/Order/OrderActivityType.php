@@ -11,7 +11,8 @@ final class OrderActivityType
     const ORDER_PLACED = 'order-placed';
     const PAYMENT_COMPLETED = 'payment-completed';
     const PAYMENT_FAILED = 'payment-failed';
-    const STATUS_CHANGED = 'status-changed';
+    const PROCESSING = 'processing';
+    const FULFILLMENT_RESUMED = 'fulfillment-resumed';
     const SHIPPED = 'shipped';
     const DELIVERED = 'delivered';
     const CANCELLED = 'cancelled';
@@ -20,5 +21,7 @@ final class OrderActivityType
     const ON_HOLD = 'on-hold';
     const PARTIALLY_REFUNDED = 'partially-refunded';
     const REFUNDED = 'refunded';
+    const REFUND_REQUESTED = 'refund-requested';
+    const REFUND_DELETED = 'refund-deleted';
     const COMMENT_ADDED = 'comment-added';
 }

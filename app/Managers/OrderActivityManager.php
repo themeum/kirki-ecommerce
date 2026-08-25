@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Managers;
 
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
-use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderActivity;
@@ -75,19 +74,25 @@ class OrderActivityManager
     }
 
     /**
-     * Record an order status transition.
+     * Record that an order was marked as processing.
      *
      * @param Order $order
-     * @param string $from
-     * @param string $to
      * @return OrderActivity
      */
-    public function status_changed(Order $order, string $from, string $to)
+    public function processing(Order $order)
     {
-        return $this->record($order->id, OrderActivityType::STATUS_CHANGED, [
-            'from' => $from,
-            'to' => $to,
-        ], $this->resolve_author());
+        return $this->record($order->id, OrderActivityType::PROCESSING, [], $this->resolve_author());
+    }
+
+    /**
+     * Record that an order's fulfillment was resumed from hold.
+     *
+     * @param Order $order
+     * @return OrderActivity
+     */
+    public function fulfillment_resumed(Order $order)
+    {
+        return $this->record($order->id, OrderActivityType::FULFILLMENT_RESUMED, [], $this->resolve_author());
     }
 
     /**
@@ -195,6 +200,37 @@ class OrderActivityManager
     }
 
     /**
+     * Record that a refund was requested for an order.
+     *
+     * @param Order $order
+     * @param Refund $refund
+     * @return OrderActivity
+     */
+    public function refund_requested(Order $order, Refund $refund)
+    {
+        return $this->record($order->id, OrderActivityType::REFUND_REQUESTED, [
+            'amount' => $refund->invoiced_amount,
+            'currency_code' => $order->currency_code,
+            'reason' => $refund->reason,
+        ], $this->resolve_author($refund->created_by));
+    }
+
+    /**
+     * Record that a refund was deleted from an order.
+     *
+     * @param Order $order
+     * @param array $refund_snapshot Accepts id, invoiced_amount and currency_code keys.
+     * @return OrderActivity
+     */
+    public function refund_deleted(Order $order, array $refund_snapshot)
+    {
+        return $this->record($order->id, OrderActivityType::REFUND_DELETED, [
+            'amount' => $refund_snapshot['invoiced_amount'] ?? null,
+            'currency_code' => $refund_snapshot['currency_code'] ?? $order->currency_code,
+        ], $this->resolve_author());
+    }
+
+    /**
      * Add a comment activity to an order.
      *
      * @param int $order_id
@@ -238,8 +274,10 @@ class OrderActivityManager
                 return $this->describe_payment_completed($metadata);
             case OrderActivityType::PAYMENT_FAILED:
                 return __('Payment failed.', 'kirki-ecommerce');
-            case OrderActivityType::STATUS_CHANGED:
-                return $this->describe_status_changed($metadata);
+            case OrderActivityType::PROCESSING:
+                return __('Order marked as processing.', 'kirki-ecommerce');
+            case OrderActivityType::FULFILLMENT_RESUMED:
+                return __('Order fulfillment resumed.', 'kirki-ecommerce');
             case OrderActivityType::SHIPPED:
                 return __('Order marked as shipped.', 'kirki-ecommerce');
             case OrderActivityType::DELIVERED:
@@ -256,6 +294,10 @@ class OrderActivityManager
                 return $this->describe_partially_refunded($metadata);
             case OrderActivityType::REFUNDED:
                 return $this->describe_refunded($metadata);
+            case OrderActivityType::REFUND_REQUESTED:
+                return $this->describe_refund_requested($metadata);
+            case OrderActivityType::REFUND_DELETED:
+                return $this->describe_refund_deleted($metadata);
             default:
                 return __('Order updated.', 'kirki-ecommerce');
         }
@@ -315,18 +357,6 @@ class OrderActivityManager
         return sprintf(__('Payment of %s completed.', 'kirki-ecommerce'), $amount);
     }
 
-    protected function describe_status_changed(array $metadata)
-    {
-        $from = OrderStatus::get_formatted($metadata['from'] ?? '');
-        $to = OrderStatus::get_formatted($metadata['to'] ?? '');
-
-        if (empty($from) || empty($to)) {
-            return __('Order status changed.', 'kirki-ecommerce');
-        }
-
-        return sprintf(__('Order status changed from %1$s to %2$s.', 'kirki-ecommerce'), $from, $to);
-    }
-
     protected function describe_cancelled(array $metadata)
     {
         if (!empty($metadata['reason'])) {
@@ -369,6 +399,28 @@ class OrderActivityManager
         }
 
         return sprintf(__('Refund of %s issued.', 'kirki-ecommerce'), $amount);
+    }
+
+    protected function describe_refund_requested(array $metadata)
+    {
+        $amount = $this->format_amount($metadata);
+
+        if (empty($amount)) {
+            return __('Refund requested.', 'kirki-ecommerce');
+        }
+
+        return sprintf(__('Refund of %s requested.', 'kirki-ecommerce'), $amount);
+    }
+
+    protected function describe_refund_deleted(array $metadata)
+    {
+        $amount = $this->format_amount($metadata);
+
+        if (empty($amount)) {
+            return __('Refund deleted.', 'kirki-ecommerce');
+        }
+
+        return sprintf(__('Refund of %s deleted.', 'kirki-ecommerce'), $amount);
     }
 
     protected function format_amount(array $metadata)

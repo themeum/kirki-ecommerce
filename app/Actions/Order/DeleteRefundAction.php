@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+use Kirki\Ecommerce\App\Events\OrderRefundDeleted;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
@@ -25,7 +26,15 @@ class DeleteRefundAction
 
         // @todo should we allow delete refund? what if its completed?
 
+        $refund_snapshot = [
+            'id' => $refund->id,
+            'invoiced_amount' => $refund->invoiced_amount,
+            'currency_code' => $order->currency_code,
+        ];
+
         $refund->delete();
+
+        OrderRefundDeleted::dispatch($order->fresh('refunds'), $refund_snapshot);
 
         return $order->fresh('refunds', 'items');
     }
