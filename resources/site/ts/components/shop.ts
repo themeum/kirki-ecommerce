@@ -6,8 +6,8 @@ type ShopProductsResponse = {
   success?: boolean;
   message?: string;
   data: {
-    products_html?: string;
-    pagination_html?: string;
+    products?: string;
+    pagination?: string;
     filters?: any;
   };
 };
@@ -74,20 +74,20 @@ export function shop() {
       try {
         const params = new URLSearchParams(window.location.search);
         const result = await apiRequest<ShopProductsResponse>(
-          `/shop/products-html?${params.toString()}`,
+          `/shop/products?format=html&${params.toString()}`,
         );
 
         if (result && result.success !== false && result.data) {
           // Update products grid
           const productsGrid = document.querySelector('.kecom-products-grid');
-          if (productsGrid && result.data.products_html !== undefined) {
-            productsGrid.innerHTML = result.data.products_html;
+          if (productsGrid && result.data.products !== undefined) {
+            productsGrid.innerHTML = result.data.products;
           }
 
           // Update pagination container
           const paginationContainer = document.querySelector('.kecom-pagination-container');
-          if (paginationContainer && result.data.pagination_html !== undefined) {
-            paginationContainer.innerHTML = result.data.pagination_html;
+          if (paginationContainer && result.data.pagination !== undefined) {
+            paginationContainer.innerHTML = result.data.pagination;
           }
 
           // Smoothly scroll to the page title if requested
