@@ -1,0 +1,243 @@
+info:
+  name: orders
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/account/orders?format=html"
+  params:
+    - name: format
+      value: html
+      type: query
+      description: format 'json' or 'html'
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: html-reponse
+    request:
+      url: "{{baseUrl}}/account/orders?format=html"
+      method: GET
+      params:
+        - name: format
+          value: html
+          type: query
+          description: format 'json' or 'html'
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: server
+          value: nginx/1.26.1
+        - name: date
+          value: Tue, 25 Aug 2026 04:29:33 GMT
+        - name: content-type
+          value: application/json; charset=UTF-8
+        - name: transfer-encoding
+          value: chunked
+        - name: connection
+          value: keep-alive
+        - name: vary
+          value: Accept-Encoding
+        - name: x-powered-by
+          value: PHP/7.4.30
+        - name: x-robots-tag
+          value: noindex
+        - name: link
+          value: <http://kirki-dev.local/wp-json/>; rel="https://api.w.org/"
+        - name: access-control-expose-headers
+          value: X-WP-Total, X-WP-TotalPages, Link
+        - name: access-control-allow-headers
+          value: Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type
+        - name: x-content-type-options
+          value: nosniff
+        - name: x-frame-options
+          value: SAMEORIGIN
+        - name: x-xss-protection
+          value: 1; mode=block
+        - name: referrer-policy
+          value: no-referrer-when-downgrade
+        - name: allow
+          value: GET
+        - name: expires
+          value: Wed, 11 Jan 1984 05:00:00 GMT
+        - name: cache-control
+          value: no-cache, must-revalidate, max-age=0, no-store, private
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "results": "<tr>\n    <!-- 1. Product Image / Collage Placeholder -->\n    <td class=\"kecom-orders-table-col-thumb\">\n        <div class=\"kecom-account-order-thumb-wrap\">\n            <div class=\"kecom-account-order-thumb \">\n                                    <img src=\"http://kirki-dev.local/wp-content/plugins/kirki-ecommerce/assets/images/product-fallback.webp\" alt=\"Product image\">\n                            </div>\n        </div>\n    </td>\n\n    <!-- 2. Order ID & Item Count -->\n    <td class=\"kecom-orders-table-col-info\">\n        <div class=\"kecom-account-order-info\">\n            <a href=\"http://kirki-dev.local/account/orders/3112ad4f-2e2c-4445-92fe-ed85e43d0abe\" class=\"kecom-account-order-number\">\n                #ORD-6A883AD950505            </a>\n            <span class=\"kecom-account-order-items\">\n                1 item            </span>\n        </div>\n    </td>\n\n    <!-- 3. Status & Delivery/Payment Helper -->\n    <td class=\"kecom-orders-table-col-status\">\n        <div class=\"kecom-account-order-status-block\">\n            <span class=\"kecom-account-order-status-title\">\n                Unfulfilled            </span>\n            <span class=\"kecom-account-order-status-sub\">\n                Not fulfilled            </span>\n        </div>\n    </td>\n\n    <!-- 4. Price -->\n    <td class=\"kecom-orders-table-col-price\">\n        <div class=\"kecom-account-order-price-block\">\n            <span class=\"kecom-account-order-price\">$22.88</span>\n        </div>\n    </td>\n\n    <!-- 5. Action Buttons (Pay, View) -->\n    <td class=\"kecom-orders-table-col-actions\">\n        <div class=\"kecom-account-order-actions-wrap\">\n                        <a href=\"http://kirki-dev.local/account/orders/3112ad4f-2e2c-4445-92fe-ed85e43d0abe\" class=\"kecom-btn kecom-btn-outline kecom-btn-sm\">\n                View            </a>\n        </div>\n    </td>\n</tr><tr>\n    <!-- 1. Product Image / Collage Placeholder -->\n    <td class=\"kecom-orders-table-col-thumb\">\n        <div class=\"kecom-account-order-thumb-wrap\">\n            <div class=\"kecom-account-order-thumb \">\n                                    <img src=\"http://kirki-dev.local/wp-content/plugins/kirki-ecommerce/assets/images/product-fallback.webp\" alt=\"Product image\">\n                            </div>\n        </div>\n    </td>\n\n    <!-- 2. Order ID & Item Count -->\n    <td class=\"kecom-orders-table-col-info\">\n        <div class=\"kecom-account-order-info\">\n            <a href=\"http://kirki-dev.local/account/orders/b0268436-ffa7-43f0-aa15-b2935a7980ac\" class=\"kecom-account-order-number\">\n                #ORD-6A881C6B9554F            </a>\n            <span class=\"kecom-account-order-items\">\n                1 item            </span>\n        </div>\n    </td>\n\n    <!-- 3. Status & Delivery/Payment Helper -->\n    <td class=\"kecom-orders-table-col-status\">\n        <div class=\"kecom-account-order-status-block\">\n            <span class=\"kecom-account-order-status-title\">\n                Processing            </span>\n            <span class=\"kecom-account-order-status-sub\">\n                In progress            </span>\n        </div>\n    </td>\n\n    <!-- 4. Price -->\n    <td class=\"kecom-orders-table-col-price\">\n        <div class=\"kecom-account-order-price-block\">\n            <span class=\"kecom-account-order-price\">$22.93</span>\n        </div>\n    </td>\n\n    <!-- 5. Action Buttons (Pay, View) -->\n    <td class=\"kecom-orders-table-col-actions\">\n        <div class=\"kecom-account-order-actions-wrap\">\n                        <a href=\"http://kirki-dev.local/account/orders/b0268436-ffa7-43f0-aa15-b2935a7980ac\" class=\"kecom-btn kecom-btn-outline kecom-btn-sm\">\n                View            </a>\n        </div>\n    </td>\n</tr>",
+              "total": 2,
+              "count": 2,
+              "per_page": 10,
+              "current_page": 1,
+              "last_page": 1,
+              "from": 1,
+              "to": 2,
+              "has_more_pages": false
+            },
+            "message": "Orders fetched successfully",
+            "success": true
+          }
+  - name: json-reponse
+    request:
+      url: "{{baseUrl}}/account/orders?format=json"
+      method: GET
+      params:
+        - name: format
+          value: json
+          type: query
+          description: format 'json' or 'html'
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: server
+          value: nginx/1.26.1
+        - name: date
+          value: Tue, 25 Aug 2026 04:30:00 GMT
+        - name: content-type
+          value: application/json; charset=UTF-8
+        - name: transfer-encoding
+          value: chunked
+        - name: connection
+          value: keep-alive
+        - name: vary
+          value: Accept-Encoding
+        - name: x-powered-by
+          value: PHP/7.4.30
+        - name: x-robots-tag
+          value: noindex
+        - name: link
+          value: <http://kirki-dev.local/wp-json/>; rel="https://api.w.org/"
+        - name: access-control-expose-headers
+          value: X-WP-Total, X-WP-TotalPages, Link
+        - name: access-control-allow-headers
+          value: Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type
+        - name: x-content-type-options
+          value: nosniff
+        - name: x-frame-options
+          value: SAMEORIGIN
+        - name: x-xss-protection
+          value: 1; mode=block
+        - name: referrer-policy
+          value: no-referrer-when-downgrade
+        - name: allow
+          value: GET
+        - name: expires
+          value: Wed, 11 Jan 1984 05:00:00 GMT
+        - name: cache-control
+          value: no-cache, must-revalidate, max-age=0, no-store, private
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "results": [
+                {
+                  "id": 3,
+                  "uuid": "3112ad4f-2e2c-4445-92fe-ed85e43d0abe",
+                  "order_number": "ORD-6A883AD950505",
+                  "customer_id": 11,
+                  "customer_name": "Admin Keod",
+                  "customer_email": null,
+                  "is_manual": false,
+                  "quantity": 1,
+                  "items_images": [
+                    "http://kirki-dev.local/wp-content/plugins/kirki-ecommerce/assets/images/product-fallback.webp"
+                  ],
+                  "invoiced_total": 22.879999999999999,
+                  "invoiced_total_money_object": {
+                    "raw": 22.879999999999999,
+                    "display": "$22.88",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "base_total": 22.879999999999999,
+                  "base_total_money_object": {
+                    "raw": 22.879999999999999,
+                    "display": "$22.88",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "status": "pending",
+                  "fulfillment_status": "Unfulfilled",
+                  "fulfillment_status_desc": "Not fulfilled",
+                  "is_refund_initiated": false,
+                  "payment_status": "unpaid",
+                  "payment_provider": null,
+                  "payment_provider_name": "Cash on Delivery",
+                  "payment_provider_icon": null,
+                  "payment_provider_is_offline": true,
+                  "shipping_method": "method-0002",
+                  "shipping_method_name": "Local Pickup",
+                  "created_at": "2026-08-21T11:47:37.000000Z"
+                },
+                {
+                  "id": 2,
+                  "uuid": "b0268436-ffa7-43f0-aa15-b2935a7980ac",
+                  "order_number": "ORD-6A881C6B9554F",
+                  "customer_id": 11,
+                  "customer_name": "Admin Keod",
+                  "customer_email": null,
+                  "is_manual": false,
+                  "quantity": 1,
+                  "items_images": [
+                    "http://kirki-dev.local/wp-content/plugins/kirki-ecommerce/assets/images/product-fallback.webp"
+                  ],
+                  "invoiced_total": 22.93,
+                  "invoiced_total_money_object": {
+                    "raw": 22.93,
+                    "display": "$22.93",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "base_total": 22.93,
+                  "base_total_money_object": {
+                    "raw": 22.93,
+                    "display": "$22.93",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "status": "unpaid_processing",
+                  "fulfillment_status": "Processing",
+                  "fulfillment_status_desc": "In progress",
+                  "is_refund_initiated": false,
+                  "payment_status": "unpaid",
+                  "payment_provider": null,
+                  "payment_provider_name": "Cash on Delivery",
+                  "payment_provider_icon": null,
+                  "payment_provider_is_offline": true,
+                  "shipping_method": "method-0001",
+                  "shipping_method_name": "Standard Delivery",
+                  "created_at": "2026-08-21T09:37:47.000000Z"
+                }
+              ],
+              "total": 2,
+              "count": 2,
+              "per_page": 10,
+              "current_page": 1,
+              "last_page": 1,
+              "from": 1,
+              "to": 2,
+              "has_more_pages": false
+            },
+            "message": "Orders fetched successfully",
+            "success": true
+          }

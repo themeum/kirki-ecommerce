@@ -529,7 +529,7 @@ class ProductApiTest extends RestTestCase
      */
     public function test_create_variant_product_persists_attribute_values(): void
     {
-        [$product, , $value_ids] = $this->create_color_product();
+        [$product,, $value_ids] = $this->create_color_product();
 
         $this->assertTrue($product['has_variants']);
         $this->assertCount(2, $product['variants']);
@@ -723,7 +723,6 @@ class ProductApiTest extends RestTestCase
                     'weight' => 1.25,
                     'sku' => 'SKU-' . wp_generate_password(6, false),
                     'available_quantity' => 40,
-                    'committed_quantity' => 5,
                     'in_stock' => true,
                     'is_default' => true,
                     'attribute_values' => [$value_id],
@@ -752,7 +751,6 @@ class ProductApiTest extends RestTestCase
         $duplicated_variant = $duplicated['variants'][0];
         $this->assertNull($duplicated_variant['sku']);
         $this->assertEquals(0, $duplicated_variant['available_quantity']);
-        $this->assertEquals(0, $duplicated_variant['committed_quantity']);
         $this->assertFalse($duplicated_variant['in_stock']);
         $this->assertEquals(49.5, $duplicated_variant['base_price']);
         $this->assertEquals(1.25, $duplicated_variant['weight']);

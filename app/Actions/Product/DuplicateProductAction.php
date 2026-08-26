@@ -85,7 +85,6 @@ class DuplicateProductAction
         $data->sku = null;
         $data->available_quantity = 0;
         $data->in_stock = false;
-        $data->committed_quantity = 0;
         $data->attribute_values = $variant->attribute_values->pluck('id')->all();
 
         return $data;
