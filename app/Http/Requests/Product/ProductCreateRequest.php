@@ -13,8 +13,6 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
-use function Kirki\Ecommerce\Framework\dd;
-
 class ProductCreateRequest extends Request
 {
     use ValidatesVariantMatrix;
