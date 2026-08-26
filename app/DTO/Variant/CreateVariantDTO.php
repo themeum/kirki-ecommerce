@@ -67,9 +67,6 @@ class CreateVariantDTO extends DTO
     public $in_stock = true;
 
     /** @var int|null */
-    public $committed_quantity = 0;
-
-    /** @var int|null */
     public $low_stock_threshold;
 
     /** @var bool|null */

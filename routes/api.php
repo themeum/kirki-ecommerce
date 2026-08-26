@@ -27,9 +27,9 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
-use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
-use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -240,7 +240,7 @@ Route::get('/test-public', function (Request $request) {
 });
 
 // Site api endpoints.
-Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+Route::get('/shop/products', [SiteController::class, 'products']);
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);

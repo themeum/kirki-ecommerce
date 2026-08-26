@@ -3,58 +3,43 @@ import { type ComponentPropsWithoutRef, forwardRef, type MouseEvent } from 'reac
 
 import Button from '@/components/ui/button';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, itemCenter, mergeCss, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import {
+  defineStyles,
+  flexCenter,
+  itemCenter,
+  mergeCss,
+  scopedMerge,
+  uiFocusRing,
+} from '@/theme/mixins';
 
-type InputGroupAlign =
-  | 'inline-start'
-  | 'inline-end'
-  | 'block-start'
-  | 'block-end';
+type InputGroupAlign = 'inline-start' | 'inline-end' | 'block-start' | 'block-end';
 
 type InputGroupButtonSize = 'xs' | 'sm' | 'icon-xs' | 'icon-sm';
 
-type InputGroupProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type InputGroupProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   error?: boolean;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
 
-type InputGroupAddonProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type InputGroupAddonProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   align?: InputGroupAlign;
   cssOverride?: CSSObject;
 };
 
-type InputGroupInputProps = Omit<
-  ComponentPropsWithoutRef<'input'>,
-  'className' | 'css'
-> & {
+type InputGroupInputProps = Omit<ComponentPropsWithoutRef<'input'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-type InputGroupTextareaProps = Omit<
-  ComponentPropsWithoutRef<'textarea'>,
-  'className' | 'css'
-> & {
+type InputGroupTextareaProps = Omit<ComponentPropsWithoutRef<'textarea'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-type InputGroupTextProps = Omit<
-  ComponentPropsWithoutRef<'span'>,
-  'className' | 'css'
-> & {
+type InputGroupTextProps = Omit<ComponentPropsWithoutRef<'span'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-type InputGroupButtonProps = Omit<
-  ComponentPropsWithoutRef<typeof Button>,
-  'size' | 'className'
-> & {
+type InputGroupButtonProps = Omit<ComponentPropsWithoutRef<typeof Button>, 'size' | 'className'> & {
   size?: InputGroupButtonSize;
 };
 
@@ -67,13 +52,7 @@ type InputGroupButtonProps = Omit<
  * @since 1.0.0
  */
 const InputGroup = forwardRef<HTMLDivElement, InputGroupProps>((props, ref) => {
-  const {
-    cssOverride,
-    error,
-    disabled,
-    children,
-    ...rest
-  } = props;
+  const { cssOverride, error, disabled, children, ...rest } = props;
 
   return (
     <div
@@ -100,50 +79,40 @@ InputGroup.displayName = 'InputGroup';
  * @returns Addon element.
  * @since 1.0.0
  */
-const InputGroupAddon = forwardRef<HTMLDivElement, InputGroupAddonProps>(
-  (props, ref) => {
-    const {
-      cssOverride,
-      align = 'inline-start',
-      children,
-      onClick,
-      ...rest
-    } = props;
+const InputGroupAddon = forwardRef<HTMLDivElement, InputGroupAddonProps>((props, ref) => {
+  const { cssOverride, align = 'inline-start', children, onClick, ...rest } = props;
 
-    const handleClick = (event: MouseEvent<HTMLDivElement>) => {
-      onClick?.(event);
+  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+    onClick?.(event);
 
-      if (event.defaultPrevented) {
-        return;
-      }
+    if (event.defaultPrevented) {
+      return;
+    }
 
-      if ((event.target as HTMLElement).closest('button')) {
-        return;
-      }
+    if ((event.target as HTMLElement).closest('button')) {
+      return;
+    }
 
-      const group = event.currentTarget.parentElement;
-      const control = group?.querySelector(
-        '[data-slot="input-group-control"]',
-      ) as HTMLElement | null;
-      control?.focus();
-    };
+    const group = event.currentTarget.parentElement;
+    const control = group?.querySelector('[data-slot="input-group-control"]') as HTMLElement | null;
+    control?.focus();
+  };
 
-    return (
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- widens the click target onto the addon so a stray click still focuses the control; keyboard users tab straight to the control, so there is nothing to bind
-      <div
-        ref={ref}
-        role="group"
-        data-slot="input-group-addon"
-        data-align={align}
-        css={scopedMerge(styles.addon, styles.addonAlign[align], cssOverride)}
-        onClick={handleClick}
-        {...rest}
-      >
-        {children}
-      </div>
-    );
-  },
-);
+  return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- widens the click target onto the addon so a stray click still focuses the control; keyboard users tab straight to the control, so there is nothing to bind
+    <div
+      ref={ref}
+      role="group"
+      data-slot="input-group-addon"
+      data-align={align}
+      css={scopedMerge(styles.addon, styles.addonAlign[align], cssOverride)}
+      onClick={handleClick}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+});
 
 InputGroupAddon.displayName = 'InputGroupAddon';
 
@@ -155,22 +124,20 @@ InputGroupAddon.displayName = 'InputGroupAddon';
  * @returns Input element.
  * @since 1.0.0
  */
-const InputGroupInput = forwardRef<HTMLInputElement, InputGroupInputProps>(
-  (props, ref) => {
-    const { cssOverride, type = 'text', value, ...rest } = props;
+const InputGroupInput = forwardRef<HTMLInputElement, InputGroupInputProps>((props, ref) => {
+  const { cssOverride, type = 'text', value, ...rest } = props;
 
-    return (
-      <input
-        ref={ref}
-        type={type}
-        data-slot="input-group-control"
-        css={scopedMerge(styles.control, styles.input, cssOverride)}
-        {...rest}
-        {...('value' in props ? { value: value ?? '' } : {})}
-      />
-    );
-  },
-);
+  return (
+    <input
+      ref={ref}
+      type={type}
+      data-slot="input-group-control"
+      css={scopedMerge(styles.control, styles.input, cssOverride)}
+      {...rest}
+      {...('value' in props ? { value: value ?? '' } : {})}
+    />
+  );
+});
 
 InputGroupInput.displayName = 'InputGroupInput';
 
@@ -182,23 +149,22 @@ InputGroupInput.displayName = 'InputGroupInput';
  * @returns Textarea element.
  * @since 1.0.0
  */
-const InputGroupTextarea = forwardRef<
-  HTMLTextAreaElement,
-  InputGroupTextareaProps
->((props, ref) => {
-  const { cssOverride, rows = 5, value, ...rest } = props;
+const InputGroupTextarea = forwardRef<HTMLTextAreaElement, InputGroupTextareaProps>(
+  (props, ref) => {
+    const { cssOverride, rows = 5, value, ...rest } = props;
 
-  return (
-    <textarea
-      ref={ref}
-      rows={rows}
-      data-slot="input-group-control"
-      css={scopedMerge(styles.control, styles.textarea, cssOverride)}
-      {...rest}
-      {...('value' in props ? { value: value ?? '' } : {})}
-    />
-  );
-});
+    return (
+      <textarea
+        ref={ref}
+        rows={rows}
+        data-slot="input-group-control"
+        css={scopedMerge(styles.control, styles.textarea, cssOverride)}
+        {...rest}
+        {...('value' in props ? { value: value ?? '' } : {})}
+      />
+    );
+  },
+);
 
 InputGroupTextarea.displayName = 'InputGroupTextarea';
 
@@ -210,13 +176,11 @@ InputGroupTextarea.displayName = 'InputGroupTextarea';
  * @returns Text span element.
  * @since 1.0.0
  */
-const InputGroupText = forwardRef<HTMLSpanElement, InputGroupTextProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const InputGroupText = forwardRef<HTMLSpanElement, InputGroupTextProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return <span ref={ref} css={scopedMerge(styles.text, cssOverride)} {...rest} />;
-  },
-);
+  return <span ref={ref} css={scopedMerge(styles.text, cssOverride)} {...rest} />;
+});
 
 InputGroupText.displayName = 'InputGroupText';
 
@@ -228,27 +192,19 @@ InputGroupText.displayName = 'InputGroupText';
  * @returns Button element.
  * @since 1.0.0
  */
-const InputGroupButton = forwardRef<HTMLButtonElement, InputGroupButtonProps>(
-  (props, ref) => {
-    const {
-      cssOverride,
-      variant = 'ghost',
-      size = 'xs',
-      type = 'button',
-      ...rest
-    } = props;
+const InputGroupButton = forwardRef<HTMLButtonElement, InputGroupButtonProps>((props, ref) => {
+  const { cssOverride, variant = 'ghost', size = 'xs', type = 'button', ...rest } = props;
 
-    return (
-      <Button
-        ref={ref}
-        type={type}
-        variant={variant}
-        cssOverride={mergeCss(styles.button, styles.buttonSizes[size], cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <Button
+      ref={ref}
+      type={type}
+      variant={variant}
+      cssOverride={mergeCss(styles.button, styles.buttonSizes[size], cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 InputGroupButton.displayName = 'InputGroupButton';
 
@@ -258,7 +214,7 @@ export {
   InputGroupButton,
   InputGroupInput,
   InputGroupText,
-  InputGroupTextarea
+  InputGroupTextarea,
 };
 
 export type {
@@ -269,7 +225,7 @@ export type {
   InputGroupInputProps,
   InputGroupProps,
   InputGroupTextareaProps,
-  InputGroupTextProps
+  InputGroupTextProps,
 };
 
 const styles = defineStyles({
@@ -397,10 +353,10 @@ const styles = defineStyles({
       WebkitAppearance: 'none',
       appearance: 'none',
       '&::-webkit-search-cancel-button, &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration':
-      {
-        display: 'none',
-        WebkitAppearance: 'none',
-      },
+        {
+          display: 'none',
+          WebkitAppearance: 'none',
+        },
     },
   },
   textarea: {

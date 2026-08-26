@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
@@ -198,7 +199,10 @@ class ProductService
             throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_deleted = (bool) Product::where_in('id', $ids)->delete();
+        $is_deleted = (bool) Product::query()
+            ->where_in('id', $ids)
+            ->where('status', ProductStatus::TRASHED)
+            ->delete();
 
         if (!$is_deleted) {
             throw new NotFoundException(__('Products could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -217,7 +221,85 @@ class ProductService
     {
         $query = Product::query();
 
-        return (bool) $this->apply_filters($query, $filters)->delete();
+        $filters->status = ProductStatus::TRASHED;
+
+        return (bool) $this->apply_filters($query, $filters)
+            ->delete();
+    }
+
+    /**
+     * Trash multiple products by their IDs.
+     *
+     * @param array $ids The IDs of the products to trash.
+     * @return bool True if the products were trashed successfully, false otherwise.
+     * @throws NotFoundException If the products could not be found or trashed.
+     */
+    public function bulk_trash(array $ids)
+    {
+        if (empty($ids)) {
+            throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_trashed = (bool) Product::query()->where_in('id', $ids)->update(['status' => ProductStatus::TRASHED]);
+
+        if (!$is_trashed) {
+            throw new NotFoundException(__('Products could not be trashed.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return true;
+    }
+
+    /**
+     * Trashes all products.
+     *
+     * @param ProductListFilterDTO $filters
+     * @return bool True if successfully, false otherwise.
+     */
+    public function trash_all(ProductListFilterDTO $filters)
+    {
+        $query = Product::query();
+
+        return (bool) $this->apply_filters($query, $filters)->update(['status' => ProductStatus::TRASHED]);
+    }
+
+    /**
+     * Restore multiple products by their IDs.
+     *
+     * @param array $ids The IDs of the products to trash.
+     * @return bool True if the products were trashed successfully, false otherwise.
+     * @throws NotFoundException If the products could not be found or trashed.
+     */
+    public function bulk_restore(array $ids)
+    {
+        if (empty($ids)) {
+            throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        $is_trashed = (bool) Product::query()->where_in('id', $ids)
+            ->where('status', ProductStatus::TRASHED)
+            ->update(['status' => ProductStatus::DRAFT]);
+
+        if (!$is_trashed) {
+            throw new NotFoundException(__('Products could not be restored.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return true;
+    }
+
+    /**
+     * Restores all products.
+     *
+     * @param ProductListFilterDTO $filters
+     * @return bool True if successfully, false otherwise.
+     */
+    public function restore_all(ProductListFilterDTO $filters)
+    {
+        $query = Product::query();
+
+        $filters->status = ProductStatus::TRASHED;
+
+        return (bool) $this->apply_filters($query, $filters)
+            ->update(['status' => ProductStatus::DRAFT]);
     }
 
     protected function list_query()
@@ -281,6 +363,8 @@ class ProductService
 
         $query->when(!empty($filters->status), function ($query) use ($filters) {
             return $query->where('status', $filters->status);
+        }, function (QueryBuilder $query) {
+            return $query->where_not('status', ProductStatus::TRASHED);
         });
 
         $query->filter_with_datetime_range($filters->from_date, $filters->to_date);

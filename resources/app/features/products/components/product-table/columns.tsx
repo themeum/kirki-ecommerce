@@ -39,6 +39,12 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
 
 ProductTitleCell.displayName = 'ProductTitleCell';
 
+const STATUS_MAP = {
+  draft: __('Draft', 'kirki-ecommerce'),
+  published: __('Published', 'kirki-ecommerce'),
+  trashed: __('Trashed', 'kirki-ecommerce'),
+}
+
 const productColumns: ColumnDef<ProductListItem>[] = [
   {
     id: 'title',
@@ -79,9 +85,9 @@ const productColumns: ColumnDef<ProductListItem>[] = [
         <Flex align="center" gap={2} cssOverride={{
           '&:hover': {
             '& [data-tooltip]': {
-              opacity: 1
-            }
-          }
+              opacity: 1,
+            },
+          },
         }}>
           {label}
           <Tooltip tip={description} position="top" cssOverride={{ opacity: 0, transition: 'opacity 0.2s ease' }}>
@@ -102,8 +108,8 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     header: __('Status', 'kirki-ecommerce'),
     enableSorting: false,
     cell: ({ row }) => (
-      <Badge variant={getBadgeVariantForStatus(row.original?.status ?? '')}>
-        {row.original?.status}
+      <Badge variant={getBadgeVariantForStatus(row.original.status)}>
+        {isDefined(STATUS_MAP[row.original.status]) ? STATUS_MAP[row.original.status] : '--'}
       </Badge>
     ),
   },
@@ -118,11 +124,7 @@ const productColumns: ColumnDef<ProductListItem>[] = [
   },
 ];
 
-const productBulkActions = [
-  { value: 'delete', title: __('Trash', 'kirki-ecommerce') },
-];
-
-export { productBulkActions, productColumns };
+export { productColumns };
 
 const styles = defineStyles({
   clickable: {

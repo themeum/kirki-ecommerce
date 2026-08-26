@@ -57,7 +57,6 @@ describe('ProductFormVariantSchema', () => {
       sku: 'SKU-1',
       base_price: '19.99',
       available_quantity: '10',
-      committed_quantity: '2',
       low_stock_threshold: '5',
       max_per_order: '3',
       tax_profile_id: '7',
@@ -89,7 +88,6 @@ describe('ProductFormVariantSchema', () => {
       track_inventory: false,
       available_quantity: 10,
       in_stock: true,
-      committed_quantity: 2,
       low_stock_threshold: 5,
       has_limit_per_order: false,
       max_per_order: 3,
@@ -103,14 +101,12 @@ describe('ProductFormVariantSchema', () => {
     });
   });
 
-  it('defaults available_quantity and committed_quantity to 0 rather than null', () => {
+  it('defaults available_quantity to 0 rather than null', () => {
     const result = ProductFormVariantSchema.parse({
       ...baseVariantInput,
       available_quantity: null,
-      committed_quantity: null,
     });
     expect(result.available_quantity).toBe(0);
-    expect(result.committed_quantity).toBe(0);
   });
 
   it('treats the string "false" as in_stock: false', () => {
@@ -244,15 +240,15 @@ describe('mapProductToFormValues', () => {
   };
 
   it('falls back to a single default variant when the product has none', () => {
-     
-    const formValues = mapProductToFormValues(productWithNoVariants);
+
+    const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.variants).toHaveLength(1);
     expect(formValues.variants?.[0]?.in_stock).toBe(true);
   });
 
   it('converts a null additional_info/seo_keywords into empty arrays', () => {
-     
-    const formValues = mapProductToFormValues(productWithNoVariants);
+
+    const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.additional_info).toEqual([]);
     expect(formValues.seo_keywords).toEqual([]);
   });
@@ -283,7 +279,6 @@ describe('mapProductToFormValues', () => {
           track_inventory: false,
           available_quantity: 0,
           in_stock: true,
-          committed_quantity: 0,
           low_stock_threshold: null,
           has_limit_per_order: true,
           max_per_order: null,
@@ -324,7 +319,6 @@ describe('mapProductToFormValues', () => {
     track_inventory: false,
     available_quantity: 0,
     in_stock: true,
-    committed_quantity: 0,
     low_stock_threshold: null,
     has_limit_per_order: false,
     max_per_order: 1,

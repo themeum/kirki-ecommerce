@@ -1,7 +1,14 @@
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { DragHandleDots2Icon } from '@radix-ui/react-icons';
+import { Edit, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -25,8 +32,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
-import { DragHandleDots2Icon } from '@radix-ui/react-icons';
-import { Edit, Trash2 } from 'lucide-react';
 
 type SortableCardProps = {
   item: Attribute;
@@ -44,8 +49,10 @@ const SortableCard = ({
   handleAttributeRemove,
 }: SortableCardProps) => {
   const isEditing = editingId !== null;
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: item.id, disabled: isEditing });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: item.id,
+    disabled: isEditing,
+  });
 
   const style = defineStyles({
     transform: CSS.Transform.toString(transform),
@@ -54,10 +61,7 @@ const SortableCard = ({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Card
-        cssOverride={mergeCss(cardStyles.innerCard, styles.card)}
-        key={item.id}
-      >
+      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.card)} key={item.id}>
         <CardContent cssOverride={styles.innerContent}>
           {editingId !== item.id ? (
             <Flex gap={3} align="center">
@@ -65,7 +69,9 @@ const SortableCard = ({
                 {...(!isEditing ? attributes : {})}
                 {...(!isEditing ? listeners : {})}
                 role="button"
-                css={scopedMerge(styles.svgClass, styles.dragHandler, { opacity: isEditing ? 0.5 : 1 })}
+                css={scopedMerge(styles.svgClass, styles.dragHandler, {
+                  opacity: isEditing ? 0.5 : 1,
+                })}
               >
                 <DragHandleDots2Icon />
               </span>
@@ -84,11 +90,7 @@ const SortableCard = ({
               </Flex>
 
               <ActionGroup>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => handleAttributeEdit(item)}
-                >
+                <Button variant="secondary" size="icon" onClick={() => handleAttributeEdit(item)}>
                   <Edit />
                 </Button>
                 <Button
@@ -120,11 +122,8 @@ const AttributeList = () => {
   );
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);
-  const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(
-    null,
-  );
-  const { removeAttribute, reorderAttributes, describeDiscarded } =
-    useVariantMatrix();
+  const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(null);
+  const { removeAttribute, reorderAttributes, describeDiscarded } = useVariantMatrix();
 
   useEffect(() => {
     setAttributeValues(formAttributes);
@@ -154,12 +153,8 @@ const AttributeList = () => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = attributeValues?.findIndex(
-        (item) => item.id === active.id,
-      );
-      const newIndex = attributeValues?.findIndex(
-        (item) => item.id === over?.id,
-      );
+      const oldIndex = attributeValues?.findIndex((item) => item.id === active.id);
+      const newIndex = attributeValues?.findIndex((item) => item.id === over?.id);
 
       const reordered = arrayMove(attributeValues, oldIndex, newIndex);
       setAttributeValues(reordered);
@@ -208,9 +203,7 @@ const AttributeList = () => {
           </Button>
         )}
       </Flex>
-      {editingId === 'new' && (
-        <AddOrEditAttribute onClose={onClose} />
-      )}
+      {editingId === 'new' && <AddOrEditAttribute onClose={onClose} />}
       {!!pendingRemoval && (
         <ConfirmationDialog
           variant="delete"
@@ -255,7 +248,7 @@ const styles = defineStyles({
     '&:hover': {
       '& [data-action-group]': {
         visibility: 'visible',
-      }
-    }
-  }
+      },
+    },
+  },
 });

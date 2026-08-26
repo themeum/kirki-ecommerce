@@ -230,7 +230,7 @@ describe('syncVariantMatrix', () => {
 
   it('does not inherit identity or stock into a generated variant', () => {
     const saved = [
-      variant({ id: 10, sku: 'ABC', barcode: '5901234', available_quantity: 40, committed_quantity: 3, is_default: true, attribute_values: [RED] }),
+      variant({ id: 10, sku: 'ABC', barcode: '5901234', available_quantity: 40, is_default: true, attribute_values: [RED] }),
     ];
 
     const { variants } = syncVariantMatrix({
@@ -244,7 +244,6 @@ describe('syncVariantMatrix', () => {
       sku: null,
       barcode: null,
       available_quantity: 0,
-      committed_quantity: 0,
       is_default: false,
     });
   });

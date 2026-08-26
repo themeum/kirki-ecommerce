@@ -21,6 +21,7 @@ type FilterValue = string | number | (string | number)[];
 const statusOptions: SuggestionOption[] = [
   { value: 'published', title: __('Published', 'kirki-ecommerce') },
   { value: 'draft', title: __('Draft', 'kirki-ecommerce') },
+  { value: 'trashed', title: __('Trashed', 'kirki-ecommerce') },
 ];
 
 const availabilityStatusOptions: SuggestionOption[] = [

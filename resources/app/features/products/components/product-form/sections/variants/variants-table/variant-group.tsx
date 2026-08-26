@@ -18,7 +18,6 @@ import { getVariantIndexArray } from '@/features/products/lib/variant-group';
 import { ChevronDownIcon, InfoIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
-import { noop } from '@/utils/function';
 import GroupPriceCell from './group-price-cell';
 import { useVariantGroup } from './use-variant-group';
 import VariantThumbnailSelector from './variant-thumbnail-selector';
@@ -99,19 +98,17 @@ const VariantGroup = ({
         <TableCell onlyCheckbox onClick={stopPropagation}>
           <Checkbox
             checked={
-              selectedCheckedIndex.length > 0 &&
-                selectedCheckedIndex.length < thisVariants.length
+              selectedCheckedIndex.length > 0 && selectedCheckedIndex.length < thisVariants.length
                 ? 'indeterminate'
                 : selectedCheckedIndex.length === thisVariants.length
             }
-            onCheckedChange={(checked) =>
-              handleParentCheckboxClick(checked === true, [parentId])
-            }
+            onCheckedChange={(checked) => handleParentCheckboxClick(checked === true, [parentId])}
           />
         </TableCell>
         <TableCell style={{ width: '242px' }}>
           <Flex gap={3} align="center">
-            <div onClick={stopPropagation} onKeyDown={noop}>
+            {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps the thumbnail's media picker click from also toggling row selection; the thumbnail control itself is the interactive element */}
+            <div onClick={stopPropagation}>
               <VariantThumbnailSelector
                 src={displayMedia[0]?.url}
                 stackMedia={displayMedia}
@@ -142,17 +139,25 @@ const VariantGroup = ({
         </TableCell>
         <TableCell style={{ width: '170px' }}>
           {groupStatus && (
-            <Flex align="center" gap={2} cssOverride={{
-              '&:hover': {
-                '& [data-tooltip]': {
-                  opacity: 1
-                }
-              }
-            }}>
+            <Flex
+              align="center"
+              gap={2}
+              cssOverride={{
+                '&:hover': {
+                  '& [data-tooltip]': {
+                    opacity: 1,
+                  },
+                },
+              }}
+            >
               <Text variant="tiny" color={getAvailabilityColor(groupStatus)}>
                 {getAvailabilityLabel(groupStatus, groupQuantity)}
               </Text>
-              <Tooltip tip={getAvailabilityDescription(groupStatus)} position="top" cssOverride={{ opacity: 0 }}>
+              <Tooltip
+                tip={getAvailabilityDescription(groupStatus)}
+                position="top"
+                cssOverride={{ opacity: 0 }}
+              >
                 <InfoIcon />
               </Tooltip>
             </Flex>
@@ -188,7 +193,8 @@ const VariantGroup = ({
                 <TableCell />
                 <TableCell>
                   <Flex gap={3} align="center">
-                    <div onClick={stopPropagation} onKeyDown={noop}>
+                    {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps clicks on the checkbox from also toggling row selection; the checkbox itself is the interactive element */}
+                    <div onClick={stopPropagation}>
                       <Checkbox
                         checked={isChecked}
                         onCheckedChange={(checked) =>
@@ -197,7 +203,8 @@ const VariantGroup = ({
                       />
                     </div>
 
-                    <div onClick={stopPropagation} onKeyDown={noop}>
+                    {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps the thumbnail's media picker click from also toggling row selection; the thumbnail control itself is the interactive element */}
+                    <div onClick={stopPropagation}>
                       <VariantThumbnailSelector
                         src={item?.media?.url}
                         galleryIds={galleryIds}
@@ -209,12 +216,7 @@ const VariantGroup = ({
                         .filter((value) => value !== parentId)
                         .map(
                           (value) =>
-                            (
-                              getAttributeByValueId(
-                                attributes,
-                                value,
-                              )
-                            )?.value ?? String(value),
+                            getAttributeByValueId(attributes, value)?.value ?? String(value),
                         )
                         .join(' | ')}
                     </Text>

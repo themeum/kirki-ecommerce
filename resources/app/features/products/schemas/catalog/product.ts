@@ -8,8 +8,7 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 export const ProductStatusSchema = z.enum([
   'draft',
   'published',
-  'unpublished',
-  'archived',
+  'trashed',
 ]);
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
@@ -87,7 +86,7 @@ export const ProductListItemSchema = z.object({
   base_sale_price_money_object: MoneyObjectSchema.nullable(),
   display_sale_price: MoneyAmountSchema.nullish(),
   display_sale_price_money_object: MoneyObjectSchema.nullish(),
-  status: z.union([ProductStatusSchema, z.string()]),
+  status: ProductStatusSchema,
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });
@@ -106,7 +105,7 @@ export const ProductSchema = z.object({
   id: z.number().optional(),
   title: z.string(),
   slug: z.string(),
-  status: z.union([ProductStatusSchema, z.string()]),
+  status: ProductStatusSchema,
   ribbon: z.string().nullable(),
   currency: ProductCurrencySchema.nullable(),
   brand: ProductBrandSchema.nullable(),

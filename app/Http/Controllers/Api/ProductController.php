@@ -143,6 +143,32 @@ class ProductController
                     'data' => $result,
                     'message' => __('All products deleted successfully.', 'kirki-ecommerce'),
                 ]);
+            case BulkActions::TRASH:
+                $result = $this->service->bulk_trash($ids);
+                return response()->json([
+                    'data' => $result,
+                    'message' => __('Product trashed successfully.', 'kirki-ecommerce'),
+                ]);
+            case BulkActions::TRASH_ALL:
+                $params = ProductListFilterDTO::from_array($request->all());
+                $result = $this->service->trash_all($params);
+                return response()->json([
+                    'data' => $result,
+                    'message' => __('All products trashed successfully.', 'kirki-ecommerce'),
+                ]);
+            case BulkActions::RESTORE:
+                $result = $this->service->bulk_restore($ids);
+                return response()->json([
+                    'data' => $result,
+                    'message' => __('Product trashed successfully.', 'kirki-ecommerce'),
+                ]);
+            case BulkActions::RESTORE_ALL:
+                $params = ProductListFilterDTO::from_array($request->all());
+                $result = $this->service->restore_all($params);
+                return response()->json([
+                    'data' => $result,
+                    'message' => __('All products trashed successfully.', 'kirki-ecommerce'),
+                ]);
             default:
                 return response()->json([
                     'errors' => [],

@@ -1,6 +1,6 @@
 import js from '@eslint/js';
-import stylistic from '@stylistic/eslint-plugin';
 import vitest from '@vitest/eslint-plugin';
+import eslintConfigPrettier from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import react from 'eslint-plugin-react';
@@ -189,7 +189,6 @@ export default tseslint.config(
       react: { version: 'detect' },
     },
     plugins: {
-      '@stylistic': stylistic,
       'simple-import-sort': simpleImportSort,
     },
     rules: {
@@ -275,15 +274,6 @@ export default tseslint.config(
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'object-shorthand': ['error', 'properties'],
       'prefer-const': ['error', { destructuring: 'all' }],
-
-      '@stylistic/quotes': [
-        'error',
-        'single',
-        { avoidEscape: true, allowTemplateLiterals: 'always' },
-      ],
-      '@stylistic/jsx-quotes': ['error', 'prefer-double'],
-      '@stylistic/comma-spacing': ['error', { before: false, after: true }],
-      '@stylistic/comma-dangle': ['error', 'always-multiline'],
     },
   },
 
@@ -374,4 +364,8 @@ export default tseslint.config(
       'no-restricted-imports': 'off',
     },
   },
+
+  // Must be last: turns off every core/plugin rule that conflicts with
+  // Prettier, so Prettier owns formatting and ESLint only flags real issues.
+  eslintConfigPrettier,
 );

@@ -15,8 +15,8 @@ class ProductListRequest extends Request
             'category_ids' => 'nullable|string',
             'brand_id' => 'nullable|integer',
             'collection_id' => 'nullable|integer',
-            'availability_status' => 'nullable|string|in:' . implode(',', AvailabilityStatus::get_constant_values()),
-            'status' => 'nullable|string|in:' . implode(',', ProductStatus::get_constant_values()),
+            'availability_status' => 'nullable|string|in:' . AvailabilityStatus::join(),
+            'status' => 'nullable|string|in:' . ProductStatus::join(),
         ];
     }
 

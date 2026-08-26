@@ -4,12 +4,12 @@ import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import BrandFilter from '@/features/products/components/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/features/products/components/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/features/products/components/product-table/filter-popup/collection-filter';
+import InventoryTypeFilter from '@/features/products/components/product-table/filter-popup/inventory-filter';
+import StatusFilter from '@/features/products/components/product-table/filter-popup/status-filter';
 import { CloseIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -17,6 +17,7 @@ import { __, sprintf } from '@/wpi18n';
 
 type ProductFilterValue = {
   category_ids: number[];
+  status: string;
   availability_status: string;
   collection_ids: number | undefined;
   brand_ids: number | undefined;
@@ -30,7 +31,8 @@ type ProductFilterPopupProps = {
 
 const emptyFilter: ProductFilterValue = {
   category_ids: [],
-  availability_status: '',
+  status: 'all',
+  availability_status: 'all',
   collection_ids: undefined,
   brand_ids: undefined,
 };
@@ -59,7 +61,8 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
     }
     setFilterObject({
       category_ids: value.category_ids || [],
-      availability_status: value.availability_status || '',
+      status: value.status || 'all',
+      availability_status: value.availability_status || 'all',
       collection_ids: value.collection_ids,
       brand_ids: value.brand_ids,
     });
@@ -138,31 +141,14 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
           />
-          <Flex direction="column" gap={2}>
-            <Label>{__('Availability', 'kirki-ecommerce')}</Label>
-            <Select
-              value={filterObject.availability_status || undefined}
-              onValueChange={(val) => handleOnFilterChange(val, 'availability_status')}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="in_stock">
-                  {__('In stock', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="low_stock">
-                  {__('Low stock', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="out_of_stock">
-                  {__('Out of stock', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="partially_stocked">
-                  {__('Partially stocked', 'kirki-ecommerce')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </Flex>
+          <StatusFilter
+            filterObject={filterObject}
+            onChange={(val) => handleOnFilterChange(val, 'status')}
+          />
+          <InventoryTypeFilter
+            filterObject={filterObject}
+            onChange={(val) => handleOnFilterChange(val, 'availability_status')}
+          />
           <CollectionFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'collection_ids')}

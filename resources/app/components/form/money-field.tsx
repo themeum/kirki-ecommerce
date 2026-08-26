@@ -36,7 +36,7 @@ const MoneyField = <
   showSymbolWhenEmpty = true,
   disabled,
   cssOverride,
-  autoFocus = false
+  autoFocus = false,
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -92,6 +92,7 @@ const MoneyField = <
                 error={Boolean(fieldState.error)}
                 aria-invalid={fieldState.invalid}
                 onFocus={event => event.target.select()}
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus
                 autoFocus={autoFocus}
               />
             </div>

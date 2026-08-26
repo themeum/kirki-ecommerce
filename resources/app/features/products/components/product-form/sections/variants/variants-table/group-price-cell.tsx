@@ -75,6 +75,7 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
   return (
     <div onBlur={() => setIsEditing(false)}>
       <FormProvider {...form}>
+        {/* eslint-disable-next-line jsx-a11y/no-autofocus -- switches into edit mode only on an explicit click, so focusing the only field is expected */}
         <MoneyField name="amount" currencySymbol={currencySymbol} autoFocus />
       </FormProvider>
     </div>
