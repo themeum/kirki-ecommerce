@@ -1,11 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import MediaField from '@/components/form/media-field';
 import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
-import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -31,14 +30,6 @@ type CategoryAddEditPopoverProps = {
   onClose?: () => void;
 };
 
-const getInitialImageUrl = (category: Category | CategoryFormInput) => {
-  const image =
-    category.image && typeof category.image === 'object'
-      ? category.image
-      : null;
-  return image?.url || null;
-};
-
 const CategoryAddEditPopover = ({
   category,
   onClose = noop,
@@ -54,10 +45,6 @@ const CategoryAddEditPopover = ({
     resolver: zodResolver(CategoryFormSchema),
     defaultValues: pickFormValues(CategoryFormSchema, category),
   });
-
-  const [imageUrl, setImageUrl] = useState<string | null>(
-    getInitialImageUrl(category),
-  );
 
   const parentOptions = [
     {
@@ -134,12 +121,9 @@ const CategoryAddEditPopover = ({
                         'kirki-ecommerce',
                       )}
                     />
-                    <ThumbnailField
+                    <MediaField
                       name="image"
                       label={__('Thumb', 'kirki-ecommerce')}
-                      valueAs="id"
-                      previewUrl={imageUrl}
-                      onPreviewChange={setImageUrl}
                     />
                   </Flex>
                 </CardContent>

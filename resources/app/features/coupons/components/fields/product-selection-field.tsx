@@ -7,8 +7,8 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
 import { SelectProductsDialog } from '@/features/products';
 import { ProductIcon } from '@/icons';
@@ -67,9 +67,9 @@ const ProductSelectionField = () => {
                         )}
                       >
                         <Flex gap={3} align="center">
-                          <Thumbnail
-                            size="small"
-                            src={product.thumbnail ?? undefined}
+                          <Image
+                            size="sm"
+                            src={product.thumbnail}
                             alt={product.productTitle}
                             cssOverride={{ height: theme.spacing[10], width: theme.spacing[10] }}
                           />

@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
-import Thumbnail from '@/components/ui/thumbnail';
+import Image from '@/components/ui/image';
 import type { Category } from '@/features/categories/schemas/catalog/category';
 import { __ } from '@/wpi18n';
 
@@ -17,7 +17,7 @@ const categoryColumns: ColumnDef<Category>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const image = row.original?.image && typeof row.original.image === 'object' ? row.original.image : null;
-      return <Thumbnail src={image?.url} style={{ height: '48px', width: '48px' }} />;
+      return <Image src={image} width={48} height={48} />;
     },
   },
   {
