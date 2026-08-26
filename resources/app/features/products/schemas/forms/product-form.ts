@@ -14,9 +14,11 @@ import {
 import type { ProductVariant } from '@/features/products/schemas/catalog/variant';
 import { ProductBasicsFormSchema } from '@/features/products/schemas/forms/product-basics-form';
 import { ProductSeoFormSchema } from '@/features/products/schemas/forms/product-seo-form';
-import { booleanish, mediaId, numberOrNull, pickFormValues, prepareFormSchema } from '@/libs/zod';
+import { booleanish, mediaId, numberOrNull, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { moneyAmount } from '@/schemas/forms/shared/validators';
 import { MediaRefSchema } from '@/schemas/shared/media';
+import { isDefined } from '@/utils/object';
+import { __ } from '@/wpi18n';
 
 const ProductFormVariantShape = z.object({
   id: z.number().optional(),
@@ -30,7 +32,7 @@ const ProductFormVariantShape = z.object({
   base_unit_amount: moneyAmount.nullish(),
   total_unit: z.string().nullish(),
   total_unit_amount: moneyAmount.nullish(),
-  base_sale_price: moneyAmount.nullish(),
+  base_sale_price: requiredWhen(moneyAmount.nullish(), (values) => isDefined(values.base_sale_price) && isDefined(values.base_price) && Number(values.base_sale_price) > Number(values.base_price), __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce')),
   base_cost_of_goods: moneyAmount.nullish(),
   weight: moneyAmount.nullish(),
   weight_unit: z.string().nullish(),
@@ -40,7 +42,6 @@ const ProductFormVariantShape = z.object({
   track_inventory: z.boolean().nullish(),
   available_quantity: numberOrNull(),
   in_stock: booleanish(false),
-  committed_quantity: numberOrNull(),
   min_stock_threshold: numberOrNull(),
   has_limit_per_order: z.boolean().nullish(),
   max_per_order: numberOrNull(),
@@ -75,7 +76,6 @@ export const ProductFormVariantSchema = prepareFormSchema(ProductFormVariantShap
   track_inventory: values.track_inventory ?? false,
   available_quantity: values.available_quantity ?? 0,
   in_stock: values.in_stock,
-  committed_quantity: values.committed_quantity ?? 0,
   min_stock_threshold: values.min_stock_threshold,
   has_limit_per_order: values.has_limit_per_order ?? false,
   max_per_order: values.max_per_order,
@@ -164,7 +164,6 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
   track_inventory: false,
   available_quantity: null,
   in_stock: true,
-  committed_quantity: null,
   min_stock_threshold: null,
   has_limit_per_order: false,
   max_per_order: null,
@@ -217,7 +216,6 @@ const mapVariantToFormValues = (variant: ProductVariant): ProductFormVariantInpu
   pickFormValues(ProductFormVariantSchema, variant, {
     max_per_order: variant.max_per_order ?? 1,
     available_quantity: variant.available_quantity ?? 0,
-    committed_quantity: variant.committed_quantity ?? 0,
   });
 
 export const mapProductToFormValues = (product: Product): ProductFormInput => {

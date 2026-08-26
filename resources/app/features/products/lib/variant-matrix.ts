@@ -91,7 +91,6 @@ const inheritFromTemplate = (
   sku: null,
   barcode: null,
   available_quantity: 0,
-  committed_quantity: 0,
   is_default: false,
 });
 

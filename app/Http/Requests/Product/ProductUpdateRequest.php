@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
 class ProductUpdateRequest extends Request
 {
@@ -106,18 +107,31 @@ class ProductUpdateRequest extends Request
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.total_unit_amount' => 'number|min:0|nullable',
-            'variants.*.base_sale_price' => 'number|min:0|nullable',
+            'variants.*.base_sale_price' => [
+                'number',
+                'min:0',
+                'nullable',
+                function ($base_sale_price, $attribute, $data) {
+                    $parse = Str::split('.', $attribute, true);
+                    $index = (int) $parse[1];
+                    $base_price = $data['variants'][$index]['base_price'];
+                    if (!empty($base_sale_price) && $base_sale_price > $base_price) {
+                        return __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce');
+                    }
+
+                    return true;
+                }
+            ],
             'variants.*.base_cost_of_goods' => 'number|min:0|nullable',
 
             'variants.*.weight' => 'numeric|nullable',
-            'variants.*.weight_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'variants.*.weight_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
 
             'variants.*.charge_taxes' => 'boolean|nullable',
             'variants.*.allow_back_order' => 'boolean|nullable',
             'variants.*.track_inventory' => 'boolean|nullable',
             'variants.*.available_quantity' => 'integer|min:0|nullable',
             'variants.*.in_stock' => 'boolean|nullable',
-            'variants.*.committed_quantity' => 'integer|min:0|nullable', // @todo: this should not be sent from client
             'variants.*.has_limit_per_order' => 'boolean|nullable',
             'variants.*.max_per_order' => 'integer|nullable',
             'variants.*.tax_profile_id' => 'integer|nullable',
@@ -188,7 +202,6 @@ class ProductUpdateRequest extends Request
             'variants.*.track_inventory' => Sanitizer::BOOL,
             'variants.*.available_quantity' => Sanitizer::INT,
             'variants.*.in_stock' => Sanitizer::BOOL,
-            'variants.*.committed_quantity' => Sanitizer::INT,
             'variants.*.has_limit_per_order' => Sanitizer::BOOL,
             'variants.*.max_per_order' => Sanitizer::INT,
             'variants.*.tax_profile_id' => Sanitizer::INT,
