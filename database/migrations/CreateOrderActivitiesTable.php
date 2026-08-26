@@ -17,7 +17,7 @@ class CreateOrderActivitiesTable implements Migration
                 ->comment('Available: order-placed, payment-completed, status-changed, comment-added, partially-refunded, refunded, etc.');
             $table->text('description')->nullable();
             $table->text('metadata')->nullable();
-            $table->unsigned_big_integer('created_by')->nullable();
+            $table->unsigned_big_integer('created_by')->nullable()->comment('WordPress user ID who recorded the activity');
             $table->timestamps();
 
             $table->index('activity_type');
@@ -29,7 +29,7 @@ class CreateOrderActivitiesTable implements Migration
                 ->cascade_on_delete();
             $table->foreign('created_by', 'fk_kirki_ecommerce_order_activities_created_by')
                 ->references('id')
-                ->on('kirki_ecommerce_customers')
+                ->on('users')
                 ->null_on_delete();
         });
     }
