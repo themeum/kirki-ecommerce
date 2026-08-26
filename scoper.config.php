@@ -21,4 +21,17 @@ return [
     'expose-global-classes' => true,
     'expose-global-functions' => true,
     'expose-global-constants' => true,
+    'patchers' => [
+        function (string $filePath, string $prefix, string $contents): string {
+            $currentPrefix = str_replace('\\', '\\\\', '\\Framework\\');
+            $newPrefix = str_replace('\\', '\\\\', $prefix . '\\Framework\\');
+            $pattern = '/(@(?:method|property|param|return|var|type|see|throws|deprecated)\s+([^@\n]*?))' . $currentPrefix . '/';
+
+            return preg_replace(
+                $pattern,
+                '$1\\\\' . $newPrefix,
+                $contents
+            );
+        },
+    ],
 ];

@@ -23,10 +23,11 @@ type DynamicOnlinePaymentFieldsProps = {
   fields?: OnlinePaymentFields;
 };
 
-function renderField(field: OnlinePaymentField) {
+function renderField(field: OnlinePaymentField, index: number) {
   switch (field.type) {
     case 'text':
       return <TextField
+        key={index}
         name={field.name}
         label={field.label}
         placeholder={field.placeholder}
@@ -34,6 +35,7 @@ function renderField(field: OnlinePaymentField) {
       />
     case 'password':
       return <PasswordField
+        key={index}
         name={field.name}
         label={field.label}
         placeholder={field.placeholder}
@@ -41,6 +43,7 @@ function renderField(field: OnlinePaymentField) {
       />;
     case 'select':
       return <SelectField
+        key={index}
         name={field.name}
         label={field.label}
         options={field.options ?? []}
@@ -48,6 +51,7 @@ function renderField(field: OnlinePaymentField) {
       />
     case 'checkbox':
       return <SwitchField
+        key={index}
         name={field.name}
         label={field.label}
         infoText={field.description}
@@ -62,8 +66,8 @@ export const DynamicOnlinePaymentFields = ({
 }: DynamicOnlinePaymentFieldsProps) => {
   return (
     <Flex direction="column" gap={2}>
-      {fields.map((field) => {
-        return renderField(field as OnlinePaymentField);
+      {fields.map((field, index) => {
+        return renderField(field as OnlinePaymentField, index);
       })}
     </Flex>
   );

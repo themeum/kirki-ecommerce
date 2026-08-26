@@ -80,4 +80,11 @@ tests_add_filter('muplugins_loaded', function () use ($plugin_dir) {
 
 require $_tests_dir . '/includes/bootstrap.php';
 
+\Kirki\Ecommerce\Framework\app()->singleton(
+    \Kirki\Ecommerce\Framework\Database\Migrations\Migrator::class,
+    function ($app) {
+        return $app->make(\Kirki\Ecommerce\Tests\Support\TestMigrator::class);
+    }
+);
+
 rest_get_server();
