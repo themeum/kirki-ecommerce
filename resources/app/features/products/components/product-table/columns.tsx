@@ -8,8 +8,9 @@ import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
 import Tooltip from '@/components/ui/tooltip';
 import { RouteConfig } from '@/config/route-config';
-import { getAvailabilityBadgeVariant, getAvailabilityDescription } from '@/features/products/lib/availability';
+import { getAvailabilityColor, getAvailabilityDescription } from '@/features/products/lib/availability';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
+import { InfoIcon } from '@/icons';
 import { DATE_FORMATS } from '@/libs/date';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
@@ -62,19 +63,26 @@ const productColumns: ColumnDef<ProductListItem>[] = [
         return '-';
       }
 
-      const badge = (
-        <Badge variant={getAvailabilityBadgeVariant(status)}>
+      const label = (
+        <Text variant="tiny" color={getAvailabilityColor(status)}>
           {row.original?.availability_label ?? status}
-        </Badge>
+        </Text>
       );
 
       const description = getAvailabilityDescription(status);
 
       if (!description) {
-        return badge;
+        return label;
       }
 
-      return <Tooltip tip={description}>{badge}</Tooltip>;
+      return (
+        <Flex align="center" gap={2}>
+          {label}
+          <Tooltip tip={description}>
+            <InfoIcon />
+          </Tooltip>
+        </Flex>
+      );
     },
   },
   {

@@ -1,4 +1,4 @@
-import type { BadgeVariant } from '@/components/ui/badge';
+import type { TextColor } from '@/components/ui/text';
 import { __ } from '@/wpi18n';
 
 export type AvailabilityStatus = 'in_stock' | 'low_stock' | 'out_of_stock' | 'partially_stocked';
@@ -62,7 +62,17 @@ export const resolveGroupStatus = (statuses: AvailabilityStatus[]): Availability
   return 'in_stock';
 };
 
-export const getAvailabilityLabel = (status: AvailabilityStatus): string => {
+/**
+ * `quantity` is the summed available_quantity of tracked, in-stock variants
+ * (0 for an untracked variant/group). Only `in_stock` ever gets a number —
+ * a quantity of 0 falls back to the plain label rather than reading "0 In
+ * Stock", which would look like there is no stock at all.
+ */
+export const getAvailabilityLabel = (status: AvailabilityStatus, quantity = 0): string => {
+  if (status === 'in_stock' && quantity > 0) {
+    return `${quantity} ${__('In Stock', 'kirki-ecommerce')}`;
+  }
+
   const labels: Record<AvailabilityStatus, string> = {
     in_stock: __('In Stock', 'kirki-ecommerce'),
     low_stock: __('Low Stock', 'kirki-ecommerce'),
@@ -73,21 +83,21 @@ export const getAvailabilityLabel = (status: AvailabilityStatus): string => {
   return labels[status];
 };
 
-const AVAILABILITY_BADGE_VARIANTS: Record<AvailabilityStatus, BadgeVariant> = {
+const AVAILABILITY_COLORS: Record<AvailabilityStatus, TextColor> = {
   in_stock: 'success',
-  partially_stocked: 'default',
-  low_stock: 'destructive',
-  out_of_stock: 'destructive',
+  partially_stocked: 'secondary',
+  low_stock: 'critical',
+  out_of_stock: 'critical',
 };
 
 /**
  * Accepts a plain string, not just AvailabilityStatus, because the product
  * listing's status arrives from the API through a lenient schema that
- * tolerates backend drift — an unrecognized value falls back to 'default'
+ * tolerates backend drift — an unrecognized value falls back to 'secondary'
  * rather than throwing.
  */
-export const getAvailabilityBadgeVariant = (status: string): BadgeVariant =>
-  AVAILABILITY_BADGE_VARIANTS[status as AvailabilityStatus] ?? 'default';
+export const getAvailabilityColor = (status: string): TextColor =>
+  AVAILABILITY_COLORS[status as AvailabilityStatus] ?? 'secondary';
 
 const AVAILABILITY_DESCRIPTIONS: Record<AvailabilityStatus, string> = {
   in_stock: __('All variants have enough quantity available for purchase.', 'kirki-ecommerce'),
@@ -97,8 +107,8 @@ const AVAILABILITY_DESCRIPTIONS: Record<AvailabilityStatus, string> = {
 };
 
 /**
- * Accepts a plain string for the same reason as `getAvailabilityBadgeVariant` —
- * an unrecognized status (backend drift) has no meaningful explanation, so this
+ * Accepts a plain string for the same reason as `getAvailabilityColor` — an
+ * unrecognized status (backend drift) has no meaningful explanation, so this
  * returns undefined rather than a misleading fallback.
  */
 export const getAvailabilityDescription = (status: string): string | undefined =>

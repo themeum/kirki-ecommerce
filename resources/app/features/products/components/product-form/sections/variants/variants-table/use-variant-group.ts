@@ -41,7 +41,9 @@ type UseVariantGroupResult = {
   combinedData: CombinedVariantData;
   displayMedia: MediaRef[];
   childStatuses: AvailabilityStatus[];
+  childQuantities: number[];
   groupStatus: AvailabilityStatus | null;
+  groupQuantity: number;
   hasVariation: number;
   galleryIds: number[];
   productGallery: MediaRef[];
@@ -114,6 +116,19 @@ export const useVariantGroup = ({
   );
 
   const groupStatus = useMemo(() => resolveGroupStatus(childStatuses), [childStatuses]);
+
+  const childQuantities = useMemo(
+    () =>
+      thisVariants.map((variant) =>
+        variant.track_inventory ? Number(variant.available_quantity ?? 0) : 0,
+      ),
+    [thisVariants],
+  );
+
+  const groupQuantity = useMemo(
+    () => childQuantities.reduce((sum, quantity) => sum + quantity, 0),
+    [childQuantities],
+  );
 
   const thisAttribute = getAttributeByValueId(attributes, parentId);
 
@@ -242,7 +257,9 @@ export const useVariantGroup = ({
     combinedData,
     displayMedia,
     childStatuses,
+    childQuantities,
     groupStatus,
+    groupQuantity,
     hasVariation,
     galleryIds,
     productGallery,

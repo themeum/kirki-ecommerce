@@ -4,7 +4,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import MoneyField from '@/components/form/money-field';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type GroupPriceCellProps = {
@@ -63,7 +63,7 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
             setIsEditing(true);
           }
         }}
-        style={{ cursor: 'pointer', textAlign: 'center' }}
+        style={{ cursor: 'pointer' }}
       >
         <div css={scoped(styles.wrapper)}>
           <Text variant="small">{label}</Text>
@@ -92,6 +92,8 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.border.default}`,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
-    ...flexCenter(),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
   },
 })

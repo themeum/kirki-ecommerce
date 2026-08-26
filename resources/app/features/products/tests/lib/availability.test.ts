@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  getAvailabilityBadgeVariant,
+  getAvailabilityColor,
   getAvailabilityDescription,
   getAvailabilityLabel,
   resolveGroupStatus,
@@ -135,7 +135,7 @@ describe('resolveGroupStatus', () => {
 });
 
 describe('getAvailabilityLabel', () => {
-  it('maps every status to a distinct label', () => {
+  it('maps every status to a distinct plain label', () => {
     const labels = [
       getAvailabilityLabel('in_stock'),
       getAvailabilityLabel('low_stock'),
@@ -145,24 +145,42 @@ describe('getAvailabilityLabel', () => {
 
     expect(new Set(labels).size).toBe(4);
   });
+
+  it('prefixes the quantity for in stock when given a positive quantity', () => {
+    expect(getAvailabilityLabel('in_stock', 12)).toBe('12 In Stock');
+  });
+
+  it('falls back to the plain label for in stock when quantity is zero', () => {
+    expect(getAvailabilityLabel('in_stock', 0)).toBe('In Stock');
+  });
+
+  it('falls back to the plain label for in stock when quantity is omitted', () => {
+    expect(getAvailabilityLabel('in_stock')).toBe('In Stock');
+  });
+
+  it('ignores a positive quantity for statuses other than in stock', () => {
+    expect(getAvailabilityLabel('low_stock', 3)).toBe('Low Stock');
+    expect(getAvailabilityLabel('out_of_stock', 3)).toBe('Out of Stock');
+    expect(getAvailabilityLabel('partially_stocked', 3)).toBe('Partially Stocked');
+  });
 });
 
-describe('getAvailabilityBadgeVariant', () => {
+describe('getAvailabilityColor', () => {
   it('maps in stock to success', () => {
-    expect(getAvailabilityBadgeVariant('in_stock')).toBe('success');
+    expect(getAvailabilityColor('in_stock')).toBe('success');
   });
 
-  it('maps low stock and out of stock to destructive', () => {
-    expect(getAvailabilityBadgeVariant('low_stock')).toBe('destructive');
-    expect(getAvailabilityBadgeVariant('out_of_stock')).toBe('destructive');
+  it('maps low stock and out of stock to critical', () => {
+    expect(getAvailabilityColor('low_stock')).toBe('critical');
+    expect(getAvailabilityColor('out_of_stock')).toBe('critical');
   });
 
-  it('maps partially stocked to default', () => {
-    expect(getAvailabilityBadgeVariant('partially_stocked')).toBe('default');
+  it('maps partially stocked to secondary', () => {
+    expect(getAvailabilityColor('partially_stocked')).toBe('secondary');
   });
 
-  it('falls back to default for an unrecognized value', () => {
-    expect(getAvailabilityBadgeVariant('unknown')).toBe('default');
+  it('falls back to secondary for an unrecognized value', () => {
+    expect(getAvailabilityColor('unknown')).toBe('secondary');
   });
 });
 

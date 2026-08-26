@@ -1,19 +1,19 @@
 import type React from 'react';
 
-import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { TableCell, TableRow } from '@/components/ui/table';
+import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
 import {
-  getAvailabilityBadgeVariant,
+  getAvailabilityColor,
   getAvailabilityDescription,
   getAvailabilityLabel,
 } from '@/features/products/lib/availability';
 import { getAttributeByValueId } from '@/features/products/lib/utils';
-import { ChevronDownIcon } from '@/icons';
+import { ChevronDownIcon, InfoIcon } from '@/icons';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
@@ -64,7 +64,9 @@ const VariantGroup = ({
     combinedData,
     displayMedia,
     childStatuses,
+    childQuantities,
     groupStatus,
+    groupQuantity,
     hasVariation,
     galleryIds,
     show,
@@ -151,9 +153,14 @@ const VariantGroup = ({
         </TableCell>
         <TableCell style={{ width: '170px' }}>
           {groupStatus && (
-            <Tooltip tip={getAvailabilityDescription(groupStatus)}>
-              <Badge variant={getAvailabilityBadgeVariant(groupStatus)}>{getAvailabilityLabel(groupStatus)}</Badge>
-            </Tooltip>
+            <Flex align="center" gap={2}>
+              <Text variant="tiny" color={getAvailabilityColor(groupStatus)}>
+                {getAvailabilityLabel(groupStatus, groupQuantity)}
+              </Text>
+              <Tooltip tip={getAvailabilityDescription(groupStatus)}>
+                <InfoIcon />
+              </Tooltip>
+            </Flex>
           )}
         </TableCell>
       </TableRow>
@@ -177,15 +184,15 @@ const VariantGroup = ({
                   />
                   <div>
                     {item.attribute_values
-                      .filter((v) => v !== parentId)
+                      .filter((value) => value !== parentId)
                       .map(
-                        (v) =>
+                        (value) =>
                           (
                             getAttributeByValueId(
                               attributes,
-                              v,
+                              value,
                             )
-                          )?.value ?? String(v),
+                          )?.value ?? String(value),
                       )
                       .join(' | ')}
                   </div>
@@ -209,9 +216,9 @@ const VariantGroup = ({
                 </InputGroup>
               </TableCell>
               <TableCell>
-                <Badge variant={getAvailabilityBadgeVariant(childStatuses[index])}>
-                  {getAvailabilityLabel(childStatuses[index])}
-                </Badge>
+                <Text variant="tiny" color={getAvailabilityColor(childStatuses[index])}>
+                  {getAvailabilityLabel(childStatuses[index], childQuantities[index])}
+                </Text>
               </TableCell>
             </TableRow>
           ))}

@@ -189,4 +189,27 @@ class AvailabilityServiceTest extends TestCase
 
         $this->assertNull($status);
     }
+
+    // format_status_label
+
+    public function test_format_status_label_prefixes_quantity_for_in_stock(): void
+    {
+        $label = $this->service->format_status_label(AvailabilityStatus::IN_STOCK, 12);
+
+        $this->assertSame('12 In Stock', $label);
+    }
+
+    public function test_format_status_label_falls_back_to_plain_label_when_quantity_is_zero(): void
+    {
+        $label = $this->service->format_status_label(AvailabilityStatus::IN_STOCK, 0);
+
+        $this->assertSame(AvailabilityStatus::get_formatted(AvailabilityStatus::IN_STOCK), $label);
+    }
+
+    public function test_format_status_label_ignores_quantity_for_other_statuses(): void
+    {
+        $label = $this->service->format_status_label(AvailabilityStatus::LOW_STOCK, 3);
+
+        $this->assertSame(AvailabilityStatus::get_formatted(AvailabilityStatus::LOW_STOCK), $label);
+    }
 }

@@ -93,4 +93,23 @@ class AvailabilityService
 
         return $this->resolve_group_status($statuses);
     }
+
+    /**
+     * Format a status label, prefixing the quantity for "In Stock" when there
+     * is a tracked amount to show. A zero quantity (nothing tracked) falls
+     * back to the plain label rather than reading "0 In Stock".
+     *
+     * @param string $status
+     * @param int $quantity Summed available_quantity of tracked, in-stock variants.
+     *
+     * @return string
+     */
+    public function format_status_label($status, $quantity = 0)
+    {
+        if ($status === AvailabilityStatus::IN_STOCK && $quantity > 0) {
+            return sprintf(__('%d In Stock', 'kirki-ecommerce'), $quantity);
+        }
+
+        return AvailabilityStatus::get_formatted($status);
+    }
 }

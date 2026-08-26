@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
-use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
@@ -44,7 +43,7 @@ class ProductListWithVariantsResource extends Resource
             'sku' => $this->sku,
             'inventory' => $inventory,
             'availability_status' => $availability_status,
-            'availability_label' => !is_null($availability_status) ? AvailabilityStatus::get_formatted($availability_status) : null,
+            'availability_label' => !is_null($availability_status) ? $availability_service->format_status_label($availability_status, $inventory) : null,
             'base_price' => Money::prepare_amount_from_minor($min_price),
             'base_price_money_object' => Money::prepare_amount_object_from_minor($min_price),
             'display_price' => Money::prepare_amount_from_minor($min_price, null, $display_currency),
