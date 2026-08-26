@@ -48,7 +48,7 @@ class ProductCreateRequest extends Request
             //product
             'title' => 'required|string|max:500',
             'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug',
-            'status' => 'string|nullable|in:' . implode(',', ProductStatus::get_constant_values()),
+            'status' => 'string|nullable|in:' . ProductStatus::join(),
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',
             'brand_id' => 'integer|nullable',

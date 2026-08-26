@@ -23,7 +23,7 @@ export type ProductListFilter = {
   brand_ids?: number[];
   collection_ids?: number[];
   status?: string | string[];
-  stock_status?: string;
+  inventory_type?: string;
   from_date?: string | null;
   to_date?: string | null;
 };
@@ -35,7 +35,7 @@ const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
     'brand_ids',
     'collection_ids',
     'status',
-    'stock_status',
+    'inventory_type',
   ],
   parsers: {
     search: { parse: parseString },
@@ -43,7 +43,7 @@ const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
     brand_ids: { parse: parseNumberArray },
     collection_ids: { parse: parseNumberArray },
     status: { parse: parseStatus },
-    stock_status: { parse: parseString },
+    inventory_type: { parse: parseString },
   },
 };
 

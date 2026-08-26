@@ -215,6 +215,12 @@ class ProductApiTest extends RestTestCase
         $first = $this->create_product(['title' => 'Bulk One']);
         $second = $this->create_product(['title' => 'Bulk Two']);
 
+        $trash_response = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH,
+            'ids' => [$first['id'], $second['id']],
+        ]);
+        $this->assert_api_success($trash_response);
+
         $response = $this->request('POST', 'products/bulk', [
             'action' => BulkActions::DELETE,
             'ids' => [$first['id'], $second['id']],
@@ -228,10 +234,217 @@ class ProductApiTest extends RestTestCase
     }
 
     /**
+     * Bulk trash sets product status to trashed.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_bulk_trash_sets_status_to_trashed(): void
+    {
+        $product = $this->create_product(['title' => 'Trash Target']);
+        $this->product_id = $product['id'];
+
+        $response = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH,
+            'ids' => [$product['id']],
+        ]);
+        $this->assert_api_success($response);
+
+        $check = $this->request('GET', 'products/' . $product['id']);
+        $payload = $this->assert_api_success($check);
+        $this->assertEquals(ProductStatus::TRASHED, $payload['data']['status']);
+    }
+
+    /**
+     * Bulk restore sets product status back to draft.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_bulk_restore_sets_status_to_draft(): void
+    {
+        $product = $this->create_product(['title' => 'Restore Target']);
+        $this->product_id = $product['id'];
+
+        $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH,
+            'ids' => [$product['id']],
+        ]);
+
+        $response = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::RESTORE,
+            'ids' => [$product['id']],
+        ]);
+        $this->assert_api_success($response);
+
+        $check = $this->request('GET', 'products/' . $product['id']);
+        $payload = $this->assert_api_success($check);
+        $this->assertEquals(ProductStatus::DRAFT, $payload['data']['status']);
+    }
+
+    /**
+     * Bulk delete on non-trashed products returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_bulk_delete_on_non_trashed_products_returns_404(): void
+    {
+        $product = $this->create_product(['title' => 'Not Trashed Delete']);
+        $this->product_id = $product['id'];
+
+        $response = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::DELETE,
+            'ids' => [$product['id']],
+        ]);
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * Bulk restore on non-trashed products returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_bulk_restore_on_non_trashed_products_returns_404(): void
+    {
+        $product = $this->create_product(['title' => 'Not Trashed Restore']);
+        $this->product_id = $product['id'];
+
+        $response = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::RESTORE,
+            'ids' => [$product['id']],
+        ]);
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * Trash-all and restore-all affect products matching the given filters.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_trash_all_and_restore_all_products(): void
+    {
+        $unique = 'TrashAllTarget-' . wp_generate_password(6, false);
+        $first = $this->create_searchable_product($unique . '-One');
+        $this->create_searchable_product($unique . '-Two');
+        $this->product_id = $first['id'];
+
+        $trash_all = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH_ALL,
+            'search' => $unique,
+        ]);
+        $this->assert_api_success($trash_all);
+
+        $trashed_list = $this->request('GET', 'products', [
+            'search' => $unique,
+            'status' => ProductStatus::TRASHED,
+        ]);
+        $trashed_payload = $this->assert_api_success($trashed_list);
+        $this->assertCount(2, $trashed_payload['data']['results']);
+
+        $restore_all = $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::RESTORE_ALL,
+            'search' => $unique,
+        ]);
+        $this->assert_api_success($restore_all);
+
+        $restored_list = $this->request('GET', 'products', [
+            'search' => $unique,
+            'status' => ProductStatus::DRAFT,
+        ]);
+        $restored_payload = $this->assert_api_success($restored_list);
+        $this->assertCount(2, $restored_payload['data']['results']);
+    }
+
+    /**
+     * Default product listing excludes trashed products.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_excludes_trashed_by_default(): void
+    {
+        $unique = 'ListExcludeTrashed-' . wp_generate_password(6, false);
+        $product = $this->create_searchable_product($unique);
+        $this->product_id = $product['id'];
+
+        $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH,
+            'ids' => [$product['id']],
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+        ]);
+        $payload = $this->assert_api_success($response);
+        $this->assertEmpty($payload['data']['results']);
+    }
+
+    /**
+     * Listing with status=trashed returns trashed products.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_with_status_trashed_filter_returns_trashed_products(): void
+    {
+        $unique = 'ListTrashedFilter-' . wp_generate_password(6, false);
+        $product = $this->create_searchable_product($unique);
+        $this->product_id = $product['id'];
+
+        $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH,
+            'ids' => [$product['id']],
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'status' => ProductStatus::TRASHED,
+        ]);
+        $payload = $this->assert_api_success($response);
+        $this->assertCount(1, $payload['data']['results']);
+        $this->assertEquals($product['id'], $payload['data']['results'][0]['id']);
+    }
+
+    /**
+     * Create a product whose title and variant SKU both contain the given
+     * unique token, so it can be reliably isolated by the `search` filter.
+     *
+     * `ProductService::apply_filters()` requires both a title/description
+     * match and a variant SKU match when `search` is set, so a title-only
+     * substring will not be found unless the SKU also contains it.
+     *
+     * @param string $unique Unique token to embed in the title and SKU.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function create_searchable_product(string $unique): array
+    {
+        return $this->create_product([
+            'title' => $unique,
+            'variants' => [
+                [
+                    'base_price' => 29.99,
+                    'sku' => 'SKU-' . $unique,
+                    'available_quantity' => 100,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]);
+    }
+
+    /**
      * Resolve an attribute value label that is not taken yet.
      *
      * Attribute values are globally unique, and this class creates the same
-     * colours more than once, so a taken label gets a numbered suffix.
+     * colors more than once, so a taken label gets a numbered suffix.
      *
      * @param string $value Desired value label.
      *

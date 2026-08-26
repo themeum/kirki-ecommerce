@@ -11,7 +11,7 @@ class BulkActionRequest extends Request
     public function rules()
     {
         return [
-            'action' => 'required|in:' . implode(',', BulkActions::get_constant_values()),
+            'action' => 'required|in:' . BulkActions::join(),
             'ids' => 'nullable|array',
             'ids.*' => 'integer',
         ];
