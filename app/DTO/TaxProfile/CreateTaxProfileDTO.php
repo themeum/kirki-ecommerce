@@ -10,5 +10,5 @@ class CreateTaxProfileDTO extends DTO
     public $name;
 
     /** @var bool */
-    public $is_default;
+    public $is_default = false;
 }

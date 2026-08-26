@@ -144,7 +144,7 @@ class AccountController
     }
 
     /**
-     * Orders html.
+     * Customer orders.
      *
      * @since 1.0.0
      *
@@ -152,9 +152,10 @@ class AccountController
      *
      * @return Response JSON response.
      */
-    public function orders_html(Request $request, OrderService $order_service)
+    public function customer_orders(Request $request, OrderService $order_service)
     {
         $page = $request->int('page', 1);
+        $format = $request->string('format', 'json');
 
         $filters = [
             'page' => $page,
@@ -163,13 +164,16 @@ class AccountController
 
         $order_data = $order_service->get_current_customer_orders($filters);
 
-        ob_start();
-        $orders = $order_data['orders']['results'] ?? [];
-        foreach ($orders as $order) {
-            include_view('site.account.orders.row', ['order' => $order]);
+        if ($format === 'html') {
+            ob_start();
+            $orders = $order_data['orders']['results'] ?? [];
+            foreach ($orders as $order) {
+                include_view('site.account.orders.row', ['order' => $order]);
+            }
+
+            $order_data['orders']['results'] = ob_get_clean();
         }
 
-        $order_data['orders']['results'] = ob_get_clean();
 
         return response()->json([
             'data' => $order_data['orders'],
@@ -211,13 +215,15 @@ class AccountController
     public function order_details(Request $request, OrderService $order_service)
     {
 
+        $customer_id = customer()->get_customer_id();
         $order = $order_service->find_order_by_uuid($request->uuid);
-        if (!$order || $order->customer_id !== customer()->get_customer_id()) {
+
+        if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
             wp_safe_redirect(Route::site_url('account.orders'));
             exit;
         }
 
-        $order_resource = $order ? OrderResource::make($order) : null;
+        $order_resource = OrderResource::make($order);
 
         return view('site.account.order-details', ['order' => $order_resource])->layout(false);
     }

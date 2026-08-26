@@ -12,7 +12,7 @@ class ShippingProfileUpdateRequest extends Request
         return [
             'id' => 'required|integer',
             'name' => 'required|string',
-            'is_default' => 'boolean',
+            'is_default' => 'boolean|nullable',
         ];
     }
 

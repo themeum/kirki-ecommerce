@@ -8,7 +8,6 @@ import Searchbox from '@/components/ui/searchbox';
 import { allTableHeaders } from '@/features/inventory/lib/utils';
 import { inventoryListOptions } from '@/features/inventory/types';
 import { useDataTableParams } from '@/hooks';
-import { LayoutIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
@@ -49,9 +48,7 @@ const InventoryTableFilters = ({
         />
         <DropdownButton
           buttonProps={{
-            type: 'outlined',
-            size: 'small',
-            icon: <LayoutIcon />,
+            variant: 'outline',
           }}
           options={allTableHeaders}
           value={selectedFields}

@@ -84,10 +84,17 @@ class CreateOrderAction
 
     public function execute(CreateOrderPayloadDTO $dto)
     {
-        $dto->customer_id = $this->resolve_checkout_customer_id($dto);
-
         if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
             $this->resolve_checkout_cart($dto);
+        }
+
+        // Only resolve a customer when there is one to resolve: an explicitly
+        // chosen customer, or a storefront checkout by a signed-in shopper.
+        // The provisioning fallback builds the customer from the acting
+        // WordPress user, so a manual order with no customer picked would
+        // provision one for the admin, and a guest checkout has no user at all.
+        if (!empty($dto->customer_id) || (!$dto->is_manual && !empty($dto->created_by))) {
+            $dto->customer_id = $this->resolve_checkout_customer_id($dto);
         }
 
         $context = $this->prepare_calculation_context_dto($dto);

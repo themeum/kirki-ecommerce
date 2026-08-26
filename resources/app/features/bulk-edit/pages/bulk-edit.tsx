@@ -12,7 +12,6 @@ import { allTableHeaders } from '@/features/bulk-edit/lib/utils';
 import BulkEditTable from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/features/bulk-edit/services/bulk-edit';
 import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
-import { LayoutIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -63,8 +62,7 @@ const BulkEditPage = () => {
           <>
             <DropdownButton
               buttonProps={{
-                type: 'outlined',
-                icon: <LayoutIcon />,
+                variant: 'outline',
               }}
               options={allTableHeaders}
               value={selectedFields}

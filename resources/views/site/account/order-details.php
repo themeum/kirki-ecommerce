@@ -73,11 +73,11 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             </a>
                             <div class="kecom-order-details-title-wrap">
                                 <div class="kecom-order-details-heading-row">
-                                    <h1 class="kecom-order-details-title"><?php echo printf(__('Order #%s', 'kirki-ecommerce'), $order['order_number'] ?? ''); ?></h1>
-                                    <span class="kecom-badge <?php echo Utils::get_status_badge_class($order['fulfillment_status']); ?>">
+                                    <h1 class="kecom-order-details-title"><?php printf(esc_html__('Order #%s', 'kirki-ecommerce'), esc_html($order['order_number'] ?? '')); ?></h1>
+                                    <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['fulfillment_status'])); ?>">
                                         <?php echo esc_html($order['formatted_status'] ?? '') ?>
                                     </span>
-                                    <span class="kecom-badge <?php echo Utils::get_status_badge_class($order['payment_status']); ?>">
+                                    <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['payment_status'])); ?>">
                                         <?php echo esc_html($order['payment_status'] === 'paid' ? __('Paid', 'kirki-ecommerce') : __('Unpaid', 'kirki-ecommerce')); ?>
                                     </span>
                                 </div>

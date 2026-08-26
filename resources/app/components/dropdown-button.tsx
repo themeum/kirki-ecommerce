@@ -1,5 +1,6 @@
 import type { CSSObject } from '@emotion/react';
-import { type CSSProperties, type ReactNode, useEffect, useState } from 'react';
+import { EllipseIcon, EllipsisVertical } from 'lucide-react';
+import { type ComponentProps, type CSSProperties, type ReactNode, useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -7,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { theme } from '@/theme';
 import type { ButtonState, DropdownSize, SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
-import { EllipseIcon, EllipsisVertical } from 'lucide-react';
 
 type DropdownOption = SelectOption & {
   isDefault?: boolean;
@@ -15,16 +15,13 @@ type DropdownOption = SelectOption & {
   type?: 'separator';
 };
 
+type ButtonVariant = NonNullable<ComponentProps<typeof Button>['variant']>;
+
 type DropdownTriggerButtonProps = {
-  text?: ReactNode;
   state?: ButtonState;
-  icon?: ReactNode;
-  leftIcon?: ReactNode;
-  rightIcon?: ReactNode;
   cssOverride?: CSSObject;
-  style?: CSSProperties;
-  onClick?: () => void;
   direction?: 'vertical' | 'horizontal';
+  variant?: ButtonVariant;
 };
 
 type DropdownButtonProps = {
@@ -94,20 +91,17 @@ const DropdownButton = ({
   };
 
   const {
-    text,
     state,
-    icon,
-    leftIcon,
-    rightIcon,
     cssOverride: buttonCss,
-    direction = 'vertical'
+    direction = 'vertical',
+    variant = 'ghost',
   } = buttonProps ?? {};
 
   return (
     <DropdownMenu open={openDropdown} onOpenChange={openCloseDropdown}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant={variant}
           size="icon-sm"
           loading={state === 'loading'}
           disabled={state === 'disabled'}

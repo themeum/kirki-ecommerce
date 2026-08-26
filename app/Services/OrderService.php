@@ -62,12 +62,14 @@ class OrderService
     /**
      * Return paginated brands
      *
-     * @param OrderListFilterDTO $filters
+     * @param OrderListFilterDTO $dto
      * @return Paginator
      */
-    public function paginated_orders(OrderListFilterDTO $filters)
+    public function paginated_orders(OrderListFilterDTO $dto)
     {
-        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        return $this->list_query($dto)
+            ->with('items')
+            ->paginate($dto->limit ?? Pagination::LIMIT, $dto->page ?? 1);
     }
 
     /**

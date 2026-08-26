@@ -23,7 +23,7 @@ import { LocationIcon, TruckIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { getSearchedCountries, getSelectedRegionTags } from '@/utils/region';
+import { getSelectedRegionTags } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingSettings = () => {
@@ -32,8 +32,6 @@ const ShippingSettings = () => {
     loaded,
     shippingZonesObj,
     countryList,
-    searchValue,
-    setSearchValue,
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,
@@ -173,11 +171,7 @@ const ShippingSettings = () => {
           dialogTitle={__('Add shipping region', 'kirki-ecommerce')}
           open={showCreateZonePopup}
           onOpenChange={setShowCreateZonePopup}
-          onSearchChange={setSearchValue}
-          filteredCountries={getSearchedCountries(
-            searchValue,
-            countryList,
-          )}
+          countries={countryList}
           onDone={handleCreateZone}
           errors={popupErrors}
         />

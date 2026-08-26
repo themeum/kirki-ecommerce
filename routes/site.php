@@ -45,10 +45,10 @@ Route::site(function () {
         ->template_redirect()
         ->name('login');
 
-    if (Utils::registration_enabled()) {
-        Route::get($register_page_slug, [SiteController::class, 'register_page'])
-            ->name('register');
+    Route::get($register_page_slug, [SiteController::class, 'register_page'])
+        ->name('register');
 
+    if (Utils::registration_enabled()) {
         Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
             ->template_redirect()
             ->name('register');
@@ -65,10 +65,13 @@ Route::site(function () {
         ->name('cart')
         ->match_page();
 
-    Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
-        ->middleware(SiteAuthMiddleware::class)
+    $checkout_route = Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
         ->name('checkout')
         ->match_page();
+
+    if (!Utils::guest_checkout_enabled()) {
+        $checkout_route->middleware(SiteAuthMiddleware::class);
+    }
 });
 
 // Customer account routes.

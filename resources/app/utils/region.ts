@@ -47,24 +47,28 @@ export const getSearchedCountries = <T extends Country>(
   searchValue: string,
   countryList: T[] | null | undefined,
 ): T[] => {
-  if (!searchValue) {
+  const search = searchValue.toLowerCase().trim();
+
+  if (!search) {
     return countryList ?? [];
   }
 
-  const search = searchValue.toLowerCase().trim();
-
   return (countryList ?? []).reduce<T[]>((acc, country) => {
+    const matchedCountry =
+      country?.name?.toLowerCase().includes(search) ||
+      country?.code?.toLowerCase().includes(search);
+
+    if (matchedCountry) {
+      acc.push(country);
+      return acc;
+    }
+
     const matchedStates = (country.states ?? []).filter((state) =>
       state?.name?.toLowerCase().includes(search),
     );
 
     if (matchedStates.length) {
       acc.push({ ...country, states: matchedStates });
-      return acc;
-    }
-
-    if (country?.name?.toLowerCase().includes(search)) {
-      acc.push(country);
     }
 
     return acc;

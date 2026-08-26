@@ -13,7 +13,6 @@ class CreateTaxProfilesTable implements Migration
         Schema::create('kirki_ecommerce_tax_profiles', function (Structure $table) {
             $table->id();
             $table->string('name', 100);
-            $table->boolean('is_default')->default(0);
             $table->timestamps();
         });
     }

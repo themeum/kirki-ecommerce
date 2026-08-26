@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Actions\Coupon;
 
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
@@ -38,6 +39,9 @@ class DuplicateCouponAction
         $data = CreateCouponDTO::from_array($coupon->to_array());
         $data->title = $data->title . ' - Copy';
         $data->code = $this->coupon_service->generate_new_code();
+        $data->discount_amount = $coupon->discount_value_type === DiscountValueType::FIXED
+            ? $coupon->base_discount_amount_fixed
+            : $coupon->discount_amount_percentage;
         $data->category_ids = $coupon->categories->pluck('id')->to_array();
         $data->customer_ids = $coupon->customers->reject(fn($customer) => !empty($customer->pivot['is_excluded']))->pluck('id')->to_array();
         $data->exclude_customer_ids = $coupon->customers->filter(fn($customer) => !empty($customer->pivot['is_excluded']))->pluck('id')->to_array();

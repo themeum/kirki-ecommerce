@@ -402,4 +402,17 @@ class Utils
                 return 'kecom-badge-default';
         }
     }
+
+    /**
+     * Check guest checkout is enabled.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if guest checkout is enabled, false otherwise.
+     */
+    public static function guest_checkout_enabled()
+    {
+        //TODO: default will be false.
+        return Settings::get('checkout.is_allowed_guest_checkout', true);
+    }
 }

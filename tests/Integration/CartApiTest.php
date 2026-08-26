@@ -142,7 +142,7 @@ class CartApiTest extends RestTestCase
 
         $remove = $this->request('DELETE', 'cart/items/' . $item_id, [], $this->cart_headers);
         $removed = $this->assert_api_success($remove);
-        $this->assertEmpty($removed['data']['items']);
+        $this->assertEmpty($removed['data']);
 
         $this->add_cart_item(1);
 
@@ -176,6 +176,40 @@ class CartApiTest extends RestTestCase
         $empty = $this->request('DELETE', 'cart', [], $this->cart_headers);
         $emptied = $this->assert_api_success($empty);
         $this->assertEmpty($emptied['data']);
+    }
+
+    public function test_removing_non_last_item_keeps_cart_and_last_removal_deletes_it(): void
+    {
+        $this->prepare_variant();
+        $first_cart = $this->add_cart_item(1);
+        $first_item_id = $first_cart['items'][0]['id'];
+
+        $second_product = $this->create_product([
+            'title' => 'Second Cart Product ' . wp_generate_password(4, false),
+        ]);
+        $this->variant_id = $this->default_variant_id($second_product);
+
+        $cart = $this->add_cart_item(1);
+        $this->assertCount(2, $cart['items']);
+
+        $second_item_id = current(array_values(array_diff(
+            array_column($cart['items'], 'id'),
+            [$first_item_id]
+        )));
+
+        $remove_first = $this->assert_api_success(
+            $this->request('DELETE', 'cart/items/' . $first_item_id, [], $this->cart_headers)
+        );
+
+        $this->assertEquals($cart['id'], $remove_first['data']['id']);
+        $this->assertCount(1, $remove_first['data']['items']);
+
+        $remove_second = $this->assert_api_success(
+            $this->request('DELETE', 'cart/items/' . $second_item_id, [], $this->cart_headers)
+        );
+
+        $this->assertEmpty($remove_second['data']);
+        $this->assertNull(CartModel::find($cart['id']));
     }
 
     /**

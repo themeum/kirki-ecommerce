@@ -19,7 +19,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 use function Kirki\Ecommerce\App\base_currency;
-use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\request;
 use function Kirki\Ecommerce\Framework\uuid;
 
@@ -107,6 +107,17 @@ class CartService
     protected function create_cart(array $data)
     {
         $this->assert_single_owner_identity($data);
+
+        if(empty($data['user_id'])){
+            return CartModel::create($data);
+        }
+
+        $customer = customer($data['user_id']);
+        
+        if(!empty($customer)){
+            $data['shipping_address'] = $customer->get_shipping_address();
+            $data['billing_address'] = $customer->get_billing_address();
+        }
 
         return CartModel::create($data);
     }
@@ -239,6 +250,12 @@ class CartService
 
         if ($item->cart_id !== $cart->id) {
             throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN);
+        }
+
+        $is_last_item = $cart->items->count() === 1;
+
+        if ($is_last_item) {
+            return $cart->delete();
         }
 
         return CartItem::destroy($item->id);

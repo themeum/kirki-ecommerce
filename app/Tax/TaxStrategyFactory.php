@@ -31,7 +31,10 @@ class TaxStrategyFactory
             throw new Exception(__('Tax strategy not found', 'kirki-ecommerce'));
         }
 
-        return new $strategy($address, $region, $tax_settings->get('is_tax_inclusive_price') ?? false, $tax_settings->get('is_shipping_tax_enabled') ?? false);
+        // $is_shipping_tax_enabled = $tax_settings->get('is_shipping_tax_enabled') ?? true;
+        $is_shipping_tax_enabled = true; // @TODO: we might need a global toggle for shipping tax later
+
+        return new $strategy($address, $region, $tax_settings->get('is_tax_inclusive_price') ?? false, $is_shipping_tax_enabled );
     }
 
     public static function get_tax_settings(string $country, $tax_settings)

@@ -13,7 +13,7 @@ import { buildCartApi } from '../api/cart';
 
 const cartApi = buildCartApi({ skipTax: false });
 import { checkoutApi } from '../api/checkout';
-import { emit, listen } from '../events';
+import { emit, listen, EVENTS } from '../events';
 import { toastManager } from '../services/toast/runtime';
 import type { CheckoutRequest, ShippingMethod } from '../types';
 import { config } from '../utils';
@@ -34,6 +34,7 @@ type AlpineFormData = {
 type AlpineContext = {
   $el: HTMLElement;
   $dispatch: (event: string, detail?: unknown) => void;
+  $nextTick: (fn: () => void) => void;
 };
 
 export type CheckoutConfig = {
@@ -157,13 +158,13 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     init() {
       (this as unknown as AlpineContext).$el.addEventListener(
-        'kecom:billing-form:validated',
+        EVENTS.BILLING_FORM_VALIDATED,
         (e: Event) => {
           this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
         },
       );
       (this as unknown as AlpineContext).$el.addEventListener(
-        'kecom:shipping-form:validated',
+        EVENTS.SHIPPING_FORM_VALIDATED,
         (e: Event) => {
           this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
         },
@@ -187,6 +188,11 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         } else if (this.availableShippingMethods.length > 0) {
           // Select first shipping method if none selected
           this.selectedShippingMethod = this.availableShippingMethods[0].id;
+
+          // Persist the default selection so the displayed totals include shipping cost.
+          // Deferred via $nextTick — #shipping-form's Alpine component isn't initialized
+          // yet at this point in the tree walk, and updateCart() reads its live values.
+          (this as unknown as AlpineContext).$nextTick(() => this.updateCart());
         }
       }
 
@@ -204,7 +210,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       // Debounced cart update — prevents hammering the API on rapid field changes
       const debouncedUpdateCart = debounce(() => this.updateCart(), 400);
 
-      listen('kecom:address:changed', () => debouncedUpdateCart());
+      listen(EVENTS.ADDRESS_CHANGED, () => debouncedUpdateCart());
     },
 
     async updateCart() {
@@ -332,18 +338,18 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       try {
         // Validate both forms concurrently — dispatch triggers each form's
         // validateForm() which fires back *-form-validated on the window
-        (this as unknown as AlpineContext).$dispatch('kecom:shipping-form:validate');
+        (this as unknown as AlpineContext).$dispatch(EVENTS.SHIPPING_FORM_VALIDATE);
 
         // Only validate billing independently when it differs from shipping
         if (!this.billingSameAsShipping) {
-          (this as unknown as AlpineContext).$dispatch('kecom:billing-form:validate');
+          (this as unknown as AlpineContext).$dispatch(EVENTS.BILLING_FORM_VALIDATE);
         }
 
         const validationPromises: Promise<FormValidatedDetail>[] = [
-          waitForEvent('kecom:shipping-form:validated'),
+          waitForEvent(EVENTS.SHIPPING_FORM_VALIDATED),
           this.billingSameAsShipping
             ? Promise.resolve({ isValid: true })
-            : waitForEvent('kecom:billing-form:validated'),
+            : waitForEvent(EVENTS.BILLING_FORM_VALIDATED),
         ];
 
         const [shippingResult, billingResult] = await Promise.all(validationPromises);
@@ -529,14 +535,14 @@ export function stateField({
           delete (this as any).errors.state;
         }
         if (notifyAddressChange) {
-          emit('kecom:address:changed');
+          emit(EVENTS.ADDRESS_CHANGED);
         }
       });
 
       // Watch parent form's state value
       if (notifyAddressChange) {
         (this as any).$watch('values.state', () => {
-          emit('kecom:address:changed');
+          emit(EVENTS.ADDRESS_CHANGED);
         });
       }
 

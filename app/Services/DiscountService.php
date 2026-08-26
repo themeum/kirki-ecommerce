@@ -58,6 +58,12 @@ class DiscountService
 
     protected function validate_items_eligibility(Coupon $coupon, CalculationContextDTO $context)
     {
+        // A coupon that declares no item scope - free shipping, buy x get y -
+        // applies to the cart as a whole, so there is nothing to match against.
+        if (empty($coupon->eligible_item_type)) {
+            return;
+        }
+
         $eligible_items = $this->get_eligible_items($context, $coupon);
 
         if ($eligible_items->is_empty()) {
@@ -284,7 +290,7 @@ class DiscountService
      */
     protected function get_eligible_items(CalculationContextDTO $context, Coupon $coupon)
     {
-        if ($coupon->eligible_item_type === EligibleItemType::ALL_PRODUCTS || $coupon->discount_target === DiscountTarget::ORDER) {
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING || $coupon->eligible_item_type === EligibleItemType::ALL_PRODUCTS || $coupon->discount_target === DiscountTarget::ORDER) {
             return $context->items;
         }
 
