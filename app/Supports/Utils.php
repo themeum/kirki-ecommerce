@@ -402,34 +402,4 @@ class Utils
                 return 'kecom-badge-default';
         }
     }
-
-    /**
-     * Determine whether a variant (raw API array or Eloquent model) is available for purchase.
-     *
-     * Rules:
-     *  - allow_back_order = true  → always available, regardless of stock or in_stock flag.
-     *  - track_inventory  = true  → available when available_quantity > 0.
-     *  - track_inventory  = false → available when the manual in_stock flag is truthy.
-     *
-     * @param array|object $variant Raw variant array (API) or Eloquent model instance.
-     *
-     * @return bool
-     * @since 1.0.0
-     */
-    public static function variant_is_available(array|object $variant): bool
-    {
-        $get = is_array($variant)
-            ? static fn(string $key, mixed $default = null) => $variant[$key] ?? $default
-            : static fn(string $key, mixed $default = null) => $variant->{$key} ?? $default;
-
-        if ($get('allow_back_order', false)) {
-            return true;
-        }
-
-        if ($get('track_inventory', false)) {
-            return (int) $get('available_quantity', 0) > 0;
-        }
-
-        return (bool) $get('in_stock', false);
-    }
 }

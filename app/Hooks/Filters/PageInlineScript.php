@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -239,6 +240,7 @@ class PageInlineScript extends BaseHook
         }
 
         // Prepare variants for Alpine.js
+        $inventory_service = app()->make(InventoryService::class);
         $variants_data = [];
         foreach ($variants as $v) {
             $variant_attrs = [];
@@ -257,7 +259,7 @@ class PageInlineScript extends BaseHook
                 'discount_percentage'  => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100) : null,
                 'stock'                => (int) ($v['available_quantity'] ?? 0),
                 'attributes'           => $variant_attrs,
-                'available'            => Utils::variant_is_available($v),
+                'available'            => $inventory_service->has_stock((int) ($v['id'] ?? 0), 1),
                 'allow_back_order'     => (bool) ($v['allow_back_order'] ?? false),
                 'has_limit_per_order'  => (bool) ($v['has_limit_per_order'] ?? false),
                 'max_per_order'        => ! empty($v['has_limit_per_order']) ? (int) ($v['max_per_order'] ?? 0) : null,
