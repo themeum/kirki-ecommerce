@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Supports\Utils;
 
 if (!isset($data['product']) || !is_object($data['product'])) {
     return;
@@ -40,9 +41,7 @@ $sale_price = $variant->base_sale_price;
 $in_sale = $sale_price > 0 && $sale_price < $regular_price;
 
 
-$out_of_stock =
-    ($variant->track_inventory && $variant->available_quantity <= 0) ||
-    (! $variant->track_inventory && ! $variant->in_stock);
+$out_of_stock = ! Utils::variant_is_available($variant);
 
 $ribbon_text = $out_of_stock ? __('Out of Stock', 'kirki-ecommerce') : $product->ribbon;
 

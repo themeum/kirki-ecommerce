@@ -9,15 +9,30 @@
 defined('ABSPATH') || exit;
 
 
+use Kirki\Ecommerce\App\Supports\Utils;
 use function Kirki\Ecommerce\Framework\include_view;
 
-$item = $data['item'] ?? [];
-$currency = $data['currency'] ?? [];
-$product = $item['product'] ?? [];
-$media = $product['media'] ?? [];
-$quantity = (int) $item['quantity'] ?? 1;
-$available = (int) $product['available_quantity'];
-$max_quantity = (0 >= $available && $product['in_stock']) ? 'undefined' : $available;
+$item      = $data['item'] ?? [];
+$currency  = $data['currency'] ?? [];
+$product   = $item['product'] ?? [];
+$media     = $product['media'] ?? [];
+$quantity  = (int) $item['quantity'] ?? 1;
+
+// Determine the upper bound on quantity in the cart.
+// Start with stock (when track_inventory is on and back-orders are NOT allowed).
+$limits = [];
+
+if (($product['track_inventory'] ?? false) && ! ($product['allow_back_order'] ?? false)) {
+    $limits[] = (int) ($product['available_quantity'] ?? 0);
+}
+
+// Respect per-order limit when set.
+if (! empty($product['has_limit_per_order']) && ! empty($product['max_per_order'])) {
+    $limits[] = (int) $product['max_per_order'];
+}
+
+// 'undefined' means no cap (Alpine quantitySelector treats undefined as unlimited).
+$max_quantity = empty($limits) ? 'undefined' : min($limits);
 $unit_price = $product['base_sale_price'] > 0
     ? $product['base_sale_price_money_object']->display
     : $product['base_price_money_object']->display;
