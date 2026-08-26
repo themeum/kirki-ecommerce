@@ -13,7 +13,6 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -65,13 +64,10 @@ Route::site(function () {
         ->name('cart')
         ->match_page();
 
-    $checkout_route = Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
+    Route::get($checkout_page_id, [SiteController::class, 'checkout_page'])
+        ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
         ->match_page();
-
-    if (!Utils::guest_checkout_enabled()) {
-        $checkout_route->middleware(SiteAuthMiddleware::class);
-    }
 });
 
 // Customer account routes.
