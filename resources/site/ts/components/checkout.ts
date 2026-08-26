@@ -102,8 +102,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return;
     }
 
+    const contactFormEl = document.querySelector('#contact-form');
     const shippingFormEl = document.querySelector('#shipping-form');
     const billingFormEl = document.querySelector('#billing-form');
+    const contactForm: AlpineFormData | null = contactFormEl
+      ? window.Alpine.$data(contactFormEl)
+      : null;
     const shippingForm: AlpineFormData | null = shippingFormEl
       ? window.Alpine.$data(shippingFormEl)
       : null;
@@ -115,7 +119,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     for (const [key, messages] of Object.entries(err.errors)) {
       const rawMessage = messages[0];
-      if (key.startsWith('shipping_')) {
+      if (key === 'customer_email' || key === 'email') {
+        contactForm?.setError('customer_email', rawMessage);
+        hasFieldErrors = true;
+      } else if (key.startsWith('shipping_')) {
         const field = key.replace('shipping_', '');
         shippingForm?.setError(field, rawMessage);
         hasFieldErrors = true;
@@ -336,8 +343,17 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       this.error = null;
 
       try {
-        // Validate both forms concurrently — dispatch triggers each form's
-        // validateForm() which fires back *-form-validated on the window
+        // Validate contact form if present
+        const contactFormEl = document.querySelector('#contact-form');
+        const contactForm: AlpineFormData | null = contactFormEl
+          ? window.Alpine.$data(contactFormEl)
+          : null;
+
+        if (contactForm) {
+          (this as unknown as AlpineContext).$dispatch(EVENTS.CONTACT_FORM_VALIDATE);
+        }
+
+        // Validate shipping form
         (this as unknown as AlpineContext).$dispatch(EVENTS.SHIPPING_FORM_VALIDATE);
 
         // Only validate billing independently when it differs from shipping
@@ -346,13 +362,21 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         }
 
         const validationPromises: Promise<FormValidatedDetail>[] = [
+          contactForm
+            ? waitForEvent(EVENTS.CONTACT_FORM_VALIDATED)
+            : Promise.resolve({ isValid: true }),
           waitForEvent(EVENTS.SHIPPING_FORM_VALIDATED),
           this.billingSameAsShipping
             ? Promise.resolve({ isValid: true })
             : waitForEvent(EVENTS.BILLING_FORM_VALIDATED),
         ];
 
-        const [shippingResult, billingResult] = await Promise.all(validationPromises);
+        const [contactResult, shippingResult, billingResult] = await Promise.all(validationPromises);
+
+        if (!contactResult.isValid) {
+          scrollToFirstError();
+          return;
+        }
 
         this.shippingFormValid = shippingResult.isValid;
         this.billingFormValid = billingResult.isValid;
@@ -383,6 +407,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           ? null
           : window.Alpine.$data(billingFormEl);
 
+        const customerEmail = contactForm
+          ? String(contactForm.values.customer_email || '').trim()
+          : (config.current_user?.email ?? '');
+
         // Prepare order data
         const orderData: CheckoutRequest = {
           items: this.cartData.items.map((item) => ({
@@ -403,7 +431,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           shipping_postcode: shippingForm.values.postal_code,
           shipping_country: shippingForm.values.country,
           shipping_phone: shippingForm.values.phone,
-          shipping_email: shippingForm.values.email,
+          // shipping_email: customerEmail || shippingForm.values.email,
           shipping_company: null,
           ...(billingForm
             ? {
@@ -416,11 +444,11 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
                 billing_postcode: billingForm.values.postal_code,
                 billing_country: billingForm.values.country,
                 billing_phone: billingForm.values.phone,
-                billing_email: billingForm.values.email,
+                // billing_email: customerEmail || billingForm.values.email,
                 billing_company: null,
               }
             : {}),
-          customer_email: shippingForm.values.email,
+          customer_email: customerEmail,
           customer_phone: shippingForm.values.phone,
           customer_notes: null,
         };

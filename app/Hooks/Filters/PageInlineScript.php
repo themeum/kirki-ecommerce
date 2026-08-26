@@ -199,6 +199,18 @@ class PageInlineScript extends BaseHook
         $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
 
+        if (is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $config['current_user'] = [
+                'id'         => $current_user->ID,
+                'name'       => trim($current_user->first_name . ' ' . $current_user->last_name) ?: $current_user->display_name,
+                'email'      => $current_user->user_email,
+                'avatar_url' => get_avatar_url($current_user->ID, ['size' => 96]),
+            ];
+        } else {
+            $config['current_user'] = null;
+        }
+
         return $config;
     }
 
