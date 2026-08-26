@@ -85,7 +85,7 @@ export const allTableHeaders: BulkEditTableHeader[] = [
     icon: <DragIcon />,
   },
   {
-    title: __('Availability', 'kirki-ecommerce'),
+    title: __('Quantity', 'kirki-ecommerce'),
     value: 'available_quantity',
     icon: <DragIcon />,
     isDefault: true,
@@ -93,6 +93,11 @@ export const allTableHeaders: BulkEditTableHeader[] = [
   {
     title: __('Committed', 'kirki-ecommerce'),
     value: 'committed_quantity',
+    icon: <DragIcon />,
+  },
+  {
+    title: __('Low stock threshold', 'kirki-ecommerce'),
+    value: 'low_stock_threshold',
     icon: <DragIcon />,
   },
   {

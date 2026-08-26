@@ -21,11 +21,14 @@ type FilterValue = string | number | (string | number)[];
 const statusOptions: SuggestionOption[] = [
   { value: 'published', title: __('Published', 'kirki-ecommerce') },
   { value: 'draft', title: __('Draft', 'kirki-ecommerce') },
+  { value: 'trashed', title: __('Trashed', 'kirki-ecommerce') },
 ];
 
-const stockStatusOptions: SuggestionOption[] = [
+const availabilityStatusOptions: SuggestionOption[] = [
   { value: 'in_stock', title: __('In stock', 'kirki-ecommerce') },
+  { value: 'low_stock', title: __('Low stock', 'kirki-ecommerce') },
   { value: 'out_of_stock', title: __('Out of stock', 'kirki-ecommerce') },
+  { value: 'partially_stocked', title: __('Partially stocked', 'kirki-ecommerce') },
 ];
 
 const PRODUCT_FILTER_KEYS = productListFilterConfig.keys;
@@ -53,7 +56,7 @@ const ProductTableFilterBar = memo(() => {
   const filterOptionsMap: Partial<Record<ProductFilterKey, SuggestionOption[]>> = {
     category_ids: categoryOptions,
     status: statusOptions,
-    stock_status: stockStatusOptions,
+    availability_status: availabilityStatusOptions,
     collection_ids: collectionOptions,
     brand_ids: brandOptions,
   };
@@ -83,8 +86,8 @@ const ProductTableFilterBar = memo(() => {
     if (key === 'status') {
       return (params.status as FilterValue) ?? '';
     }
-    if (key === 'stock_status') {
-      return params.stock_status ?? '';
+    if (key === 'availability_status') {
+      return params.availability_status ?? '';
     }
 
     return (params[key] ?? '');

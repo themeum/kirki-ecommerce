@@ -356,6 +356,32 @@ const SingleRow = (props: SingleRowProps) => {
           )}
         </TableCell>
       )}
+      {selectedFields.includes('low_stock_threshold') && (
+        <TableCell
+          onMouseDown={(e) => onCellMouseDown(e, 'low_stock_threshold')}
+          onMouseEnter={(e) => onCellMouseEnter(e, 'low_stock_threshold')}
+          {...getActiveState('low_stock_threshold')}
+        >
+          {currentVariation?.track_inventory ? (
+            <Input
+              value={currentVariation?.low_stock_threshold ?? ''}
+              onChange={(event) =>
+                handleNumberInputChange(event, 'low_stock_threshold')
+              }
+              onKeyDown={handleInputEnterKeyDown}
+              invisible
+              type="number"
+            />
+          ) : (
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
+          )}
+          <span
+            role="presentation"
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
+            onMouseDown={(e) => onGrabberMouseDown(e, 'low_stock_threshold')}
+          />
+        </TableCell>
+      )}
       {selectedFields.includes('has_limit_per_order') && (
         <TableCell
           alignment="center"

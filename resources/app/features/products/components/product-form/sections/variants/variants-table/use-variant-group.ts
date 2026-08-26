@@ -2,6 +2,8 @@ import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import type { AvailabilityStatus } from '@/features/products/lib/availability';
+import { resolveGroupStatus, resolveVariantStatus } from '@/features/products/lib/availability';
 import { generateVariantIndexes, getAttributeByValueId } from '@/features/products/lib/utils';
 import {
   type CombinedVariantData,
@@ -23,19 +25,25 @@ type UpdateVariantsPayload = {
   variant_index?: number[];
 };
 
-type UseSingleGroupOptions = {
+type UseVariantGroupOptions = {
   parentId: number;
   selectedIndex: number[];
   setSelectedIndex: React.Dispatch<React.SetStateAction<number[]>>;
   expandVariation: boolean;
+  storeDefaultThreshold: number;
   updateVariants: (payload: UpdateVariantsPayload) => void;
 };
 
-type UseSingleGroupResult = {
+type UseVariantGroupResult = {
   thisVariants: ProductVariant[];
   thisAttribute: ReturnType<typeof getAttributeByValueId>;
   attributes: Attribute[];
   combinedData: CombinedVariantData;
+  displayMedia: MediaRef[];
+  childStatuses: AvailabilityStatus[];
+  childQuantities: number[];
+  groupStatus: AvailabilityStatus | null;
+  groupQuantity: number;
   hasVariation: number;
   galleryIds: number[];
   productGallery: MediaRef[];
@@ -57,13 +65,14 @@ const stripMediaTimestamps = (value: unknown) => {
   delete mediaValue?.modified;
 };
 
-export const useSingleGroup = ({
+export const useVariantGroup = ({
   parentId,
   selectedIndex,
   setSelectedIndex,
   expandVariation,
+  storeDefaultThreshold,
   updateVariants,
-}: UseSingleGroupOptions): UseSingleGroupResult => {
+}: UseVariantGroupOptions): UseVariantGroupResult => {
   const { control, setValue } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
   const watchedVariants = useWatch({ control, name: 'variants' });
@@ -74,7 +83,7 @@ export const useSingleGroup = ({
   const productGallery = useWatch({ control, name: 'media' }) ?? [];
   const galleryIds = productGallery.map((item) => Number(item.id)).filter(Boolean);
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>([]);
-  const [combinedData, setCombinedData] = useState<CombinedVariantData>({});
+  const [combinedData, setCombinedData] = useState<CombinedVariantData>({ minPrice: 0, maxPrice: 0, media: [] });
 
   const thisVariants = useMemo(
     () => getGroupVariants(variants, parentId),
@@ -86,6 +95,40 @@ export const useSingleGroup = ({
   useEffect(() => {
     setCombinedData(getCombinedVariantData(thisVariants));
   }, [thisVariants]);
+
+  const allChildrenHaveMedia = thisVariants.length > 0 && thisVariants.every((variant) => Boolean(variant.media));
+  const displayMedia = allChildrenHaveMedia ? combinedData.media : [];
+
+  const childStatuses = useMemo(
+    () =>
+      thisVariants.map((variant) =>
+        resolveVariantStatus(
+          {
+            trackInventory: Boolean(variant.track_inventory),
+            inStock: Boolean(variant.in_stock),
+            availableQuantity: Number(variant.available_quantity ?? 0),
+            lowStockThreshold: variant.low_stock_threshold ?? null,
+          },
+          storeDefaultThreshold,
+        ),
+      ),
+    [thisVariants, storeDefaultThreshold],
+  );
+
+  const groupStatus = useMemo(() => resolveGroupStatus(childStatuses), [childStatuses]);
+
+  const childQuantities = useMemo(
+    () =>
+      thisVariants.map((variant) =>
+        variant.track_inventory ? Number(variant.available_quantity ?? 0) : 0,
+      ),
+    [thisVariants],
+  );
+
+  const groupQuantity = useMemo(
+    () => childQuantities.reduce((sum, quantity) => sum + quantity, 0),
+    [childQuantities],
+  );
 
   const thisAttribute = getAttributeByValueId(attributes, parentId);
 
@@ -212,6 +255,11 @@ export const useSingleGroup = ({
     thisAttribute,
     attributes,
     combinedData,
+    displayMedia,
+    childStatuses,
+    childQuantities,
+    groupStatus,
+    groupQuantity,
     hasVariation,
     galleryIds,
     productGallery,

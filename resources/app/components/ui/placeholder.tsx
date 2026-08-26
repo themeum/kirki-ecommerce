@@ -33,29 +33,38 @@ const Placeholder = forwardRef<HTMLDivElement, PlaceholderProps>(
     } = props;
 
     const isInteractive = typeof onClick === 'function';
+    const isFieldMode = Boolean(label || helpText || typeof error === 'string');
+
+    const media = (
+      <div
+        ref={ref}
+        role={isInteractive ? 'button' : undefined}
+        tabIndex={isInteractive ? 0 : undefined}
+        style={style}
+        css={scopedMerge(styles.root, type && styles.types[type], size && styles.sizes[size], cssOverride)}
+        onClick={onClick}
+        onKeyDown={(event) => {
+          if (!isInteractive || !onClick) {
+            return;
+          }
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onClick();
+          }
+        }}
+      >
+        {size === 'small' ? <ThumbnailPlaceholder /> : children}
+      </div>
+    );
+
+    if (!isFieldMode) {
+      return media;
+    }
 
     return (
       <Field data-invalid={error ? true : undefined}>
         {label && <FieldLabel>{label}</FieldLabel>}
-        <div
-          ref={ref}
-          role={isInteractive ? 'button' : undefined}
-          tabIndex={isInteractive ? 0 : undefined}
-          style={style}
-          css={scopedMerge(styles.root, type && styles.types[type], size && styles.sizes[size], cssOverride)}
-          onClick={onClick}
-          onKeyDown={(event) => {
-            if (!isInteractive || !onClick) {
-              return;
-            }
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              onClick();
-            }
-          }}
-        >
-          {size === 'small' ? <ThumbnailPlaceholder /> : children}
-        </div>
+        {media}
         {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
         {typeof error === 'string' && <FieldError>{error}</FieldError>}
       </Field>

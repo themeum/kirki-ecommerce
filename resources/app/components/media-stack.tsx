@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 
 import Thumbnail from '@/components/ui/thumbnail';
+import { scoped } from '@/theme/mixins';
 import type { ThumbnailSize } from '@/types/components/common';
 
 type MediaStackItem = {
@@ -30,13 +31,13 @@ const MediaStack = (props: MediaStackProps) => {
         <>
           <Thumbnail size={size} src={mediaArray[1]?.url} />
           <div
-            style={{
+            css={scoped({
               position: 'absolute',
               transform: 'rotate(12deg)',
               top: 0,
               left: 0,
               zIndex: '2',
-            }}
+            })}
           >
             <Thumbnail size={size} src={mediaArray[0]?.url} />
           </div>
