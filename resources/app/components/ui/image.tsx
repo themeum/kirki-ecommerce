@@ -4,6 +4,7 @@ import {
   type CSSProperties,
   forwardRef,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -99,14 +100,46 @@ const Image = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
   const resolved = resolveSource(src);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [srcSetDisabled, setSrcSetDisabled] = useState(false);
+  const imgElementRef = useRef<HTMLImageElement | null>(null);
+
+  const setImgRef = (node: HTMLImageElement | null) => {
+    imgElementRef.current = node;
+
+    if (typeof ref === 'function') {
+      ref(node);
+    } else if (ref) {
+      ref.current = node;
+    }
+  };
 
   useEffect(() => {
     setIsLoaded(false);
     setHasError(false);
-  }, [resolved?.url]);
+    setSrcSetDisabled(false);
+
+    const img = imgElementRef.current;
+
+    if (!img?.complete) {
+      return;
+    }
+
+    if (img.naturalWidth > 0) {
+      setIsLoaded(true);
+      return;
+    }
+
+    if (resolved?.srcSet) {
+      setSrcSetDisabled(true);
+      return;
+    }
+
+    setHasError(true);
+  }, [resolved?.url, resolved?.srcSet]);
 
   const showFallback = !resolved || hasError;
   const resolvedAlt = alt ?? resolved?.alt ?? '';
+  const canUseSrcSet = Boolean(resolved?.srcSet) && !srcSetDisabled;
 
   const handleLoad: NonNullable<ImageProps['onLoad']> = (event) => {
     setIsLoaded(true);
@@ -114,6 +147,11 @@ const Image = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
   };
 
   const handleError: NonNullable<ImageProps['onError']> = (event) => {
+    if (resolved?.srcSet && !srcSetDisabled) {
+      setSrcSetDisabled(true);
+      return;
+    }
+
     setHasError(true);
     onError?.(event);
   };
@@ -150,10 +188,10 @@ const Image = forwardRef<HTMLImageElement, ImageProps>((props, ref) => {
         />
       ) : null}
       <img
-        ref={ref}
+        ref={setImgRef}
         src={showFallback ? fallbackSrc : resolved.url}
-        srcSet={showFallback ? undefined : resolved?.srcSet}
-        sizes={showFallback || !resolved?.srcSet ? undefined : SIZE_HINTS[size]}
+        srcSet={showFallback || !canUseSrcSet ? undefined : resolved?.srcSet}
+        sizes={showFallback || !canUseSrcSet ? undefined : SIZE_HINTS[size]}
         alt={resolvedAlt}
         loading={loading}
         decoding={decoding}

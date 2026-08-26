@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import Image from '@/components/ui/image';
 import type { MediaRef } from '@/schemas/shared/media';
@@ -87,6 +87,71 @@ describe('Image', () => {
     const wrapper = document.querySelector('[data-slot="image"]')!;
     expect(wrapper).toHaveAttribute('data-size', 'sm');
     expect(wrapper).toHaveAttribute('data-shape', 'circle');
+  });
+
+  it('falls back to the plain url when a srcSet candidate fails, before giving up to the placeholder', () => {
+    const media = buildMediaRef({
+      url: 'https://example.test/wp-content/uploads/original.jpg',
+      sizes: {
+        thumbnail: { url: 'https://example.test/thumb.jpg', width: 150, height: 150 },
+      },
+    });
+
+    render(<Image src={media} fallbackSrc="/fallback.svg" alt="Photo" />);
+
+    const img = document.querySelector('[data-slot="image"] img')!;
+    expect(img).toHaveAttribute('srcset');
+
+    fireEvent.error(img);
+
+    expect(img).not.toHaveAttribute('srcset');
+    expect(img).toHaveAttribute('src', media.url);
+
+    fireEvent.error(img);
+
+    expect(img).toHaveAttribute('src', '/fallback.svg');
+  });
+
+  it('treats an already-cached image as loaded without waiting for a load event', () => {
+    const completeSpy = vi
+      .spyOn(window.HTMLImageElement.prototype, 'complete', 'get')
+      .mockReturnValue(true);
+    const widthSpy = vi
+      .spyOn(window.HTMLImageElement.prototype, 'naturalWidth', 'get')
+      .mockReturnValue(200);
+
+    render(<Image src="https://example.test/cached.jpg" alt="Photo" />);
+
+    const wrapper = document.querySelector('[data-slot="image"]')!;
+    expect(wrapper.querySelector('[data-slot="skeleton"]')).not.toBeInTheDocument();
+
+    completeSpy.mockRestore();
+    widthSpy.mockRestore();
+  });
+
+  it('retries the plain url when a cached srcSet candidate is already a known failure', () => {
+    const completeSpy = vi
+      .spyOn(window.HTMLImageElement.prototype, 'complete', 'get')
+      .mockReturnValue(true);
+    const widthSpy = vi
+      .spyOn(window.HTMLImageElement.prototype, 'naturalWidth', 'get')
+      .mockReturnValue(0);
+
+    const media = buildMediaRef({
+      url: 'https://example.test/wp-content/uploads/original.jpg',
+      sizes: {
+        thumbnail: { url: 'https://example.test/thumb.jpg', width: 150, height: 150 },
+      },
+    });
+
+    render(<Image src={media} fallbackSrc="/fallback.svg" alt="Photo" />);
+
+    const img = document.querySelector('[data-slot="image"] img')!;
+    expect(img).not.toHaveAttribute('srcset');
+    expect(img).toHaveAttribute('src', media.url);
+
+    completeSpy.mockRestore();
+    widthSpy.mockRestore();
   });
 
   it('retries a new source after a previous one failed', () => {

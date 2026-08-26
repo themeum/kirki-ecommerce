@@ -103,7 +103,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
       const selected = Array.isArray(media) ? media[0] : media;
 
       if (selected) {
-        onChange(selected as MediaRef);
+        onChange(selected);
       }
     });
   };
@@ -206,7 +206,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
           css={scopedMerge(styles.smallTrigger)}
           aria-label={btnText}
         >
-          <Image src={previewSrc} size="sm" cssOverride={styles.smallImage} />
+          <Image src={previewSrc} size="sm" loading="eager" cssOverride={styles.smallImage} />
         </button>
         {isUploading && (
           <span css={scopedMerge(styles.smallSpinnerOverlay)}>
@@ -264,7 +264,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <Image src={previewSrc} size="full" cssOverride={styles.filledImage} />
+        <Image src={previewSrc} size="full" loading="eager" cssOverride={styles.filledImage} />
         <div css={scopedMerge(styles.overlay, isDragging && styles.overlayVisible)}>
           <Flex gap={2} cssOverride={styles.overlayActions}>
             <Button
