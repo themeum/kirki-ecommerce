@@ -21,10 +21,10 @@ final class AvailabilityStatus
     public static function get_list()
     {
         return [
-            self::IN_STOCK => __('In Stock', 'kirki-ecommerce'),
-            self::LOW_STOCK => __('Low Stock', 'kirki-ecommerce'),
-            self::OUT_OF_STOCK => __('Out of Stock', 'kirki-ecommerce'),
-            self::PARTIALLY_STOCKED => __('Partially Stocked', 'kirki-ecommerce'),
+            static::IN_STOCK => __('In Stock', 'kirki-ecommerce'),
+            static::LOW_STOCK => __('Low Stock', 'kirki-ecommerce'),
+            static::OUT_OF_STOCK => __('Out of Stock', 'kirki-ecommerce'),
+            static::PARTIALLY_STOCKED => __('Partially Stocked', 'kirki-ecommerce'),
         ];
     }
 
