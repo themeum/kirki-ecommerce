@@ -1,11 +1,16 @@
 info:
-  name: account/orders-html
+  name: shop/products
   type: http
   seq: 1
 
 http:
   method: GET
-  url: "{{baseUrl}}/account/orders-html"
+  url: "{{baseUrl}}/shop/products"
+  params:
+    - name: format
+      value: html
+      type: query
+      disabled: true
   auth: inherit
 
 settings:

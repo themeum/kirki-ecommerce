@@ -24,15 +24,12 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\OrderService;
-use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Route;
 
-use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
@@ -44,43 +41,6 @@ use function Kirki\Ecommerce\Framework\view;
  */
 class SiteController
 {
-    /**
-     * Get products HTML
-     *
-     * @since 1.0.0
-     *
-     * @param ShopPageFilterRequest $request request.
-     * @param ProductService $product_service service.
-     *
-     * @return Response JSON response.
-     */
-    public function products_html(ShopPageFilterRequest $request, ProductService $product_service)
-    {
-        $sanitized_input = $request->sanitized();
-        $shop_page_data = $product_service->shop_page_data($sanitized_input);
-
-        $products = $shop_page_data['products']->items();
-
-        ob_start();
-        include_view('site.shop.parts.list', ['products' => $products]);
-        $products_html = ob_get_clean();
-
-        ob_start();
-        Template::render_pagination($shop_page_data['products']);
-        $pagination_html = ob_get_clean();
-
-        $data = [
-            'products_html' => $products_html,
-            'pagination_html' => $pagination_html,
-            'filters' => $shop_page_data['filters'],
-        ];
-
-        return response()->json([
-            'data' => $data,
-            'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
-        ]);
-    }
-
     /**
      * Shop page
      *
