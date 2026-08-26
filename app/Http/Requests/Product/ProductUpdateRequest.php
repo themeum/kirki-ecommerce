@@ -49,7 +49,7 @@ class ProductUpdateRequest extends Request
             'id' => 'required|integer',
             'title' => 'required|string|max:500',
             'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug,' . $this->int('id'),
-            'status' => 'string|nullable|in:' . implode(',', ProductStatus::get_constant_values()),
+            'status' => 'string|nullable|in:' . ProductStatus::join(),
             'ribbon' => 'string|nullable|max:100',
             'currency_id' => 'integer|nullable',
             'brand_id' => 'integer|nullable',
@@ -101,7 +101,7 @@ class ProductUpdateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100', // @todo: add unique rule when value supported
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required|nullable|number|min:0',
+            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number|min:0',
             'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',

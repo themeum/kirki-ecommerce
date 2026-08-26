@@ -56,9 +56,30 @@ const updateProduct = ({
 const bulkDeleteProducts = ({
   action = 'delete',
   ids = [],
-}: BulkActionParams = {}) => {
+  params = {},
+}: BulkActionParams<ProductListFilter> = {}) => {
   return apiClient
-    .post(endpoints.PRODUCTS_BULK, { action, ids })
+    .post(endpoints.PRODUCTS_BULK, { action, ids, ...params })
+    .then((response) => parseMessage(response));
+};
+
+const bulkTrashProducts = ({
+  action = 'trash',
+  ids = [],
+  params = {},
+}: BulkActionParams<ProductListFilter> = {}) => {
+  return apiClient
+    .post(endpoints.PRODUCTS_BULK, { action, ids, ...params })
+    .then((response) => parseMessage(response));
+};
+
+const bulkRestoreProducts = ({
+  action = 'restore',
+  ids = [],
+  params = {},
+}: BulkActionParams<ProductListFilter> = {}) => {
+  return apiClient
+    .post(endpoints.PRODUCTS_BULK, { action, ids, ...params })
     .then((response) => parseMessage(response));
 };
 
@@ -140,7 +161,44 @@ const useBulkDeleteProductsMutation = () => {
   });
 };
 
+const useBulkTrashProductsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: bulkTrashProducts,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message ||
+        __('Products trashed successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
+const useBulkRestoreProductsMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: bulkTrashProducts,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message ||
+        __('Products restored successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
 export {
-  bulkDeleteProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation,
+  bulkDeleteProducts, bulkRestoreProducts, bulkTrashProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useBulkRestoreProductsMutation,
+  useBulkTrashProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation,
 };
 

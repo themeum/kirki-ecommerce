@@ -240,15 +240,15 @@ describe('mapProductToFormValues', () => {
   };
 
   it('falls back to a single default variant when the product has none', () => {
-
-    const formValues = mapProductToFormValues(productWithNoVariants);
+     
+    const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.variants).toHaveLength(1);
     expect(formValues.variants?.[0]?.in_stock).toBe(true);
   });
 
   it('converts a null additional_info/seo_keywords into empty arrays', () => {
-
-    const formValues = mapProductToFormValues(productWithNoVariants);
+     
+    const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.additional_info).toEqual([]);
     expect(formValues.seo_keywords).toEqual([]);
   });

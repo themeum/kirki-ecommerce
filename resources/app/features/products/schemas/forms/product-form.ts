@@ -93,7 +93,7 @@ export type ProductFormVariantInput = z.input<typeof ProductFormVariantSchema>;
 export type ProductFormVariantPayload = z.output<typeof ProductFormVariantSchema>;
 
 const ProductFormComposedShape = ProductBasicsFormSchema.extend({
-  status: z.union([ProductStatusSchema, z.string()]).default('draft'),
+  status: ProductStatusSchema.default('draft'),
   brand: ProductBrandSchema.nullish().default(null),
   currency: ProductCurrencySchema.nullish().default(null),
   categories: z.array(ProductCategoryRefSchema).default([]),
