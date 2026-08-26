@@ -20,6 +20,7 @@ type MoneyFieldProps<
   showSymbolWhenEmpty?: boolean;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  autoFocus?: boolean;
 };
 
 const MoneyField = <
@@ -35,6 +36,7 @@ const MoneyField = <
   showSymbolWhenEmpty = true,
   disabled,
   cssOverride,
+  autoFocus = false
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -90,6 +92,7 @@ const MoneyField = <
                 error={Boolean(fieldState.error)}
                 aria-invalid={fieldState.invalid}
                 onFocus={event => event.target.select()}
+                autoFocus={autoFocus}
               />
             </div>
             {description && <FieldDescription>{description}</FieldDescription>}

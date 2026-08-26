@@ -63,7 +63,7 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
             setIsEditing(true);
           }
         }}
-        style={{ cursor: 'pointer' }}
+        css={scoped({ cursor: 'pointer' })}
       >
         <div css={scoped(styles.wrapper)}>
           <Text variant="small">{label}</Text>
@@ -75,7 +75,7 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
   return (
     <div onBlur={() => setIsEditing(false)}>
       <FormProvider {...form}>
-        <MoneyField name="amount" currencySymbol={currencySymbol} />
+        <MoneyField name="amount" currencySymbol={currencySymbol} autoFocus />
       </FormProvider>
     </div>
   );
