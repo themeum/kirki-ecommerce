@@ -6,7 +6,7 @@ import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
-  inventory_type?: string;
+  availability_status?: string;
 };
 
 type InventoryTypeFilterProps = {
@@ -22,14 +22,12 @@ const InventoryTypeFilter = ({
     { label: __('All', 'kirki-ecommerce'), value: 'all' },
     { label: __('In stock', 'kirki-ecommerce'), value: 'in_stock' },
     { label: __('Out of stock', 'kirki-ecommerce'), value: 'out_of_stock' },
+    { label: __('Partially stocked', 'kirki-ecommerce'), value: 'partially_stocked' },
+    { label: __('Low stock', 'kirki-ecommerce'), value: 'low_stock' },
   ];
 
   const handleChange = (value: string | string[]) => {
     const nextValue = Array.isArray(value) ? value[0] : value;
-    if (!nextValue || nextValue === 'all') {
-      onChange(nextValue);
-      return;
-    }
     onChange(nextValue);
   };
 
@@ -37,7 +35,7 @@ const InventoryTypeFilter = ({
     <Flex direction="column" gap={2}>
       <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
       <Select
-        value={filterObject.inventory_type || undefined}
+        value={filterObject.availability_status || undefined}
         onValueChange={(val) => handleChange(val)}
       >
         <SelectTrigger>

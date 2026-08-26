@@ -6,8 +6,11 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import Thumbnail from '@/components/ui/thumbnail';
+import Tooltip from '@/components/ui/tooltip';
 import { RouteConfig } from '@/config/route-config';
+import { getAvailabilityColor, getAvailabilityDescription } from '@/features/products/lib/availability';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
+import { InfoIcon } from '@/icons';
 import { DATE_FORMATS } from '@/libs/date';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
@@ -50,10 +53,49 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     cell: ({ row }) => <ProductTitleCell item={row.original} />,
   },
   {
-    id: 'inventory',
-    header: __('Inventory', 'kirki-ecommerce'),
+    id: 'sku',
+    header: __('SKU', 'kirki-ecommerce'),
     enableSorting: false,
-    cell: ({ row }) => row.original?.inventory,
+    cell: ({ row }) => row.original?.sku || '-',
+  },
+  {
+    id: 'availability_status',
+    header: __('Availability', 'kirki-ecommerce'),
+    enableSorting: false,
+    cell: ({ row }) => {
+      const status = row.original?.availability_status;
+
+      if (!status) {
+        return '-';
+      }
+
+      const label = (
+        <Text variant="tiny" color={getAvailabilityColor(status)}>
+          {row.original?.availability_label ?? status}
+        </Text>
+      );
+
+      const description = getAvailabilityDescription(status);
+
+      if (!description) {
+        return label;
+      }
+
+      return (
+        <Flex align="center" gap={2} cssOverride={{
+          '&:hover': {
+            '& [data-tooltip]': {
+              opacity: 1,
+            },
+          },
+        }}>
+          {label}
+          <Tooltip tip={description} position="top" cssOverride={{ opacity: 0, transition: 'opacity 0.2s ease' }}>
+            <InfoIcon />
+          </Tooltip>
+        </Flex>
+      );
+    },
   },
   {
     id: 'base_price',

@@ -108,8 +108,8 @@ const SelectProductsDialog = ({
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<ProductFilterValue>({
     category_ids: [],
-    status: '',
-    inventory_type: '',
+    status: 'all',
+    availability_status: '',
     collection_ids: undefined,
     brand_ids: undefined,
   });
@@ -129,9 +129,9 @@ const SelectProductsDialog = ({
     limit: LIMIT,
     sort_by: 'title',
     sort_order: 'asc',
-    status: 'published',
+    status: filters.status && filters.status !== 'all' ? filters.status : 'published',
     category_ids: filters.category_ids.length ? filters.category_ids : undefined,
-    inventory_type: filters.inventory_type && filters.inventory_type !== 'all' ? filters.inventory_type : undefined,
+    availability_status: filters.availability_status && filters.availability_status !== 'all' ? filters.availability_status : undefined,
     collection_ids: filters.collection_ids ? [filters.collection_ids] : undefined,
     brand_ids: filters.brand_ids ? [filters.brand_ids] : undefined,
   }, open);

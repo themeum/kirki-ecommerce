@@ -57,7 +57,7 @@ describe('ProductFormVariantSchema', () => {
       sku: 'SKU-1',
       base_price: '19.99',
       available_quantity: '10',
-      min_stock_threshold: '5',
+      low_stock_threshold: '5',
       max_per_order: '3',
       tax_profile_id: '7',
       shipping_profile_id: '8',
@@ -88,7 +88,7 @@ describe('ProductFormVariantSchema', () => {
       track_inventory: false,
       available_quantity: 10,
       in_stock: true,
-      min_stock_threshold: 5,
+      low_stock_threshold: 5,
       has_limit_per_order: false,
       max_per_order: 3,
       tax_profile_id: 7,
@@ -240,14 +240,14 @@ describe('mapProductToFormValues', () => {
   };
 
   it('falls back to a single default variant when the product has none', () => {
-     
+
     const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.variants).toHaveLength(1);
     expect(formValues.variants?.[0]?.in_stock).toBe(true);
   });
 
   it('converts a null additional_info/seo_keywords into empty arrays', () => {
-     
+
     const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.additional_info).toEqual([]);
     expect(formValues.seo_keywords).toEqual([]);
@@ -279,7 +279,7 @@ describe('mapProductToFormValues', () => {
           track_inventory: false,
           available_quantity: 0,
           in_stock: true,
-          min_stock_threshold: null,
+          low_stock_threshold: null,
           has_limit_per_order: true,
           max_per_order: null,
           tax_profile_id: null,
@@ -319,7 +319,7 @@ describe('mapProductToFormValues', () => {
     track_inventory: false,
     available_quantity: 0,
     in_stock: true,
-    min_stock_threshold: null,
+    low_stock_threshold: null,
     has_limit_per_order: false,
     max_per_order: 1,
     tax_profile_id: null,

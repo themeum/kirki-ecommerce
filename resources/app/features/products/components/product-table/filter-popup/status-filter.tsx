@@ -28,10 +28,6 @@ const StatusFilter = ({
 
   const handleChange = (value: string | string[]) => {
     const nextValue = Array.isArray(value) ? value[0] : value;
-    if (!nextValue || nextValue === 'all') {
-      onChange(nextValue);
-      return;
-    }
     onChange(nextValue);
   };
 

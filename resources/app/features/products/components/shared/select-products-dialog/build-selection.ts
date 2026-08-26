@@ -33,7 +33,7 @@ const buildProductSelection = (product: ProductListItemWithVariants): ProductSel
   productId: product.id,
   productTitle: product.title,
   thumbnail: product.image ?? null,
-  inStock: Number(product.inventory ?? 0) > 0,
+  inStock: product.availability_status !== 'out_of_stock',
   regularPrice: product.base_price_money_object,
   salePrice: product.base_sale_price_money_object,
   variants: buildVariantSelections(product),

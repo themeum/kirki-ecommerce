@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
-use Kirki\Ecommerce\App\Constants\InventoryType;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -15,7 +15,7 @@ class ProductListRequest extends Request
             'category_ids' => 'nullable|string',
             'brand_id' => 'nullable|integer',
             'collection_id' => 'nullable|integer',
-            'inventory_type' => 'nullable|string|in:' . InventoryType::join(),
+            'availability_status' => 'nullable|string|in:' . AvailabilityStatus::join(),
             'status' => 'nullable|string|in:' . ProductStatus::join(),
         ];
     }
@@ -26,7 +26,7 @@ class ProductListRequest extends Request
             'category_ids' => Sanitizer::TEXT,
             'brand_id' => Sanitizer::INT,
             'collection_id' => Sanitizer::INT,
-            'inventory_type' => Sanitizer::TEXT,
+            'availability_status' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
         ];
     }

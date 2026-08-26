@@ -94,9 +94,7 @@ const ProductPickerRow = ({
           </Flex>
         </TableCell>
         <TableCell>
-          {Number(product.inventory ?? 0) > 0
-            ? __('In Stock', 'kirki-ecommerce')
-            : __('Out of Stock', 'kirki-ecommerce')}
+          {product.availability_label ?? __('Out of Stock', 'kirki-ecommerce')}
         </TableCell>
         <TableCell alignment="right">
           <PriceText

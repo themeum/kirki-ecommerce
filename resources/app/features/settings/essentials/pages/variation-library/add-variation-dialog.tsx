@@ -93,6 +93,7 @@ const AddVariationPopup = ({
                   variationType === 'color' ? 'e.g Color' : 'e.g Material',
                   'kirki-ecommerce',
                 )}
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- first field of a dialog that only opens on an explicit user action
                 autoFocus
               />
             </Flex>

@@ -1,3 +1,4 @@
+import NumberField from '@/components/form/number-field';
 import SelectField from '@/components/form/select-field';
 import SwitchField from '@/components/form/switch-field';
 import ActionGroup from '@/components/ui/action-group';
@@ -65,6 +66,19 @@ export const StandardUnit = () => {
                     <SwitchField name="is_unit_price_visible" />
                   </ActionGroup>
                 </Flex>
+              </CardContent>
+            </Card>
+            <Card cssOverride={styles.optionCard}>
+              <CardContent>
+                <NumberField
+                  name="low_stock_threshold"
+                  label={__('Low stock threshold', 'kirki-ecommerce')}
+                  infoText={__(
+                    'Default quantity at or below which a variant reports as low stock, unless it has its own threshold.',
+                    'kirki-ecommerce',
+                  )}
+                  min={0}
+                />
               </CardContent>
             </Card>
           </Flex>

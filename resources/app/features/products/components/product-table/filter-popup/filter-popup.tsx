@@ -22,7 +22,7 @@ import { __, sprintf } from '@/wpi18n';
 type LocalFilterState = {
   category_ids: number[];
   status: string;
-  inventory_type: string;
+  availability_status: string;
   collection_ids: number | undefined;
   brand_ids: number | undefined;
 };
@@ -43,7 +43,7 @@ const FilterPopup = memo(({
   const [filterObject, setFilterObject] = useState<LocalFilterState>({
     category_ids: [],
     status: 'all',
-    inventory_type: 'all',
+    availability_status: 'all',
     collection_ids: undefined,
     brand_ids: undefined,
   });
@@ -51,7 +51,7 @@ const FilterPopup = memo(({
   const hasFilter = [
     params.category_ids?.length,
     params.status,
-    params.inventory_type,
+    params.availability_status,
     params.collection_ids?.length,
     params.brand_ids?.length,
   ].filter(Boolean).length;
@@ -63,7 +63,7 @@ const FilterPopup = memo(({
     setFilterObject({
       category_ids: params.category_ids ?? [],
       status: (params.status as string) || 'all',
-      inventory_type: params.inventory_type || 'all',
+      availability_status: params.availability_status || 'all',
       collection_ids: params.collection_ids?.[0],
       brand_ids: params.brand_ids?.[0],
     });
@@ -89,9 +89,10 @@ const FilterPopup = memo(({
         filterObject.status && filterObject.status !== 'all'
           ? filterObject.status
           : undefined,
-      inventory_type: filterObject.inventory_type && filterObject.inventory_type !== 'all'
-        ? filterObject.inventory_type
-        : undefined,
+      availability_status:
+        filterObject.availability_status && filterObject.availability_status !== 'all'
+          ? filterObject.availability_status
+          : undefined,
       collection_ids: filterObject.collection_ids
         ? [filterObject.collection_ids]
         : undefined,
@@ -104,7 +105,7 @@ const FilterPopup = memo(({
     setFilterObject({
       category_ids: [],
       status: 'all',
-      inventory_type: 'all',
+      availability_status: 'all',
       collection_ids: undefined,
       brand_ids: undefined,
     });
@@ -152,7 +153,7 @@ const FilterPopup = memo(({
           </Button>
         ) : null}
       </Flex>
-      <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
+      <DropdownMenuContent cssOverride={{ width: '288px', maxHeight: '522px' }}>
         <Flex cssOverride={styles.header}>
           <Text>{__('Filter', 'kirki-ecommerce')}</Text>
           <ActionGroup>
@@ -178,7 +179,7 @@ const FilterPopup = memo(({
           />
           <InventoryTypeFilter
             filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'inventory_type')}
+            onChange={(val) => handleOnFilterChange(val, 'availability_status')}
           />
           <CollectionFilter
             filterObject={filterObject}

@@ -1,11 +1,14 @@
+import MediaStack from '@/components/media-stack';
 import Placeholder from '@/components/ui/placeholder';
 import Thumbnail from '@/components/ui/thumbnail';
 import type { MediaRef } from '@/schemas/shared/media';
+import { scoped } from '@/theme/mixins';
 import type { MediaChangePayload } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
 type VariantThumbnailSelectorProps = {
   src?: string;
+  stackMedia?: MediaRef[];
   galleryIds: number[];
   onChange: (media: MediaChangePayload | null, gallery: MediaRef[]) => void;
 };
@@ -89,11 +92,31 @@ const openGalleryFrame = (
   frame.open();
 };
 
-const VariantThumbnailSelector = ({ src, galleryIds, onChange }: VariantThumbnailSelectorProps) => {
+const VariantThumbnailSelector = ({ src, stackMedia, galleryIds, onChange }: VariantThumbnailSelectorProps) => {
   const handleOpen = () => openGalleryFrame(galleryIds, onChange);
 
+  if (stackMedia && stackMedia.length > 1) {
+    return (
+      <div
+        onClick={handleOpen}
+        css={scoped({ cursor: 'pointer' })}
+        role="button"
+        tabIndex={0}
+        aria-label={__('Select Variant Image', 'kirki-ecommerce')}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleOpen();
+          }
+        }}
+      >
+        <MediaStack size="small" mediaArray={stackMedia} />
+      </div>
+    );
+  }
+
   if (!src) {
-    return <Placeholder size="small" type="primary" onClick={handleOpen} />;
+    return <Placeholder size="small" type="primary" cssOverride={{ width: 32, height: 32 }} onClick={handleOpen} />;
   }
 
   return (

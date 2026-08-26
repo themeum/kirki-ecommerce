@@ -17,8 +17,8 @@ import { __, sprintf } from '@/wpi18n';
 
 type ProductFilterValue = {
   category_ids: number[];
-  inventory_type: string;
   status: string;
+  availability_status: string;
   collection_ids: number | undefined;
   brand_ids: number | undefined;
 };
@@ -31,8 +31,8 @@ type ProductFilterPopupProps = {
 
 const emptyFilter: ProductFilterValue = {
   category_ids: [],
-  inventory_type: '',
-  status: '',
+  status: 'all',
+  availability_status: 'all',
   collection_ids: undefined,
   brand_ids: undefined,
 };
@@ -43,16 +43,14 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
 
   const filterCount = [
     value.category_ids?.length,
-    value.status,
-    value.inventory_type,
+    value.availability_status,
     value.collection_ids,
     value.brand_ids,
   ].filter(Boolean).length;
 
   const hasFilter = Boolean(
     filterObject.category_ids.length ||
-    filterObject.status ||
-    filterObject.inventory_type ||
+    filterObject.availability_status ||
     filterObject.collection_ids ||
     filterObject.brand_ids,
   );
@@ -63,8 +61,8 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
     }
     setFilterObject({
       category_ids: value.category_ids || [],
-      status: value.status || '',
-      inventory_type: value.inventory_type || '',
+      status: value.status || 'all',
+      availability_status: value.availability_status || 'all',
       collection_ids: value.collection_ids,
       brand_ids: value.brand_ids,
     });
@@ -149,7 +147,7 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
           />
           <InventoryTypeFilter
             filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'inventory_type')}
+            onChange={(val) => handleOnFilterChange(val, 'availability_status')}
           />
           <CollectionFilter
             filterObject={filterObject}
