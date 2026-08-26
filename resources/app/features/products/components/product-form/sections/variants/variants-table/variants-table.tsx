@@ -19,7 +19,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 import VariantGroup from './variant-group';
 
@@ -122,7 +122,7 @@ const VariantsTable = () => {
             value={String(showBy)}
             onValueChange={(value) => setShowBy(Number(value))}
           >
-            <SelectTrigger style={{ width: '180px' }}>
+            <SelectTrigger cssOverride={{ width: '180px' }}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -157,7 +157,7 @@ const VariantsTable = () => {
         <CardContent cssOverride={cardStyles.tableContent}>
           <Table density="compact" fixed>
             <TableHeader>
-              <TableRow style={{ height: '53px' }}>
+              <TableRow cssOverride={{ height: '53px' }}>
                 <TableHead onlyCheckbox>
                   <Checkbox
                     checked={
@@ -173,14 +173,14 @@ const VariantsTable = () => {
                 </TableHead>
                 {selectedIndex.length ? (
                   <>
-                    <TableHead style={{ width: '242px' }}>
+                    <TableHead cssOverride={{ width: '242px' }}>
                       <Flex
                         gap={5}
                         align="center">
                         {selectedIndex.length}{' '}
                         {selectedIndex.length !== variants.length
-                          ? `${selectedIndex.length === 1 ? 'item' : 'items'} selected`
-                          : `of ${variants.length} ${selectedIndex.length === 1 ? 'item' : 'items'} selected`}
+                          ? selectedIndex.length === 1 ? __('item selected', 'kirki-ecommerce') : __('items selected', 'kirki-ecommerce')
+                          : sprintf(__('of %d %s selected', 'kirki-ecommerce'), variants.length, selectedIndex.length === 1 ? __('item', 'kirki-ecommerce') : __('items', 'kirki-ecommerce'))}
                         <Button
                           variant="ghost"
                           size="xs"
@@ -197,10 +197,10 @@ const VariantsTable = () => {
                         </Button>
                       </Flex>
                     </TableHead>
-                    <TableHead style={{ width: '170px' }}>
+                    <TableHead cssOverride={{ width: '170px' }}>
                       <NumberInput
                         placeholder={__('$0.00', 'kirki-ecommerce')}
-                        style={{ textAlign: 'center' }}
+                        cssOverride={{ textAlign: 'center' }}
                         onChange={(event) => {
                           const parsed = parseFloat(event.target.value);
 
@@ -213,14 +213,14 @@ const VariantsTable = () => {
                       />
                     </TableHead>
                     <TableHead />
-                    <TableHead style={{ width: '48px' }} />
+                    <TableHead cssOverride={{ width: '48px' }} />
                   </>
                 ) : (
                   <>
-                    <TableHead style={{ width: '242px' }}>{__('Variants', 'kirki-ecommerce')}</TableHead>
-                    <TableHead style={{ width: '170px' }}>{__('Price', 'kirki-ecommerce')}</TableHead>
+                    <TableHead cssOverride={{ width: '242px' }}>{__('Variants', 'kirki-ecommerce')}</TableHead>
+                    <TableHead cssOverride={{ width: '170px' }}>{__('Price', 'kirki-ecommerce')}</TableHead>
                     <TableHead>{__('Availability', 'kirki-ecommerce')}</TableHead>
-                    <TableHead style={{ width: '48px' }} />
+                    <TableHead cssOverride={{ width: '48px' }} />
                   </>
                 )}
               </TableRow>
