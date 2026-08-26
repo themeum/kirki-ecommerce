@@ -6,7 +6,7 @@ use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
-use Kirki\Ecommerce\App\Events\OrderRefunded;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
@@ -74,7 +74,7 @@ class UpdateRefundAction
 
             if ($is_fully_refunded) {
                 $this->order_service->mark_refund_as_completed($order->id);
-                OrderRefunded::dispatch($order->fresh(), $refund);
+                OrderActivity::refunded($order->fresh(), $refund);
             }
 
             if (!$is_fully_refunded && $total_refunded > 0 && $order->order_status !== OrderStatus::REFUNDED) {

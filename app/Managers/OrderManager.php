@@ -9,18 +9,10 @@ use Kirki\Ecommerce\App\Actions\Order\UpdateRefundAction;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderAction;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
-use Kirki\Ecommerce\App\Events\OrderArchived;
-use Kirki\Ecommerce\App\Events\OrderCancelled;
-use Kirki\Ecommerce\App\Events\OrderDelivered;
-use Kirki\Ecommerce\App\Events\OrderFulfillmentResumed;
-use Kirki\Ecommerce\App\Events\OrderMarkedAsProcessing;
-use Kirki\Ecommerce\App\Events\OrderPaymentCompleted;
-use Kirki\Ecommerce\App\Events\OrderPaymentFailed;
-use Kirki\Ecommerce\App\Events\OrderPlacedOnHold;
-use Kirki\Ecommerce\App\Events\OrderShipped;
-use Kirki\Ecommerce\App\Events\OrderTrackingAdded;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
@@ -116,12 +108,14 @@ class OrderManager
                 $order->coupon_usage->delete();
                 $this->coupon_service->decrement($coupon_id, 'current_usage_count');
             }
+
             $this->inventory_service->release_all_reserved_stock($order);
             $this->order_service->partial_update_order($id, [
                 'cancellation_reason' => $reason,
                 'cancelled_at' => Date::now(),
             ]);
-            OrderCancelled::dispatch($this->order_service->find_order_or_fail($id), $reason);
+            
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::CANCELLED);
         }
 
         return $is_cancelled;
@@ -145,12 +139,7 @@ class OrderManager
 
         if ($is_updated) {
             $order = $this->order_service->find_order_or_fail($id);
-
-            if ($is_resuming) {
-                OrderFulfillmentResumed::dispatch($order);
-            } else {
-                OrderMarkedAsProcessing::dispatch($order);
-            }
+            OrderActivity::log($order, $is_resuming ? OrderActivityType::FULFILLMENT_RESUMED : OrderActivityType::PROCESSING);
         }
 
         return $is_updated;
@@ -168,7 +157,7 @@ class OrderManager
         $is_on_hold = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::MARK_AS_HOLD);
 
         if ($is_on_hold) {
-            OrderPlacedOnHold::dispatch($this->order_service->find_order_or_fail($id));
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::ON_HOLD);
         }
 
         return $is_on_hold;
@@ -184,7 +173,7 @@ class OrderManager
 
         if ($is_shipped) {
             $this->order_service->partial_update_order($id, ['shipped_at' => Date::now()]);
-            OrderShipped::dispatch($this->order_service->find_order_or_fail($id));
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::SHIPPED);
         }
 
         return $is_shipped;
@@ -208,7 +197,7 @@ class OrderManager
                 $this->inventory_service->confirm_all_reserved_stock($order);
             }
 
-            OrderDelivered::dispatch($this->order_service->find_order_or_fail($id));
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::DELIVERED);
         }
 
         return $is_delivered;
@@ -230,7 +219,7 @@ class OrderManager
         ]);
 
         if ($is_updated) {
-            OrderTrackingAdded::dispatch($this->order_service->find_order_or_fail($id), $tracking);
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::TRACKING_ADDED);
         }
 
         return $is_updated;
@@ -247,7 +236,7 @@ class OrderManager
         $is_updated = $this->order_service->partial_update_order($id, ['archived_at' => Date::now()]);
 
         if ($is_updated) {
-            OrderArchived::dispatch($this->order_service->find_order_or_fail($id));
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::ARCHIVED);
         }
 
         return $is_updated;
@@ -278,7 +267,7 @@ class OrderManager
                 $this->inventory_service->confirm_all_reserved_stock($order);
             }
 
-            OrderPaymentCompleted::dispatch($this->order_service->find_order_or_fail($id), $payment_provider);
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::PAYMENT_COMPLETED);
         }
 
         return $is_paid;
@@ -318,7 +307,7 @@ class OrderManager
         ]);
 
         if ($is_updated) {
-            OrderPaymentFailed::dispatch($this->order_service->find_order_or_fail($id));
+            OrderActivity::log($this->order_service->find_order_or_fail($id), OrderActivityType::PAYMENT_FAILED);
         }
 
         return $is_updated;

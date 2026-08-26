@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
-use Kirki\Ecommerce\App\Events\OrderRefundDeleted;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
@@ -34,7 +34,7 @@ class DeleteRefundAction
 
         $refund->delete();
 
-        OrderRefundDeleted::dispatch($order->fresh('refunds'), $refund_snapshot);
+        OrderActivity::refund_deleted($order->fresh('refunds'), $refund_snapshot);
 
         return $order->fresh('refunds', 'items');
     }

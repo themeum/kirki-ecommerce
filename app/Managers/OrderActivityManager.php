@@ -14,11 +14,13 @@ use function Kirki\Ecommerce\Framework\user;
 /**
  * OrderActivityManager class
  *
- * A collaborator class exposing one semantic method per order activity type,
- * plus the read-time description builder for system activities. Everything
- * about order activities - how they're recorded and how they're described -
- * lives here, independent of whether recording is called directly from an
- * action/manager or from an event listener.
+ * A collaborator class recording and describing order activities. Everything
+ * needed to record an order-state activity (order-placed, shipped, cancelled,
+ * ...) lives on the order itself by the time it's recorded, so those all go
+ * through the single log() entry point, which dispatches to a protected
+ * method per type. Refund and comment activities carry data no order alone
+ * has (which specific refund, the comment text), so they keep their own
+ * public methods, called directly from their trigger points.
  */
 class OrderActivityManager
 {
@@ -30,12 +32,53 @@ class OrderActivityManager
     }
 
     /**
+     * Record an order-state activity, dispatching to the method for the
+     * given type. Covers every activity type whose metadata is derivable
+     * from the order alone - not refund or comment activities, which carry
+     * data no order alone has and are recorded via their own methods.
+     *
+     * @param Order $order
+     * @param string $activity_type One of the OrderActivityType constants.
+     * @return OrderActivity
+     * @throws \InvalidArgumentException When the type has no order-state handler.
+     */
+    public function log(Order $order, string $activity_type)
+    {
+        switch ($activity_type) {
+            case OrderActivityType::ORDER_PLACED:
+                return $this->order_placed($order);
+            case OrderActivityType::PAYMENT_COMPLETED:
+                return $this->payment_completed($order);
+            case OrderActivityType::PAYMENT_FAILED:
+                return $this->payment_failed($order);
+            case OrderActivityType::PROCESSING:
+                return $this->processing($order);
+            case OrderActivityType::FULFILLMENT_RESUMED:
+                return $this->fulfillment_resumed($order);
+            case OrderActivityType::SHIPPED:
+                return $this->shipped($order);
+            case OrderActivityType::DELIVERED:
+                return $this->delivered($order);
+            case OrderActivityType::CANCELLED:
+                return $this->cancelled($order);
+            case OrderActivityType::TRACKING_ADDED:
+                return $this->tracking_added($order);
+            case OrderActivityType::ARCHIVED:
+                return $this->archived($order);
+            case OrderActivityType::ON_HOLD:
+                return $this->on_hold($order);
+            default:
+                throw new \InvalidArgumentException("No order-state activity handler for type [{$activity_type}].");
+        }
+    }
+
+    /**
      * Record that an order was placed.
      *
      * @param Order $order
      * @return OrderActivity
      */
-    public function order_placed(Order $order)
+    protected function order_placed(Order $order)
     {
         $metadata = [
             'order_number' => $order->order_number,
@@ -50,15 +93,14 @@ class OrderActivityManager
      * Record that a payment was completed for an order.
      *
      * @param Order $order
-     * @param string|null $provider
      * @return OrderActivity
      */
-    public function payment_completed(Order $order, ?string $provider = null)
+    protected function payment_completed(Order $order)
     {
         return $this->record($order->id, OrderActivityType::PAYMENT_COMPLETED, [
             'amount' => $order->invoiced_total,
             'currency_code' => $order->currency_code,
-            'provider' => $provider ?? $order->payment_provider,
+            'provider' => $order->payment_provider,
         ], $this->resolve_author());
     }
 
@@ -68,7 +110,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function payment_failed(Order $order)
+    protected function payment_failed(Order $order)
     {
         return $this->record($order->id, OrderActivityType::PAYMENT_FAILED, [], $this->resolve_author());
     }
@@ -79,7 +121,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function processing(Order $order)
+    protected function processing(Order $order)
     {
         return $this->record($order->id, OrderActivityType::PROCESSING, [], $this->resolve_author());
     }
@@ -90,7 +132,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function fulfillment_resumed(Order $order)
+    protected function fulfillment_resumed(Order $order)
     {
         return $this->record($order->id, OrderActivityType::FULFILLMENT_RESUMED, [], $this->resolve_author());
     }
@@ -101,7 +143,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function shipped(Order $order)
+    protected function shipped(Order $order)
     {
         return $this->record($order->id, OrderActivityType::SHIPPED, [], $this->resolve_author());
     }
@@ -112,7 +154,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function delivered(Order $order)
+    protected function delivered(Order $order)
     {
         return $this->record($order->id, OrderActivityType::DELIVERED, [], $this->resolve_author());
     }
@@ -121,13 +163,12 @@ class OrderActivityManager
      * Record that an order was cancelled.
      *
      * @param Order $order
-     * @param string|null $reason
      * @return OrderActivity
      */
-    public function cancelled(Order $order, ?string $reason = null)
+    protected function cancelled(Order $order)
     {
         return $this->record($order->id, OrderActivityType::CANCELLED, [
-            'reason' => $reason,
+            'reason' => $order->cancellation_reason,
         ], $this->resolve_author());
     }
 
@@ -135,15 +176,14 @@ class OrderActivityManager
      * Record that shipping/tracking details were added to an order.
      *
      * @param Order $order
-     * @param array $tracking Accepts carrier, tracking_number and tracking_url keys.
      * @return OrderActivity
      */
-    public function tracking_added(Order $order, array $tracking)
+    protected function tracking_added(Order $order)
     {
         return $this->record($order->id, OrderActivityType::TRACKING_ADDED, [
-            'carrier' => $tracking['carrier'] ?? null,
-            'tracking_number' => $tracking['tracking_number'] ?? null,
-            'tracking_url' => $tracking['tracking_url'] ?? null,
+            'carrier' => $order->shipping_carrier,
+            'tracking_number' => $order->shipping_tracking_number,
+            'tracking_url' => $order->shipping_tracking_url,
         ], $this->resolve_author());
     }
 
@@ -153,7 +193,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function archived(Order $order)
+    protected function archived(Order $order)
     {
         return $this->record($order->id, OrderActivityType::ARCHIVED, [], $this->resolve_author());
     }
@@ -164,7 +204,7 @@ class OrderActivityManager
      * @param Order $order
      * @return OrderActivity
      */
-    public function on_hold(Order $order)
+    protected function on_hold(Order $order)
     {
         return $this->record($order->id, OrderActivityType::ON_HOLD, [], $this->resolve_author());
     }

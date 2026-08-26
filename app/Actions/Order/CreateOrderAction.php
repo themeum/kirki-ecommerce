@@ -29,7 +29,8 @@ use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
-use Kirki\Ecommerce\App\Events\OrderPlaced;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Exception;
@@ -140,7 +141,7 @@ class CreateOrderAction
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
 
-            OrderPlaced::dispatch($order->fresh('items'));
+            OrderActivity::log($order->fresh('items'), OrderActivityType::ORDER_PLACED);
 
             DB::commit();
 

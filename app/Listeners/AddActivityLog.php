@@ -3,13 +3,14 @@
 namespace Kirki\Ecommerce\App\Listeners;
 
 use Kirki\Ecommerce\App\Events\OrderShipped;
-use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\Framework\Listener;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
-class LogOrderShippedActivity extends Listener
+class AddActivityLog extends Listener
 {
     public function handle(OrderShipped $event)
     {
-        OrderActivity::shipped($event->order);
+        // do something
+        Log::debug('Activity Log: ' . print_r($event->order, true));
     }
 }

@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundType;
 use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
-use Kirki\Ecommerce\App\Events\OrderRefundRequested;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\InventoryService;
@@ -77,7 +77,7 @@ class CreateRefundAction
                 'order_status' => OrderStatus::REFUND_REQUESTED
             ]);
 
-            OrderRefundRequested::dispatch($order->fresh('refunds'), $refund);
+            OrderActivity::refund_requested($order->fresh('refunds'), $refund);
 
             DB::commit();
 
