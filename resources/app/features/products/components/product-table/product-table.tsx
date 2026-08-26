@@ -50,7 +50,7 @@ const ProductTable = () => {
 
   const productBulkActions = useMemo(() => params.status === 'trashed' ? [
     { value: 'restore', title: __('Restore', 'kirki-ecommerce') },
-    { value: 'delete', title: __('Permanently Delete', 'kirki-ecommerce') },
+    { value: 'delete', title: __('Delete Permanently', 'kirki-ecommerce') },
   ] : [
     { value: 'trash', title: __('Trash', 'kirki-ecommerce') },
   ], [params.status]);
