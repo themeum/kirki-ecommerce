@@ -76,9 +76,15 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       }
 
       return (
-        <Flex align="center" gap={2}>
+        <Flex align="center" gap={2} cssOverride={{
+          '&:hover': {
+            '& [data-tooltip]': {
+              opacity: 1
+            }
+          }
+        }}>
           {label}
-          <Tooltip tip={description}>
+          <Tooltip tip={description} position="top" cssOverride={{ opacity: 0, transition: 'opacity 0.2s ease' }}>
             <InfoIcon />
           </Tooltip>
         </Flex>

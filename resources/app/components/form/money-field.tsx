@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import Input from '@/components/ui/input';
+import NumberInput from '@/components/ui/number-input';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 
@@ -75,12 +75,11 @@ const MoneyField = <
                   {currencySymbol}
                 </span>
               )}
-              <Input
+              <NumberInput
                 id={fieldId}
                 value={field.value ?? ''}
                 style={{ textIndent: showSymbol ? '12px' : undefined }}
                 placeholder={placeholder}
-                type="number"
                 disabled={disabled}
                 onChange={(event) => {
                   field.onChange(event.target.value);

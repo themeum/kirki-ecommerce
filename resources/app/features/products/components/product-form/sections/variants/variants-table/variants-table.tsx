@@ -7,7 +7,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
-import Input from '@/components/ui/input';
+import NumberInput from '@/components/ui/number-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -198,9 +198,8 @@ const VariantsTable = () => {
                       </Flex>
                     </TableHead>
                     <TableHead style={{ width: '170px' }}>
-                      <Input
+                      <NumberInput
                         placeholder={__('$0.00', 'kirki-ecommerce')}
-                        type="number"
                         style={{ textAlign: 'center' }}
                         onChange={(event) => {
                           const parsed = parseFloat(event.target.value);
@@ -214,12 +213,14 @@ const VariantsTable = () => {
                       />
                     </TableHead>
                     <TableHead />
+                    <TableHead style={{ width: '48px' }} />
                   </>
                 ) : (
                   <>
                     <TableHead style={{ width: '242px' }}>{__('Variants', 'kirki-ecommerce')}</TableHead>
                     <TableHead style={{ width: '170px' }}>{__('Price', 'kirki-ecommerce')}</TableHead>
                     <TableHead>{__('Availability', 'kirki-ecommerce')}</TableHead>
+                    <TableHead style={{ width: '48px' }} />
                   </>
                 )}
               </TableRow>

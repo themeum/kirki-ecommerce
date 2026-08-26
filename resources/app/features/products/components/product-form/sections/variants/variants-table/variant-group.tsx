@@ -1,9 +1,10 @@
 import type React from 'react';
+import type { MouseEvent } from 'react';
 
+import MoneyField from '@/components/form/money-field';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
@@ -13,24 +14,18 @@ import {
   getAvailabilityLabel,
 } from '@/features/products/lib/availability';
 import { getAttributeByValueId } from '@/features/products/lib/utils';
+import { getVariantIndexArray } from '@/features/products/lib/variant-group';
 import { ChevronDownIcon, InfoIcon } from '@/icons';
-import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
+import { noop } from '@/utils/function';
 import GroupPriceCell from './group-price-cell';
 import { useVariantGroup } from './use-variant-group';
 import VariantThumbnailSelector from './variant-thumbnail-selector';
 
-const styles = defineStyles({
-  hoverParent: {
-    '&:hover [data-hover-reveal]': {
-      visibility: 'visible',
-    },
-  },
-  hoverReveal: {
-    visibility: 'hidden',
-  },
-});
+const stopPropagation = (event: MouseEvent) => event.stopPropagation();
+
+const CHEVRON_COLUMN_WIDTH = '48px';
 
 type UpdateVariantsPayload = {
   key: string;
@@ -69,13 +64,13 @@ const VariantGroup = ({
     groupQuantity,
     hasVariation,
     galleryIds,
+    variants,
     show,
     setShow,
     selectedCheckedIndex,
     handleParentCheckboxClick,
     handleChildCheckboxClick,
     handleOnParentValueChange,
-    handleOnChildValueChange,
     handleParentThumbnailChange,
     handleChildThumbnailChange,
   } = useVariantGroup({
@@ -91,10 +86,17 @@ const VariantGroup = ({
     return null;
   }
 
+  const isGroupFullySelected =
+    thisVariants.length > 0 && selectedCheckedIndex.length === thisVariants.length;
+  const hasSecondaryAttribute = thisVariants[0]?.attribute_values.length > 1;
+
   return (
     <>
-      <TableRow cssOverride={styles.hoverParent}>
-        <TableCell onlyCheckbox>
+      <TableRow
+        style={{ cursor: 'pointer' }}
+        onClick={() => handleParentCheckboxClick(!isGroupFullySelected, [parentId])}
+      >
+        <TableCell onlyCheckbox onClick={stopPropagation}>
           <Checkbox
             checked={
               selectedCheckedIndex.length > 0 &&
@@ -109,41 +111,28 @@ const VariantGroup = ({
         </TableCell>
         <TableCell style={{ width: '242px' }}>
           <Flex gap={3} align="center">
-            <VariantThumbnailSelector
-              src={displayMedia[0]?.url}
-              stackMedia={displayMedia}
-              galleryIds={galleryIds}
-              onChange={handleParentThumbnailChange}
-            />
+            <div onClick={stopPropagation} onKeyDown={noop}>
+              <VariantThumbnailSelector
+                src={displayMedia[0]?.url}
+                stackMedia={displayMedia}
+                galleryIds={galleryIds}
+                onChange={handleParentThumbnailChange}
+              />
+            </div>
             <Flex direction="column" gap={1}>
-              <div>{thisAttribute?.value ?? ''}</div>
-              {thisVariants[0]?.attribute_values.length > 1 && (
-                <div>
+              <Text variant="small">{thisAttribute?.value ?? ''}</Text>
+              {hasSecondaryAttribute && (
+                <Text variant="tiny" color="secondary">
                   {thisVariants.length}{' '}
                   {thisVariants.length > 1
                     ? __('variants', 'kirki-ecommerce')
                     : __('variant', 'kirki-ecommerce')}
-                </div>
+                </Text>
               )}
             </Flex>
-            <Button
-              variant="ghost"
-              data-hover-reveal={
-                thisVariants[0]?.attribute_values.length > 1
-                  ? 'true'
-                  : undefined
-              }
-              cssOverride={styles.hoverReveal}
-              onClick={() => setShow(!show)}
-              style={{
-                transform: show ? 'rotate(180deg)' : '',
-              }}
-            >
-              <ChevronDownIcon />
-            </Button>
           </Flex>
         </TableCell>
-        <TableCell style={{ width: '170px' }}>
+        <TableCell style={{ width: '170px' }} onClick={stopPropagation}>
           <GroupPriceCell
             minPrice={combinedData.minPrice}
             maxPrice={combinedData.maxPrice}
@@ -153,75 +142,100 @@ const VariantGroup = ({
         </TableCell>
         <TableCell style={{ width: '170px' }}>
           {groupStatus && (
-            <Flex align="center" gap={2}>
+            <Flex align="center" gap={2} cssOverride={{
+              '&:hover': {
+                '& [data-tooltip]': {
+                  opacity: 1
+                }
+              }
+            }}>
               <Text variant="tiny" color={getAvailabilityColor(groupStatus)}>
                 {getAvailabilityLabel(groupStatus, groupQuantity)}
               </Text>
-              <Tooltip tip={getAvailabilityDescription(groupStatus)}>
+              <Tooltip tip={getAvailabilityDescription(groupStatus)} position="top" cssOverride={{ opacity: 0 }}>
                 <InfoIcon />
               </Tooltip>
             </Flex>
           )}
         </TableCell>
+        <TableCell style={{ width: CHEVRON_COLUMN_WIDTH }} onClick={stopPropagation}>
+          {hasSecondaryAttribute && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setShow(!show)}
+              style={{
+                transform: show ? 'rotate(180deg)' : '',
+              }}
+            >
+              <ChevronDownIcon />
+            </Button>
+          )}
+        </TableCell>
       </TableRow>
       {show && hasVariation ? (
         <>
-          {thisVariants.map((item, index) => (
-            <TableRow key={index}>
-              <TableCell />
-              <TableCell>
-                <Flex gap={3} align="center">
-                  <Checkbox
-                    checked={selectedCheckedIndex.includes(index)}
-                    onCheckedChange={(checked) =>
-                      handleChildCheckboxClick(checked === true, item, index)
-                    }
-                  />
-                  <VariantThumbnailSelector
-                    src={item?.media?.url}
-                    galleryIds={galleryIds}
-                    onChange={(media) => handleChildThumbnailChange(media, item)}
-                  />
-                  <div>
-                    {item.attribute_values
-                      .filter((value) => value !== parentId)
-                      .map(
-                        (value) =>
-                          (
-                            getAttributeByValueId(
-                              attributes,
-                              value,
-                            )
-                          )?.value ?? String(value),
-                      )
-                      .join(' | ')}
-                  </div>
-                </Flex>
-              </TableCell>
-              <TableCell>
-                <InputGroup>
-                  <InputGroupAddon>{currencySymbol}</InputGroupAddon>
-                  <InputGroupInput
+          {thisVariants.map((item, index) => {
+            const isChecked = selectedCheckedIndex.includes(index);
+            const mainIndex = getVariantIndexArray(variants, item)[0] ?? index;
+
+            return (
+              <TableRow
+                key={index}
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleChildCheckboxClick(!isChecked, item, index)}
+              >
+                <TableCell />
+                <TableCell>
+                  <Flex gap={3} align="center">
+                    <div onClick={stopPropagation} onKeyDown={noop}>
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={(checked) =>
+                          handleChildCheckboxClick(checked === true, item, index)
+                        }
+                      />
+                    </div>
+
+                    <div onClick={stopPropagation} onKeyDown={noop}>
+                      <VariantThumbnailSelector
+                        src={item?.media?.url}
+                        galleryIds={galleryIds}
+                        onChange={(media) => handleChildThumbnailChange(media, item)}
+                      />
+                    </div>
+                    <Text variant="small">
+                      {item.attribute_values
+                        .filter((value) => value !== parentId)
+                        .map(
+                          (value) =>
+                            (
+                              getAttributeByValueId(
+                                attributes,
+                                value,
+                              )
+                            )?.value ?? String(value),
+                        )
+                        .join(' | ')}
+                    </Text>
+                  </Flex>
+                </TableCell>
+                <TableCell onClick={stopPropagation}>
+                  <MoneyField
+                    name={`variants.${mainIndex}.base_price`}
                     placeholder={__('19.99', 'kirki-ecommerce')}
-                    value={item?.base_price || ''}
-                    type="number"
-                    onChange={(event) =>
-                      handleOnChildValueChange(
-                        parseFloat(event.target.value),
-                        'base_price',
-                        item,
-                      )
-                    }
+                    currencySymbol={currencySymbol}
                   />
-                </InputGroup>
-              </TableCell>
-              <TableCell>
-                <Text variant="tiny" color={getAvailabilityColor(childStatuses[index])}>
-                  {getAvailabilityLabel(childStatuses[index], childQuantities[index])}
-                </Text>
-              </TableCell>
-            </TableRow>
-          ))}
+                </TableCell>
+                <TableCell>
+                  <Text variant="tiny" color={getAvailabilityColor(childStatuses[index])}>
+                    {getAvailabilityLabel(childStatuses[index], childQuantities[index])}
+                  </Text>
+                </TableCell>
+                <TableCell style={{ width: CHEVRON_COLUMN_WIDTH }} />
+              </TableRow>
+            );
+          })}
         </>
       ) : null}
     </>
