@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
+import MediaField from '@/components/form/media-field';
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
-import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
@@ -24,19 +24,8 @@ type OfflinePaymentPopupProps = {
   setEditingMethod: Dispatch<SetStateAction<OfflinePayment | null>>;
 };
 
-const getIconUrl = (method: OfflinePayment | null) => {
-  if (!method?.icon) {
-    return '';
-  }
-  if (typeof method.icon === 'string') {
-    return method.icon;
-  }
-  return '';
-};
-
 const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
   const { openPopup, setOpenPopup, editingMethod, setEditingMethod } = props;
-  const [iconPreview, setIconPreview] = useState<string | null>('');
 
   const { mutateAsync: createMethod, isPending: isCreating } =
     useCreateOfflinePaymentMutation();
@@ -54,11 +43,9 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
       return;
     }
 
-    const iconUrl = getIconUrl(editingMethod);
-    setIconPreview(iconUrl);
     form.reset({
       name: editingMethod?.name ?? '',
-      icon: iconUrl,
+      icon: editingMethod?.icon ?? '',
       instructions:
         editingMethod?.instructions ||
         ((editingMethod as OfflinePayment & { description?: string })
@@ -70,7 +57,6 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
   }, [openPopup, editingMethod, form]);
 
   const handleClose = () => {
-    setIconPreview('');
     form.reset(getDefaults(OfflinePaymentFormSchema));
     setOpenPopup(false);
     setEditingMethod(null);
@@ -120,7 +106,7 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
                     'kirki-ecommerce',
                   )}
                 />
-                <ThumbnailField
+                <MediaField
                   name="icon"
                   label={__('Icon', 'kirki-ecommerce')}
                   description={__('Icon', 'kirki-ecommerce')}
@@ -128,12 +114,6 @@ const OfflinePaymentPopup = (props: OfflinePaymentPopupProps) => {
                     'Recommended image size: 48x48',
                     'kirki-ecommerce',
                   )}
-                  valueAs="object"
-                  previewUrl={iconPreview}
-                  onPreviewChange={setIconPreview}
-                  getPreviewUrl={(value) =>
-                    typeof value === 'string' ? value : undefined
-                  }
                 />
                 <RichTextField
                   name="instructions"

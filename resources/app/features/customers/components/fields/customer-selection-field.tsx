@@ -4,8 +4,8 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
-import Thumbnail from '@/components/ui/thumbnail';
 import CustomerProfileCard from '@/features/customers/components/customer-profile-card';
 import type { CustomerInfo } from '@/features/customers/schemas/catalog/customer';
 import { useCustomersQuery } from '@/features/customers/services/customer';
@@ -109,10 +109,10 @@ const CustomerSelectionField = <
               )}
               renderChip={(option) => (
                 <Flex gap={1} align="center">
-                  <Thumbnail
-                    type="circle"
-                    size="xsm"
-                    src={option.customer.photo?.url}
+                  <Image
+                    shape="circle"
+                    size="xs"
+                    src={option.customer.photo}
                     alt={option.title}
                   />
                   {option.title}

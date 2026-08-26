@@ -55,8 +55,8 @@ type UseVariantGroupResult = {
   handleChildCheckboxClick: (value: boolean, variant: ProductVariant, index: number) => void;
   handleOnParentValueChange: (value: unknown, fieldName: string) => void;
   handleOnChildValueChange: (value: unknown, fieldName: string, variant: ProductVariant) => void;
-  handleParentThumbnailChange: (media: MediaChangePayload | null) => void;
-  handleChildThumbnailChange: (media: MediaChangePayload | null, variant: ProductVariant) => void;
+  handleParentMediaChange: (media: MediaChangePayload | null) => void;
+  handleChildMediaChange: (media: MediaChangePayload | null, variant: ProductVariant) => void;
 };
 
 const stripMediaTimestamps = (value: unknown) => {
@@ -76,19 +76,17 @@ export const useVariantGroup = ({
   const { control, setValue } = useFormContext<ProductFormInput>();
   const attributes = useWatch({ control, name: 'attributes' }) ?? [];
   const watchedVariants = useWatch({ control, name: 'variants' });
-  const variants = useMemo(
-    () => (watchedVariants ?? []) as ProductVariant[],
-    [watchedVariants],
-  );
+  const variants = useMemo(() => (watchedVariants ?? []) as ProductVariant[], [watchedVariants]);
   const productGallery = useWatch({ control, name: 'media' }) ?? [];
   const galleryIds = productGallery.map((item) => Number(item.id)).filter(Boolean);
   const [selectedCheckedIndex, setSelectedCheckedIndex] = useState<number[]>([]);
-  const [combinedData, setCombinedData] = useState<CombinedVariantData>({ minPrice: 0, maxPrice: 0, media: [] });
+  const [combinedData, setCombinedData] = useState<CombinedVariantData>({
+    minPrice: 0,
+    maxPrice: 0,
+    media: [],
+  });
 
-  const thisVariants = useMemo(
-    () => getGroupVariants(variants, parentId),
-    [variants, parentId],
-  );
+  const thisVariants = useMemo(() => getGroupVariants(variants, parentId), [variants, parentId]);
 
   const [show, setShow] = useState(expandVariation);
 
@@ -96,7 +94,8 @@ export const useVariantGroup = ({
     setCombinedData(getCombinedVariantData(thisVariants));
   }, [thisVariants]);
 
-  const allChildrenHaveMedia = thisVariants.length > 0 && thisVariants.every((variant) => Boolean(variant.media));
+  const allChildrenHaveMedia =
+    thisVariants.length > 0 && thisVariants.every((variant) => Boolean(variant.media));
   const displayMedia = allChildrenHaveMedia ? combinedData.media : [];
 
   const childStatuses = useMemo(
@@ -151,11 +150,7 @@ export const useVariantGroup = ({
   const getIndexArray = (variant: ProductVariant): number[] =>
     getVariantIndexArray(variants, variant);
 
-  const handleOnChildValueChange = (
-    value: unknown,
-    fieldName: string,
-    variant: ProductVariant,
-  ) => {
+  const handleOnChildValueChange = (value: unknown, fieldName: string, variant: ProductVariant) => {
     const indexList = getIndexArray(variant).filter(
       (index: number) => !selectedIndex.includes(index),
     );
@@ -187,10 +182,7 @@ export const useVariantGroup = ({
     setSelectedIndex([]);
   };
 
-  const handleParentCheckboxClick = (
-    value: boolean,
-    attributeArray: number[],
-  ) => {
+  const handleParentCheckboxClick = (value: boolean, attributeArray: number[]) => {
     setShow(true);
     const indexList = generateVariantIndexes(variants, attributeArray);
     if (value) {
@@ -200,27 +192,19 @@ export const useVariantGroup = ({
       ]);
       setSelectedCheckedIndex([...Array(thisVariants.length).keys()]);
     } else {
-      const newList = selectedIndex.filter(
-        (item) => !indexList.includes(item),
-      );
+      const newList = selectedIndex.filter((item) => !indexList.includes(item));
       setSelectedIndex(newList);
       setSelectedCheckedIndex([]);
     }
   };
 
-  const handleChildCheckboxClick = (
-    value: boolean,
-    variant: ProductVariant,
-    index: number,
-  ) => {
+  const handleChildCheckboxClick = (value: boolean, variant: ProductVariant, index: number) => {
     const indexList = getIndexArray(variant);
     if (value) {
       setSelectedIndex((prev) => [...prev, ...indexList]);
       setSelectedCheckedIndex((prev) => [...prev, index]);
     } else {
-      const newList = selectedIndex.filter(
-        (item) => !indexList.includes(item),
-      );
+      const newList = selectedIndex.filter((item) => !indexList.includes(item));
       setSelectedIndex(newList);
       setSelectedCheckedIndex((prev) => prev.filter((item) => item !== index));
     }
@@ -236,19 +220,18 @@ export const useVariantGroup = ({
     }
   };
 
-  const handleParentThumbnailChange = (media: MediaChangePayload | null) => {
+  const handleParentMediaChange = (media: MediaChangePayload | null) => {
     handleOnParentValueChange(media, 'media');
     addToGalleryIfMissing(media);
   };
 
-  const handleChildThumbnailChange = (media: MediaChangePayload | null, variant: ProductVariant) => {
+  const handleChildMediaChange = (media: MediaChangePayload | null, variant: ProductVariant) => {
     handleOnChildValueChange(media, 'media', variant);
     addToGalleryIfMissing(media);
   };
 
-  const hasVariation = thisVariants.length > 0
-    ? getSecondaryAttributeCount(thisVariants[0], parentId)
-    : 0;
+  const hasVariation =
+    thisVariants.length > 0 ? getSecondaryAttributeCount(thisVariants[0], parentId) : 0;
 
   return {
     thisVariants,
@@ -271,7 +254,7 @@ export const useVariantGroup = ({
     handleChildCheckboxClick,
     handleOnParentValueChange,
     handleOnChildValueChange,
-    handleParentThumbnailChange,
-    handleChildThumbnailChange,
+    handleParentMediaChange,
+    handleChildMediaChange,
   };
 };

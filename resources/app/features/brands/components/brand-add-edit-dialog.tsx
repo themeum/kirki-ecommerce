@@ -1,13 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import MediaField from '@/components/form/media-field';
 import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
-import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
@@ -29,22 +37,11 @@ type BrandAddEditPopoverProps = {
   onClose?: () => void;
 };
 
-const getInitialLogoUrl = (brand: Brand | BrandFormInput) => {
-  const logo = brand.logo && typeof brand.logo === 'object' ? brand.logo : null;
-  return logo?.url || null;
-};
-
-const BrandAddEditPopover = ({
-  brand,
-  onClose = noop,
-}: BrandAddEditPopoverProps) => {
+const BrandAddEditPopover = ({ brand, onClose = noop }: BrandAddEditPopoverProps) => {
   const createMutation = useCreateBrandMutation();
   const updateMutation = useUpdateBrandMutation();
   const brandId = 'id' in brand ? brand.id : undefined;
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
-  const [imageUrl, setImageUrl] = useState<string | null>(
-    getInitialLogoUrl(brand),
-  );
 
   const form = useForm<BrandFormInput, unknown, BrandFormPayload>({
     resolver: zodResolver(BrandFormSchema),
@@ -79,9 +76,7 @@ const BrandAddEditPopover = ({
         <DialogCloseButton />
         <DialogHeader>
           <DialogTitle>
-            {brandId
-              ? __('Edit Brand', 'kirki-ecommerce')
-              : __('New Brand', 'kirki-ecommerce')}
+            {brandId ? __('Edit Brand', 'kirki-ecommerce') : __('New Brand', 'kirki-ecommerce')}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
@@ -89,7 +84,7 @@ const BrandAddEditPopover = ({
             <DialogBody>
               <Flex direction="column" gap={4}>
                 <Card cssOverride={cardStyles.lightCard}>
-                  <CardContent>
+                  <CardContent cssOverride={cardStyles.innerCardContent}>
                     <Flex direction="column" gap={4}>
                       <TextField
                         name="name"
@@ -110,12 +105,9 @@ const BrandAddEditPopover = ({
                           'kirki-ecommerce',
                         )}
                       />
-                      <ThumbnailField
+                      <MediaField
                         name="logo"
                         label={__('Thumb', 'kirki-ecommerce')}
-                        valueAs="id"
-                        previewUrl={imageUrl}
-                        onPreviewChange={setImageUrl}
                       />
                     </Flex>
                   </CardContent>
@@ -124,18 +116,12 @@ const BrandAddEditPopover = ({
             </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isSubmitting}
-                >
+                <Button type="button" variant="outline" disabled={isSubmitting}>
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
               </DialogClose>
               <Button type="submit" variant="primary" loading={isSubmitting}>
-                {brandId
-                  ? __('Save', 'kirki-ecommerce')
-                  : __('Add', 'kirki-ecommerce')}
+                {brandId ? __('Save', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
               </Button>
             </DialogFooter>
           </form>

@@ -20,7 +20,7 @@ import { __ } from '@/wpi18n';
 
 import GroupPriceCell from './group-price-cell';
 import { useVariantGroup } from './use-variant-group';
-import VariantThumbnailSelector from './variant-thumbnail-selector';
+import VariantMediaSelector from './variant-media-selector';
 
 const stopPropagation = (event: MouseEvent) => event.stopPropagation();
 
@@ -70,8 +70,8 @@ const VariantGroup = ({
     handleParentCheckboxClick,
     handleChildCheckboxClick,
     handleOnParentValueChange,
-    handleParentThumbnailChange,
-    handleChildThumbnailChange,
+    handleParentMediaChange,
+    handleChildMediaChange,
   } = useVariantGroup({
     parentId,
     selectedIndex,
@@ -109,11 +109,11 @@ const VariantGroup = ({
           <Flex gap={3} align="center">
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps the thumbnail's media picker click from also toggling row selection; the thumbnail control itself is the interactive element */}
             <div onClick={stopPropagation}>
-              <VariantThumbnailSelector
+              <VariantMediaSelector
                 src={displayMedia[0]?.url}
                 stackMedia={displayMedia}
                 galleryIds={galleryIds}
-                onChange={handleParentThumbnailChange}
+                onChange={handleParentMediaChange}
               />
             </div>
             <Flex direction="column" gap={1}>
@@ -205,10 +205,10 @@ const VariantGroup = ({
 
                     {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps the thumbnail's media picker click from also toggling row selection; the thumbnail control itself is the interactive element */}
                     <div onClick={stopPropagation}>
-                      <VariantThumbnailSelector
+                      <VariantMediaSelector
                         src={item?.media?.url}
                         galleryIds={galleryIds}
-                        onChange={(media) => handleChildThumbnailChange(media, item)}
+                        onChange={(media) => handleChildMediaChange(media, item)}
                       />
                     </div>
                     <Text variant="small">

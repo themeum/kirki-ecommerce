@@ -3,9 +3,9 @@ import { Cross2Icon } from '@radix-ui/react-icons';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import { TableCell, TableRow } from '@/components/ui/table';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import QuantityStepper from '@/features/orders/pages/order-create/components/order-item/quantity-stepper';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { OrderItem } from '@/features/orders/types';
@@ -27,7 +27,7 @@ const OrderItemRow = ({ row, calculationItem, onQuantityChange, onRemove }: Orde
     <TableRow>
       <TableCell>
         <Flex gap={3} align="center">
-          <Thumbnail src={display.thumbnail ?? undefined} alt={display.productTitle} />
+          <Image src={display.thumbnail} alt={display.productTitle} />
           <Flex direction="column" gap={1}>
             <Text variant="small">{display.productTitle}</Text>
             {display.variantLabel && (

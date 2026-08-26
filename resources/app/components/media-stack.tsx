@@ -1,8 +1,7 @@
 import type { CSSProperties } from 'react';
 
-import Thumbnail from '@/components/ui/thumbnail';
+import Image, { type ImageSize } from '@/components/ui/image';
 import { scoped } from '@/theme/mixins';
-import type { ThumbnailSize } from '@/types/components/common';
 
 type MediaStackItem = {
   url?: string;
@@ -11,12 +10,12 @@ type MediaStackItem = {
 
 type MediaStackProps = {
   mediaArray?: MediaStackItem[];
-  size?: ThumbnailSize;
+  size?: ImageSize;
   style?: CSSProperties;
 };
 
 const MediaStack = (props: MediaStackProps) => {
-  const { mediaArray = [], size = 'small' } = props;
+  const { mediaArray = [], size = 'sm' } = props;
   return (
     <div
       style={{
@@ -24,12 +23,12 @@ const MediaStack = (props: MediaStackProps) => {
       }}
     >
       {mediaArray.length === 0 ? (
-        <Thumbnail src="" size={size} />
+        <Image src="" size={size} />
       ) : mediaArray.length === 1 ? (
-        <Thumbnail size={size} src={mediaArray[0]?.url} />
+        <Image size={size} src={mediaArray[0]?.url} />
       ) : (
         <>
-          <Thumbnail size={size} src={mediaArray[1]?.url} />
+          <Image size={size} src={mediaArray[1]?.url} />
           <div
             css={scoped({
               position: 'absolute',
@@ -39,7 +38,7 @@ const MediaStack = (props: MediaStackProps) => {
               zIndex: '2',
             })}
           >
-            <Thumbnail size={size} src={mediaArray[0]?.url} />
+            <Image size={size} src={mediaArray[0]?.url} />
           </div>
         </>
       )}
