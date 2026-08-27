@@ -23,6 +23,11 @@ class QuickpayTransactionBuilder
         $this->order = $order;
     }
 
+    /**
+     * Build the QuickPay payments request payload for an order.
+     *
+     * @return array
+     */
     public function create_payment_payload(): array
     {
         return [
@@ -103,6 +108,12 @@ class QuickpayTransactionBuilder
         return $line_items;
     }
 
+    /**
+     * Build the QuickPay payment link request payload for an order.
+     *
+     * @param string $webhook_url URL QuickPay should notify on payment status changes.
+     * @return array
+     */
     public function create_payment_link_payload(string $webhook_url): array
     {
         return [

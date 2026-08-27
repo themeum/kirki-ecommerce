@@ -39,7 +39,7 @@ class QuickpayClient
     {
         $given_checksum = $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256'] ?? '';
 
-        if (empty($raw_payload)  || empty($given_checksum) ) {
+        if (empty($raw_payload)  || empty($given_checksum)) {
             return false;
         }
 

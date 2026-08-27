@@ -194,7 +194,7 @@ class Quickpay extends PaymentProvider
      * Apply an order's status, from QuickPay's Order Management API, to the local order.
      *
      * @param Order $order The local order.
-     * @param object $payload The order data returned by KlarnaClient::get_order().
+     * @param object $payload The payment data returned by QuickPay.
      * @return void
      * @throws Exception If the order update fails.
      */
@@ -249,6 +249,12 @@ class Quickpay extends PaymentProvider
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 
+    /**
+     * Read the raw webhook payload, verify its checksum, and decode it.
+     *
+     * @return object
+     * @throws Exception If the payload is missing or its checksum is invalid.
+     */
     protected function verify_and_parse_notification()
     {
         $raw_payload = file_get_contents('php://input');
@@ -264,6 +270,12 @@ class Quickpay extends PaymentProvider
         return json_decode($raw_payload);
     }
 
+    /**
+     * Map a QuickPay capture operation to a local payment status.
+     *
+     * @param object $operation A capture entry from the webhook payload's operations array.
+     * @return string One of PaymentStatus::PAID, ::FAILED or ::UNPAID.
+     */
     protected function get_status(object $operation): string
     {
         if ($operation->pending) {
