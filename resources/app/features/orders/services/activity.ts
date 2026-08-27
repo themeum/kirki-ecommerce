@@ -1,13 +1,21 @@
-import { endpoints } from "@/config/endpoints";
-import { Activity, ActivitySchema } from "@/features/orders/schemas/catalog/activity";
-import { ActivityFormPayload } from "@/features/orders/schemas/forms/activity-form";
-import { orderKeys } from "@/features/orders/services/query-keys";
-import { apiClient } from "@/libs/api";
-import { PaginatedDataSchema } from "@/schemas/shared/api";
-import { parseData, parseMessage, toastMutationError, toastMutationSuccess, unwrapResponse } from "@/services/helpers";
-import { ListParams } from "@/types/list-state";
-import { __ } from "@/wpi18n";
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { endpoints } from '@/config/endpoints';
+import { Activity, ActivitySchema } from '@/features/orders/schemas/catalog/activity';
+import { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
+import { orderKeys } from '@/features/orders/services/query-keys';
+import { apiClient } from '@/libs/api';
+import { PaginatedDataSchema } from '@/schemas/shared/api';
+import {
+  parseData,
+  parseMessage,
+  toastMutationError,
+  toastMutationSuccess,
+  unwrapResponse,
+} from '@/services/helpers';
+import { ListParams } from '@/types/list-state';
+import { __ } from '@/wpi18n';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+const ACTIVITIES_PAGE_SIZE = 10;
 
 const createOrderActivity = ({ orderId, data }: { orderId: number; data: ActivityFormPayload }) => {
   return apiClient
@@ -33,8 +41,7 @@ const useCreateOrderActivityMutation = () => {
     mutationFn: createOrderActivity,
     onSuccess(response, variables) {
       toastMutationSuccess(
-        response.message ||
-        __('Comment added successfully.', 'kirki-ecommerce'),
+        response.message || __('Comment added successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.orderId) });
     },
@@ -44,12 +51,15 @@ const useCreateOrderActivityMutation = () => {
   });
 };
 
-const useOrderActivitiesQuery = (orderId: number, params: ListParams = {}) => {
-  return useQuery({
-    queryKey: [...orderKeys.activities(orderId), params],
-    queryFn: () => getOrderActivities(orderId, params),
+const useOrderActivitiesInfiniteQuery = (orderId: number) => {
+  return useInfiniteQuery({
+    queryKey: orderKeys.activities(orderId),
+    queryFn: ({ pageParam }) =>
+      getOrderActivities(orderId, { limit: ACTIVITIES_PAGE_SIZE, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) =>
+      lastPage.has_more_pages ? lastPageParam + 1 : undefined,
     enabled: Boolean(orderId),
-    placeholderData: keepPreviousData,
   });
 };
 
@@ -59,8 +69,7 @@ const useDeleteOrderActivityMutation = () => {
     mutationFn: deleteOrderActivity,
     onSuccess(response, variables) {
       toastMutationSuccess(
-        response.message ||
-        __('Comment deleted successfully.', 'kirki-ecommerce'),
+        response.message || __('Comment deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.orderId) });
     },
@@ -73,5 +82,5 @@ const useDeleteOrderActivityMutation = () => {
 export {
   useCreateOrderActivityMutation,
   useDeleteOrderActivityMutation,
-  useOrderActivitiesQuery,
+  useOrderActivitiesInfiniteQuery,
 };

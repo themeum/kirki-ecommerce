@@ -6,13 +6,14 @@ import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import InfiniteScrollSentinel from '@/components/ui/infinite-scroll-sentinel';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import type { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
 import {
   useCreateOrderActivityMutation,
   useDeleteOrderActivityMutation,
-  useOrderActivitiesQuery,
+  useOrderActivitiesInfiniteQuery,
 } from '@/features/orders/services/activity';
 import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { theme } from '@/theme';
@@ -30,11 +31,12 @@ const Timeline = ({ orderId }: TimelineProps) => {
   const [message, setMessage] = useState('');
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
-  const { data, isLoading } = useOrderActivitiesQuery(orderId, { limit: -1 });
-  const createActivity = useCreateOrderActivityMutation();
-  const deleteActivity = useDeleteOrderActivityMutation();
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useOrderActivitiesInfiniteQuery(orderId);
+  const createActivityMutation = useCreateOrderActivityMutation();
+  const deleteActivityMutation = useDeleteOrderActivityMutation();
 
-  const activities = data?.results ?? [];
+  const activities = data?.pages.flatMap((page) => page.results) ?? [];
 
   const handleSaveComment = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== 'Enter') {
@@ -42,11 +44,11 @@ const Timeline = ({ orderId }: TimelineProps) => {
     }
 
     const trimmed = message.trim();
-    if (!trimmed || createActivity.isPending) {
+    if (!trimmed || createActivityMutation.isPending) {
       return;
     }
 
-    createActivity.mutate(
+    createActivityMutation.mutate(
       { orderId, data: { message: trimmed } as ActivityFormPayload },
       { onSuccess: () => setMessage('') },
     );
@@ -57,7 +59,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
       return;
     }
 
-    deleteActivity.mutate(
+    deleteActivityMutation.mutate(
       { orderId, activityId: pendingDeleteId },
       { onSuccess: () => setPendingDeleteId(null) },
     );
@@ -75,7 +77,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             onKeyDown={handleSaveComment}
-            disabled={createActivity.isPending}
+            disabled={createActivityMutation.isPending}
             cssOverride={{ zIndex: 1 }}
           />
 
@@ -141,6 +143,11 @@ const Timeline = ({ orderId }: TimelineProps) => {
               })}
             </Flex>
           </div>
+          <InfiniteScrollSentinel
+            hasMore={hasNextPage}
+            isLoading={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
+          />
         </Flex>
       </CardContent>
 
