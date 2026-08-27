@@ -1,124 +1,301 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FormProvider, type Resolver, useForm } from 'react-hook-form';
+import { useNavigate, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 
 import DropdownButton from '@/components/dropdown-button';
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import Flex from '@/components/ui/flex';
 import FullPageContainer from '@/components/ui/full-page-container';
 import PageHeading from '@/components/ui/page-heading';
-import { BulkEditFormProvider, useBulkEditForm } from '@/features/bulk-edit';
-import { allTableHeaders } from '@/features/bulk-edit/lib/utils';
-import BulkEditTable from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
+import Text from '@/components/ui/text';
+import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
+import { useBulkEditNavigationGuard } from '@/features/bulk-edit/hooks/use-bulk-edit-navigation-guard';
+import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visibility';
+import { bulkEditColumns } from '@/features/bulk-edit/lib/columns';
+import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
+import { buildBulkEditPayload } from '@/features/bulk-edit/lib/payload';
+import BulkEditTable, { type BulkEditTableHandle } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
+import { BulkEditFormSchema } from '@/features/bulk-edit/schemas/forms/bulk-edit-form';
 import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/features/bulk-edit/services/bulk-edit';
 import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
-import type { MediaRef } from '@/schemas/shared/media';
+import type { BulkEditFormValues } from '@/features/bulk-edit/types';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
+
+const parseIds = (raw: string | null): number[] => {
+  if (!raw) {
+    return [];
+  }
+  const ids = raw
+    .split(',')
+    .map((id) => Number(id.trim()))
+    .filter((id) => Number.isFinite(id) && id > 0);
+  return Array.from(new Set(ids));
+};
+
+const columnPickerOptions = bulkEditColumns
+  .filter((column) => column.id !== 'variant')
+  .map((column) => ({ value: column.id!, title: String(column.header) }));
+
+const UNIT_PRICE_FIELDS = ['total_unit_amount', 'total_unit', 'base_unit_amount', 'base_unit'] as const;
+
+const cellKindByField = new Map(bulkEditColumns.map((column) => [column.id, column.meta?.cellKind]));
+
+const coerceTypedValue = (field: string, char: string): string | number | null => {
+  const kind = editableKindOf(cellKindByField.get(field));
+  if (kind === 'text') {
+    return char;
+  }
+  if (kind === 'number' || kind === 'money') {
+    return /^[0-9]$/.test(char) ? Number(char) : null;
+  }
+  return null;
+};
 
 const BulkEditPage = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const ids = searchParams.get('ids')?.split(',') ?? [];
-  const [selectedFields, setSelectedFields] = useState(
-    allTableHeaders.map((item) => item.value),
-  );
+  const ids = useMemo(() => parseIds(searchParams.get('ids')), [searchParams]);
 
   const { data: bulkData, isLoading } = useBulkVariantsQuery(ids);
-  const { setVariants, variants, loaded } = useBulkEditForm();
-  const { mutate: updateBulkVariants } = useUpdateBulkVariantsMutation();
+  const { mutate: updateBulkVariants, isPending } = useUpdateBulkVariantsMutation();
+  const [columnVisibility, setColumnVisibility] = useColumnVisibility();
+  const tableRef = useRef<BulkEditTableHandle>(null);
+  const hasLoadedRef = useRef(false);
+  const [loaded, setLoaded] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  /**
+   * The schema only validates a subset of variant fields (notably the sale
+   * <= regular-price rule) and is never used to reshape the payload — that
+   * happens separately in buildBulkEditPayload — so its inferred output type
+   * legitimately diverges from BulkEditFormValues. The resolver's job here is
+   * producing formState.errors, not typing the form.
+   */
+  const form = useForm<BulkEditFormValues>({
+    resolver: zodResolver(BulkEditFormSchema) as unknown as Resolver<BulkEditFormValues>,
+    defaultValues: { variants: [] },
+  });
+  const { formState, trigger, getValues, setValue, reset } = form;
 
   useEffect(() => {
-    if (bulkData) {
-      setVariants(bulkData);
+    if (bulkData && !hasLoadedRef.current) {
+      reset({ variants: bulkData });
+      hasLoadedRef.current = true;
+      setLoaded(true);
     }
-  }, [bulkData, setVariants]);
+  }, [bulkData, reset]);
 
-  const handleProductBulkSave = () => {
-    if (!loaded) {
+  const isDirty = formState.isDirty;
+  const { isBlocked, discardChanges, dismissToast } = useBulkEditNavigationGuard(isDirty);
+
+  const handleFillCommit = (payload: FillCommitPayload) => {
+    const sourceVariant = getValues(`variants.${payload.sourceRow}`);
+    const targetRows = payload.rows.filter((row) => row !== payload.sourceRow);
+
+    if (payload.field === 'base_price_per_unit') {
+      targetRows.forEach((row) => {
+        UNIT_PRICE_FIELDS.forEach((key) => {
+          setValue(`variants.${row}.${key}` as never, sourceVariant[key] as never, { shouldDirty: true });
+        });
+      });
       return;
     }
-    const formattedData = variants.map((item) => ({
-      ...item,
-      media: Number((item.media as MediaRef | null)?.id),
-    }));
-    updateBulkVariants({ variants: formattedData });
+
+    if (payload.field === 'weight') {
+      targetRows.forEach((row) => {
+        setValue(`variants.${row}.weight` as never, sourceVariant.weight as never, { shouldDirty: true });
+        setValue(`variants.${row}.weight_unit` as never, sourceVariant.weight_unit as never, { shouldDirty: true });
+      });
+      return;
+    }
+
+    const sourceValue = (sourceVariant as unknown as Record<string, unknown>)[payload.field];
+    targetRows.forEach((row) => {
+      setValue(`variants.${row}.${payload.field}` as never, sourceValue as never, { shouldDirty: true });
+    });
   };
+
+  const handleTypeToEdit = (field: string, rows: number[], char: string) => {
+    const value = coerceTypedValue(field, char);
+    if (value === null) {
+      return;
+    }
+    rows.forEach((row) => {
+      setValue(`variants.${row}.${field}` as never, value as never, { shouldDirty: true });
+    });
+  };
+
+  const handleSpaceToggle = (field: string, rows: number[]) => {
+    const [primaryRow] = rows;
+    const next = !getValues(`variants.${primaryRow}.${field}` as never);
+    rows.forEach((row) => {
+      setValue(`variants.${row}.${field}` as never, next as never, { shouldDirty: true });
+    });
+  };
+
+  const handleSave = async () => {
+    const valid = await trigger();
+
+    if (!valid) {
+      const variantErrors = formState.errors.variants;
+      const errorList = Array.isArray(variantErrors) ? variantErrors : [];
+      const firstInvalidIndex = errorList.findIndex((error) => Boolean(error));
+      const invalidCount = errorList.filter(Boolean).length;
+
+      toast.error(
+        sprintf(
+          _n('%d row has an invalid value.', '%d rows have invalid values.', invalidCount, 'kirki-ecommerce'),
+          invalidCount,
+        ),
+      );
+
+      if (firstInvalidIndex >= 0) {
+        tableRef.current?.scrollToRow(firstInvalidIndex);
+      }
+      return;
+    }
+
+    const payload = buildBulkEditPayload(getValues('variants'));
+    updateBulkVariants(payload, {
+      onSuccess: (response) => {
+        reset({ variants: response.data });
+      },
+    });
+  };
+
+  const handleCancel = () => {
+    if (isDirty) {
+      setShowCancelConfirm(true);
+      return;
+    }
+    void navigate(-1);
+  };
+
+  const handleConfirmDiscard = () => {
+    setShowCancelConfirm(false);
+    reset();
+    void navigate(-1);
+  };
+
+  const visibleColumnIds = columnPickerOptions
+    .map((option) => option.value)
+    .filter((id) => columnVisibility[id] !== false);
+
+  const handleColumnPickerSelect = (value: string | number | (string | number)[]) => {
+    const selected = Array.isArray(value) ? (value as string[]) : [String(value)];
+    setColumnVisibility(
+      Object.fromEntries(columnPickerOptions.map((option) => [option.value, selected.includes(option.value)])),
+    );
+  };
+
+  const isEmptySelection = ids.length === 0;
+  const variants = getValues('variants');
 
   return (
     <>
       <PageHeading
-        text={__('Bulk Edit', 'kirki-ecommerce')}
+        text={sprintf(_n('Editing %d variant', 'Editing %d variants', variants.length, 'kirki-ecommerce'), variants.length)}
         cssOverride={styles.heading}
         size="fullWidth"
         hasBack
         noMargin
-        buttonProps={{
-          variant: 'outline',
-          size: 'icon',
-        }}
+        buttonProps={{ variant: 'outline', size: 'icon' }}
         backIcon={<ChevronLeft size={16} aria-hidden="true" />}
+        onBack={(event) => {
+          event.preventDefault();
+          handleCancel();
+        }}
         actions={
-          <>
-            <DropdownButton
-              buttonProps={{
-                variant: 'outline',
-              }}
-              options={allTableHeaders}
-              value={selectedFields}
-              hasLeftIcon
-              checkboxField
-              multiple
-              dropdownStyle={{ minWidth: '288px' }}
-              onOptionSelect={(value) =>
-                setSelectedFields(value as string[])
-              }
-            />
-            <Button
-              variant="secondary"
-              onClick={() => window.history.back()}
-            >
-              {__('Cancel', 'kirki-ecommerce')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleProductBulkSave}
-            >
-              {__('Save', 'kirki-ecommerce')}
-            </Button>
-          </>
+          !isEmptySelection && (
+            <>
+              <DropdownButton
+                buttonProps={{ variant: 'outline' }}
+                options={columnPickerOptions.map((option) => ({ value: option.value, title: option.title }))}
+                value={visibleColumnIds}
+                hasLeftIcon
+                checkboxField
+                multiple
+                dropdownStyle={{ minWidth: '288px' }}
+                onOptionSelect={handleColumnPickerSelect}
+              />
+              <Button variant="secondary" onClick={handleCancel}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button variant="primary" onClick={handleSave} loading={isPending}>
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
+            </>
+          )
         }
       >
-        <Badge variant="secondary">
-          {__('Unsaved Changes', 'kirki-ecommerce')}
-        </Badge>
+        {isDirty && (
+          <Badge variant="secondary">{__('Unsaved Changes', 'kirki-ecommerce')}</Badge>
+        )}
       </PageHeading>
 
-      <FullPageContainer scrollable>
-        {loaded && !isLoading ? (
-          <BulkEditTable selectedFields={selectedFields} />
+      <FullPageContainer>
+        {isEmptySelection ? (
+          <Flex direction="column" align="center" justify="center" gap={3} cssOverride={styles.emptyState}>
+            <Text weight="medium">{__('No variants selected', 'kirki-ecommerce')}</Text>
+            <Text color="secondary">
+              {__('Select one or more variants first, then open Bulk Edit again.', 'kirki-ecommerce')}
+            </Text>
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              {__('Go back', 'kirki-ecommerce')}
+            </Button>
+          </Flex>
+        ) : loaded && !isLoading ? (
+          <FormProvider {...form}>
+            <BulkEditTable
+              ref={tableRef}
+              variants={variants}
+              columnVisibility={columnVisibility}
+              onColumnVisibilityChange={(updater) =>
+                setColumnVisibility(typeof updater === 'function' ? updater(columnVisibility) : updater)
+              }
+              onFillCommit={handleFillCommit}
+              onTypeToEdit={handleTypeToEdit}
+              onSpaceToggle={handleSpaceToggle}
+            />
+          </FormProvider>
         ) : (
-          <BulkEditTableSkeleton
-            selectedFields={selectedFields}
-            rowCount={ids.length || undefined}
-          />
+          <BulkEditTableSkeleton rowCount={ids.length || undefined} />
         )}
       </FullPageContainer>
+
+      {isBlocked && (
+        <ConfirmationDialog
+          variant="warning"
+          title={__('Discard unsaved changes?', 'kirki-ecommerce')}
+          subtitle={__('You have unsaved changes on this page. Leaving now will discard them.', 'kirki-ecommerce')}
+          onConfirm={discardChanges}
+          onCancel={dismissToast}
+        />
+      )}
+
+      {showCancelConfirm && (
+        <ConfirmationDialog
+          variant="warning"
+          title={__('Discard unsaved changes?', 'kirki-ecommerce')}
+          subtitle={__('You have unsaved changes on this page. Leaving now will discard them.', 'kirki-ecommerce')}
+          onConfirm={handleConfirmDiscard}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
+      )}
     </>
   );
 };
 
 BulkEditPage.displayName = 'BulkEditPage';
 
-const BulkEdit = () => (
-  <BulkEditFormProvider>
-    <BulkEditPage />
-  </BulkEditFormProvider>
-);
-
-BulkEdit.displayName = 'BulkEdit';
-
-export default BulkEdit;
+export default BulkEditPage;
 
 const styles = defineStyles({
   heading: {
@@ -126,5 +303,9 @@ const styles = defineStyles({
     backgroundColor: theme.colors.background.surface,
     borderBottom: `1px solid ${theme.colors.background.surfaceTertiary}`,
     columnGap: theme.spacing[2],
+  },
+  emptyState: {
+    padding: theme.spacing[12],
+    minHeight: '50vh',
   },
 });
