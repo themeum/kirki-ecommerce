@@ -110,7 +110,13 @@ class User extends FrameworkUser
     {
         $this->clear_email_verification_token();
 
-        return update_user_meta($this->get_id(), static::META_EMAIL_VERIFIED, 1);
+        $updated = update_user_meta($this->get_id(), static::META_EMAIL_VERIFIED, 1);
+
+        if ($updated) {
+            do_action('kecom_user_email_verified', $this);
+        }
+
+        return $updated;
     }
 
     /**

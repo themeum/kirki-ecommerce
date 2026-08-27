@@ -108,10 +108,6 @@ class UserService
 
         $verified = $user->verify_email_by_token($token);
 
-        if ($verified) {
-            do_action('kecom_user_email_verified', $user);
-        }
-
         return $verified;
     }
 }
