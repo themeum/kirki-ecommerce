@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import useSeoPreviewData from '@/features/products/components/product-form/sections/seo-settings/use-seo-preview-data';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -24,10 +24,10 @@ const SearchEnginePreview = () => {
         <Flex gap={4} justify="space-between" align="flex-start">
           <Flex direction="column" gap={2} cssOverride={styles.contentColumn}>
             <Flex gap={2} align="center" cssOverride={styles.storeRow}>
-              <Thumbnail
-                src={storeLogoUrl ?? undefined}
-                size="small"
-                type="circle"
+              <Image
+                src={storeLogoUrl}
+                size="sm"
+                shape="circle"
                 alt={storeName}
               />
               {storeName ? (
@@ -55,13 +55,11 @@ const SearchEnginePreview = () => {
               </Text>
             ) : null}
           </Flex>
-          <Thumbnail
-            src={previewImageUrl ?? undefined}
-            style={{
-              height: '92px',
-              width: '92px',
-              flexShrink: 0,
-            }}
+          <Image
+            src={previewImageUrl}
+            width={92}
+            height={92}
+            cssOverride={{ flexShrink: 0 }}
           />
         </Flex>
       </CardContent>

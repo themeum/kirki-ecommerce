@@ -166,4 +166,9 @@ class Order extends Model
     {
         return $this->has_many(Refund::class, 'order_id');
     }
+
+    public function activities()
+    {
+        return $this->has_many(OrderActivity::class, 'order_id');
+    }
 }

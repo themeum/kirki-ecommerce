@@ -1,19 +1,11 @@
+import MediaField from '@/components/form/media-field';
 import TextField from '@/components/form/text-field';
-import ThumbnailField from '@/components/form/thumbnail-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
-type StoreContactDetailsProps = {
-  storeLogoUrl: string | null;
-  onStoreLogoPreviewChange: (url: string | null) => void;
-};
-
-const StoreContactDetails = ({
-  storeLogoUrl,
-  onStoreLogoPreviewChange,
-}: StoreContactDetailsProps) => {
+const StoreContactDetails = () => {
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={cardStyles.sectionHeader}>
@@ -35,7 +27,7 @@ const StoreContactDetails = ({
                 placeholder={__('Enter your store name', 'kirki-ecommerce')}
               />
 
-              <ThumbnailField
+              <MediaField
                 name="store_logo"
                 label={__('Store Logo', 'kirki-ecommerce')}
                 infoText={__(
@@ -47,9 +39,6 @@ const StoreContactDetails = ({
                   'Supported formats: SVG, PNG, JPG. Maximum file size: 200KB',
                   'kirki-ecommerce',
                 )}
-                valueAs="id"
-                previewUrl={storeLogoUrl}
-                onPreviewChange={onStoreLogoPreviewChange}
               />
 
               <TextField

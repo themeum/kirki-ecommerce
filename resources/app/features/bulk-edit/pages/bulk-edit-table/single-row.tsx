@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-import ThumbnailSelector from '@/components/thumbnail-selector';
+import MediaPicker from '@/components/media-picker';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
@@ -66,15 +66,14 @@ const SingleRow = (props: SingleRowProps) => {
         data-sticky-cell="true"
       >
         <Flex gap={3} align="center">
-          <ThumbnailSelector
-            src={media?.url}
-            onChange={(img) =>
-              handleMediaChange(
-                (Array.isArray(img) ? img[0] : img),
-                'media',
-              )
-            }
+          <MediaPicker
+            value={media ?? null}
             size="small"
+            onChange={(nextMedia) => {
+              if (nextMedia) {
+                handleMediaChange(nextMedia, 'media');
+              }
+            }}
           />
           <span css={scoped(styles.title)}>
             {`${currentVariation?.name} - `}
@@ -354,6 +353,32 @@ const SingleRow = (props: SingleRowProps) => {
           ) : (
             <span style={{ marginLeft: theme.spacing[3] }}>_</span>
           )}
+        </TableCell>
+      )}
+      {selectedFields.includes('low_stock_threshold') && (
+        <TableCell
+          onMouseDown={(e) => onCellMouseDown(e, 'low_stock_threshold')}
+          onMouseEnter={(e) => onCellMouseEnter(e, 'low_stock_threshold')}
+          {...getActiveState('low_stock_threshold')}
+        >
+          {currentVariation?.track_inventory ? (
+            <Input
+              value={currentVariation?.low_stock_threshold ?? ''}
+              onChange={(event) =>
+                handleNumberInputChange(event, 'low_stock_threshold')
+              }
+              onKeyDown={handleInputEnterKeyDown}
+              invisible
+              type="number"
+            />
+          ) : (
+            <span style={{ marginLeft: theme.spacing[3] }}>_</span>
+          )}
+          <span
+            role="presentation"
+            data-grabber={isMaxIndex(index) ? 'true' : undefined}
+            onMouseDown={(e) => onGrabberMouseDown(e, 'low_stock_threshold')}
+          />
         </TableCell>
       )}
       {selectedFields.includes('has_limit_per_order') && (

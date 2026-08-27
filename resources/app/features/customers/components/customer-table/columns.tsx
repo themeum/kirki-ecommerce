@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
 import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { displayMoney } from '@/utils/money';
@@ -18,7 +18,7 @@ const customerColumns: ColumnDef<CustomerListItem>[] = [
       const photo = row.original?.photo && typeof row.original.photo === 'object' ? row.original.photo : null;
       return (
         <Flex gap={3} align="center">
-          <Thumbnail src={photo?.url} size="small" type="circle" />
+          <Image src={photo} size="sm" shape="circle" />
           <Flex direction="column" gap={1}>
             <Text variant="tiny" weight="medium">
               {row.original?.first_name} {row.original?.last_name}

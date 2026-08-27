@@ -26,10 +26,12 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\ProductSchemaController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CartController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\OrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
-use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AccountController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
-use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
+use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -199,6 +201,9 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/orders/{order_id}/refunds', [OrderController::class, 'create_refund']);
     Route::put('/orders/{order_id}/refunds/{id}', [OrderController::class, 'update_refund']);
     Route::delete('/orders/{order_id}/refunds/{id}', [OrderController::class, 'delete_refund']);
+    Route::get('/orders/{order_id}/activities', [OrderActivityController::class, 'get']);
+    Route::post('/orders/{order_id}/activities', [OrderActivityController::class, 'store']);
+    Route::delete('/orders/{order_id}/activities/{id}', [OrderActivityController::class, 'delete']);
     Route::patch('/orders/{id}/action', [OrderController::class, 'action'])->where('id', '[\d]+');
     Route::put('/orders/{id}', [OrderController::class, 'update']);
     Route::delete('/orders/{id}', [OrderController::class, 'delete']);
@@ -240,7 +245,7 @@ Route::get('/test-public', function (Request $request) {
 });
 
 // Site api endpoints.
-Route::get('/shop/products-html', [SiteController::class, 'products_html']);
+Route::get('/shop/products', [SiteController::class, 'products']);
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);
@@ -254,6 +259,7 @@ Route::post('/checkout', [CheckoutController::class, 'store']);
 // Account api endpoints (self-service, logged-in customer only).
 Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::get('/account/orders', [AccountController::class, 'customer_orders']);
+    Route::get('/account/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
     Route::put('/account/profile', [AccountController::class, 'update_profile']);
     Route::put('/account/password-change', [AccountController::class, 'change_password']);
     Route::put('/account/addresses', [AccountController::class, 'update_addresses']);

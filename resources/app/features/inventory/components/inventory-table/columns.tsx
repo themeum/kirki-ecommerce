@@ -1,8 +1,8 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Input from '@/components/ui/input';
-import Thumbnail from '@/components/ui/thumbnail';
 import { useInventoryForm } from '@/features/inventory';
 import type { InventoryVariant } from '@/features/products';
 import { theme } from '@/theme';
@@ -32,7 +32,7 @@ const styles = defineStyles({
 
 const InventoryTitleCell = ({ item }: { item: InventoryVariant }) => (
   <Flex gap={3} align="center">
-    <Thumbnail src={item?.product?.image?.url} size="small" />
+    <Image src={item?.product?.image} size="sm" />
     <Flex direction="column" gap={1} cssOverride={styles.mutedText}>
       <span>{item?.product?.name} </span>
       <span>{item?.name}</span>

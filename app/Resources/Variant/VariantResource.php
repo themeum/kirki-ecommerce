@@ -5,6 +5,10 @@ namespace Kirki\Ecommerce\App\Resources\Variant;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
+use Kirki\Ecommerce\App\Services\AvailabilityService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
 class VariantResource extends Resource
@@ -17,6 +21,16 @@ class VariantResource extends Resource
     public function to_array()
     {
         $display_currency = Money::resolve_display_currency();
+
+        $availability_service = app()->make(AvailabilityService::class);
+        $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
+        $availability_status = $availability_service->resolve_variant_status(
+            $this->track_inventory,
+            $this->in_stock,
+            $this->available_quantity,
+            $this->low_stock_threshold,
+            $store_default_threshold
+        );
 
         return [
             'id' => $this->id,
@@ -49,6 +63,9 @@ class VariantResource extends Resource
             'available_quantity' => $this->available_quantity,
             'in_stock' => $this->in_stock,
             'committed_quantity' => $this->committed_quantity,
+            'low_stock_threshold' => $this->low_stock_threshold,
+            'availability_status' => $availability_status,
+            'availability_label' => AvailabilityStatus::get_formatted($availability_status),
             'has_limit_per_order' => $this->has_limit_per_order,
             'max_per_order' => $this->max_per_order,
             'tax_profile_id' => $this->tax_profile_id,

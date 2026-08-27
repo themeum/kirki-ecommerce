@@ -5,17 +5,16 @@ import Brand from '@/features/products/components/product-form/sections/right-pa
 import Categories from '@/features/products/components/product-form/sections/right-panel/categories/categories';
 import Collections from '@/features/products/components/product-form/sections/right-panel/collections';
 import Tags from '@/features/products/components/product-form/sections/right-panel/tags';
+import type { ProductStatus } from '@/features/products/schemas/catalog/product';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const RightPanel = () => {
-  const statusOptions = [
+  const statusOptions: { value: ProductStatus; label: string }[] = [
     { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
-    { value: 'published', label: __('Published', 'kirki-ecommerce') },
-    { value: 'unpublished', label: __('Unpublished', 'kirki-ecommerce') },
-    { value: 'archived', label: __('Archived', 'kirki-ecommerce') },
+    { value: 'published', label: __('Publish', 'kirki-ecommerce') },
   ];
 
   return (
