@@ -23,8 +23,7 @@ class OrderCreateRequest extends Request
 
     protected function prepare_for_validation()
     {
-        $customer_id = $this->input('customer_id') ?? null;
-        $customer = customer(null, $customer_id);
+        $customer = customer(null, $this->input('customer_id') ?? null);
         $shipping = $customer->get_shipping_address();
         $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? $customer->get_customer()->is_billing_same_as_shipping ?? false;
 
@@ -74,9 +73,10 @@ class OrderCreateRequest extends Request
         $this->merge($shipping_address);
         $this->merge($billing_address);
         $this->merge([
-            'customer_id' => $customer_id ?? customer()->get_customer_id() ?? 0,
+            'customer_id' => $customer->get_customer_id() ?? 0,
             'is_billing_same_as_shipping' => $is_billing_same_as_shipping,
-            'is_manual' => $this->input('is_manual') ?? false
+            'is_manual' => $this->input('is_manual') ?? false,
+            'is_guest' => !$customer->is_logged_in()
         ]);
     }
 
@@ -119,6 +119,7 @@ class OrderCreateRequest extends Request
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',
 
+            'customer_email' => 'required_if:is_guest,1|nullable|email',
             'customer_notes' => 'nullable|string',
             'admin_notes' => 'nullable|string',
             'is_manual' => 'nullable|boolean',
@@ -165,6 +166,7 @@ class OrderCreateRequest extends Request
             'billing_email' => Sanitizer::EMAIL,
             'billing_company' => Sanitizer::TEXT,
 
+            'customer_email' => Sanitizer::EMAIL,
             'customer_notes' => Sanitizer::TEXT,
             'admin_notes' => Sanitizer::TEXT,
             'is_manual' => Sanitizer::BOOL,

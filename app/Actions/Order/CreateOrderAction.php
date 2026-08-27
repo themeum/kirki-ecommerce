@@ -291,7 +291,7 @@ class CreateOrderAction
         return [
             'first_name' => !empty($wp_user->first_name) ? $wp_user->first_name : $dto->billing_first_name,
             'last_name' => !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name,
-            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email,
+            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->customer_email ?? $dto->billing_email,
             'phone' => !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone,
         ];
     }
