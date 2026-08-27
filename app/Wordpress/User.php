@@ -3,7 +3,10 @@
 namespace Kirki\Ecommerce\App\Wordpress;
 
 use Kirki\Ecommerce\App\Constants\UserRoles;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
+
+use function Kirki\Ecommerce\Framework\include_view;
 
 class User extends FrameworkUser
 {
@@ -233,5 +236,74 @@ class User extends FrameworkUser
         delete_user_meta($this->get_id(), static::META_EMAIL_VERIFICATION_TOKEN);
         delete_user_meta($this->get_id(), static::META_EMAIL_VERIFICATION_SENT_AT);
         delete_user_meta($this->get_id(), static::META_EMAIL_VERIFICATION_EXPIRES_AT);
+    }
+
+    /**
+     * Resend verification email to the user.
+     *
+     * @since 1.0.0
+     *
+     * @return bool Whether the email was sent successfully.
+     */
+    public function resend_verification_email()
+    {
+        $token = wp_generate_password(32, false);
+
+        $this->set_email_verification_token($token);
+        $this->set_email_verification_sent_at(time());
+        $this->set_email_verification_expires_at(time() + DAY_IN_SECONDS);
+
+        $verify_url = Url::add_query_params(Url::get_account_url('action'), [
+            'action' => 'email_verify',
+            'token' => $token,
+        ]);
+
+        $to = $this->get_email();
+        $site_name = get_bloginfo('name');
+        $user_name = $this->get_display_name() ?: $this->get_first_name() ?: __('Customer', 'kirki-ecommerce');
+
+        $subject = sprintf(__('[%s] Please verify your email address', 'kirki-ecommerce'), $site_name);
+
+        ob_start();
+        include_view('emails.email-verification', [
+            'user_name' => $user_name,
+            'verify_url' => $verify_url,
+            'site_name' => $site_name
+        ]);
+        $message = ob_get_clean();
+
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+
+        return (bool) wp_mail($to, $subject, $message, $headers);
+    }
+
+    /**
+     * Verify email with token.
+     *
+     * @since 1.0.0
+     *
+     * @param string $token Verification token.
+     *
+     * @return bool
+     */
+    public function verify_email_by_token(string $token)
+    {
+        if (empty($token)) {
+            return false;
+        }
+
+        $stored_token = $this->get_email_verification_token();
+
+        if (empty($stored_token) || !hash_equals((string) $stored_token, (string) $token)) {
+            return false;
+        }
+
+        if ($this->is_email_verification_expired()) {
+            return false;
+        }
+
+        $this->mark_email_as_verified();
+
+        return true;
     }
 }

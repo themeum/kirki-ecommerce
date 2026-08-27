@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Wordpress\User;
 
 use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\session;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $user = view_data('user');
@@ -30,8 +31,8 @@ $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
 $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : '';
 
-$user = new User();
-$email_verified = $user->email_verified();
+$current_user = new User();
+$email_verified = $current_user->email_verified();
 ?>
 
 <?php Template::get_header(); ?>
@@ -47,12 +48,31 @@ $email_verified = $user->email_verified();
             <main class="kecom-account-content">
                 <div class="kecom-account-dashboard">
 
+                    <?php if (session()->has('errors')) : ?>
+                        <div class="kecom-alert kecom-alert-error kecom-mb-10">
+                            <?php Icon::render('information'); ?>
+                            <?php foreach (session('errors') as $error) : ?>
+                                <?php echo esc_html($error); ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (session()->has('success')) : ?>
+                        <div class="kecom-alert kecom-alert-success kecom-mb-10">
+                            <?php Icon::render('information'); ?>
+                            <?php echo esc_html(session('success')); ?>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if (!$email_verified) : ?>
-                    <div class="kecom-alert kecom-alert-info kecom-mb-10">
+                    <div class="kecom-alert kecom-alert-info kecom-mb-10" x-data="accountDashboard()">
                         <?php Icon::render('information'); ?>
                         <div class="kecom-flex kecom-justify-between">
                             <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
-                            <button type="button" class="kecom-btn kecom-btn-link"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></button>
+                            <button type="button" class="kecom-btn kecom-btn-link" @click="resendVerificationEmail()" :disabled="verificationLoading">
+                                <span x-show="!verificationLoading"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></span>
+                                <span x-show="verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
+                            </button>
                         </div>
                     </div>
                     <?php endif; ?>
