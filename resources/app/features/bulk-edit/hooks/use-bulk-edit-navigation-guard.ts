@@ -28,6 +28,25 @@ export const useBulkEditNavigationGuard = (isDirty: boolean): BulkEditNavigation
     }
   }, [isBlocked, isDirty, blocker]);
 
+  /**
+   * `useBlocker` only intercepts in-app (client-side) navigation — it cannot
+   * see a browser reload or tab close. `beforeunload` is the only mechanism
+   * for that, and it can only trigger the browser's own generic prompt: no
+   * custom title/text, no app styling.
+   */
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isDirty || isSavingRef.current) {
+        return;
+      }
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
   const discardChanges = () => {
     if (blocker.state === 'blocked') {
       blocker.proceed();

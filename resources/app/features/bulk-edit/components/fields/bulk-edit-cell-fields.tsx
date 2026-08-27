@@ -87,6 +87,7 @@ const VariantIdentityControl = ({ rowIndex }: { rowIndex: number }) => {
       <MediaPicker
         value={media}
         size="small"
+        cssOverride={styles.variantMedia}
         onChange={(nextMedia) =>
           setValue(rowPath(rowIndex, 'media'), nextMedia as never, { shouldDirty: true })
         }
@@ -450,6 +451,21 @@ export {
 };
 
 const styles = defineStyles({
+  // Row height is a fixed 32px; MediaPicker's `size="small"` wrapper (and the
+  // `Image` it renders internally at `size="sm"`) are both hardcoded to
+  // 32x32 — shared with variant-media-selector.tsx, so not editable here.
+  // `!important` is needed because Image's own `size="sm"` dimensions come
+  // from its own scoped style, not from anything this cssOverride can simply
+  // out-order; the `<img>` itself fills its parent at 100%/100%, so sizing
+  // just the wrapper span is enough to shrink the visible thumbnail.
+  variantMedia: {
+    width: '24px !important',
+    height: '24px !important',
+    '& [data-slot="image"]': {
+      width: '24px !important',
+      height: '24px !important',
+    },
+  },
   title: {
     textAlign: 'left',
     color: theme.colors.text.subdued,

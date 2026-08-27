@@ -163,6 +163,16 @@ const styles = defineStyles({
     maxHeight: 'calc(100vh - 180px)',
     overflow: 'auto',
     borderCollapse: 'separate',
+    // Bottom padding on an `overflow: auto` element is part of its scrollable
+    // area, not just cosmetic space — this reserves clearance so the native
+    // horizontal scrollbar doesn't paint directly over the bottom pixels of
+    // the last row, since this container's height hugs its content whenever
+    // there are too few rows to reach `maxHeight`. (Right-side clearance for
+    // the fill-handle grabber is added to the table itself, below — trailing
+    // *container* padding on the inline-end/scroll-end side is unreliable
+    // across browsers at the horizontal scroll boundary, unlike this
+    // block-end/bottom case.)
+    paddingBottom: theme.spacing[4],
     // `Table` wraps its own `<table>` in a `data-slot="table-container"` div
     // with its own `overflow-x: auto` — left as-is, that inner div (whose
     // bottom edge sits wherever the table content happens to end, not the
@@ -180,6 +190,12 @@ const styles = defineStyles({
   table: {
     borderCollapse: 'separate',
     borderSpacing: 0,
+    // Reserves clearance for the last column's fill-handle grabber, which
+    // extends past its cell's right edge. Applied to the table itself
+    // (real scrollable content) rather than the scroll container, since
+    // container-level padding on the horizontal scroll-end side is not
+    // reliably included in what a browser lets you scroll to reveal.
+    paddingRight: theme.spacing[3],
     // `Table`'s own base style sets `& th, & td { padding: theme.spacing[3] }`
     // scoped to this same generated class — a per-cell cssOverride on
     // BulkEditCell can't out-specificity that, so the tight cell padding has

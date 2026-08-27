@@ -16,6 +16,8 @@ const editableKindOf = (cellKind: string | undefined): EditableKind => {
       return 'number';
     case 'money':
       return 'money';
+    case 'weight':
+      return 'number';
     case 'checkbox':
       return 'checkbox';
     default:

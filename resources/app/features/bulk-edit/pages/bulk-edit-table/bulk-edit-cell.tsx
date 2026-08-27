@@ -4,7 +4,6 @@ import { type KeyboardEvent, type ReactNode, useEffect, useRef } from 'react';
 import { getPinnedCss, getPinningStyle } from '@/components/data-table/column-styles';
 import type { DataTableItem } from '@/components/data-table/types';
 import { TableCell } from '@/components/ui/table';
-import Tooltip from '@/components/ui/tooltip';
 import {
   CheckboxControl,
   MoneyControl,
@@ -33,7 +32,6 @@ import type { BulkEditProfileOption } from '@/features/bulk-edit/types';
 import type { ProductVariant } from '@/features/products';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
 
 const renderControl = (
   kind: string | undefined,
@@ -205,21 +203,15 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
     >
       {renderControl(cellKind, field, rowIndex, isActive, gateOpen, options)}
       {isHandle && selectable && cellKind !== 'variant' && (
-        <Tooltip
-          tip={__('Drag to fill', 'kirki-ecommerce')}
-          position="top"
-          cssOverride={styles.grabberTrigger}
-        >
-          <span
-            role="presentation"
-            data-grabber="true"
-            css={scoped(styles.grabber)}
-            onMouseDown={(event) => {
-              event.stopPropagation();
-              selection.onGrabberMouseDown(field, rowIndex);
-            }}
-          />
-        </Tooltip>
+        <span
+          role="presentation"
+          data-grabber="true"
+          css={scoped(styles.grabber)}
+          onMouseDown={(event) => {
+            event.stopPropagation();
+            selection.onGrabberMouseDown(field, rowIndex);
+          }}
+        />
       )}
     </TableCell>
   );
@@ -252,14 +244,21 @@ const styles = defineStyles({
     '&:focus-visible': {
       outline: '0px solid transparent',
     },
+    // `outline` (the layout-inert alternative to `border` used elsewhere in
+    // this file) turns out to have its own table-specific quirk: on a `<td>`
+    // that sits underneath the pinned Variants column after a horizontal
+    // scroll, the outline paints above the pinned column's opaque background
+    // regardless of z-index — confirmed live, an explicit `zIndex: 999` on
+    // the pinned cell did not stop it. `box-shadow: inset` is layout-inert
+    // the same way, but participates in normal per-cell paint order (matching
+    // `.cell`'s own bottom border above), so it is correctly hidden behind
+    // the pinned column instead of bleeding through it.
     '&[data-bulk-cell="selected"]': {
-      outline: `2px solid ${theme.colors.background.fillBrand}`,
-      outlineOffset: -1,
+      boxShadow: `inset 0 0 0 2px ${theme.colors.background.fillBrand}`,
       backgroundColor: `rgba(22, 123, 255, 0.15)`,
     },
     '&[data-bulk-cell="fill"]': {
-      outline: `2px solid ${theme.colors.background.fillBrand}`,
-      outlineOffset: -1,
+      boxShadow: `inset 0 0 0 2px ${theme.colors.background.fillBrand}`,
       backgroundColor: theme.colors.background.fillSecondary,
     },
 
@@ -270,28 +269,28 @@ const styles = defineStyles({
 
     '&[data-cell-kind="variant"]': {
       paddingLeft: theme.spacing[3],
+      zIndex: 3,
     },
   },
   /**
-   * `Tooltip`'s trigger wrapper renders as an in-flow `inline-flex` span —
-   * even though the grabber inside it is absolutely positioned, that
-   * wrapper span was still occupying its own line-box height inside the
-   * cell's block flow, silently growing the cell past its fixed 32px height
-   * whenever a handle rendered. Positioning the wrapper itself (via
-   * `Tooltip`'s `cssOverride`) removes it from flow entirely; the grabber
-   * span inside just needs to fill that positioned box.
+   * Kept fully inside the cell's own box (no negative offset) rather than
+   * bleeding past its right/bottom edges. Bleeding out used to let the
+   * grabber be painted over by the next column's or next row's cell (both
+   * are separate `<td>`s at the same z-index level, and later-DOM siblings
+   * paint on top), and — for the bottom row specifically, which has no next
+   * row to bleed into — let it float unclipped in the scrollbar gutter
+   * below the table. Staying inside the cell's box sidesteps both, since it
+   * never overlaps a sibling cell's paint area.
    */
-  grabberTrigger: {
-    position: 'absolute',
-    right: -4,
-    bottom: -4,
-  },
   grabber: {
+    position: 'absolute',
+    right: -2,
+    bottom: -3,
     width: 6,
     height: 10,
+    zIndex: 2,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fillBrand,
     cursor: 's-resize',
-    zIndex: 2,
   },
 });

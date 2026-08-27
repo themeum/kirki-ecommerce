@@ -5,7 +5,6 @@ import { FormProvider, type Resolver, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 
-import DropdownButton from '@/components/dropdown-button';
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -17,12 +16,13 @@ import Text from '@/components/ui/text';
 import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useBulkEditNavigationGuard } from '@/features/bulk-edit/hooks/use-bulk-edit-navigation-guard';
 import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visibility';
-import { bulkEditColumns } from '@/features/bulk-edit/lib/columns';
+import { bulkEditColumnGroups, bulkEditColumns } from '@/features/bulk-edit/lib/columns';
 import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
 import { buildBulkEditPayload } from '@/features/bulk-edit/lib/payload';
 import BulkEditTable, {
   type BulkEditTableHandle,
 } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
+import ColumnVisibilityMenu from '@/features/bulk-edit/pages/column-visibility-menu';
 import { BulkEditFormSchema } from '@/features/bulk-edit/schemas/forms/bulk-edit-form';
 import {
   useBulkVariantsQuery,
@@ -49,6 +49,13 @@ const parseIds = (raw: string | null): number[] => {
 const columnPickerOptions = bulkEditColumns
   .filter((column) => column.id !== 'variant')
   .map((column) => ({ value: column.id!, title: String(column.header) }));
+
+const columnLabelById = new Map(columnPickerOptions.map((option) => [option.value, option.title]));
+
+const columnVisibilityGroups = bulkEditColumnGroups.map((group) => ({
+  ...group,
+  columns: group.columnIds.map((id) => ({ id, label: columnLabelById.get(id) ?? id })),
+}));
 
 const UNIT_PRICE_FIELDS = [
   'total_unit_amount',
@@ -215,13 +222,9 @@ const BulkEditPage = () => {
     .map((option) => option.value)
     .filter((id) => columnVisibility[id] !== false);
 
-  const handleColumnPickerSelect = (value: string | number | (string | number)[]) => {
-    const selected = Array.isArray(value) ? (value as string[]) : [String(value)];
-    setColumnVisibility(
-      Object.fromEntries(
-        columnPickerOptions.map((option) => [option.value, selected.includes(option.value)]),
-      ),
-    );
+  const handleColumnToggle = (columnId: string) => {
+    const isVisible = columnVisibility[columnId] !== false;
+    setColumnVisibility({ ...columnVisibility, [columnId]: !isVisible });
   };
 
   const isEmptySelection = ids.length === 0;
@@ -247,20 +250,18 @@ const BulkEditPage = () => {
         actions={
           !isEmptySelection && (
             <>
-              <DropdownButton
-                buttonProps={{ variant: 'outline' }}
-                options={columnPickerOptions.map((option) => ({
-                  value: option.value,
-                  title: option.title,
-                }))}
-                value={visibleColumnIds}
-                hasLeftIcon
-                checkboxField
-                multiple
-                dropdownStyle={{ minWidth: '288px' }}
-                onOptionSelect={handleColumnPickerSelect}
+              <ColumnVisibilityMenu
+                groups={columnVisibilityGroups}
+                visibleColumnIds={visibleColumnIds}
+                onToggle={handleColumnToggle}
               />
-              <Button variant="primary" size="sm" onClick={handleSave} loading={isPending}>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={handleSave}
+                loading={isPending}
+                disabled={!isDirty}
+              >
                 {__('Save', 'kirki-ecommerce')}
               </Button>
             </>

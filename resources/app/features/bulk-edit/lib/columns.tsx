@@ -20,6 +20,11 @@ type BulkEditCellKind =
 
 type BulkEditGate = 'track_inventory' | 'has_limit_per_order' | 'charge_taxes' | 'show_unit_price';
 
+type BulkEditColumnGroup = {
+  label: string;
+  columnIds: string[];
+};
+
 const ROW_HEIGHT = 32;
 
 const bulkEditColumns: ColumnDef<ProductVariant>[] = [
@@ -173,5 +178,43 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   },
 ];
 
-export { bulkEditColumns, ROW_HEIGHT };
-export type { BulkEditCellKind, BulkEditGate };
+const bulkEditColumnGroups: BulkEditColumnGroup[] = [
+  {
+    label: __('General', 'kirki-ecommerce'),
+    columnIds: ['sku', 'is_visible'],
+  },
+  {
+    label: __('Pricing', 'kirki-ecommerce'),
+    columnIds: [
+      'base_price',
+      'base_sale_price',
+      'base_cost_of_goods',
+      'profit',
+      'margin',
+      'show_unit_price',
+      'base_price_per_unit',
+    ],
+  },
+  {
+    label: __('Inventory', 'kirki-ecommerce'),
+    columnIds: [
+      'track_inventory',
+      'available_quantity',
+      'committed_quantity',
+      'low_stock_threshold',
+      'has_limit_per_order',
+      'max_per_order',
+    ],
+  },
+  {
+    label: __('Shipping', 'kirki-ecommerce'),
+    columnIds: ['shipping_box_id', 'weight', 'shipping_profile_id'],
+  },
+  {
+    label: __('Tax', 'kirki-ecommerce'),
+    columnIds: ['charge_taxes', 'tax_profile_id'],
+  },
+];
+
+export { bulkEditColumnGroups, bulkEditColumns, ROW_HEIGHT };
+export type { BulkEditCellKind, BulkEditColumnGroup, BulkEditGate };
