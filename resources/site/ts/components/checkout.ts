@@ -427,7 +427,6 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           shipping_postcode: shippingForm.values.postal_code,
           shipping_country: shippingForm.values.country,
           shipping_phone: shippingForm.values.phone,
-          // shipping_email: customerEmail || shippingForm.values.email,
           shipping_company: null,
           ...(billingForm
             ? {
@@ -440,7 +439,6 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
                 billing_postcode: billingForm.values.postal_code,
                 billing_country: billingForm.values.country,
                 billing_phone: billingForm.values.phone,
-                // billing_email: customerEmail || billingForm.values.email,
                 billing_company: null,
               }
             : {}),
