@@ -115,6 +115,8 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
                       ...getPinningStyle(
                         header.column as unknown as Column<DataTableItem, unknown>,
                       ),
+                      borderBottom: `1px solid ${theme.colors.border.default}`,
+                      borderRight: `1px solid ${theme.colors.border.default}`,
                     }}
                     alignment={header.column.columnDef.meta?.alignment}
                     data-sticky-cell={header.column.getIsPinned() ? 'true' : undefined}

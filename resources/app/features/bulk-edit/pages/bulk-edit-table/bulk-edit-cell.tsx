@@ -171,6 +171,7 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
       data-bulk-field={selectable ? field : undefined}
       data-bulk-editable-kind={selectable ? editableKindOf(cellKind) : undefined}
       data-bulk-cell={isFilled ? 'fill' : isSelected ? 'selected' : undefined}
+      data-cell-kind={cellKind}
       onMouseDown={
         selectable
           ? (event) =>
@@ -234,9 +235,9 @@ const styles = defineStyles({
     verticalAlign: 'middle',
     overflow: 'visible',
     borderRight: `1px solid ${theme.colors.border.default}`,
-    transition: 'background-color 0.3s ease-in-out, outline 0.3 ease-in-out',
+    transition: 'background-color 0.3s ease-in-out, outline 0.3s ease-in-out',
     '&:focus-visible': {
-      outline: 'none',
+      outline: '0px solid transparent',
     },
     '&[data-bulk-cell="selected"]': {
       outline: `2px solid ${theme.colors.background.fillBrand}`,
@@ -247,6 +248,15 @@ const styles = defineStyles({
       outline: `2px solid ${theme.colors.background.fillBrand}`,
       outlineOffset: -1,
       backgroundColor: theme.colors.background.fillSecondary,
+    },
+
+    '&:has(input[readonly])': {
+      cursor: 'not-allowed',
+      backgroundColor: 'rgba(0, 0, 0, 0.015)',
+    },
+
+    '&[data-cell-kind="variant"]': {
+      paddingLeft: theme.spacing[3],
     },
   },
   /**

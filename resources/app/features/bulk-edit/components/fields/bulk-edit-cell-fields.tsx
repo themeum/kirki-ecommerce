@@ -469,6 +469,11 @@ const styles = defineStyles({
     padding: 0,
     paddingInline: theme.spacing[1],
     textAlign: 'right',
+
+    '&[readonly]': {
+      backgroundColor: 'transparent',
+      cursor: 'not-allowed',
+    },
   },
   checkboxWrapper: {
     pointerEvents: 'auto',

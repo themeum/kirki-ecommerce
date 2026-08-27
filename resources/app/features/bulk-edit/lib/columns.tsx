@@ -61,7 +61,7 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   },
   {
     id: 'margin',
-    header: __('Margin', 'kirki-ecommerce'),
+    header: __('Margin (%)', 'kirki-ecommerce'),
     size: 100,
     meta: { cellKind: 'readonly-money', selectable: false, alignment: 'right' },
     cell: BulkEditCell,
