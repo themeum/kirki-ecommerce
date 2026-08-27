@@ -15,9 +15,12 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
+
+use function Kirki\Ecommerce\Framework\app;
 
 if (!isset($data['product']) || !is_object($data['product'])) {
     return;
@@ -40,9 +43,8 @@ $sale_price = $variant->base_sale_price;
 $in_sale = $sale_price > 0 && $sale_price < $regular_price;
 
 
-$out_of_stock =
-    ($variant->track_inventory && $variant->available_quantity <= 0) ||
-    (! $variant->track_inventory && ! $variant->in_stock);
+$inventory_service = app()->make(InventoryService::class);
+$out_of_stock = ! $inventory_service->has_stock((int) $variant->id, 1);
 
 $ribbon_text = $out_of_stock ? __('Out of Stock', 'kirki-ecommerce') : $product->ribbon;
 
