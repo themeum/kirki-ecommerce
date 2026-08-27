@@ -10,11 +10,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Url;
 
-use function Kirki\Ecommerce\Framework\user;
-
 $checkout_url = Url::get_checkout_url();
-$login_url = Url::get_login_url($checkout_url);
-$url = user()->is_logged_in() ? $checkout_url : $login_url;
 ?>
 
 <div class="kecom-cart-summary">
@@ -28,7 +24,7 @@ $url = user()->is_logged_in() ? $checkout_url : $login_url;
         <span class="kecom-cart-summary-total-value" x-text="cartData.pricing.display_subtotal_money_object.display"></span>
     </div>
     <a
-        href="<?php echo esc_url($url); ?>"
+        href="<?php echo esc_url($checkout_url); ?>"
         class="kecom-btn kecom-btn-primary kecom-btn-block"
         :class="{ 'kecom-btn-disabled': !cartData.items_count }"
         :aria-disabled="!cartData.items_count"

@@ -23,6 +23,12 @@ export type KirkiEcommerceConfig = {
   cart_variant_ids: number[];
   is_logged_in: boolean;
   login_url: string;
+  current_user?: {
+    id: number;
+    name: string;
+    email: string;
+    avatar_url: string;
+  } | null;
   cart: CartUpdateItem;
   thank_you_url: string;
   checkout_cart?: {
@@ -184,7 +190,7 @@ export type CheckoutRequest = {
   shipping_postcode: string;
   shipping_country: string;
   shipping_phone: string;
-  shipping_email: string;
+  shipping_email?: string;
   shipping_company?: string | null;
   billing_first_name?: string;
   billing_last_name?: string;

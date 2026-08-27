@@ -21,7 +21,6 @@ $shipping_country = $shipping_address["country"] ?? '';
 $shipping_postal_code = $shipping_address["postal_code"] ?? '';
 
 $shipping_phone = $shipping_address["phone"] ?? '';
-$shipping_email = $shipping_address["email"] ?? '';
 ?>
 
 <!-- Shipping Form -->
@@ -38,7 +37,6 @@ $shipping_email = $shipping_address["email"] ?? '';
             state: '<?php echo esc_js($shipping_state); ?>',
             postal_code: '<?php echo esc_js($shipping_postal_code); ?>',
             phone: '<?php echo esc_js($shipping_phone); ?>',
-            email: '<?php echo esc_js($shipping_email); ?>',
         },
         mode: 'onChange'
    })" x-on:kecom:shipping-form:validate.window="await validateForm(); $dispatch('kecom:shipping-form:validated', { isValid })">
@@ -140,16 +138,6 @@ $shipping_email = $shipping_address["email"] ?? '';
                 name="phone"
                 x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
-        </div>
-        <div class="kecom-field" x-bind="fieldWrapper('email')">
-            <label class="kecom-field-label" for="shipping-email"><?php esc_html_e('Email Address', 'kirki-ecommerce'); ?></label>
-            <input
-                class="kecom-input"
-                type="email"
-                id="shipping-email"
-                name="email"
-                x-bind="register('email', { required: '<?php esc_html_e('Email address is required', 'kirki-ecommerce'); ?>', email: '<?php esc_html_e('Please enter a valid email address', 'kirki-ecommerce'); ?>' })">
-            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
         </div>
         <div class="kecom-field">
             <label class="kecom-checkbox">
