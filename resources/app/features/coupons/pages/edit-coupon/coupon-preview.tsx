@@ -1,7 +1,6 @@
 import { Copy } from 'lucide-react';
 import { useCallback } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { toast } from 'sonner';
 
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -13,6 +12,7 @@ import { DATE_FORMATS, END_OF_DAY_TIME, formatDateValue, mergeDateAndTime, START
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
+import { copyToClipboard } from '@/utils';
 import { __, _n, sprintf } from '@/wpi18n';
 
 const formatDisplayDate = (date?: string | null, time?: string | null) => formatDateValue(mergeDateAndTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
@@ -56,12 +56,7 @@ const CouponPreview = () => {
       return;
     }
 
-    try {
-      await navigator.clipboard.writeText(values.code);
-      toast.success(__('Coupon code copied', 'kirki-ecommerce'));
-    } catch {
-      toast.error(__('Failed to copy coupon code', 'kirki-ecommerce'));
-    }
+    await copyToClipboard(values.code);
   };
 
   const validUntil =
