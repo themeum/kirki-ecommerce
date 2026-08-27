@@ -15,12 +15,10 @@ import {
   useDeleteOrderActivityMutation,
   useOrderActivitiesInfiniteQuery,
 } from '@/features/orders/services/activity';
-import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import { createAcronym } from '@/utils';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type TimelineProps = {
@@ -90,10 +88,6 @@ const Timeline = ({ orderId }: TimelineProps) => {
           <div css={scoped(styles.timelineList)}>
             <Flex direction="column" gap={3}>
               {activities.map((entry) => {
-                const time = isDefined(entry.created_at)
-                  ? formatDateValue(new Date(entry.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
-                  : null;
-
                 if (entry.activity_type === 'comment-added') {
                   const acronym = createAcronym({ first_name: entry.author_name ?? undefined });
                   return (
@@ -111,7 +105,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
                       </Flex>
                       <Flex gap={2} align="center">
                         <Text variant="tiny" color="subdued" data-comment-time="true">
-                          {time}
+                          {entry.created_at}
                         </Text>
                         <Button
                           variant="ghost"
@@ -136,7 +130,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
                       {entry.description}
                     </Text>
                     <Text variant="tiny" color="subdued">
-                      {time}
+                      {entry.created_at}
                     </Text>
                   </Flex>
                 );
