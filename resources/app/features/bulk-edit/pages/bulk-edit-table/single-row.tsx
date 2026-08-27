@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 
-import ThumbnailSelector from '@/components/thumbnail-selector';
+import MediaPicker from '@/components/media-picker';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
@@ -66,15 +66,14 @@ const SingleRow = (props: SingleRowProps) => {
         data-sticky-cell="true"
       >
         <Flex gap={3} align="center">
-          <ThumbnailSelector
-            src={media?.url}
-            onChange={(img) =>
-              handleMediaChange(
-                (Array.isArray(img) ? img[0] : img),
-                'media',
-              )
-            }
+          <MediaPicker
+            value={media ?? null}
             size="small"
+            onChange={(nextMedia) => {
+              if (nextMedia) {
+                handleMediaChange(nextMedia, 'media');
+              }
+            }}
           />
           <span css={scoped(styles.title)}>
             {`${currentVariation?.name} - `}

@@ -1,12 +1,11 @@
+import MediaPicker from '@/components/media-picker';
 import MediaStack from '@/components/media-stack';
-import Placeholder from '@/components/ui/placeholder';
-import Thumbnail from '@/components/ui/thumbnail';
 import type { MediaRef } from '@/schemas/shared/media';
 import { scoped } from '@/theme/mixins';
 import type { MediaChangePayload } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
-type VariantThumbnailSelectorProps = {
+type VariantMediaSelectorProps = {
   src?: string;
   stackMedia?: MediaRef[];
   galleryIds: number[];
@@ -92,7 +91,12 @@ const openGalleryFrame = (
   frame.open();
 };
 
-const VariantThumbnailSelector = ({ src, stackMedia, galleryIds, onChange }: VariantThumbnailSelectorProps) => {
+const VariantMediaSelector = ({
+  src,
+  stackMedia,
+  galleryIds,
+  onChange,
+}: VariantMediaSelectorProps) => {
   const handleOpen = () => openGalleryFrame(galleryIds, onChange);
 
   if (stackMedia && stackMedia.length > 1) {
@@ -110,34 +114,21 @@ const VariantThumbnailSelector = ({ src, stackMedia, galleryIds, onChange }: Var
           }
         }}
       >
-        <MediaStack size="small" mediaArray={stackMedia} />
+        <MediaStack size="sm" mediaArray={stackMedia} />
       </div>
     );
   }
 
-  if (!src) {
-    return <Placeholder size="small" type="primary" cssOverride={{ width: 32, height: 32 }} onClick={handleOpen} />;
-  }
-
   return (
-    <div
-      onClick={handleOpen}
-      style={{ cursor: 'pointer' }}
-      role="button"
-      tabIndex={0}
-      aria-label={__('Select Variant Image', 'kirki-ecommerce')}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          handleOpen();
-        }
-      }}
-    >
-      <Thumbnail src={src} size="small" />
-    </div>
+    <MediaPicker
+      value={src ?? null}
+      size="small"
+      onRequestOpen={handleOpen}
+      onChange={(media: MediaRef | null) => onChange(media, stackMedia ?? [])}
+    />
   );
 };
 
-VariantThumbnailSelector.displayName = 'VariantThumbnailSelector';
+VariantMediaSelector.displayName = 'VariantMediaSelector';
 
-export default VariantThumbnailSelector;
+export default VariantMediaSelector;

@@ -4,11 +4,14 @@ import { useNavigate } from 'react-router';
 
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import Tooltip from '@/components/ui/tooltip';
 import { RouteConfig } from '@/config/route-config';
-import { getAvailabilityColor, getAvailabilityDescription } from '@/features/products/lib/availability';
+import {
+  getAvailabilityColor,
+  getAvailabilityDescription,
+} from '@/features/products/lib/availability';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { InfoIcon } from '@/icons';
 import { DATE_FORMATS } from '@/libs/date';
@@ -23,7 +26,7 @@ const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
 
   return (
     <Flex gap={3} align="center">
-      <Thumbnail src={item?.image ?? undefined} size="small" />
+      <Image src={item?.image} size="sm" />
       <button
         type="button"
         css={scoped(styles.clickable)}
@@ -43,7 +46,7 @@ const STATUS_MAP = {
   draft: __('Draft', 'kirki-ecommerce'),
   published: __('Published', 'kirki-ecommerce'),
   trashed: __('Trashed', 'kirki-ecommerce'),
-}
+};
 
 const productColumns: ColumnDef<ProductListItem>[] = [
   {
@@ -82,15 +85,23 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       }
 
       return (
-        <Flex align="center" gap={2} cssOverride={{
-          '&:hover': {
-            '& [data-tooltip]': {
-              opacity: 1,
+        <Flex
+          align="center"
+          gap={2}
+          cssOverride={{
+            '&:hover': {
+              '& [data-tooltip]': {
+                opacity: 1,
+              },
             },
-          },
-        }}>
+          }}
+        >
           {label}
-          <Tooltip tip={description} position="top" cssOverride={{ opacity: 0, transition: 'opacity 0.2s ease' }}>
+          <Tooltip
+            tip={description}
+            position="top"
+            cssOverride={{ opacity: 0, transition: 'opacity 0.2s ease' }}
+          >
             <InfoIcon />
           </Tooltip>
         </Flex>

@@ -34,6 +34,14 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
       return this.maxValue;
     },
 
+    get isMax(): boolean {
+      return this.maxValue !== undefined && this.quantity >= this.maxValue;
+    },
+
+    get isMin(): boolean {
+      return this.quantity <= this.min;
+    },
+
     increment() {
       if (this.maxValue === undefined || this.quantity < this.maxValue) {
         this.quantity++;
@@ -59,6 +67,13 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
     notifyChange() {
       config.onChange?.(this.quantity);
       (this as any).$dispatch('kecom:quantity:changed', { quantity: this.quantity });
+    },
+
+    init() {
+      window.addEventListener('kecom:variant:changed', () => {
+        this.quantity = this.min;
+        this.notifyChange();
+      });
     },
   };
 }

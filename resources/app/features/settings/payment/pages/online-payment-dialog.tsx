@@ -7,11 +7,13 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
 import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/payment';
 import { useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation } from '@/features/settings/payment/services/payment';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type OnlinePaymentPopupProps = {
@@ -58,7 +60,9 @@ const OnlinePaymentPopup = ({
                   <CardContent cssOverride={cardStyles.innerContent}>
                     <Flex align="center">
                       <Flex gap={2} align="center">
-                        {item.icon && <img src={item.icon} alt="online-payment-icon" css={scoped(styles.icon)} />}
+                        {item.icon && (
+                          <Image src={item.icon} alt="online-payment-icon" height={20} fit="contain" cssOverride={styles.icon} />
+                        )}
                         <Text variant="small" weight="medium">{item.name}</Text>
                       </Flex>
                       <ActionGroup>
@@ -104,8 +108,9 @@ const styles = defineStyles({
     },
   },
   icon: {
-    height: 20,
     width: 'auto',
-    objectFit: 'contain',
+    border: 'none',
+    borderRadius: theme.radius.none,
+    backgroundColor: 'transparent',
   },
 });

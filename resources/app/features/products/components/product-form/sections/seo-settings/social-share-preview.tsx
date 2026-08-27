@@ -1,12 +1,11 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
 import useSeoPreviewData from '@/features/products/components/product-form/sections/seo-settings/use-seo-preview-data';
-import { ThumbnailPlaceholder } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, flexCenter, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 
 const SocialSharePreview = () => {
   const {
@@ -19,16 +18,13 @@ const SocialSharePreview = () => {
   return (
     <Card cssOverride={mergeCss(cardStyles.innerCard, styles.card)}>
       <CardContent cssOverride={styles.cardContent}>
-        {previewImageUrl ? (
-          <div css={styles.imageArea}>
-            <img src={previewImageUrl} alt={previewTitle || ''} />
-          </div>
-        ) : (
-          <div css={styles.placeholder}>
-            <ThumbnailPlaceholder />
-            <Text color="secondary">{__('Add Image', 'kirki-ecommerce')}</Text>
-          </div>
-        )}
+        <Image
+          src={previewImageUrl}
+          alt={previewTitle || ''}
+          width="100%"
+          height={202}
+          cssOverride={styles.imageArea}
+        />
         <Flex direction="column" gap={2} cssOverride={styles.meta}>
           <Text variant="small" cssOverride={styles.breadcrumb}>
             {breadcrumbUrl}
@@ -66,24 +62,8 @@ const styles = defineStyles({
     paddingInline: theme.spacing[0],
   },
   imageArea: {
-    width: '100%',
-    height: '202px',
-    overflow: 'hidden',
-    borderBottom: `1px solid ${theme.colors.border.alt}`,
-    img: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      display: 'block',
-    },
-  },
-  placeholder: {
-    height: '202px',
-    width: '100%',
-    backgroundColor: theme.colors.background.fillSpecial2Secondary,
-    ...flexCenter(),
-    flexDirection: 'column',
-    gap: theme.spacing[3],
+    border: 'none',
+    borderRadius: theme.radius.none,
     borderBottom: `1px solid ${theme.colors.border.alt}`,
   },
   meta: {

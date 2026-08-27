@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -239,26 +240,46 @@ class PageInlineScript extends BaseHook
         }
 
         // Prepare variants for Alpine.js
-        $variants_data = [];
-        foreach ($variants as $v) {
-            $variant_attrs = [];
+        $product_id        = intval($product['id'] ?? 0);
+        $inventory_service = app()->make(InventoryService::class);
+        $variants_data     = [];
 
-            foreach ($v['attribute_values'] ?? [] as $attr_value_id) {
+        foreach ($variants as $variant) {
+            $variant_id          = intval($variant['id'] ?? 0);
+            $price               = $variant['display_price_money_object']->display;
+            $display_price       = $variant['display_price'] ?? 0;
+            $display_sale_price  = $variant['display_sale_price'] ?? null;
+            $sale_price          = $display_sale_price ? $variant['display_sale_price_money_object']->display : null;
+            $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
+                ? round((1 - ($display_sale_price / $display_price)) * 100)
+                : null;
+            $stock               = intval($variant['available_quantity'] ?? 0);
+            $available           = $inventory_service->has_stock($variant_id, 1);
+            $allow_back_order    = (bool) ($variant['allow_back_order'] ?? false);
+            $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
+            $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
+            $image               = $variant['media']['url'] ?? null;
+
+            $variant_attrs = [];
+            foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
                 if (isset($attribute_value_map[$attr_value_id])) {
                     $variant_attrs[] = $attribute_value_map[$attr_value_id];
                 }
             }
 
             $variants_data[] = [
-                'id'             => $v['id'] ?? 0,
-                'product_id'     => $product['id'] ?? 0,
-                'price'          => $v['display_price_money_object']->display,
-                'sale_price'     => $v['display_sale_price'] ? $v['display_sale_price_money_object']->display : null,
-                'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100) : null,
-                'stock'          => (int) ($v['available_quantity'] ?? 0),
-                'attributes'     => $variant_attrs,
-                'available'      => $v['in_stock'] ? true : ($v['available_quantity'] ?? 0) > 0,
-                'image'          => $v['media']['url'] ?? null,
+                'id'                  => $variant_id,
+                'product_id'          => $product_id,
+                'price'               => $price,
+                'sale_price'          => $sale_price,
+                'discount_percentage' => $discount_percentage,
+                'stock'               => $stock,
+                'attributes'          => $variant_attrs,
+                'available'           => $available,
+                'allow_back_order'    => $allow_back_order,
+                'has_limit_per_order' => $has_limit_per_order,
+                'max_per_order'       => $max_per_order,
+                'image'               => $image,
             ];
         }
 
