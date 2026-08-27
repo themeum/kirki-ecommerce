@@ -106,6 +106,9 @@ skills:
 - `opsx:sync` — sync delta specs into main specs
 - `opsx:archive` — finalize and archive a completed change
 
+Before implementing tasks from an existing change always ask me to run the command `opsx:apply` manually
+by myself instead of applying automatically.
+
 ---
 
 ## 2. PHP Coding Standards
@@ -250,7 +253,7 @@ and units of measure (`total_unit_amount`, `base_unit_amount` — a weight/volum
 unit, not money, despite the `base_` in the name).
 
 If a field's currency is ambiguous by design — e.g. `Coupon`'s `discount_amount`
-request field, which is a fixed currency amount *or* a percentage depending on
+request field, which is a fixed currency amount _or_ a percentage depending on
 `discount_value_type` — leave it unprefixed rather than picking a misleading
 prefix; the repository layer resolves it to the correct typed column
 (`base_discount_amount_fixed` vs. `discount_amount_percentage`).
@@ -404,7 +407,9 @@ Form schemas live in `schemas/forms/<name>-form.ts` and follow one consistent
 shape (see `schemas/forms/brand-form.ts`):
 
 ```ts
-const XxxFormShape = z.object({ /* fields, using helpers from @/libs/zod */ });
+const XxxFormShape = z.object({
+  /* fields, using helpers from @/libs/zod */
+});
 
 const XxxFormSchema = prepareFormSchema(XxxFormShape).transform((values) => ({
   /* map to the payload shape the API expects */

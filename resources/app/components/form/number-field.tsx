@@ -1,9 +1,9 @@
 import type { CSSObject } from '@emotion/react';
-import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode, WheelEvent } from 'react';
+import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import Input from '@/components/ui/input';
+import NumberInput from '@/components/ui/number-input';
 import { isDefined } from '@/utils/object';
 
 type NumberFieldProps<
@@ -43,16 +43,6 @@ const NumberField = <
   const currentValue = useWatch({ control, name });
   const fieldId = String(name);
 
-  const preventStepKeys = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      event.preventDefault();
-    }
-  };
-
-  const preventStepScroll = (event: WheelEvent<HTMLInputElement>) => {
-    event.currentTarget.blur();
-  };
-
   const clampValue = (value: number) => {
     if (isDefined(min) && value < min) {
       return min;
@@ -79,11 +69,10 @@ const NumberField = <
               {label}
             </FieldLabel>
           )}
-          <Input
+          <NumberInput
             {...field}
             id={fieldId}
             value={currentValue ?? ''}
-            type="number"
             placeholder={placeholder}
             disabled={disabled}
             readOnly={readOnly}
@@ -108,8 +97,6 @@ const NumberField = <
                 field.onChange(clampedValue);
               }
             }}
-            onKeyDown={preventStepKeys}
-            onWheel={preventStepScroll}
             name={field.name}
             ref={field.ref}
             onFocus={event => event.target.select()}

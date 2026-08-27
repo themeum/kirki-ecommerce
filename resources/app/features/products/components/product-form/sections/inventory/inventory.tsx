@@ -68,8 +68,8 @@ const Inventory = () => {
                   disabled
                 />
                 <NumberField
-                  name="variants.0.min_stock_threshold"
-                  label={__('Minimum stock threshold', 'kirki-ecommerce')}
+                  name="variants.0.low_stock_threshold"
+                  label={__('Low stock threshold', 'kirki-ecommerce')}
                   infoText={__(
                     'Notify when stock falls below this amount.',
                     'kirki-ecommerce',

@@ -75,8 +75,6 @@ type LabelType = 'error' | '';
 type TableDensity = 'default' | 'compact' | 'wide';
 type TableAlignment = 'right' | 'center';
 type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth';
-type ThumbnailSize = 'fullWidth' | 'small' | 'xsm';
-type ThumbnailType = 'circle';
 type FlexDirection = 'column' | 'row' | '';
 type TooltipPosition = 'bottom' | 'top' | 'left' | 'right';
 type DropdownSize = 'default' | 'small';
@@ -116,8 +114,6 @@ export type {
   StyleProps,
   TableAlignment,
   TableDensity,
-  ThumbnailSize,
-  ThumbnailType,
   TooltipPosition,
 };
 

@@ -10,12 +10,19 @@ describe('ProductsSettingsFormSchema', () => {
     is_unit_price_visible: false,
     is_enabled_reviews: false,
     is_enabled_star_ratings: false,
+    low_stock_threshold: null,
     barcode_generation: null,
   };
 
   it('produces the exact payload for a fully filled form', () => {
-    const result = ProductsSettingsFormSchema.parse({ ...base, shop_page: '42' });
+    const result = ProductsSettingsFormSchema.parse({ ...base, shop_page: '42', low_stock_threshold: '5' });
     expect(result.shop_page).toBe(42);
+    expect(result.low_stock_threshold).toBe(5);
+  });
+
+  it('coerces an empty-string low_stock_threshold to null', () => {
+    const result = ProductsSettingsFormSchema.parse({ ...base, low_stock_threshold: '' });
+    expect(result.low_stock_threshold).toBeNull();
   });
 
   it('coerces an empty-string shop_page to null', () => {

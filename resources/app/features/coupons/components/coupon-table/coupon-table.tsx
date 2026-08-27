@@ -33,6 +33,7 @@ const CouponTable = () => {
     <DataTable
       data={data?.results ?? []}
       columns={couponColumns}
+      total={data?.total}
       pageCount={data?.last_page ?? 0}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

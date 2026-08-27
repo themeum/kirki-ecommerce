@@ -9,6 +9,7 @@ const ProductsSettingsFormShape = z.object({
   is_unit_price_visible: z.boolean().default(false),
   is_enabled_reviews: z.boolean().default(false),
   is_enabled_star_ratings: z.boolean().default(false),
+  low_stock_threshold: numberOrNull(),
   barcode_generation: z.record(z.any()).nullish(),
 });
 
@@ -19,6 +20,7 @@ export const ProductsSettingsFormSchema = prepareFormSchema(ProductsSettingsForm
   is_unit_price_visible: values.is_unit_price_visible,
   is_enabled_reviews: values.is_enabled_reviews,
   is_enabled_star_ratings: values.is_enabled_star_ratings,
+  low_stock_threshold: values.low_stock_threshold,
   barcode_generation: values.barcode_generation ?? null,
 }));
 

@@ -1,11 +1,11 @@
 import { generateVariantIndexById, generateVariantIndexes } from '@/features/products/lib/utils';
 import type { ProductVariant } from '@/features/products/schemas/catalog/variant';
+import type { MediaRef } from '@/schemas/shared/media';
 
 export type CombinedVariantData = {
-  base_price?: number | string | null;
-  in_stock?: boolean | string;
-  available_quantity?: number;
-  media?: ({ url?: string; [key: string]: unknown } | null | undefined)[];
+  minPrice: number;
+  maxPrice: number;
+  media: MediaRef[];
 };
 
 /**
@@ -19,36 +19,36 @@ export const getGroupVariants = (
 
 /**
  * Rolls up a group's variants into the single row shown when the group is
- * collapsed: a price range (or one price, if they match), a consensus
- * in-stock status (`' '` when the variants disagree), a summed available
- * quantity, and up to two thumbnails.
+ * collapsed: the min/max price across the group, and every distinct media
+ * (deduped by id, in first-seen order) so the caller can decide between a
+ * flat thumbnail and a stack.
  */
 export const getCombinedVariantData = (
   groupVariants: ProductVariant[],
 ): CombinedVariantData => {
-  let minPrice = groupVariants[0]?.base_price;
-  let maxPrice = groupVariants[0]?.base_price;
-  let inStock: boolean | string | undefined = groupVariants[0]?.in_stock;
-  let availableQuantity = 0;
-  let mediaArray: CombinedVariantData['media'] = [groupVariants[0]?.media];
+  let minPrice = Number(groupVariants[0]?.base_price ?? 0);
+  let maxPrice = Number(groupVariants[0]?.base_price ?? 0);
+  const media: MediaRef[] = [];
+  const seenMediaIds = new Set<string>();
 
   groupVariants.forEach((item) => {
-    minPrice = Number(Math.min(Number(minPrice), Number(item?.base_price)));
-    maxPrice = Number(Math.max(Number(maxPrice), Number(item?.base_price)));
-    inStock = item?.in_stock !== inStock ? ' ' : inStock;
-    availableQuantity += Number(item?.available_quantity);
-    mediaArray =
-      item?.media && (mediaArray?.length ?? 0) < 2
-        ? [...(mediaArray ?? []), item.media]
-        : mediaArray;
+    const price = Number(item?.base_price);
+    minPrice = Math.min(minPrice, price);
+    maxPrice = Math.max(maxPrice, price);
+
+    if (!item?.media) {
+      return;
+    }
+
+    const mediaId = String(item.media.id);
+
+    if (!seenMediaIds.has(mediaId)) {
+      seenMediaIds.add(mediaId);
+      media.push(item.media);
+    }
   });
 
-  return {
-    base_price: minPrice === maxPrice ? minPrice : `${minPrice} - ${maxPrice}`,
-    in_stock: inStock,
-    available_quantity: availableQuantity,
-    media: mediaArray,
-  };
+  return { minPrice, maxPrice, media };
 };
 
 /**
