@@ -9,6 +9,7 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types/components/common';
+import { useNavigate } from 'react-router';
 
 type PageHeadingProps = {
   type?: HeadingType;
@@ -27,77 +28,85 @@ type PageHeadingProps = {
   onBack?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
-const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>(
-  (props, ref) => {
-    const {
-      cssOverride,
-      text,
-      hasBack = false,
-      backIcon = null,
-      size,
-      sticky,
-      children,
-      style = {},
-      actions,
-      leftIcon,
-      noMargin,
-      buttonProps = {},
-      onBack,
-    } = props;
+const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) => {
+  const {
+    cssOverride,
+    text,
+    hasBack = false,
+    backIcon = null,
+    size,
+    sticky,
+    children,
+    style = {},
+    actions,
+    leftIcon,
+    noMargin,
+    buttonProps = {},
+    onBack,
+  } = props;
 
-    const {
-      cssOverride: buttonCssOverride,
-      children: buttonChildren,
-      onClick,
-      ...restButtonProps
-    } = buttonProps;
+  const navigate = useNavigate();
 
-    const BackIcon = backIcon || <ArrowLeft size={16} aria-hidden="true" />;
+  const {
+    cssOverride: buttonCssOverride,
+    children: buttonChildren,
+    onClick,
+    ...restButtonProps
+  } = buttonProps;
 
-    return (
-      <div
-        ref={ref}
-        css={scopedMerge(styles.wrapper, sticky && styles.wrapperSticky, noMargin && styles.wrapperNoMargin)}
-      >
-        <Container size={size} style={{ width: '100%' }}>
-          <div
-            css={scopedMerge(styles.heading, hasBack && styles.headingHasBack, cssOverride)}
-            style={style}
-          >
-            {hasBack && (
-              <Button
-                variant="link"
-                size="icon"
-                cssOverride={{ ...buttonCssOverride, padding: theme.spacing[2], borderRadius: theme.radius.lg }}
-                onClick={(event) => {
-                  if (onBack) {
-                    onBack(event);
-                    return;
-                  }
-                  window.history.back();
-                }}
-                {...restButtonProps}
-              >
-                {BackIcon}
-                {buttonChildren}
-              </Button>
-            )}
-            {leftIcon && (
-              <span css={scoped(styles.icon)} aria-hidden="true">
-                {leftIcon}
-              </span>
-            )}
-            <Text variant="heading5">{text}</Text>
-            {children}
-            <Flex cssOverride={styles.actions} gap={2}>
-              {actions}
-            </Flex>
-          </div>
-        </Container>
-      </div>
-    );
-  },
-);
+  const BackIcon = backIcon || <ArrowLeft size={16} aria-hidden="true" />;
+
+  return (
+    <div
+      ref={ref}
+      css={scopedMerge(
+        styles.wrapper,
+        sticky && styles.wrapperSticky,
+        noMargin && styles.wrapperNoMargin,
+      )}
+    >
+      <Container size={size} style={{ width: '100%' }}>
+        <div
+          css={scopedMerge(styles.heading, hasBack && styles.headingHasBack, cssOverride)}
+          style={style}
+        >
+          {hasBack && (
+            <Button
+              variant="link"
+              size="icon"
+              cssOverride={{
+                ...buttonCssOverride,
+                padding: theme.spacing[2],
+                borderRadius: theme.radius.lg,
+              }}
+              onClick={(event) => {
+                if (onBack) {
+                  onBack(event);
+                  return;
+                }
+                navigate(-1);
+              }}
+              {...restButtonProps}
+            >
+              {BackIcon}
+              {buttonChildren}
+            </Button>
+          )}
+          {leftIcon && (
+            <span css={scoped(styles.icon)} aria-hidden="true">
+              {leftIcon}
+            </span>
+          )}
+          <Text variant="heading5">{text}</Text>
+          {children}
+          <Flex cssOverride={styles.actions} gap={2}>
+            {actions}
+          </Flex>
+        </div>
+      </Container>
+    </div>
+  );
+});
 
 PageHeading.displayName = 'PageHeading';
 

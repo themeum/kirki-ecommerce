@@ -25,6 +25,7 @@ const UnsavedToast = ({
   onSave,
   isSubmitting = false,
   shakeSignal = 0,
+  message = __('Unsaved product', 'kirki-ecommerce')
 }: UnsavedToastProps) => {
   return createPortal(
     <div
@@ -38,7 +39,7 @@ const UnsavedToast = ({
             <AlertTriangle />
           </span>
           <Text weight="medium" cssOverride={{ color: '#C78C00' }}>
-            {__('Unsaved product', 'kirki-ecommerce')}
+            {message}
           </Text>
         </Flex>
         <Flex align="center" gap={2}>

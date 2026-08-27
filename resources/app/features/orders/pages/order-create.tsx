@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router';
-
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -13,10 +11,11 @@ import PaymentSummaryCard from '@/features/orders/components/order-create/paymen
 import ProductSelectionCard from '@/features/orders/components/order-create/product-selection-card';
 import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
 import { SelectProductsDialog } from '@/features/products';
+import { usePageBack } from '@/hooks';
 import { __ } from '@/wpi18n';
 
 const OrderCreate = () => {
-  const navigate = useNavigate();
+  const handleBack = usePageBack(RouteConfig.Orders);
 
   const {
     form,
@@ -41,20 +40,16 @@ const OrderCreate = () => {
           type="primary"
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate(RouteConfig.Orders.buildLink())}>
+              <Button variant="ghost" onClick={handleBack}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
-              <Button
-                variant="primary"
-                onClick={handleSubmit}
-                loading={isCreating}
-              >
+              <Button variant="primary" onClick={handleSubmit} loading={isCreating}>
                 {__('Save', 'kirki-ecommerce')}
               </Button>
             </>
           }
           hasBack
-          onBack={() => navigate(RouteConfig.Orders.buildLink())}
+          onBack={handleBack}
           sticky
         />
         <Container>

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
 
 import MediaGalleryField from '@/components/form/media-gallery-field';
 import RichTextField from '@/components/form/rich-text-field';
@@ -28,6 +27,7 @@ import {
   type ProductFormInput,
   type ProductFormPayload,
 } from '@/features/products/schemas/forms/product-form';
+import { usePageBack } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -50,7 +50,6 @@ const ProductForm = ({
   onDuplicate,
   isDuplicating = false,
 }: ProductFormProps) => {
-  const navigate = useNavigate();
   const isCreate = mode === 'create';
   const [duplicateBlockedByUnsaved, setDuplicateBlockedByUnsaved] = useState(false);
 
@@ -72,6 +71,8 @@ const ProductForm = ({
       setDuplicateBlockedByUnsaved(false);
     }
   }, [isDirty]);
+
+  const handleBack = usePageBack(RouteConfig.Products);
 
   const handleDuplicateClick = () => {
     if (isDirty) {
@@ -100,7 +101,7 @@ const ProductForm = ({
   return (
     <Form {...form}>
       <PageHeading
-        onBack={() => navigate(RouteConfig.Products.buildLink())}
+        onBack={handleBack}
         text={
           isCreate ? __('New Product', 'kirki-ecommerce') : __('Edit Product', 'kirki-ecommerce')
         }
@@ -108,11 +109,7 @@ const ProductForm = ({
         sticky
         actions={
           <>
-            <Button
-              variant="ghost"
-              onClick={() => navigate(RouteConfig.Products.buildLink())}
-              disabled={isSubmitting}
-            >
+            <Button variant="ghost" onClick={handleBack} disabled={isSubmitting}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
             <Button variant="primary" onClick={() => handleSave()} loading={isSubmitting}>
@@ -190,6 +187,11 @@ const ProductForm = ({
         onSave={handleToastSave}
         isSubmitting={isSubmitting}
         shakeSignal={shakeSignal}
+        message={
+          duplicateBlockedByUnsaved
+            ? __('Unsaved product, take an action to proceed.', 'kirki-ecommerce')
+            : __('Unsaved product', 'kirki-ecommerce')
+        }
       />
     </Form>
   );

@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -29,6 +29,7 @@ import Timeline from '@/features/orders/components/order-details/timeline';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
+import { usePageBack } from '@/hooks';
 import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -36,8 +37,9 @@ import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {
-  const navigate = useNavigate();
   const { id } = useParams();
+
+  const handleBack = usePageBack(RouteConfig.Orders);
 
   const {
     order,
@@ -71,7 +73,7 @@ const OrderDetails = () => {
           text={__('Orders', 'kirki-ecommerce')}
           type="primary"
           hasBack
-          onBack={() => navigate(RouteConfig.Orders.buildLink())}
+          onBack={handleBack}
           sticky
         />
         <Container>
@@ -110,10 +112,7 @@ const OrderDetails = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {orderActions.map((action) => (
-                      <DropdownMenuItem
-                        key={action}
-                        onSelect={() => handleAction(action)}
-                      >
+                      <DropdownMenuItem key={action} onSelect={() => handleAction(action)}>
                         {getActionLabel(action)}
                       </DropdownMenuItem>
                     ))}
@@ -123,7 +122,7 @@ const OrderDetails = () => {
             </>
           }
           hasBack
-          onBack={() => navigate(RouteConfig.Orders.buildLink())}
+          onBack={handleBack}
           sticky
         >
           <Flex gap={1}>
@@ -192,18 +191,11 @@ const OrderDetails = () => {
                 isPerforming={isActionPending}
               />
 
-              <CustomerCard
-                onSave={handleSaveOrder}
-                isSaving={isSaving}
-                readonly
-              />
+              <CustomerCard onSave={handleSaveOrder} isSaving={isSaving} readonly />
 
               <FlagCard onSave={handleSaveOrder} />
 
-              <NotesCard
-                onSave={handleSaveOrder}
-                isSaving={isSaving}
-              />
+              <NotesCard onSave={handleSaveOrder} isSaving={isSaving} />
             </Flex>
           </Flex>
         </Container>

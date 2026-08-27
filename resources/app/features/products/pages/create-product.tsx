@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router';
-
 import { RouteConfig } from '@/config/route-config';
 import ProductForm from '@/features/products/components/product-form/product-form';
 import {
@@ -14,12 +12,13 @@ import {
 } from '@/features/products/services/product';
 import ProductFormSkeleton from '@/features/products/skeletons/product-form-skeleton';
 import { useShippingBoxesQuery } from '@/features/settings';
+import { useRedirect } from '@/hooks';
 import { getDefaults } from '@/libs/zod';
 import { useDefaultSettingsQuery, useSettingsQuery } from '@/services/settings';
 import { isDefined } from '@/utils/object';
 
 const CreateProduct = () => {
-  const navigate = useNavigate();
+  const redirect = useRedirect();
   const { data: defaultSettings, isLoading: isLoadingDefaults } =
     useDefaultSettingsQuery();
   const { data: productSettings, isLoading: isLoadingSettings } =
@@ -55,7 +54,7 @@ const CreateProduct = () => {
   const handleSubmit = async (data: ProductFormPayload) => {
     const response = await createProductMutation.mutateAsync(data);
     if (isDefined(response.data.id)) {
-      void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
+      redirect(RouteConfig.Products.get('EditProduct'), { id: response.data.id }, true);
     }
     return mapProductToFormValues(response.data);
   };
