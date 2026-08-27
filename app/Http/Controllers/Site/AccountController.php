@@ -11,7 +11,9 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\Resources\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
+use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -94,7 +96,7 @@ class AccountController
      *
      * @return Response response.
      */
-    public function order_details(Request $request, OrderService $order_service)
+    public function order_details(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
     {
 
         $customer_id = customer()->get_customer_id();
@@ -107,7 +109,12 @@ class AccountController
 
         $order_resource = OrderResource::make($order);
 
-        return view('site.account.order-details', ['order' => $order_resource])->layout(false);
+        $activities = $order_activity_service->all_for_order($order->id);
+
+        $activities_resource = OrderActivityResource::collection($activities);
+
+
+        return view('site.account.order-details', ['order' => $order_resource, 'activities' => $activities_resource])->layout(false);
     }
 
     /**
