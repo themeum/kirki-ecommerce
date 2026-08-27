@@ -17,16 +17,17 @@ import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import CustomerCard from '@/features/orders/components/order-create/customer-card';
+import NotesCard from '@/features/orders/components/order-create/notes-card';
+import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
+import AddTrackingDialog from '@/features/orders/components/order-details/add-tracking-dialog';
+import FlagCard from '@/features/orders/components/order-details/flag-card';
+import ItemsTable from '@/features/orders/components/order-details/items-table';
+import MarkAsPaidDialog from '@/features/orders/components/order-details/mark-as-paid-dialog';
+import TakeActionCard from '@/features/orders/components/order-details/take-action-card';
+import Timeline from '@/features/orders/components/order-details/timeline';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
-import CustomerCard from '@/features/orders/pages/order-create/components/customer-card';
-import NotesCard from '@/features/orders/pages/order-create/components/notes-card';
-import PaymentSummaryCard from '@/features/orders/pages/order-create/components/payment-summary-card';
-import AddTrackingDialog from '@/features/orders/pages/order-details/add-tracking-dialog';
-import FlagCard from '@/features/orders/pages/order-details/flag-card';
-import ItemsTable from '@/features/orders/pages/order-details/items-table';
-import MarkAsPaidDialog from '@/features/orders/pages/order-details/mark-as-paid-dialog';
-import TakeActionCard from '@/features/orders/pages/order-details/take-action-card';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
 import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -181,15 +182,7 @@ const OrderDetails = () => {
                 }
               />
 
-              {/* @todo: Timeline is not workable now, implement it later */}
-              {/* <Card cssOverride={cardStyles.formCard}>
-                <CardHeader>
-                  <CardTitle>{__('Timeline', 'kirki-ecommerce')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Timeline />
-                </CardContent>
-              </Card> */}
+              <Timeline orderId={order.id} />
             </Flex>
 
             <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>

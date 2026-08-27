@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Table, TableBody } from '@/components/ui/table';
 import Text from '@/components/ui/text';
-import OrderItemRow from '@/features/orders/pages/order-create/components/order-item/order-item-row';
+import OrderItemRow from '@/features/orders/components/order-create/order-item/order-item-row';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { OrderItem } from '@/features/orders/types';
 import { PlusIcon, ProductIcon } from '@/icons';

@@ -15,16 +15,17 @@ import {
 } from '@/features/products/lib/availability';
 import { getAttributeByValueId } from '@/features/products/lib/utils';
 import { getVariantIndexArray } from '@/features/products/lib/variant-group';
-import { ChevronDownIcon, InfoIcon } from '@/icons';
+import { InfoIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import GroupPriceCell from './group-price-cell';
 import { useVariantGroup } from './use-variant-group';
 import VariantMediaSelector from './variant-media-selector';
 
 const stopPropagation = (event: MouseEvent) => event.stopPropagation();
 
-const CHEVRON_COLUMN_WIDTH = '48px';
+const CHEVRON_COLUMN_WIDTH = '64px';
 
 type UpdateVariantsPayload = {
   key: string;
@@ -92,7 +93,7 @@ const VariantGroup = ({
   return (
     <>
       <TableRow
-        style={{ cursor: 'pointer' }}
+        cssOverride={{ cursor: 'pointer' }}
         onClick={() => handleParentCheckboxClick(!isGroupFullySelected, [parentId])}
       >
         <TableCell onlyCheckbox onClick={stopPropagation}>
@@ -105,7 +106,7 @@ const VariantGroup = ({
             onCheckedChange={(checked) => handleParentCheckboxClick(checked === true, [parentId])}
           />
         </TableCell>
-        <TableCell style={{ width: '242px' }}>
+        <TableCell cssOverride={{ width: '242px' }}>
           <Flex gap={3} align="center">
             {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- keeps the thumbnail's media picker click from also toggling row selection; the thumbnail control itself is the interactive element */}
             <div onClick={stopPropagation}>
@@ -129,7 +130,7 @@ const VariantGroup = ({
             </Flex>
           </Flex>
         </TableCell>
-        <TableCell style={{ width: '170px' }} onClick={stopPropagation}>
+        <TableCell cssOverride={{ width: '170px' }} onClick={stopPropagation}>
           <GroupPriceCell
             minPrice={combinedData.minPrice}
             maxPrice={combinedData.maxPrice}
@@ -137,7 +138,7 @@ const VariantGroup = ({
             onCommit={(value) => handleOnParentValueChange(value, 'base_price')}
           />
         </TableCell>
-        <TableCell style={{ width: '170px' }}>
+        <TableCell cssOverride={{ width: '170px' }}>
           {groupStatus && (
             <Flex
               align="center"
@@ -163,17 +164,10 @@ const VariantGroup = ({
             </Flex>
           )}
         </TableCell>
-        <TableCell style={{ width: CHEVRON_COLUMN_WIDTH }} onClick={stopPropagation}>
+        <TableCell cssOverride={{ width: CHEVRON_COLUMN_WIDTH }} onClick={stopPropagation}>
           {hasSecondaryAttribute && (
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={() => setShow(!show)}
-              style={{
-                transform: show ? 'rotate(180deg)' : '',
-              }}
-            >
-              <ChevronDownIcon />
+            <Button variant="ghost" size="icon" onClick={() => setShow(!show)}>
+              {show ? <ChevronUp /> : <ChevronDown />}
             </Button>
           )}
         </TableCell>
@@ -187,7 +181,7 @@ const VariantGroup = ({
             return (
               <TableRow
                 key={index}
-                style={{ cursor: 'pointer' }}
+                cssOverride={{ cursor: 'pointer' }}
                 onClick={() => handleChildCheckboxClick(!isChecked, item, index)}
               >
                 <TableCell />
@@ -234,7 +228,7 @@ const VariantGroup = ({
                     {getAvailabilityLabel(childStatuses[index], childQuantities[index])}
                   </Text>
                 </TableCell>
-                <TableCell style={{ width: CHEVRON_COLUMN_WIDTH }} />
+                <TableCell cssOverride={{ width: CHEVRON_COLUMN_WIDTH }} />
               </TableRow>
             );
           })}

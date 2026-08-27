@@ -7,11 +7,11 @@ import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import { RouteConfig } from '@/config/route-config';
+import CustomerCard from '@/features/orders/components/order-create/customer-card';
+import NotesCard from '@/features/orders/components/order-create/notes-card';
+import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
+import ProductSelectionCard from '@/features/orders/components/order-create/product-selection-card';
 import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
-import CustomerCard from '@/features/orders/pages/order-create/components/customer-card';
-import NotesCard from '@/features/orders/pages/order-create/components/notes-card';
-import PaymentSummaryCard from '@/features/orders/pages/order-create/components/payment-summary-card';
-import ProductSelectionCard from '@/features/orders/pages/order-create/components/product-selection-card';
 import { SelectProductsDialog } from '@/features/products';
 import { __ } from '@/wpi18n';
 

@@ -3,7 +3,7 @@ import type { UseListParamsOptions } from '@/hooks/use-list-params';
 const inventoryListOptions: UseListParamsOptions = {
   defaults: {
     sort_by: 'id',
-    sort_order: 'asc',
+    sort_order: 'desc',
     page: 1,
     limit: 20,
   },

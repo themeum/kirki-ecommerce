@@ -7,13 +7,13 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/orders/4/activities"
+  url: "{{baseUrl}}/orders/1/activities?page=1&limit=2"
   params:
     - name: page
       value: "1"
       type: query
     - name: limit
-      value: "10"
+      value: "2"
       type: query
   auth: inherit
 
