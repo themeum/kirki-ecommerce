@@ -11,8 +11,11 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Wordpress\User;
+
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -26,6 +29,9 @@ $user_email = $user->user_email ?: '';
 $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
 $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : '';
+
+$user = new User();
+$email_verified = $user->email_verified();
 ?>
 
 <?php Template::get_header(); ?>
@@ -40,6 +46,17 @@ $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : ''
             <!-- Right Content Area -->
             <main class="kecom-account-content">
                 <div class="kecom-account-dashboard">
+
+                    <?php if (!$email_verified) : ?>
+                    <div class="kecom-alert kecom-alert-info kecom-mb-10">
+                        <?php Icon::render('information'); ?>
+                        <div class="kecom-flex kecom-justify-between">
+                            <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
+                            <button type="button" class="kecom-btn kecom-btn-link"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></button>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Welcome Greeting -->
                     <div class="kecom-account-welcome">
                         <span class="kecom-account-welcome-label"><?php esc_html_e('Welcome back,', 'kirki-ecommerce'); ?></span>

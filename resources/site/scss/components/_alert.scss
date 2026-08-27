@@ -18,6 +18,11 @@
   align-items: center;
   gap: $spacing-4;
 
+  &-info {
+    color: $text-primary;
+    background-color: $background-fill-special-secondary;
+  }
+
   &-error {
     color: $text-critical;
     background-color: $background-fill-critical-secondary;
