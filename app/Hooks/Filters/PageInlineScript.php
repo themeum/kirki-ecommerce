@@ -242,28 +242,28 @@ class PageInlineScript extends BaseHook
         // Prepare variants for Alpine.js
         $inventory_service = app()->make(InventoryService::class);
         $variants_data = [];
-        foreach ($variants as $v) {
+        foreach ($variants as $variant) {
             $variant_attrs = [];
 
-            foreach ($v['attribute_values'] ?? [] as $attr_value_id) {
+            foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
                 if (isset($attribute_value_map[$attr_value_id])) {
                     $variant_attrs[] = $attribute_value_map[$attr_value_id];
                 }
             }
 
             $variants_data[] = [
-                'id'                   => $v['id'] ?? 0,
+                'id'                   => $variant['id'] ?? 0,
                 'product_id'           => $product['id'] ?? 0,
-                'price'                => $v['display_price_money_object']->display,
-                'sale_price'           => $v['display_sale_price'] ? $v['display_sale_price_money_object']->display : null,
-                'discount_percentage'  => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100) : null,
-                'stock'                => (int) ($v['available_quantity'] ?? 0),
+                'price'                => $variant['display_price_money_object']->display,
+                'sale_price'           => $variant['display_sale_price'] ? $variant['display_sale_price_money_object']->display : null,
+                'discount_percentage'  => ! empty($variant['display_price']) && ! empty($variant['display_sale_price']) ? round((1 - ($variant['display_sale_price'] / $variant['display_price'])) * 100) : null,
+                'stock'                => intval($variant['available_quantity'] ?? 0),
                 'attributes'           => $variant_attrs,
-                'available'            => $inventory_service->has_stock((int) ($v['id'] ?? 0), 1),
-                'allow_back_order'     => (bool) ($v['allow_back_order'] ?? false),
-                'has_limit_per_order'  => (bool) ($v['has_limit_per_order'] ?? false),
-                'max_per_order'        => ! empty($v['has_limit_per_order']) ? (int) ($v['max_per_order'] ?? 0) : null,
-                'image'                => $v['media']['url'] ?? null,
+                'available'            => $inventory_service->has_stock(intval($variant['id'] ?? 0), 1),
+                'allow_back_order'     => (bool) ($variant['allow_back_order'] ?? false),
+                'has_limit_per_order'  => (bool) ($variant['has_limit_per_order'] ?? false),
+                'max_per_order'        => ! empty($variant['has_limit_per_order']) ? intval($variant['max_per_order'] ?? 0) : null,
+                'image'                => $variant['media']['url'] ?? null,
             ];
         }
 

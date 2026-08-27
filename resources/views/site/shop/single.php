@@ -175,13 +175,13 @@ foreach ($media as $media_item) {
                         x-data="quantitySelector({
                             min: 1,
                             max: () => {
-                                const v = selectedVariant;
-                                if (!v) return undefined;
+                                const variant = selectedVariant;
+                                if (!variant) return undefined;
                                 const limits = [];
                                 <?php if ($track_inventory) : ?>
-                                if (v.stock !== undefined && !v.allow_back_order) limits.push(v.stock);
+                                if (variant.stock !== undefined && !variant.allow_back_order) limits.push(variant.stock);
                                 <?php endif; ?>
-                                if (v.has_limit_per_order && v.max_per_order) limits.push(v.max_per_order);
+                                if (variant.has_limit_per_order && variant.max_per_order) limits.push(variant.max_per_order);
                                 return limits.length ? Math.min(...limits) : undefined;
                             },
                             initial: 1
