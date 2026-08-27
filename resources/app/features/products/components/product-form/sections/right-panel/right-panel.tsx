@@ -90,7 +90,12 @@ const RightPanel = ({ mode, product, onDuplicate, isDuplicating = false }: Right
                       {__('Duplicate', 'kirki-ecommerce')}
                     </Text>
                   </Button>
-                  <Button variant="link" onClick={() => {}}>
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      // @todo: preview will be implemented later
+                    }}
+                  >
                     <Eye size={16} css={scoped({ color: theme.colors.text.emphasis })} />
                     <Text variant="tiny" weight="medium" color="emphasis">
                       {__('Preview', 'kirki-ecommerce')}
