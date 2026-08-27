@@ -240,21 +240,25 @@ class PageInlineScript extends BaseHook
         }
 
         // Prepare variants for Alpine.js
+        $product_id        = intval($product['id'] ?? 0);
         $inventory_service = app()->make(InventoryService::class);
-        $variants_data = [];
+        $variants_data     = [];
+
         foreach ($variants as $variant) {
             $variant_id          = intval($variant['id'] ?? 0);
+            $price               = $variant['display_price_money_object']->display;
             $display_price       = $variant['display_price'] ?? 0;
             $display_sale_price  = $variant['display_sale_price'] ?? null;
-            $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
-
-            $sale_price = $display_sale_price ? $variant['display_sale_price_money_object']->display : null;
-
+            $sale_price          = $display_sale_price ? $variant['display_sale_price_money_object']->display : null;
             $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
                 ? round((1 - ($display_sale_price / $display_price)) * 100)
                 : null;
-
-            $max_per_order = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
+            $stock               = intval($variant['available_quantity'] ?? 0);
+            $available           = $inventory_service->has_stock($variant_id, 1);
+            $allow_back_order    = (bool) ($variant['allow_back_order'] ?? false);
+            $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
+            $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
+            $image               = $variant['media']['url'] ?? null;
 
             $variant_attrs = [];
             foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
@@ -265,17 +269,17 @@ class PageInlineScript extends BaseHook
 
             $variants_data[] = [
                 'id'                  => $variant_id,
-                'product_id'          => $product['id'] ?? 0,
-                'price'               => $variant['display_price_money_object']->display,
+                'product_id'          => $product_id,
+                'price'               => $price,
                 'sale_price'          => $sale_price,
                 'discount_percentage' => $discount_percentage,
-                'stock'               => intval($variant['available_quantity'] ?? 0),
+                'stock'               => $stock,
                 'attributes'          => $variant_attrs,
-                'available'           => $inventory_service->has_stock($variant_id, 1),
-                'allow_back_order'    => (bool) ($variant['allow_back_order'] ?? false),
+                'available'           => $available,
+                'allow_back_order'    => $allow_back_order,
                 'has_limit_per_order' => $has_limit_per_order,
                 'max_per_order'       => $max_per_order,
-                'image'               => $variant['media']['url'] ?? null,
+                'image'               => $image,
             ];
         }
 
