@@ -9,6 +9,7 @@ import DropdownButton from '@/components/dropdown-button';
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import FullPageContainer from '@/components/ui/full-page-container';
 import PageHeading from '@/components/ui/page-heading';
@@ -19,13 +20,19 @@ import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visib
 import { bulkEditColumns } from '@/features/bulk-edit/lib/columns';
 import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
 import { buildBulkEditPayload } from '@/features/bulk-edit/lib/payload';
-import BulkEditTable, { type BulkEditTableHandle } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
+import BulkEditTable, {
+  type BulkEditTableHandle,
+} from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table';
 import { BulkEditFormSchema } from '@/features/bulk-edit/schemas/forms/bulk-edit-form';
-import { useBulkVariantsQuery, useUpdateBulkVariantsMutation } from '@/features/bulk-edit/services/bulk-edit';
+import {
+  useBulkVariantsQuery,
+  useUpdateBulkVariantsMutation,
+} from '@/features/bulk-edit/services/bulk-edit';
 import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
 import type { BulkEditFormValues } from '@/features/bulk-edit/types';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
 
 const parseIds = (raw: string | null): number[] => {
@@ -43,9 +50,16 @@ const columnPickerOptions = bulkEditColumns
   .filter((column) => column.id !== 'variant')
   .map((column) => ({ value: column.id!, title: String(column.header) }));
 
-const UNIT_PRICE_FIELDS = ['total_unit_amount', 'total_unit', 'base_unit_amount', 'base_unit'] as const;
+const UNIT_PRICE_FIELDS = [
+  'total_unit_amount',
+  'total_unit',
+  'base_unit_amount',
+  'base_unit',
+] as const;
 
-const cellKindByField = new Map(bulkEditColumns.map((column) => [column.id, column.meta?.cellKind]));
+const cellKindByField = new Map(
+  bulkEditColumns.map((column) => [column.id, column.meta?.cellKind]),
+);
 
 const coerceTypedValue = (field: string, char: string): string | number | null => {
   const kind = editableKindOf(cellKindByField.get(field));
@@ -102,7 +116,9 @@ const BulkEditPage = () => {
     if (payload.field === 'base_price_per_unit') {
       targetRows.forEach((row) => {
         UNIT_PRICE_FIELDS.forEach((key) => {
-          setValue(`variants.${row}.${key}` as never, sourceVariant[key] as never, { shouldDirty: true });
+          setValue(`variants.${row}.${key}` as never, sourceVariant[key] as never, {
+            shouldDirty: true,
+          });
         });
       });
       return;
@@ -110,15 +126,21 @@ const BulkEditPage = () => {
 
     if (payload.field === 'weight') {
       targetRows.forEach((row) => {
-        setValue(`variants.${row}.weight` as never, sourceVariant.weight as never, { shouldDirty: true });
-        setValue(`variants.${row}.weight_unit` as never, sourceVariant.weight_unit as never, { shouldDirty: true });
+        setValue(`variants.${row}.weight` as never, sourceVariant.weight as never, {
+          shouldDirty: true,
+        });
+        setValue(`variants.${row}.weight_unit` as never, sourceVariant.weight_unit as never, {
+          shouldDirty: true,
+        });
       });
       return;
     }
 
     const sourceValue = (sourceVariant as unknown as Record<string, unknown>)[payload.field];
     targetRows.forEach((row) => {
-      setValue(`variants.${row}.${payload.field}` as never, sourceValue as never, { shouldDirty: true });
+      setValue(`variants.${row}.${payload.field}` as never, sourceValue as never, {
+        shouldDirty: true,
+      });
     });
   };
 
@@ -151,7 +173,12 @@ const BulkEditPage = () => {
 
       toast.error(
         sprintf(
-          _n('%d row has an invalid value.', '%d rows have invalid values.', invalidCount, 'kirki-ecommerce'),
+          _n(
+            '%d row has an invalid value.',
+            '%d rows have invalid values.',
+            invalidCount,
+            'kirki-ecommerce',
+          ),
           invalidCount,
         ),
       );
@@ -191,7 +218,9 @@ const BulkEditPage = () => {
   const handleColumnPickerSelect = (value: string | number | (string | number)[]) => {
     const selected = Array.isArray(value) ? (value as string[]) : [String(value)];
     setColumnVisibility(
-      Object.fromEntries(columnPickerOptions.map((option) => [option.value, selected.includes(option.value)])),
+      Object.fromEntries(
+        columnPickerOptions.map((option) => [option.value, selected.includes(option.value)]),
+      ),
     );
   };
 
@@ -201,7 +230,10 @@ const BulkEditPage = () => {
   return (
     <>
       <PageHeading
-        text={sprintf(_n('Editing %d variant', 'Editing %d variants', variants.length, 'kirki-ecommerce'), variants.length)}
+        text={sprintf(
+          _n('Editing %d variant', 'Editing %d variants', variants.length, 'kirki-ecommerce'),
+          variants.length,
+        )}
         cssOverride={styles.heading}
         size="fullWidth"
         hasBack
@@ -217,7 +249,10 @@ const BulkEditPage = () => {
             <>
               <DropdownButton
                 buttonProps={{ variant: 'outline' }}
-                options={columnPickerOptions.map((option) => ({ value: option.value, title: option.title }))}
+                options={columnPickerOptions.map((option) => ({
+                  value: option.value,
+                  title: option.title,
+                }))}
                 value={visibleColumnIds}
                 hasLeftIcon
                 checkboxField
@@ -225,48 +260,62 @@ const BulkEditPage = () => {
                 dropdownStyle={{ minWidth: '288px' }}
                 onOptionSelect={handleColumnPickerSelect}
               />
-              <Button variant="secondary" onClick={handleCancel}>
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button variant="primary" onClick={handleSave} loading={isPending}>
+              <Button variant="primary" size="sm" onClick={handleSave} loading={isPending}>
                 {__('Save', 'kirki-ecommerce')}
               </Button>
             </>
           )
         }
       >
-        {isDirty && (
-          <Badge variant="secondary">{__('Unsaved Changes', 'kirki-ecommerce')}</Badge>
-        )}
+        {isDirty && <Badge variant="secondary">{__('Unsaved Changes', 'kirki-ecommerce')}</Badge>}
       </PageHeading>
 
-      <FullPageContainer>
+      <FullPageContainer cssOverride={styles.pageBackground}>
         {isEmptySelection ? (
-          <Flex direction="column" align="center" justify="center" gap={3} cssOverride={styles.emptyState}>
+          <Flex
+            direction="column"
+            align="center"
+            justify="center"
+            gap={3}
+            cssOverride={styles.emptyState}
+          >
             <Text weight="medium">{__('No variants selected', 'kirki-ecommerce')}</Text>
             <Text color="secondary">
-              {__('Select one or more variants first, then open Bulk Edit again.', 'kirki-ecommerce')}
+              {__(
+                'Select one or more variants first, then open Bulk Edit again.',
+                'kirki-ecommerce',
+              )}
             </Text>
             <Button variant="secondary" onClick={() => navigate(-1)}>
               {__('Go back', 'kirki-ecommerce')}
             </Button>
           </Flex>
         ) : loaded && !isLoading ? (
-          <FormProvider {...form}>
-            <BulkEditTable
-              ref={tableRef}
-              variants={variants}
-              columnVisibility={columnVisibility}
-              onColumnVisibilityChange={(updater) =>
-                setColumnVisibility(typeof updater === 'function' ? updater(columnVisibility) : updater)
-              }
-              onFillCommit={handleFillCommit}
-              onTypeToEdit={handleTypeToEdit}
-              onSpaceToggle={handleSpaceToggle}
-            />
-          </FormProvider>
+          <Card
+            cssOverride={mergeCss(styles.tableCard, {
+              borderRadius: 0,
+            })}
+          >
+            <FormProvider {...form}>
+              <BulkEditTable
+                ref={tableRef}
+                variants={variants}
+                columnVisibility={columnVisibility}
+                onColumnVisibilityChange={(updater) =>
+                  setColumnVisibility(
+                    typeof updater === 'function' ? updater(columnVisibility) : updater,
+                  )
+                }
+                onFillCommit={handleFillCommit}
+                onTypeToEdit={handleTypeToEdit}
+                onSpaceToggle={handleSpaceToggle}
+              />
+            </FormProvider>
+          </Card>
         ) : (
-          <BulkEditTableSkeleton rowCount={ids.length || undefined} />
+          <Card cssOverride={styles.tableCard}>
+            <BulkEditTableSkeleton rowCount={ids.length || undefined} />
+          </Card>
         )}
       </FullPageContainer>
 
@@ -274,7 +323,10 @@ const BulkEditPage = () => {
         <ConfirmationDialog
           variant="warning"
           title={__('Discard unsaved changes?', 'kirki-ecommerce')}
-          subtitle={__('You have unsaved changes on this page. Leaving now will discard them.', 'kirki-ecommerce')}
+          subtitle={__(
+            'You have unsaved changes on this page. Leaving now will discard them.',
+            'kirki-ecommerce',
+          )}
           onConfirm={discardChanges}
           onCancel={dismissToast}
         />
@@ -284,7 +336,10 @@ const BulkEditPage = () => {
         <ConfirmationDialog
           variant="warning"
           title={__('Discard unsaved changes?', 'kirki-ecommerce')}
-          subtitle={__('You have unsaved changes on this page. Leaving now will discard them.', 'kirki-ecommerce')}
+          subtitle={__(
+            'You have unsaved changes on this page. Leaving now will discard them.',
+            'kirki-ecommerce',
+          )}
           onConfirm={handleConfirmDiscard}
           onCancel={() => setShowCancelConfirm(false)}
         />
@@ -304,6 +359,14 @@ const styles = defineStyles({
     borderBottom: `1px solid ${theme.colors.background.surfaceTertiary}`,
     columnGap: theme.spacing[2],
   },
+  // Other pages never paint their own page background — they inherit the
+  // WP admin content area's own background. FullPageContainer's default
+  // fills the whole page white; this restores the inherited background so
+  // only the table card below reads as a distinct white surface.
+  pageBackground: {
+    backgroundColor: 'transparent',
+  },
+  tableCard: mergeCss(cardStyles.tableCard, cardStyles.shadowCard),
   emptyState: {
     padding: theme.spacing[12],
     minHeight: '50vh',

@@ -19,7 +19,6 @@ import {
 } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { bulkEditColumns, ROW_HEIGHT } from '@/features/bulk-edit/lib/columns';
 import BulkEditRow from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-row';
-import HorizontalScrollbar from '@/features/bulk-edit/pages/bulk-edit-table/horizontal-scrollbar';
 import type { ProductVariant } from '@/features/products';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -148,7 +147,6 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
               )}
             </TableBody>
           </Table>
-          <HorizontalScrollbar containerRef={containerRef} />
         </div>
       </BulkEditOptionsProvider>
     </CellSelectionProvider>
@@ -162,22 +160,19 @@ export type { BulkEditTableHandle };
 
 const styles = defineStyles({
   scrollContainer: {
-    height: 'calc(100vh - 180px)',
+    maxHeight: 'calc(100vh - 180px)',
     overflow: 'auto',
     borderCollapse: 'separate',
-    '&::-webkit-scrollbar:horizontal': {
-      display: 'none',
-    },
-    // Firefox has no per-axis scrollbar hiding, so this also hides the
-    // vertical native scrollbar there — an accepted trade-off since there's
-    // no custom vertical scrollbar to fall back on for that engine.
-    scrollbarWidth: 'none',
     // `Table` wraps its own `<table>` in a `data-slot="table-container"` div
-    // with its own `overflow-x: auto` — left as-is, that div (not this one)
-    // becomes the real horizontally-scrolling element, so our custom
-    // HorizontalScrollbar (which reads/writes this container) never sees any
-    // overflow. Disabling that inner scroll region lets the overflow bubble
-    // up to this container, which owns both the virtualizer and the scrollbar.
+    // with its own `overflow-x: auto` — left as-is, that inner div (whose
+    // bottom edge sits wherever the table content happens to end, not the
+    // viewport) would become the real horizontally-scrolling element, so its
+    // native scrollbar would render at the table's bottom instead of the
+    // page's. Disabling that inner scroll region lets the overflow bubble up
+    // to this container instead, whose own height is pinned to the viewport
+    // (`calc(100vh - 180px)`) — so its native scrollbar renders at the
+    // bottom of the page, and stays reachable without scrolling past the
+    // last row of a long grid.
     '& [data-slot="table-container"]': {
       overflow: 'visible',
     },

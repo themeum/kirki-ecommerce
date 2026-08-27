@@ -20,7 +20,13 @@ import {
   WeightControl,
 } from '@/features/bulk-edit/components/fields/bulk-edit-cell-fields';
 import { useBulkEditOptions } from '@/features/bulk-edit/contexts/bulk-edit-options-context';
-import { useCellSelection } from '@/features/bulk-edit/contexts/cell-selection-context';
+import {
+  useCellSelection,
+  useIsActiveCell,
+  useIsCellFilled,
+  useIsCellSelected,
+  useIsHandleCell,
+} from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useGateOpen } from '@/features/bulk-edit/hooks/use-gate-open';
 import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
 import type { BulkEditProfileOption } from '@/features/bulk-edit/types';
@@ -106,10 +112,10 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
   const options = useBulkEditOptions();
   const gateOpen = useGateOpen(rowIndex, meta?.gatedBy);
 
-  const isSelected = selection.isSelected(field, rowIndex);
-  const isFilled = selection.isFilled(field, rowIndex);
-  const isHandle = selection.isHandle(field, rowIndex);
-  const isActive = selection.isActive(field, rowIndex);
+  const isSelected = useIsCellSelected(field, rowIndex);
+  const isFilled = useIsCellFilled(field, rowIndex);
+  const isHandle = useIsHandleCell(field, rowIndex);
+  const isActive = useIsActiveCell(field, rowIndex);
 
   const pinnedCss = getPinnedCss(column as unknown as Column<DataTableItem, unknown>, false);
   const pinStyle = getPinningStyle(column as unknown as Column<DataTableItem, unknown>);
@@ -129,6 +135,13 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
    * still requiring a third click to actually open it. A synthetic `.click()`
    * opens it in the same action that activates the cell, matching the
    * "second click opens it" requirement.
+   *
+   * A checkbox also renders as a `<button>` (Radix's `role="checkbox"`), but
+   * it must NOT get this synthetic click: becoming active is a side effect
+   * of the very click that already toggled it (mousedown selects/activates
+   * the cell, the following click event toggles the checkbox), so clicking
+   * it again here would silently flip it right back — the cell's 2nd click
+   * would appear to do nothing.
    */
   useEffect(() => {
     if (!selectable) {
@@ -137,7 +150,7 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
     if (isActive) {
       const control = cellRef.current?.querySelector<HTMLElement>('input, button');
       control?.focus({ preventScroll: true });
-      if (control instanceof HTMLButtonElement) {
+      if (control instanceof HTMLButtonElement && cellKind !== 'checkbox') {
         control.click();
       }
       return;
@@ -145,7 +158,7 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
     if (isSelected) {
       cellRef.current?.focus({ preventScroll: true });
     }
-  }, [isSelected, isActive, selectable]);
+  }, [isSelected, isActive, selectable, cellKind]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTableCellElement>) => {
     if (!selectable) {

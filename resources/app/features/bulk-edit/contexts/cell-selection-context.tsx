@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 
 import {
@@ -34,13 +35,45 @@ type FillCommitPayload = {
   rows: number[];
 };
 
-type CellSelectionContextValue = {
-  isDragging: boolean;
+type SelectionStoreState = {
+  selection: SelectionState;
   activeCell: ActiveCell;
-  isSelected: (field: string, row: number) => boolean;
-  isFilled: (field: string, row: number) => boolean;
-  isHandle: (field: string, row: number) => boolean;
-  isActive: (field: string, row: number) => boolean;
+  isDragging: boolean;
+};
+
+type SelectionStore = {
+  getState: () => SelectionStoreState;
+  setState: (updater: (previous: SelectionStoreState) => SelectionStoreState) => void;
+  subscribe: (listener: () => void) => () => void;
+};
+
+/**
+ * A hand-rolled pub-sub store, read via `useSyncExternalStore`, instead of
+ * plain `useState`. React context has no per-key selector: if selection/
+ * activeCell/isDragging lived in state and were exposed through one context
+ * value, every mounted cell (hundreds, even virtualized) would re-render on
+ * every mousedown/mouseenter, which is what made clicking feel laggy. Here,
+ * each cell subscribes only to the specific boolean it needs (see
+ * `useIsCellSelected` etc. below), so a state change only re-renders the
+ * handful of cells whose own flag actually flipped.
+ */
+const createSelectionStore = (): SelectionStore => {
+  let state: SelectionStoreState = { selection: null, activeCell: null, isDragging: false };
+  const listeners = new Set<() => void>();
+  return {
+    getState: () => state,
+    setState: (updater) => {
+      state = updater(state);
+      listeners.forEach((listener) => listener());
+    },
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+  };
+};
+
+type CellSelectionActions = {
   /** Rows a value change at (field, row) should propagate to. */
   getPropagationTargets: (field: string, row: number) => number[];
   onCellMouseDown: (field: string, row: number, selectable: boolean, shiftKey: boolean, metaOrCtrlKey: boolean) => void;
@@ -51,7 +84,8 @@ type CellSelectionContextValue = {
   clear: () => void;
 };
 
-const CellSelectionContext = createContext<CellSelectionContextValue | null>(null);
+const CellSelectionStoreContext = createContext<SelectionStore | null>(null);
+const CellSelectionActionsContext = createContext<CellSelectionActions | null>(null);
 
 const EDGE_THRESHOLD_PX = 48;
 const EDGE_SCROLL_SPEED_PX = 14;
@@ -77,15 +111,8 @@ const isEditableElement = (element: Element | null): boolean => {
 };
 
 const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToEdit, onSpaceToggle }: CellSelectionProviderProps) => {
-  const [selection, setSelection] = useState<SelectionState>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [activeCell, setActiveCell] = useState<ActiveCell>(null);
-
-  const selectionRef = useRef<SelectionState>(null);
-  selectionRef.current = selection;
-
-  const isDraggingRef = useRef(false);
-  isDraggingRef.current = isDragging;
+  const [store] = useState(createSelectionStore);
+  const isDragging = useSyncExternalStore(store.subscribe, () => store.getState().isDragging);
 
   const lastPointerRef = useRef({ x: 0, y: 0 });
   const edgeDirectionRef = useRef<'up' | 'down' | null>(null);
@@ -104,41 +131,50 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
     return { field, row };
   }, []);
 
-  const activateCell = useCallback((field: string, row: number) => {
-    setActiveCell({ field, row });
-  }, []);
+  const activateCell = useCallback(
+    (field: string, row: number) => {
+      store.setState((previous) => ({ ...previous, activeCell: { field, row } }));
+    },
+    [store],
+  );
 
   const deactivateCell = useCallback(() => {
-    setActiveCell(null);
-  }, []);
+    store.setState((previous) => ({ ...previous, activeCell: null }));
+  }, [store]);
 
   const clear = useCallback(() => {
-    setSelection(clearSelection());
-    setActiveCell(null);
-  }, []);
+    store.setState((previous) => ({ ...previous, selection: clearSelection(), activeCell: null }));
+  }, [store]);
 
+  /**
+   * Every branch below reads a single `store.getState()` snapshot and issues
+   * at most one `setState` call, so a click notifies subscribers once (not
+   * twice, as a separate activeCell-then-selection update would).
+   */
   const onCellMouseDown = useCallback(
     (field: string, row: number, selectable: boolean, shiftKey: boolean, metaOrCtrlKey: boolean) => {
       if (!selectable) {
         return;
       }
 
-      const current = selectionRef.current;
+      const { selection: current, activeCell } = store.getState();
 
       if (activeCell?.field === field && activeCell.row === row) {
         return;
       }
 
-      setActiveCell(null);
-
       if (metaOrCtrlKey) {
-        setSelection(toggleSelection(current, field, row, true));
-        setIsDragging(true);
+        store.setState((previous) => ({
+          ...previous,
+          activeCell: null,
+          selection: toggleSelection(current, field, row, true),
+          isDragging: true,
+        }));
         return;
       }
 
       if (shiftKey && current?.field === field) {
-        setSelection(extendSelection(current, field, row, true));
+        store.setState((previous) => ({ ...previous, activeCell: null, selection: extendSelection(current, field, row, true) }));
         return;
       }
 
@@ -152,65 +188,87 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
        * collapses to it instead of activating.
        */
       if (current?.field === field && isCellSelected(current, field, row) && selectionRange(current).length === 1) {
-        setActiveCell({ field, row });
+        store.setState((previous) => ({ ...previous, activeCell: { field, row } }));
         return;
       }
 
-      setSelection(startSelection(current, field, row, true));
-      setIsDragging(true);
+      store.setState((previous) => ({
+        ...previous,
+        activeCell: null,
+        selection: startSelection(current, field, row, true),
+        isDragging: true,
+      }));
     },
-    [activeCell],
+    [store],
   );
 
-  const onCellMouseEnter = useCallback((field: string, row: number, selectable: boolean) => {
-    if (!isDraggingRef.current) {
-      return;
-    }
-    const current = selectionRef.current;
-    if (current?.mode === 'fill') {
-      setSelection(updateFill(current, row));
-      return;
-    }
-    setSelection(extendSelection(current, field, row, selectable));
-  }, []);
-
-  const onGrabberMouseDown = useCallback((field: string, _row: number) => {
-    const current = selectionRef.current;
-    if (current?.field !== field) {
-      return;
-    }
-    setActiveCell(null);
-    setSelection(startFill(current));
-    setIsDragging(true);
-  }, []);
-
-  const getPropagationTargets = useCallback((field: string, row: number) => {
-    const current = selectionRef.current;
-    if (current?.mode === 'select' && current.field === field) {
-      const range = selectionRange(current);
-      if (range.includes(row) && range.length > 1) {
-        return range;
+  /**
+   * Only ever mutates state while `isDragging` is true (a plain hover never
+   * reaches the `setState` calls below), so it's a no-op for ordinary mouse
+   * movement — it exists purely to extend a range/fill drag as the pointer
+   * crosses into a new cell, matching the click-drag-to-select-a-range and
+   * drag-the-fill-handle gestures a spreadsheet grid needs. The store/
+   * selector split above is what keeps its updates cheap: each mouseenter
+   * during a drag only re-renders the cells whose own selected/filled flag
+   * actually changed, not the whole visible grid.
+   */
+  const onCellMouseEnter = useCallback(
+    (field: string, row: number, selectable: boolean) => {
+      const { isDragging: dragging, selection: current } = store.getState();
+      if (!dragging) {
+        return;
       }
-    }
-    return [row];
-  }, []);
+      if (current?.mode === 'fill') {
+        store.setState((previous) => ({ ...previous, selection: updateFill(current, row) }));
+        return;
+      }
+      store.setState((previous) => ({ ...previous, selection: extendSelection(current, field, row, selectable) }));
+    },
+    [store],
+  );
+
+  const onGrabberMouseDown = useCallback(
+    (field: string, _row: number) => {
+      const { selection: current } = store.getState();
+      if (current?.field !== field) {
+        return;
+      }
+      store.setState((previous) => ({ ...previous, activeCell: null, selection: startFill(current), isDragging: true }));
+    },
+    [store],
+  );
+
+  const getPropagationTargets = useCallback(
+    (field: string, row: number) => {
+      const { selection: current } = store.getState();
+      if (current?.mode === 'select' && current.field === field) {
+        const range = selectionRange(current);
+        if (range.includes(row) && range.length > 1) {
+          return range;
+        }
+      }
+      return [row];
+    },
+    [store],
+  );
 
   useEffect(() => {
     const handleMouseUp = () => {
-      const current = selectionRef.current;
+      const { selection: current } = store.getState();
       if (current?.mode === 'fill') {
         const rows = fillRange(current);
         onFillCommit({ field: current.field, sourceRow: current.fillOriginRow, rows });
-        setSelection(commitFill(current));
+        store.setState((previous) => ({ ...previous, selection: commitFill(current), isDragging: false }));
+      } else {
+        store.setState((previous) => ({ ...previous, isDragging: false }));
       }
-      setIsDragging(false);
       edgeDirectionRef.current = null;
     };
 
     const handleMouseMove = (event: MouseEvent) => {
       lastPointerRef.current = { x: event.clientX, y: event.clientY };
 
-      if (!isDraggingRef.current) {
+      if (!store.getState().isDragging) {
         edgeDirectionRef.current = null;
         return;
       }
@@ -236,7 +294,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [containerRef, onFillCommit]);
+  }, [containerRef, onFillCommit, store]);
 
   useEffect(() => {
     if (!isDragging) {
@@ -254,11 +312,11 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
 
         const resolved = resolveCellAtPoint(lastPointerRef.current.x, lastPointerRef.current.y);
         if (resolved) {
-          const current = selectionRef.current;
+          const { selection: current } = store.getState();
           if (current?.mode === 'fill') {
-            setSelection(updateFill(current, resolved.row));
+            store.setState((previous) => ({ ...previous, selection: updateFill(current, resolved.row) }));
           } else {
-            setSelection(extendSelection(current, resolved.field, resolved.row, true));
+            store.setState((previous) => ({ ...previous, selection: extendSelection(current, resolved.field, resolved.row, true) }));
           }
         }
       }
@@ -268,12 +326,13 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
 
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [isDragging, containerRef, resolveCellAtPoint]);
+  }, [isDragging, containerRef, resolveCellAtPoint, store]);
 
   useEffect(() => {
     const handleOutsideMouseDown = (event: globalThis.MouseEvent) => {
       const container = containerRef.current;
-      if ((!activeCell && !selectionRef.current) || !container) {
+      const { activeCell, selection } = store.getState();
+      if ((!activeCell && !selection) || !container) {
         return;
       }
       if (!(event.target instanceof Node) || !container.contains(event.target)) {
@@ -283,7 +342,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
 
     document.addEventListener('mousedown', handleOutsideMouseDown);
     return () => document.removeEventListener('mousedown', handleOutsideMouseDown);
-  }, [activeCell, clear, containerRef]);
+  }, [clear, containerRef, store]);
 
   /**
    * Sheets-style "select, then just start typing": a selected (not yet
@@ -296,7 +355,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
    */
   useEffect(() => {
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-      const current = selectionRef.current;
+      const { selection: current } = store.getState();
       if (!current || isEditableElement(document.activeElement)) {
         return;
       }
@@ -315,23 +374,24 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
       const isPlainPrintableKey = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey && event.key !== ' ';
       if (isPlainPrintableKey && (kind === 'text' || kind === 'number' || kind === 'money')) {
         event.preventDefault();
-        setActiveCell({ field: current.field, row: current.focusRow });
+        store.setState((previous) => ({ ...previous, activeCell: { field: current.field, row: current.focusRow } }));
         onTypeToEdit(current.field, getPropagationTargets(current.field, current.focusRow), event.key);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onTypeToEdit, onSpaceToggle, getPropagationTargets]);
+  }, [onTypeToEdit, onSpaceToggle, getPropagationTargets, store]);
 
-  const value = useMemo<CellSelectionContextValue>(
+  /**
+   * Every dependency here (`getPropagationTargets`, `onCellMouseDown`, ...)
+   * only ever closes over `store`, which never changes identity — so this
+   * object is built once and then never again for the life of the provider.
+   * Consumers that only need to dispatch actions (not read selection state)
+   * never re-render when a click/drag updates the store.
+   */
+  const actions = useMemo<CellSelectionActions>(
     () => ({
-      isDragging,
-      activeCell,
-      isSelected: (field, row) => isCellSelected(selection, field, row),
-      isFilled: (field, row) => isCellFilled(selection, field, row),
-      isHandle: (field, row) => isHandleRow(selection, field, row),
-      isActive: (field, row) => activeCell?.field === field && activeCell.row === row,
       getPropagationTargets,
       onCellMouseDown,
       onCellMouseEnter,
@@ -340,32 +400,56 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
       deactivateCell,
       clear,
     }),
-    [
-      isDragging,
-      activeCell,
-      selection,
-      getPropagationTargets,
-      onCellMouseDown,
-      onCellMouseEnter,
-      onGrabberMouseDown,
-      activateCell,
-      deactivateCell,
-      clear,
-    ],
+    [getPropagationTargets, onCellMouseDown, onCellMouseEnter, onGrabberMouseDown, activateCell, deactivateCell, clear],
   );
 
-  return <CellSelectionContext.Provider value={value}>{children}</CellSelectionContext.Provider>;
+  return (
+    <CellSelectionStoreContext.Provider value={store}>
+      <CellSelectionActionsContext.Provider value={actions}>{children}</CellSelectionActionsContext.Provider>
+    </CellSelectionStoreContext.Provider>
+  );
 };
 
 CellSelectionProvider.displayName = 'CellSelectionProvider';
 
-const useCellSelection = (): CellSelectionContextValue => {
-  const context = useContext(CellSelectionContext);
-  if (!context) {
-    throw new Error('useCellSelection must be used within CellSelectionProvider');
+const useCellSelectionStore = (): SelectionStore => {
+  const store = useContext(CellSelectionStoreContext);
+  if (!store) {
+    throw new Error('useCellSelectionStore must be used within CellSelectionProvider');
   }
-  return context;
+  return store;
 };
 
-export { CellSelectionProvider, useCellSelection };
-export type { ActiveCell, FillCommitPayload };
+const useCellSelection = (): CellSelectionActions => {
+  const actions = useContext(CellSelectionActionsContext);
+  if (!actions) {
+    throw new Error('useCellSelection must be used within CellSelectionProvider');
+  }
+  return actions;
+};
+
+const useIsCellSelected = (field: string, row: number): boolean => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => isCellSelected(store.getState().selection, field, row));
+};
+
+const useIsCellFilled = (field: string, row: number): boolean => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => isCellFilled(store.getState().selection, field, row));
+};
+
+const useIsHandleCell = (field: string, row: number): boolean => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => isHandleRow(store.getState().selection, field, row));
+};
+
+const useIsActiveCell = (field: string, row: number): boolean => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => {
+    const { activeCell } = store.getState();
+    return activeCell?.field === field && activeCell.row === row;
+  });
+};
+
+export { CellSelectionProvider, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsHandleCell };
+export type { FillCommitPayload };
