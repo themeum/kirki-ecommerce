@@ -3,17 +3,15 @@ import { type ComponentProps, memo, useEffect, useState } from 'react';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
-import Label from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
-import type { ProductListFilter} from '@/features/products';
+import type { ProductListFilter } from '@/features/products';
 import { productListOptions } from '@/features/products';
 import BrandFilter from '@/features/products/components/product-table/filter-popup/brand-filter';
 import CategoriesFilter from '@/features/products/components/product-table/filter-popup/categories-filter';
 import CollectionFilter from '@/features/products/components/product-table/filter-popup/collection-filter';
+import InventoryTypeFilter from '@/features/products/components/product-table/filter-popup/inventory-filter';
+import StatusFilter from '@/features/products/components/product-table/filter-popup/status-filter';
 import { useListParams } from '@/hooks';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
@@ -24,7 +22,7 @@ import { __, sprintf } from '@/wpi18n';
 type LocalFilterState = {
   category_ids: number[];
   status: string;
-  stock_status: string;
+  availability_status: string;
   collection_ids: number | undefined;
   brand_ids: number | undefined;
 };
@@ -45,7 +43,7 @@ const FilterPopup = memo(({
   const [filterObject, setFilterObject] = useState<LocalFilterState>({
     category_ids: [],
     status: 'all',
-    stock_status: '',
+    availability_status: 'all',
     collection_ids: undefined,
     brand_ids: undefined,
   });
@@ -53,7 +51,7 @@ const FilterPopup = memo(({
   const hasFilter = [
     params.category_ids?.length,
     params.status,
-    params.stock_status,
+    params.availability_status,
     params.collection_ids?.length,
     params.brand_ids?.length,
   ].filter(Boolean).length;
@@ -65,7 +63,7 @@ const FilterPopup = memo(({
     setFilterObject({
       category_ids: params.category_ids ?? [],
       status: (params.status as string) || 'all',
-      stock_status: params.stock_status || '',
+      availability_status: params.availability_status || 'all',
       collection_ids: params.collection_ids?.[0],
       brand_ids: params.brand_ids?.[0],
     });
@@ -91,7 +89,10 @@ const FilterPopup = memo(({
         filterObject.status && filterObject.status !== 'all'
           ? filterObject.status
           : undefined,
-      stock_status: filterObject.stock_status || undefined,
+      availability_status:
+        filterObject.availability_status && filterObject.availability_status !== 'all'
+          ? filterObject.availability_status
+          : undefined,
       collection_ids: filterObject.collection_ids
         ? [filterObject.collection_ids]
         : undefined,
@@ -104,7 +105,7 @@ const FilterPopup = memo(({
     setFilterObject({
       category_ids: [],
       status: 'all',
-      stock_status: '',
+      availability_status: 'all',
       collection_ids: undefined,
       brand_ids: undefined,
     });
@@ -152,7 +153,7 @@ const FilterPopup = memo(({
           </Button>
         ) : null}
       </Flex>
-      <DropdownMenuContent style={{ width: '288px', maxHeight: '522px' }}>
+      <DropdownMenuContent cssOverride={{ width: '288px', maxHeight: '522px' }}>
         <Flex cssOverride={styles.header}>
           <Text>{__('Filter', 'kirki-ecommerce')}</Text>
           <ActionGroup>
@@ -172,52 +173,14 @@ const FilterPopup = memo(({
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'category_ids')}
           />
-          <Flex direction="column" gap={2}>
-            <Label>{__('Status', 'kirki-ecommerce')}</Label>
-            <RadioGroup
-              defaultValue="all"
-              value={filterObject.status || 'all'}
-              onValueChange={(val) => handleOnFilterChange(val, 'status')}
-            >
-              {[
-                {
-                  value: 'published',
-                  label: __('Published', 'kirki-ecommerce'),
-                },
-                { value: 'draft', label: __('Draft', 'kirki-ecommerce') },
-                { value: 'all', label: __('All', 'kirki-ecommerce') },
-              ].map((option) => (
-                <Field key={option.value} orientation="horizontal">
-                  <RadioGroupItem
-                    value={option.value}
-                    id={`filter-status-${option.value}`}
-                  />
-                  <FieldLabel htmlFor={`filter-status-${option.value}`}>
-                    {option.label}
-                  </FieldLabel>
-                </Field>
-              ))}
-            </RadioGroup>
-          </Flex>
-          <Flex direction="column" gap={2}>
-            <Label>{__('Inventory', 'kirki-ecommerce')}</Label>
-            <Select
-              value={filterObject.stock_status || undefined}
-              onValueChange={(val) => handleOnFilterChange(val, 'stock_status')}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="in_stock">
-                  {__('In stock', 'kirki-ecommerce')}
-                </SelectItem>
-                <SelectItem value="out_of_stock">
-                  {__('Out of stock', 'kirki-ecommerce')}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </Flex>
+          <StatusFilter
+            filterObject={filterObject}
+            onChange={(val) => handleOnFilterChange(val, 'status')}
+          />
+          <InventoryTypeFilter
+            filterObject={filterObject}
+            onChange={(val) => handleOnFilterChange(val, 'availability_status')}
+          />
           <CollectionFilter
             filterObject={filterObject}
             onChange={(val) => handleOnFilterChange(val, 'collection_ids')}

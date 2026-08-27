@@ -67,6 +67,7 @@ const TagTable = () => {
       <DataTable
         data={data?.results ?? []}
         columns={columns}
+        total={data?.total}
         pageCount={data?.last_page ?? 0}
         pagination={pagination}
         onPaginationChange={onPaginationChange}

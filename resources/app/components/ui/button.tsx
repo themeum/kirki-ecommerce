@@ -195,7 +195,7 @@ const styles = defineStyles({
   },
   sizes: {
     xs: {
-      ...theme.typography.small(),
+      ...theme.typography.tiny(),
       height: '24px',
       padding: `0 ${theme.spacing[2]}`,
       borderRadius: theme.radius.md,
@@ -205,7 +205,7 @@ const styles = defineStyles({
       },
     },
     sm: {
-      ...theme.typography.small(),
+      ...theme.typography.tiny(),
       height: '28px',
       padding: '0 10px',
       borderRadius: theme.radius.md,

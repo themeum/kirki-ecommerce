@@ -7,8 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import Combobox from '@/components/ui/combobox';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import type { Brand as BrandEntity } from '@/features/brands';
 import { BrandAddEditPopover, useBrandsQuery } from '@/features/brands';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
@@ -96,7 +96,7 @@ const Brand = () => {
           <Card cssOverride={cardStyles.innerCard}>
             <CardContent cssOverride={cardStyles.innerContent}>
               <Flex gap={2} align="center">
-                <Thumbnail src={brandLogo?.url} />
+                <Image src={brandLogo} />
                 <Text variant="small">{productBrand?.name}</Text>
                 <ActionGroup cssOverride={{ cursor: 'pointer' }}>
                   <Button

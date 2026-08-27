@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import AttributeList from '@/features/products/components/product-form/sections/variants/attribute-list/attribute-list';
-import VariationTable from '@/features/products/components/product-form/sections/variants/variation-table/variation-table';
+import VariantsTable from '@/features/products/components/product-form/sections/variants/variants-table/variants-table';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -17,7 +17,7 @@ const Variants = () => {
       <CardContent>
         <Flex direction="column" gap={4}>
           <AttributeList />
-          <VariationTable />
+          <VariantsTable />
         </Flex>
       </CardContent>
     </Card>

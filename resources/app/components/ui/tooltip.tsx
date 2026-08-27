@@ -4,7 +4,7 @@ import { type ComponentPropsWithoutRef, type ElementRef, forwardRef, type ReactN
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { defineStyles, scoped, scopedMerge } from '@/theme/mixins';
+import { defineStyles, scopedMerge } from '@/theme/mixins';
 import type { TooltipPosition } from '@/types/components/common';
 
 const TooltipProvider = TooltipPrimitive.Provider;
@@ -29,18 +29,19 @@ const Tooltip = ({
   style,
   cssOverride,
   delayDuration = 200,
+  ...rest
 }: TooltipProps) => {
   return (
     <TooltipProvider delayDuration={delayDuration}>
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>
-          <span css={scoped(styles.trigger)}>{children}</span>
+          <span css={scopedMerge(styles.trigger, cssOverride)} data-tooltip="true" {...rest}>{children}</span>
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal container={getPortalContainer()}>
           <TooltipPrimitive.Content
             side={position}
             sideOffset={offset}
-            css={scopedMerge(styles.content, type === 'dark' && styles.dark, cssOverride)}
+            css={scopedMerge(styles.content, type === 'dark' && styles.dark)}
             style={style}
           >
             {tip}
