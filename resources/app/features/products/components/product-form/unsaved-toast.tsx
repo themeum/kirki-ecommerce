@@ -16,6 +16,7 @@ type UnsavedToastProps = {
   onSave: () => void;
   isSubmitting?: boolean;
   shakeSignal?: number;
+  message?: string;
 };
 
 const UnsavedToast = ({

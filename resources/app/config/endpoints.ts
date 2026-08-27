@@ -3,6 +3,7 @@ export const endpoints = {
   PRODUCT: (id: string | number) => `/products/${id}`,
   PRODUCTS_BULK: '/products/bulk',
   PRODUCT_VARIANTS: '/product-variants',
+  PRODUCT_DUPLICATE: (id: string | number) => `/products/${id}/duplicate`,
 
   CATEGORIES: '/categories',
   CATEGORY: (id: string | number) => `/categories/${id}`,

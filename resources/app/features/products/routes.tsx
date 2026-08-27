@@ -4,8 +4,8 @@ import type { RouteObject } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 
 const Products = lazy(() => import('@/features/products/pages/products'));
-const CreateProduct = lazy(() => import('@/features/products/pages/create-product/create-product'));
-const EditProduct = lazy(() => import('@/features/products/pages/edit-product/edit-product'));
+const CreateProduct = lazy(() => import('@/features/products/pages/create-product'));
+const EditProduct = lazy(() => import('@/features/products/pages/edit-product'));
 
 const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,
