@@ -668,6 +668,57 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * A guest checkout that submits a distinct customer_email persists that
+     * value on the order rather than falling back to billing_email, and
+     * rejects the submission with a validation error when it's missing.
+     *
+     * @return void
+     */
+    public function test_checkout_guest_order_saves_submitted_customer_email(): void
+    {
+        $admin_id = get_current_user_id();
+        $this->logout();
+
+        $customer_email = 'shopper-' . wp_generate_password(8, false) . '@example.com';
+        $billing_email = 'billing-' . wp_generate_password(8, false) . '@example.com';
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+            'customer_email' => $customer_email,
+            'billing_email' => $billing_email,
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        wp_set_current_user($admin_id);
+
+        $order = Order::find($this->order_id);
+        $this->assertEquals($customer_email, $order->customer_email);
+        $this->assertNotEquals($billing_email, $order->customer_email);
+    }
+
+    /**
+     * A guest checkout without a customer_email fails validation, since
+     * there's no WordPress account to source the order's contact email from.
+     *
+     * @return void
+     */
+    public function test_checkout_guest_order_requires_customer_email(): void
+    {
+        $this->logout();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+            'billing_email' => 'billing-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('customer_email', $data['errors']);
+    }
+
+    /**
      * When billing is marked as same as shipping, the provisioned
      * customer's billing address is duplicated from the shipping address.
      *

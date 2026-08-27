@@ -29,7 +29,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AccountController;
-use Kirki\Ecommerce\App\Http\Controllers\Site\CheckoutController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
 use Kirki\Ecommerce\App\Models\Post;
