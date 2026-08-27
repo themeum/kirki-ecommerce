@@ -67,7 +67,8 @@ class OrderActivityService
     {
         return OrderActivity::query()
             ->where('order_id', $order_id)
-            ->order_by('created_at', 'desc');
+            ->order_by('created_at', 'desc')
+            ->order_by('id', 'desc');
     }
 
     /**
