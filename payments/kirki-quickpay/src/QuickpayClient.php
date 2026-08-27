@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\Payments;
 use Exception;
 use InvalidArgumentException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
-use WP_Error;
 
 defined('ABSPATH') || exit;
 
@@ -31,35 +30,70 @@ class QuickpayClient
     }
 
     /**
+     * Verify a webhook payload against QuickPay's HMAC-SHA256 checksum header.
+     *
+     * @param string $raw_payload The raw webhook request body.
+     * @return bool
+     */
+    public function is_verified(string $raw_payload): bool
+    {
+        $given_checksum = $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256'] ?? '';
+
+        if (empty($raw_payload)  || empty($given_checksum) ) {
+            return false;
+        }
+
+        $expected_checksum = hash_hmac('sha256', $raw_payload, $this->private_key);
+
+        return hash_equals($expected_checksum, $given_checksum);
+    }
+
+    /**
+     * Create a QuickPay payment.
+     *
+     * @param array $payload The payment request payload.
+     * @return array The decoded JSON response, including the payment id.
+     * @throws Exception If the API request fails.
+     */
+    public function create_payment(array $payload): array
+    {
+        return $this->send(QuickpayConstant::POST_METHOD, QuickpayConstant::API_URL . 'payments', $payload);
+    }
+
+    /**
+     * Create a QuickPay payment link for an existing payment.
+     *
+     * @param array $payload The payment link request payload.
+     * @param int $payment_id The QuickPay payment ID to attach the link to.
+     * @return array The decoded JSON response, including the link url.
+     * @throws Exception If the API request fails.
+     */
+    public function create_payment_link(array $payload, int $payment_id): array
+    {
+        $url = QuickpayConstant::API_URL . "payments/{$payment_id}/link";
+
+        return $this->send(QuickpayConstant::PUT_METHOD, $url, $payload);
+    }
+
+    /**
      * Send a request to the QuickPay API and decode the JSON response.
      *
-     * @param string $method Either 'post' or 'get'.
+     * @param string $method One of QuickpayConstant::POST_METHOD, ::PUT_METHOD or ::GET_METHOD.
      * @param string $url The full request URL.
-     * @param array $payload The request payload, for 'post' requests.
+     * @param array $payload The request payload, for 'post'/'put' requests.
      * @return array The decoded JSON response.
      * @throws Exception If the API request fails.
      */
     protected function send(string $method, string $url, array $payload = []): array
     {
-        $request = Http::with_token($this->get_auth(), 'Basic')->with_headers(['Accept-Version' => 'v10']);
+        $request = Http::with_token($this->get_auth(), 'Basic')
+            ->with_headers(['Accept-Version' => 'v' . QuickpayConstant::API_VERSION]);
 
-        switch ($method) {
-            case QuickpayConstant::POST_METHOD:
-                $response = $request->with_body(wp_json_encode($payload))->post($url);
-                break;
-
-            case QuickpayConstant::PUT_METHOD:
-                $response = $request->with_body(wp_json_encode($payload))->put($url);
-                break;
-
-            case QuickpayConstant::GET_METHOD:
-                $response = $request->get($url);
-                break;
-
-            default:
-                $response = null;
-                break;
+        if (QuickpayConstant::GET_METHOD !== $method) {
+            $request = $request->with_body(wp_json_encode($payload));
         }
+
+        $response = $request->{$method}($url);
 
         if ($response->failed()) {
             throw new Exception($response->body());
@@ -81,30 +115,5 @@ class QuickpayClient
         }
 
         return base64_encode(":{$this->api_key}");
-    }
-
-    public function create_payment(array $payload)
-    {
-        $url = QuickpayConstant::API_URL . 'payments';
-        return $this->send(QuickpayConstant::POST_METHOD, $url, $payload);
-    }
-
-    public function create_payment_link(array $payload, int $payment_id)
-    {
-        $url = QuickpayConstant::API_URL . sprintf("/payments/%s/link", $payment_id);
-        return $this->send(QuickpayConstant::PUT_METHOD, $url, $payload);
-    }
-
-    public function is_verified(string $payload)
-    {
-        $given_checksum = $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256'] ?? '';
-
-        if (empty($given_checksum)) {
-            return false;
-        }
-
-        $expected_checksum = hash_hmac('sha256', $payload, $this->private_key);
-
-        return hash_equals($given_checksum, $expected_checksum);
     }
 }

@@ -11,8 +11,8 @@ class QuickpayConstant
 {
     use HasConstants;
 
-    public const API_URL     = 'https://api.quickpay.net/';
-    public const API_VERSION = '10';
+    const API_URL     = 'https://api.quickpay.net/';
+    const API_VERSION = '10';
 
     const POST_METHOD = 'post';
     const GET_METHOD = 'get';

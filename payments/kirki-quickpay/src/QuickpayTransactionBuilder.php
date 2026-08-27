@@ -23,7 +23,7 @@ class QuickpayTransactionBuilder
         $this->order = $order;
     }
 
-    public function create_payment_payload()
+    public function create_payment_payload(): array
     {
         return [
             'currency' => $this->order->currency_code,
@@ -50,7 +50,7 @@ class QuickpayTransactionBuilder
         $name = $this->order->{$type . '_first_name'} . ' ' . $this->order->{$type . '_last_name'};
 
         return [
-            'name' => $name ?? null,
+            'name' => $name,
             'street'  => $this->order->{$type . '_address_line1'},
             'house_number' => $this->order->{$type . '_address_line2'},
             'city' => $this->order->{$type . '_city'},
@@ -76,13 +76,13 @@ class QuickpayTransactionBuilder
                 'item_no' => (string) $item->variant_id,
                 'item_name' => $item->product_name,
                 'item_price' => (int) $item->invoiced_total,
-                'vat_rate' => (float) $item->tax_rate / 100 ?? 0,
+                'vat_rate' => (float) $item->tax_rate / 100,
             ];
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
             $line_items[] = [
-                'item_no' => (string) rand(100, 1000),
+                'item_no' => 'shipping',
                 'item_name' => __('Shipping Charge', 'kirki-ecommerce-quickpay'),
                 'qty' => 1,
                 'item_price' => (int) $this->order->invoiced_shipping_total,
@@ -92,7 +92,7 @@ class QuickpayTransactionBuilder
 
         if (!empty($this->order->invoiced_tax_total)) {
             $line_items[] = [
-                'item_no' => (string) rand(100, 1000),
+                'item_no' => 'tax',
                 'item_name' => __('Tax', 'kirki-ecommerce-quickpay'),
                 'qty' => 1,
                 'item_price' => (int) $this->order->invoiced_tax_total,
@@ -103,7 +103,7 @@ class QuickpayTransactionBuilder
         return $line_items;
     }
 
-    public function create_payment_link_payload(string $webhook_url)
+    public function create_payment_link_payload(string $webhook_url): array
     {
         return [
             'amount' => (int) $this->order->invoiced_total,

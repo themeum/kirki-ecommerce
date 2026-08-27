@@ -82,7 +82,7 @@ class Quickpay extends PaymentProvider
             $payment_link = $this->client->create_payment_link($builder->create_payment_link_payload($this->webhook_url()), $payment_response['id']);
 
             if (empty($payment_link['url'])) {
-                throw new Exception(__('QuickPay Payment ID Not Found.', 'kirki-ecommerce-quickpay'));
+                throw new Exception(__('QuickPay Payment Link Not Found.', 'kirki-ecommerce-quickpay'));
             }
 
             return PaymentActionDTO::from_array([
@@ -258,23 +258,25 @@ class Quickpay extends PaymentProvider
         http_response_code(200);
 
         if (empty($raw_payload) || ! $this->client->is_verified($raw_payload)) {
-            throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-quickpay'));
+            throw new Exception(__('Invalid Payload From QuickPay.', 'kirki-ecommerce-quickpay'));
         }
 
         return json_decode($raw_payload);
     }
 
-    protected function get_status(object $payload)
+    protected function get_status(object $operation): string
     {
-        if ($payload->pending) {
+        if ($operation->pending) {
             return PaymentStatus::UNPAID;
         }
 
-        if (20000 === (int)$payload->aq_status_code) {
+        $status_code = (int) $operation->aq_status_code;
+
+        if (20000 === $status_code) {
             return PaymentStatus::PAID;
         }
 
-        if ((40000 >= (int)$payload->aq_status_code && 50000 <= (int)$payload->aq_status_code) || 50000 > (int)$payload->aq_status_code) {
+        if (40000 >= $status_code) {
             return PaymentStatus::FAILED;
         }
 
