@@ -189,7 +189,7 @@ class SettingsUpdateRequest extends Request
             'data.is_enabled_reviews' => 'boolean',
             'data.is_enabled_star_ratings' => 'boolean',
             'data.is_unit_price_visible' => 'boolean',
-            'data.low_stock_threshold' => 'integer|min:0',
+            'data.low_stock_threshold' => 'nullable|integer|min:0',
             'data.barcode_generation' => 'nullable|array',
             'data.barcode_generation.data_origin' => 'nullable|string',
             'data.barcode_generation.format' => 'nullable|string',
