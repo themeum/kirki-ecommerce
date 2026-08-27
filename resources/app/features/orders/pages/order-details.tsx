@@ -182,7 +182,7 @@ const OrderDetails = () => {
                 }
               />
 
-              <Timeline />
+              <Timeline orderId={order.id} />
             </Flex>
 
             <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>

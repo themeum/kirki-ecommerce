@@ -1,44 +1,68 @@
 import { Trash2 } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
+import { useState } from 'react';
 
+import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
+import type { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
+import {
+  useCreateOrderActivityMutation,
+  useDeleteOrderActivityMutation,
+  useOrderActivitiesQuery,
+} from '@/features/orders/services/activity';
+import { DATE_FORMATS, formatDateValue } from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import { createAcronym } from '@/utils';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-type TimelineEntryType = 'comment' | 'event';
-
-type TimelineEntry = {
-  id: number;
-  type: TimelineEntryType;
-  message: string;
-  time: string;
-  author?: string;
+type TimelineProps = {
+  orderId: number;
 };
 
-const timelineEntries: TimelineEntry[] = [
-  { id: 1, type: 'comment', author: 'Admin', message: 'This is the latest post.', time: '15 minutes ago' },
-  { id: 2, type: 'comment', author: 'Admin', message: 'This is the latest post.', time: '15 minutes ago' },
-  { id: 3, type: 'event', message: 'Order placed for Neuvlette #2231', time: '15 minutes ago' },
-  { id: 4, type: 'event', message: 'Admin created this draft order.', time: '15 minutes ago' },
-];
+const Timeline = ({ orderId }: TimelineProps) => {
+  const [message, setMessage] = useState('');
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
-const handleSaveComment = (event: KeyboardEvent<HTMLInputElement>) => {
-  if (event.key !== 'Enter') {
-    return;
-  }
+  const { data, isLoading } = useOrderActivitiesQuery(orderId, { limit: -1 });
+  const createActivity = useCreateOrderActivityMutation();
+  const deleteActivity = useDeleteOrderActivityMutation();
 
-  // console.log(event.currentTarget.value);
-  // TODO: wire up comment persistence once the Timeline API is available.
-};
+  const activities = data?.results ?? [];
 
-const Timeline = () => {
+  const handleSaveComment = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    const trimmed = message.trim();
+    if (!trimmed || createActivity.isPending) {
+      return;
+    }
+
+    createActivity.mutate(
+      { orderId, data: { message: trimmed } as ActivityFormPayload },
+      { onSuccess: () => setMessage('') },
+    );
+  };
+
+  const handleConfirmDelete = () => {
+    if (pendingDeleteId === null) {
+      return;
+    }
+
+    deleteActivity.mutate(
+      { orderId, activityId: pendingDeleteId },
+      { onSuccess: () => setPendingDeleteId(null) },
+    );
+  };
+
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
@@ -46,44 +70,92 @@ const Timeline = () => {
       </CardHeader>
       <CardContent cssOverride={styles.content}>
         <Flex direction="column" gap={4}>
-          <Input placeholder={__('Add a comment...', 'kirki-ecommerce')} onKeyDown={handleSaveComment} />
+          <Input
+            placeholder={__('Add a comment...', 'kirki-ecommerce')}
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={handleSaveComment}
+            disabled={createActivity.isPending}
+            cssOverride={{ zIndex: 1 }}
+          />
+
+          {isLoading && (
+            <Text variant="small" color="secondary">
+              {__('Loading activity...', 'kirki-ecommerce')}
+            </Text>
+          )}
 
           <div css={scoped(styles.timelineList)}>
             <Flex direction="column" gap={3}>
-              {timelineEntries.map((entry, index) => {
-                const acronym = createAcronym({ first_name: entry.author });
-                return (
-                  entry.type === 'comment' ? (
-                    <Flex key={index} gap={3} align="center" cssOverride={styles.commentRow}>
+              {activities.map((entry) => {
+                const time = isDefined(entry.created_at)
+                  ? formatDateValue(new Date(entry.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
+                  : null;
+
+                if (entry.activity_type === 'comment-added') {
+                  const acronym = createAcronym({ first_name: entry.author_name ?? undefined });
+                  return (
+                    <Flex key={entry.id} gap={3} align="center" cssOverride={styles.commentRow}>
                       <div css={scoped(styles.leadingIcon)}>
                         <div css={scoped(styles.avatar)}>{acronym}</div>
                       </div>
                       <Flex direction="column" gap={1} grow={1}>
-                        <Text variant="small" weight="medium">{entry.author}</Text>
-                        <Text variant="small" color="secondary">{entry.message}</Text>
+                        <Text variant="small" weight="medium">
+                          {entry.author_name}
+                        </Text>
+                        <Text variant="small" color="secondary">
+                          {entry.description}
+                        </Text>
                       </Flex>
                       <Flex gap={2} align="center">
-                        <Text variant="tiny" color="subdued" data-comment-time="true">{entry.time}</Text>
-                        <Button variant="ghost" size="icon-sm" aria-label="Delete comment" data-action-group="true">
+                        <Text variant="tiny" color="subdued" data-comment-time="true">
+                          {time}
+                        </Text>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={__('Delete comment', 'kirki-ecommerce')}
+                          data-action-group="true"
+                          onClick={() => setPendingDeleteId(entry.id)}
+                        >
                           <Trash2 size={12} />
                         </Button>
                       </Flex>
                     </Flex>
-                  ) : (
-                    <Flex key={index} gap={3} align="center" cssOverride={styles.actionRow}>
-                      <div css={scoped(styles.leadingIcon)}>
-                        <span css={scoped(styles.eventIcon)} />
-                      </div>
-                      <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>{entry.message}</Text>
-                      <Text variant="tiny" color="subdued">{entry.time}</Text>
-                    </Flex>
-                  )
-                )
+                  );
+                }
+
+                return (
+                  <Flex key={entry.id} gap={3} align="center" cssOverride={styles.actionRow}>
+                    <div css={scoped(styles.leadingIcon)}>
+                      <span css={scoped(styles.eventIcon)} />
+                    </div>
+                    <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>
+                      {entry.description}
+                    </Text>
+                    <Text variant="tiny" color="subdued">
+                      {time}
+                    </Text>
+                  </Flex>
+                );
               })}
             </Flex>
           </div>
         </Flex>
       </CardContent>
+
+      {pendingDeleteId !== null && (
+        <ConfirmationDialog
+          variant="delete"
+          title={__('Delete comment?', 'kirki-ecommerce')}
+          subtitle={__(
+            'This comment will be permanently removed from the order timeline.',
+            'kirki-ecommerce',
+          )}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPendingDeleteId(null)}
+        />
+      )}
     </Card>
   );
 };
