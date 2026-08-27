@@ -46,34 +46,39 @@ $email_verified = $current_user->email_verified();
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
-                <div class="kecom-account-dashboard">
+                <div class="kecom-account-dashboard" x-data="accountDashboard()">
 
                     <?php if (session()->has('errors')) : ?>
                         <div class="kecom-alert kecom-alert-error kecom-mb-10">
-                            <?php Icon::render('information'); ?>
+                            <?php Icon::render('information', ['size' => 20]); ?>
                             <?php foreach (session('errors') as $error) : ?>
-                                <?php echo esc_html($error); ?>
+                                <p><?php echo esc_html($error); ?></p>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
 
                     <?php if (session()->has('success')) : ?>
                         <div class="kecom-alert kecom-alert-success kecom-mb-10">
-                            <?php Icon::render('information'); ?>
-                            <?php echo esc_html(session('success')); ?>
+                            <?php Icon::render('information', ['size' => 20]); ?>
+                            <p><?php echo esc_html(session('success')); ?></p>
                         </div>
                     <?php endif; ?>
 
                     <?php if (!$email_verified) : ?>
-                    <div class="kecom-alert kecom-alert-info kecom-mb-10" x-data="accountDashboard()">
-                        <?php Icon::render('information'); ?>
-                        <div class="kecom-flex kecom-justify-between">
+                    <div class="kecom-alert kecom-alert-info kecom-mb-10" x-show="!verificationSent">
+                        <?php Icon::render('information', ['size' => 20]); ?>
+                        <div class="kecom-flex kecom-justify-between kecom-flex-grow-1">
                             <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
-                            <button type="button" class="kecom-btn kecom-btn-link" @click="resendVerificationEmail()" :disabled="verificationLoading">
+                            <button type="button" class="kecom-btn kecom-btn-sm kecom-btn-link" @click="resendVerificationEmail()" :disabled="verificationLoading">
                                 <span x-show="!verificationLoading"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></span>
                                 <span x-show="verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
                             </button>
                         </div>
+                    </div>
+                    <!-- success -->
+                    <div class="kecom-alert kecom-alert-success kecom-mb-10" x-show="verificationSent" x-cloak>
+                        <?php Icon::render('confirmation', ['size' => 20]); ?>
+                        <p><?php esc_html_e('A confirmation link has been sent to your email address. Please check your inbox', 'kirki-ecommerce'); ?></p>
                     </div>
                     <?php endif; ?>
 

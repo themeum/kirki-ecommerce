@@ -22,7 +22,6 @@ export function accountDashboard() {
       try {
         const res = await accountApi.resendVerificationEmail();
         this.verificationSent = true;
-        toast.success(res?.message || 'Verification email sent successfully.');
       } catch (err: any) {
         toast.error(err?.message || 'Failed to send verification email. Please try again.');
       } finally {
