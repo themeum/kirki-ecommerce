@@ -1,21 +1,24 @@
+import { useNavigate } from 'react-router';
+
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
-import { RouteConfig } from '@/config/route-config';
 import CustomerCard from '@/features/orders/components/order-create/customer-card';
 import NotesCard from '@/features/orders/components/order-create/notes-card';
 import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
 import ProductSelectionCard from '@/features/orders/components/order-create/product-selection-card';
 import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
 import { SelectProductsDialog } from '@/features/products';
-import { usePageBack } from '@/hooks';
 import { __ } from '@/wpi18n';
 
 const OrderCreate = () => {
-  const handleBack = usePageBack(RouteConfig.Orders);
+  const navigate = useNavigate();
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   const {
     form,

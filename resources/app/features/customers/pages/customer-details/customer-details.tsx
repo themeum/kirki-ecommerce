@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import MultiSelectField from '@/components/form/multi-select-field';
 import Button from '@/components/ui/button';
@@ -27,7 +27,6 @@ import {
   useUpdateCustomerMutation,
 } from '@/features/customers/services/customer';
 import CustomerDetailsSkeleton from '@/features/customers/skeletons/customer-details-skeleton';
-import { usePageBack, useRedirect } from '@/hooks';
 import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -37,7 +36,7 @@ import { __ } from '@/wpi18n';
 
 const CustomerDetails = () => {
   const { id } = useParams();
-  const redirect = useRedirect();
+  const navigate = useNavigate();
   const [customerId, setCustomerId] = useState<number | undefined>();
 
   const isNew = id === NEW_ITEM_ID;
@@ -72,14 +71,18 @@ const CustomerDetails = () => {
         });
       } else {
         const result = await createMutation.mutateAsync(payload);
-        redirect(RouteConfig.Customers.get('CustomerDetail'), { id: result.data.id }, true);
+        void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: result.data.id }), {
+          replace: true,
+        });
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
   };
 
-  const handleBack = usePageBack(RouteConfig.Customers);
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   return (
     <Form {...form}>

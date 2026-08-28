@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
@@ -16,7 +16,6 @@ import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
 import Text from '@/components/ui/text';
-import { RouteConfig } from '@/config/route-config';
 import CustomerCard from '@/features/orders/components/order-create/customer-card';
 import NotesCard from '@/features/orders/components/order-create/notes-card';
 import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
@@ -29,7 +28,6 @@ import Timeline from '@/features/orders/components/order-details/timeline';
 import { useOrderDetails } from '@/features/orders/hooks/use-order-details';
 import { getActionLabel } from '@/features/orders/lib/order-actions';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
-import { usePageBack } from '@/hooks';
 import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -38,8 +36,11 @@ import { __, sprintf } from '@/wpi18n';
 
 const OrderDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
-  const handleBack = usePageBack(RouteConfig.Orders);
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   const {
     order,

@@ -84,7 +84,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) =>
                   onBack(event);
                   return;
                 }
-                navigate(-1);
+                void navigate(-1);
               }}
               {...restButtonProps}
             >

@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMemo, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { useNavigate } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
 import {
@@ -14,7 +15,7 @@ import { OrderCalculationRequestSchema, OrderFormSchema } from '@/features/order
 import { useCreateOrderMutation, useOrderCalculationQuery } from '@/features/orders/services/order';
 import type { OrderItem } from '@/features/orders/types';
 import type { ProductSelection } from '@/features/products';
-import { useDebounce, useRedirect } from '@/hooks';
+import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -38,7 +39,7 @@ type UseOrderCreateResult = {
 };
 
 export const useOrderCreate = (): UseOrderCreateResult => {
-  const redirect = useRedirect();
+  const navigate = useNavigate();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [selections, setSelections] = useState<ProductSelection[]>([]);
 
@@ -105,7 +106,9 @@ export const useOrderCreate = (): UseOrderCreateResult => {
       const response = await createMutation.mutateAsync(payload);
 
       if (isDefined(response.data) && isDefined(response.data.id)) {
-        redirect(RouteConfig.Orders.get('OrderDetail'), { id: response.data.id }, true);
+        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }), {
+          replace: true,
+        });
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

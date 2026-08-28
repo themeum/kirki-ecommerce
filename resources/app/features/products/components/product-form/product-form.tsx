@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 import MediaGalleryField from '@/components/form/media-gallery-field';
 import RichTextField from '@/components/form/rich-text-field';
@@ -12,7 +13,6 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
-import { RouteConfig } from '@/config/route-config';
 import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
 import Inventory from '@/features/products/components/product-form/sections/inventory/inventory';
 import Price from '@/features/products/components/product-form/sections/price/price';
@@ -27,7 +27,6 @@ import {
   type ProductFormInput,
   type ProductFormPayload,
 } from '@/features/products/schemas/forms/product-form';
-import { usePageBack } from '@/hooks';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -72,7 +71,10 @@ const ProductForm = ({
     }
   }, [isDirty]);
 
-  const handleBack = usePageBack(RouteConfig.Products);
+  const navigate = useNavigate();
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   const handleDuplicateClick = () => {
     if (isDirty) {

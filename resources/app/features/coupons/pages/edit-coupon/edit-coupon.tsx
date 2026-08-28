@@ -3,7 +3,7 @@ import { CheckSquare, Tag } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { FieldErrors } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -32,7 +32,6 @@ import {
   useUpdateCouponMutation,
 } from '@/features/coupons/services/coupon';
 import { buildProductSelection } from '@/features/products';
-import { usePageBack, useRedirect } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { splitIsoDateTime } from '@/libs/date';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -106,7 +105,7 @@ const tabOptions = [
 
 const EditCoupon = () => {
   const { id } = useParams();
-  const redirect = useRedirect();
+  const navigate = useNavigate();
   const isNew = id === NEW_ITEM_ID;
   const [activeTab, setActiveTab] = useState<(typeof tabOptions)[number]['index']>('detail');
   const [couponId, setCouponId] = useState<number>();
@@ -155,7 +154,9 @@ const EditCoupon = () => {
         const response = await createMutation.mutateAsync(payload);
 
         if (isDefined(response.data) && isDefined(response.data.id)) {
-          redirect(RouteConfig.Coupons.get('EditCoupon'), { id: response.data.id }, true);
+          void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: response.data.id }), {
+            replace: true,
+          });
         }
       }
     } catch (error) {
@@ -163,7 +164,9 @@ const EditCoupon = () => {
     }
   };
 
-  const handleBack = usePageBack(RouteConfig.Coupons);
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   const couponBadgeInfo = useMemo(() => {
     if (isNew || !isDefined(couponInfo?.status)) {

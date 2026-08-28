@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import MediaField from '@/components/form/media-field';
 import TextField from '@/components/form/text-field';
@@ -29,7 +29,6 @@ import {
   useUpdateCollectionMutation,
 } from '@/features/collections/services/collection';
 import CollectionDetailsSkeleton from '@/features/collections/skeletons/collection-details-skeleton';
-import { usePageBack, useRedirect } from '@/hooks';
 import { PlusIcon, ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -71,7 +70,7 @@ const CollectionDetails = () => {
     form.reset(pickFormValues(CollectionFormSchema, collectionResponse));
   }, [collectionResponse, form]);
 
-  const redirect = useRedirect();
+  const navigate = useNavigate();
 
   const handleSubmit = async (payload: CollectionFormPayload) => {
     try {
@@ -82,14 +81,18 @@ const CollectionDetails = () => {
         });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        redirect(RouteConfig.Collections.get('CollectionDetail'), { id: response.data.id }, true);
+        void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }), {
+          replace: true,
+        });
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
   };
 
-  const handleBack = usePageBack(RouteConfig.Collections);
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   return (
     <Form {...form}>
