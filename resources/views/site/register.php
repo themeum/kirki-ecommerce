@@ -31,11 +31,13 @@ use function Kirki\Ecommerce\Framework\session;
             </div>
             <!-- Errors -->
             <?php if (session()->has('errors')) : ?>
-                <div class="kecom-alert kecom-alert-error">
-                    <?php Icon::render('information'); ?>
-                    <?php foreach (session('errors') as $error) : ?>
-                        <?php echo esc_html($error); ?>
-                    <?php endforeach; ?>
+                <div class="kecom-alert kecom-alert-error kecom-mt-6">
+                    <?php Icon::render('information', ['size' => 20]); ?>
+                    <p>
+                        <?php foreach (session('errors') as $error) : ?>
+                            <?php echo esc_html($error); ?>
+                        <?php endforeach; ?>
+                    </p>
                 </div>
             <?php endif; ?>
         </div>

@@ -92,6 +92,15 @@ class Utils
         $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
 
         $route_config = [
+            'action' => [
+                'url'       => Url::get_account_url('action'),
+                'hook'      => 'template_redirect',
+                'priority'  => 1,
+                'route_path' => $account_page_slug . '/action',
+                'route_name' => 'account.action',
+                'callback'  => [AccountController::class, 'action'],
+                'is_menu'   => false,
+            ],
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),
                 'icon'      => 'dashboard',
