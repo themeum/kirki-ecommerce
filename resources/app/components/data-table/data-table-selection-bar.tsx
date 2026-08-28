@@ -71,7 +71,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
       {bulkActionOptions && (
         <Flex gap={2} align="center">
           <Select onValueChange={setSelectedAction}>
-            <SelectTrigger style={{ minWidth: '100px' }}>
+            <SelectTrigger cssOverride={styles.selectTrigger}>
               <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
             </SelectTrigger>
             <SelectContent>
@@ -100,5 +100,9 @@ const styles = defineStyles({
   wrapper: {
     backgroundColor: theme.colors.background.fill,
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
+  },
+  selectTrigger: {
+    height: theme.spacing[8],
+    minWidth: '100px',
   },
 });
