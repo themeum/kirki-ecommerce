@@ -80,10 +80,10 @@ class AccountController
     {
         $user_service = app(UserService::class);
         $token = $request->string('token');
-        $user = wp_get_current_user();
+        $user = user();
 
-        if (!empty($token) && !empty($user->ID)) {
-            $verified = $user_service->verify_email_token((int) $user->ID, $token);
+        if (!empty($token) && !empty($user->get_id())) {
+            $verified = $user_service->verify_email_token($user->get_id(), $token);
             $flash_type = 'errors';
             $flash_messsage = [__('The email verification link is invalid or has expired.', 'kirki-ecommerce')];
 
