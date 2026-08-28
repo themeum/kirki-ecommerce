@@ -30,9 +30,9 @@ $formatted_item = "cartData.formatted_items['{$item_id}']";
         <?php endif; ?>
     </div>
     <div class="kecom-cart-item-pricing">
-        <span class="kecom-cart-item-pricing-total" x-text="<?php echo $formatted_item; ?>?.total"></span>
+        <span class="kecom-cart-item-pricing-total" x-text="<?php echo esc_attr($formatted_item); ?>?.total"></span>
         <span class="kecom-cart-item-pricing-product-total"
-            x-show="<?php echo $formatted_item; ?>?.total !== <?php echo $formatted_item; ?>?.product_total"
-            x-text="<?php echo $formatted_item; ?>?.product_total"></span>
+            x-show="<?php echo esc_attr($formatted_item); ?>?.total !== <?php echo esc_attr($formatted_item); ?>?.product_total"
+            x-text="<?php echo esc_attr($formatted_item); ?>?.product_total"></span>
     </div>
 </div>
