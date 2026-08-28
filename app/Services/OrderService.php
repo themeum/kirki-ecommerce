@@ -419,12 +419,14 @@ class OrderService
             $customer = $customer_service->create($dto);
         }
 
-        $guest_orders = $this->get_guest_orders_by_email($user->get_email());
-        $order_ids = $guest_orders->pluck('id')->to_array();
-        if (!empty($order_ids)) {
-            Order::where_in('id', $order_ids)->update([
+        if ($customer) {
+            $guest_orders = $this->get_guest_orders_by_email($user->get_email());
+            $order_ids = $guest_orders->pluck('id')->to_array();
+            if (!empty($order_ids)) {
+                Order::where_in('id', $order_ids)->update([
                 'customer_id' => $customer->id,
-            ]);
+                ]);
+            }
         }
     }
 }
