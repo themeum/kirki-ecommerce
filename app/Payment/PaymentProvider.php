@@ -436,8 +436,7 @@ class PaymentProvider
      */
     public function webhook_url()
     {
-        //return Route::url('payment/webhook/' . $this->id());
-        return 'https://b876-119-148-4-217.ngrok-free.app/wp-json/kirki/ecommerce/v1/payment/webhook/quickpay';
+        return Route::url('payment/webhook/' . $this->id());
     }
 
     /**

@@ -81,8 +81,7 @@ class Url
      */
     public static function get_checkout_url()
     {
-        //return Route::site_url('checkout');
-        return 'https://b876-119-148-4-217.ngrok-free.app/checkout';
+        return Route::site_url('checkout');
     }
 
     /**
