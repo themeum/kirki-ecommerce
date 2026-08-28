@@ -29,11 +29,17 @@ export const EVENTS = {
   /** Fired when the user selects a different payment method. */
   PAYMENT_METHOD_CHANGED: 'kecom:payment-method:changed',
 
+  /** Trigger the contact form to run its validation. */
+  CONTACT_FORM_VALIDATE: 'kecom:contact-form:validate',
+
   /** Trigger the shipping form to run its validation. */
   SHIPPING_FORM_VALIDATE: 'kecom:shipping-form:validate',
 
   /** Trigger the billing form to run its validation. */
   BILLING_FORM_VALIDATE: 'kecom:billing-form:validate',
+
+  /** Fired by the contact form after validation completes. */
+  CONTACT_FORM_VALIDATED: 'kecom:contact-form:validated',
 
   /** Fired by the shipping form after validation completes. */
   SHIPPING_FORM_VALIDATED: 'kecom:shipping-form:validated',
@@ -70,11 +76,17 @@ export type Events = {
   /** Fired when the user selects a different payment method. */
   [EVENTS.PAYMENT_METHOD_CHANGED]: { method: string };
 
+  /** Trigger the contact form to run its validation. */
+  [EVENTS.CONTACT_FORM_VALIDATE]: void;
+
   /** Trigger the shipping form to run its validation. */
   [EVENTS.SHIPPING_FORM_VALIDATE]: void;
 
   /** Trigger the billing form to run its validation. */
   [EVENTS.BILLING_FORM_VALIDATE]: void;
+
+  /** Fired by the contact form after validation completes. */
+  [EVENTS.CONTACT_FORM_VALIDATED]: { isValid: boolean };
 
   /** Fired by the shipping form after validation completes. */
   [EVENTS.SHIPPING_FORM_VALIDATED]: { isValid: boolean };

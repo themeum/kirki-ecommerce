@@ -24,6 +24,8 @@ class Product extends Model
         'tax_profile_id' => 'integer',
         'shipping_profile_id' => 'integer',
         'shipping_box_id' => 'integer',
+        'published_at' => 'datetime',
+        'trashed_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -45,6 +47,8 @@ class Product extends Model
         'schema_id',
         'llm_instructions',
         'has_variants',
+        'published_at',
+        'trashed_at',
         'created_by',
         'updated_by',
     ];

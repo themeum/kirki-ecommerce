@@ -203,7 +203,7 @@ foreach ($media as $media_item) {
                             class="kecom-quantity-input"
                             type="number"
                             :value="quantity"
-                            @input="setValue($el.value)"
+                            @change="handleBlur($el)"
                             min="1"
                             :max="max"
                             :disabled="!selectedVariant?.available"

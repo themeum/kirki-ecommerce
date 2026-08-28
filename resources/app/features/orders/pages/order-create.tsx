@@ -6,17 +6,19 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Page from '@/components/ui/page';
 import PageHeading from '@/components/ui/page-heading';
-import { RouteConfig } from '@/config/route-config';
+import CustomerCard from '@/features/orders/components/order-create/customer-card';
+import NotesCard from '@/features/orders/components/order-create/notes-card';
+import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
+import ProductSelectionCard from '@/features/orders/components/order-create/product-selection-card';
 import { useOrderCreate } from '@/features/orders/hooks/use-order-create';
-import CustomerCard from '@/features/orders/pages/order-create/components/customer-card';
-import NotesCard from '@/features/orders/pages/order-create/components/notes-card';
-import PaymentSummaryCard from '@/features/orders/pages/order-create/components/payment-summary-card';
-import ProductSelectionCard from '@/features/orders/pages/order-create/components/product-selection-card';
 import { SelectProductsDialog } from '@/features/products';
 import { __ } from '@/wpi18n';
 
 const OrderCreate = () => {
   const navigate = useNavigate();
+  const handleBack = () => {
+    void navigate(-1);
+  };
 
   const {
     form,
@@ -41,20 +43,16 @@ const OrderCreate = () => {
           type="primary"
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate(RouteConfig.Orders.buildLink())}>
+              <Button variant="ghost" onClick={handleBack}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
-              <Button
-                variant="primary"
-                onClick={handleSubmit}
-                loading={isCreating}
-              >
+              <Button variant="primary" onClick={handleSubmit} loading={isCreating}>
                 {__('Save', 'kirki-ecommerce')}
               </Button>
             </>
           }
           hasBack
-          onBack={() => navigate(RouteConfig.Orders.buildLink())}
+          onBack={handleBack}
           sticky
         />
         <Container>

@@ -83,6 +83,8 @@ class ProductResource extends Resource
             'variants' => VariantResource::collection($this->variants),
             'media' => MediaAttachment::make_many($this->media->pluck('ID')->all()),
 
+            'published_at' => $this->published_at,
+            'trashed_at' => $this->trashed_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

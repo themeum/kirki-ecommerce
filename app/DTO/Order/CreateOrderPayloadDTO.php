@@ -94,6 +94,9 @@ class CreateOrderPayloadDTO extends DTO
     public $billing_company;
 
     /** @var string|null */
+    public $customer_email;
+
+    /** @var string|null */
     public $customer_notes;
 
     /** @var string|null */

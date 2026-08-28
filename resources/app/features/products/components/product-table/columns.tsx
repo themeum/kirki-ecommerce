@@ -56,12 +56,6 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     cell: ({ row }) => <ProductTitleCell item={row.original} />,
   },
   {
-    id: 'sku',
-    header: __('SKU', 'kirki-ecommerce'),
-    enableSorting: false,
-    cell: ({ row }) => row.original?.sku || '-',
-  },
-  {
     id: 'availability_status',
     header: __('Availability', 'kirki-ecommerce'),
     enableSorting: false,

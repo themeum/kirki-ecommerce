@@ -38,6 +38,10 @@ class UpdateCartItemAction
             throw new Exception(__('Not enough stock for this variant', 'kirki-ecommerce'));
         }
 
+        if (!$this->inventory_service->is_within_limit($item->variant_id, $dto->quantity)) {
+            throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $item->variant_id));
+        }
+
         $this->cart_service->update_item_quantity($cart->id, $dto->item_id, $dto->quantity);
 
         return $this->cart_service->get_cart($dto->user_id, $dto->token);

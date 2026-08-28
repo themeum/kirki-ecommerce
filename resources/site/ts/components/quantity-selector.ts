@@ -11,6 +11,8 @@
  *   })">
  */
 
+import { toastManager } from '../services/toast/runtime';
+
 export type QuantitySelectorConfig = {
   min?: number;
   max?: number | (() => number);
@@ -19,6 +21,8 @@ export type QuantitySelectorConfig = {
 };
 
 export function quantitySelector(config: QuantitySelectorConfig = {}) {
+  const { __, sprintf } = window.wp.i18n;
+
   return {
     quantity: config.initial ?? 1,
     min: config.min ?? 1,
@@ -34,12 +38,12 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
       return this.maxValue;
     },
 
-    get isMax(): boolean {
-      return this.maxValue !== undefined && this.quantity >= this.maxValue;
-    },
-
     get isMin(): boolean {
       return this.quantity <= this.min;
+    },
+
+    get isMax(): boolean {
+      return this.maxValue !== undefined && this.quantity >= this.maxValue;
     },
 
     increment() {
@@ -56,11 +60,53 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
       }
     },
 
-    setValue(value: string) {
-      const num = parseInt(value, 10);
-      if (!isNaN(num) && num >= this.min && (this.maxValue === undefined || num <= this.maxValue)) {
-        this.quantity = num;
-        this.notifyChange();
+    setValue(value: string, inputEl?: HTMLInputElement) {
+      if (value === '') {
+        return;
+      }
+
+      let num = parseInt(value, 10);
+      if (isNaN(num)) {
+        num = this.min;
+      }
+
+      if (num < this.min) {
+        num = this.min;
+      } else if (this.maxValue !== undefined && num > this.maxValue) {
+        num = this.maxValue;
+        toastManager.warning(
+          sprintf(__('Maximum available quantity is %d', 'kirki-ecommerce'), this.maxValue),
+        );
+      }
+      this.quantity = num;
+
+      const target =
+        inputEl ??
+        ((this as any).$el?.tagName === 'INPUT'
+          ? (this as any).$el
+          : (this as any).$el?.querySelector('input'));
+
+      if (target && target.value !== String(num)) {
+        target.value = String(num);
+      }
+
+      this.notifyChange();
+    },
+
+    handleBlur(inputEl?: HTMLInputElement) {
+      const target =
+        inputEl ??
+        ((this as any).$el?.tagName === 'INPUT'
+          ? (this as any).$el
+          : (this as any).$el?.querySelector('input'));
+
+      if (target) {
+        const num = parseInt(target.value, 10);
+        if (isNaN(num) || num < this.min) {
+          this.setValue(String(this.min), target);
+        } else if (this.maxValue !== undefined && num > this.maxValue) {
+          this.setValue(String(this.maxValue), target);
+        }
       }
     },
 

@@ -14,6 +14,6 @@ class PageService
      */
     public function all()
     {
-        return Page::all();
+        return Page::order_by('id', 'desc')->get();
     }
 }

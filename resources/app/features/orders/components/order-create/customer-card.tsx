@@ -8,15 +8,15 @@ import { FieldError } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { useCustomerQuery } from '@/features/customers';
+import AddCustomerDialog from '@/features/orders/components/order-create/customer/add-customer-dialog';
+import CustomerInfoDialog from '@/features/orders/components/order-create/customer/customer-info-dialog';
+import CustomerSearchDropdown from '@/features/orders/components/order-create/customer/customer-search-dropdown';
+import CustomerSummary from '@/features/orders/components/order-create/customer/customer-summary';
 import {
   formatBillingAddress,
   formatShippingAddress,
   toOrderAddresses,
 } from '@/features/orders/lib/customer-address';
-import AddCustomerDialog from '@/features/orders/pages/order-create/components/customer/add-customer-dialog';
-import CustomerInfoDialog from '@/features/orders/pages/order-create/components/customer/customer-info-dialog';
-import CustomerSearchDropdown from '@/features/orders/pages/order-create/components/customer/customer-search-dropdown';
-import CustomerSummary from '@/features/orders/pages/order-create/components/customer/customer-summary';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import { EditIcon, TrashIcon } from '@/icons';
 import { useCountriesQuery } from '@/services/country';

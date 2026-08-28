@@ -5,11 +5,7 @@ import { VariantSchema } from '@/features/products/schemas/catalog/variant';
 import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
-export const ProductStatusSchema = z.enum([
-  'draft',
-  'published',
-  'trashed',
-]);
+export const ProductStatusSchema = z.enum(['draft', 'published', 'trashed']);
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
 
@@ -97,7 +93,7 @@ export const ProductListItemWithVariantsSchema = ProductListItemSchema.extend({
   has_variants: z.boolean(),
   attributes: z.array(ProductAttributeSchema),
   variants: z.array(VariantSchema),
-})
+});
 
 export type ProductListItemWithVariants = z.infer<typeof ProductListItemWithVariantsSchema>;
 
@@ -129,6 +125,8 @@ export const ProductSchema = z.object({
   attributes: z.array(ProductAttributeSchema),
   variants: z.array(VariantSchema),
   media: z.array(MediaRefSchema),
+  published_at: z.string().nullish(),
+  trashed_at: z.string().nullish(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });
@@ -137,4 +135,3 @@ export type Product = z.infer<typeof ProductSchema>;
 
 export type { ProductAttribute } from '@/features/products/schemas/catalog/attribute';
 export type { InventoryVariant, ProductVariant } from '@/features/products/schemas/catalog/variant';
-

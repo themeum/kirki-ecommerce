@@ -1,10 +1,9 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Http\Controllers\Site;
+namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Concerns\HasCartToken;
-use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
