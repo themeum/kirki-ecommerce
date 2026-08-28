@@ -433,6 +433,6 @@ const styles = defineStyles({
   },
   toolbar: {
     width: '100%',
-    minHeight: theme.spacing[12],
+    minHeight: '3rem',
   },
 });

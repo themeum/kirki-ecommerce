@@ -80,8 +80,8 @@ const styles = defineStyles({
   },
   swatch: {
     borderRadius: theme.radius.full,
-    height: theme.spacing[4],
-    width: theme.spacing[4],
+    height: '1rem',
+    width: '1rem',
     backgroundColor: 'var(--chip-swatch-color)',
   },
   close: {

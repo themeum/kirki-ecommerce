@@ -102,7 +102,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
   },
   selectTrigger: {
-    height: theme.spacing[8],
+    height: '2rem',
     minWidth: '100px',
   },
 });
