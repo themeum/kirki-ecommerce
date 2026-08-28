@@ -76,6 +76,7 @@ class VariantResource extends Resource
             'is_default' => $this->is_default,
 
             'attribute_values' => !empty($this->attribute_values) ? $this->attribute_values->pluck('id')->all() : [],
+            'attribute_value_labels' => !empty($this->attribute_values) ? $this->attribute_values->pluck('value')->all() : [],
 
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,

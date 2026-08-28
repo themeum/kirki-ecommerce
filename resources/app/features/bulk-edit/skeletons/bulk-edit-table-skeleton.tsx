@@ -1,30 +1,28 @@
 import Skeleton from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { allTableHeaders } from '@/features/bulk-edit/lib/utils';
-import { bulkEditTableStyles } from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-table-styles';
+import { bulkEditColumns, ROW_HEIGHT } from '@/features/bulk-edit/lib/columns';
+import { defineStyles } from '@/theme/mixins';
 
 type BulkEditTableSkeletonProps = {
-  selectedFields: string[];
   rowCount?: number;
 };
 
 const CELL_SKELETON_HEIGHT = 12;
-const DEFAULT_ROW_COUNT = 10;
+const DEFAULT_ROW_COUNT = 12;
 
 const BulkEditTableSkeleton = (props: BulkEditTableSkeletonProps) => {
-  const { selectedFields, rowCount = DEFAULT_ROW_COUNT } = props;
-
-  const headers = allTableHeaders.filter((item) => selectedFields.includes(item?.value));
+  const { rowCount = DEFAULT_ROW_COUNT } = props;
 
   return (
-    <Table cssOverride={bulkEditTableStyles} style={{ minWidth: '100vw' }} aria-busy>
+    <Table cssOverride={styles.table} fixed aria-busy>
       <TableHeader>
         <TableRow>
-          {headers.map((header, index) => (
+          {bulkEditColumns.map((column) => (
             <TableHead
-              alignment={header?.alignment}
-              key={index}
-              data-sticky-cell={index === 0 ? 'true' : undefined}
+              key={column.id}
+              alignment={column.meta?.alignment}
+              style={{ width: column.size }}
+              data-sticky-cell={column.id === 'variant' ? 'true' : undefined}
             >
               <Skeleton width="60%" height={CELL_SKELETON_HEIGHT} />
             </TableHead>
@@ -33,12 +31,13 @@ const BulkEditTableSkeleton = (props: BulkEditTableSkeletonProps) => {
       </TableHeader>
       <TableBody>
         {Array.from({ length: rowCount }, (_, rowIndex) => (
-          <TableRow key={rowIndex}>
-            {headers.map((header, index) => (
+          <TableRow key={rowIndex} style={{ height: ROW_HEIGHT }}>
+            {bulkEditColumns.map((column) => (
               <TableCell
-                alignment={header?.alignment}
-                key={index}
-                data-sticky-cell={index === 0 ? 'true' : undefined}
+                key={column.id}
+                alignment={column.meta?.alignment}
+                style={{ width: column.size, height: ROW_HEIGHT }}
+                data-sticky-cell={column.id === 'variant' ? 'true' : undefined}
               >
                 <Skeleton height={CELL_SKELETON_HEIGHT} />
               </TableCell>
@@ -53,3 +52,9 @@ const BulkEditTableSkeleton = (props: BulkEditTableSkeletonProps) => {
 BulkEditTableSkeleton.displayName = 'BulkEditTableSkeleton';
 
 export default BulkEditTableSkeleton;
+
+const styles = defineStyles({
+  table: {
+    minWidth: '100%',
+  },
+});
