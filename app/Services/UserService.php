@@ -3,11 +3,29 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Exception;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
 class UserService
 {
+    /**
+     * Email service instance.
+     *
+     * @var EmailService
+     */
+    protected EmailService $email_service;
+
+    /**
+     * Constructor.
+     *
+     * @param EmailService|null $email_service
+     */
+    public function __construct(?EmailService $email_service = null)
+    {
+        $this->email_service = $email_service ?? new EmailService();
+    }
+
     /**
      * Change a WordPress user's password after verifying their current password.
      *
@@ -79,7 +97,14 @@ class UserService
             ]);
         }
 
-        $sent = $user->resend_verification_email();
+        $token = $user->generate_verification_token();
+
+        $verify_url = Url::add_query_params(Url::get_account_url('action'), [
+            'action' => 'email_verify',
+            'token'  => $token,
+        ]);
+
+        $sent = $this->email_service->send_verification_email($user, $verify_url);
 
         if (!$sent) {
             throw new Exception(__('Failed to send verification email. Please try again later.', 'kirki-ecommerce'));

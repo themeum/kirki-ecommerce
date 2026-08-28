@@ -20,19 +20,22 @@ use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\session;
 use function Kirki\Ecommerce\Framework\view_data;
 
+/**
+ * @var Kirki\Ecommerce\App\Wordpress\User $user
+ * @var Kirki\Ecommerce\App\Models\Customer $customer
+ * @var array $orders
+ */
 $user = view_data('user');
 $customer = view_data('customer');
 $orders = view_data('orders', []);
 
-$display_name = $user->display_name ?: $user->user_login ?: __('Customer', 'kirki-ecommerce');
-$user_email = $user->user_email ?: '';
+$display_name = $user->get_display_name() ?: $user->get_username() ?: __('Customer', 'kirki-ecommerce');
+$user_email = $user->get_email() ?: '';
 
 $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
-$register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : '';
-
-$current_user = new User();
-$email_verified = $current_user->email_verified();
+$register_since = $user ? date('M j, Y', strtotime($user->get()->user_registered)) : '';
+$email_verified = $user->email_verified();
 ?>
 
 <?php Template::get_header(); ?>
