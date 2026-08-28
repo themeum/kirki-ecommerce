@@ -17,19 +17,19 @@ use Kirki\Ecommerce\Framework\Validation\Validator;
 defined('ABSPATH') || exit;
 
 /**
- * Square payment gateway.
+ * Paystack payment gateway.
  */
-class Square extends PaymentProvider
+class Paystack extends PaymentProvider
 {
-    protected ?SquareClient $client = null;
+    protected ?PaystackClient $client = null;
 
     public function __construct()
     {
-        $this->id = 'square';
-        $this->title = __('Square', 'kirki-ecommerce-square');
-        $this->description = __('Square payment gateway', 'kirki-ecommerce-square');
-        $this->icon = $this->icon_url('square');
-        $this->settings_key = 'square';
+        $this->id = 'paystack';
+        $this->title = __('PayStack', 'kirki-ecommerce-paystack');
+        $this->description = __('PayStack payment gateway', 'kirki-ecommerce-paystack');
+        $this->icon = $this->icon_url('paystack');
+        $this->settings_key = 'paystack';
         $this->is_offline = false;
         $this->is_available = true;
         $this->has_fields = true;
@@ -38,26 +38,14 @@ class Square extends PaymentProvider
 
         $this->set_admin_fields([
             [
-                'name' => 'location_id',
-                'label' => __('Location ID', 'kirki-ecommerce-square'),
-                'type' => 'text',
-                'required' => true,
-            ],
-            [
-                'name' => 'access_token',
-                'label' => __('Access Token', 'kirki-ecommerce-square'),
-                'type' => 'password',
-                'required' => true,
-            ],
-            [
-                'name' => 'signature_key',
-                'label' => __('Signature Key', 'kirki-ecommerce-square'),
+                'name' => 'secret_key',
+                'label' => __('Secret Key', 'kirki-ecommerce-paystack'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-ecommerce-square'),
+                'label' => __('Sandbox Mode', 'kirki-ecommerce-paystack'),
                 'type' => 'checkbox',
             ],
         ]);
@@ -73,45 +61,17 @@ class Square extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Square is not enabled.', 'kirki-ecommerce-square'));
+            throw new Exception(__('PayStack is not enabled.', 'kirki-ecommerce-paystack'));
         }
 
         try {
-            $payload = [
-                'idempotency_key' => SquareConstant::PREFIX . $order->uuid,
-                'order' => [
-                    'location_id' => $this->settings['location_id'],
-                    'reference_id' => $order->uuid,
-                    'line_items' => SquareTransactionBuilder::build_line_items($order),
-                ],
-                'checkout_options' => [
-                    'redirect_url' => Url::get_checkout_success_url($order->uuid),
-                    'enable_coupon' => false,
-                ],
-                'pre_populated_data' => [
-                    'buyer_email' => $order->billing_email ?? null,
-                    'buyer_address' => [
-                        'address_line_1' => $order->billing_address_line1 ?? null,
-                        'address_line_2' => $order->billing_address_line2 ?? null,
-                        'postal_code' => $order->billing_postal_code ?? null,
-                        'country' => $order->billing_country ?? null,
-                        'first_name' => $order->billing_first_name ?? null,
-                        'last_name' => $order->billing_last_name ?? null
-                    ]
-                ]
-            ];
 
-            $response = $this->get_client()->create_payment_link($payload);
-
-            if (empty($response['payment_link']['long_url'])) {
-                throw new Exception(__('Square checkout link not found.', 'kirki-ecommerce-square'));
-            }
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => $response['payment_link']['long_url'],
+                'value' => '',//$response['payment_link']['long_url'],
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Square Payment Error: %s', 'kirki-ecommerce-square'), $e->getMessage()));
+            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()));
         }
     }
 
@@ -126,9 +86,7 @@ class Square extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'location_id' => 'required|string',
-            'access_token' => 'required|string',
-            'signature_key' => 'required|string',
+            'secret_key' => 'required|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 
@@ -146,57 +104,35 @@ class Square extends PaymentProvider
         $parent_settings = parent::sanitize_settings($settings);
 
         $data = Sanitizer::make($settings, [
-            'location_id' => Sanitizer::TEXT,
-            'access_token' => Sanitizer::TEXT,
-            'signature_key' => Sanitizer::TEXT,
+            'secret_key' => Sanitizer::TEXT,
             'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
         return array_merge($parent_settings, $data);
     }
 
-    /**
-     * Handle a Square webhook notification.
-     *
-     * @return bool True if the notification was processed, false if ignored.
-     * @throws Exception If the payload is missing, invalid, or the API lookup fails.
-     */
     public function webhook()
     {
         $payload = $this->verify_and_parse_notification();
 
         $allowed_event_types = [
-            SquareConstant::EVENT_PAYMENT_UPDATE
+           
         ];
 
         if (!in_array($payload->type, $allowed_event_types, true)) {
             return false;
         }
 
-        $payment = $payload->data->object->payment ?? null;
-        if (empty($payment)) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
-        }
-        $reference_id = $payment->reference_id ?? null;
 
-        if (!$reference_id && !empty($payment->order_id)) {
-            $order_details = $this->get_client()->get_order($payment->order_id);
-            $reference_id = $order_details['order']['reference_id'] ?? null;
-        }
+        // $order = OrderManager::find_by_uuid($reference_id);
 
-        if (empty($reference_id)) {
-            throw new Exception(__('Square Error: Order UUID Not Found.', 'kirki-ecommerce-square'));
-        }
+        // if (!$order) {
+        //     throw new Exception(__('Square Error: Order Not Found.', 'kirki-ecommerce-square'));
+        // }
 
-        $order = OrderManager::find_by_uuid($reference_id);
-
-        if (!$order) {
-            throw new Exception(__('Square Error: Order Not Found.', 'kirki-ecommerce-square'));
-        }
-
-        if ($order->payment_status === PaymentStatus::PAID) {
-            return false;
-        }
+        // if ($order->payment_status === PaymentStatus::PAID) {
+        //     return false;
+        // }
 
         $this->handle_transaction_response($payment, $order);
         return true;
@@ -223,7 +159,7 @@ class Square extends PaymentProvider
             throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
         }
 
-        return $this->client = new SquareClient($location_id, $access_token, $signature_key, $sandbox);
+        return $this->client = new PaystackClient($location_id, $access_token, $signature_key, $sandbox);
     }
 
     /**

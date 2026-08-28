@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * Plugin Name:       Kirki PayStack
+ * Plugin URI:        https://kirki.com/
+ * Description:       PayStack payment gateway for Kirki ecommerce.
+ * Version:           1.0.0
+ * Author:            Kirki
+ * Author URI:        https://kirki.com/
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       kirki-ecommerce-paystack
+ * Requires Plugins:  kirki-ecommerce
+ */
+
+use Kirki\Ecommerce\App\Constants\HookNames;
+use Kirki\Ecommerce\Payments\Paystack;
+use Kirki\Ecommerce\Payments\Square;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+add_action('plugins_loaded', 'kirki_paystack_register_payment_provider');
+register_activation_hook(__FILE__, 'kirki_paystack_register_payment_provider');
+
+/**
+ * Register the PayStack payment provider with kirki-ecommerce.
+ *
+ * @return void
+ */
+function kirki_paystack_register_payment_provider()
+{
+    if (!class_exists(HookNames::class)) {
+        return;
+    }
+    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
+        $providers[Paystack::class] = new Paystack();
+
+        return $providers;
+    });
+}
