@@ -7,6 +7,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import OnlinePaymentPopup from '@/features/settings/payment/pages/online-payment-dialog';
@@ -15,7 +16,7 @@ import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/
 import { getOnlinePayment, useSetEnabledOnlinePaymentMutation } from '@/features/settings/payment/services/payment';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
@@ -108,7 +109,9 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
                     >
                       <Flex align="center">
                         <Flex gap={2} align="center">
-                          {item.icon && <img src={item.icon} alt="online-payment-icon" css={scoped(styles.icon)} />}
+                          {item.icon && (
+                            <Image src={item.icon} alt="online-payment-icon" height={20} fit="contain" cssOverride={styles.icon} />
+                          )}
                           <Text
                             weight="medium"
                             color={!item?.is_enabled ? 'disabled' : 'primary'}
@@ -177,8 +180,9 @@ const styles = defineStyles({
     paddingBlock: theme.spacing[9],
   },
   icon: {
-    height: 20,
     width: 'auto',
-    objectFit: 'contain',
+    border: 'none',
+    borderRadius: theme.radius.none,
+    backgroundColor: 'transparent',
   },
 });

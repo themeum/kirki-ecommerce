@@ -29,6 +29,8 @@ use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Exception;
@@ -138,6 +140,8 @@ class CreateOrderAction
 
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
+
+            OrderActivity::log($order->fresh('items'), OrderActivityType::ORDER_PLACED);
 
             DB::commit();
 
@@ -287,7 +291,7 @@ class CreateOrderAction
         return [
             'first_name' => !empty($wp_user->first_name) ? $wp_user->first_name : $dto->billing_first_name,
             'last_name' => !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name,
-            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email,
+            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->customer_email ?? $dto->billing_email,
             'phone' => !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone,
         ];
     }

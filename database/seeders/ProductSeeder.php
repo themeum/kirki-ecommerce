@@ -229,7 +229,6 @@ class ProductSeeder extends Seeder
             'track_inventory' => true,
             'available_quantity' => $faker->numberBetween(10, 100),
             'in_stock' => $available_quantity > 0,
-            'committed_quantity' => 0,
             'has_limit_per_order' => false,
             'max_per_order' => null,
             'is_visible' => true,

@@ -1,7 +1,14 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { Tag } from '@/features/tags/schemas/catalog/tag';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const styles = defineStyles({
+  descriptionCell: {
+    maxWidth: '240px',
+  },
+});
 
 const tagColumns: ColumnDef<Tag>[] = [
   {
@@ -14,7 +21,11 @@ const tagColumns: ColumnDef<Tag>[] = [
     id: 'description',
     header: __('Description', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original?.description || '--',
+    meta: { cssOverride: styles.descriptionCell },
+    cell: ({ row }) => {
+      const description = row.original?.description;
+      return <span title={description || undefined}>{description || '--'}</span>;
+    },
   },
   {
     id: 'slug',

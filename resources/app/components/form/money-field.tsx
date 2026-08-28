@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import Input from '@/components/ui/input';
+import NumberInput from '@/components/ui/number-input';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 
@@ -20,6 +20,7 @@ type MoneyFieldProps<
   showSymbolWhenEmpty?: boolean;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  autoFocus?: boolean;
 };
 
 const MoneyField = <
@@ -35,6 +36,7 @@ const MoneyField = <
   showSymbolWhenEmpty = true,
   disabled,
   cssOverride,
+  autoFocus = false,
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const fieldId = String(name);
@@ -75,12 +77,11 @@ const MoneyField = <
                   {currencySymbol}
                 </span>
               )}
-              <Input
+              <NumberInput
                 id={fieldId}
                 value={field.value ?? ''}
                 style={{ textIndent: showSymbol ? '12px' : undefined }}
                 placeholder={placeholder}
-                type="number"
                 disabled={disabled}
                 onChange={(event) => {
                   field.onChange(event.target.value);
@@ -91,6 +92,8 @@ const MoneyField = <
                 error={Boolean(fieldState.error)}
                 aria-invalid={fieldState.invalid}
                 onFocus={event => event.target.select()}
+                // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus
+                autoFocus={autoFocus}
               />
             </div>
             {description && <FieldDescription>{description}</FieldDescription>}

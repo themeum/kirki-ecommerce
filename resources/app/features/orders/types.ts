@@ -25,11 +25,7 @@ type OrderListFilter = {
 };
 
 const orderListFilterConfig: ListFilterConfig<OrderListFilter> = {
-  keys: [
-    'search',
-    'fulfillment_status',
-    'payment_status',
-  ],
+  keys: ['search', 'fulfillment_status', 'payment_status'],
   parsers: {
     search: { parse: parseString },
     fulfillment_status: { parse: parseString },
@@ -40,7 +36,7 @@ const orderListFilterConfig: ListFilterConfig<OrderListFilter> = {
 const orderListOptions: UseListParamsOptions<OrderListFilter> = {
   defaults: {
     search: '',
-    sort_by: 'created_at',
+    sort_by: 'id',
     sort_order: 'desc',
     page: 1,
     limit: 10,
@@ -71,4 +67,3 @@ const paymentStatusOptions: SuggestionOption[] = [
 export type { OrderListFilter };
 
 export { fulfillmentStatusOptions, orderListFilterConfig, orderListOptions, paymentStatusOptions };
-

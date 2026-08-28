@@ -38,6 +38,7 @@ class SettingsApiTest extends RestTestCase
                 'is_enabled_reviews' => true,
                 'is_enabled_star_ratings' => true,
                 'is_unit_price_visible' => false,
+                'low_stock_threshold' => 5,
             ],
         ]);
 

@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
@@ -41,7 +42,7 @@ class UpdateRefundAction
             // @todo should we update it this way or should we use repository?
             $refund->update($dto->to_array());
 
-            $this->sync_fulfillment_status($order, $dto->status);
+            $this->sync_fulfillment_status($order, $refund, $dto->status);
 
             DB::commit();
 
@@ -53,7 +54,7 @@ class UpdateRefundAction
     }
 
     // @todo: need to recheck the logic
-    protected function sync_fulfillment_status($order, $refund_status)
+    protected function sync_fulfillment_status($order, $refund, $refund_status)
     {
         if ($refund_status === RefundStatus::PENDING) {
             return;
@@ -73,6 +74,7 @@ class UpdateRefundAction
 
             if ($is_fully_refunded) {
                 $this->order_service->mark_refund_as_completed($order->id);
+                OrderActivity::refunded($order->fresh(), $refund);
             }
 
             if (!$is_fully_refunded && $total_refunded > 0 && $order->order_status !== OrderStatus::REFUNDED) {

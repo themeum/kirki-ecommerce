@@ -21,6 +21,7 @@ const OrderTable = () => {
     <DataTable
       data={data?.results ?? []}
       columns={orderColumns}
+      total={data?.total}
       pageCount={data?.last_page ?? 0}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

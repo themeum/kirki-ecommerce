@@ -1,8 +1,15 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
-import Thumbnail from '@/components/ui/thumbnail';
+import Image from '@/components/ui/image';
 import type { Category } from '@/features/categories/schemas/catalog/category';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const styles = defineStyles({
+  descriptionCell: {
+    maxWidth: '240px',
+  },
+});
 
 const categoryColumns: ColumnDef<Category>[] = [
   {
@@ -17,14 +24,18 @@ const categoryColumns: ColumnDef<Category>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const image = row.original?.image && typeof row.original.image === 'object' ? row.original.image : null;
-      return <Thumbnail src={image?.url} style={{ height: '48px', width: '48px' }} />;
+      return <Image src={image} width={48} height={48} />;
     },
   },
   {
     id: 'description',
     header: __('Description', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => row.original?.description || '--',
+    meta: { cssOverride: styles.descriptionCell },
+    cell: ({ row }) => {
+      const description = row.original?.description;
+      return <span title={description || undefined}>{description || '--'}</span>;
+    },
   },
   {
     id: 'slug',

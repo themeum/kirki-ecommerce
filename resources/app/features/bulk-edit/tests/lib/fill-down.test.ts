@@ -40,7 +40,7 @@ const buildVariant = (overrides: Partial<ProductVariant>): ProductVariant => ({
   available_quantity: 0,
   in_stock: true,
   committed_quantity: 0,
-  min_stock_threshold: null,
+  low_stock_threshold: null,
   has_limit_per_order: false,
   max_per_order: null,
   tax_profile_id: null,

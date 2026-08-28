@@ -30,7 +30,6 @@ class InventoryService
      * @param int $variant_id
      * @param int $quantity
      * @return bool
-     * @throws NotFoundException
      */
     public function has_stock(int $variant_id, int $quantity)
     {
@@ -49,6 +48,28 @@ class InventoryService
         }
 
         return $variant->available_quantity >= $quantity;
+    }
+
+    /**
+     * Check if within limit per order.
+     *
+     * @param int $variant_id
+     * @param int $quantity
+     * @return bool
+     */
+    public function is_within_limit(int $variant_id, int $quantity)
+    {
+        $variant = $this->variant_service->find_or_null($variant_id);
+
+        if (empty($variant)) {
+            return false;
+        }
+
+        if (!$variant->has_limit_per_order) {
+            return true;
+        }
+
+        return $variant->max_per_order >= $quantity;
     }
 
     /**

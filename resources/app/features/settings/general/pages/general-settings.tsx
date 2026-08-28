@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import Container from '@/components/ui/container';
@@ -45,17 +45,7 @@ const mapSettingsToFormValues = (
   });
 };
 
-const getStoreLogoUrl = (settings?: GeneralSettingsData | null) => {
-  if (!settings?.store_logo || typeof settings.store_logo !== 'object') {
-    return null;
-  }
-  return settings.store_logo.url || null;
-};
-
 const GeneralSettings = () => {
-  const [storeLogoUrl, setStoreLogoUrl] = useState<string | null>(null);
-  const savedLogoUrlRef = useRef<string | null>(null);
-
   const { data: generalSettingsData, isLoading } = useSettingsQuery('general');
   const { mutateAsync: saveSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'general'>();
@@ -73,10 +63,7 @@ const GeneralSettings = () => {
       return;
     }
 
-    const logoUrl = getStoreLogoUrl(generalSettingsData);
     form.reset(mapSettingsToFormValues(generalSettingsData));
-    setStoreLogoUrl(logoUrl);
-    savedLogoUrlRef.current = logoUrl;
   }, [generalSettingsData, form]);
 
   useEffect(() => {
@@ -90,7 +77,6 @@ const GeneralSettings = () => {
         data: payload,
       });
       form.reset(form.getValues());
-      savedLogoUrlRef.current = storeLogoUrl;
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
@@ -98,7 +84,6 @@ const GeneralSettings = () => {
 
   const handleDiscardData = () => {
     form.reset();
-    setStoreLogoUrl(savedLogoUrlRef.current);
   };
 
   useSettingsPageActions({
@@ -118,10 +103,7 @@ const GeneralSettings = () => {
               title={__('General', 'kirki-ecommerce')}
             />
 
-            <StoreContactDetails
-              storeLogoUrl={storeLogoUrl}
-              onStoreLogoPreviewChange={setStoreLogoUrl}
-            />
+            <StoreContactDetails />
             <StoreAddressDetails />
             <SellingLocation />
             <OrderId />

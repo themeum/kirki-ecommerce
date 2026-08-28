@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router';
 
 import ColorPickerField from '@/components/form/color-picker-field';
+import MediaField from '@/components/form/media-field';
 import ProgressBarField from '@/components/form/progress-bar-field';
 import TabsField from '@/components/form/tabs-field';
 import TextField from '@/components/form/text-field';
-import ThumbnailField from '@/components/form/thumbnail-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -12,7 +12,7 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useEditTemplate } from '@/features/settings/email/hooks/use-edit-template';
-import { positionToTabIndex, resolveLogoUrl, tabIndexToPosition } from '@/features/settings/email/lib/template';
+import { positionToTabIndex, tabIndexToPosition } from '@/features/settings/email/lib/template';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
@@ -47,14 +47,13 @@ const EditTemplate = () => {
                           Update the logo & style your way
                         </Text>
                       </Flex>
-                      <ThumbnailField
+                      <MediaField
                         name="logo"
                         placeholder={__(
                           'Drag and drop, or upload images',
                           'kirki-ecommerce',
                         )}
                         description={__('Set store logo', 'kirki-ecommerce')}
-                        getPreviewUrl={(value) => resolveLogoUrl(value)}
                       />
                       <TextField
                         name="height"

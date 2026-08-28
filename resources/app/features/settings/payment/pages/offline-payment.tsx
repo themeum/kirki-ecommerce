@@ -6,6 +6,7 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import OfflinePaymentPopup from '@/features/settings/payment/pages/offline-payment-dialog';
@@ -124,8 +125,8 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
                       <Flex align="center">
                         <Flex gap={2} align="center">
                           {getIconUrl(item?.icon) ? (
-                            <img
-                              src={getIconUrl(item.icon)!}
+                            <Image
+                              src={getIconUrl(item.icon)}
                               alt={__('Logo', 'kirki-ecommerce')}
                               height={20}
                               width={20}

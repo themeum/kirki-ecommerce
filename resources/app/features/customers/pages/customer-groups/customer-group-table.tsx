@@ -106,6 +106,7 @@ const CustomerGroupTable = () => (
   <DataTable
     data={mockCustomerGroups}
     columns={customerGroupColumns}
+    total={mockCustomerGroups.length}
     pageCount={1}
     pagination={{ pageIndex: 0, pageSize: mockCustomerGroups.length }}
     onPaginationChange={() => undefined}

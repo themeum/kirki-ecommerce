@@ -5,11 +5,12 @@ import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
 import { useState } from 'react';
 
-import MediaSelector from '@/components/media-selector';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
+import { useMediaLibrary } from '@/hooks';
 import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
@@ -143,7 +144,7 @@ const SortableItem = ({
           )}
         </div>
       )}
-      {url && <img src={url} alt={alt || ''} />}
+      {url && <Image src={url} alt={alt} width="100%" height="100%" cssOverride={styles.itemImage} />}
     </div>
   );
 };
@@ -165,6 +166,7 @@ const MediaGallery = ({
 }: MediaGalleryProps) => {
   const [expanded, setExpanded] = useState(false);
   const [selectedImages, setSelectedImages] = useState<number[]>([]);
+  const { open: openMediaLibrary } = useMediaLibrary({ multiple: true });
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -312,17 +314,27 @@ const MediaGallery = ({
                 onClick={() => setExpanded(true)}
               >
                 {fourthItem.url && (
-                  <img src={fourthItem.url} alt={fourthItem.alt || ''} />
+                  <Image src={fourthItem.url} alt={fourthItem.alt} width="100%" height="100%" cssOverride={styles.itemImage} />
                 )}
                 <div css={scoped(styles.remainingOverlayText)}>+{remainingCount}</div>
               </button>
             )}
 
-            <MediaSelector onSelect={handleOnAddNewImages} multiple={true}>
-              <div css={scopedMerge(styles.galleryItem, styles.addItem)}>
-                <PlusIcon height={24} width={24} />
-              </div>
-            </MediaSelector>
+            <div
+              role="button"
+              tabIndex={0}
+              css={scopedMerge(styles.galleryItem, styles.addItem)}
+              onClick={() => openMediaLibrary(handleOnAddNewImages)}
+              aria-label={__('Add images', 'kirki-ecommerce')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  openMediaLibrary(handleOnAddNewImages);
+                }
+              }}
+            >
+              <PlusIcon height={24} width={24} />
+            </div>
           </div>
         </SortableContext>
       </DndContext>
@@ -347,15 +359,13 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     border: `1px solid ${theme.colors.background.surface}`,
     userSelect: 'none',
-    img: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      display: 'block',
-    },
     '&:hover [data-gallery-overlay], &:hover [data-gallery-actions]': {
       opacity: 1,
     },
+  },
+  itemImage: {
+    border: 'none',
+    borderRadius: theme.radius.none,
   },
   galleryItemLarge: {
     gridColumn: 'span 2',
@@ -391,7 +401,7 @@ const styles = defineStyles({
     background: 'none',
     font: 'inherit',
     cursor: 'pointer',
-    img: {
+    '[data-slot="image"] img': {
       transform: 'scale(1.05)',
     },
   },
