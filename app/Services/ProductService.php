@@ -351,7 +351,8 @@ class ProductService
     protected function apply_filters(QueryBuilder $query, ProductListFilterDTO $filters)
     {
         $query->when($filters->search, function (QueryBuilder $query, $search) {
-            return $query->where_any(['title', 'description'], 'like', '%' . $search . '%');
+            $search = '%' . $search . '%';
+            return $query->where_like('title', $search)->or_where_like('description', $search);
         });
 
         $query->where_has('variants', function ($variant_query) use ($filters) {
@@ -422,6 +423,10 @@ class ProductService
 
             return $query->order_by('id', 'desc');
         });
+
+        error_log(
+            print_r($query->get_bindings(), true)
+        );
 
         return $query;
     }
