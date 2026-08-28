@@ -23,7 +23,7 @@ use Kirki\Ecommerce\Framework\Route;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\redirect;
-use function Kirki\Ecommerce\Framework\session;
+use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -55,7 +55,7 @@ class AccountController
     public function dashboard(Request $request, OrderService $order_service)
     {
         $customer = customer();
-        $user = wp_get_current_user();
+        $user = user();
         $order_data = $order_service->get_current_customer_orders(['limit' => 3]);
 
         $data = [
