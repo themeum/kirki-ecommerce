@@ -53,7 +53,7 @@ $email_verified = $user->email_verified();
 
                     <?php if (session()->has('errors')) : ?>
                         <div class="kecom-alert kecom-alert-error kecom-mb-10">
-                            <?php Icon::render('information', ['size' => 20]); ?>
+                            <?php Icon::render('information-fill', ['size' => 20]); ?>
                             <?php foreach (session('errors') as $error) : ?>
                                 <p><?php echo esc_html($error); ?></p>
                             <?php endforeach; ?>
@@ -62,14 +62,14 @@ $email_verified = $user->email_verified();
 
                     <?php if (session()->has('success')) : ?>
                         <div class="kecom-alert kecom-alert-success kecom-mb-10">
-                            <?php Icon::render('information', ['size' => 20]); ?>
+                            <?php Icon::render('information-fill', ['size' => 20]); ?>
                             <p><?php echo esc_html(session('success')); ?></p>
                         </div>
                     <?php endif; ?>
 
                     <?php if (!$email_verified) : ?>
                     <div class="kecom-alert kecom-alert-info kecom-mb-10" x-show="!verificationSent">
-                        <?php Icon::render('information', ['size' => 20]); ?>
+                        <?php Icon::render('information-fill', ['size' => 20]); ?>
                         <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
                         <button type="button" class="kecom-alert-action" @click="resendVerificationEmail()" :disabled="verificationLoading">
                             <span x-show="!verificationLoading"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></span>
