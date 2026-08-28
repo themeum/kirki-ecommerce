@@ -6,6 +6,7 @@
     "is_enabled_reviews": true,
     "is_enabled_star_ratings": true,
     "is_unit_price_visible": true,
+    "low_stock_threshold": 0,
     "barcode_generation": {
         "data_origin": "SKU",
         "format": "Code 128 (recommended for SKU/internal use)",

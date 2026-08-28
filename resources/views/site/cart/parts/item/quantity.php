@@ -11,8 +11,12 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
 
-$item           = $data['item'] ?? [];
-$max_quantity   = $data['max_quantity'] ?? 1;
+$item             = $data['item'] ?? [];
+$max_quantity     = $data['max_quantity'] ?? 1;
+$initial_quantity = (int) ($item['quantity'] ?? 1);
+
+// Determine if the increase button should be disabled on initial render (before Alpine boots).
+$at_max = $max_quantity !== 'undefined' && $initial_quantity >= (int) $max_quantity;
 ?>
 
 <div class="kecom-cart-item-quantity">

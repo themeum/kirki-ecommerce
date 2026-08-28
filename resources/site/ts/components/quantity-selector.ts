@@ -114,5 +114,12 @@ export function quantitySelector(config: QuantitySelectorConfig = {}) {
       config.onChange?.(this.quantity);
       (this as any).$dispatch('kecom:quantity:changed', { quantity: this.quantity });
     },
+
+    init() {
+      window.addEventListener('kecom:variant:changed', () => {
+        this.quantity = this.min;
+        this.notifyChange();
+      });
+    },
   };
 }

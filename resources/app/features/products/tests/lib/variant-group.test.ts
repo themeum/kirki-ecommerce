@@ -40,7 +40,7 @@ const buildVariant = (overrides: Partial<ProductVariant>): ProductVariant => ({
   available_quantity: 0,
   in_stock: true,
   committed_quantity: 0,
-  min_stock_threshold: null,
+  low_stock_threshold: null,
   has_limit_per_order: false,
   max_per_order: null,
   tax_profile_id: null,
@@ -69,52 +69,53 @@ describe('getGroupVariants', () => {
 });
 
 describe('getCombinedVariantData', () => {
-  it('reports one price when every variant in the group matches', () => {
+  it('reports the same min and max price when every variant matches', () => {
     const group = [
-      buildVariant({ base_price: 10, in_stock: true, available_quantity: 3, media: { id: 1, url: 'a.jpg' } }),
-      buildVariant({ base_price: 10, in_stock: true, available_quantity: 2 }),
+      buildVariant({ base_price: 10 }),
+      buildVariant({ base_price: 10 }),
     ];
 
-    expect(getCombinedVariantData(group)).toEqual({
-      base_price: 10,
-      in_stock: true,
-      available_quantity: 5,
-      // The first variant's media is seeded into the array before the loop,
-      // then the loop re-processes index 0 and appends it again before the
-      // length-2 cap is hit — so the second variant's media never makes it
-      // in. Pre-existing behavior, asserted as-is rather than fixed here.
-      media: [{ id: 1, url: 'a.jpg' }, { id: 1, url: 'a.jpg' }],
-    });
+    expect(getCombinedVariantData(group)).toMatchObject({ minPrice: 10, maxPrice: 10 });
   });
 
-  it('reports a price range when prices differ', () => {
+  it('reports min and max as numbers when prices differ', () => {
     const group = [
       buildVariant({ base_price: 10 }),
       buildVariant({ base_price: 25 }),
     ];
 
-    expect(getCombinedVariantData(group).base_price).toBe('10 - 25');
+    const result = getCombinedVariantData(group);
+
+    expect(result.minPrice).toBe(10);
+    expect(result.maxPrice).toBe(25);
   });
 
-  it('reports a mixed in-stock state as a single space, matching current behavior', () => {
+  it('returns no media when none of the variants have any', () => {
+    const group = [buildVariant({ media: null }), buildVariant({ media: null })];
+
+    expect(getCombinedVariantData(group).media).toEqual([]);
+  });
+
+  it('collapses repeated media from different variants into one entry', () => {
     const group = [
-      buildVariant({ in_stock: true }),
-      buildVariant({ in_stock: false }),
+      buildVariant({ media: { id: 1, url: 'a.jpg' } }),
+      buildVariant({ media: { id: 1, url: 'a.jpg' } }),
+      buildVariant({ media: { id: 1, url: 'a.jpg' } }),
     ];
 
-    expect(getCombinedVariantData(group).in_stock).toBe(' ');
+    expect(getCombinedVariantData(group).media).toEqual([{ id: 1, url: 'a.jpg' }]);
   });
 
-  it('caps the combined media at two entries, both being the first variant\'s media', () => {
+  it('keeps every distinct media, in first-seen order', () => {
     const group = [
       buildVariant({ media: { id: 1, url: 'a.jpg' } }),
       buildVariant({ media: { id: 2, url: 'b.jpg' } }),
-      buildVariant({ media: { id: 3, url: 'c.jpg' } }),
+      buildVariant({ media: { id: 1, url: 'a.jpg' } }),
     ];
 
     expect(getCombinedVariantData(group).media).toEqual([
       { id: 1, url: 'a.jpg' },
-      { id: 1, url: 'a.jpg' },
+      { id: 2, url: 'b.jpg' },
     ]);
   });
 });

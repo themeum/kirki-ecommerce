@@ -3,19 +3,19 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
+import MediaField from '@/components/form/media-field';
 import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
-import ThumbnailField from '@/components/form/thumbnail-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
+import Image from '@/components/ui/image';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import {
@@ -38,7 +38,6 @@ const CollectionDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = id === NEW_ITEM_ID;
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [collectionId, setCollectionId] = useState<number | undefined>();
 
   const { data: collectionResponse, isLoading } = useCollectionQuery(Number(id), !isNew);
@@ -57,19 +56,14 @@ const CollectionDetails = () => {
   const watchedDescription = form.watch('description');
   const watchedSeoTitle = form.watch('seo_title');
   const watchedSeoDescription = form.watch('seo_description');
+  const watchedBanner = form.watch('banner');
 
   useEffect(() => {
     if (!collectionResponse) {
       return;
     }
 
-    const banner =
-      collectionResponse.banner && typeof collectionResponse.banner === 'object'
-        ? collectionResponse.banner
-        : null;
-
     setCollectionId(collectionResponse.id);
-    setImageUrl(banner?.url ?? null);
     form.reset(pickFormValues(CollectionFormSchema, collectionResponse));
   }, [collectionResponse, form]);
 
@@ -151,12 +145,9 @@ const CollectionDetails = () => {
                     'kirki-ecommerce',
                   )}
                 />
-                <ThumbnailField
+                <MediaField
                   name="banner"
                   label={__('Banner', 'kirki-ecommerce')}
-                  valueAs="id"
-                  previewUrl={imageUrl}
-                  onPreviewChange={setImageUrl}
                 />
               </Flex>
             </CardContent>
@@ -193,13 +184,11 @@ const CollectionDetails = () => {
                         <Text weight="semibold" cssOverride={styles.seoTitle}>{watchedSeoTitle || watchedTitle || ''}</Text>
                         <Text variant="small" cssOverride={styles.seoDescription}>{watchedSeoDescription || watchedDescription || ''}</Text>
                       </Flex>
-                      <Thumbnail
-                        src={imageUrl ?? undefined}
-                        style={{
-                          height: '92px',
-                          width: '92px',
-                          flexShrink: 0,
-                        }}
+                      <Image
+                        src={typeof watchedBanner === 'number' ? null : watchedBanner}
+                        width={92}
+                        height={92}
+                        cssOverride={{ flexShrink: 0 }}
                       />
                     </Flex>
                   </CardContent>

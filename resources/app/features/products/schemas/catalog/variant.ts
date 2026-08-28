@@ -35,7 +35,7 @@ export const VariantSchema = z.object({
   available_quantity: z.number(),
   in_stock: z.boolean(),
   committed_quantity: z.number(),
-  min_stock_threshold: z.number().nullish(),
+  low_stock_threshold: z.number().nullish(),
   has_limit_per_order: z.boolean(),
   max_per_order: z.number().nullable(),
   tax_profile_id: z.number().nullable(),

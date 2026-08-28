@@ -60,10 +60,12 @@ type WpMediaSelection = {
 
 type WpMediaFrame = {
   on: (event: string, callback: () => void) => void;
+  off: (event: string) => void;
   state: () => {
     get: (key: string) => WpMediaSelection;
   };
   open: () => void;
+  modal?: { el?: HTMLElement };
 };
 
 type WpMediaFactory = (options: {
@@ -85,6 +87,8 @@ type WpGlobal = {
 };
 
 declare global {
+  type AcceptedMediaTypes = 'image' | 'video' | 'audio' | 'application/pdf' | 'application/zip';
+
   interface Window {
     kirki_ecommerce: KirkiEcommerceConfig;
     wp?: WpGlobal;

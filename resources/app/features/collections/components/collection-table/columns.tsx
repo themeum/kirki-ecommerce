@@ -2,8 +2,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import type { Collection } from '@/features/collections/schemas/catalog/collection';
 import { DATE_FORMATS } from '@/libs/date';
 import { isDefined } from '@/utils/object';
@@ -18,7 +18,7 @@ const collectionColumns: ColumnDef<Collection>[] = [
       const banner = row.original?.banner && typeof row.original.banner === 'object' ? row.original.banner : null;
       return (
         <Flex gap={2} align="center">
-          <Thumbnail size="small" src={banner?.url} />
+          <Image size="sm" src={banner} />
           <Text variant="small">{row.original?.title || '--'}</Text>
         </Flex>
       );

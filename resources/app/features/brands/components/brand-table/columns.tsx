@@ -1,6 +1,6 @@
 import type { ColumnDef } from '@tanstack/react-table';
 
-import Thumbnail from '@/components/ui/thumbnail';
+import Image from '@/components/ui/image';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
 import { __ } from '@/wpi18n';
 
@@ -17,7 +17,7 @@ const brandColumns: ColumnDef<Brand>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const logo = row.original?.logo && typeof row.original.logo === 'object' ? row.original.logo : null;
-      return <Thumbnail src={logo?.url} style={{ height: '48px', width: '48px' }} />;
+      return <Image src={logo} width={48} height={48} />;
     },
   },
   {

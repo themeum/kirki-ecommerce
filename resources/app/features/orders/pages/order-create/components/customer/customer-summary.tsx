@@ -1,6 +1,6 @@
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import Thumbnail from '@/components/ui/thumbnail';
 import type { AddressLines } from '@/features/orders/lib/customer-address';
 import { LocationIcon, PhoneIcon, TruckIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
@@ -37,7 +37,7 @@ const CustomerSummary = ({
     <Flex direction="column" gap={4}>
       <Flex gap={2} align="center">
         {photo?.url ? (
-          <Thumbnail type="circle" src={photo.url} alt={name} />
+          <Image shape="circle" src={photo} alt={name} />
         ) : (
           <div css={scoped(styles.initialsAvatar)}>{getInitials(name)}</div>
         )}

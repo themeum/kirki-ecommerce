@@ -5,19 +5,11 @@
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
-  "prettier.useTabs": false,
-  "prettier.tabWidth": 2,
-  "prettier.singleQuote": true,
-  "prettier.trailingComma": "all",
-  "prettier.semi": true,
-  "prettier.printWidth": 100,
-  "prettier.bracketSpacing": true,
-  "prettier.arrowParens": "always",
   "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -33,6 +25,9 @@
     "source.fixAll": "always",
     "source.fixAll.eslint": "always"
   },
+  "eslint.workingDirectories": [
+    { "mode": "auto" }
+  ],
   "[php]": {
     "editor.tabSize": 4,
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",

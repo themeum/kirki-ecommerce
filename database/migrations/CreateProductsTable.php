@@ -14,7 +14,7 @@ class CreateProductsTable implements Migration
             $table->id();
             $table->string('title', 500);
             $table->string('slug', 500)->unique();
-            $table->string('status', 50)->default('draft')->comment('Available statuses are: draft, published, unpublished, archived');
+            $table->string('status', 50)->default('draft')->comment('Available statuses are: draft, published, trashed');
 
             $table->string('ribbon', 100)->nullable();
 

@@ -1,8 +1,14 @@
 import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { css } from '@emotion/react';
+import { DragHandleDots2Icon } from '@radix-ui/react-icons';
+import { Edit, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -21,7 +27,7 @@ import {
 } from '@/features/products/components/product-form/sections/variants/use-variant-matrix';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { DragIcon, EditIcon, PlusIcon, TrashIcon } from '@/icons';
+import { PlusIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
@@ -35,14 +41,6 @@ type SortableCardProps = {
   handleAttributeRemove: (id: number) => void;
 };
 
-const hoverVisibleCss = css({
-  visibility: 'hidden',
-});
-
-const hoverVisibleActiveCss = css({
-  visibility: 'visible',
-});
-
 const SortableCard = ({
   item,
   editingId,
@@ -51,9 +49,10 @@ const SortableCard = ({
   handleAttributeRemove,
 }: SortableCardProps) => {
   const isEditing = editingId !== null;
-  const [isHovered, setIsHovered] = useState(false);
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: item.id, disabled: isEditing });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: item.id,
+    disabled: isEditing,
+  });
 
   const style = defineStyles({
     transform: CSS.Transform.toString(transform),
@@ -62,60 +61,50 @@ const SortableCard = ({
 
   return (
     <div ref={setNodeRef} style={style}>
-      <Card
-        cssOverride={cardStyles.innerCard}
-        key={item.id}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.card)} key={item.id}>
         <CardContent cssOverride={styles.innerContent}>
-        {editingId !== item.id ? (
-          <Flex gap={3}>
-            <span
-              {...(!isEditing ? attributes : {})}
-              {...(!isEditing ? listeners : {})}
-              role="button"
-              css={scopedMerge(styles.svgClass, styles.dragHandler)}
-              style={{
-                opacity: isEditing ? 0.5 : 1,
-              }}
-            >
-              <DragIcon />
-            </span>
-            <Flex direction="column" gap={2}>
-              <Text weight="medium">{item?.name}</Text>
-              <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
-                {(item?.values ?? []).map((variant, index) => (
-                  <Chip
-                    gap={2}
-                    key={index}
-                    text={variant?.value}
-                    color={variant?.color ?? undefined}
-                  />
-                ))}
+          {editingId !== item.id ? (
+            <Flex gap={3} align="center">
+              <span
+                {...(!isEditing ? attributes : {})}
+                {...(!isEditing ? listeners : {})}
+                role="button"
+                css={scopedMerge(styles.svgClass, styles.dragHandler, {
+                  opacity: isEditing ? 0.5 : 1,
+                })}
+              >
+                <DragHandleDots2Icon />
+              </span>
+              <Flex direction="column" gap={2}>
+                <Text weight="medium">{item?.name}</Text>
+                <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
+                  {(item?.values ?? []).map((variant, index) => (
+                    <Chip
+                      gap={2}
+                      key={index}
+                      text={variant?.value}
+                      color={variant?.color ?? undefined}
+                    />
+                  ))}
+                </Flex>
               </Flex>
-            </Flex>
 
-            <ActionGroup
-              cssOverride={mergeCss(hoverVisibleCss, isHovered && hoverVisibleActiveCss)}
-            >
-              <Button
-                variant="secondary"
-                onClick={() => handleAttributeEdit(item)}
-              >
-                <EditIcon />
-              </Button>
-              <Button
-                variant="secondary"
-                onClick={() => handleAttributeRemove(item.id)}
-              >
-                <TrashIcon />
-              </Button>
-            </ActionGroup>
-          </Flex>
-        ) : (
-          <AddOrEditAttribute data={item} onClose={onClose} />
-        )}
+              <ActionGroup>
+                <Button variant="secondary" size="icon" onClick={() => handleAttributeEdit(item)}>
+                  <Edit />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => handleAttributeRemove(item.id)}
+                >
+                  <Trash2 />
+                </Button>
+              </ActionGroup>
+            </Flex>
+          ) : (
+            <AddOrEditAttribute data={item} onClose={onClose} />
+          )}
         </CardContent>
       </Card>
     </div>
@@ -133,11 +122,8 @@ const AttributeList = () => {
   );
   const [attributeValues, setAttributeValues] = useState<Attribute[]>([]);
   const [editingId, setEditingId] = useState<number | string | null>(null);
-  const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(
-    null,
-  );
-  const { removeAttribute, reorderAttributes, describeDiscarded } =
-    useVariantMatrix();
+  const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(null);
+  const { removeAttribute, reorderAttributes, describeDiscarded } = useVariantMatrix();
 
   useEffect(() => {
     setAttributeValues(formAttributes);
@@ -167,12 +153,8 @@ const AttributeList = () => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = attributeValues?.findIndex(
-        (item) => item.id === active.id,
-      );
-      const newIndex = attributeValues?.findIndex(
-        (item) => item.id === over?.id,
-      );
+      const oldIndex = attributeValues?.findIndex((item) => item.id === active.id);
+      const newIndex = attributeValues?.findIndex((item) => item.id === over?.id);
 
       const reordered = arrayMove(attributeValues, oldIndex, newIndex);
       setAttributeValues(reordered);
@@ -221,9 +203,7 @@ const AttributeList = () => {
           </Button>
         )}
       </Flex>
-      {editingId === 'new' && (
-        <AddOrEditAttribute onClose={onClose} />
-      )}
+      {editingId === 'new' && <AddOrEditAttribute onClose={onClose} />}
       {!!pendingRemoval && (
         <ConfirmationDialog
           variant="delete"
@@ -259,6 +239,16 @@ const styles = defineStyles({
     cursor: 'grab',
     '&:active': {
       cursor: 'grabbing',
+    },
+  },
+  card: {
+    '& [data-action-group]': {
+      visibility: 'hidden',
+    },
+    '&:hover': {
+      '& [data-action-group]': {
+        visibility: 'visible',
+      },
     },
   },
 });

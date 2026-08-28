@@ -31,5 +31,5 @@ class ProductListFilterDTO extends ListFilterDTO
     public $attribute_value_ids;
 
     /** @var string|null */
-    public $inventory_type = 'all';
+    public $availability_status = 'all';
 }
