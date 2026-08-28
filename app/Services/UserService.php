@@ -106,8 +106,6 @@ class UserService
             return false;
         }
 
-        $verified = $user->verify_email_by_token($token);
-
-        return $verified;
+        return $user->verify_email_by_token($token);
     }
 }

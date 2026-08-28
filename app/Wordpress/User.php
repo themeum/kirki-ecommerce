@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Wordpress;
 
+use Kirki\Ecommerce\App\Constants\HookNames;
 use Kirki\Ecommerce\App\Constants\UserRoles;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
@@ -113,7 +114,7 @@ class User extends FrameworkUser
         $updated = update_user_meta($this->get_id(), static::META_EMAIL_VERIFIED, 1);
 
         if ($updated) {
-            do_action('kecom_user_email_verified', $this);
+            do_action(HookNames::USER_EMAIL_VERIFIED, $this);
         }
 
         return $updated;
