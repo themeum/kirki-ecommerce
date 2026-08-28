@@ -424,10 +424,6 @@ class ProductService
             return $query->order_by('id', 'desc');
         });
 
-        error_log(
-            print_r($query->get_bindings(), true)
-        );
-
         return $query;
     }
 
