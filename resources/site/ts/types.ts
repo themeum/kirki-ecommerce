@@ -54,6 +54,7 @@ declare global {
         __: (text: string, domain?: string) => string;
         _n: (single: string, plural: string, number: number, domain?: string) => string;
         _x: (text: string, context: string, domain?: string) => string;
+        sprintf: (format: string, ...args: any[]) => string;
       };
     };
     Alpine: any;

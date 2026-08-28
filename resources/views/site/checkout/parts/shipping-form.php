@@ -136,7 +136,7 @@ $shipping_phone = $shipping_address["phone"] ?? '';
                 type="tel"
                 id="shipping-phone"
                 name="phone"
-                x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
+                x-bind="register('phone')">
             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
         </div>
         <div class="kecom-field">
