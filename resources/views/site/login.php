@@ -33,18 +33,20 @@ use function Kirki\Ecommerce\Framework\session;
                 </div>
             <?php endif; ?>
             <?php if (session()->has('errors')) : ?>
-                <div class="kecom-alert kecom-alert-error">
-                    <?php Icon::render('information'); ?>
-                    <?php foreach (session('errors') as $error) : ?>
-                        <?php echo esc_html($error); ?>
-                    <?php endforeach; ?>
+                <div class="kecom-alert kecom-alert-error kecom-mt-6">
+                    <?php Icon::render('information', ['size' => 20]); ?>
+                    <p>
+                        <?php foreach (session('errors') as $error) : ?>
+                            <?php echo esc_html($error); ?>
+                        <?php endforeach; ?>
+                    </p>
                 </div>
             <?php endif; ?>
 
             <?php if (session()->has('success')) : ?>
-                <div class="kecom-alert kecom-alert-success">
-                    <?php Icon::render('information'); ?>
-                    <?php echo esc_html(session('success')); ?>
+                <div class="kecom-alert kecom-alert-success kecom-mt-6">
+                    <?php Icon::render('confirmation', ['size' => 20]); ?>
+                    <p><?php echo esc_html(session('success')); ?></p>
                 </div>
             <?php endif; ?>
         </div>

@@ -67,13 +67,11 @@ $email_verified = $current_user->email_verified();
                     <?php if (!$email_verified) : ?>
                     <div class="kecom-alert kecom-alert-info kecom-mb-10" x-show="!verificationSent">
                         <?php Icon::render('information', ['size' => 20]); ?>
-                        <div class="kecom-flex kecom-justify-between kecom-flex-grow-1">
-                            <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
-                            <button type="button" class="kecom-btn kecom-btn-sm kecom-btn-link" @click="resendVerificationEmail()" :disabled="verificationLoading">
-                                <span x-show="!verificationLoading"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></span>
-                                <span x-show="verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
-                            </button>
-                        </div>
+                        <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
+                        <button type="button" class="kecom-alert-action" @click="resendVerificationEmail()" :disabled="verificationLoading">
+                            <span x-show="!verificationLoading"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></span>
+                            <span x-show="verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
+                        </button>
                     </div>
                     <!-- success -->
                     <div class="kecom-alert kecom-alert-success kecom-mb-10" x-show="verificationSent" x-cloak>
