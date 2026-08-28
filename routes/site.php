@@ -76,7 +76,10 @@ Route::group(['middleware' => SiteAuthMiddleware::class], function () {
         $account_pages = Utils::get_account_route_config();
         foreach ($account_pages as $key => $page) {
             if (isset($page['callback']) && is_array($page['callback'])) {
-                Route::get($page['route_path'], $page['callback'])->name($page['route_name']);
+                $route = Route::get($page['route_path'], $page['callback'])->name($page['route_name']);
+                if (isset($page['hook'])) {
+                    $route->hook($page['hook'], $page['priority'] ?? 10);
+                }
             }
         }
     });
