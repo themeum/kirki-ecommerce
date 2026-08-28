@@ -1,0 +1,128 @@
+info:
+  name: PayStack
+  type: http
+  seq: 5
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/paystack"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/paystack"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "paystack",
+              "name": "PayStack",
+              "icon": "paystack",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "PayStack payment gateway",
+              "settings": {
+                "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "secret_key",
+                  "label": "Secret key",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/paystack",
+              "webhook_events": [
+                "checkout.session.completed",
+                "checkout.session.async_payment_succeeded",
+                "checkout.session.async_payment_failed",
+                "charge.refunded",
+                "charge.dispute.created",
+                "charge.dispute.closed",
+                "charge.succeeded"
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/paystack"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+              "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.
