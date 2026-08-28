@@ -186,7 +186,7 @@ foreach ($media as $media_item) {
                             class="kecom-quantity-btn"
                             type="button"
                             aria-label="Decrease"
-                            :disabled="!selectedVariant?.available"
+                            :disabled="!selectedVariant?.available || isMin"
                             @click="decrement"
                         >
                             <?php Icon::render('minus'); ?>
@@ -196,7 +196,7 @@ foreach ($media as $media_item) {
                             class="kecom-quantity-input"
                             type="number"
                             :value="quantity"
-                            @input="setValue($el.value)"
+                            @change="handleBlur($el)"
                             min="1"
                             <?php if ($track_inventory) : ?>
                                 :max="selectedVariant?.stock ?? <?php echo esc_js($quantity); ?>"
@@ -210,7 +210,7 @@ foreach ($media as $media_item) {
                             class="kecom-quantity-btn"
                             type="button"
                             aria-label="Increase"
-                            :disabled="!selectedVariant?.available"
+                            :disabled="!selectedVariant?.available || isMax"
                             @click="increment"
                         >
                             <?php Icon::render('plus'); ?>
