@@ -4,10 +4,11 @@ namespace Kirki\Ecommerce\App\Wordpress;
 
 use Kirki\Ecommerce\App\Constants\HookNames;
 use Kirki\Ecommerce\App\Constants\UserRoles;
+use Kirki\Ecommerce\App\Services\EmailService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
-use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\app;
 
 class User extends FrameworkUser
 {
@@ -246,6 +247,27 @@ class User extends FrameworkUser
     }
 
     /**
+     * Generate and store a new verification token for the user.
+     *
+     * @since 1.0.0
+     *
+     * @param int|null $expires_in Expiration time in seconds (defaults to 24 hours).
+     *
+     * @return string The generated token.
+     */
+    public function generate_verification_token(?int $expires_in = null): string
+    {
+        $token = wp_generate_password(32, false);
+        $expires_in = $expires_in ?? DAY_IN_SECONDS;
+
+        $this->set_email_verification_token($token);
+        $this->set_email_verification_sent_at(time());
+        $this->set_email_verification_expires_at(time() + $expires_in);
+
+        return $token;
+    }
+
+    /**
      * Resend verification email to the user.
      *
      * @since 1.0.0
@@ -254,34 +276,14 @@ class User extends FrameworkUser
      */
     public function resend_verification_email()
     {
-        $token = wp_generate_password(32, false);
-
-        $this->set_email_verification_token($token);
-        $this->set_email_verification_sent_at(time());
-        $this->set_email_verification_expires_at(time() + DAY_IN_SECONDS);
+        $token = $this->generate_verification_token();
 
         $verify_url = Url::add_query_params(Url::get_account_url('action'), [
             'action' => 'email_verify',
-            'token' => $token,
+            'token'  => $token,
         ]);
 
-        $to = $this->get_email();
-        $site_name = get_bloginfo('name');
-        $user_name = $this->get_display_name() ?: $this->get_first_name() ?: __('Customer', 'kirki-ecommerce');
-
-        $subject = sprintf(__('[%s] Please verify your email address', 'kirki-ecommerce'), $site_name);
-
-        ob_start();
-        include_view('emails.email-verification', [
-            'user_name' => $user_name,
-            'verify_url' => $verify_url,
-            'site_name' => $site_name
-        ]);
-        $message = ob_get_clean();
-
-        $headers = ['Content-Type: text/html; charset=UTF-8'];
-
-        return (bool) wp_mail($to, $subject, $message, $headers);
+        return app(EmailService::class)->send_verification_email($this, $verify_url);
     }
 
     /**
