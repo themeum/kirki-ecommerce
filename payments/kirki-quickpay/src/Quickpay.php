@@ -105,8 +105,8 @@ class Quickpay extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'api_key' => 'sometimes|string',
-            'private_key' => 'sometimes|string',
+            'api_key' => 'required|string',
+            'private_key' => 'required|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 
