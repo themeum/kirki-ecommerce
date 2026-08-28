@@ -7,6 +7,7 @@ import {
   fillRange,
   isCellFilled,
   isCellSelected,
+  isFocusCell,
   isHandleRow,
   selectionRange,
   startFill,
@@ -177,5 +178,52 @@ describe('isCellSelected', () => {
     const state = extendSelection(startSelection(null, 'base_price', 1, true), 'base_price', 3, true);
 
     expect(isCellSelected(state, 'base_sale_price', 2)).toBe(false);
+  });
+});
+
+describe('isFocusCell', () => {
+  it('is true for the sole cell on a plain click', () => {
+    const state = startSelection(null, 'base_price', 3, true);
+
+    expect(isFocusCell(state, 'base_price', 3)).toBe(true);
+  });
+
+  it('follows the drag/shift-click endpoint, not the anchor', () => {
+    const state = extendSelection(startSelection(null, 'base_price', 2, true), 'base_price', 5, true);
+
+    expect(isFocusCell(state, 'base_price', 5)).toBe(true);
+    expect(isFocusCell(state, 'base_price', 2)).toBe(false);
+  });
+
+  it('is true only for the just-toggled-on row in a Cmd/Ctrl selection', () => {
+    const rowTwo = startSelection(null, 'base_price', 2, true);
+    const rowFive = toggleSelection(rowTwo, 'base_price', 5, true);
+    const rowNine = toggleSelection(rowFive, 'base_price', 9, true);
+
+    expect(isFocusCell(rowNine, 'base_price', 9)).toBe(true);
+    expect(isFocusCell(rowNine, 'base_price', 5)).toBe(false);
+    expect(isFocusCell(rowNine, 'base_price', 2)).toBe(false);
+  });
+
+  it('is false for every cell while a fill drag is in progress', () => {
+    const selected = extendSelection(startSelection(null, 'base_price', 1, true), 'base_price', 3, true);
+    const filling = updateFill(startFill(selected), 7);
+
+    expect(isFocusCell(filling, 'base_price', 3)).toBe(false);
+    expect(isFocusCell(filling, 'base_price', 7)).toBe(false);
+  });
+
+  it('moves to the end of the merged range once a fill commits', () => {
+    const selected = extendSelection(startSelection(null, 'base_price', 1, true), 'base_price', 3, true);
+    const committed = commitFill(updateFill(startFill(selected), 7));
+
+    expect(isFocusCell(committed, 'base_price', 7)).toBe(true);
+    expect(isFocusCell(committed, 'base_price', 1)).toBe(false);
+  });
+
+  it('is false for a different column', () => {
+    const state = startSelection(null, 'base_price', 3, true);
+
+    expect(isFocusCell(state, 'base_sale_price', 3)).toBe(false);
   });
 });

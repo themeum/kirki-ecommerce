@@ -257,7 +257,6 @@ const BulkEditPage = () => {
               />
               <Button
                 variant="primary"
-                size="sm"
                 onClick={handleSave}
                 loading={isPending}
                 disabled={!isDirty}

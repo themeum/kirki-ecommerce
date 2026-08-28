@@ -24,6 +24,7 @@ import {
   useIsActiveCell,
   useIsCellFilled,
   useIsCellSelected,
+  useIsFocusCell,
   useIsHandleCell,
 } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useGateOpen } from '@/features/bulk-edit/hooks/use-gate-open';
@@ -114,6 +115,7 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
   const isFilled = useIsCellFilled(field, rowIndex);
   const isHandle = useIsHandleCell(field, rowIndex);
   const isActive = useIsActiveCell(field, rowIndex);
+  const isFocusCell = useIsFocusCell(field, rowIndex);
 
   const pinnedCss = getPinnedCss(column as unknown as Column<DataTableItem, unknown>, false);
   const pinStyle = getPinningStyle(column as unknown as Column<DataTableItem, unknown>);
@@ -182,6 +184,7 @@ const BulkEditCell = (context: CellContext<ProductVariant, unknown>) => {
       data-bulk-field={selectable ? field : undefined}
       data-bulk-editable-kind={selectable ? editableKindOf(cellKind) : undefined}
       data-bulk-cell={isFilled ? 'fill' : isSelected ? 'selected' : undefined}
+      data-bulk-focus={isFocusCell ? 'true' : undefined}
       data-cell-kind={cellKind}
       onMouseDown={
         selectable
@@ -240,10 +243,8 @@ const styles = defineStyles({
     verticalAlign: 'middle',
     overflow: 'visible',
     borderRight: `1px solid ${theme.colors.border.default}`,
-    transition: 'background-color 0.3s ease-in-out, outline 0.3s ease-in-out',
-    '&:focus-visible': {
-      outline: '0px solid transparent',
-    },
+    transition: 'background-color 0.3s ease-in-out',
+    outline: 'none',
     // `outline` (the layout-inert alternative to `border` used elsewhere in
     // this file) turns out to have its own table-specific quirk: on a `<td>`
     // that sits underneath the pinned Variants column after a horizontal
@@ -253,13 +254,16 @@ const styles = defineStyles({
     // the same way, but participates in normal per-cell paint order (matching
     // `.cell`'s own bottom border above), so it is correctly hidden behind
     // the pinned column instead of bleeding through it.
-    '&[data-bulk-cell="selected"]': {
-      boxShadow: `inset 0 0 0 2px ${theme.colors.background.fillBrand}`,
-      backgroundColor: `rgba(22, 123, 255, 0.15)`,
-    },
-    '&[data-bulk-cell="fill"]': {
-      boxShadow: `inset 0 0 0 2px ${theme.colors.background.fillBrand}`,
+    '&[data-bulk-cell="selected"], &[data-bulk-cell="fill"]': {
       backgroundColor: theme.colors.background.fillSecondary,
+    },
+    // Only one cell in a selection — the live end of the current gesture
+    // (`focusRow`, see `isFocusCell` in lib/selection.ts) — carries the
+    // border. Every other selected/filled cell gets the background above
+    // only, so a multi-cell selection reads as one highlighted range with a
+    // single emphasized "active" corner, not a wall of blue outlines.
+    '&[data-bulk-focus="true"]': {
+      boxShadow: `inset 0 0 0 2px ${theme.colors.background.fillBrand}`,
     },
 
     '&:has(input[readonly])': {
@@ -270,6 +274,7 @@ const styles = defineStyles({
     '&[data-cell-kind="variant"]': {
       paddingLeft: theme.spacing[3],
       zIndex: 3,
+      cursor: 'not-allowed',
     },
   },
   /**

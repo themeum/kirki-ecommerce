@@ -204,6 +204,23 @@ const isCellFilled = (state: SelectionState, field: string, row: number): boolea
   return fillRange(state).includes(row);
 };
 
+/**
+ * The single cell that should carry the box-shadow border, as opposed to the
+ * background-only look every other selected/filled cell gets. `focusRow` is
+ * the live end of the current gesture, so this is the sole selected cell on
+ * a plain click, the drag/shift-click endpoint as it moves, and the
+ * just-toggled-on row for a Cmd/Ctrl-click (`toggleSelection` always sets
+ * `anchorRow = focusRow = row` for a newly added row). Never true in `fill`
+ * mode — the whole fill-preview range is background-only until it commits
+ * back into a `select`-mode range.
+ */
+const isFocusCell = (state: SelectionState, field: string, row: number): boolean => {
+  if (state?.field !== field || state.mode !== 'select') {
+    return false;
+  }
+  return row === state.focusRow;
+};
+
 const isHandleRow = (state: SelectionState, field: string, row: number): boolean => {
   if (state?.field !== field) {
     return false;
@@ -221,6 +238,7 @@ export {
   fillRange,
   isCellFilled,
   isCellSelected,
+  isFocusCell,
   isHandleRow,
   selectionRange,
   startFill,

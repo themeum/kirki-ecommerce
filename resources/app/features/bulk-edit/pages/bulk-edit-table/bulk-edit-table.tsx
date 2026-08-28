@@ -195,7 +195,7 @@ const styles = defineStyles({
     // (real scrollable content) rather than the scroll container, since
     // container-level padding on the horizontal scroll-end side is not
     // reliably included in what a browser lets you scroll to reveal.
-    paddingRight: theme.spacing[3],
+    paddingRight: theme.spacing[8],
     // `Table`'s own base style sets `& th, & td { padding: theme.spacing[3] }`
     // scoped to this same generated class — a per-cell cssOverride on
     // BulkEditCell can't out-specificity that, so the tight cell padding has

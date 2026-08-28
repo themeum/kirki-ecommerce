@@ -18,6 +18,7 @@ import {
   fillRange,
   isCellFilled,
   isCellSelected,
+  isFocusCell,
   isHandleRow,
   selectionRange,
   type SelectionState,
@@ -443,6 +444,11 @@ const useIsHandleCell = (field: string, row: number): boolean => {
   return useSyncExternalStore(store.subscribe, () => isHandleRow(store.getState().selection, field, row));
 };
 
+const useIsFocusCell = (field: string, row: number): boolean => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => isFocusCell(store.getState().selection, field, row));
+};
+
 const useIsActiveCell = (field: string, row: number): boolean => {
   const store = useCellSelectionStore();
   return useSyncExternalStore(store.subscribe, () => {
@@ -451,5 +457,5 @@ const useIsActiveCell = (field: string, row: number): boolean => {
   });
 };
 
-export { CellSelectionProvider, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsHandleCell };
+export { CellSelectionProvider, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsFocusCell, useIsHandleCell };
 export type { FillCommitPayload };
