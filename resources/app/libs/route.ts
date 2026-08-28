@@ -1,6 +1,5 @@
 import { sprintf } from '@/wpi18n';
 
- 
 const replaceParams = (template: string, params: Record<string, unknown> = {}) => {
   return Object.keys(params).reduce(
     (acc, key) => acc.replace(`:${key}`, String(params[key])),
@@ -12,19 +11,19 @@ const joinRoute = (primaryRoute: string, ...routes: string[]) =>
   sprintf('%s/%s', primaryRoute, routes.map((route) => route.replace(/\/$/, '')).join('/'));
 
 // Based on https://davidtimms.github.io/programming-languages/typescript/2020/11/20/exploring-template-literal-types-in-typescript-4.1.html
-type PathParams<Path extends string> = Path extends `:${infer Param}/${infer Rest}`
+export type PathParams<Path extends string> = Path extends `:${infer Param}/${infer Rest}`
   ? Param | PathParams<Rest>
   : Path extends `:${infer Param}`
-  ? Param
-  : Path extends `${infer _Prefix}:${infer Rest}`
-  ? PathParams<`:${Rest}`>
-  : never;
+    ? Param
+    : Path extends `${infer _Prefix}:${infer Rest}`
+      ? PathParams<`:${Rest}`>
+      : never;
 
-type PathArgs<Path extends string> = Record<PathParams<Path>, string | number>;
+export type PathArgs<Path extends string> = Record<PathParams<Path>, string | number>;
 
 export type RouteChildren = {
   [key: string]: RouteDefinition<string, RouteChildren>;
-}
+};
 
 type ChildRoutes<ParentTemplate extends string, Children extends RouteChildren> = {
   [Key in keyof Children]: Children[Key] extends RouteDefinition<infer T, infer C>
@@ -41,7 +40,7 @@ export type RouteDefinition<T extends string, C extends RouteChildren = RouteChi
   ) => string;
   children: C;
   get: <Key extends keyof C>(name: Key) => C[Key];
-}
+};
 
 const createRoute = <P extends string>(template: P) => {
   type Params = PathParams<P>;

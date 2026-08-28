@@ -99,17 +99,15 @@ const tabOptions = [
     icon: <CheckSquare size={16} />,
     fields: CONDITIONS_TAB_FIELDS,
     hasTabError: (errors: FieldErrors<CouponFormInput>) =>
-      CONDITIONS_TAB_FIELDS.some((field) => Boolean(errors[field]))
-    ,
+      CONDITIONS_TAB_FIELDS.some((field) => Boolean(errors[field])),
   },
 ] as const;
-
 
 const EditCoupon = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isNew = id === NEW_ITEM_ID;
-  const [activeTab, setActiveTab] = useState<typeof tabOptions[number]['index']>('detail');
+  const [activeTab, setActiveTab] = useState<(typeof tabOptions)[number]['index']>('detail');
   const [couponId, setCouponId] = useState<number>();
 
   const { data: couponInfo } = useCouponQuery(id ?? '');
@@ -156,12 +154,18 @@ const EditCoupon = () => {
         const response = await createMutation.mutateAsync(payload);
 
         if (isDefined(response.data) && isDefined(response.data.id)) {
-          void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: response.data.id }));
+          void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: response.data.id }), {
+            replace: true,
+          });
         }
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
+  };
+
+  const handleBack = () => {
+    void navigate(-1);
   };
 
   const couponBadgeInfo = useMemo(() => {
@@ -176,16 +180,12 @@ const EditCoupon = () => {
     <Page>
       <Form {...form}>
         <PageHeading
-          text={
-            isNew
-              ? __('New Coupon', 'kirki-ecommerce')
-              : __('Edit Coupon', 'kirki-ecommerce')
-          }
+          text={isNew ? __('New Coupon', 'kirki-ecommerce') : __('Edit Coupon', 'kirki-ecommerce')}
           type="primary"
           sticky
           actions={
             <>
-              <Button variant="ghost" onClick={() => navigate(RouteConfig.Coupons.buildLink())}>
+              <Button variant="ghost" onClick={handleBack}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button
@@ -193,20 +193,16 @@ const EditCoupon = () => {
                 onClick={form.handleSubmit(handleSubmit)}
                 loading={isSubmitting}
               >
-                {isNew
-                  ? __('Create', 'kirki-ecommerce')
-                  : __('Save', 'kirki-ecommerce')}
+                {isNew ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
               </Button>
             </>
           }
           hasBack
-          onBack={() => navigate(RouteConfig.Coupons.buildLink())}
+          onBack={handleBack}
         >
-          {
-            !isNew && isDefined(couponBadgeInfo) && (
-              <Badge variant={couponBadgeInfo.variant} >{couponBadgeInfo.text}</Badge>
-            )
-          }
+          {!isNew && isDefined(couponBadgeInfo) && (
+            <Badge variant={couponBadgeInfo.variant}>{couponBadgeInfo.text}</Badge>
+          )}
         </PageHeading>
 
         <Container>
@@ -214,24 +210,32 @@ const EditCoupon = () => {
             <Flex direction="column" gap={4} basis="70%" grow={1}>
               <Tabs
                 value={activeTab}
-                onValueChange={(value) => setActiveTab(value as typeof tabOptions[number]['index'])}
+                onValueChange={(value) =>
+                  setActiveTab(value as (typeof tabOptions)[number]['index'])
+                }
               >
                 <TabsList cssOverride={styles.tabsList}>
-                  {
-                    tabOptions.map((option, index) => {
-                      const hasError = option.hasTabError(errors);
-                      return (
-                        <TabsTrigger
-                          value={option.index}
-                          cssOverride={{ ...styles.tab, ...(hasError && activeTab !== option.index ? styles.tabError : {}) }}
-                          key={index}
-                        >
-                          {option.icon}
-                          <Text variant="small" weight="medium">{option.title} {hasError && activeTab !== option.index && <span css={styles.tabErrorMark}>*</span>}</Text>
-                        </TabsTrigger>
-                      );
-                    })
-                  }
+                  {tabOptions.map((option, index) => {
+                    const hasError = option.hasTabError(errors);
+                    return (
+                      <TabsTrigger
+                        value={option.index}
+                        cssOverride={{
+                          ...styles.tab,
+                          ...(hasError && activeTab !== option.index ? styles.tabError : {}),
+                        }}
+                        key={index}
+                      >
+                        {option.icon}
+                        <Text variant="small" weight="medium">
+                          {option.title}{' '}
+                          {hasError && activeTab !== option.index && (
+                            <span css={styles.tabErrorMark}>*</span>
+                          )}
+                        </Text>
+                      </TabsTrigger>
+                    );
+                  })}
                 </TabsList>
               </Tabs>
 

@@ -55,7 +55,9 @@ const CreateProduct = () => {
   const handleSubmit = async (data: ProductFormPayload) => {
     const response = await createProductMutation.mutateAsync(data);
     if (isDefined(response.data.id)) {
-      void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }));
+      void navigate(RouteConfig.Products.get('EditProduct').buildLink({ id: response.data.id }), {
+        replace: true,
+      });
     }
     return mapProductToFormValues(response.data);
   };
