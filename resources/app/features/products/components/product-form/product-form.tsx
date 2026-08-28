@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import MediaGalleryField from '@/components/form/media-gallery-field';
@@ -12,7 +13,6 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
-import { RouteConfig } from '@/config/route-config';
 import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
 import Inventory from '@/features/products/components/product-form/sections/inventory/inventory';
 import Price from '@/features/products/components/product-form/sections/price/price';
@@ -22,25 +22,35 @@ import Shipping from '@/features/products/components/product-form/sections/shipp
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
 import UnsavedToast from '@/features/products/components/product-form/unsaved-toast';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
-import type { ProductFormInput, ProductFormPayload } from '@/features/products/schemas/forms/product-form';
+import { Product } from '@/features/products/schemas/catalog/product';
+import {
+  type ProductFormInput,
+  type ProductFormPayload,
+} from '@/features/products/schemas/forms/product-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 type ProductFormProps = {
   mode: 'create' | 'edit';
   initialValues?: ProductFormInput;
+  product?: Product;
   onSubmit: (data: ProductFormPayload) => Promise<ProductFormInput | void>;
   isSubmitting?: boolean;
+  onDuplicate?: () => void | Promise<void>;
+  isDuplicating?: boolean;
 };
 
 const ProductForm = ({
   mode,
   initialValues,
+  product,
   onSubmit,
   isSubmitting = false,
+  onDuplicate,
+  isDuplicating = false,
 }: ProductFormProps) => {
-  const navigate = useNavigate();
   const isCreate = mode === 'create';
+  const [duplicateBlockedByUnsaved, setDuplicateBlockedByUnsaved] = useState(false);
 
   const {
     form,
@@ -50,36 +60,62 @@ const ProductForm = ({
     discardChanges,
     shakeSignal,
     handleSave,
-  } = useProductForm({ initialValues, onSubmit });
+  } = useProductForm({
+    initialValues,
+    onSubmit,
+  });
+
+  useEffect(() => {
+    if (!isDirty) {
+      setDuplicateBlockedByUnsaved(false);
+    }
+  }, [isDirty]);
+
+  const navigate = useNavigate();
+  const handleBack = () => {
+    void navigate(-1);
+  };
+
+  const handleDuplicateClick = () => {
+    if (isDirty) {
+      setDuplicateBlockedByUnsaved(true);
+      return;
+    }
+    void onDuplicate?.();
+  };
+
+  const handleToastDiscard = useCallback(() => {
+    discardChanges();
+    if (duplicateBlockedByUnsaved) {
+      setDuplicateBlockedByUnsaved(false);
+      void onDuplicate?.();
+    }
+  }, [discardChanges, duplicateBlockedByUnsaved, onDuplicate]);
+
+  const handleToastSave = useCallback(async () => {
+    const result = await handleSave();
+    if (result.success && duplicateBlockedByUnsaved) {
+      setDuplicateBlockedByUnsaved(false);
+      void onDuplicate?.();
+    }
+  }, [duplicateBlockedByUnsaved, handleSave, onDuplicate]);
 
   return (
     <Form {...form}>
       <PageHeading
-        onBack={() => navigate(RouteConfig.Products.buildLink())}
+        onBack={handleBack}
         text={
-          isCreate
-            ? __('New Product', 'kirki-ecommerce')
-            : __('Edit Product', 'kirki-ecommerce')
+          isCreate ? __('New Product', 'kirki-ecommerce') : __('Edit Product', 'kirki-ecommerce')
         }
         hasBack
         sticky
         actions={
           <>
-            <Button
-              variant="ghost"
-              onClick={() => navigate(RouteConfig.Products.buildLink())}
-              disabled={isSubmitting}
-            >
+            <Button variant="ghost" onClick={handleBack} disabled={isSubmitting}>
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
-            <Button
-              variant="primary"
-              onClick={() => handleSave()}
-              loading={isSubmitting}
-            >
-              {isCreate
-                ? __('Create', 'kirki-ecommerce')
-                : __('Save', 'kirki-ecommerce')}
+            <Button variant="primary" onClick={() => handleSave()} loading={isSubmitting}>
+              {isCreate ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
             </Button>
           </>
         }
@@ -95,18 +131,12 @@ const ProductForm = ({
                       <TextField
                         name="title"
                         label={__('Title', 'kirki-ecommerce')}
-                        placeholder={__(
-                          'e.g. Yellow T-Shirt',
-                          'kirki-ecommerce',
-                        )}
+                        placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
                       />
                       <TextField
                         name="ribbon"
                         label={__('Ribbon', 'kirki-ecommerce')}
-                        placeholder={__(
-                          'e.g. Fresh Arrival',
-                          'kirki-ecommerce',
-                        )}
+                        placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
                       />
                     </Grid>
                     <TextField
@@ -122,18 +152,12 @@ const ProductForm = ({
                       name="short_description"
                       label={__('Short description', 'kirki-ecommerce')}
                       rows={3}
-                      placeholder={__(
-                        'Brief product summary...',
-                        'kirki-ecommerce',
-                      )}
+                      placeholder={__('Brief product summary...', 'kirki-ecommerce')}
                     />
                     <RichTextField
                       name="description"
                       label={__('Description', 'kirki-ecommerce')}
-                      placeholder={__(
-                        'Write product description here...',
-                        'kirki-ecommerce',
-                      )}
+                      placeholder={__('Write product description here...', 'kirki-ecommerce')}
                     />
                     <Separator marginTop={0} marginBottom={0} />
                     <AdditionalInfo />
@@ -151,15 +175,25 @@ const ProductForm = ({
               <SEOSettings />
             </Flex>
           </div>
-          <RightPanel />
+          <RightPanel
+            mode={mode}
+            product={product}
+            onDuplicate={handleDuplicateClick}
+            isDuplicating={isDuplicating}
+          />
         </div>
       </Container>
       <UnsavedToast
-        visible={isBlocked && isDirty}
-        onDiscardChanges={discardChanges}
-        onSave={() => handleSave()}
+        visible={(isBlocked || duplicateBlockedByUnsaved) && isDirty}
+        onDiscardChanges={handleToastDiscard}
+        onSave={handleToastSave}
         isSubmitting={isSubmitting}
         shakeSignal={shakeSignal}
+        message={
+          duplicateBlockedByUnsaved
+            ? __('Unsaved product, take an action to proceed.', 'kirki-ecommerce')
+            : __('Unsaved product', 'kirki-ecommerce')
+        }
       />
     </Form>
   );

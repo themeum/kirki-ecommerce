@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 use function Kirki\Ecommerce\Framework\user;
 
@@ -97,6 +98,10 @@ class ProductService
         $data_array['created_by'] = user()->get_id();
         $data_array['updated_by'] = user()->get_id();
 
+        if ($data->status === ProductStatus::PUBLISHED) {
+            $data_array['published_at'] = Date::now()->set_timezone('UTC');
+        }
+
         $attributes = array_map(function ($attribute) {
             return $attribute['id'];
         }, $data->attributes);
@@ -141,6 +146,19 @@ class ProductService
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
+
+        if ($product->status !== $data->status) {
+            if ($data->status === ProductStatus::PUBLISHED) {
+                $data_array['published_at'] = Date::now()->set_timezone('UTC');
+                $data_array['trashed_at'] = null;
+            } else if ($data->status === ProductStatus::TRASHED) {
+                $data_array['published_at'] = null;
+                $data_array['trashed_at'] = Date::now()->set_timezone('UTC');
+            } else {
+                $data_array['published_at'] = null;
+                $data_array['trashed_at'] = null;
+            }
+        }
 
         $is_updated = (bool) $product->update($data_array);
 
@@ -240,7 +258,12 @@ class ProductService
             throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $is_trashed = (bool) Product::query()->where_in('id', $ids)->update(['status' => ProductStatus::TRASHED]);
+        $is_trashed = (bool) Product::query()->where_in('id', $ids)->update([
+            'status' => ProductStatus::TRASHED,
+            'trashed_at' => Date::now()->set_timezone('UTC'),
+            'published_at' => null,
+            'updated_by' => user()->get_id(),
+        ]);
 
         if (!$is_trashed) {
             throw new NotFoundException(__('Products could not be trashed.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -259,7 +282,12 @@ class ProductService
     {
         $query = Product::query();
 
-        return (bool) $this->apply_filters($query, $filters)->update(['status' => ProductStatus::TRASHED]);
+        return (bool) $this->apply_filters($query, $filters)->update([
+            'status' => ProductStatus::TRASHED,
+            'trashed_at' => Date::now()->set_timezone('UTC'),
+            'published_at' => null,
+            'updated_by' => user()->get_id(),
+        ]);
     }
 
     /**
@@ -277,7 +305,12 @@ class ProductService
 
         $is_trashed = (bool) Product::query()->where_in('id', $ids)
             ->where('status', ProductStatus::TRASHED)
-            ->update(['status' => ProductStatus::DRAFT]);
+            ->update([
+                'status' => ProductStatus::DRAFT,
+                'trashed_at' => null,
+                'published_at' => null,
+                'updated_by' => user()->get_id(),
+            ]);
 
         if (!$is_trashed) {
             throw new NotFoundException(__('Products could not be restored.', 'kirki-ecommerce'), Response::NOT_FOUND);
@@ -299,7 +332,12 @@ class ProductService
         $filters->status = ProductStatus::TRASHED;
 
         return (bool) $this->apply_filters($query, $filters)
-            ->update(['status' => ProductStatus::DRAFT]);
+            ->update([
+                'status' => ProductStatus::DRAFT,
+                'trashed_at' => null,
+                'published_at' => null,
+                'updated_by' => user()->get_id(),
+            ]);
     }
 
     protected function list_query()

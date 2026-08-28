@@ -53,6 +53,12 @@ const updateProduct = ({
     .then((response) => parseResponse(ProductSchema, response));
 };
 
+const duplicateProduct = (id: string | number) => {
+  return apiClient
+    .post(endpoints.PRODUCT_DUPLICATE(id))
+    .then((response) => parseResponse(ProductSchema, response));
+};
+
 const bulkDeleteProducts = ({
   action = 'delete',
   ids = [],
@@ -143,6 +149,24 @@ const useUpdateProductMutation = () => {
   });
 };
 
+const useDuplicateProductMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: duplicateProduct,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message ||
+        __('Product duplicated successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
 const useBulkDeleteProductsMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -198,7 +222,7 @@ const useBulkRestoreProductsMutation = () => {
 };
 
 export {
-  bulkDeleteProducts, bulkRestoreProducts, bulkTrashProducts, createProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useBulkRestoreProductsMutation,
-  useBulkTrashProductsMutation, useCreateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation,
+  bulkDeleteProducts, bulkRestoreProducts, bulkTrashProducts, createProduct, duplicateProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useBulkRestoreProductsMutation,
+  useBulkTrashProductsMutation, useCreateProductMutation, useDuplicateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation,
 };
 
