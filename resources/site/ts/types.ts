@@ -238,7 +238,7 @@ export type ApiError = {
 
 // ── Toast types ───────────────────────────────────────────────────────────────
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default' | 'action';
 
 export type ToastPosition =
   'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
@@ -271,6 +271,10 @@ export type ToastOptions = {
   richColors?: boolean;
   position?: ToastPosition;
   theme?: ToastTheme;
+  thumbnail?: string;
+  actionUrl?: string;
+  actionText?: string;
+  containerClass?: string;
 };
 
 export type ToastConfig = {

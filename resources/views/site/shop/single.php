@@ -224,19 +224,13 @@ foreach ($media as $media_item) {
                 </div>
 
                 <!-- Add to Cart Button -->
-                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId })">
-                    <template x-if="!success">
-                        <button class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
-                            <?php Icon::render('cart'); ?>
-                            <span x-text="selectedVariant?.available ? buttonText : 'Out of Stock'"></span>
-                        </button>
-                    </template>
-                    <template x-if="success">
-                        <a :href="cartUrl" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg">
-                            <?php Icon::render('cart'); ?>
-                            <span x-text="buttonText"></span>
-                        </a>
-                    </template>
+                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
+                    imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
+                })">
+                    <button class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
+                        <?php Icon::render('cart'); ?>
+                        <span x-text="selectedVariant?.available ? buttonText : 'Out of Stock'"></span>
+                    </button>
                 </div>
             </div>
         </div>
