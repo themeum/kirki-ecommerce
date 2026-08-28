@@ -30,11 +30,18 @@ import {
   PaginationPageSelect,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { ArrowDownUpFilled } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { SelectOption, TableDensity } from '@/types/components/common';
 import { ELLIPSIS, getPageItems } from '@/utils/pagination';
 
@@ -101,13 +108,10 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isAllMatchingSelected, setIsAllMatchingSelected] = useState(false);
 
-  const handleTanStackRowSelectionChange: OnChangeFn<RowSelectionState> = useCallback(
-    (updater) => {
-      setIsAllMatchingSelected(false);
-      setRowSelection((old) => (typeof updater === 'function' ? updater(old) : updater));
-    },
-    [],
-  );
+  const handleTanStackRowSelectionChange: OnChangeFn<RowSelectionState> = useCallback((updater) => {
+    setIsAllMatchingSelected(false);
+    setRowSelection((old) => (typeof updater === 'function' ? updater(old) : updater));
+  }, []);
 
   const handleSelectAllMatching = useCallback(() => {
     setIsAllMatchingSelected(true);
@@ -217,9 +221,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
       return;
     }
 
-    const rowHeight = tableRef.current
-      ?.querySelector('tbody tr')
-      ?.getBoundingClientRect().height;
+    const rowHeight = tableRef.current?.querySelector('tbody tr')?.getBoundingClientRect().height;
     if (rowHeight) {
       measuredHeights.current.row = rowHeight;
     }
@@ -244,9 +246,10 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
               onBulkApply={onBulkApply}
               onSelectAllMatching={handleSelectAllMatching}
               onClearSelection={handleClearSelection}
+              cssOverride={styles.toolbar}
             />
           ) : (
-            toolbar
+            <div css={scoped(styles.toolbar)}>{toolbar}</div>
           )}
           {filterBar}
           <Table
@@ -278,9 +281,14 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
                             key={header.id}
                             onlyCheckbox={isSelectColumn}
                             alignment={meta?.alignment}
-                            cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(header.column, true))}
+                            cssOverride={mergeCss(
+                              meta?.cssOverride,
+                              getPinnedCss(header.column, true),
+                            )}
                             style={getPinningStyle(header.column)}
-                            onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
+                            onClick={
+                              isSelectColumn ? (event) => event.stopPropagation() : undefined
+                            }
                           >
                             {header.isPlaceholder ? null : canSort ? (
                               <Flex
@@ -338,9 +346,14 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
                               key={cell.id}
                               onlyCheckbox={isSelectColumn}
                               alignment={meta?.alignment}
-                              cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(cell.column, false))}
+                              cssOverride={mergeCss(
+                                meta?.cssOverride,
+                                getPinnedCss(cell.column, false),
+                              )}
                               style={getPinningStyle(cell.column)}
-                              onClick={isSelectColumn ? (event) => event.stopPropagation() : undefined}
+                              onClick={
+                                isSelectColumn ? (event) => event.stopPropagation() : undefined
+                              }
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </TableCell>
@@ -417,5 +430,9 @@ const styles = defineStyles({
   },
   paginationWrapper: {
     width: '100%',
+  },
+  toolbar: {
+    width: '100%',
+    minHeight: '4.3rem',
   },
 });

@@ -15,11 +15,13 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 use function Kirki\Ecommerce\Framework\user;
+use function Kirki\Ecommerce\Framework\with_prefix;
 
 class ProductService
 {
@@ -555,5 +557,39 @@ class ProductService
             'products' => $products,
             'filters'  => $filters,
         ];
+    }
+
+    /**
+     * Get product preview URL.
+     *
+     * @param string $slug
+     *
+     * @return string|null
+     */
+    public function get_preview_url(string $slug)
+    {
+        if (!user()->is_logged_in()) {
+            return null;
+        }
+
+        $preview_nonce = wp_create_nonce(with_prefix('product-preview-' . user()->get_id() . '-' . $slug));
+
+        return add_query_arg([
+            'preview' => true,
+            'preview_nonce' => $preview_nonce,
+        ], Url::get_product_url($slug));
+    }
+
+    /**
+     * Verify product preview nonce.
+     * 
+     * @param string $slug
+     * @param string $nonce
+     * 
+     * @return bool
+     */
+    public function verify_product_preview_nonce(string $slug, string $nonce)
+    {
+        return (bool) wp_verify_nonce($nonce, with_prefix('product-preview-' . user()->get_id() . '-' . $slug));
     }
 }

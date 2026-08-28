@@ -3,6 +3,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import Input from '@/components/ui/input';
+import Text from '@/components/ui/text';
 import { useInventoryForm } from '@/features/inventory';
 import type { InventoryVariant } from '@/features/products';
 import { theme } from '@/theme';
@@ -22,9 +23,6 @@ const styles = defineStyles({
     padding: theme.spacing[0],
     pointerEvents: 'none',
   },
-  mutedText: {
-    color: theme.colors.text.subdued,
-  },
   tableInput: {
     ...theme.typography.small(),
   },
@@ -33,9 +31,11 @@ const styles = defineStyles({
 const InventoryTitleCell = ({ item }: { item: InventoryVariant }) => (
   <Flex gap={3} align="center">
     <Image src={item?.product?.image} size="sm" />
-    <Flex direction="column" gap={1} cssOverride={styles.mutedText}>
-      <span>{item?.product?.name} </span>
-      <span>{item?.name}</span>
+    <Flex direction="column" gap={1}>
+      <Text variant="tiny">{item?.product?.name}</Text>
+      <Text variant="tiny" color="muted">
+        {item?.name}
+      </Text>
     </Flex>
   </Flex>
 );
@@ -67,7 +67,9 @@ const InventoryPriceCell = ({ item }: { item: InventoryVariant }) => {
       placeholder="--"
       invisible
       cssOverride={styles.tableInput}
-      onChange={(event) => updateInventory({ id: item.id, changes: { base_price: event.target.value } })}
+      onChange={(event) =>
+        updateInventory({ id: item.id, changes: { base_price: event.target.value } })
+      }
     />
   );
 };
@@ -83,7 +85,9 @@ const InventorySalePriceCell = ({ item }: { item: InventoryVariant }) => {
       placeholder="--"
       invisible
       cssOverride={styles.tableInput}
-      onChange={(event) => updateInventory({ id: item.id, changes: { base_sale_price: event.target.value } })}
+      onChange={(event) =>
+        updateInventory({ id: item.id, changes: { base_sale_price: event.target.value } })
+      }
     />
   );
 };
@@ -99,7 +103,9 @@ const InventoryCostOfGoodsCell = ({ item }: { item: InventoryVariant }) => {
       placeholder="--"
       invisible
       cssOverride={styles.tableInput}
-      onChange={(event) => updateInventory({ id: item.id, changes: { base_cost_of_goods: event.target.value } })}
+      onChange={(event) =>
+        updateInventory({ id: item.id, changes: { base_cost_of_goods: event.target.value } })
+      }
     />
   );
 };
