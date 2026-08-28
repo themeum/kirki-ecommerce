@@ -37,14 +37,8 @@ const NavChevron = ({ orientation = 'left', size = 16 }: ChevronProps) => {
 
 NavChevron.displayName = 'NavChevron';
 
-
 const Calendar = ({ cssOverride, ...props }: CalendarProps) => {
-  const {
-    showOutsideDays = true,
-    weekStartsOn = WEEK_STARTS_ON,
-    components,
-    ...rest
-  } = props;
+  const { showOutsideDays = true, weekStartsOn = WEEK_STARTS_ON, components, ...rest } = props;
 
   return (
     <div css={scopedMerge(styles.calendar, cssOverride)}>
@@ -83,7 +77,7 @@ const styles = defineStyles({
     },
     [`.${defaultClassNames.month_caption}`]: {
       ...flexCenter(),
-      height: theme.spacing[8],
+      height: '2rem',
       ...theme.typography.small('semibold'),
       color: theme.colors.text.primary,
     },
@@ -92,16 +86,15 @@ const styles = defineStyles({
       top: 0,
       left: 0,
       right: 0,
-      height: theme.spacing[8],
+      height: '2rem',
       ...itemCenter(),
       justifyContent: 'space-between',
       pointerEvents: 'none',
     },
-    [`.${defaultClassNames.button_previous}, .${defaultClassNames.button_next}`]:
-    {
+    [`.${defaultClassNames.button_previous}, .${defaultClassNames.button_next}`]: {
       ...flexCenter(),
-      width: theme.spacing[7],
-      height: theme.spacing[7],
+      width: '1.75rem',
+      height: '1.75rem',
       padding: 0,
       border: `1px solid ${theme.colors.border.default}`,
       borderRadius: theme.radius.md,
@@ -130,8 +123,8 @@ const styles = defineStyles({
       ...theme.typography.tiny('medium'),
     },
     [`.${defaultClassNames.weekday}`]: {
-      width: theme.spacing[9],
-      height: theme.spacing[8],
+      width: '2.25rem',
+      height: '2rem',
       padding: 0,
       fontWeight: theme.typography.fontWeight.medium,
       color: theme.colors.text.secondary,
@@ -139,8 +132,8 @@ const styles = defineStyles({
       textTransform: 'none',
     },
     [`.${defaultClassNames.day}`]: {
-      width: theme.spacing[9],
-      height: theme.spacing[9],
+      width: '2.25rem',
+      height: '2.25rem',
       padding: 0,
       textAlign: 'center',
     },
@@ -163,10 +156,10 @@ const styles = defineStyles({
       },
     },
     [`.${defaultClassNames.today}:not(.${defaultClassNames.selected}) .${defaultClassNames.day_button}`]:
-    {
-      ...theme.typography.small('semibold'),
-      color: theme.colors.text.emphasis,
-    },
+      {
+        ...theme.typography.small('semibold'),
+        color: theme.colors.text.emphasis,
+      },
     [`.${defaultClassNames.outside}`]: {
       color: theme.colors.text.subdued,
     },

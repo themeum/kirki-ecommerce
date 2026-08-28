@@ -125,6 +125,7 @@ export const ProductSchema = z.object({
   attributes: z.array(ProductAttributeSchema),
   variants: z.array(VariantSchema),
   media: z.array(MediaRefSchema),
+  preview_url: z.string().nullish(),
   published_at: z.string().nullish(),
   trashed_at: z.string().nullish(),
   created_at: z.string().nullish(),
