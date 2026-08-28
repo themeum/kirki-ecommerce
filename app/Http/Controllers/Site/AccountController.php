@@ -49,31 +49,13 @@ class AccountController
      *
      * @param Request $request Request.
      * @param OrderService $order_service Order service.
-     * @param UserService $user_service User service.
      *
      * @return Response response.
      */
-    public function dashboard(Request $request, OrderService $order_service, UserService $user_service)
+    public function dashboard(Request $request, OrderService $order_service)
     {
         $customer = customer();
         $user = wp_get_current_user();
-
-        $token = $request->string('email_verify_token') ?: $request->string('verify_email_token');
-        if (!empty($token) && !empty($user->ID)) {
-            $verified = $user_service->verify_email_token((int) $user->ID, $token);
-            $flash_type = 'errors';
-            $flash_messsage = [__('The email verification link is invalid or has expired.', 'kirki-ecommerce')];
-
-            if ($verified) {
-                $flash_type = 'success';
-                $flash_messsage = __('Your email address has been verified successfully. Past orders have been linked to your account.', 'kirki-ecommerce');
-            }
-
-            session()->flash($flash_type, $flash_messsage);
-            wp_safe_redirect(Url::get_account_url());
-            exit;
-        }
-
         $order_data = $order_service->get_current_customer_orders(['limit' => 3]);
 
         $data = [
