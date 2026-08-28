@@ -351,16 +351,10 @@ class ProductService
     protected function apply_filters(QueryBuilder $query, ProductListFilterDTO $filters)
     {
         $query->when($filters->search, function (QueryBuilder $query, $search) {
-            $search = '%' . $search . '%';
-            return $query->where_like('title', $search)->or_where_like('description', $search);
-        });
-
-        $query->where_has('variants', function ($variant_query) use ($filters) {
-            $variant_query->when($filters->search, function ($variant_query) use ($filters) {
-                return $variant_query->where(function ($variant_query) use ($filters) {
-                    $variant_query->where_like('sku', '%' . $filters->search . '%');
-                    return $variant_query;
-                });
+            $like = '%' . $search . '%';
+            return $query->where(function (QueryBuilder $query) use ($like) {
+                $query->where_like('title', $like)
+                    ->or_where_has('variants', fn($variant_query) => $variant_query->where_like('sku', $like));
             });
         });
 
