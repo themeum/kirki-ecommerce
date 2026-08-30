@@ -81,7 +81,7 @@ class Paystack extends PaymentProvider
                 'value' => $response['data']['authorization_url'],
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()));
+            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
         }
     }
 
@@ -121,13 +121,17 @@ class Paystack extends PaymentProvider
         return array_merge($parent_settings, $data);
     }
 
+    /**
+     * Handle a PayStack webhook notification.
+     *
+     * @return bool True if the notification was processed, false if ignored.
+     * @throws Exception If the payload is invalid, the order isn't found, or the API lookup fails.
+     */
     public function webhook()
     {
         $payload = $this->verify_and_parse_notification();
 
-        $allowed_event_types = ['charge.success'];
-
-        if (!in_array($payload->event, $allowed_event_types, true)) {
+        if ($payload->event !== PaystackConstant::EVENT_CHARGE_SUCCESS) {
             return false;
         }
 
@@ -144,8 +148,8 @@ class Paystack extends PaymentProvider
 
         try {
             $response = $this->client->verify_transaction($reference_id);
-        } catch (\Throwable $th) {
-            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $th->getMessage()));
+        } catch (\Throwable $e) {
+            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
         }
 
         $this->handle_transaction_response($response['data'], $order);
@@ -198,7 +202,7 @@ class Paystack extends PaymentProvider
     /**
      * Update the order based on a PayStack payment event's status.
      *
-     * @param array $payload The payment object from the Square webhook event.
+     * @param array $payload The transaction data from the PayStack webhook event.
      * @param Order $order The local order.
      * @return void
      * @throws Exception If the order update fails.
@@ -231,17 +235,19 @@ class Paystack extends PaymentProvider
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-square'), $e->getMessage())
+                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-paystack'), $e->getMessage()),
+                0,
+                $e
             );
         }
     }
 
 
     /**
-     * Record the Square payment ID and raw payment payload against the local order.
+     * Record the PayStack transaction ID and raw payload against the local order.
      *
      * @param Order $order The local order.
-     * @param array $payload The payment object from the Square webhook event.
+     * @param array $payload The transaction data from the PayStack webhook event.
      * @return void
      */
     protected function record_transaction(Order $order, array $payload): void

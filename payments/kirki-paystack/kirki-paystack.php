@@ -15,7 +15,6 @@
 
 use Kirki\Ecommerce\App\Constants\HookNames;
 use Kirki\Ecommerce\Payments\Paystack;
-use Kirki\Ecommerce\Payments\Square;
 
 if (!defined('ABSPATH')) {
     exit;

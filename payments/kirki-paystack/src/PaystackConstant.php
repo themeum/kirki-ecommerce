@@ -6,7 +6,7 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 /**
- * Constants for the Square Payments API integration.
+ * Constants for the PayStack API integration.
  */
 class PaystackConstant
 {
@@ -16,6 +16,8 @@ class PaystackConstant
 
     const POST_METHOD = 'post';
     const GET_METHOD = 'get';
+
+    const EVENT_CHARGE_SUCCESS = 'charge.success';
 
     const STATUS_MAP = [
         'success'   => PaymentStatus::PAID,

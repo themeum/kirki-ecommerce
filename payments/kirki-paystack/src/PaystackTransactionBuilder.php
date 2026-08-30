@@ -8,15 +8,14 @@ use Kirki\Ecommerce\App\Supports\Url;
 defined('ABSPATH') || exit;
 
 /**
- * Builds Square request payloads and interprets transaction status.
- *
+ * Builds PayStack transaction initialization payloads.
  */
 class PaystackTransactionBuilder
 {
     protected Order $order;
 
     /**
-     * @param Order $order The order to build QuickPay payloads for.
+     * @param Order $order The order to build the PayStack payload for.
      */
     public function __construct(Order $order)
     {
@@ -24,7 +23,7 @@ class PaystackTransactionBuilder
     }
 
     /**
-     * Build Square order line_items for an order's items, shipping, and tax.
+     * Build the payload for PayStack's transaction/initialize endpoint.
      *
      * @return array
      */
@@ -33,7 +32,7 @@ class PaystackTransactionBuilder
         return [
             'amount' => (string) $this->order->invoiced_total,
             'email' => $this->order->customer_email ?? '',
-            'currency' => 'NGN', //$order->currency_code,
+            'currency' => $this->order->currency_code,
             'reference' => $this->order->uuid,
             'callback_url' => Url::get_checkout_success_url($this->order->uuid),
             'metadata' => wp_json_encode([
