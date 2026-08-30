@@ -12,42 +12,35 @@ defined('ABSPATH') || exit;
  */
 class PaystackClient
 {
-    protected string $location_id;
-    protected string $access_token;
     protected bool $sandbox;
-    protected string $signature_key;
+    protected string $secret_key;
 
     /**
-     * @param string $location_id Square location ID.
-     * @param string $access_token Square API access token.
-     * @param string $signature_key Signature key used to verify webhook notifications.
+     * @param string $secret_key PayStack Secret key.
      * @param bool $sandbox Whether to use the sandbox API endpoint.
      */
-    public function __construct(string $location_id, string $access_token, string $signature_key, bool $sandbox = false)
+    public function __construct(string $secret_key, bool $sandbox = false)
     {
-        $this->location_id = $location_id;
-        $this->access_token = $access_token;
-        $this->signature_key = $signature_key;
+        $this->secret_key = $secret_key;
         $this->sandbox = $sandbox;
     }
 
     /**
-     * Verify a webhook payload against Square's HMAC-SHA256 signature header.
+     * Verify a webhook payload against PayStack's HMAC-sha512 signature header.
      *
      * @param string $raw_payload The raw webhook request body.
-     * @param string $webhook_url The notification URL configured in Square, as sent to it verbatim.
      * @return bool
      */
-    public function is_verified(string $raw_payload, string $webhook_url): bool
+    public function is_verified(string $raw_payload): bool
     {
-        $given_signature = $_SERVER['HTTP_X_SQUARE_HMACSHA256_SIGNATURE'] ?? $_SERVER['HTTP_X_SQUARE_SIGNATURE'] ?? '';
+        $given_signature = $_SERVER['HTTP_X_PAYSTACK_SIGNATURE'] ?? null;
+        $request_method = $_SERVER['REQUEST_METHOD'];
 
-        if ('' === $raw_payload || '' === $given_signature) {
-            return false;
+        if ((strtoupper($request_method) != 'POST') || empty($given_signature) || empty($raw_payload)) {
+            throw new Exception(__('Invalid Payload From PayStack.', 'kirki-ecommerce-paystack'));
         }
 
-        $hash = hash_hmac('sha256', $webhook_url . $raw_payload, $this->signature_key, true);
-        $expected_signature = base64_encode($hash);
+        $expected_signature = hash_hmac('sha512', $raw_payload, $this->secret_key);
 
         return $expected_signature === $given_signature;
     }
@@ -64,10 +57,9 @@ class PaystackClient
      */
     protected function send(string $endpoint, string $method, array $payload = []): array
     {
-        $request = Http::with_token($this->access_token)
-                    ->with_headers(['Square-Version' => SquareConstant::SQUARE_VERSION]);
+        $request = Http::with_token($this->secret_key);
 
-        $response = SquareConstant::POST_METHOD === $method
+        $response = PaystackConstant::POST_METHOD === $method
             ? $request->with_body(wp_json_encode($payload))->post($endpoint)
             : $request->get($endpoint);
 
@@ -76,5 +68,18 @@ class PaystackClient
         }
 
         return $response->json();
+    }
+
+    public function initialize_transaction(array $payload)
+    {
+        $url = PaystackConstant::BASE_URL . '/transaction/initialize';
+
+        return $this->send($url, PaystackConstant::POST_METHOD, $payload);
+    }
+
+    public function verify_transaction($reference_id)
+    {
+        $url = PaystackConstant::BASE_URL . "/transaction/verify/{$reference_id}";
+        return $this->send($url, PaystackConstant::GET_METHOD);
     }
 }

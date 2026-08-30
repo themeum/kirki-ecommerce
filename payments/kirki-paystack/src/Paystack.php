@@ -65,10 +65,20 @@ class Paystack extends PaymentProvider
         }
 
         try {
+            $this->client = $this->get_client();
+            $builder = new PaystackTransactionBuilder($order);
+
+            $payload = $builder->build_transaction_payload();
+
+            $response = $this->client->initialize_transaction($payload);
+
+            if (empty($response['data']['authorization_url'])) {
+                throw new Exception(__('PayStack checkout link not found.', 'kirki-ecommerce-paystack'));
+            }
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => '',//$response['payment_link']['long_url'],
+                'value' => $response['data']['authorization_url'],
             ]);
         } catch (Exception $e) {
             throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()));
@@ -115,51 +125,53 @@ class Paystack extends PaymentProvider
     {
         $payload = $this->verify_and_parse_notification();
 
-        $allowed_event_types = [
-           
-        ];
+        $allowed_event_types = ['charge.success'];
 
-        if (!in_array($payload->type, $allowed_event_types, true)) {
+        if (!in_array($payload->event, $allowed_event_types, true)) {
             return false;
         }
 
+        $reference_id = $payload->data->reference ?? '';
+        $order = OrderManager::find_by_uuid($reference_id);
 
-        // $order = OrderManager::find_by_uuid($reference_id);
+        if (!$order) {
+            throw new Exception(__('PayStack Error: Order Not Found.', 'kirki-ecommerce-paystack'));
+        }
 
-        // if (!$order) {
-        //     throw new Exception(__('Square Error: Order Not Found.', 'kirki-ecommerce-square'));
-        // }
+        if ($order->payment_status === PaymentStatus::PAID) {
+            return false;
+        }
 
-        // if ($order->payment_status === PaymentStatus::PAID) {
-        //     return false;
-        // }
+        try {
+            $response = $this->client->verify_transaction($reference_id);
+        } catch (\Throwable $th) {
+            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $th->getMessage()));
+        }
 
-        $this->handle_transaction_response($payment, $order);
+        $this->handle_transaction_response($response['data'], $order);
         return true;
     }
 
     /**
-     * Square API client.
+     * PayStack API client.
      *
-     * @return SquareClient
+     * @return PaystackClient
      * @throws Exception If credentials are missing.
      */
-    protected function get_client(): SquareClient
+    protected function get_client(): PaystackClient
     {
         if ($this->client) {
             return $this->client;
         }
 
-        $location_id = $this->settings['location_id'] ?? '';
-        $access_token = $this->settings['access_token'] ?? '';
-        $signature_key = $this->settings['signature_key'] ?? '';
+        $secret_key = $this->settings['secret_key'] ?? '';
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
-        if (empty($location_id) || empty($access_token) || empty($signature_key)) {
-            throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
+        if (empty($secret_key)) {
+            throw new Exception(__('PayStack credentials are missing.', 'kirki-ecommerce-paystack'));
         }
 
-        return $this->client = new PaystackClient($location_id, $access_token, $signature_key, $sandbox);
+        return $this->client = new PaystackClient($secret_key, $sandbox);
     }
 
     /**
@@ -171,50 +183,46 @@ class Paystack extends PaymentProvider
     protected function verify_and_parse_notification(): object
     {
         $payload = file_get_contents('php://input');
+        $this->client = $this->get_client();
+
+        if (!$this->client->is_verified($payload)) {
+            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-paystack'));
+        }
 
         // Respond with a 200 status code to acknowledge the notification.
         http_response_code(200);
-
-        if (empty($payload)) {
-            throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-square'));
-        }
-
-        if (!$this->get_client()->is_verified($payload, $this->webhook_url())) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
-        }
 
         return json_decode($payload);
     }
 
     /**
-     * Update the order based on a Square payment event's status.
+     * Update the order based on a PayStack payment event's status.
      *
-     * @param object $payload The payment object from the Square webhook event.
+     * @param array $payload The payment object from the Square webhook event.
      * @param Order $order The local order.
      * @return void
      * @throws Exception If the order update fails.
      */
-    protected function handle_transaction_response(object $payload, Order $order)
+    protected function handle_transaction_response(array $payload, Order $order)
     {
-        $status = $payload->status ?? PaymentStatus::UNPAID;
+        $status = PaystackConstant::STATUS_MAP[$payload['status']] ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
         try {
             switch ($status) {
-                case SquareConstant::PAYMENT_COMPLETED:
+                case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
+                    OrderManager::set_payment_provider_fee($order->id, $payload['fees']);
                     break;
 
-                case SquareConstant::PAYMENT_CANCELED:
-                case SquareConstant::PAYMENT_FAILED:
+                case PaymentStatus::FAILED:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_failed($order->id);
                     break;
 
-                case SquareConstant::PAYMENT_APPROVED:
-                case SquareConstant::PAYMENT_PENDING:
+                case PaymentStatus::UNPAID:
                     OrderManager::mark_payment_as_unpaid($order->id);
             }
 
@@ -233,12 +241,12 @@ class Paystack extends PaymentProvider
      * Record the Square payment ID and raw payment payload against the local order.
      *
      * @param Order $order The local order.
-     * @param object $payload The payment object from the Square webhook event.
+     * @param array $payload The payment object from the Square webhook event.
      * @return void
      */
-    protected function record_transaction(Order $order, object $payload): void
+    protected function record_transaction(Order $order, array $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->id);
+        OrderManager::set_transaction_id($order->id, $payload['id']);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }

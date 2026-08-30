@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
 
@@ -12,50 +13,42 @@ defined('ABSPATH') || exit;
  */
 class PaystackTransactionBuilder
 {
+    protected Order $order;
+
+    /**
+     * @param Order $order The order to build QuickPay payloads for.
+     */
+    public function __construct(Order $order)
+    {
+        $this->order = $order;
+    }
+
     /**
      * Build Square order line_items for an order's items, shipping, and tax.
      *
-     * @param Order $order
      * @return array
      */
-    public static function build_line_items(Order $order): array
+    public function build_transaction_payload(): array
     {
-        $line_items = [];
-
-        foreach ($order->items as $item) {
-            $line_items[] = [
-                'uid' => (string) $item->id,
-                'name' => $item->product_name,
-                'quantity' => (string) $item->quantity,
-                'base_price_money' => [
-                    'amount' => (int) $item->invoiced_total,
-                    'currency' => strtoupper($order->currency_code)
-                ],
-            ];
-        }
-
-        if (!empty($order->invoiced_shipping_total)) {
-            $line_items[] = [
-                'name' => __('Shipping Charge', 'kirki-ecommerce-square'),
-                'quantity' => '1',
-                'base_price_money' => [
-                    'amount' => (int) $order->invoiced_shipping_total,
-                    'currency' => strtoupper($order->currency_code)
-                ],
-            ];
-        }
-
-        if (!empty($order->invoiced_tax_total)) {
-            $line_items[] = [
-                'name' => __('Tax', 'kirki-ecommerce-square'),
-                'quantity' => '1',
-                'base_price_money' => [
-                    'amount' => (int) $order->invoiced_tax_total,
-                    'currency' => strtoupper($order->currency_code)
-                ],
-            ];
-        }
-
-        return $line_items;
+        return [
+            'amount' => (string) $this->order->invoiced_total,
+            'email' => $this->order->customer_email ?? '',
+            'currency' => 'NGN', //$order->currency_code,
+            'reference' => $this->order->uuid,
+            'callback_url' => Url::get_checkout_success_url($this->order->uuid),
+            'metadata' => wp_json_encode([
+                'order_uuid' => $this->order->uuid,
+                'cancel_action' => Url::get_checkout_failed_url($this->order->uuid),
+            ]),
+            'channels' => [
+                "card",
+                "bank",
+                "ussd",
+                "qr",
+                "mobile_money",
+                "bank_transfer",
+                "eft",
+            ]
+        ];
     }
 }
