@@ -62,29 +62,21 @@ $cart_url                = $product['cart_url'];
             <?php endif; ?>
         </div>
         <?php if ($has_variants || $out_of_stock) { ?>
-            <a href="<?php echo esc_url($product_url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
+            <a href="<?php echo esc_url($product_url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-product-card-add-to-cart">
                 <span><?php esc_html_e('Details', 'kirki-ecommerce'); ?></span>
             </a>
         <?php } else { ?>
-        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add', 'kirki-ecommerce'); ?>' })">
-            <template x-if="!success">
-                <button
-                    type="button"
-                    class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart"
-                    @click="add(1)"
-                    :disabled="loading"
-                    :class="{ 'kecom-btn-loading': loading }"
-                >
-                    <?php Icon::render('cart'); ?>
-                    <span x-text="buttonText"></span>
-                </button>
-            </template>
-            <template x-if="success">
-                <a :href="cartUrl" class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
-                    <?php Icon::render('cart'); ?>
-                    <span x-text="buttonText"></span>
-                </a>
-            </template>
+        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?>', imageUrl: '<?php echo esc_url( $image_url ); ?>', containerClass: 'kecom-products-page' })">
+            <button
+                type="button"
+                class="kecom-btn kecom-btn-primary kecom-btn-block kecom-product-card-add-to-cart"
+                @click="add(1)"
+                :disabled="loading"
+                :class="{ 'kecom-btn-loading': loading }"
+            >
+                <?php Icon::render('cart'); ?>
+                <span x-text="buttonText"></span>
+            </button>
         </div>
         <?php } ?>
     </div>
