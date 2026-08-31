@@ -54,9 +54,9 @@ const primitiveColors = {
   galleryBorder: '#E4E4E7',
   borderMuted: '#d2d4d8',
   galleryHover: '#f7f4ff',
-  shippingBoxLight: '#ceaaff',
-  shippingBoxMid: '#bf84e9',
-  shippingBoxDark: '#9663b6',
+  shippingBoxLight: '#E8E8E8',
+  shippingBoxMid: '#D1D1D1',
+  shippingBoxDark: '#9B9B9B',
 } as const;
 
 type PrimitiveColorKey = keyof typeof primitiveColors;
@@ -184,7 +184,6 @@ const createTypographyStyle = (config: TypographyStyleConfig) => {
   };
 };
 
-
 const theme = {
   primitives: {
     colors: primitiveColors,
@@ -283,8 +282,7 @@ const theme = {
     },
   },
   typography: {
-    fontFamily:
-      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     fontWeight,
     heading1: createTypographyStyle({
       fontSize: '36px',
@@ -384,8 +382,7 @@ const theme = {
   },
   shadow: {
     none: 'none',
-    default:
-      '0px 1px 3px 0px hsla(0, 0%, 0%, 0.1), 0px 1px 2px -1px hsla(0, 0%, 0%, 0.1)',
+    default: '0px 1px 3px 0px hsla(0, 0%, 0%, 0.1), 0px 1px 2px -1px hsla(0, 0%, 0%, 0.1)',
     sm: '0px 1px 2px 0px hsla(0, 0%, 0%, 0.05)',
     md: '0px 4px 6px -1px hsla(0, 0%, 0%, 0.1), 0px 2px 4px -2px hsla(0, 0%, 0%, 0.1)',
     lg: '0px 10px 15px -3px hsla(0, 0%, 0%, 0.1), 0px 4px 6px -4px hsla(0, 0%, 0%, 0.1)',
@@ -409,11 +406,4 @@ type AppTheme = typeof theme;
 type SpacingKey = keyof typeof theme.spacing;
 
 export { CSS_VAR_PREFIX, getCssVarName, PRIMITIVE_CSS_VAR_KEYS, theme };
-export type {
-  AppTheme,
-  PrimitiveColorKey,
-  SpacingKey,
-  TypographyStyle,
-  TypographyWeight,
-};
-
+export type { AppTheme, PrimitiveColorKey, SpacingKey, TypographyStyle, TypographyWeight };

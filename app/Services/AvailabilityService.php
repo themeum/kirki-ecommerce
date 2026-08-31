@@ -97,19 +97,27 @@ class AvailabilityService
     /**
      * Format a status label, prefixing the quantity for "In Stock" when there
      * is a tracked amount to show. A zero quantity (nothing tracked) falls
-     * back to the plain label rather than reading "0 In Stock".
+     * back to the plain label rather than reading "0 In Stock". When
+     * $variant_count is given, the label is suffixed with the variant count
+     * so a glance at the list reveals which products have variants.
      *
      * @param string $status
      * @param int $quantity Summed available_quantity of tracked, in-stock variants.
+     * @param int|null $variant_count Number of variants, or null for a product without variants.
      *
      * @return string
      */
-    public function format_status_label($status, $quantity = 0)
+    public function format_status_label($status, $quantity = 0, $variant_count = null)
     {
-        if ($status === AvailabilityStatus::IN_STOCK && $quantity > 0) {
-            return sprintf(__('%d In Stock', 'kirki-ecommerce'), $quantity);
+        $label = ($status === AvailabilityStatus::IN_STOCK && $quantity > 0)
+            ? sprintf(__('%d In Stock', 'kirki-ecommerce'), $quantity)
+            : AvailabilityStatus::get_formatted($status);
+
+        if (is_null($variant_count)) {
+            return $label;
         }
 
-        return AvailabilityStatus::get_formatted($status);
+        /* translators: 1: availability label, 2: variant count */
+        return sprintf(__('%1$s across %2$d variants', 'kirki-ecommerce'), $label, $variant_count);
     }
 }
