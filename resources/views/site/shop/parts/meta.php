@@ -60,7 +60,7 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
                 class="kecom-products-search-field"
                 :class="{ 'is-open': searchOpen }"
             >
-                <?php Icon::render('search', array('class' => 'kecom-products-search-field-icon')); ?>
+                <?php Icon::render('search', ['class' => 'kecom-products-search-field-icon']); ?>
                 <input
                     id="kecom-search-input"
                     type="text"
@@ -72,6 +72,15 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
                     @keydown.escape="closeSearch()"
                     value="<?php echo esc_attr($search); ?>"
                 >
+                <button
+                    type="button"
+                    class="kecom-products-search-clear"
+                    :class="{ 'is-visible': searchQuery }"
+                    @click="applySearch('')"
+                    aria-label="<?php esc_attr_e('Clear search', 'kirki-ecommerce'); ?>"
+                >
+                    <?php Icon::render('cross', ['size' => 14]); ?>
+                </button>
             </div>
         </div>
     

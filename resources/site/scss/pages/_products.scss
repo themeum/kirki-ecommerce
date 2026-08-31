@@ -191,4 +191,30 @@
       color: $text-subdued;
     }
   }
+
+  .kecom-products-search-clear {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: $icon-secondary;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.15s,
+      color 0.15s;
+
+    &.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    &:hover {
+      color: $icon-primary;
+    }
+  }
 }
