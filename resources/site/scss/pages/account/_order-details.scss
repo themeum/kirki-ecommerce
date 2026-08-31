@@ -88,12 +88,13 @@
     &.kecom-order-step-delivered {
       .kecom-order-step-indicator {
         background-color: $icon-success;
-        svg{
+
+        svg {
           color: $icon-inverse;
         }
       }
     }
-      
+
     .kecom-order-step-indicator {
       background-color: $background-fill-secondary;
     }
@@ -125,6 +126,16 @@
         width: 1.5px;
         height: 100%;
         background-color: $background-surface-alt;
+      }
+    }
+
+    &.kecom-order-step-delivered {
+      .kecom-order-step-indicator {
+        background-color: $icon-success;
+
+        svg {
+          color: $icon-inverse;
+        }
       }
     }
 
