@@ -23,12 +23,6 @@ class OrderResource extends BaseOrderResource
                 return $item->product_data;
             })->to_array(),
             'updated_at' => $this->updated_at,
-            'order_timeline' => [
-                'paid_at' => ['status' => __('Payment Confirmed', 'kirki-ecommerce'), 'date' => $this->paid_at],
-                'shipped_at' => ['status' => __('Order Shipped', 'kirki-ecommerce'), 'date' => $this->shipped_at],
-                'cancelled_at' => ['status' => __('Order Cancelled', 'kirki-ecommerce'), 'date' => $this->cancelled_at],
-                'delivered_at' => ['status' => __('Order Delivered', 'kirki-ecommerce'), 'date' => $this->delivered_at],
-            ]
         ]);
     }
 

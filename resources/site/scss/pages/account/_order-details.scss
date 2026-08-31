@@ -84,6 +84,31 @@
     margin-top: $spacing-9;
   }
 
+  .kecom-order-step.kecom-order-step-active {
+    &.kecom-order-step-delivered {
+      .kecom-order-step-indicator {
+        background-color: $icon-success;
+        svg{
+          color: $icon-inverse;
+        }
+      }
+    }
+      
+    .kecom-order-step-indicator {
+      background-color: $background-fill-secondary;
+    }
+
+    .kecom-order-step-dot {
+      background-color: $icon-emphasis;
+    }
+
+    &:not(:last-of-type) {
+      &::before {
+        background-color: $background-fill-secondary;
+      }
+    }
+  }
+
   .kecom-order-step {
     @include flex();
     align-items: center;
@@ -95,11 +120,11 @@
       &::before {
         content: '';
         position: absolute;
-        top: 31px;
+        top: 33px;
         inset-inline-start: 11px;
         width: 1.5px;
         height: 100%;
-        background-color: $background-fill-secondary;
+        background-color: $background-surface-alt;
       }
     }
 
@@ -108,7 +133,7 @@
       width: 24px;
       height: 24px;
       flex-shrink: 0;
-      background-color: $background-fill-secondary;
+      background-color: $background-surface-alt;
       border-radius: $radius-lg;
     }
 
@@ -116,7 +141,7 @@
       width: 7px;
       height: 7px;
       border-radius: $radius-full;
-      background-color: $icon-emphasis;
+      background-color: $icon-secondary;
     }
 
     &-content {
@@ -135,6 +160,8 @@
     }
   }
 }
+
+
 
 // Card 2: Contact, Payment & Address Information
 .kecom-order-info-card {

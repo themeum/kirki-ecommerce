@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderActivity;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
@@ -55,6 +56,19 @@ class OrderActivityService
     public function all_for_order(int $order_id)
     {
         return $this->list_query($order_id)->get();
+    }
+
+    /**
+     * Get all of an order's activities, newest first.
+     *
+     * @param int $order_id
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     */
+    public function get_order_activity(int $order_id)
+    {
+        return $this->list_query( $order_id )
+            ->where( 'activity_type', '!=', OrderActivityType::COMMENT_ADDED )
+            ->get( ['activity_type','created_at'] );
     }
 
     /**
