@@ -38,7 +38,7 @@ class Utils
     {
         $request_method = !$request_method ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : $request_method;
         $data = strtolower($request_method) === 'post' ? $_POST : $_GET;
-        $nonce_value = sanitize_text_field(Arr::get($data, 'ajax_nonce'));
+        $nonce_value = sanitize_text_field(Arr::get($data, 'kecom_nonce'));
 
         return wp_verify_nonce($nonce_value, 'kirki_ecommerce_nonce') !== false;
     }

@@ -13,6 +13,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Http\Controllers\Site\AuthController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\SiteController;
 use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -25,33 +26,8 @@ Route::site(function () {
     $shop_page_id = Utils::get_shop_page_id();
     $cart_page_id = Utils::get_cart_page_id();
     $checkout_page_id = Utils::get_checkout_page_id();
-    $login_page_id = Utils::get_login_page_id();
-    $register_page_id = Utils::get_registration_page_id();
-
     $shop_page = get_post($shop_page_id);
     $shop_page_slug = !empty($shop_page) ? $shop_page->post_name : 'shop';
-
-    $login_page = get_post($login_page_id);
-    $login_page_slug = !empty($login_page) ? $login_page->post_name : 'login';
-
-    $register_page = get_post($register_page_id);
-    $register_page_slug = !empty($register_page) ? $register_page->post_name : 'register';
-
-    Route::get($login_page_slug, [SiteController::class, 'login_page'])
-        ->name('login');
-
-    Route::post($login_page_slug, [SiteController::class, 'handle_login'])
-        ->template_redirect()
-        ->name('login');
-
-    Route::get($register_page_slug, [SiteController::class, 'register_page'])
-        ->name('register');
-
-    if (Utils::registration_enabled()) {
-        Route::post($register_page_slug, [SiteController::class, 'handle_registration'])
-            ->template_redirect()
-            ->name('register');
-    }
 
     Route::get($shop_page_slug, [SiteController::class, 'shop_page'])
         ->name('shop')
@@ -68,6 +44,34 @@ Route::site(function () {
         ->middleware(SiteAuthMiddleware::class)
         ->name('checkout')
         ->match_page();
+});
+
+// Site auth routes.
+Route::site(function () {
+    $login_page_id = Utils::get_login_page_id();
+    $register_page_id = Utils::get_registration_page_id();
+
+    $login_page = get_post($login_page_id);
+    $login_page_slug = !empty($login_page) ? $login_page->post_name : 'login';
+
+    $register_page = get_post($register_page_id);
+    $register_page_slug = !empty($register_page) ? $register_page->post_name : 'register';
+
+    Route::get($login_page_slug, [AuthController::class, 'login_page'])
+        ->name('login');
+
+    Route::post($login_page_slug, [AuthController::class, 'handle_login'])
+        ->template_redirect()
+        ->name('login');
+
+    Route::get($register_page_slug, [AuthController::class, 'register_page'])
+        ->name('register');
+
+    if (Utils::registration_enabled()) {
+        Route::post($register_page_slug, [AuthController::class, 'handle_registration'])
+            ->template_redirect()
+            ->name('register');
+    }
 });
 
 // Customer account routes.
