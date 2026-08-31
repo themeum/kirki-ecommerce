@@ -36,6 +36,6 @@ class DeleteRefundAction
 
         OrderActivity::refund_deleted($order->fresh('refunds'), $refund_snapshot);
 
-        return $order->fresh('refunds', 'items');
+        return $order->fresh('refunds', 'items', 'coupons.item_attributions');
     }
 }

@@ -34,7 +34,6 @@ class OrderResource extends Resource
                 'invoiced_discount_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_discount_total, $this->currency_code),
                 'base_discount' => Money::prepare_amount_from_minor($this->base_discount_total),
                 'base_discount_money_object' => Money::prepare_amount_object_from_minor($this->base_discount_total),
-                'discount_details' => $this->discount_details,
                 'invoiced_tax' => Money::prepare_amount_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'invoiced_tax_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'base_tax' => Money::prepare_amount_from_minor($this->base_tax_total),
@@ -44,6 +43,31 @@ class OrderResource extends Resource
                 'base_total' => Money::prepare_amount_from_minor($this->base_total),
                 'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             ],
+
+            'coupons' => empty($this->coupons) ? [] : $this->coupons->map(function ($order_coupon) {
+                return [
+                    'id' => $order_coupon->id,
+                    'coupon_id' => $order_coupon->coupon_id,
+                    'code' => $order_coupon->code,
+                    'title' => $order_coupon->title,
+                    'discount_type' => $order_coupon->discount_type,
+                    'discount_target' => $order_coupon->discount_target,
+                    'invoiced_discount_amount' => Money::prepare_amount_from_minor($order_coupon->invoiced_discount_amount, $this->currency_code),
+                    'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->invoiced_discount_amount, $this->currency_code),
+                    'base_discount_amount' => Money::prepare_amount_from_minor($order_coupon->base_discount_amount),
+                    'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->base_discount_amount),
+                    'usage_reversed_at' => $order_coupon->usage_reversed_at,
+                    'item_attributions' => empty($order_coupon->item_attributions) ? [] : $order_coupon->item_attributions->map(function ($attribution) {
+                        return [
+                            'order_item_id' => $attribution->order_item_id,
+                            'invoiced_discount_amount' => Money::prepare_amount_from_minor($attribution->invoiced_discount_amount, $this->currency_code),
+                            'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($attribution->invoiced_discount_amount, $this->currency_code),
+                            'base_discount_amount' => Money::prepare_amount_from_minor($attribution->base_discount_amount),
+                            'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($attribution->base_discount_amount),
+                        ];
+                    }),
+                ];
+            }),
 
             'items_count' => $this->items_count,
             'items' => $this->items->map(function ($item) {

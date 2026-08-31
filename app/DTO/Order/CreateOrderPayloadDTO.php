@@ -18,8 +18,13 @@ class CreateOrderPayloadDTO extends DTO
     /** @var string */
     public $payment_provider;
 
-    /** @var string|null */
-    public $coupon_code;
+    /**
+     * @var string[] Coupon codes to apply. Populated either from the checkout
+     *      cart's applied coupons (resolve_checkout_cart()) or, for a manual/
+     *      direct order, from the single `coupon_code` request field - see
+     *      from_array().
+     */
+    public $coupon_codes = [];
 
     /** @var string|null */
     public $shipping_method;
@@ -119,4 +124,23 @@ class CreateOrderPayloadDTO extends DTO
 
     /** @var int|null */
     public $user_id;
+
+    /**
+     * Normalizes the request's single `coupon_code` field into `coupon_codes`,
+     * so the DTO only ever exposes one (array) representation of "which
+     * coupons apply" - `resolve_checkout_cart()` can then set `coupon_codes`
+     * directly for a real multi-coupon cart checkout.
+     *
+     * @param array $data
+     * @return static
+     */
+    public static function from_array(array $data)
+    {
+        // @todo: Remove this after we refactor to use coupon_codes instead of coupon_code
+        if (empty($data['coupon_codes']) && !empty($data['coupon_code'])) {
+            $data['coupon_codes'] = [$data['coupon_code']];
+        }
+
+        return parent::from_array($data);
+    }
 }

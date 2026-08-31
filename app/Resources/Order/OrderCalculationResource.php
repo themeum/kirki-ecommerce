@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+use Kirki\Ecommerce\App\Resources\Concerns\FormatsCouponResults;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -10,6 +11,8 @@ use function Kirki\Ecommerce\Framework\app;
 
 class OrderCalculationResource extends Resource
 {
+    use FormatsCouponResults;
+
     /**
      * Convert the cart resource to an array.
      *
@@ -37,7 +40,7 @@ class OrderCalculationResource extends Resource
                 'display_tax_total' => Money::prepare_amount_from_minor($result->base_tax_total, $result->currency_code, $display_currency),
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($result->base_tax_total, $result->currency_code, $display_currency),
 
-                'discount_details' => $result->discount_details,
+                'coupons' => $this->format_coupon_results($result->coupon_results, $result->currency_code, $display_currency),
                 'base_discount_total' => Money::prepare_amount_from_minor($result->base_discount_total, $result->currency_code),
                 'base_discount_total_money_object' => Money::prepare_amount_object_from_minor($result->base_discount_total, $result->currency_code),
                 'display_discount_total' => Money::prepare_amount_from_minor($result->base_discount_total, $result->currency_code, $display_currency),

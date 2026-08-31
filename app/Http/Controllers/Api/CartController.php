@@ -8,7 +8,9 @@ use Kirki\Ecommerce\App\Actions\Cart\UpdateCartAction;
 use Kirki\Ecommerce\App\Actions\Cart\UpdateCartItemAction;
 use Kirki\Ecommerce\App\Concerns\HasCartToken;
 use Kirki\Ecommerce\App\Http\Requests\Cart\AddToCartRequest;
+use Kirki\Ecommerce\App\Http\Requests\Cart\ApplyCouponRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\CartUpdateRequest;
+use Kirki\Ecommerce\App\Http\Requests\Cart\RemoveCouponRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\UpdateCartItemRequest;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Services\CartService;
@@ -113,28 +115,20 @@ class CartController
         return $this->cart_response($updated_cart, __('Cart updated successfully.', 'kirki-ecommerce'), $request);
     }
 
-    public function apply_coupon(Request $request, ApplyCouponAction $apply_coupon_action)
+    public function apply_coupon(ApplyCouponRequest $request, ApplyCouponAction $apply_coupon_action)
     {
-        $code = $request->string('code');
-
-        if (empty($code)) {
-            return response()->json([
-                'message' => __('Coupon code is required.', 'kirki-ecommerce'),
-            ], 400);
-        }
-
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
         if (empty($cart)) {
             throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
         }
 
-        $cart = $apply_coupon_action->execute($cart, $code);
+        $cart = $apply_coupon_action->execute($cart, $request->string('code'));
 
         return $this->cart_response($cart, __('Coupon applied successfully.', 'kirki-ecommerce'), $request);
     }
 
-    public function remove_coupon(Request $request, RemoveCouponAction $remove_coupon_action)
+    public function remove_coupon(RemoveCouponRequest $request, RemoveCouponAction $remove_coupon_action)
     {
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
@@ -142,7 +136,7 @@ class CartController
             throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
         }
 
-        $cart = $remove_coupon_action->execute($cart);
+        $cart = $remove_coupon_action->execute($cart, $request->string('code'));
 
         return $this->cart_response($cart, __('Coupon removed successfully.', 'kirki-ecommerce'), $request);
     }

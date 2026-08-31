@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources\Cart;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\App\Resources\Concerns\FormatsCouponResults;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
@@ -13,6 +14,8 @@ use function Kirki\Ecommerce\Framework\app;
 
 class CartResource extends Resource
 {
+    use FormatsCouponResults;
+
     /**
      * @var bool
      */
@@ -83,7 +86,7 @@ class CartResource extends Resource
                 'display_tax_total' => Money::prepare_amount_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
 
-                'discount_details' => $this->discount_details,
+                'coupons' => $this->format_coupon_results($result->coupon_results, $this->base_currency_code, $display_currency),
                 'base_discount_total' => Money::prepare_amount_from_minor($this->base_discount_total, $this->base_currency_code),
                 'base_discount_total_money_object' => Money::prepare_amount_object_from_minor($this->base_discount_total, $this->base_currency_code),
                 'display_discount_total' => Money::prepare_amount_from_minor($this->base_discount_total, $this->base_currency_code, $display_currency),

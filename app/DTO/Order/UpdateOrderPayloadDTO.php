@@ -18,8 +18,11 @@ class UpdateOrderPayloadDTO extends DTO
     /** @var string */
     public $currency_code;
 
-    /** @var string|null */
-    public $coupon_code;
+    /**
+     * @var string[] Coupon codes to apply, normalized from the request's
+     *      single `coupon_code` field - see from_array().
+     */
+    public $coupon_codes = [];
 
     /** @var string|null */
     public $shipping_method;
@@ -107,4 +110,22 @@ class UpdateOrderPayloadDTO extends DTO
 
     /** @var int|null */
     public $is_manual;
+
+    /**
+     * Normalizes the request's single `coupon_code` field into `coupon_codes`,
+     * so the DTO only ever exposes one (array) representation of "which
+     * coupons apply".
+     *
+     * @param array $data
+     * @return static
+     */
+    public static function from_array(array $data)
+    {
+        // @todo: Remove this after we refactor to use coupon_codes instead of coupon_code
+        if (empty($data['coupon_codes']) && !empty($data['coupon_code'])) {
+            $data['coupon_codes'] = [$data['coupon_code']];
+        }
+
+        return parent::from_array($data);
+    }
 }

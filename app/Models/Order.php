@@ -29,10 +29,8 @@ class Order extends Model
         'reverse_charge',
         'invoiced_shipping_total',
         'base_shipping_total',
-        'coupon_code',
         'invoiced_discount_total',
         'base_discount_total',
-        'discount_details',
         'invoiced_tax_total',
         'base_tax_total',
         'invoiced_total',
@@ -104,7 +102,6 @@ class Order extends Model
         'reverse_charge' => 'boolean',
         'invoiced_payment_provider_fee' => 'integer',
         'base_payment_provider_fee' => 'integer',
-        'discount_details' => 'json',
         'payment_metadata' => 'json',
         'shipping_metadata' => 'json',
         'invoiced_tax_total' => 'integer',
@@ -157,9 +154,9 @@ class Order extends Model
         return $this->belongs_to(Customer::class, 'customer_id');
     }
 
-    public function coupon_usage()
+    public function coupons()
     {
-        return $this->has_one(CouponUsage::class, 'order_id');
+        return $this->has_many(OrderCoupon::class, 'order_id');
     }
 
     public function refunds()

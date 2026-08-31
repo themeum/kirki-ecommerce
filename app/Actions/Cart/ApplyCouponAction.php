@@ -29,14 +29,11 @@ class ApplyCouponAction
         $coupon = $this->coupon_service->find_by_code($code);
 
         $context = CalculationContextDTO::from_cart($cart);
-        $context->coupon = $code;
 
         $this->discount_service->validate_coupon($coupon, $context);
 
-        $cart = $this->cart_service->partial_update($cart->id, [
-            'discount_details' => $coupon->to_array()
-        ]);
+        $this->cart_service->add_coupon($cart->id, $coupon->id);
 
-        return $cart;
+        return $this->cart_service->find($cart->id);
     }
 }

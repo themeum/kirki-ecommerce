@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\DiscountService;
@@ -11,11 +12,9 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\Supports\Tax;
-use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
-use Throwable;
 
 use function Kirki\Ecommerce\Framework\collection;
 
@@ -126,6 +125,8 @@ class RecalculateCartAction
 
         $shipping_discount_money = $discount_result->is_free_shipping ? $shipping_subtotal_money : Money::zero();
 
+        $this->attribute_shipping_discount($discount_result, $shipping_discount_money->getMinorAmount()->toInt());
+
         $total_discount_money = $total_discount_money->plus($shipping_discount_money);
 
         // Calculate Shipping Tax
@@ -155,7 +156,7 @@ class RecalculateCartAction
         $result->base_subtotal = $total_subtotal_money->getMinorAmount()->toInt();
         $result->base_tax_total = $total_tax_money->getMinorAmount()->toInt();
         $result->base_discount_total = $total_discount_money->getMinorAmount()->toInt();
-        $result->discount_details = $discount_result->discount_details;
+        $result->coupon_results = $discount_result->coupon_results;
         $result->base_total = $total_grand_money->getMinorAmount()->toInt();
 
         $result->base_shipping_subtotal = $shipping_subtotal_money->getMinorAmount()->toInt();
@@ -167,19 +168,60 @@ class RecalculateCartAction
         return $result;
     }
 
-    protected function get_discount_result(CalculationContextDTO $context)
+    protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        try {
-            $coupon_code = $context->coupon ?? null;
-            $coupon = $coupon_code ? $this->coupon_service->find_by_code($coupon_code) : null;
+        $coupons = $this->resolve_coupons($context->coupons);
 
-            return $this->discount_service->calculate($context, $coupon);
-        } catch (Throwable $e) {
-            if ($context->cart_id) {
-                $this->cart_service->partial_update($context->cart_id, ['discount_details' => null]);
+        $discount_result = $this->discount_service->calculate($context, $coupons);
+
+        if ($context->cart_id && !empty($discount_result->invalid_coupons)) {
+            $invalid_coupon_ids = collection($discount_result->invalid_coupons)->pluck('id')->to_array();
+
+            $this->cart_service->remove_coupons($context->cart_id, $invalid_coupon_ids);
+        }
+
+        return $discount_result;
+    }
+
+    /**
+     * Resolve coupon codes to Coupon models in a single query, silently
+     * skipping codes that don't resolve to a coupon (e.g. an ad-hoc code
+     * submitted for an order preview that doesn't exist) rather than failing
+     * the whole calculation.
+     *
+     * @param string[] $codes
+     * @return \Kirki\Ecommerce\App\Models\Coupon[]
+     */
+    protected function resolve_coupons(array $codes)
+    {
+        return $this->coupon_service->find_by_codes($codes)->all();
+    }
+
+    /**
+     * Attribute the shipping discount to the first free-shipping coupon result
+     * so it isn't double-counted if more than one free-shipping coupon is
+     * (redundantly) applied at once.
+     *
+     * @param DiscountCalculationResultDTO $discount_result
+     * @param int $shipping_discount_amount
+     */
+    protected function attribute_shipping_discount(DiscountCalculationResultDTO $discount_result, int $shipping_discount_amount)
+    {
+        $attributed = false;
+
+        foreach ($discount_result->coupon_results as $coupon_result) {
+            if ($coupon_result->coupon->discount_type !== DiscountType::FREE_SHIPPING) {
+                continue;
             }
 
-            return new DiscountCalculationResultDTO();
+            if ($attributed) {
+                $coupon_result->shipping_discount = 0;
+                continue;
+            }
+
+            $coupon_result->shipping_discount = $shipping_discount_amount;
+            $coupon_result->total_discount = $shipping_discount_amount;
+            $attributed = true;
         }
     }
 
@@ -191,7 +233,7 @@ class RecalculateCartAction
 
         return $this->shipping_service->calculate($context);
     }
-    
+
     protected function is_shipping_method_taxable(CalculationContextDTO $context)
     {
         if (empty($context->shipping_address) || empty($context->shipping_method_id)) {

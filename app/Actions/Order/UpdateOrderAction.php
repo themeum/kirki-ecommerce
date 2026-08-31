@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Services\InventoryService;
@@ -28,6 +29,8 @@ use function Kirki\Ecommerce\Framework\collection;
 
 class UpdateOrderAction
 {
+    use PersistsOrderCoupons;
+
     protected $recalculate_cart_action;
     protected $variant_service;
     protected $order_service;
@@ -71,11 +74,12 @@ class UpdateOrderAction
 
             $order_dto = $this->prepare_update_order_dto($order, $calculated_result, $dto, $context, $exchange_rate);
             $this->order_service->update_order($order_dto);
-            $order->fresh('items');
+
+            $this->sync_order_coupons($order->fresh('items'), $calculated_result, $dto->currency_code, $exchange_rate);
 
             DB::commit();
 
-            return $order->fresh('items');
+            return $order->fresh('items', 'coupons.item_attributions');
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
@@ -159,7 +163,6 @@ class UpdateOrderAction
 
         $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_discount_total = $calculated_result->base_discount_total;
-        $order_dto->discount_details = $calculated_result->discount_details;
 
         $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_tax_total = $calculated_result->base_tax_total;
@@ -219,7 +222,7 @@ class UpdateOrderAction
             'postcode' => $dto->shipping_postcode,
             'country' => $dto->shipping_country,
         ];
-        $context->coupon = $dto->coupon_code ?? null;
+        $context->coupons = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
         $context->items = $this->prepare_context_items($dto);

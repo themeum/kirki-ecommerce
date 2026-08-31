@@ -36,6 +36,9 @@ use Kirki\Ecommerce\Database\Migrations\CreateCouponCustomersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterCouponCustomersCompositePrimaryKey;
 use Kirki\Ecommerce\Database\Migrations\CreateCouponProductsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCouponUsageTable;
+use Kirki\Ecommerce\Database\Migrations\CreateCartCouponsTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderCouponsTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderItemCouponsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCollectionTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeValueProductTable;
@@ -52,6 +55,9 @@ use Kirki\Ecommerce\Database\Migrations\AlterSchedulerJobsStatusColumnToString;
 use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
+use Kirki\Ecommerce\Database\Migrations\DropCouponUsageTable;
+use Kirki\Ecommerce\Database\Migrations\AlterCartsDropDiscountDetails;
+use Kirki\Ecommerce\Database\Migrations\AlterOrdersDropLegacyCouponColumns;
 
 return [
     CreateLanguagesTable::class,
@@ -112,4 +118,11 @@ return [
     AlterSchedulerJobsStatusColumnToString::class,
     AddLowStockThresholdToVariantsTable::class,
     AddPublishedAtAndTrashedAtToProductsTable::class,
+
+    CreateCartCouponsTable::class,
+    CreateOrderCouponsTable::class,
+    CreateOrderItemCouponsTable::class,
+    DropCouponUsageTable::class,
+    AlterCartsDropDiscountDetails::class,
+    AlterOrdersDropLegacyCouponColumns::class,
 ];

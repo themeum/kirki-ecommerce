@@ -6,13 +6,17 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Models\OrderItemCoupon;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
@@ -126,6 +130,41 @@ class OrderService
     }
 
     /**
+     * Create an order-coupon attribution row.
+     *
+     * @param CreateOrderCouponDTO $dto
+     * @return OrderCoupon
+     */
+    public function create_order_coupon(CreateOrderCouponDTO $dto)
+    {
+        return OrderCoupon::create($dto->to_array());
+    }
+
+    /**
+     * Create an order-item-coupon attribution row.
+     *
+     * @param CreateOrderItemCouponDTO $dto
+     * @return OrderItemCoupon
+     */
+    public function create_order_item_coupon(CreateOrderItemCouponDTO $dto)
+    {
+        return OrderItemCoupon::create($dto->to_array());
+    }
+
+    /**
+     * Delete every coupon attribution row for an order (cascades to their
+     * order_item_coupon rows), so they can be recreated from a fresh
+     * calculation.
+     *
+     * @param int $order_id
+     * @return bool
+     */
+    public function delete_order_coupons(int $order_id)
+    {
+        return (bool) OrderCoupon::query()->where('order_id', $order_id)->delete();
+    }
+
+    /**
      * Find an order by UUID.
      *
      * @param string $uuid
@@ -133,7 +172,7 @@ class OrderService
      */
     public function find_order_by_uuid($uuid)
     {
-        return Order::with('items', 'refunds')->where('uuid', $uuid)->first();
+        return Order::with('items', 'refunds', 'coupons.item_attributions')->where('uuid', $uuid)->first();
     }
 
     /**
@@ -155,7 +194,7 @@ class OrderService
      */
     public function find_order($id)
     {
-        return Order::with('items', 'refunds')->find($id);
+        return Order::with('items', 'refunds', 'coupons.item_attributions')->find($id);
     }
 
     /**

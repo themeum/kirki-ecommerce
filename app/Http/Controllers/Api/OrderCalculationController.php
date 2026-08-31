@@ -54,7 +54,7 @@ class OrderCalculationController
                 'country' => $data['shipping_country']
             ],
             'customer_id' => $data['customer_id'],
-            'coupon' => $data['coupon_code'] ?? null,
+            'coupons' => !empty($data['coupon_code']) ? [$data['coupon_code']] : [], // @todo: Remove this after we refactor to use coupon_codes instead of coupon_code
             'shipping_method_id' => $data['shipping_method'] ?? null,
             'customer_order_count' => 0,
         ]);
