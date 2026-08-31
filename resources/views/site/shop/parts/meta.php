@@ -13,7 +13,7 @@ defined('ABSPATH') || exit;
 
 $current_sort_by = $data['current_sort_by'] ?? 'recommended';
 $has_filters = $data['has_filters'] ?? false;
-
+$search = $data['search'] ?? '';
 
 $short_by_options = ['recommended', 'low_to_high', 'high_to_low'];
 $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $current_sort_by : 'recommended';
@@ -42,12 +42,23 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
         ?>
     </div>
     
-    <div class="kecom-products-page-meta-sortby">
-        <label for="sort_by"><?php esc_html_e('Sort by:', 'kirki-ecommerce'); ?></label>
-        <select name="sort_by" id="sort_by" x-model="sortBy" @change="applySort($event.target.value)">
-            <option value="recommended" <?php selected($current_sort_by, 'recommended'); ?>><?php esc_html_e('Recommended', 'kirki-ecommerce'); ?></option>
-            <option value="low_to_high" <?php selected($current_sort_by, 'low_to_high'); ?>><?php esc_html_e('Price: Low to High', 'kirki-ecommerce'); ?></option>
-            <option value="high_to_low" <?php selected($current_sort_by, 'high_to_low'); ?>><?php esc_html_e('Price: High to Low', 'kirki-ecommerce'); ?></option>
-        </select>
+    <div class="kecom-products-page-meta-right kecom-flex kecom-gap-4">
+        <input 
+            type="text" 
+            class="kecom-input kecom-input-sm" 
+            placeholder="<?php esc_html_e('Search products', 'kirki-ecommerce'); ?>" 
+            name="search"
+            x-model="searchQuery"
+            @keydown.enter.prevent="search()"
+            value="<?php echo esc_attr($search); ?>">
+    
+        <div class="kecom-products-page-meta-sortby">
+            <label for="sort_by"><?php esc_html_e('Sort by:', 'kirki-ecommerce'); ?></label>
+            <select name="sort_by" id="sort_by" x-model="sortBy" @change="applySort($event.target.value)">
+                <option value="recommended" <?php selected($current_sort_by, 'recommended'); ?>><?php esc_html_e('Recommended', 'kirki-ecommerce'); ?></option>
+                <option value="low_to_high" <?php selected($current_sort_by, 'low_to_high'); ?>><?php esc_html_e('Price: Low to High', 'kirki-ecommerce'); ?></option>
+                <option value="high_to_low" <?php selected($current_sort_by, 'high_to_low'); ?>><?php esc_html_e('Price: High to Low', 'kirki-ecommerce'); ?></option>
+            </select>
+        </div>
     </div>
 </div>

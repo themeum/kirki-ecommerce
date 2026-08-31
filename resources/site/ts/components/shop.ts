@@ -17,17 +17,20 @@ export function shop() {
 
   return {
     sortBy: 'recommended',
+    searchQuery: '',
     isLoading: false,
 
     init() {
-      // Read initial sort_by from URL params
+      // Read initial sort_by and search from URL params
       const params = new URLSearchParams(window.location.search);
       this.sortBy = params.get('sort_by') || 'recommended';
+      this.searchQuery = params.get('search') || '';
 
       // Handle browser back/forward buttons
       window.addEventListener('popstate', () => {
         const currentParams = new URLSearchParams(window.location.search);
         this.sortBy = currentParams.get('sort_by') || 'recommended';
+        this.searchQuery = currentParams.get('search') || '';
         void this.fetchProducts();
       });
 
@@ -67,6 +70,33 @@ export function shop() {
       window.history.pushState({}, '', newUrl);
 
       void this.fetchProducts();
+    },
+
+    search() {
+      const params = new URLSearchParams(window.location.search);
+      const query = this.searchQuery.trim();
+
+      if (query) {
+        params.set('search', query);
+      } else {
+        params.delete('search');
+      }
+
+      // Reset page to 1 when search query changes
+      params.delete('current_page');
+
+      const queryString = params.toString();
+      const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+      window.history.pushState({}, '', newUrl);
+
+      void this.fetchProducts();
+    },
+
+    applySearch(value?: string) {
+      if (value !== undefined) {
+        this.searchQuery = value;
+      }
+      this.search();
     },
 
     async fetchProducts(shouldScroll = false) {
