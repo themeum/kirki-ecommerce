@@ -131,6 +131,10 @@ class SiteController
             'media'
         ])->where('slug', $slug)->first();
 
+        if (! $product) {
+            return view('site.shop.not-found')->layout(false);
+        }
+
         $resource = ProductResource::make($product);
 
         return view('site.shop.single', $resource)->layout(false);
