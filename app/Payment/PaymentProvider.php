@@ -436,17 +436,23 @@ class PaymentProvider
      */
     public function webhook_url()
     {
-        if (!defined('KECOM_WEBHOOK_BASE_URL') || home_url() === KECOM_WEBHOOK_BASE_URL) {
-            return Route::url('payment/webhook/' . $this->id());
+        $webhook_url = Route::url('payment/webhook/' . $this->id());
+
+        if (!defined('KECOM_WEBHOOK_BASE_URL') || 'production' === wp_get_environment_type()) {
+            return $webhook_url;
         }
 
-        $override_home = fn() => rtrim(KECOM_WEBHOOK_BASE_URL, '/');
+        $base     = untrailingslashit(home_url());
+        $override = untrailingslashit(KECOM_WEBHOOK_BASE_URL);
 
-        add_filter('pre_option_home', $override_home);
-        $url = Route::url('payment/webhook/' . $this->id());
-        remove_filter('pre_option_home', $override_home);
+        if (!wp_http_validate_url($override) || $base === $override) {
+            return $webhook_url;
+        }
 
-        return $url;
+        $parts = wp_parse_url($webhook_url);
+        $path  = $parts['path'] ?? '/';
+
+        return $override . '/' . ltrim($path, '/');
     }
 
     /**
