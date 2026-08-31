@@ -284,11 +284,11 @@ class Quickpay extends PaymentProvider
 
         $status_code = (int) $operation->aq_status_code;
 
-        if (20000 === $status_code) {
+        if ($status_code === 20000) {
             return PaymentStatus::PAID;
         }
 
-        if (40000 >= $status_code) {
+        if ($status_code >= 40000) {
             return PaymentStatus::FAILED;
         }
 
