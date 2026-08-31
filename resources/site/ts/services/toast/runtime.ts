@@ -4,14 +4,17 @@ type ToastEntry = {
   id: string;
   element: HTMLElement;
   timerId: ReturnType<typeof setTimeout> | null;
-  height: number;
+  endsAt: number;
+  remainingMs: number;
+  paused: boolean;
   exiting: boolean;
   swiping: boolean;
+  height: number;
 };
 
 const DEFAULT_STACK_DEPTH = {
   gap: 10,
-  peek: 120,
+  peek: -120,
   scaleStep: 0.034,
   scaleFloor: 0.883,
   opacity1: 0.78,
@@ -58,6 +61,7 @@ export type ToastApi = {
   error: (message: string, duration?: number, options?: ToastOptions) => string;
   warning: (message: string, duration?: number, options?: ToastOptions) => string;
   info: (message: string, duration?: number, options?: ToastOptions) => string;
+  action: (message: string, duration?: number, options?: ToastOptions) => string;
   dismiss: (id?: string) => void;
   clear: () => void;
   configure: (options: ToastConfig) => void;
@@ -136,6 +140,79 @@ export class ToastManager {
     }
   }
 
+  private collapseAndRemove(element: HTMLElement, id: string): void {
+    this.entries.delete(id);
+
+    const height = element.offsetHeight;
+    element.style.pointerEvents = 'none';
+    element.style.overflow = 'hidden';
+    element.style.height = `${height}px`;
+    void element.offsetHeight;
+    element.style.transition = 'height 200ms ease';
+    element.style.height = '0px';
+
+    setTimeout(() => {
+      element.remove();
+      this.restack();
+    }, 210);
+  }
+
+  private dismissOne(id: string): void {
+    const entry = this.entries.get(id);
+    if (!entry || entry.exiting) {
+      return;
+    }
+
+    entry.exiting = true;
+    this.clearTimer(id);
+    entry.element.removeAttribute(TOAST_ATTR.dataEntering);
+    entry.element.setAttribute(TOAST_ATTR.dataExiting, TOAST_ATTR_VALUE.true);
+    entry.element.setAttribute(TOAST_ATTR.dataPositionY, 'top');
+
+    setTimeout(() => this.collapseAndRemove(entry.element, id), 280);
+  }
+
+  private clearTimer(id: string): void {
+    const entry = this.entries.get(id);
+    if (entry?.timerId) {
+      clearTimeout(entry.timerId);
+      entry.timerId = null;
+    }
+  }
+
+  private pauseAll(): void {
+    this.entries.forEach((entry) => this.pauseEntry(entry));
+  }
+
+  private resumeAll(): void {
+    this.entries.forEach((entry) => this.resumeEntry(entry));
+  }
+
+  private pauseEntry(entry: ToastEntry): void {
+    if (entry.paused || entry.exiting) {
+      return;
+    }
+
+    this.clearTimer(entry.id);
+    entry.remainingMs = Math.max(0, entry.endsAt - Date.now());
+    entry.paused = true;
+  }
+
+  private resumeEntry(entry: ToastEntry): void {
+    if (!entry.paused || entry.exiting) {
+      return;
+    }
+
+    entry.paused = false;
+
+    if (entry.remainingMs > 0) {
+      entry.endsAt = Date.now() + entry.remainingMs;
+      entry.timerId = setTimeout(() => this.dismiss(entry.id), entry.remainingMs);
+    } else {
+      this.dismiss(entry.id);
+    }
+  }
+
   private ensureContainer(containerClass?: string): void {
     if (this.container) {
       return;
@@ -172,8 +249,19 @@ export class ToastManager {
     document.body.appendChild(this.container);
   }
 
-  private buildActionCard(id: string, title: string, description: string, type: ToastType, thumbnail?: string, actionUrl?: string, actionText?: string) {
+  private boot() {
+    if (this.stack && this.container) {
+      return;
+    }
 
+    this.stack = document.createElement('div');
+    this.stack.className = TOAST_CLASS.stack;
+
+    this.container?.appendChild(this.stack);
+
+  }
+
+  private buildActionCard(id: string, title: string, description: string, type: ToastType, thumbnail?: string, actionUrl?: string, actionText?: string) {
     const item = document.createElement('div');
     item.className = TOAST_CLASS.item;
 
@@ -218,7 +306,7 @@ export class ToastManager {
       const closeButton = document.createElement('button');
       closeButton.className = TOAST_CLASS.closeButton;
       closeButton.innerHTML = '&times;';
-      closeButton.addEventListener('click', () => this.dismiss(id,type));
+      closeButton.addEventListener('click', () => this.dismiss(id, type));
       card.appendChild(closeButton);
     }
 
@@ -267,6 +355,11 @@ export class ToastManager {
   }
 
   public dismiss(id?: string, type?: ToastType): void {
+    if ( id && 'action' === type ) {
+      this.dismissOne(id);
+      return;
+    }
+
     if (id) {
       const entry = this.entries.get(id);
       if (entry) {
@@ -299,18 +392,6 @@ export class ToastManager {
     this.dismiss();
   }
 
-  private setExpanded(isExpanded: boolean): void {
-    if (this.config.expandMode === 'always') {
-      this.expanded = true;
-    } else if (this.config.expandMode === 'never') {
-      this.expanded = false;
-    } else {
-      this.expanded = isExpanded;
-    }
-
-    this.restack();
-  }
-
   private restack(): void {
     if (!this.stack) {
       return;
@@ -323,7 +404,7 @@ export class ToastManager {
     const gap = DEFAULT_STACK_DEPTH.gap;
     const peek = DEFAULT_STACK_DEPTH.peek;
     const scaleStep = DEFAULT_STACK_DEPTH.scaleStep;
-    const direction = -1;
+    const direction = 1;
 
     visibleEntries.forEach((entry) => {
       const height = entry.element.offsetHeight;
@@ -396,6 +477,9 @@ export class ToastManager {
 
   public show(message: string, options: ToastOptions = {}): string {
     this.ensureContainer(options.containerClass);
+    if ('action' === options.type) {
+      this.boot();
+    }
 
     const id = String(++this.idCounter);
     const type = options.type || 'info';
@@ -411,19 +495,15 @@ export class ToastManager {
     item.style.transform = type === 'action' ? '' : 'translateX(100px)';
     item.style.transition = 'all 300ms ease';
     item.setAttribute(TOAST_ATTR.dataEntering, TOAST_ATTR_VALUE.true);
-    item.setAttribute(TOAST_ATTR.dataPositionY, 'top');
-   
-    if ( type === 'action' ) {
-      this.stack = document.createElement('div');
-      this.stack.className = TOAST_CLASS.stack;
-      if ( this.stack?.firstChild ) {
+    item.setAttribute(TOAST_ATTR.dataPositionY, 'bottom');
+
+    if (type === 'action') {
+      if (this.stack?.firstChild) {
         this.stack.insertBefore(item, this.stack.firstChild);
       } else {
         this.stack?.appendChild(item);
       }
-      this.container?.appendChild(this.stack);
-    }
-
+    } 
     if (this.container?.firstChild) {
       this.container.insertBefore(item, this.container.firstChild);
     } else {
@@ -442,18 +522,21 @@ export class ToastManager {
 
     let timerId: ReturnType<typeof setTimeout> | null = null;
     if (duration > 0) {
-      timerId = setTimeout(() => this.dismiss(id,type), duration);
+      timerId = setTimeout(() => this.dismiss(id, type), duration);
     }
 
     this.entries.set(id, {
       id, element: item, timerId, height: 0,
       exiting: false,
       swiping: false,
+      paused: false,
+      endsAt: 0,
+      remainingMs: 0,
     });
-    if ( type === 'action' ) {
+    if (type === 'action') {
       this.restack();
     }
- 
+
     return id;
   }
 
@@ -485,6 +568,10 @@ export class ToastManager {
     }
 
     this.ensureParentContainer(containerClass ?? '');
+  }
+
+  public action(message: string, duration?: number): string {
+    return this.show(message, { type: 'action', duration });
   }
 
   public success(message: string, duration?: number): string {
@@ -520,6 +607,8 @@ export function createToastApi(manager: ToastManager): ToastApi {
     manager.show(message, { ...options, type: 'warning', duration });
   api.info = (message, duration, options) =>
     manager.show(message, { ...options, type: 'info', duration });
+  api.action = (message, duration, options) =>
+    manager.show(message, { ...options, type: 'action', duration });
   api.dismiss = (id) => manager.dismiss(id);
   api.clear = () => manager.clear();
   api.configure = (options) => manager.configure(options);

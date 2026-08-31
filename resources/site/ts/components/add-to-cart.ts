@@ -11,7 +11,7 @@
 
 import { cartApi } from '../api/cart';
 import { Cookie } from '../cookie';
-import { toastManager } from '../services/toast/runtime';
+import { toast, toastManager } from '../services/toast/runtime';
 import { CartItem } from '../types';
 import { config } from '../utils';
 
@@ -81,10 +81,8 @@ export function addToCart(componentConfig: AddToCartConfig) {
         const toastTitle = `${quantity > 1 ? quantity + ' x ' + product?.title : product?.title}`
         const toastDescription = product?.attributes.join(' / ');
 
-
-        toastManager.show(toastTitle, {
+        toast.action(toastTitle,5000,{
           description: toastDescription,
-          type: 'action',
           thumbnail: this.imageUrl,
           actionUrl: this.cartUrl,
           containerClass: this.containerClass,
