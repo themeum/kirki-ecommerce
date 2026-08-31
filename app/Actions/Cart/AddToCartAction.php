@@ -37,7 +37,7 @@ class AddToCartAction
         }
 
         if (!$this->inventory_service->is_within_limit($dto->variant_id, $dto->quantity)) {
-            throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $dto->variant_id));
+            throw new Exception(sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $dto->variant_id));
         }
 
         $dto->product_id = $variant->product_id;

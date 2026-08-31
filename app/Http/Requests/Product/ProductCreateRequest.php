@@ -101,7 +101,7 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100|unique:' . Variant::get_table_name() . ',sku',
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number|gt:0',
+            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number',
             'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
