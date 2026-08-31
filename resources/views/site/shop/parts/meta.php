@@ -9,6 +9,8 @@
  * @since 1.0.0
  */
 
+use Kirki\Ecommerce\App\Supports\Icon;
+
 defined('ABSPATH') || exit;
 
 $current_sort_by = $data['current_sort_by'] ?? 'recommended';
@@ -43,14 +45,35 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
     </div>
     
     <div class="kecom-products-page-meta-right kecom-flex kecom-gap-4">
-        <input 
-            type="text" 
-            class="kecom-input kecom-input-sm" 
-            placeholder="<?php esc_html_e('Search products', 'kirki-ecommerce'); ?>" 
-            name="search"
-            x-model="searchQuery"
-            @keydown.enter.prevent="search()"
-            value="<?php echo esc_attr($search); ?>">
+        <!-- Search toggle -->
+        <div class="kecom-products-search" x-data>
+            <button
+                type="button"
+                class="kecom-products-search-btn"
+                :class="{ 'is-visible': searchBtnVisible }"
+                @click="openSearch()"
+                aria-label="<?php esc_attr_e('Open search', 'kirki-ecommerce'); ?>"
+            >
+                <?php Icon::render('search') ?>
+            </button>
+            <div
+                class="kecom-products-search-field"
+                :class="{ 'is-open': searchOpen }"
+            >
+                <?php Icon::render('search', array('class' => 'kecom-products-search-field-icon')); ?>
+                <input
+                    id="kecom-search-input"
+                    type="text"
+                    class="kecom-products-search-input"
+                    placeholder="<?php esc_html_e('Search products...', 'kirki-ecommerce'); ?>"
+                    name="search"
+                    x-model="searchQuery"
+                    @keydown.enter.prevent="search()"
+                    @keydown.escape="closeSearch()"
+                    value="<?php echo esc_attr($search); ?>"
+                >
+            </div>
+        </div>
     
         <div class="kecom-products-page-meta-sortby">
             <label for="sort_by"><?php esc_html_e('Sort by:', 'kirki-ecommerce'); ?></label>

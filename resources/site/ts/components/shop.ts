@@ -18,6 +18,8 @@ export function shop() {
   return {
     sortBy: 'recommended',
     searchQuery: '',
+    searchOpen: false,
+    searchBtnVisible: true,
     isLoading: false,
 
     init() {
@@ -25,6 +27,11 @@ export function shop() {
       const params = new URLSearchParams(window.location.search);
       this.sortBy = params.get('sort_by') || 'recommended';
       this.searchQuery = params.get('search') || '';
+      // Auto-open search if a query is already present in the URL
+      if (this.searchQuery) {
+        this.searchOpen = true;
+        this.searchBtnVisible = false;
+      }
 
       // Handle browser back/forward buttons
       window.addEventListener('popstate', () => {
@@ -49,6 +56,29 @@ export function shop() {
             void this.fetchProducts(true);
           }
         });
+      }
+    },
+
+    openSearch() {
+      this.searchBtnVisible = false;
+      this.searchOpen = true;
+      setTimeout(() => {
+        const input = document.getElementById('kecom-search-input') as HTMLInputElement | null;
+        input?.focus();
+      }, 50);
+    },
+
+    closeSearch() {
+      this.searchOpen = false;
+
+      // Wait for the field leave transition before showing the button
+      setTimeout(() => {
+        this.searchBtnVisible = true;
+      }, 50);
+
+      if (this.searchQuery) {
+        this.searchQuery = '';
+        this.search();
       }
     },
 
