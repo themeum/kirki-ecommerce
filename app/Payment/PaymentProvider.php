@@ -436,7 +436,7 @@ class PaymentProvider
      */
     public function webhook_url()
     {
-        if (home_url() === KECOM_WEBHOOK_BASE_URL) {
+        if (!defined('KECOM_WEBHOOK_BASE_URL') || home_url() === KECOM_WEBHOOK_BASE_URL) {
             return Route::url('payment/webhook/' . $this->id());
         }
 
