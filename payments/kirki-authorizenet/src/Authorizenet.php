@@ -176,10 +176,10 @@ class Authorizenet extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'login_id' => 'required|string',
-            'transaction_key' => 'required|string',
-            'signature_key' => 'required|string',
-            'sandbox' => 'required|boolean',
+            'login_id' => 'sometimes|string',
+            'transaction_key' => 'sometimes|string',
+            'signature_key' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;

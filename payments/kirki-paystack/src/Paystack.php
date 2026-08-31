@@ -96,7 +96,7 @@ class Paystack extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'secret_key' => 'required|string',
+            'secret_key' => 'sometimes|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 
