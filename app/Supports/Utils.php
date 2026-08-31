@@ -400,7 +400,7 @@ class Utils
             case FulfillmentStatus::ON_HOLD:
                 return 'kecom-badge-caution-light';
             case FulfillmentStatus::UNFULFILLED:
-                return 'kecom-badge-warning-light';
+                return 'kecom-badge-slate';
             case FulfillmentStatus::DELIVERED:
                 return 'kecom-badge-success-light';
             case PaymentStatus::PAID:
