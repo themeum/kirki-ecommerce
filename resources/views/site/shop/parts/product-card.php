@@ -57,6 +57,22 @@ if ($sale_price > 0) {
     $formatted_sale_price = $manager->format($manager->from_minor($sale_price));
 }
 
+$display_price = $in_sale ? $formatted_sale_price : $formatted_regular_price;
+
+if ($variants->count() > 1) {
+    $in_sale = false;
+    $lowest_price = $variants->min(fn($variant) => $variant->base_price);
+    $lowest_price_formatted = $manager->format($manager->from_minor($lowest_price));
+
+    $highest_price = $variants->max(fn($variant) => $variant->base_price);
+    $highest_price_formatted = $manager->format($manager->from_minor($highest_price));
+
+    $display_price = $lowest_price_formatted;
+    if ($lowest_price !== $highest_price) {
+        $display_price .= ' - ' . $highest_price_formatted;
+    }
+}
+
 $category = $product->categories->first();
 $media = $product->media->first();
 $image_url = null;
@@ -88,7 +104,7 @@ $product_url = Url::get_product_url($product->slug);
     <div class="kecom-product-card-footer">
         <div class="kecom-product-card-price-wrapper">
             <span class="kecom-product-card-price">
-                <?php echo esc_html($in_sale ? $formatted_sale_price : $formatted_regular_price); ?>
+                <?php echo esc_html($display_price); ?>
             </span>
             <?php if ($in_sale) : ?>
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
