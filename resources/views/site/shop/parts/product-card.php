@@ -14,6 +14,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
@@ -67,7 +68,7 @@ $cart_url                = $product['cart_url'];
                 <span><?php esc_html_e('Details', 'kirki-ecommerce'); ?></span>
             </a>
         <?php } else { ?>
-        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?>', imageUrl: '<?php echo esc_url($image_url); ?>', containerClass: 'kecom-products-page' })">
+        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?>', imageUrl: '<?php echo esc_url( empty( $image_url ) ? Assets::get_url('images/product-fallback.webp') : $image_url ); ?>', containerClass: 'kecom-products-page' })">
             <button
                 type="button"
                 class="kecom-btn kecom-btn-primary kecom-btn-block kecom-product-card-add-to-cart"
