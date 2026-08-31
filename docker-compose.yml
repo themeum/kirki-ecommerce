@@ -36,7 +36,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-wordpress}
       DB_HOST: mariadb
       WP_URL: ${WP_URL:-http://localhost:20100}
-      WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-http://localhost:20100}
       XDEBUG_MODE: ${XDEBUG_MODE:-off}
       XDEBUG_CLIENT_HOST: ${XDEBUG_CLIENT_HOST:-host.docker.internal}
       XDEBUG_CLIENT_PORT: ${XDEBUG_CLIENT_PORT:-9003}
@@ -94,7 +93,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-wordpress}
       DB_HOST: mariadb
       WP_URL: ${WP_URL:-http://localhost:20100}
-      WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-http://localhost:20100}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -120,7 +118,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-wordpress}
       DB_HOST: mariadb
       WP_URL: ${WP_URL:-http://localhost:20100}
-      WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-http://localhost:20100}
       WP_TITLE: ${WP_TITLE:-Kirki Ecommerce Dev}
       WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
       WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-demo}
