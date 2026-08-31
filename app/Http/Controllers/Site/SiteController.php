@@ -43,10 +43,18 @@ class SiteController
     /** @var ProductService */
     protected $product_service;
 
+    /**
+     * Constructor
+     *
+     * @since 1.0.0
+     *
+     * @param ProductService $product_service product service.
+     */
     public function __construct(ProductService $product_service)
     {
         $this->product_service = $product_service;
     }
+
     /**
      * Shop page
      *
