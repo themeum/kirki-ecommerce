@@ -13,15 +13,10 @@ import { buildCartApi } from '../api/cart';
 
 const cartApi = buildCartApi({ skipTax: false });
 import { checkoutApi } from '../api/checkout';
-import { emit, listen, EVENTS } from '../events';
+import { emit, EVENTS, type Events, listen } from '../events';
 import { toastManager } from '../services/toast/runtime';
 import type { CheckoutRequest, ShippingMethod } from '../types';
 import { config } from '../utils';
-
-/** Detail shape emitted by *-form-validated custom events */
-type FormValidatedDetail = {
-  isValid: boolean;
-};
 
 /** Subset of Alpine $data() returned for the form component */
 type AlpineFormData = {
@@ -62,21 +57,25 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     };
   }
 
-  // Wait for a one-shot window event, resolving with its detail
-  function waitForEvent(eventName: string, timeoutMs = 2000): Promise<FormValidatedDetail> {
+  // Wait for a one-shot window event, resolving with its typed detail
+  function waitForEvent<K extends keyof Events>(
+    eventName: K,
+    timeoutMs = 2000,
+  ): Promise<Events[K]> {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        window.removeEventListener(eventName, handler);
+        unsubscribe();
         reject(new Error(`Timed out waiting for ${eventName}`));
       }, timeoutMs);
 
-      const handler = (e: Event) => {
-        clearTimeout(timer);
-        window.removeEventListener(eventName, handler);
-        resolve((e as CustomEvent).detail);
-      };
-
-      window.addEventListener(eventName, handler, { once: true });
+      const unsubscribe = listen(
+        eventName,
+        ((detail: Events[K]) => {
+          clearTimeout(timer);
+          resolve(detail);
+        }) as any,
+        { once: true },
+      );
     });
   }
 
@@ -102,8 +101,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return;
     }
 
+    const contactFormEl = document.querySelector('#contact-form');
     const shippingFormEl = document.querySelector('#shipping-form');
     const billingFormEl = document.querySelector('#billing-form');
+    const contactForm: AlpineFormData | null = contactFormEl
+      ? window.Alpine.$data(contactFormEl)
+      : null;
     const shippingForm: AlpineFormData | null = shippingFormEl
       ? window.Alpine.$data(shippingFormEl)
       : null;
@@ -115,7 +118,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     for (const [key, messages] of Object.entries(err.errors)) {
       const rawMessage = messages[0];
-      if (key.startsWith('shipping_')) {
+      if (key === 'customer_email' || key === 'email') {
+        contactForm?.setError('customer_email', rawMessage);
+        hasFieldErrors = true;
+      } else if (key.startsWith('shipping_')) {
         const field = key.replace('shipping_', '');
         shippingForm?.setError(field, rawMessage);
         hasFieldErrors = true;
@@ -157,18 +163,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
 
     init() {
-      (this as unknown as AlpineContext).$el.addEventListener(
-        EVENTS.BILLING_FORM_VALIDATED,
-        (e: Event) => {
-          this.billingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
-        },
-      );
-      (this as unknown as AlpineContext).$el.addEventListener(
-        EVENTS.SHIPPING_FORM_VALIDATED,
-        (e: Event) => {
-          this.shippingFormValid = (e as CustomEvent<FormValidatedDetail>).detail.isValid;
-        },
-      );
+      listen(EVENTS.BILLING_FORM_VALIDATED, (detail) => {
+        this.billingFormValid = detail.isValid;
+      });
+      listen(EVENTS.SHIPPING_FORM_VALIDATED, (detail) => {
+        this.shippingFormValid = detail.isValid;
+      });
 
       // Pre-select the first payment method
       const firstPaymentRadio = document.querySelector<HTMLInputElement>(
@@ -192,7 +192,9 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           // Persist the default selection so the displayed totals include shipping cost.
           // Deferred via $nextTick — #shipping-form's Alpine component isn't initialized
           // yet at this point in the tree walk, and updateCart() reads its live values.
-          (this as unknown as AlpineContext).$nextTick(() => this.updateCart());
+          (this as unknown as AlpineContext).$nextTick(() => {
+            void this.updateCart();
+          });
         }
       }
 
@@ -329,30 +331,48 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
-      (this as unknown as AlpineContext).$dispatch('payment-method-change', { method });
+      emit(EVENTS.PAYMENT_METHOD_CHANGED, { method });
     },
 
     async placeOrder() {
       this.error = null;
 
       try {
-        // Validate both forms concurrently — dispatch triggers each form's
-        // validateForm() which fires back *-form-validated on the window
-        (this as unknown as AlpineContext).$dispatch(EVENTS.SHIPPING_FORM_VALIDATE);
+        // Validate contact form if present
+        const contactFormEl = document.querySelector('#contact-form');
+        const contactForm: AlpineFormData | null = contactFormEl
+          ? window.Alpine.$data(contactFormEl)
+          : null;
+
+        if (contactForm) {
+          emit(EVENTS.CONTACT_FORM_VALIDATE);
+        }
+
+        // Validate shipping form
+        emit(EVENTS.SHIPPING_FORM_VALIDATE);
 
         // Only validate billing independently when it differs from shipping
         if (!this.billingSameAsShipping) {
-          (this as unknown as AlpineContext).$dispatch(EVENTS.BILLING_FORM_VALIDATE);
+          emit(EVENTS.BILLING_FORM_VALIDATE);
         }
 
-        const validationPromises: Promise<FormValidatedDetail>[] = [
+        const validationPromises: Promise<{ isValid: boolean }>[] = [
+          contactForm
+            ? waitForEvent(EVENTS.CONTACT_FORM_VALIDATED)
+            : Promise.resolve({ isValid: true }),
           waitForEvent(EVENTS.SHIPPING_FORM_VALIDATED),
           this.billingSameAsShipping
             ? Promise.resolve({ isValid: true })
             : waitForEvent(EVENTS.BILLING_FORM_VALIDATED),
         ];
 
-        const [shippingResult, billingResult] = await Promise.all(validationPromises);
+        const [contactResult, shippingResult, billingResult] =
+          await Promise.all(validationPromises);
+
+        if (!contactResult.isValid) {
+          scrollToFirstError();
+          return;
+        }
 
         this.shippingFormValid = shippingResult.isValid;
         this.billingFormValid = billingResult.isValid;
@@ -383,6 +403,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           ? null
           : window.Alpine.$data(billingFormEl);
 
+        const customerEmail = contactForm
+          ? String(contactForm.values.customer_email || '').trim()
+          : (config.current_user?.email ?? '');
+
         // Prepare order data
         const orderData: CheckoutRequest = {
           items: this.cartData.items.map((item) => ({
@@ -403,7 +427,6 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           shipping_postcode: shippingForm.values.postal_code,
           shipping_country: shippingForm.values.country,
           shipping_phone: shippingForm.values.phone,
-          shipping_email: shippingForm.values.email,
           shipping_company: null,
           ...(billingForm
             ? {
@@ -416,11 +439,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
                 billing_postcode: billingForm.values.postal_code,
                 billing_country: billingForm.values.country,
                 billing_phone: billingForm.values.phone,
-                billing_email: billingForm.values.email,
                 billing_company: null,
               }
             : {}),
-          customer_email: shippingForm.values.email,
+          customer_email: customerEmail,
           customer_phone: shippingForm.values.phone,
           customer_notes: null,
         };

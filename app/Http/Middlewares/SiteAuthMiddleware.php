@@ -14,9 +14,11 @@ namespace Kirki\Ecommerce\App\Http\Middlewares;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Contracts\Middleware;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Exceptions\AuthorizationException;
+use Kirki\Ecommerce\Framework\Route;
 
 /**
  * Class SiteAuthMiddleware
@@ -39,6 +41,10 @@ class SiteAuthMiddleware implements Middleware
      */
     public function handle(Request $request, callable $next)
     {
+        if (Route::is('checkout') && Utils::guest_checkout_enabled()) {
+            return $next($request);
+        }
+
         if (is_user_logged_in()) {
             return $next($request);
         }

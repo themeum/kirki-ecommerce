@@ -150,4 +150,39 @@ class AccountController
             'message' => __('Orders fetched successfully', 'kirki-ecommerce')
         ]);
     }
+
+    /**
+     * Resend verification email to the current logged-in user.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Request.
+     * @param UserService $user_service User service.
+     *
+     * @return Response JSON response.
+     */
+    public function resend_verification_email(Request $request, UserService $user_service)
+    {
+        $user_id = user()->get_id();
+
+        if (empty($user_id)) {
+            return response()->json([
+                'message' => __('Unauthorized.', 'kirki-ecommerce'),
+            ], Response::UNAUTHORIZED);
+        }
+
+        try {
+            $user_service->resend_verification_email($user_id);
+
+            return response()->json([
+                'data' => true,
+                'message' => __('Verification email has been sent to your email address.', 'kirki-ecommerce'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => false,
+                'message' => $e->getMessage(),
+            ], Response::UNPROCESSABLE_ENTITY);
+        }
+    }
 }

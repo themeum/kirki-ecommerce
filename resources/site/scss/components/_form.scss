@@ -62,7 +62,7 @@
   }
 
   &-help {
-    @include typography(sm, normal, $text-secondary);
+    @include typography(base, normal, $text-secondary);
   }
   &-error {
     @include typography(sm, normal, $background-fill-critical);

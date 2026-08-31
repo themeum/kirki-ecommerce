@@ -9,6 +9,7 @@ import Alpine from 'alpinejs';
 
 // Import components
 import { accountAddresses } from './components/account-addresses';
+import { accountDashboard } from './components/account-dashboard';
 import { accountDetails } from './components/account-details';
 import { addToCart } from './components/add-to-cart';
 import { cart } from './components/cart';
@@ -33,7 +34,9 @@ import '../scss/index.scss';
 
 // Register components
 Alpine.data('accountAddresses', accountAddresses);
+Alpine.data('accountDashboard', accountDashboard);
 Alpine.data('accountDetails', accountDetails);
+Alpine.data('accountOrders', accountOrders);
 Alpine.data('addToCart', addToCart);
 Alpine.data('cart', cart);
 Alpine.data('productFilter', productFilter);
@@ -47,9 +50,6 @@ Alpine.data('form', form);
 Alpine.data('stateField', stateField);
 Alpine.data('shop', shop);
 Alpine.data('miniCart', miniCart);
-
-// Account components
-Alpine.data('accountOrders', accountOrders);
 
 // Initialize Alpine
 window.Alpine = Alpine;

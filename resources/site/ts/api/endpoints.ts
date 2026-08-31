@@ -24,5 +24,6 @@ export const ENDPOINTS = {
     passwordChange: '/account/password-change',
     addresses: '/account/addresses',
     orders: '/account/orders',
+    resendVerificationEmail: '/account/resend-verification-email',
   },
 } as const;
