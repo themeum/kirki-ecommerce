@@ -28,8 +28,8 @@ class CreateOrderCouponsTable implements Migration
             $table->timestamp('usage_reversed_at')->nullable()->comment('Set when the owning order is cancelled, reversing this coupon usage without deleting the record');
             $table->timestamps();
 
-            $table->unique(['order_id', 'coupon_id']);
-            $table->index(['coupon_id', 'customer_id']);
+            $table->unique(['order_id', 'coupon_id'], 'uq_kirki_ecommerce_order_coupons_order_id_coupon_id');
+            $table->index(['coupon_id', 'customer_id'], 'idx_kirki_ecommerce_order_coupons_coupon_id_customer_id');
 
             $table->foreign('order_id', 'fk_kirki_ecommerce_order_coupons_order_id')
                 ->references('id')

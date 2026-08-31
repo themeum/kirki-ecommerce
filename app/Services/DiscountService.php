@@ -321,10 +321,13 @@ class DiscountService
     /**
      * Two item-scoped coupons on the same item are each capped individually
      * at that item's subtotal, but their sum can still exceed it. When that
-     * happens, scale every contributing coupon's share of that item down
-     * proportionally (via the same largest-remainder method) so the combined
-     * discount never exceeds the item's subtotal, and every coupon's reported
-     * total still reconciles exactly with what was actually applied.
+     * happens, coupons are honored in application order - whichever coupon
+     * was applied first keeps its full amount on that item, later coupons
+     * only get whatever room is left, and once the item's subtotal is fully
+     * covered, any further coupon's contribution to that item is dropped
+     * entirely (there's no room left to attribute, so no point recording a
+     * zero). Every coupon's reported total still reconciles exactly with
+     * what was actually applied.
      *
      * @param CalculationContextDTO $context
      * @param DiscountCalculationResultDTO $result
@@ -344,28 +347,28 @@ class DiscountService
                 continue;
             }
 
-            $contributing_results = [];
-            $weights = [];
+            $remaining = $subtotal;
 
-            foreach ($result->coupon_results as $index => $coupon_result) {
-                if (!empty($coupon_result->item_discounts[$variant_id])) {
-                    $contributing_results[$index] = $coupon_result;
-                    $weights[$index] = $coupon_result->item_discounts[$variant_id];
+            foreach ($result->coupon_results as $coupon_result) {
+                if (empty($coupon_result->item_discounts[$variant_id])) {
+                    continue;
                 }
-            }
 
-            if (empty($contributing_results)) {
-                continue;
-            }
-
-            $scaled_shares = $this->allocate_by_weight($subtotal, $weights);
-
-            foreach ($contributing_results as $index => $coupon_result) {
                 $old_amount = $coupon_result->item_discounts[$variant_id];
-                $new_amount = $scaled_shares[$index];
+                $new_amount = $remaining > 0 ? min($old_amount, $remaining) : 0;
+                $remaining -= $new_amount;
 
-                $coupon_result->item_discounts[$variant_id] = $new_amount;
+                if ($new_amount === $old_amount) {
+                    continue;
+                }
+
                 $coupon_result->total_discount -= ($old_amount - $new_amount);
+
+                if ($new_amount > 0) {
+                    $coupon_result->item_discounts[$variant_id] = $new_amount;
+                } else {
+                    unset($coupon_result->item_discounts[$variant_id]);
+                }
             }
 
             $result->item_discounts[$variant_id] = $subtotal;

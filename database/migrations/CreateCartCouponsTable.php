@@ -16,7 +16,7 @@ class CreateCartCouponsTable implements Migration
             $table->unsigned_big_integer('coupon_id');
             $table->timestamps();
 
-            $table->unique(['cart_id', 'coupon_id']);
+            $table->unique(['cart_id', 'coupon_id'], 'uq_kirki_ecommerce_cart_coupons_cart_id_coupon_id');
 
             $table->foreign('cart_id', 'fk_kirki_ecommerce_cart_coupons_cart_id')
                 ->references('id')
