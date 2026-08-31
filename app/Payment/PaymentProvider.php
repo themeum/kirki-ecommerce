@@ -438,7 +438,7 @@ class PaymentProvider
     {
         $webhook_url = Route::url('payment/webhook/' . $this->id());
 
-        if (!defined('KECOM_WEBHOOK_BASE_URL') || 'production' === wp_get_environment_type()) {
+        if (!defined('KECOM_WEBHOOK_BASE_URL') || !app()->is_dev_mode()) {
             return $webhook_url;
         }
 
