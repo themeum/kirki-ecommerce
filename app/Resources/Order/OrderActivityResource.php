@@ -2,12 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
-use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
-
-use function Kirki\Ecommerce\Framework\dd;
 
 class OrderActivityResource extends Resource
 {
