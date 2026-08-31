@@ -124,7 +124,7 @@ class Utils
             'orders.show' => [
                 'title'     => __('Order Details', 'kirki-ecommerce'),
                 'route_path' => $account_page_slug . '/orders/{uuid}',
-                'route_name' => 'account.orders.show',
+                'route_name' => 'account.orders.details',
                 'callback'  => [AccountController::class, 'order_details'],
             ],
             'addresses' => [
