@@ -8,14 +8,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
-import { DATE_FORMATS, END_OF_DAY_TIME, formatDateValue, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
+import {
+  DATE_FORMATS,
+  END_OF_DAY_TIME,
+  formatDateValue,
+  mergeDateAndTime,
+  START_OF_DAY_TIME,
+} from '@/libs/date';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { copyToClipboard } from '@/utils';
 import { __, _n, sprintf } from '@/wpi18n';
 
-const formatDisplayDate = (date?: string | null, time?: string | null) => formatDateValue(mergeDateAndTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
+const formatDisplayDate = (date?: string | null, time?: string | null) =>
+  formatDateValue(mergeDateAndTime(date ?? '', time ?? ''), DATE_FORMATS.HUMAN_READABLE_WITH_TIME);
 
 type PreviewSectionProps = {
   title: string;
@@ -36,7 +43,9 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
         ))}
       </Flex>
     ) : (
-      <Text variant="tiny" weight="normal" cssOverride={styles.emptySection}>{__('Not set yet', 'kirki-ecommerce')}</Text>
+      <Text variant="tiny" weight="normal" cssOverride={styles.emptySection}>
+        {__('Not set yet', 'kirki-ecommerce')}
+      </Text>
     )}
   </Flex>
 );
@@ -72,24 +81,22 @@ const CouponPreview = () => {
         : __('Amount off', 'kirki-ecommerce'),
     ...(isAmountOff
       ? [
-        values.discount_target === 'products'
-          ? __('Product discount', 'kirki-ecommerce')
-          : __('Order discount', 'kirki-ecommerce'),
-      ]
+          values.discount_target === 'products'
+            ? __('Product discount', 'kirki-ecommerce')
+            : __('Order discount', 'kirki-ecommerce'),
+        ]
       : []),
   ];
 
-  const activeFrom = formatDisplayDate(
-    values?.start_date,
-    values.start_time ?? START_OF_DAY_TIME,
-  );
+  const activeFrom = formatDisplayDate(values?.start_date, values.start_time ?? START_OF_DAY_TIME);
   const detailsLines = [
     hasDiscountAmount
-      // TODO: Add currency formatter to show discount amount
-      ? `${values.discount_amount}${isPercentage ? '%' : ''} ${__('off', 'kirki-ecommerce')} ${values.discount_target === 'products'
-        ? __('selected products', 'kirki-ecommerce')
-        : __('entire order', 'kirki-ecommerce')
-      }`
+      ? // TODO: Add currency formatter to show discount amount
+        `${values.discount_amount}${isPercentage ? '%' : ''} ${__('off', 'kirki-ecommerce')} ${
+          values.discount_target === 'products'
+            ? __('selected products', 'kirki-ecommerce')
+            : __('entire order', 'kirki-ecommerce')
+        }`
       : __('Discount value not set yet', 'kirki-ecommerce'),
     activeFrom
       ? `${__('Active from', 'kirki-ecommerce')} ${activeFrom}`
@@ -129,8 +136,8 @@ const CouponPreview = () => {
   }, [values.customer_exclude_eligibility]);
 
   const targetingLines = [
-    values.target_country_type === 'specific-countries' ?
-      __('Specific countries', 'kirki-ecommerce')
+    values.target_country_type === 'specific-countries'
+      ? __('Specific countries', 'kirki-ecommerce')
       : __('All countries', 'kirki-ecommerce'),
     includeCustomerEligibility(),
     excludeCustomerEligibility(),
@@ -138,16 +145,32 @@ const CouponPreview = () => {
 
   const conditionsLines = [
     values.has_usage_limit && values.usage_limit
-      ? sprintf(_n('Limited to %s use', 'Limited to %s uses', values.usage_limit, 'kirki-ecommerce'), values.usage_limit)
+      ? sprintf(
+          _n('Limited to %s use', 'Limited to %s uses', values.usage_limit, 'kirki-ecommerce'),
+          values.usage_limit,
+        )
       : __('No usage limits', 'kirki-ecommerce'),
     values.has_customer_limit && values.customer_limit
-      ? sprintf(_n('Limited to %s customer', 'Limited to %s customers', values.customer_limit, 'kirki-ecommerce'), values.customer_limit)
+      ? sprintf(
+          _n(
+            'Limited to %s customer',
+            'Limited to %s customers',
+            values.customer_limit,
+            'kirki-ecommerce',
+          ),
+          values.customer_limit,
+        )
       : __('No customer limits', 'kirki-ecommerce'),
   ];
 
   return (
     <Flex direction="column">
-      <Card cssOverride={{ ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default }, ...cardStyles.formCard }}>
+      <Card
+        cssOverride={{
+          ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default },
+          ...cardStyles.formCard,
+        }}
+      >
         <CardContent>
           <Flex direction="column" gap={2}>
             <Flex justify="space-between" align="center" gap={2}>
@@ -165,23 +188,25 @@ const CouponPreview = () => {
             <Flex direction="column">
               {values.method === 'code' && (
                 <Flex align="center" gap={1}>
-                  <Text variant="heading4" weight="semibold" color={values.code ? 'emphasis' : 'disabled'}>
+                  <Text
+                    variant="heading4"
+                    weight="semibold"
+                    color={values.code ? 'emphasis' : 'disabled'}
+                  >
                     {values.code || __('No code set', 'kirki-ecommerce')}
                   </Text>
-                  {
-                    values.code && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-xs"
-                        disabled={!values.code}
-                        onClick={handleCopyCode}
-                        aria-label={__('Copy coupon code', 'kirki-ecommerce')}
-                      >
-                        <Copy />
-                      </Button>
-                    )
-                  }
+                  {values.code && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      disabled={!values.code}
+                      onClick={handleCopyCode}
+                      aria-label={__('Copy coupon code', 'kirki-ecommerce')}
+                    >
+                      <Copy />
+                    </Button>
+                  )}
                 </Flex>
               )}
 
@@ -200,7 +225,12 @@ const CouponPreview = () => {
         </CardContent>
       </Card>
 
-      <Card cssOverride={{ ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default }, ...cardStyles.formCard }}>
+      <Card
+        cssOverride={{
+          ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default },
+          ...cardStyles.formCard,
+        }}
+      >
         <CardContent>
           <Flex direction="column" gap={4}>
             <PreviewSection title={__('Type', 'kirki-ecommerce')} lines={typeLines} />
@@ -220,6 +250,6 @@ export default CouponPreview;
 
 const styles = defineStyles({
   emptySection: {
-    minHeight: theme.spacing[8],
+    minHeight: '2rem',
   },
 });

@@ -1,13 +1,13 @@
 import { format, formatDistanceToNow, isValid, parse } from 'date-fns';
 import { toast } from 'sonner';
 
-import type { ToastVariant } from '@/types/pages/common';
 import type {
   DateFormatType,
   ProfitData,
   SuggestionItem,
   SuggestionOption,
   ToastMessageConfig,
+  ToastVariant,
 } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
 
@@ -98,10 +98,7 @@ export const dispatchToastMessage = (
   toast(message, options);
 };
 
-export const calculateProfit = (
-  fieldName: string,
-  data: ProfitData,
-): string | undefined => {
+export const calculateProfit = (fieldName: string, data: ProfitData): string | undefined => {
   if ((data.base_price || data.base_sale_price) && data.base_cost_of_goods) {
     const effectivePrice = Number(data.base_sale_price || data.base_price);
     const profit = effectivePrice - Number(data.base_cost_of_goods);

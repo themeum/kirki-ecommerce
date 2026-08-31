@@ -18,7 +18,7 @@ import { setUnsavedDataStatus } from '@/libs/unsaved-store';
 import { getDefaults } from '@/libs/zod';
 
 type UseProductFormOptions = {
-  initialValues?: ProductFormInput;
+  initialValues?: ProductFormInput | null;
   onSubmit: (data: ProductFormPayload) => Promise<ProductFormInput | void>;
 };
 
@@ -67,8 +67,17 @@ export const useProductForm = ({
     return () => setUnsavedDataStatus(false);
   }, [isDirty]);
 
-  const { isBlocked, discardChanges, markSaving, shakeSignal } =
-    useUnsavedNavigationGuard(isDirty);
+  const {
+    isBlocked,
+    discardChanges: proceedBlockedNavigation,
+    markSaving,
+    shakeSignal,
+  } = useUnsavedNavigationGuard(isDirty);
+
+  const discardChanges = () => {
+    form.reset();
+    proceedBlockedNavigation();
+  };
 
   const handleSave = async ({
     focusOnError = true,
