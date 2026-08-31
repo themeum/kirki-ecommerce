@@ -60,7 +60,7 @@ class Paystack extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('PayStack is not enabled.', 'kirki-ecommerce-paystack'));
+            throw new Exception(esc_html__('PayStack is not enabled.', 'kirki-ecommerce-paystack'));
         }
 
         try {
@@ -72,7 +72,7 @@ class Paystack extends PaymentProvider
             $response = $this->client->initialize_transaction($payload);
 
             if (empty($response['data']['authorization_url'])) {
-                throw new Exception(__('PayStack checkout link not found.', 'kirki-ecommerce-paystack'));
+                throw new Exception(esc_html__('PayStack checkout link not found.', 'kirki-ecommerce-paystack'));
             }
 
             return PaymentActionDTO::from_array([
@@ -80,7 +80,8 @@ class Paystack extends PaymentProvider
                 'value' => $response['data']['authorization_url'],
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
+            /* translators: %s: error message */
+            throw new Exception(sprintf(esc_html__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
         }
     }
 
@@ -136,12 +137,12 @@ class Paystack extends PaymentProvider
 
         $reference_id = $payload->data->reference ?? '';
         if (!$reference_id) {
-            throw new Exception(__('Webhook error: Reference ID Not Found.', 'kirki-ecommerce-paystack'));
+            throw new Exception(esc_html__('Webhook error: Reference ID Not Found.', 'kirki-ecommerce-paystack'));
         }
 
         $order = OrderManager::find_by_uuid($reference_id);
         if (!$order) {
-            throw new Exception(__('PayStack Error: Order Not Found.', 'kirki-ecommerce-paystack'));
+            throw new Exception(esc_html__('PayStack Error: Order Not Found.', 'kirki-ecommerce-paystack'));
         }
 
         if ($order->payment_status === PaymentStatus::PAID) {
@@ -151,6 +152,7 @@ class Paystack extends PaymentProvider
         try {
             $response = $this->client->verify_transaction($reference_id);
         } catch (\Throwable $e) {
+            /* translators: %s: error message */
             throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
         }
 
@@ -174,7 +176,7 @@ class Paystack extends PaymentProvider
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
         if (empty($secret_key)) {
-            throw new Exception(__('PayStack credentials are missing.', 'kirki-ecommerce-paystack'));
+            throw new Exception(esc_html__('PayStack credentials are missing.', 'kirki-ecommerce-paystack'));
         }
 
         return $this->client = new PaystackClient($secret_key, $sandbox);
@@ -237,7 +239,8 @@ class Paystack extends PaymentProvider
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-paystack'), $e->getMessage()),
+                /* translators: %s: error message */
+                sprintf(esc_html__('Failed to update order data: %s', 'kirki-ecommerce-paystack'), $e->getMessage()),
                 0,
                 $e
             );
