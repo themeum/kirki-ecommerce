@@ -163,7 +163,7 @@ class AccountController
 
         $order_resource = OrderResource::make($order);
 
-        $activities = $order_activity_service->get_customer_order_activity($order->id, $customer_id);
+        $activities = $order_activity_service->get_order_activity($order->id);
 
         $activities_resource = OrderActivityResource::collection($activities);
 

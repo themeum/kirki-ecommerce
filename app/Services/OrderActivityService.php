@@ -59,24 +59,16 @@ class OrderActivityService
     }
 
     /**
-     * Get all of an order's activities for a specific customer, newest first.
+     * Get all of an order's activities, newest first.
      *
      * @param int $order_id
-     * @param int $customer_id
      * @return \Kirki\Ecommerce\Framework\Collections\Collection
      */
-    public function get_customer_order_activity(int $order_id, int $customer_id)
+    public function get_order_activity(int $order_id)
     {
-        return OrderActivity::query()
-            ->select([
-                OrderActivity::get_table_name() . '.activity_type',
-                OrderActivity::get_table_name() . '.created_at'
-            ])
-            ->join(Order::get_table_name(), Order::get_table_name() . '.id', '=', OrderActivity::get_table_name() . '.order_id')
-            ->where(Order::get_table_name() . '.customer_id', '=', $customer_id)
-            ->where(Order::get_table_name() . '.id', '=', $order_id)
-            ->order_by(OrderActivity::get_table_name() . '.id', 'desc')
-            ->get();
+        return $this->list_query( $order_id )
+            ->where( 'activity_type', '!=', OrderActivityType::COMMENT_ADDED )
+            ->get( ['activity_type','created_at'] );
     }
 
     /**
