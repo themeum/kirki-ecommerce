@@ -11,8 +11,8 @@
 
 import { cartApi } from '../api/cart';
 import { Cookie } from '../cookie';
-import { toast, toastManager } from '../services/toast/runtime';
-import { CartItem } from '../types';
+import { toast } from '../services/toast/runtime';
+import type { CartItem } from '../types';
 import { config } from '../utils';
 
 export type AddToCartConfig = {
@@ -35,14 +35,13 @@ export function addToCart(componentConfig: AddToCartConfig) {
     imageUrl: componentConfig.imageUrl || '',
     watchVariantId: componentConfig.watchVariantId,
     buttonText: componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce'),
-    containerClass : componentConfig.containerClass || '',
+    containerClass: componentConfig.containerClass || '',
     loading: false,
     success: false,
     error: null as string | null,
     viewCartText: __('View Cart', 'kirki-ecommerce'),
 
     init(this: any) {
-
       // Watch for variant ID changes (for product detail page)
       if (this.watchVariantId) {
         this.$watch(
@@ -77,16 +76,24 @@ export function addToCart(componentConfig: AddToCartConfig) {
 
         this.success = true;
 
-        const product = data.items.find((item: CartItem) => item.product.variant_id === this.variantId)?.product;
-        const toastTitle = `${quantity > 1 ? quantity + ' x ' + product?.title : product?.title}`
-        const toastDescription = product?.attributes.join(' / ');
+        const product = data.items.find(
+          (item: CartItem) => item.product.variant_id === this.variantId,
+        )?.product;
+        const title = product?.title || __('Item added to cart', 'kirki-ecommerce');
+        const toastTitle = quantity > 1 ? `${quantity} x ${title}` : title;
+        const toastDescription = Array.isArray(product?.attributes)
+          ? product.attributes.join(' / ')
+          : '';
+        const toastThumbnail =
+          this.imageUrl ||
+          (typeof product?.media === 'string' ? product.media : product?.media?.[0]?.url || '');
 
-        toast.action(toastTitle,5000,{
+        toast.action(toastTitle, 5000, {
           description: toastDescription,
-          thumbnail: this.imageUrl,
+          thumbnail: toastThumbnail || undefined,
           actionUrl: this.cartUrl,
           containerClass: this.containerClass,
-          actionText: __( 'View Cart', 'kirki-ecommerce' )
+          actionText: __('View Cart', 'kirki-ecommerce'),
         });
 
         document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: data }));
@@ -102,7 +109,7 @@ export function addToCart(componentConfig: AddToCartConfig) {
         this.buttonText = componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce');
 
         // Show error toast
-        toastManager.error(this.error);
+        toast.error(this.error);
       } finally {
         this.loading = false;
       }
