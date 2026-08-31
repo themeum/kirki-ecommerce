@@ -45,6 +45,7 @@ export const VariantSchema = z.object({
   is_physical_product: z.boolean(),
   is_default: z.boolean(),
   attribute_values: z.array(z.number()),
+  attribute_value_labels: z.array(z.string()).default([]),
   created_by: z.number().nullish(),
   updated_by: z.number().nullish(),
   created_at: z.string().nullish(),
