@@ -92,19 +92,21 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <div class="kecom-order-details-col-left">
                             <!-- Card 1: Order Status Timeline -->
                             <div class="kecom-card kecom-order-status-card">
-                                <h3 class="kecom-card-title"><?php esc_html_e('Order Timeline', 'kirki-ecommerce'); ?></h3>
-
+                                <h3 class="kecom-card-title"><?php esc_html_e('Order Activities', 'kirki-ecommerce'); ?></h3>
                                 <div class="kecom-order-stepper">
-
                                     <?php if (count($order_activities)):?>
-                                        <?php foreach ($order_activities as $timeline): ?>
-                                                <div class="kecom-order-step">
+                                        <?php foreach ($order_activities as $key => $timeline): ?>
+                                                <div class="kecom-order-step <?php echo 0 === $key ? 'kecom-order-step-active' : '' ?> <?php echo $timeline['activity_type'] === OrderActivityType::DELIVERED ? 'kecom-order-step-delivered' : '' ?>">
                                                     <div class="kecom-order-step-indicator">
-                                                        <span class="kecom-order-step-dot"></span>
+                                                        <?php if($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
+                                                            <?php Icon::render('check'); ?>
+                                                        <?php else: ?>
+                                                            <span class="kecom-order-step-dot"></span>
+                                                        <?php endif; ?>
                                                     </div>
                                                     <div class="kecom-order-step-content">
                                                         <h4 class="kecom-order-step-title"><?php echo esc_html(OrderActivityType::get_formatted($timeline['activity_type']) ?? ''); ?></h4>
-                                                        <span class="kecom-order-step-date"><?php echo esc_html($timeline['created_at']->format(DateTimeFormats::HUMAN_READABLE_DATE)); ?></span>
+                                                        <span class="kecom-order-step-date"><?php echo esc_html($timeline['created_at']->format(DateTimeFormats::HUMAN_READABLE_DATE_TIME)); ?></span>
                                                     </div>
                                                 </div>
                                         <?php endforeach; ?>

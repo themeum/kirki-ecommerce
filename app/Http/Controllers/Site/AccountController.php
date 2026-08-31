@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
-use Kirki\Ecommerce\App\Resources\Order\OrderActivityResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
@@ -163,7 +163,7 @@ class AccountController
 
         $order_resource = OrderResource::make($order);
 
-        $activities = $order_activity_service->all_for_order($order->id);
+        $activities = $order_activity_service->get_customer_order_activity($order->id, $customer_id);
 
         $activities_resource = OrderActivityResource::collection($activities);
 
