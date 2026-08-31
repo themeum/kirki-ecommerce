@@ -153,7 +153,7 @@ class Paystack extends PaymentProvider
             $response = $this->client->verify_transaction($reference_id);
         } catch (\Throwable $e) {
             /* translators: %s: error message */
-            throw new Exception(sprintf(__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
+            throw new Exception(sprintf(esc_html__('PayStack Payment Error: %s', 'kirki-ecommerce-paystack'), $e->getMessage()), 0, $e);
         }
 
         $this->handle_transaction_response($response['data'], $order);
