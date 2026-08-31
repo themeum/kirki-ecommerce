@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
+use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -41,9 +42,10 @@ class SiteController
         $format = $request->string('format', 'json');
         $sanitized_input = $request->sanitized();
 
-        $data = $product_service->shop_page_data($sanitized_input);
-        $products = $data['products']->items();
-        $filters = $data['filters'];
+        $data       = $product_service->shop_page_data($sanitized_input);
+        $paginator  = $data['products'];
+        $products   = ShopProductResource::collection($paginator->items()->all());
+        $filters    = $data['filters'];
 
         if ($format === 'html') {
             ob_start();
@@ -51,23 +53,22 @@ class SiteController
             $products_html = ob_get_clean();
 
             ob_start();
-            Template::render_pagination($data['products']);
+            Template::render_pagination($paginator);
             $pagination_html = ob_get_clean();
 
             $data = [
-                'products' => $products_html,
+                'products'   => $products_html,
                 'pagination' => $pagination_html,
-                'filters' => $filters,
+                'filters'    => $filters,
             ];
         } else {
-            $pagination = $data['products'];
-            $pagination = $pagination->to_array();
+            $pagination = $paginator->to_array();
             unset($pagination['results']);
 
             $data = [
-                'products' => $products,
+                'products'   => $products,
                 'pagination' => $pagination,
-                'filters' => $filters,
+                'filters'    => $filters,
             ];
         }
 

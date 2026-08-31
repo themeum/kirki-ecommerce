@@ -8,81 +8,32 @@
  * @link https://themeum.com
  * @since 1.0.0
  *
- * @var array $data comes from shop.php file.
+ * @var array $data comes from shop.php via list.php.
+ *            Each product is a ShopProductResource array.
  */
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Managers\MoneyManager;
-use Kirki\Ecommerce\App\Models\Product;
-use Kirki\Ecommerce\App\Services\InventoryService;
-use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
-use Kirki\Ecommerce\App\Supports\Url;
 
-use function Kirki\Ecommerce\Framework\app;
+$product = $data['product'] ?? null;
 
-if (!isset($data['product']) || !is_object($data['product'])) {
+if (! is_array($product) || empty($product)) {
     return;
 }
 
-/**
- * @var Product $product.
- */
-$product = $data['product'];
-
-$variants = $product->variants;
-$variant = $variants->first();
-
-if (!$variant) {
-    return;
-}
-
-$regular_price = $variant->base_price;
-$sale_price = $variant->base_sale_price;
-$in_sale = $sale_price > 0 && $sale_price < $regular_price;
-
-
-$inventory_service = app()->make(InventoryService::class);
-$out_of_stock = ! $inventory_service->has_stock((int) $variant->id, 1);
-
-$ribbon_text = $out_of_stock ? __('Out of Stock', 'kirki-ecommerce') : $product->ribbon;
-
-$manager = new MoneyManager();
-$formatted_regular_price = $manager->format($manager->from_minor($regular_price));
-
-$formatted_sale_price = '';
-
-if ($sale_price > 0) {
-    $formatted_sale_price = $manager->format($manager->from_minor($sale_price));
-}
-
-$display_price = $in_sale ? $formatted_sale_price : $formatted_regular_price;
-
-if ($variants->count() > 1) {
-    $in_sale = false;
-    $lowest_price = $variants->min(fn($variant) => $variant->base_price);
-    $lowest_price_formatted = $manager->format($manager->from_minor($lowest_price));
-
-    $highest_price = $variants->max(fn($variant) => $variant->base_price);
-    $highest_price_formatted = $manager->format($manager->from_minor($highest_price));
-
-    $display_price = $lowest_price_formatted;
-    if ($lowest_price !== $highest_price) {
-        $display_price .= ' - ' . $highest_price_formatted;
-    }
-}
-
-$category = $product->categories->first();
-$media = $product->media->first();
-$image_url = null;
-if ($media) {
-    $image_url = wp_get_attachment_image_url($media->ID, 'large');
-} else {
-    $image_url = Assets::get_url('images/product-fallback.webp');
-}
-
-$product_url = Url::get_product_url($product->slug);
+$title                   = $product['title'];
+$product_url             = $product['product_url'];
+$image_url               = $product['image_url'];
+$ribbon_text             = $product['ribbon_text'];
+$category_name           = $product['category_name'];
+$display_price           = $product['display_price'];
+$formatted_regular_price = $product['formatted_regular_price'];
+$in_sale                 = $product['in_sale'];
+$out_of_stock            = $product['out_of_stock'];
+$has_variants            = $product['has_variants'];
+$variant_id              = $product['variant_id'];
+$cart_url                = $product['cart_url'];
 ?>
 <div class="kecom-product-card">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
@@ -90,15 +41,15 @@ $product_url = Url::get_product_url($product->slug);
             <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
-            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($product->title); ?>" loading="lazy">
+            <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
         <?php endif; ?>
     </a>
 
     <div class="kecom-product-card-body">
-        <?php if ($category) : ?>
-            <span class="kecom-product-card-category"><?php echo esc_html($category->name); ?></span>
+        <?php if ($category_name) : ?>
+            <span class="kecom-product-card-category"><?php echo esc_html($category_name); ?></span>
         <?php endif; ?>
-        <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-title"><?php echo esc_html($product->title); ?></a>
+        <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-title"><?php echo esc_html($title); ?></a>
     </div>
 
     <div class="kecom-product-card-footer">
@@ -110,12 +61,12 @@ $product_url = Url::get_product_url($product->slug);
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
             <?php endif; ?>
         </div>
-        <?php if ($variant->has_variants || $out_of_stock) { ?>
+        <?php if ($has_variants || $out_of_stock) { ?>
             <a href="<?php echo esc_url($product_url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
                 <span><?php esc_html_e('Details', 'kirki-ecommerce'); ?></span>
             </a>
         <?php } else { ?>
-        <div x-data="addToCart({ variantId: <?php echo esc_attr((int) $variant->id); ?>, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', buttonText: '<?php echo esc_html__('Add', 'kirki-ecommerce'); ?>' })">
+        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add', 'kirki-ecommerce'); ?>' })">
             <template x-if="!success">
                 <button
                     type="button"
