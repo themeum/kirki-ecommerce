@@ -135,8 +135,11 @@ class Paystack extends PaymentProvider
         }
 
         $reference_id = $payload->data->reference ?? '';
-        $order = OrderManager::find_by_uuid($reference_id);
+        if (!$reference_id) {
+            throw new Exception(__('Webhook error: Reference ID Not Found.', 'kirki-ecommerce-paystack'));
+        }
 
+        $order = OrderManager::find_by_uuid($reference_id);
         if (!$order) {
             throw new Exception(__('PayStack Error: Order Not Found.', 'kirki-ecommerce-paystack'));
         }
