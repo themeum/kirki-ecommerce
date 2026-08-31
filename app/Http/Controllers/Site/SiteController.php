@@ -21,6 +21,9 @@ use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -58,9 +61,18 @@ class SiteController
         $sanitized_input = $request->sanitized();
         $shop_page_data = $this->product_service->shop_page_data($sanitized_input);
 
+        $raw_paginator = $shop_page_data['products'];
+        $resource_items = new Collection(ShopProductResource::collection($raw_paginator->items()->all()));
+        $products      = new Paginator(
+            $resource_items,
+            $raw_paginator->total(),
+            $raw_paginator->get_per_page(),
+            $raw_paginator->get_current_page()
+        );
+
         $data = [
             'filters'    => $shop_page_data['filters'],
-            'products'   => $shop_page_data['products'],
+            'products'   => $products,
             'categories' => Category::all(),
             'brands'     => Brand::all(),
         ];
@@ -105,11 +117,6 @@ class SiteController
         }
 
         $product = $query->first();
-
-        if (empty($product)) {
-            // @todo: need to handle the page if product is not found.
-        }
-
         if (! $product) {
             return view('site.shop.not-found')->layout(false);
         }
