@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import InfiniteScrollSentinel from '@/components/ui/infinite-scroll-sentinel';
 import Input from '@/components/ui/input';
+import LeadingIconBadge from '@/components/ui/leading-icon-badge';
 import Text from '@/components/ui/text';
 import type { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
 import {
@@ -92,9 +93,9 @@ const Timeline = ({ orderId }: TimelineProps) => {
                   const acronym = createAcronym({ first_name: entry.author_name ?? undefined });
                   return (
                     <Flex key={entry.id} gap={3} align="center" cssOverride={styles.commentRow}>
-                      <div css={scoped(styles.leadingIcon)}>
+                      <Flex align="center" justify="center" cssOverride={styles.leadingIcon}>
                         <div css={scoped(styles.avatar)}>{acronym}</div>
-                      </div>
+                      </Flex>
                       <Flex direction="column" gap={1} grow={1}>
                         <Text variant="small" weight="medium">
                           {entry.author_name}
@@ -123,9 +124,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
 
                 return (
                   <Flex key={entry.id} gap={3} align="center" cssOverride={styles.actionRow}>
-                    <div css={scoped(styles.leadingIcon)}>
-                      <span css={scoped(styles.eventIcon)} />
-                    </div>
+                    <LeadingIconBadge cssOverride={styles.leadingIcon} />
                     <Text variant="small" weight="medium" cssOverride={{ flexGrow: 1 }}>
                       {entry.description}
                     </Text>
@@ -184,15 +183,14 @@ const styles = defineStyles({
     },
   },
   leadingIcon: {
-    ...flexCenter(),
-    width: theme.spacing[8],
-    height: theme.spacing[8],
+    width: '2rem',
+    height: '2rem',
     flexShrink: 0,
   },
   avatar: {
     ...flexCenter(),
-    width: theme.spacing[8],
-    height: theme.spacing[8],
+    width: '2rem',
+    height: '2rem',
     borderRadius: theme.radius.full,
     backgroundColor: theme.colors.background.surfaceSecondary,
     color: theme.colors.text.secondary,
@@ -200,24 +198,8 @@ const styles = defineStyles({
     position: 'relative',
     zIndex: 1,
   },
-  eventIcon: {
-    ...flexCenter(),
-    width: theme.spacing[5],
-    height: theme.spacing[5],
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.fillSecondary,
-    position: 'relative',
-    zIndex: 1,
-    '&::after': {
-      content: '""',
-      width: theme.spacing[2],
-      height: theme.spacing[2],
-      borderRadius: theme.radius.full,
-      backgroundColor: theme.colors.text.primary,
-    },
-  },
   actionRow: {
-    minHeight: theme.spacing[12],
+    minHeight: '3rem',
   },
   commentRow: {
     position: 'relative',

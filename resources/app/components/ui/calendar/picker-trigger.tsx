@@ -25,7 +25,6 @@ type PickerTriggerProps = {
   cssOverride?: CSSObject;
 };
 
-
 const PickerTrigger = ({
   id,
   controlsId,
@@ -69,9 +68,7 @@ const PickerTrigger = ({
             <span css={scopedMerge(styles.value, styles.valueSizes[size])}>
               {label ?? <span css={scoped(styles.placeholder)}>{placeholder}</span>}
             </span>
-            {!onClear && (
-              <CalendarDays css={scopedMerge(styles.icon, styles.iconSizes[size])} />
-            )}
+            {!onClear && <CalendarDays css={scopedMerge(styles.icon, styles.iconSizes[size])} />}
           </Button>
         </PopoverTrigger>
         {onClear && (
@@ -140,16 +137,16 @@ const styles = defineStyles({
   },
   iconSizes: {
     sm: {
-      width: theme.spacing[3],
-      height: theme.spacing[3],
+      width: '0.75rem',
+      height: '0.75rem',
     },
     md: {
       width: '14px',
       height: '14px',
     },
     lg: {
-      width: theme.spacing[4],
-      height: theme.spacing[4],
+      width: '1rem',
+      height: '1rem',
     },
   },
   valueSizes: {
@@ -206,8 +203,8 @@ const styles = defineStyles({
   },
   clear: {
     flexShrink: 0,
-    width: theme.spacing[5],
-    height: theme.spacing[5],
+    width: '1.25rem',
+    height: '1.25rem',
     backgroundColor: 'transparent',
     color: theme.colors.text.secondary,
     transition: 'none',

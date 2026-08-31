@@ -50,6 +50,7 @@ use Kirki\Ecommerce\Database\Migrations\CreateProductSchemaTable;
 use Kirki\Ecommerce\Database\Migrations\CreateSchedulerJobsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchedulerJobsStatusColumnToString;
 use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
+use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 
 return [
@@ -110,4 +111,5 @@ return [
     AddIsDefaultToTaxProfilesTable::class,
     AlterSchedulerJobsStatusColumnToString::class,
     AddLowStockThresholdToVariantsTable::class,
+    AddPublishedAtAndTrashedAtToProductsTable::class,
 ];

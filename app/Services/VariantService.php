@@ -272,7 +272,7 @@ class VariantService
             throw new NotFoundException(__('Variant not found!', 'kirki-ecommerce'));
         }
 
-        return $variant->update($data) ? $variant : false;
+        return $variant->update($data) ? $variant->load('product.media', 'attribute_values') : false;
     }
 
     /**

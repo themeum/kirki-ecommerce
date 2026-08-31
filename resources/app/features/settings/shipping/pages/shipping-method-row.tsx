@@ -23,11 +23,7 @@ const ShippingMethodRow = (props: ShippingMethodRowProps) => {
   const isEnabled = method.is_enabled ?? true;
 
   return (
-    <Item
-      size="sm"
-      cssOverride={styles.row}
-      data-inactive={isEnabled ? undefined : 'true'}
-    >
+    <Item size="sm" cssOverride={styles.row} data-inactive={isEnabled ? undefined : 'true'}>
       <ItemMedia>{method.icon}</ItemMedia>
       <ItemContent>
         <ItemTitle>
@@ -48,12 +44,7 @@ const ShippingMethodRow = (props: ShippingMethodRowProps) => {
       </ItemContent>
       <ItemActions>
         {method.rightText && (
-          <Text
-            variant="small"
-            color="secondary"
-            data-dimmed="true"
-            data-price="true"
-          >
+          <Text variant="small" color="secondary" data-dimmed="true" data-price="true">
             {method.rightText}
           </Text>
         )}
@@ -110,12 +101,12 @@ const styles = defineStyles({
       visibility: 'hidden',
     },
     '&[data-inactive="true"] [data-slot="item-media"], &[data-inactive="true"] [data-dimmed="true"]':
-    {
-      opacity: 0.5,
-    },
+      {
+        opacity: 0.5,
+      },
   },
   badge: {
-    height: theme.spacing[5],
+    height: '1.25rem',
     padding: `${theme.spacing[0]} ${theme.spacing[2]}`,
   },
   actionButton: {

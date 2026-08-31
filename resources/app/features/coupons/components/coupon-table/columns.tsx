@@ -6,10 +6,14 @@ import { useNavigate } from 'react-router';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
+import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { getCouponBadgeInfo } from '@/features/coupons/lib/coupon-badge';
 import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
-import { useCouponActionMutation, useDeleteCouponMutation } from '@/features/coupons/services/coupon';
+import {
+  useCouponActionMutation,
+  useDeleteCouponMutation,
+} from '@/features/coupons/services/coupon';
 import { DATE_FORMATS } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -27,7 +31,7 @@ const CouponTitleCell = ({ item }: { item: CouponListItem }) => {
           void navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id }));
         }}
       >
-        <span css={scoped(styles.mutedText)}>{item.title} </span>
+        <Text variant="tiny">{item.title || '--'}</Text>
       </button>
     </Flex>
   );
@@ -57,7 +61,9 @@ const CouponRowActionsCell = ({ item }: { item: CouponListItem }) => {
           },
         },
         {
-          label: item?.is_active ? __('Deactivate', 'kirki-ecommerce') : __('Activate', 'kirki-ecommerce'),
+          label: item?.is_active
+            ? __('Deactivate', 'kirki-ecommerce')
+            : __('Activate', 'kirki-ecommerce'),
           icon: <Ban size={16} />,
           onClick: () => {
             void couponActionMutation.mutateAsync({
@@ -94,11 +100,7 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
     enableSorting: false,
     cell: ({ row }) => {
       const badge = getCouponBadgeInfo(row.original.status);
-      return (
-        <Badge variant={badge.variant}>
-          {badge.text}
-        </Badge>
-      );
+      return <Badge variant={badge.variant}>{badge.text}</Badge>;
     },
   },
   {
@@ -124,7 +126,9 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
     header: __('Created at', 'kirki-ecommerce'),
     enableSorting: false,
     cell: ({ row }) =>
-      row.original.created_at ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '-',
+      row.original.created_at
+        ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
+        : '-',
   },
   {
     id: 'actions',
@@ -134,9 +138,7 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
   },
 ];
 
-const couponBulkActions = [
-  { value: 'delete', title: __('Trash', 'kirki-ecommerce') },
-];
+const couponBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
 
 export { couponBulkActions, couponColumns };
 
