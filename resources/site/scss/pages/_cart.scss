@@ -98,21 +98,12 @@
 
     &-details {
       @include flex(column, flex-start, flex-start);
+      gap: $spacing-2;
     }
 
     &-pricing {
       @include flex(column, flex-end, flex-start);
-      align-self: flex-start;
-
-      @include breakpoint-down(md) {
-        @include flex(row-reverse, center, space-between);
-        width: 100%;
-      }
-
-      &-wrapper {
-        @include flex(row, center, flex-start);
-        gap: $spacing-3;
-      }
+      gap: $spacing-2;
 
       &-product-total {
         @include typography(base, normal, $text-secondary);
@@ -127,10 +118,10 @@
     }
 
     &-details-title {
-      margin-bottom: $spacing-2;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      text-decoration: none;
       max-width: 25ch;
     }
 
@@ -138,18 +129,24 @@
       text-align: end;
     }
 
-    &-details-categories,
-    &-pricing-each {
-      margin-bottom: $spacing-2;
-    }
-
-    &-details-categories,
-    &-details-attributes,
-    &-pricing-each {
+    &-details-attributes {
       @include typography(sm, normal, $text-secondary);
-      vertical-align: middle;
-      margin: 0;
-      text-transform: inherit;
+      @include flex();
+      gap: $spacing-8;
+
+      span:not(:last-of-type) {
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          right: -8.5px;
+          top: 3px;
+          height: 12px;
+          width: 1px;
+          background-color: $icon-disabled;
+        }
+      }
     }
 
     .kecom-cart-item-remove {

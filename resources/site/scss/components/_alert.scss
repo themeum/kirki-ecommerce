@@ -3,33 +3,82 @@
 // Variants: .kecom-alert-success
 //           .kecom-alert-error
 //           .kecom-alert-warning
+//           .kecom-alert-info
+//
+// Structure:
+//   <div class="kecom-alert kecom-alert-info">
+//     <!-- icon -->
+//     <p>Message text</p>
+//     <a class="kecom-alert-action">Action</a>   ← optional, pinned to the right
+//   </div>
 
 @use '../tokens' as *;
 @use '../mixins' as *;
 
 .kecom-alert {
-  padding: $spacing-4 $spacing-6;
+  padding: $spacing-7 $spacing-6;
   @include typography(base, normal);
+  color: $text-primary;
   border-radius: $radius-md;
   background-color: $background-fill;
-  margin-top: $spacing-6;
-  box-shadow: $shadow-default;
+  box-shadow:
+    0px -1px 1px 0.5px #0000001a inset,
+    0px 0.5px 1px 0px #0000001a inset;
   display: flex;
   align-items: center;
   gap: $spacing-4;
 
+  p {
+    @include typography(base, normal);
+    margin: 0;
+  }
+
+  > p,
+  > span {
+    flex: 1;
+  }
+
+  &-action {
+    margin-left: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+    @include typography(sm, medium, $text-primary);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  &-info {
+    background-color: $background-fill-special-secondary;
+
+    > svg {
+      color: $icon-emphasis;
+    }
+  }
+
   &-error {
-    color: $text-critical;
     background-color: $background-fill-critical-secondary;
+
+    > svg {
+      color: $icon-critical;
+    }
   }
 
   &-success {
-    color: $text-success;
     background-color: $background-fill-success-secondary;
+
+    > svg {
+      color: $icon-success;
+    }
   }
 
   &-warning {
-    color: $text-warning;
     background-color: $background-fill-warning-secondary;
+
+    > svg {
+      color: $icon-warning;
+    }
   }
 }

@@ -25,6 +25,9 @@ export type Variant = {
   image?: string;
   attributes: VariantAttribute[];
   available: boolean;
+  allow_back_order: boolean;
+  has_limit_per_order: boolean;
+  max_per_order: number | null;
 };
 
 export type VariantSelectorConfig = {

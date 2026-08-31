@@ -25,8 +25,6 @@ class Url
      *
      * @since 1.0.0
      *
-     * @param string $slug
-     *
      * @return string
      */
     public static function get_registration_url()
@@ -46,6 +44,18 @@ class Url
     public static function get_product_url(string $slug)
     {
         return Route::site_url('shop.single', ['slug' => $slug]);
+    }
+
+    /**
+     * Get product fallback image.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
+    public static function get_product_fallback_image()
+    {
+        return Assets::get_url('images/product-fallback.webp');
     }
 
     /**

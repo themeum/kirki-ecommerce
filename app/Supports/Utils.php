@@ -38,7 +38,7 @@ class Utils
     {
         $request_method = !$request_method ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : $request_method;
         $data = strtolower($request_method) === 'post' ? $_POST : $_GET;
-        $nonce_value = sanitize_text_field(Arr::get($data, 'ajax_nonce'));
+        $nonce_value = sanitize_text_field(Arr::get($data, 'kecom_nonce'));
 
         return wp_verify_nonce($nonce_value, 'kirki_ecommerce_nonce') !== false;
     }
@@ -92,6 +92,15 @@ class Utils
         $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
 
         $route_config = [
+            'action' => [
+                'url'       => Url::get_account_url('action'),
+                'hook'      => 'template_redirect',
+                'priority'  => 1,
+                'route_path' => $account_page_slug . '/action',
+                'route_name' => 'account.action',
+                'callback'  => [AccountController::class, 'action'],
+                'is_menu'   => false,
+            ],
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),
                 'icon'      => 'dashboard',
@@ -401,5 +410,18 @@ class Utils
             default:
                 return 'kecom-badge-default';
         }
+    }
+
+    /**
+     * Check guest checkout is enabled.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if guest checkout is enabled, false otherwise.
+     */
+    public static function guest_checkout_enabled()
+    {
+        //TODO: default will be false.
+        return Settings::get('checkout.is_allowed_guest_checkout', true);
     }
 }

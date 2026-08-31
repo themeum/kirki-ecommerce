@@ -35,6 +35,10 @@ const toast = () => {
       return toastServiceMeta.instance.info(message, duration);
     },
 
+    action(message: string, duration?: number, options?: ToastOptions): string {
+      return toastServiceMeta.instance.action(message, duration, options);
+    },
+
     configure(options: ToastConfig): void {
       toastServiceMeta.instance.configure(options);
     },

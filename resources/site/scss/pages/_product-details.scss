@@ -173,6 +173,7 @@
     padding: $spacing-2 $spacing-4;
     border-radius: $radius-sm;
     text-transform: uppercase;
+    text-decoration: none;
   }
 
   .kecom-product-short-description {
@@ -346,5 +347,35 @@
     &.active {
       display: block;
     }
+  }
+}
+
+// Product not-found page
+.kecom-product-not-found {
+  min-height: 60vh;
+  @include flex-center();
+
+  .kecom-product-not-found-state {
+    @include flex-column();
+    align-items: center;
+    text-align: center;
+    max-width: 360px;
+    margin: 0 auto;
+    gap: $spacing-10;
+  }
+
+  .kecom-product-not-found-icon {
+    @include flex-center();
+
+    img {
+      width: 140px;
+      height: 140px;
+      display: block;
+    }
+  }
+
+  .kecom-product-not-found-title {
+    @include typography(4xl, semibold, $text-primary);
+    margin: 0;
   }
 }

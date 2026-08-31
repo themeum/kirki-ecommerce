@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
@@ -21,6 +22,8 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\user;
 
 class OrderService
 {
@@ -371,5 +374,59 @@ class OrderService
             }, function (QueryBuilder $query) {
                 return $query->order_by('id', 'desc');
             });
+    }
+
+    /**
+     * Get guest orders by email.
+     *
+     * @since 1.0.0
+     *
+     * @param string $email Email address.
+     *
+     * @return Collection<Order>
+     */
+    public function get_guest_orders_by_email($email)
+    {
+        return Order::where_null('customer_id')
+            ->where('customer_email', $email)
+            ->get();
+    }
+
+    /**
+     * Merge guest orders into customer account.
+     *
+     * @since 1.0.0
+     *
+     * @param int $user_id
+     *
+     * @return void
+     */
+    public function merge_guest_orders($user_id)
+    {
+        $user = user($user_id);
+        if (!$user) {
+            return;
+        }
+
+        $customer_service = app(CustomerService::class);
+        $customer = $customer_service->find_by_user_id($user_id);
+        if (!$customer) {
+            $dto = new CreateCustomerDTO();
+            $dto->user_id = $user_id;
+            $dto->first_name = $user->get_first_name();
+            $dto->last_name = $user->get_first_name();
+            $dto->email = $user->get_email();
+            $customer = $customer_service->create($dto);
+        }
+
+        if ($customer) {
+            $guest_orders = $this->get_guest_orders_by_email($user->get_email());
+            $order_ids = $guest_orders->pluck('id')->to_array();
+            if (!empty($order_ids)) {
+                Order::where_in('id', $order_ids)->update([
+                'customer_id' => $customer->id,
+                ]);
+            }
+        }
     }
 }

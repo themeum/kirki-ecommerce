@@ -3,10 +3,29 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Exception;
+use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
 class UserService
 {
+    /**
+     * Email service instance.
+     *
+     * @var EmailService
+     */
+    protected EmailService $email_service;
+
+    /**
+     * Constructor.
+     *
+     * @param EmailService|null $email_service
+     */
+    public function __construct(?EmailService $email_service = null)
+    {
+        $this->email_service = $email_service ?? new EmailService();
+    }
+
     /**
      * Change a WordPress user's password after verifying their current password.
      *
@@ -48,5 +67,70 @@ class UserService
         if (is_wp_error($result)) {
             throw new Exception(esc_html($result->get_error_message()));
         }
+    }
+
+    /**
+     * Resend verification email to user.
+     *
+     * @since 1.0.0
+     *
+     * @param int $user_id User ID.
+     *
+     * @throws ValidationException
+     * @throws Exception
+     *
+     * @return bool
+     */
+    public function resend_verification_email(int $user_id)
+    {
+        $user = new User($user_id);
+
+        if (empty($user->get_id())) {
+            throw ValidationException::with_errors([
+                'user' => [__('User not found.', 'kirki-ecommerce')],
+            ]);
+        }
+
+        if ($user->email_verified()) {
+            throw ValidationException::with_errors([
+                'email' => [__('Email address is already verified.', 'kirki-ecommerce')],
+            ]);
+        }
+
+        $token = $user->generate_verification_token();
+
+        $verify_url = Url::add_query_params(Url::get_account_url('action'), [
+            'action' => 'email_verify',
+            'token'  => $token,
+        ]);
+
+        $sent = $this->email_service->send_verification_email($user, $verify_url);
+
+        if (!$sent) {
+            throw new Exception(__('Failed to send verification email. Please try again later.', 'kirki-ecommerce'));
+        }
+
+        return true;
+    }
+
+    /**
+     * Verify email with token and link past guest orders.
+     *
+     * @since 1.0.0
+     *
+     * @param int $user_id User ID.
+     * @param string $token Verification token.
+     *
+     * @return bool
+     */
+    public function verify_email_token(int $user_id, string $token)
+    {
+        $user = new User($user_id);
+
+        if (empty($user->get_id())) {
+            return false;
+        }
+
+        return $user->verify_email_by_token($token);
     }
 }
