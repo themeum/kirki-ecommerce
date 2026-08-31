@@ -11,9 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Shop;
 
-use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
-use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Resource;
 
@@ -43,40 +42,38 @@ class ShopProductResource extends Resource
             return [];
         }
 
+        $variant_id    = intval($variant->id);
         $regular_price = $variant->base_price;
         $sale_price    = $variant->base_sale_price;
+        $has_variants  = (bool) $variant->has_variants;
         $in_sale       = $sale_price > 0 && $sale_price < $regular_price;
 
-        $manager                 = new MoneyManager();
-        $formatted_regular_price = $manager->format($manager->from_minor($regular_price));
-        $formatted_sale_price    = '';
+        $formatted_regular_price = Money::format_from_minor($regular_price);
+        $formatted_sale_price    = $sale_price > 0 ? Money::format_from_minor($sale_price) : '';
 
-        if ($sale_price > 0) {
-            $formatted_sale_price = $manager->format($manager->from_minor($sale_price));
-        }
 
         $display_price = $in_sale ? $formatted_sale_price : $formatted_regular_price;
 
-        if ($variants->count() > 1) {
+        if ($has_variants) {
             $in_sale       = false;
             $lowest_price  = $variants->min(fn($v) => $v->base_price);
             $highest_price = $variants->max(fn($v) => $v->base_price);
 
-            $display_price = $manager->format($manager->from_minor($lowest_price));
+            $display_price = Money::format_from_minor($lowest_price);
             if ($lowest_price !== $highest_price) {
-                $display_price .= ' - ' . $manager->format($manager->from_minor($highest_price));
+                $display_price .= ' - ' . Money::format_from_minor($highest_price);
             }
         }
 
         $inventory_service = app()->make(InventoryService::class);
-        $out_of_stock      = ! $inventory_service->has_stock((int) $variant->id, 1);
+        $out_of_stock      = ! $inventory_service->has_stock($variant_id, 1);
 
         $ribbon_text = $out_of_stock ? __('Out of Stock', 'kirki-ecommerce') : $this->ribbon;
 
         $media     = $this->media->first();
         $image_url = $media
             ? wp_get_attachment_image_url($media->ID, 'large')
-            : Assets::get_url('images/product-fallback.webp');
+            : Url::get_product_fallback_image();
 
         $category = $this->categories->first();
 
@@ -92,8 +89,8 @@ class ShopProductResource extends Resource
             'formatted_regular_price' => $formatted_regular_price,
             'in_sale'                 => $in_sale,
             'out_of_stock'            => $out_of_stock,
-            'has_variants'            => (bool) $variant->has_variants,
-            'variant_id'              => (int) $variant->id,
+            'has_variants'            => $has_variants,
+            'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
         ];
     }
