@@ -50,6 +50,7 @@ const buildVariant = (overrides: Partial<ProductVariant>): ProductVariant => ({
   is_physical_product: true,
   is_default: false,
   attribute_values: [],
+  attribute_value_labels: [],
   ...overrides,
 });
 

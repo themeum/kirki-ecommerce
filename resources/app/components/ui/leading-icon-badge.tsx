@@ -66,16 +66,16 @@ const leadingIconBadgeVariantStyles = defineStyles({
 
 const styles = defineStyles({
   badge: {
-    width: theme.spacing[5],
-    height: theme.spacing[5],
+    width: '1.25rem',
+    height: '1.25rem',
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fillSecondary,
     position: 'relative',
     zIndex: 1,
     '&::after': {
       content: '""',
-      width: theme.spacing[2],
-      height: theme.spacing[2],
+      width: '0.5rem',
+      height: '0.5rem',
       borderRadius: theme.radius.full,
       backgroundColor: theme.colors.text.primary,
     },

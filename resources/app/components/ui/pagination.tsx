@@ -2,7 +2,13 @@ import { type CSSObject } from '@emotion/react';
 import { type ComponentPropsWithoutRef, createContext, forwardRef, useContext } from 'react';
 
 import Flex from '@/components/ui/flex';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scopedMerge, uiFocusRing } from '@/theme/mixins';
@@ -36,13 +42,11 @@ type PaginationContentProps = Omit<ComponentPropsWithoutRef<'ul'>, 'className' |
   cssOverride?: CSSObject;
 };
 
-const PaginationContent = forwardRef<HTMLUListElement, PaginationContentProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const PaginationContent = forwardRef<HTMLUListElement, PaginationContentProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return <ul ref={ref} css={scopedMerge(styles.content, cssOverride)} {...rest} />;
-  },
-);
+  return <ul ref={ref} css={scopedMerge(styles.content, cssOverride)} {...rest} />;
+});
 
 PaginationContent.displayName = 'PaginationContent';
 
@@ -50,13 +54,11 @@ type PaginationItemProps = Omit<ComponentPropsWithoutRef<'li'>, 'className' | 'c
   cssOverride?: CSSObject;
 };
 
-const PaginationItem = forwardRef<HTMLLIElement, PaginationItemProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const PaginationItem = forwardRef<HTMLLIElement, PaginationItemProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return <li ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
-  },
-);
+  return <li ref={ref} css={scopedMerge(cssOverride)} {...rest} />;
+});
 
 PaginationItem.displayName = 'PaginationItem';
 
@@ -68,24 +70,22 @@ type PaginationLinkProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const PaginationLink = forwardRef<HTMLButtonElement, PaginationLinkProps>(
-  (props, ref) => {
-    const { isActive, disabled, cssOverride, ...rest } = props;
-    const contextDisabled = useContext(PaginationDisabledContext);
+const PaginationLink = forwardRef<HTMLButtonElement, PaginationLinkProps>((props, ref) => {
+  const { isActive, disabled, cssOverride, ...rest } = props;
+  const contextDisabled = useContext(PaginationDisabledContext);
 
-    return (
-      <button
-        ref={ref}
-        type="button"
-        disabled={Boolean(disabled) || contextDisabled}
-        aria-current={isActive ? 'page' : undefined}
-        data-active={isActive ? 'true' : undefined}
-        css={scopedMerge(styles.link, isActive && styles.linkActive, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      disabled={Boolean(disabled) || contextDisabled}
+      aria-current={isActive ? 'page' : undefined}
+      data-active={isActive ? 'true' : undefined}
+      css={scopedMerge(styles.link, isActive && styles.linkActive, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 PaginationLink.displayName = 'PaginationLink';
 
@@ -96,25 +96,23 @@ type PaginationPreviousProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const PaginationPrevious = forwardRef<HTMLButtonElement, PaginationPreviousProps>(
-  (props, ref) => {
-    const { disabled, cssOverride, children, ...rest } = props;
-    const contextDisabled = useContext(PaginationDisabledContext);
+const PaginationPrevious = forwardRef<HTMLButtonElement, PaginationPreviousProps>((props, ref) => {
+  const { disabled, cssOverride, children, ...rest } = props;
+  const contextDisabled = useContext(PaginationDisabledContext);
 
-    return (
-      <button
-        ref={ref}
-        type="button"
-        aria-label={__('Previous page', 'kirki-ecommerce')}
-        disabled={Boolean(disabled) || contextDisabled}
-        css={scopedMerge(styles.link, styles.navLink, cssOverride)}
-        {...rest}
-      >
-        {children ?? __('Prev', 'kirki-ecommerce')}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      aria-label={__('Previous page', 'kirki-ecommerce')}
+      disabled={Boolean(disabled) || contextDisabled}
+      css={scopedMerge(styles.link, styles.navLink, cssOverride)}
+      {...rest}
+    >
+      {children ?? __('Prev', 'kirki-ecommerce')}
+    </button>
+  );
+});
 
 PaginationPrevious.displayName = 'PaginationPrevious';
 
@@ -125,25 +123,23 @@ type PaginationNextProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const PaginationNext = forwardRef<HTMLButtonElement, PaginationNextProps>(
-  (props, ref) => {
-    const { disabled, cssOverride, children, ...rest } = props;
-    const contextDisabled = useContext(PaginationDisabledContext);
+const PaginationNext = forwardRef<HTMLButtonElement, PaginationNextProps>((props, ref) => {
+  const { disabled, cssOverride, children, ...rest } = props;
+  const contextDisabled = useContext(PaginationDisabledContext);
 
-    return (
-      <button
-        ref={ref}
-        type="button"
-        aria-label={__('Next page', 'kirki-ecommerce')}
-        disabled={Boolean(disabled) || contextDisabled}
-        css={scopedMerge(styles.link, styles.navLink, cssOverride)}
-        {...rest}
-      >
-        {children ?? __('Next', 'kirki-ecommerce')}
-      </button>
-    );
-  },
-);
+  return (
+    <button
+      ref={ref}
+      type="button"
+      aria-label={__('Next page', 'kirki-ecommerce')}
+      disabled={Boolean(disabled) || contextDisabled}
+      css={scopedMerge(styles.link, styles.navLink, cssOverride)}
+      {...rest}
+    >
+      {children ?? __('Next', 'kirki-ecommerce')}
+    </button>
+  );
+});
 
 PaginationNext.displayName = 'PaginationNext';
 
@@ -151,22 +147,15 @@ type PaginationEllipsisProps = Omit<ComponentPropsWithoutRef<'span'>, 'className
   cssOverride?: CSSObject;
 };
 
-const PaginationEllipsis = forwardRef<HTMLSpanElement, PaginationEllipsisProps>(
-  (props, ref) => {
-    const { cssOverride, children, ...rest } = props;
+const PaginationEllipsis = forwardRef<HTMLSpanElement, PaginationEllipsisProps>((props, ref) => {
+  const { cssOverride, children, ...rest } = props;
 
-    return (
-      <span
-        ref={ref}
-        aria-hidden="true"
-        css={scopedMerge(styles.ellipsis, cssOverride)}
-        {...rest}
-      >
-        {children ?? '…'}
-      </span>
-    );
-  },
-);
+  return (
+    <span ref={ref} aria-hidden="true" css={scopedMerge(styles.ellipsis, cssOverride)} {...rest}>
+      {children ?? '…'}
+    </span>
+  );
+});
 
 PaginationEllipsis.displayName = 'PaginationEllipsis';
 
@@ -238,8 +227,8 @@ const styles = defineStyles({
   },
   link: {
     ...flexCenter(),
-    width: theme.spacing[8],
-    height: theme.spacing[8],
+    width: '2rem',
+    height: '2rem',
     padding: 0,
     border: '1px solid transparent',
     borderRadius: theme.radius.md,
@@ -273,8 +262,8 @@ const styles = defineStyles({
   },
   ellipsis: {
     ...flexCenter(),
-    width: theme.spacing[8],
-    height: theme.spacing[8],
+    width: '2rem',
+    height: '2rem',
     color: theme.colors.text.secondary,
   },
   nowrap: {
