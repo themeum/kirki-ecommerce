@@ -436,7 +436,17 @@ class PaymentProvider
      */
     public function webhook_url()
     {
-        return Route::url('payment/webhook/' . $this->id());
+        if (home_url() === KECOM_WEBHOOK_BASE_URL) {
+            return Route::url('payment/webhook/' . $this->id());
+        }
+
+        $override_home = fn() => rtrim(KECOM_WEBHOOK_BASE_URL, '/');
+
+        add_filter('pre_option_home', $override_home);
+        $url = Route::url('payment/webhook/' . $this->id());
+        remove_filter('pre_option_home', $override_home);
+
+        return $url;
     }
 
     /**
