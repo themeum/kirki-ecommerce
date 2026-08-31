@@ -40,12 +40,9 @@ class OrderActivityResource extends Resource
      */
     protected function human_readable_time_diff(string $date)
     {
-        $suffix = 'ago';
+        $now = Date::now();
+        $suffix = $now->lte($date) ? __('left', 'kirki-ecommerce') : __('ago', 'kirki-ecommerce');
 
-        if (Date::now()->lte($date)) {
-            $suffix = ' left';
-        }
-
-        return human_time_diff(strtotime($date), time()) . ' ' . $suffix;
+        return sprintf('%s %s', human_time_diff(strtotime($date), strtotime($now->to_date_time_string())), $suffix);
     }
 }
