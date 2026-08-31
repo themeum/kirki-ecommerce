@@ -3,12 +3,19 @@ import { useState } from 'react';
 import type { DataTableSelectionState } from '@/components/data-table/types';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
+import { CSSObject } from '@emotion/react';
 
 type DataTableSelectionBarProps = {
   selection: DataTableSelectionState;
@@ -18,6 +25,7 @@ type DataTableSelectionBarProps = {
   onBulkApply?: (action: string, selection: DataTableSelectionState) => void | Promise<void>;
   onSelectAllMatching: () => void;
   onClearSelection: () => void;
+  cssOverride?: CSSObject;
 };
 
 const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
@@ -29,6 +37,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
     onBulkApply,
     onSelectAllMatching,
     onClearSelection,
+    cssOverride,
   } = props;
   const { selectedCount, isAllMatchingSelected } = selection;
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -43,13 +52,16 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
   };
 
   return (
-    <Flex gap={5} cssOverride={styles.wrapper}>
+    <Flex gap={5} cssOverride={mergeCss(styles.wrapper, cssOverride)}>
       <Flex gap={3} align="center">
         <Text variant="small" color="subdued">
           {sprintf(__('%s selected', 'kirki-ecommerce'), selectedCount)}
         </Text>
         {total > shownCount && (
-          <Button variant="link" onClick={isAllMatchingSelected ? onClearSelection : onSelectAllMatching}>
+          <Button
+            variant="link"
+            onClick={isAllMatchingSelected ? onClearSelection : onSelectAllMatching}
+          >
             {isAllMatchingSelected
               ? sprintf(__('Deselect all %s items', 'kirki-ecommerce'), total)
               : sprintf(__('Select all %s items', 'kirki-ecommerce'), total)}
@@ -59,7 +71,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
       {bulkActionOptions && (
         <Flex gap={2} align="center">
           <Select onValueChange={setSelectedAction}>
-            <SelectTrigger style={{ minWidth: '100px' }}>
+            <SelectTrigger cssOverride={styles.selectTrigger}>
               <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
             </SelectTrigger>
             <SelectContent>
@@ -88,5 +100,9 @@ const styles = defineStyles({
   wrapper: {
     backgroundColor: theme.colors.background.fill,
     padding: `${theme.spacing[4]} ${theme.spacing[3]}`,
+  },
+  selectTrigger: {
+    height: '2rem',
+    minWidth: '100px',
   },
 });

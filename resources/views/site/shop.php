@@ -20,7 +20,8 @@ use function Kirki\Ecommerce\Framework\view_data;
 $shop_page_url = Url::get_shop_url();
 $data = (object) view_data();
 $products = $data->products->items()->all();
-$current_sort_by = $data->filters->sort_by ?? '';
+$current_sort_by = $data->filters['sort_by'] ?? '';
+$search = $data->filters['search'] ?? '';
 $current_page = $data->products->get_current_page();
 $last_page = $data->products->get_last_page();
 $has_filters = !empty($_GET);
@@ -61,6 +62,8 @@ $sidebar_data = [
                     'shop_page_url' => $shop_page_url,
                     'current_sort_by' => $current_sort_by,
                     'has_filters' => $has_filters,
+                    'search' => $search,
+
                 ]
             )
             ?>

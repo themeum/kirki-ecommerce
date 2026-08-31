@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
@@ -20,15 +21,16 @@ use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
-use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\App\customer;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -38,24 +40,47 @@ use function Kirki\Ecommerce\Framework\view;
  */
 class SiteController
 {
+    /** @var ProductService */
+    protected $product_service;
+
+    /**
+     * Constructor
+     *
+     * @since 1.0.0
+     *
+     * @param ProductService $product_service product service.
+     */
+    public function __construct(ProductService $product_service)
+    {
+        $this->product_service = $product_service;
+    }
+
     /**
      * Shop page
      *
      * @since 1.0.0
      *
      * @param ShopPageFilterRequest $request request.
-     * @param ProductService $product_service service.
      *
      * @return string Template path.
      */
-    public function shop_page(ShopPageFilterRequest $request, ProductService $product_service)
+    public function shop_page(ShopPageFilterRequest $request)
     {
         $sanitized_input = $request->sanitized();
-        $shop_page_data = $product_service->shop_page_data($sanitized_input);
+        $shop_page_data = $this->product_service->shop_page_data($sanitized_input);
+
+        $raw_paginator = $shop_page_data['products'];
+        $resource_items = new Collection(ShopProductResource::collection($raw_paginator->items()->all()));
+        $products      = new Paginator(
+            $resource_items,
+            $raw_paginator->total(),
+            $raw_paginator->get_per_page(),
+            $raw_paginator->get_current_page()
+        );
 
         $data = [
             'filters'    => $shop_page_data['filters'],
-            'products'   => $shop_page_data['products'],
+            'products'   => $products,
             'categories' => Category::all(),
             'brands'     => Brand::all(),
         ];
@@ -74,8 +99,9 @@ class SiteController
      */
     public function shop_single_page(Request $request)
     {
-        $slug = $request->slug ?? '';
-        $product = Product::with([
+        $slug = $request->string('slug', '');
+
+        $query = Product::with([
             'brand',
             'currency',
             'categories',
@@ -86,7 +112,22 @@ class SiteController
             'variants.attribute_values',
             'variants.product',
             'media'
-        ])->where('slug', $slug)->first();
+        ])->where('slug', $slug);
+
+        $has_valid_preview_nonce = $request->bool('preview', false)
+            && (
+                $request->has('preview_nonce')
+                && $this->product_service->verify_product_preview_nonce($slug, $request->string('preview_nonce', ''))
+            );
+
+        if (!$has_valid_preview_nonce) {
+            $query->where('status', ProductStatus::PUBLISHED);
+        }
+
+        $product = $query->first();
+        if (! $product) {
+            return view('site.shop.not-found')->layout(false);
+        }
 
         $resource = ProductResource::make($product);
 

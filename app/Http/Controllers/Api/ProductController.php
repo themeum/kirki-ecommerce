@@ -91,7 +91,7 @@ class ProductController
         $product = $this->service->find($request->int('id'));
 
         return response()->json([
-            'data' => ProductResource::make($product),
+            'data' => ProductResource::make($product, $this->service->get_preview_url($product->slug)),
             'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }

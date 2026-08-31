@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
@@ -12,6 +13,18 @@ use function Kirki\Ecommerce\Framework\app;
 
 class ProductResource extends Resource
 {
+    /**
+     * The preview url
+     * 
+     * @var ?string
+     */
+    protected $preview_url;
+
+    public function __construct(Product $product, ?string $preview_url = null)
+    {
+        $this->preview_url = $preview_url;
+        parent::__construct($product);
+    }
     /**
      * Convert the product resource to an array.
      *
@@ -82,6 +95,8 @@ class ProductResource extends Resource
             'attributes' => !empty($this->attributes) ? $this->format_attributes($this->attributes->to_array(), $this->attribute_values->to_array()) : [],
             'variants' => VariantResource::collection($this->variants),
             'media' => MediaAttachment::make_many($this->media->pluck('ID')->all()),
+
+            'preview_url' => $this->preview_url,
 
             'published_at' => $this->published_at,
             'trashed_at' => $this->trashed_at,

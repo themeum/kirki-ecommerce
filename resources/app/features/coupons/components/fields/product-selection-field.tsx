@@ -36,7 +36,13 @@ const ProductSelectionField = () => {
         return (
           <Field data-invalid={fieldState.invalid || undefined}>
             {selectedProducts.length === 0 ? (
-              <Card cssOverride={mergeCss(cardStyles.formCard, styles.emptyCard, fieldState.invalid && styles.emptyError)}>
+              <Card
+                cssOverride={mergeCss(
+                  cardStyles.formCard,
+                  styles.emptyCard,
+                  fieldState.invalid && styles.emptyError,
+                )}
+              >
                 <CardContent>
                   <Flex direction="column" gap={3} align="center" justify="center">
                     <ProductIcon />
@@ -71,22 +77,22 @@ const ProductSelectionField = () => {
                             size="sm"
                             src={product.thumbnail}
                             alt={product.productTitle}
-                            cssOverride={{ height: theme.spacing[10], width: theme.spacing[10] }}
+                            cssOverride={{ height: '2.5rem', width: '2.5rem' }}
                           />
                           <Flex direction="column" gap={1}>
                             <Text variant="small">{product.productTitle}</Text>
                             <Text variant="small" color="secondary">
                               {product.variants.length > 1
                                 ? sprintf(
-                                  /* translators: %d: number of variants */
-                                  _n(
-                                    '%d variant',
-                                    '%d variants',
+                                    /* translators: %d: number of variants */
+                                    _n(
+                                      '%d variant',
+                                      '%d variants',
+                                      product.variants.length,
+                                      'kirki-ecommerce',
+                                    ),
                                     product.variants.length,
-                                    'kirki-ecommerce',
-                                  ),
-                                  product.variants.length,
-                                )
+                                  )
                                 : product.variants[0]?.variantLabel}
                             </Text>
                           </Flex>

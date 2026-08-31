@@ -11,6 +11,8 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\DateTimeFormats;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
@@ -38,9 +40,7 @@ $taxes = $totals['invoiced_tax_money_object'] ?? null;
 $discount = $totals['invoiced_discount_money_object'] ?? null;
 $total = $totals['invoiced_total_money_object'] ?? null;
 
-$order_timeline = $order['order_timeline'] ?? [];
-
-usort($order_timeline, fn($a_time, $b_time) => $a_time['date'] <=> $b_time['date']);
+$order_activities = view_data('activities') ?? [];
 
 $items = $order['items']->to_array() ?? [];
 $items_product_data = $order['item_product_data'] ?? [];
@@ -92,48 +92,24 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <div class="kecom-order-details-col-left">
                             <!-- Card 1: Order Status Timeline -->
                             <div class="kecom-card kecom-order-status-card">
-                                <h3 class="kecom-card-title"><?php esc_html_e('Order Timeline', 'kirki-ecommerce'); ?></h3>
-
+                                <h3 class="kecom-card-title"><?php esc_html_e('Order Activities', 'kirki-ecommerce'); ?></h3>
                                 <div class="kecom-order-stepper">
-                                    <div class="kecom-order-step">
-                                        <div class="kecom-order-step-indicator">
-                                            <span class="kecom-order-step-dot"></span>
-                                        </div>
-                                        <div class="kecom-order-step-content">
-                                            <h4 class="kecom-order-step-title"><?php esc_html_e('Order Received', 'kirki-ecommerce'); ?></h4>
-                                            <span class="kecom-order-step-date"><?php echo esc_html(date('F j, Y', strtotime($order['created_at']))); ?></span>
-                                        </div>
-                                    </div>
-
-                                    <?php if (count($order_timeline)):
-                                    ?>
-                                        <?php foreach ($order_timeline as $timeline):
-
-                                        ?>
-                                            <?php if ($timeline['date']): ?>
-                                                <div class="kecom-order-step">
+                                    <?php if (count($order_activities)):?>
+                                        <?php foreach ($order_activities as $key => $timeline): ?>
+                                                <div class="kecom-order-step <?php echo 0 === $key ? 'kecom-order-step-active' : '' ?> <?php echo $timeline['activity_type'] === OrderActivityType::DELIVERED ? 'kecom-order-step-delivered' : '' ?>">
                                                     <div class="kecom-order-step-indicator">
-                                                        <span class="kecom-order-step-dot"></span>
+                                                        <?php if($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
+                                                            <?php Icon::render('check'); ?>
+                                                        <?php else: ?>
+                                                            <span class="kecom-order-step-dot"></span>
+                                                        <?php endif; ?>
                                                     </div>
                                                     <div class="kecom-order-step-content">
-                                                        <h4 class="kecom-order-step-title"><?php echo esc_html($timeline['status'] ?? ''); ?></h4>
-                                                        <span class="kecom-order-step-date"><?php echo esc_html(date('F j, Y', strtotime($timeline['date'] ?? ''))); ?></span>
+                                                        <h4 class="kecom-order-step-title"><?php echo esc_html(OrderActivityType::get_formatted($timeline['activity_type']) ?? ''); ?></h4>
+                                                        <span class="kecom-order-step-date"><?php echo esc_html($timeline['created_at']->format(DateTimeFormats::HUMAN_READABLE_DATE_TIME)); ?></span>
                                                     </div>
                                                 </div>
-                                            <?php endif; ?>
                                         <?php endforeach; ?>
-                                    <?php endif; ?>
-
-                                    <?php if ('processing' === $order['fulfillment_status']) : ?>
-                                        <div class="kecom-order-step">
-                                            <div class="kecom-order-step-indicator">
-                                                <span class="kecom-order-step-dot"></span>
-                                            </div>
-                                            <div class="kecom-order-step-content">
-                                                <h4 class="kecom-order-step-title"><?php esc_html_e('Order Processing', 'kirki-ecommerce'); ?></h4>
-                                                <span class="kecom-order-step-date"><?php echo esc_html(date('F j, Y', strtotime($order['updated_at']))); ?></span>
-                                            </div>
-                                        </div>
                                     <?php endif; ?>
                                 </div>
                             </div>

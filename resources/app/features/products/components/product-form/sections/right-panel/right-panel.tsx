@@ -90,17 +90,22 @@ const RightPanel = ({ mode, product, onDuplicate, isDuplicating = false }: Right
                       {__('Duplicate', 'kirki-ecommerce')}
                     </Text>
                   </Button>
-                  <Button
-                    variant="link"
-                    onClick={() => {
-                      // @todo: preview will be implemented later
-                    }}
-                  >
-                    <Eye size={16} css={scoped({ color: theme.colors.text.emphasis })} />
-                    <Text variant="tiny" weight="medium" color="emphasis">
-                      {__('Preview', 'kirki-ecommerce')}
-                    </Text>
-                  </Button>
+                  {isDefined(product.preview_url) && (
+                    <Button
+                      variant="link"
+                      onClick={() => {
+                        if (!isDefined(product.preview_url)) {
+                          return;
+                        }
+                        window.open(product.preview_url, '_blank');
+                      }}
+                    >
+                      <Eye size={16} css={scoped({ color: theme.colors.text.emphasis })} />
+                      <Text variant="tiny" weight="medium" color="emphasis">
+                        {__('Preview', 'kirki-ecommerce')}
+                      </Text>
+                    </Button>
+                  )}
                 </Flex>
               )}
             </Flex>

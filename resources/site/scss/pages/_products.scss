@@ -94,3 +94,127 @@
     border-top: 1px solid $border-default;
   }
 }
+
+// Search toggle
+.kecom-products-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kecom-products-search-btn {
+  @include flex-center();
+  width: 36px;
+  height: 36px;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  background: $background-surface;
+  color: $icon-secondary;
+  cursor: pointer;
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    border-color 0.15s,
+    color 0.15s;
+
+  &.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &:hover {
+    border-color: $border-hover;
+    color: $icon-secondary;
+  }
+}
+
+.kecom-products-search-field {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-2 $spacing-4;
+  height: 36px;
+  background-color: $background-fill;
+  border: 1px solid $border-default;
+  border-radius: $radius-md;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding-inline: 0;
+  border-width: 0;
+  transition:
+    max-width 0.25s ease,
+    opacity 0.2s ease,
+    padding-inline 0.25s ease,
+    border-width 0.15s ease,
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &.is-open {
+    max-width: 220px;
+    opacity: 1;
+    padding-inline: $spacing-4;
+    border-width: 1px;
+  }
+
+  &.is-open:hover {
+    border-color: $border-hover;
+  }
+
+  &.is-open:focus-within {
+    border-color: $border-default;
+    box-shadow: 0px 0px 0px 1.5px $border-ring;
+  }
+
+  .kecom-products-search-field-icon {
+    flex-shrink: 0;
+    color: $icon-secondary;
+  }
+
+  .kecom-products-search-input {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+    height: auto;
+    font-family: $font-family;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-normal;
+    line-height: $line-height-lg;
+    color: $text-primary;
+    width: 140px;
+
+    &::placeholder {
+      color: $text-subdued;
+    }
+  }
+
+  .kecom-products-search-clear {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: $icon-secondary;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.15s,
+      color 0.15s;
+
+    &.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    &:hover {
+      color: $icon-primary;
+    }
+  }
+}

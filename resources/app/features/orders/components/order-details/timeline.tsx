@@ -183,14 +183,14 @@ const styles = defineStyles({
     },
   },
   leadingIcon: {
-    width: theme.spacing[8],
-    height: theme.spacing[8],
+    width: '2rem',
+    height: '2rem',
     flexShrink: 0,
   },
   avatar: {
     ...flexCenter(),
-    width: theme.spacing[8],
-    height: theme.spacing[8],
+    width: '2rem',
+    height: '2rem',
     borderRadius: theme.radius.full,
     backgroundColor: theme.colors.background.surfaceSecondary,
     color: theme.colors.text.secondary,
@@ -199,7 +199,7 @@ const styles = defineStyles({
     zIndex: 1,
   },
   actionRow: {
-    minHeight: theme.spacing[12],
+    minHeight: '3rem',
   },
   commentRow: {
     position: 'relative',

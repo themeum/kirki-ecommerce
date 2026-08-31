@@ -17,17 +17,27 @@ export function shop() {
 
   return {
     sortBy: 'recommended',
+    searchQuery: '',
+    searchOpen: false,
+    searchBtnVisible: true,
     isLoading: false,
 
     init() {
-      // Read initial sort_by from URL params
+      // Read initial sort_by and search from URL params
       const params = new URLSearchParams(window.location.search);
       this.sortBy = params.get('sort_by') || 'recommended';
+      this.searchQuery = params.get('search') || '';
+      // Auto-open search if a query is already present in the URL
+      if (this.searchQuery) {
+        this.searchOpen = true;
+        this.searchBtnVisible = false;
+      }
 
       // Handle browser back/forward buttons
       window.addEventListener('popstate', () => {
         const currentParams = new URLSearchParams(window.location.search);
         this.sortBy = currentParams.get('sort_by') || 'recommended';
+        this.searchQuery = currentParams.get('search') || '';
         void this.fetchProducts();
       });
 
@@ -49,6 +59,29 @@ export function shop() {
       }
     },
 
+    openSearch() {
+      this.searchBtnVisible = false;
+      this.searchOpen = true;
+      setTimeout(() => {
+        const input = document.getElementById('kecom-search-input') as HTMLInputElement | null;
+        input?.focus();
+      }, 50);
+    },
+
+    closeSearch() {
+      this.searchOpen = false;
+
+      // Wait for the field leave transition before showing the button
+      setTimeout(() => {
+        this.searchBtnVisible = true;
+      }, 50);
+
+      if (this.searchQuery) {
+        this.searchQuery = '';
+        this.search();
+      }
+    },
+
     applySort(value: string) {
       this.sortBy = value;
 
@@ -67,6 +100,33 @@ export function shop() {
       window.history.pushState({}, '', newUrl);
 
       void this.fetchProducts();
+    },
+
+    search() {
+      const params = new URLSearchParams(window.location.search);
+      const query = this.searchQuery.trim();
+
+      if (query) {
+        params.set('search', query);
+      } else {
+        params.delete('search');
+      }
+
+      // Reset page to 1 when search query changes
+      params.delete('current_page');
+
+      const queryString = params.toString();
+      const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+      window.history.pushState({}, '', newUrl);
+
+      void this.fetchProducts();
+    },
+
+    applySearch(value?: string) {
+      if (value !== undefined) {
+        this.searchQuery = value;
+      }
+      this.search();
     },
 
     async fetchProducts(shouldScroll = false) {
