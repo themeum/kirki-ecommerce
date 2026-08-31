@@ -79,22 +79,26 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     });
   }
 
-  // Scroll to the first field with an active error state.
-  // Uses .kecom-field-error-state which is set by fieldWrapper() — more reliable
-  // than querying x-show spans whose display style may not yet be updated.
+  // Scroll to the first field or alert with an active error state.
   function scrollToFirstError() {
-    requestAnimationFrame(() => {
-      const firstErrorField = document.querySelector<HTMLElement>('.kecom-field-error-state');
-      if (firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => {
+      const errorElements = Array.from(
+        document.querySelectorAll<HTMLElement>('.kecom-field-error-state, .kecom-alert-error'),
+      );
+      const firstVisibleError = errorElements.find(
+        (el) => el.offsetParent !== null || getComputedStyle(el).display !== 'none',
+      );
+      if (firstVisibleError) {
+        firstVisibleError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
-    });
+    }, 50);
   }
 
   // Keys follow "shipping_address.field" / "billing_address.field" patterns.
   function handleApiErrors(
     err: Error & { errors?: Record<string, string[]> },
     fallbackMessage: string,
+    onShippingMethodError?: (msg: string) => void,
   ) {
     if (!err.errors) {
       toastManager.error(err.message ?? fallbackMessage);
@@ -120,6 +124,9 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       const rawMessage = messages[0];
       if (key === 'customer_email' || key === 'email') {
         contactForm?.setError('customer_email', rawMessage);
+        hasFieldErrors = true;
+      } else if (key === 'shipping_method') {
+        onShippingMethodError?.(rawMessage);
         hasFieldErrors = true;
       } else if (key.startsWith('shipping_')) {
         const field = key.replace('shipping_', '');
@@ -161,6 +168,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     success: false,
 
     availableShippingMethods: [] as ShippingMethod[],
+    shippingMethodError: null as string | null,
 
     init() {
       listen(EVENTS.BILLING_FORM_VALIDATED, (detail) => {
@@ -277,12 +285,16 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         handleApiErrors(
           e as Error & { errors?: Record<string, string[]> },
           __('Failed to update cart', 'kirki-ecommerce'),
+          (msg) => {
+            this.shippingMethodError = msg;
+          },
         );
       }
     },
 
     setShippingMethod(methodId: string) {
       this.selectedShippingMethod = methodId;
+      this.shippingMethodError = null;
       (this as unknown as AlpineContext).$dispatch('shipping-method-change', { methodId });
       void this.updateCart();
     },
@@ -377,12 +389,22 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.shippingFormValid = shippingResult.isValid;
         this.billingFormValid = billingResult.isValid;
 
+        let hasValidationError = false;
+
         if (!this.shippingFormValid) {
-          scrollToFirstError();
-          return;
+          hasValidationError = true;
         }
 
         if (!this.billingFormValid) {
+          hasValidationError = true;
+        }
+
+        if (!this.selectedShippingMethod) {
+          this.shippingMethodError = __('Please select a shipping method.', 'kirki-ecommerce');
+          hasValidationError = true;
+        }
+
+        if (hasValidationError) {
           scrollToFirstError();
           return;
         }
@@ -467,7 +489,9 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       } catch (e: unknown) {
         const err = e as Error & { errors?: Record<string, string[]> };
         this.error = err.message ?? __('Checkout failed', 'kirki-ecommerce');
-        handleApiErrors(err, __('Checkout failed', 'kirki-ecommerce'));
+        handleApiErrors(err, __('Checkout failed', 'kirki-ecommerce'), (msg) => {
+          this.shippingMethodError = msg;
+        });
       } finally {
         this.loading = false;
       }
