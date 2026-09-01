@@ -59,9 +59,7 @@ $total_money_object = $totals['invoiced_total_money_object'];
                     </div>
                     <div class="kecom-order-success-row">
                         <div class="kecom-order-success-row-key"><?php _e('Order Time', 'kirki-ecommerce'); ?></div>
-                        <div class="kecom-order-success-row-value">
-                            <?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $order['created_at']->get_timestamp())); ?>
-                        </div>
+                        <div class="kecom-order-success-row-value" x-data x-local-time="'<?php echo esc_js($order['created_at']); ?>'"></div>
                     </div>
                     <div class="kecom-order-success-row">
                         <div class="kecom-order-success-row-key"><?php _e('Payment Method', 'kirki-ecommerce'); ?></div>

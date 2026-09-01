@@ -25,12 +25,16 @@ import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
 
 import { accountOrders } from './components/account-orders';
+import { registerLocalTimeDirective } from './directives/local-time';
 
 import '../scss/index.scss';
 
 // ----------------------------------------------------------------------------
 // Alpine.js Registration
 // ----------------------------------------------------------------------------
+
+// Register directives
+registerLocalTimeDirective(Alpine);
 
 // Register components
 Alpine.data('accountAddresses', accountAddresses);
