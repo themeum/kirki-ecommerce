@@ -35,13 +35,18 @@
     "is_available": true
   },
   {
-    "id": "paddle",
-    "name": "Paddle",
-    "is_available": false
-  },
-  {
     "id": "paystack",
     "name": "Paystack",
+    "is_available": true
+  },
+  {
+    "id": "quickpay",
+    "name": "Quickpay",
+    "is_available": true
+  },
+  {
+    "id": "paddle",
+    "name": "Paddle",
     "is_available": false
   },
   {
@@ -62,11 +67,6 @@
   {
     "id": "payfast",
     "name": "PayFast",
-    "is_available": false
-  },
-  {
-    "id": "quickpay",
-    "name": "QuickPay",
     "is_available": false
   },
   {
