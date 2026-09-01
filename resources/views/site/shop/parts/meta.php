@@ -44,7 +44,7 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
         ?>
     </div>
     
-    <div class="kecom-products-page-meta-right kecom-flex kecom-gap-4">
+    <div class="kecom-products-page-meta-right">
         <!-- Search toggle -->
         <div class="kecom-products-search" x-data>
             <button
