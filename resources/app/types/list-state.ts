@@ -12,8 +12,7 @@ type ListQueryParams = {
   to_date?: string | null;
 };
 
-type ListParams<TFilter extends Record<string, unknown> = {}> =
-  ListQueryParams & TFilter;
+type ListParams<TFilter extends Record<string, unknown> = {}> = ListQueryParams & TFilter;
 
 type ListFilterParser<T = unknown> = {
   parse: (value: string | null) => T | undefined;
@@ -60,7 +59,10 @@ const parseStatus = (value: string | null): string | string[] | undefined => {
     return undefined;
   }
   if (value.includes(',')) {
-    return value.split(',').map((item) => item.trim()).filter(Boolean);
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
   }
   return value;
 };
@@ -77,7 +79,7 @@ const parseDateString = (value: string | null): string | null => {
   }
 
   return formatAtomDateTime(new Date(value));
-}
+};
 
 const serializeFilterValue = (value: unknown): string | null => {
   if (value === null || value === undefined || value === '') {
@@ -95,15 +97,13 @@ const serializeFilterValue = (value: unknown): string | null => {
   return null;
 };
 
+export type { ListFilterConfig, ListFilterParser, ListParams, ListQueryParams, SortOrder };
 
-
-export type {
-  ListFilterConfig,
-  ListFilterParser,
-  ListParams,
-  ListQueryParams,
-  SortOrder,
+export {
+  parseArray,
+  parseDateString,
+  parseNumberArray,
+  parseStatus,
+  parseString,
+  serializeFilterValue,
 };
-
-export { parseArray, parseDateString, parseNumberArray, parseStatus, parseString, serializeFilterValue };
-

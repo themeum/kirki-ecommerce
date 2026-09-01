@@ -53,6 +53,9 @@ const styles = defineStyles({
     xl: {
       maxWidth: '1024px',
     },
+    xxl: {
+      maxWidth: '1280px',
+    },
     fullWidth: {
       maxWidth: '100%',
     },
