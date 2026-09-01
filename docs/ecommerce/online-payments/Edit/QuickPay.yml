@@ -1,21 +1,20 @@
 info:
-  name: Square
+  name: QuickPay
   type: http
-  seq: 3
+  seq: 5
   tags:
     - online-payments
 
 http:
   method: PUT
-  url: "{{baseUrl}}/online-payments/square"
+  url: "{{baseUrl}}/online-payments/quickpay"
   body:
     type: json
     data: |-
       {
         "data": {
-          "location_id": "LEGT83VZEV5V2",
-          "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-          "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+          "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+          "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
           "sandbox": true
         }
       }
@@ -31,16 +30,15 @@ examples:
   - name: 200 Response
     description: Success
     request:
-      url: "{{baseUrl}}/online-payments/square"
+      url: "{{baseUrl}}/online-payments/quickpay"
       method: PUT
       body:
         type: json
         data: |-
           {
             "data": {
-              "location_id": "LEGT83VZEV5V2",
-              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+               "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
               "sandbox": true
             }
           }
@@ -55,37 +53,31 @@ examples:
         data: |-
           {
             "data": {
-              "id": "square",
-              "name": "Square",
-              "icon": "square",
+              "id": "quickpay",
+              "name": "QuickPay",
+              "icon": "quickpay",
               "is_enabled": true,
               "is_offline": false,
-              "description": "Square payment gateway",
+              "description": "QuickPay payment gateway",
               "settings": {
-                "login_id": "LEGT83VZEV5V2",
-                "transaction_key": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-                "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
-                "sandbox": true
+              "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+              "sandbox": true
               },
               "fields": [
                 {
-                  "name": "location_id",
-                  "label": "Location ID",
+                  "name": "api_key",
+                  "label": "API Key",
                   "type": "text",
                   "required": true
                 },
                 {
-                  "name": "access_token",
-                  "label": "Access Token",
-                  "type": "text",
+                  "name": "private_key",
+                  "label": "Private Key",
+                  "type": "password",
                   "required": true
                 },
-                {
-                  "name": "signature_key",
-                  "label": "Signature Key",
-                  "type": "text",
-                  "required": true
-                },
+
                 {
                   "name": "sandbox",
                   "label": "Sandbox",
@@ -93,9 +85,9 @@ examples:
                   "required": true
                 }
               ],
-              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/square",
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/quickpay",
               "webhook_events": [
-                
+
               ]
             },
             "message": "Payment method updated successfully.",
@@ -104,16 +96,15 @@ examples:
   - name: 404 Response
     description: Failure
     request:
-      url: "{{baseUrl}}/online-payments/square"
+      url: "{{baseUrl}}/online-payments/quickpay"
       method: PUT
       body:
         type: json
         data: |-
           {
-            "data": {
-              "location_id": "LEGT83VZEV5V2",
-              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+           "data": {
+               "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
               "sandbox": true
             }
           }
