@@ -7,7 +7,7 @@ info:
 
 http:
   method: PUT
-  url: "{{baseUrl}}/online-payments/authorizenet"
+  url: "{{baseUrl}}/online-payments/klarna"
   body:
     type: json
     data: |-

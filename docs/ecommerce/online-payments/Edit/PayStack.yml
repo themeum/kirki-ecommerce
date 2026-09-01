@@ -1,21 +1,19 @@
 info:
-  name: Square
+  name: PayStack
   type: http
-  seq: 3
+  seq: 5
   tags:
     - online-payments
 
 http:
   method: PUT
-  url: "{{baseUrl}}/online-payments/square"
+  url: "{{baseUrl}}/online-payments/paystack"
   body:
     type: json
     data: |-
       {
         "data": {
-          "location_id": "LEGT83VZEV5V2",
-          "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-          "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+          "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
           "sandbox": true
         }
       }
@@ -26,21 +24,20 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
 
 examples:
   - name: 200 Response
     description: Success
     request:
-      url: "{{baseUrl}}/online-payments/square"
+      url: "{{baseUrl}}/online-payments/paystack"
       method: PUT
       body:
         type: json
         data: |-
           {
             "data": {
-              "location_id": "LEGT83VZEV5V2",
-              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+              "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
               "sandbox": true
             }
           }
@@ -55,35 +52,21 @@ examples:
         data: |-
           {
             "data": {
-              "id": "square",
-              "name": "Square",
-              "icon": "square",
+              "id": "paystack",
+              "name": "PayStack",
+              "icon": "paystack",
               "is_enabled": true,
               "is_offline": false,
-              "description": "Square payment gateway",
+              "description": "PayStack payment gateway",
               "settings": {
-                "login_id": "LEGT83VZEV5V2",
-                "transaction_key": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-                "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+                "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
                 "sandbox": true
               },
               "fields": [
                 {
-                  "name": "location_id",
-                  "label": "Location ID",
-                  "type": "text",
-                  "required": true
-                },
-                {
-                  "name": "access_token",
-                  "label": "Access Token",
-                  "type": "text",
-                  "required": true
-                },
-                {
-                  "name": "signature_key",
-                  "label": "Signature Key",
-                  "type": "text",
+                  "name": "secret_key",
+                  "label": "Secret key",
+                  "type": "password",
                   "required": true
                 },
                 {
@@ -93,9 +76,15 @@ examples:
                   "required": true
                 }
               ],
-              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/square",
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/paystack",
               "webhook_events": [
-                
+                "checkout.session.completed",
+                "checkout.session.async_payment_succeeded",
+                "checkout.session.async_payment_failed",
+                "charge.refunded",
+                "charge.dispute.created",
+                "charge.dispute.closed",
+                "charge.succeeded"
               ]
             },
             "message": "Payment method updated successfully.",
@@ -104,16 +93,14 @@ examples:
   - name: 404 Response
     description: Failure
     request:
-      url: "{{baseUrl}}/online-payments/square"
+      url: "{{baseUrl}}/online-payments/paystack"
       method: PUT
       body:
         type: json
         data: |-
           {
-            "data": {
-              "location_id": "LEGT83VZEV5V2",
-              "access_token": "EAAAl4LdTXfnmyIKtc9NU-n0IZMw8roh8N12PXXWnfwI0q2me70hEDkzMP_iyfnz",
-              "signature_key": "LEh7OzsPmA8jIRPfTDKR4g",
+           "data": {
+              "secret_key": "sk_test_283f113a5c0fc16f73ccacfde25a1b8bee575c72",
               "sandbox": true
             }
           }

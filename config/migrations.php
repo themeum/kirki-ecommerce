@@ -96,9 +96,8 @@ return [
     // Gives every key an explicit, project-owned name. Must stay after every Create* migration and
     // before every Alter* migration: at this point an upgraded database and a fresh install hold
     // the same tables, which is what lets one code path serve both. Never reorder, never edit.
+    // Since v1.0.0-alpha.2
     AlterSchemaKeysToExplicitNames::class,
-
-    // Altering the tables structures
     AlterAddressesTypeColumnToString::class,
     AlterAttributesTypeColumnToString::class,
     ReplaceCartsCustomerIdWithUserId::class,
@@ -110,6 +109,8 @@ return [
     AddIsDefaultToShippingProfilesTable::class,
     AddIsDefaultToTaxProfilesTable::class,
     AlterSchedulerJobsStatusColumnToString::class,
+
+    // Since v1.0.0-alpha.3
     AddLowStockThresholdToVariantsTable::class,
     AddPublishedAtAndTrashedAtToProductsTable::class,
 ];
