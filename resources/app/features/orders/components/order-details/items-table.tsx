@@ -21,18 +21,22 @@ const ItemsTable = ({ items }: ItemsTableProps) => {
                 <Flex direction="column" gap={2}>
                   <Text variant="small">{item.product_name}</Text>
                   {Boolean(item.variant_name) && (
-                    <Text variant="small" color="secondary">{item.variant_name}</Text>
+                    <Text variant="small" color="secondary">
+                      {item.variant_name}
+                    </Text>
                   )}
                 </Flex>
               </Flex>
             </TableCell>
             <TableCell alignment="right">
-              <Text color="secondary" variant="small">
-                {sprintf('%s x %s', item.quantity, item.base_price_money_object.display)}
+              <Text color="subdued" variant="small" weight="medium">
+                {sprintf('%s x %s', item.base_price_money_object.display, item.quantity)}
               </Text>
             </TableCell>
             <TableCell alignment="right">
-              <Text variant="tiny" weight="medium">{item.base_total_money_object.display}</Text>
+              <Text variant="tiny" weight="medium">
+                {item.base_total_money_object.display}
+              </Text>
             </TableCell>
           </TableRow>
         ))}

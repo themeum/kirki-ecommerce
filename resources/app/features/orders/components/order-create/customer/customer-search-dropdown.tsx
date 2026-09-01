@@ -2,12 +2,7 @@ import { PlusCircle } from 'lucide-react';
 import { useMemo, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
-import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
@@ -29,16 +24,15 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
   const anchorRef = useRef<HTMLDivElement>(null);
 
   const query = search.trim();
-  const { data, isFetching } = useCustomersQuery(
-    { search: query, limit: 10 },
-    open,
-  );
+  const { data, isFetching } = useCustomersQuery({ search: query, limit: 10 }, open);
 
   const customers = useMemo(() => {
-    if (!isDefined(data?.results)) {return [];}
+    if (!isDefined(data?.results)) {
+      return [];
+    }
 
     return data.results;
-  }, [data])
+  }, [data]);
 
   const handleSelect = (customerId: number) => {
     onSelect(customerId);
@@ -93,9 +87,7 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
                     onSelect={() => handleSelect(customer.id)}
                   >
                     <CustomerProfileCard
-                      name={[customer.first_name, customer.last_name]
-                        .filter(Boolean)
-                        .join(' ')}
+                      name={[customer.first_name, customer.last_name].filter(Boolean).join(' ')}
                       email={customer.email}
                       phone={customer.phone}
                       photo={customer.photo}
@@ -107,14 +99,11 @@ const CustomerSearchDropdown = ({ onSelect, onOpenAddDialog }: CustomerSearchDro
           </CommandList>
         </Command>
         <div css={scopedMerge(styles.footer, styles.footerBordered)}>
-          <Button
-            variant="ghost"
-            size="sm"
-            cssOverride={styles.addButton}
-            onClick={handleAdd}
-          >
+          <Button variant="ghost" cssOverride={styles.addButton} onClick={handleAdd}>
             <PlusCircle />
-            <Text variant="tiny" weight="medium">{__('Add new', 'kirki-ecommerce')}</Text>
+            <Text variant="tiny" weight="medium">
+              {__('Add new', 'kirki-ecommerce')}
+            </Text>
           </Button>
         </div>
       </PopoverContent>
@@ -136,7 +125,7 @@ const styles = defineStyles({
     marginRight: `-${theme.spacing[3]}`,
     paddingLeft: theme.spacing[3],
     paddingRight: theme.spacing[3],
-    paddingTop: theme.spacing[1],
+    paddingTop: theme.spacing[3],
   },
   footerBordered: {
     borderTop: `1px solid ${theme.colors.border.default}`,
