@@ -35,7 +35,9 @@ const Tooltip = ({
     <TooltipProvider delayDuration={delayDuration}>
       <TooltipPrimitive.Root>
         <TooltipPrimitive.Trigger asChild>
-          <span css={scopedMerge(styles.trigger, cssOverride)} data-tooltip="true" {...rest}>{children}</span>
+          <span css={scopedMerge(styles.trigger, cssOverride)} data-tooltip="true" {...rest}>
+            {children}
+          </span>
         </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal container={getPortalContainer()}>
           <TooltipPrimitive.Content
@@ -66,23 +68,22 @@ type TooltipContentProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TooltipContent = forwardRef<
-  ElementRef<typeof TooltipPrimitive.Content>,
-  TooltipContentProps
->((props, ref) => {
-  const { cssOverride, sideOffset = 4, dark, ...rest } = props;
+const TooltipContent = forwardRef<ElementRef<typeof TooltipPrimitive.Content>, TooltipContentProps>(
+  (props, ref) => {
+    const { cssOverride, sideOffset = 4, dark, ...rest } = props;
 
-  return (
-    <TooltipPrimitive.Portal container={getPortalContainer()}>
-      <TooltipPrimitive.Content
-        ref={ref}
-        sideOffset={sideOffset}
-        css={scopedMerge(styles.content, dark && styles.dark, cssOverride)}
-        {...rest}
-      />
-    </TooltipPrimitive.Portal>
-  );
-});
+    return (
+      <TooltipPrimitive.Portal container={getPortalContainer()}>
+        <TooltipPrimitive.Content
+          ref={ref}
+          sideOffset={sideOffset}
+          css={scopedMerge(styles.content, dark && styles.dark, cssOverride)}
+          {...rest}
+        />
+      </TooltipPrimitive.Portal>
+    );
+  },
+);
 
 TooltipContent.displayName = 'TooltipContent';
 
@@ -99,13 +100,13 @@ const styles = defineStyles({
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-    backgroundColor: theme.colors.background.inverse,
-    color: theme.colors.text.light,
+    backgroundColor: theme.colors.background.fill,
+    color: theme.colors.text.dark,
     height: 'max-content',
     width: 'max-content',
     ...theme.typography.small(),
-    boxShadow: 'none',
-    maxWidth: '320px',
+    boxShadow: theme.shadow.lg,
+    maxWidth: '250px',
   },
   dark: {
     backgroundColor: theme.colors.background.inverse,
