@@ -14,6 +14,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 
 $product = $data['product'] ?? null;
@@ -24,7 +25,7 @@ if (! is_array($product) || empty($product)) {
 
 $title                   = $product['title'];
 $product_url             = $product['product_url'];
-$image_url               = $product['image_url'];
+$image_url               = ! empty( $product['image_url'] ) ? $product['image_url'] : Assets::get_url('images/product-fallback.webp');
 $ribbon_text             = $product['ribbon_text'];
 $category_name           = $product['category_name'];
 $display_price           = $product['display_price'];

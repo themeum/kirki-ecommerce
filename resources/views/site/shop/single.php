@@ -224,8 +224,8 @@ foreach ($media as $media_item) {
                 </div>
 
                 <!-- Add to Cart Button -->
-                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
-                    imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
+                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || kirki_ecommerce.product_images[0]?.url || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
+                    imageUrl = val || kirki_ecommerce.product_images[0]?.url || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">
                     <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
                         <?php Icon::render('cart'); ?>
