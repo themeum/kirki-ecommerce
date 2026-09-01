@@ -41,6 +41,11 @@ class RecalculateCartAction
     {
         $result = new CalculationResultDTO();
 
+        // Calculate Shipping Subtotal first
+        $shipping_subtotal_int = $this->get_shipping_total($context);
+        $context->shipping_subtotal = $shipping_subtotal_int;
+        $shipping_subtotal_money = Money::of_minor($shipping_subtotal_int);
+
         // Initialize totals as Money zero
         $total_subtotal_money = Money::zero();
         $total_tax_money = Money::zero();
@@ -50,6 +55,8 @@ class RecalculateCartAction
 
         // Calculate Coupons & Discounts
         $discount_result = $this->get_discount_result($context);
+        $shipping_discount_money = Money::of_minor($discount_result->shipping_discount);
+        $total_discount_money = $total_discount_money->plus($shipping_discount_money);
 
         // Get Tax Settings & Strategy
         $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
@@ -119,16 +126,6 @@ class RecalculateCartAction
             $result->items_count += $item->quantity;
         }
 
-        // Calculate Shipping
-        $shipping_subtotal_int = $this->get_shipping_total($context);
-        $shipping_subtotal_money = Money::of_minor($shipping_subtotal_int);
-
-        $shipping_discount_money = $discount_result->is_free_shipping ? $shipping_subtotal_money : Money::zero();
-
-        $this->attribute_shipping_discount($discount_result, $shipping_discount_money->getMinorAmount()->toInt());
-
-        $total_discount_money = $total_discount_money->plus($shipping_discount_money);
-
         // Calculate Shipping Tax
         $shipping_tax_money = Money::zero();
 
@@ -197,33 +194,7 @@ class RecalculateCartAction
         return $this->coupon_service->find_by_codes($codes)->all();
     }
 
-    /**
-     * Attribute the shipping discount to the first free-shipping coupon result
-     * so it isn't double-counted if more than one free-shipping coupon is
-     * (redundantly) applied at once.
-     *
-     * @param DiscountCalculationResultDTO $discount_result
-     * @param int $shipping_discount_amount
-     */
-    protected function attribute_shipping_discount(DiscountCalculationResultDTO $discount_result, int $shipping_discount_amount)
-    {
-        $attributed = false;
 
-        foreach ($discount_result->coupon_results as $coupon_result) {
-            if ($coupon_result->coupon->discount_type !== DiscountType::FREE_SHIPPING) {
-                continue;
-            }
-
-            if ($attributed) {
-                $coupon_result->shipping_discount = 0;
-                continue;
-            }
-
-            $coupon_result->shipping_discount = $shipping_discount_amount;
-            $coupon_result->total_discount = $shipping_discount_amount;
-            $attributed = true;
-        }
-    }
 
     protected function get_shipping_total(CalculationContextDTO $context)
     {

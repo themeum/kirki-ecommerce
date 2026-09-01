@@ -30,6 +30,9 @@ class CalculationContextDTO extends DTO
     /** @var int */
     public $shipping_method_id;
 
+    /** @var int Base shipping cost in minor units */
+    public $shipping_subtotal = 0;
+
     /** @var int */
     public $customer_order_count = 0;
 

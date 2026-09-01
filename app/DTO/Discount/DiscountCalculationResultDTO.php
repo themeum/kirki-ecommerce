@@ -15,6 +15,6 @@ class DiscountCalculationResultDTO extends DTO
     /** @var array<int, int> Discount amount per variant_id, summed across every applied coupon */
     public $item_discounts = [];
 
-    /** @var bool */
-    public $is_free_shipping = false;
+    /** @var int Total shipping discount amount in minor units */
+    public $shipping_discount = 0;
 }

@@ -85,6 +85,10 @@ class DiscountService
 
     protected function validate_conditions(Coupon $coupon, CalculationContextDTO $context)
     {
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING && $context->shipping_subtotal <= 0) {
+            throw new ValidationException(esc_html__('Free shipping coupon cannot be applied when shipping cost is zero.', 'kirki-ecommerce'));
+        }
+
         if ($coupon->has_usage_limit && $coupon->current_usage_count >= $coupon->usage_limit) {
             throw new ValidationException(esc_html__('Coupon usage limit reached.', 'kirki-ecommerce'));
         }
@@ -209,6 +213,17 @@ class DiscountService
         if (in_array($coupon->code, $already_applied_coupon_codes, true)) {
             throw new ValidationException(esc_html__('This coupon is already applied.', 'kirki-ecommerce'));
         }
+
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING && !empty($already_applied_coupon_codes)) {
+            $has_existing_free_shipping = Coupon::query()
+                ->where_in('code', $already_applied_coupon_codes)
+                ->where('discount_type', DiscountType::FREE_SHIPPING)
+                ->exists();
+
+            if ($has_existing_free_shipping) {
+                throw new ValidationException(esc_html__('A free shipping coupon is already applied.', 'kirki-ecommerce'));
+            }
+        }
     }
 
     /**
@@ -232,12 +247,21 @@ class DiscountService
 
         $valid_coupons = [];
         $already_applied_codes = [];
+        $has_free_shipping_applied = false;
 
         foreach ($coupons as $coupon) {
             try {
+                if ($coupon->discount_type === DiscountType::FREE_SHIPPING && $has_free_shipping_applied) {
+                    throw new ValidationException(esc_html__('A free shipping coupon is already applied.', 'kirki-ecommerce'));
+                }
+
                 $this->validate_coupon($coupon, $context, $already_applied_codes);
                 $valid_coupons[] = $coupon;
                 $already_applied_codes[] = $coupon->code;
+
+                if ($coupon->discount_type === DiscountType::FREE_SHIPPING) {
+                    $has_free_shipping_applied = true;
+                }
             } catch (ValidationException $e) {
                 $result->invalid_coupons[] = $coupon;
             }
@@ -287,17 +311,21 @@ class DiscountService
             }
         }
 
-        // Free shipping - the actual shipping amount waived isn't known until
-        // shipping is calculated, so the caller fills in `shipping_discount`.
+        // Free shipping - waives up to $context->shipping_subtotal
         foreach ($valid_coupons as $coupon) {
             if ($coupon->discount_type !== DiscountType::FREE_SHIPPING) {
                 continue;
             }
 
-            $result->is_free_shipping = true;
+            $shipping_discount_amount = max(0, $context->shipping_subtotal);
+
+            $result->shipping_discount += $shipping_discount_amount;
 
             $coupon_result = new CouponDiscountResultDTO();
             $coupon_result->coupon = $coupon;
+            $coupon_result->shipping_discount = $shipping_discount_amount;
+            $coupon_result->total_discount = $shipping_discount_amount;
+
             $result->coupon_results[] = $coupon_result;
         }
 
