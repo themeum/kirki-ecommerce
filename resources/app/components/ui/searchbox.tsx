@@ -1,12 +1,19 @@
 import type { CSSObject } from '@emotion/react';
 import { Cross2Icon } from '@radix-ui/react-icons';
 import { Search } from 'lucide-react';
-import { type CSSProperties, forwardRef, type KeyboardEvent, type RefObject, useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  forwardRef,
+  type KeyboardEvent,
+  type RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import Button from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { InputState } from '@/types/components/common';
 import { noop } from '@/utils/function';
@@ -39,10 +46,7 @@ type SearchboxProps = {
  * @returns Debounced function.
  * @since 1.0.0
  */
-function debounce<Args extends unknown[]>(
-  fn: (...args: Args) => void,
-  delay: number,
-) {
+function debounce<Args extends unknown[]>(fn: (...args: Args) => void, delay: number) {
   let timer: ReturnType<typeof setTimeout>;
   return (...args: Args) => {
     clearTimeout(timer);
@@ -78,8 +82,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   } = props;
 
   const fallbackRef = useRef<HTMLInputElement>(null);
-  const inputRef =
-    (ref as RefObject<HTMLInputElement | null>) || fallbackRef;
+  const inputRef = (ref as RefObject<HTMLInputElement | null>) || fallbackRef;
   const [searchValue, setSearchValue] = useState(value ?? '');
 
   useEffect(() => {
@@ -102,11 +105,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   const isDisabled = state === 'disabled';
 
   return (
-    <Field
-      data-invalid={error ? true : undefined}
-      cssOverride={styles.root}
-      style={style}
-    >
+    <Field data-invalid={error ? true : undefined} cssOverride={styles.root} style={style}>
       {label && <FieldLabel>{label}</FieldLabel>}
       <InputGroup
         error={Boolean(error)}
@@ -129,14 +128,13 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
         <InputGroupAddon align="inline-start">
           <Search size={16} aria-hidden="true" />
         </InputGroupAddon>
-        {
-          searchValue && clearable && (
-            <InputGroupAddon align="inline-end">
-              <Button variant="ghost" size="icon-xs" onClick={() => handleSearchChange('')}><Cross2Icon aria-hidden="true" /></Button>
-            </InputGroupAddon>
-          )
-        }
-
+        {searchValue && clearable && (
+          <InputGroupAddon align="inline-end">
+            <Button variant="ghost" size="icon-xs" onClick={() => handleSearchChange('')}>
+              <Cross2Icon aria-hidden="true" />
+            </Button>
+          </InputGroupAddon>
+        )}
       </InputGroup>
       {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
       {typeof error === 'string' && <FieldError>{error}</FieldError>}
@@ -153,10 +151,10 @@ const styles = defineStyles({
     width: '100%',
   },
   group: {
-    minHeight: theme.spacing[8],
-    height: theme.spacing[8],
+    minHeight: '2rem',
+    height: '2rem',
     '& [data-slot="input-group-control"]': {
-      minHeight: theme.spacing[8],
+      minHeight: '2rem',
     },
   },
 });

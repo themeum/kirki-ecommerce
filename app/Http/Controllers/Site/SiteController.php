@@ -11,8 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
-use Kirki\Ecommerce\App\Http\Requests\Account\LoginRequest;
-use Kirki\Ecommerce\App\Http\Requests\Account\RegistrationRequest;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
@@ -22,19 +21,16 @@ use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\OrderService;
-use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
-use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\Framework\Route;
 
-use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\App\customer;
-use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -44,41 +40,19 @@ use function Kirki\Ecommerce\Framework\view;
  */
 class SiteController
 {
+    /** @var ProductService */
+    protected $product_service;
+
     /**
-     * Get products HTML
+     * Constructor
      *
      * @since 1.0.0
      *
-     * @param ShopPageFilterRequest $request request.
-     * @param ProductService $product_service service.
-     *
-     * @return Response JSON response.
+     * @param ProductService $product_service product service.
      */
-    public function products_html(ShopPageFilterRequest $request, ProductService $product_service)
+    public function __construct(ProductService $product_service)
     {
-        $sanitized_input = $request->sanitized();
-        $shop_page_data = $product_service->shop_page_data($sanitized_input);
-
-        $products = $shop_page_data['products']->items();
-
-        ob_start();
-        include_view('site.shop.parts.list', ['products' => $products]);
-        $products_html = ob_get_clean();
-
-        ob_start();
-        Template::render_pagination($shop_page_data['products']);
-        $pagination_html = ob_get_clean();
-
-        $data = [
-            'products_html' => $products_html,
-            'pagination_html' => $pagination_html,
-            'filters' => $shop_page_data['filters'],
-        ];
-
-        return response()->json([
-            'data' => $data,
-            'message' => __('Product retrieved successfully.', 'kirki-ecommerce'),
-        ]);
+        $this->product_service = $product_service;
     }
 
     /**
@@ -87,18 +61,26 @@ class SiteController
      * @since 1.0.0
      *
      * @param ShopPageFilterRequest $request request.
-     * @param ProductService $product_service service.
      *
      * @return string Template path.
      */
-    public function shop_page(ShopPageFilterRequest $request, ProductService $product_service)
+    public function shop_page(ShopPageFilterRequest $request)
     {
         $sanitized_input = $request->sanitized();
-        $shop_page_data = $product_service->shop_page_data($sanitized_input);
+        $shop_page_data = $this->product_service->shop_page_data($sanitized_input);
+
+        $raw_paginator = $shop_page_data['products'];
+        $resource_items = new Collection(ShopProductResource::collection($raw_paginator->items()->all()));
+        $products      = new Paginator(
+            $resource_items,
+            $raw_paginator->total(),
+            $raw_paginator->get_per_page(),
+            $raw_paginator->get_current_page()
+        );
 
         $data = [
             'filters'    => $shop_page_data['filters'],
-            'products'   => $shop_page_data['products'],
+            'products'   => $products,
             'categories' => Category::all(),
             'brands'     => Brand::all(),
         ];
@@ -117,8 +99,9 @@ class SiteController
      */
     public function shop_single_page(Request $request)
     {
-        $slug = $request->slug ?? '';
-        $product = Product::with([
+        $slug = $request->string('slug', '');
+
+        $query = Product::with([
             'brand',
             'currency',
             'categories',
@@ -129,7 +112,22 @@ class SiteController
             'variants.attribute_values',
             'variants.product',
             'media'
-        ])->where('slug', $slug)->first();
+        ])->where('slug', $slug);
+
+        $has_valid_preview_nonce = $request->bool('preview', false)
+            && (
+                $request->has('preview_nonce')
+                && $this->product_service->verify_product_preview_nonce($slug, $request->string('preview_nonce', ''))
+            );
+
+        if (!$has_valid_preview_nonce) {
+            $query->where('status', ProductStatus::PUBLISHED);
+        }
+
+        $product = $query->first();
+        if (! $product) {
+            return view('site.shop.not-found')->layout(false);
+        }
 
         $resource = ProductResource::make($product);
 
@@ -239,135 +237,5 @@ class SiteController
     public function design_system_page(Request $request)
     {
         return view('site.design-system');
-    }
-
-    /**
-     * Login page
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
-     */
-    public function login_page(Request $request)
-    {
-        if (is_user_logged_in()) {
-            wp_safe_redirect(Url::get_account_url());
-            exit;
-        }
-
-        return view('site.login')->layout(false);
-    }
-
-    /**
-     * Registration page
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
-     */
-    public function register_page(Request $request)
-    {
-        if (! Utils::registration_enabled()) {
-            wp_die(
-                __('Registration is disabled for now. Please contact the administrator for more information.', 'kirki-ecommerce'),
-                __('Registration Disabled', 'kirki-ecommerce'),
-                [
-                    'response' => 403,
-                ]
-            );
-        }
-
-        if (is_user_logged_in()) {
-            wp_safe_redirect(Url::get_account_url());
-            exit;
-        }
-
-        return view('site.register')->layout(false);
-    }
-    /**
-     * Handle login
-     *
-     * @since 1.0.0
-     *
-     * @param LoginRequest $request  request.
-     *
-     * @return string Template path.
-     */
-    public function handle_login(LoginRequest $request)
-    {
-        if (is_user_logged_in()) {
-            return redirect(Url::get_account_url());
-        }
-
-        $redirect_url = $request->input('redirect') ?? '';
-
-        if (!Utils::is_nonce_verified()) {
-            return redirect(Url::get_login_url($redirect_url))
-                ->with('errors', [__('Invalid nonce', 'kirki-ecommerce')]);
-        }
-
-        $sanitized_input = $request->sanitized();
-
-        $creds = [
-            'user_login'    => $sanitized_input['email'],
-            'user_password' => $sanitized_input['password'],
-            'remember'      => $sanitized_input['remember'] ?? false,
-        ];
-
-        $user = wp_signon($creds, is_ssl());
-
-        if (is_wp_error($user)) {
-            return redirect(Url::get_login_url($redirect_url))
-                ->with('errors', [__('Invalid email or password', 'kirki-ecommerce')]);
-        }
-
-        if (!empty($redirect_url)) {
-            return redirect($redirect_url);
-        }
-
-        return redirect(Url::get_account_url());
-    }
-
-    /**
-     * Handle registration
-     *
-     * @since 1.0.0
-     *
-     * @param RegistrationRequest $request  request.
-     *
-     * @return string Template path.
-     */
-    public function handle_registration(RegistrationRequest $request)
-    {
-        if (is_user_logged_in()) {
-            return redirect(Url::get_account_url());
-        }
-
-        if (!Utils::is_nonce_verified()) {
-            return redirect(Route::site_url('register'))
-                ->with('errors', [__('Invalid nonce', 'kirki-ecommerce')]);
-        }
-
-        $sanitized_input = $request->sanitized();
-
-        $user = wp_insert_user([
-            'user_login' => $sanitized_input['email'],
-            'user_email' => $sanitized_input['email'],
-            'user_pass' => $sanitized_input['password'],
-            'first_name' => $sanitized_input['first_name'],
-            'last_name' => $sanitized_input['last_name'],
-        ]);
-
-        if (is_wp_error($user)) {
-            return redirect(Route::site_url('register'))
-                ->with('errors', [$user->get_error_message()]);
-        }
-
-        return redirect(Url::get_login_url())
-            ->with('success', __('Your account has been created successfully. Please Log In.', 'kirki-ecommerce'));
     }
 }

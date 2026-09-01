@@ -4,7 +4,10 @@ namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Services\AvailabilityService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
+use function Kirki\Ecommerce\Framework\app;
 
 class ProductListResource extends Resource
 {
@@ -27,6 +30,10 @@ class ProductListResource extends Resource
 
         $display_currency = Money::resolve_display_currency();
 
+        $availability_service = app()->make(AvailabilityService::class);
+        $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
+        $availability_status = $availability_service->resolve_product_status($this->variants->all(), $store_default_threshold);
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -34,6 +41,12 @@ class ProductListResource extends Resource
             'image' => MediaAttachment::make($this->media->first()->ID ?? null)['url'] ?? null,
             'sku' => $this->sku,
             'inventory' => $inventory,
+            'availability_status' => $availability_status,
+            'availability_label' => !is_null($availability_status) ? $availability_service->format_status_label(
+                $availability_status,
+                $inventory,
+                $this->has_variants ? $this->variants->count() : null
+            ) : null,
             'base_price' => Money::prepare_amount_from_minor($min_price),
             'base_price_money_object' => Money::prepare_amount_object_from_minor($min_price),
             'display_price' => Money::prepare_amount_from_minor($min_price, null, $display_currency),

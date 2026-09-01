@@ -72,4 +72,10 @@ export const accountApi = {
       body: payload,
     });
   },
+
+  resendVerificationEmail(): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.resendVerificationEmail, {
+      method: 'POST',
+    });
+  },
 };

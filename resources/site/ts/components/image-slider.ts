@@ -9,7 +9,7 @@
  *   })">
  */
 
-import { listen } from '../events';
+import { listen, EVENTS } from '../events';
 
 export type ImageSlide = {
   id: string | number;
@@ -60,7 +60,7 @@ export function imageSlider(config: ImageSliderConfig) {
       this.currentIndex = 0;
 
       // Listen for variant changes to update image
-      listen('kecom:variant:changed', ({ variant }) => {
+      listen(EVENTS.VARIANT_CHANGED, ({ variant }) => {
         if (variant?.image) {
           const variantImageIndex = this.images.findIndex((img) => img.url === variant.image);
           if (variantImageIndex >= 0) {

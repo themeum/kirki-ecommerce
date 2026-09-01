@@ -3,6 +3,7 @@
 import type { CSSObject } from '@emotion/react';
 import type { RowData } from '@tanstack/react-table';
 
+import type { BulkEditCellKind, BulkEditGate } from '@/features/bulk-edit/lib/columns';
 import type { AppTheme } from '@/theme';
 import type { TableAlignment } from '@/types/components/common';
 
@@ -60,10 +61,12 @@ type WpMediaSelection = {
 
 type WpMediaFrame = {
   on: (event: string, callback: () => void) => void;
+  off: (event: string) => void;
   state: () => {
     get: (key: string) => WpMediaSelection;
   };
   open: () => void;
+  modal?: { el?: HTMLElement };
 };
 
 type WpMediaFactory = (options: {
@@ -85,6 +88,8 @@ type WpGlobal = {
 };
 
 declare global {
+  type AcceptedMediaTypes = 'image' | 'video' | 'audio' | 'application/pdf' | 'application/zip';
+
   interface Window {
     kirki_ecommerce: KirkiEcommerceConfig;
     wp?: WpGlobal;
@@ -103,6 +108,9 @@ declare module '@tanstack/table-core' {
   interface ColumnMeta<TData extends RowData, TValue> {
     alignment?: TableAlignment;
     cssOverride?: CSSObject;
+    cellKind?: BulkEditCellKind;
+    gatedBy?: BulkEditGate;
+    selectable?: boolean;
   }
 }
 

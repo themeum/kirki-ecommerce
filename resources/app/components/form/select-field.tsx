@@ -49,6 +49,14 @@ const SelectField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => {
+        const currentValue =
+          field.value === null || field.value === undefined
+            ? ''
+            : String(field.value);
+        const selectedOption = options.find(
+          (option) => String(option.value) === currentValue,
+        );
+
         return (
           <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && (
@@ -57,11 +65,7 @@ const SelectField = <
               </FieldLabel>
             )}
             <Select
-              value={
-                field.value === null || field.value === undefined
-                  ? ''
-                  : String(field.value)
-              }
+              value={currentValue}
               onValueChange={(nextValue) => {
                 field.onChange(nextValue === '' ? null : nextValue);
                 onValueChange?.(nextValue === '' ? null : nextValue);
@@ -73,7 +77,14 @@ const SelectField = <
                 error={Boolean(fieldState.error)}
                 aria-invalid={fieldState.invalid}
               >
-                <SelectValue placeholder={placeholder} />
+                <SelectValue placeholder={placeholder}>
+                  {selectedOption ? (
+                    <>
+                      {selectedOption.icon}
+                      {selectedOption.label}
+                    </>
+                  ) : null}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {options.map((option) => (

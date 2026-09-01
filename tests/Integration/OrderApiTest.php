@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Constants\AddressType;
@@ -513,25 +514,16 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * A guest checkout is auto-provisioned a customer built from the billing
-     * fields, backed by a newly created subscriber account.
+     * A guest checkout does not provision a customer: CreateOrderAction only
+     * test_checkout_guest_order_has_no_customer.
      *
      * Exercised directly through CreateOrderAction rather than the HTTP
-     * `/checkout` endpoint: guest requests there currently fail with an
-     * unrelated, pre-existing database error (CheckoutController passes
-     * user()->get_id() - 0 for a guest, not null - as orders.created_by,
-     * which violates that column's foreign key). Calling the action directly
-     * isolates this check from it. For the same reason the WordPress session
-     * is left signed in: CustomerService::create() stamps customers.created_by
-     * with user()->get_id(), which is 0 - and therefore an invalid foreign key
-     * - for a signed out request. The order itself still goes through the
-     * guest path, with created_by null.
      *
      * @return void
      */
-    public function test_checkout_guest_order_provisions_customer_from_billing(): void
+    public function test_checkout_guest_order_has_no_customer(): void
     {
-        $billing_email = 'guest-' . wp_generate_password(8, false) . '@example.com';
+        $billing_email = 'guest@example.com';
 
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
@@ -545,18 +537,7 @@ class OrderApiTest extends RestTestCase
         $order = app()->make(CreateOrderAction::class)->execute($dto);
         $this->order_id = $order->id;
 
-        $customer = Customer::where('email', $billing_email)->first();
-
-        $this->assertNotNull($customer);
-        $this->assertEquals($customer->id, $order->customer_id);
-        $this->assertEquals('Guest', $customer->first_name);
-        $this->assertEquals('Buyer', $customer->last_name);
-
-        $user = get_user_by('email', $billing_email);
-
-        $this->assertNotFalse($user);
-        $this->assertEquals($customer->user_id, $user->ID);
-        $this->assertContains('subscriber', $user->roles);
+        $this->assertNull($order->customer_id);
     }
 
     /**
@@ -685,6 +666,57 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('Shopper', $order->customer_last_name);
         $this->assertEquals($billing_email, $order->customer_email);
         $this->assertEquals('555-1234', $order->customer_phone);
+    }
+
+    /**
+     * A guest checkout that submits a distinct customer_email persists that
+     * value on the order rather than falling back to billing_email, and
+     * rejects the submission with a validation error when it's missing.
+     *
+     * @return void
+     */
+    public function test_checkout_guest_order_saves_submitted_customer_email(): void
+    {
+        $admin_id = get_current_user_id();
+        $this->logout();
+
+        $customer_email = 'shopper-' . wp_generate_password(8, false) . '@example.com';
+        $billing_email = 'billing-' . wp_generate_password(8, false) . '@example.com';
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+            'customer_email' => $customer_email,
+            'billing_email' => $billing_email,
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        wp_set_current_user($admin_id);
+
+        $order = Order::find($this->order_id);
+        $this->assertEquals($customer_email, $order->customer_email);
+        $this->assertNotEquals($billing_email, $order->customer_email);
+    }
+
+    /**
+     * A guest checkout without a customer_email fails validation, since
+     * there's no WordPress account to source the order's contact email from.
+     *
+     * @return void
+     */
+    public function test_checkout_guest_order_requires_customer_email(): void
+    {
+        $this->logout();
+
+        $response = $this->request('POST', 'checkout', $this->order_payload([
+            'is_manual' => false,
+            'payment_provider' => 'unregistered-test-provider',
+            'billing_email' => 'billing-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('customer_email', $data['errors']);
     }
 
     /**
@@ -997,7 +1029,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $cart->cart_token;
 
         $this->assertNotNull(Cart::where('cart_token', $cart_token)->first());
@@ -1043,7 +1075,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $this->variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $guest_cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $guest_cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $guest_cart->cart_token;
         $user_id = $this->create_shopper_user();
 

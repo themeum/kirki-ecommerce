@@ -179,8 +179,12 @@ class CartResource extends Resource
                         'attributes' => $item->variant->attribute_values->map(function ($value) {
                             return $value->value;
                         })->to_array(),
-                        'available_quantity' => $item->variant->available_quantity,
-                        'in_stock' => $item->variant->in_stock,
+                        'available_quantity'  => $item->variant->available_quantity,
+                        'in_stock'            => $item->variant->in_stock,
+                        'track_inventory'     => (bool) $item->variant->track_inventory,
+                        'allow_back_order'    => (bool) $item->variant->allow_back_order,
+                        'has_limit_per_order' => (bool) $item->variant->has_limit_per_order,
+                        'max_per_order'       => $item->variant->has_limit_per_order ? (int) $item->variant->max_per_order : null,
                     ],
                     'base_product_total' => Money::prepare_amount_from_minor($calculated_item->base_product_total, $this->base_currency_code),
                     'base_product_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_product_total, $this->base_currency_code),

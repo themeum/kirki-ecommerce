@@ -13,45 +13,98 @@ import type { Variant } from './components/variant-selector';
 
 // ── Event detail shapes ───────────────────────────────────────────────────────
 
-export type Events = {
+export const EVENTS = {
   /** Fired when the selected product variant changes. */
-  'kecom:variant:changed': { variant: Variant };
+  VARIANT_CHANGED: 'kecom:variant:changed',
 
   /** Fired when any shipping/billing address field changes (debounced). */
-  'kecom:address:changed': void;
+  ADDRESS_CHANGED: 'kecom:address:changed',
 
   /** Fired by quantitySelector on every quantity change. */
-  'kecom:quantity:changed': { quantity: number };
+  QUANTITY_CHANGED: 'kecom:quantity:changed',
 
   /** Fired when the user selects a different shipping method. */
-  'kecom:shipping-method:changed': { methodId: string };
+  SHIPPING_METHOD_CHANGED: 'kecom:shipping-method:changed',
 
   /** Fired when the user selects a different payment method. */
-  'kecom:payment-method:changed': { method: string };
+  PAYMENT_METHOD_CHANGED: 'kecom:payment-method:changed',
+
+  /** Trigger the contact form to run its validation. */
+  CONTACT_FORM_VALIDATE: 'kecom:contact-form:validate',
 
   /** Trigger the shipping form to run its validation. */
-  'kecom:shipping-form:validate': void;
+  SHIPPING_FORM_VALIDATE: 'kecom:shipping-form:validate',
 
   /** Trigger the billing form to run its validation. */
-  'kecom:billing-form:validate': void;
+  BILLING_FORM_VALIDATE: 'kecom:billing-form:validate',
+
+  /** Fired by the contact form after validation completes. */
+  CONTACT_FORM_VALIDATED: 'kecom:contact-form:validated',
 
   /** Fired by the shipping form after validation completes. */
-  'kecom:shipping-form:validated': { isValid: boolean };
+  SHIPPING_FORM_VALIDATED: 'kecom:shipping-form:validated',
 
   /** Fired by the billing form after validation completes. */
-  'kecom:billing-form:validated': { isValid: boolean };
+  BILLING_FORM_VALIDATED: 'kecom:billing-form:validated',
 
   /** Fired when the modal opens. */
-  'kecom:modal:opened': void;
+  MODAL_OPENED: 'kecom:modal:opened',
 
   /** Fired when the modal closes. */
-  'kecom:modal:closed': void;
+  MODAL_CLOSED: 'kecom:modal:closed',
 
   /** Fired when the active tab changes. */
-  'kecom:tab:changed': { tabId: string };
+  TAB_CHANGED: 'kecom:tab:changed',
 
   /** Fired when the shop product list is refreshed. */
-  'kecom:shop:products-updated': {
+  SHOP_PRODUCTS_UPDATED: 'kecom:shop:products-updated',
+} as const;
+
+export type Events = {
+  /** Fired when the selected product variant changes. */
+  [EVENTS.VARIANT_CHANGED]: { variant: Variant };
+
+  /** Fired when any shipping/billing address field changes (debounced). */
+  [EVENTS.ADDRESS_CHANGED]: void;
+
+  /** Fired by quantitySelector on every quantity change. */
+  [EVENTS.QUANTITY_CHANGED]: { quantity: number };
+
+  /** Fired when the user selects a different shipping method. */
+  [EVENTS.SHIPPING_METHOD_CHANGED]: { methodId: string };
+
+  /** Fired when the user selects a different payment method. */
+  [EVENTS.PAYMENT_METHOD_CHANGED]: { method: string };
+
+  /** Trigger the contact form to run its validation. */
+  [EVENTS.CONTACT_FORM_VALIDATE]: void;
+
+  /** Trigger the shipping form to run its validation. */
+  [EVENTS.SHIPPING_FORM_VALIDATE]: void;
+
+  /** Trigger the billing form to run its validation. */
+  [EVENTS.BILLING_FORM_VALIDATE]: void;
+
+  /** Fired by the contact form after validation completes. */
+  [EVENTS.CONTACT_FORM_VALIDATED]: { isValid: boolean };
+
+  /** Fired by the shipping form after validation completes. */
+  [EVENTS.SHIPPING_FORM_VALIDATED]: { isValid: boolean };
+
+  /** Fired by the billing form after validation completes. */
+  [EVENTS.BILLING_FORM_VALIDATED]: { isValid: boolean };
+
+  /** Fired when the modal opens. */
+  [EVENTS.MODAL_OPENED]: void;
+
+  /** Fired when the modal closes. */
+  [EVENTS.MODAL_CLOSED]: void;
+
+  /** Fired when the active tab changes. */
+  [EVENTS.TAB_CHANGED]: { tabId: string };
+
+  /** Fired when the shop product list is refreshed. */
+  [EVENTS.SHOP_PRODUCTS_UPDATED]: {
     products_html?: string;
     pagination_html?: string;
     filters?: unknown;

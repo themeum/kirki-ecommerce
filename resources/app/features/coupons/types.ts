@@ -1,5 +1,5 @@
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
-import type { ListFilterConfig} from '@/types/list-state';
+import type { ListFilterConfig } from '@/types/list-state';
 import { parseString } from '@/types/list-state';
 import type { SuggestionOption } from '@/types/pages/common';
 import { __ } from '@/wpi18n';
@@ -12,12 +12,7 @@ type CouponListFilter = {
 };
 
 const couponListFilterConfig: ListFilterConfig<CouponListFilter> = {
-  keys: [
-    'search',
-    'status',
-    'discount_type',
-    'method',
-  ],
+  keys: ['search', 'status', 'discount_type', 'method'],
   parsers: {
     search: { parse: parseString },
     status: { parse: parseString },
@@ -29,10 +24,10 @@ const couponListFilterConfig: ListFilterConfig<CouponListFilter> = {
 const couponListOptions: UseListParamsOptions<CouponListFilter> = {
   defaults: {
     search: '',
-    sort_by: 'title',
-    sort_order: 'asc',
+    sort_by: 'id',
+    sort_order: 'desc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
   filter: couponListFilterConfig,
 };
@@ -60,5 +55,10 @@ const discountTypeOptions: SuggestionOption[] = [
 
 export type { CouponListFilter };
 
-export { couponListFilterConfig, couponListOptions, discountTypeOptions, methodOptions, statusOptions };
-
+export {
+  couponListFilterConfig,
+  couponListOptions,
+  discountTypeOptions,
+  methodOptions,
+  statusOptions,
+};

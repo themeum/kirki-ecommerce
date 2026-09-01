@@ -3,10 +3,10 @@ import type { UseListParamsOptions } from '@/hooks/use-list-params';
 const customerListOptions: UseListParamsOptions = {
   defaults: {
     search: '',
-    sort_by: 'first_name',
-    sort_order: 'asc',
+    sort_by: 'id',
+    sort_order: 'desc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
 };
 

@@ -106,7 +106,9 @@ export const useOrderCreate = (): UseOrderCreateResult => {
       const response = await createMutation.mutateAsync(payload);
 
       if (isDefined(response.data) && isDefined(response.data.id)) {
-        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }));
+        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }), {
+          replace: true,
+        });
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);

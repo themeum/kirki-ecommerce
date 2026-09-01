@@ -10,6 +10,7 @@ const stickyStyles = defineStyles({
     position: 'sticky',
     zIndex: 2,
     backgroundColor: theme.colors.background.surfaceAlt,
+    borderBottom: `1px solid ${theme.colors.border.default}`,
   },
   cell: {
     position: 'sticky',

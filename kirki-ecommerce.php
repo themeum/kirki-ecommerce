@@ -2,11 +2,11 @@
 
 /**
  * Plugin Name:       Kirki Ecommerce
- * Plugin URI:        https://ecommerce.kirki.com
+ * Plugin URI:        https://kirki.com
  * Description:       Kirki Ecommerce is a full-featured e-commerce solution with superior UX, UI, and lightning-fast functionality.
- * Version:           1.0.0-alpha.2
+ * Version:           1.0.0-alpha.3
  * Author:            Themeum
- * Author URI:        https://themeum.com
+ * Author URI:        https://www.themeum.com
  * Text Domain:       kirki-ecommerce
  * Requires PHP:      7.4
  * Requires at least: 5.9
@@ -28,7 +28,7 @@ use Kirki\Ecommerce\App\KirkiEcommerce;
  * The kirki ecommerce plugin version
  * @var string
  */
-define('KIRKI_ECOMMERCE_VERSION', '1.0.0-alpha.2');
+define('KIRKI_ECOMMERCE_VERSION', '1.0.0-alpha.3');
 
 /**
  * The kirki ecommerce plugin slug

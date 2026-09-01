@@ -27,24 +27,13 @@ const MIN_FULL_LABEL_SIZE = 9;
 const MAX_LABEL_SIZE = 14;
 const MIN_LABEL_SIZE = 8;
 
-const FaceLabel = ({
-  fullLabel,
-  shortLabel,
-  faceWidth,
-  faceHeight,
-}: FaceLabelProps) => {
+const FaceLabel = ({ fullLabel, shortLabel, faceWidth, faceHeight }: FaceLabelProps) => {
   const computedSize = Math.min(faceWidth, faceHeight) * 0.25;
-  const fontSize = Math.max(
-    MIN_LABEL_SIZE,
-    Math.min(MAX_LABEL_SIZE, computedSize),
-  );
+  const fontSize = Math.max(MIN_LABEL_SIZE, Math.min(MAX_LABEL_SIZE, computedSize));
   const useAbbreviation = computedSize < MIN_FULL_LABEL_SIZE;
 
   return (
-    <span
-      css={scoped(styles.faceLabel)}
-      style={{ fontSize: `${fontSize}px` }}
-    >
+    <span css={scoped(styles.faceLabel)} style={{ fontSize: `${fontSize}px` }}>
       {useAbbreviation ? shortLabel : fullLabel}
     </span>
   );
@@ -52,12 +41,7 @@ const FaceLabel = ({
 
 FaceLabel.displayName = 'FaceLabel';
 
-const ShippingBoxPreview = ({
-  length,
-  height,
-  width,
-  unit,
-}: ShippingBoxPreviewProps) => {
+const ShippingBoxPreview = ({ length, height, width, unit }: ShippingBoxPreviewProps) => {
   const UNIT_TO_VISUAL: Record<string, number> = { cm: 1, in: 2.54 };
   const PREVIEW = { width: 220, height: 140, depth: 220 };
   const PADDING = 0.9;
@@ -244,7 +228,7 @@ const styles = defineStyles({
   faceLabel: {
     pointerEvents: 'none',
     userSelect: 'none',
-    color: theme.colors.text.light,
+    color: theme.colors.text.dark,
     fontWeight: 500,
     textAlign: 'center',
     lineHeight: 1.1,
@@ -263,36 +247,31 @@ const styles = defineStyles({
   back: {
     width: 'var(--w)',
     height: 'var(--h)',
-    transform:
-      'translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--l) / 2))',
+    transform: 'translate(-50%, -50%) rotateY(180deg) translateZ(calc(var(--l) / 2))',
     background: theme.colors.shipping.boxDark,
   },
   right: {
     width: 'var(--l)',
     height: 'var(--h)',
-    transform:
-      'translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2))',
+    transform: 'translate(-50%, -50%) rotateY(90deg) translateZ(calc(var(--w) / 2))',
     background: theme.colors.shipping.boxMid,
   },
   left: {
     width: 'var(--l)',
     height: 'var(--h)',
-    transform:
-      'translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2))',
+    transform: 'translate(-50%, -50%) rotateY(-90deg) translateZ(calc(var(--w) / 2))',
     background: theme.colors.shipping.boxMid,
   },
   top: {
     width: 'var(--w)',
     height: 'var(--l)',
-    transform:
-      'translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2))',
+    transform: 'translate(-50%, -50%) rotateX(90deg) translateZ(calc(var(--h) / 2))',
     background: theme.colors.shipping.boxLight,
   },
   bottom: {
     width: 'var(--w)',
     height: 'var(--l)',
-    transform:
-      'translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2))',
+    transform: 'translate(-50%, -50%) rotateX(-90deg) translateZ(calc(var(--h) / 2))',
     background: theme.colors.shipping.boxLight,
   },
 });

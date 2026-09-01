@@ -272,7 +272,7 @@ class VariantService
             throw new NotFoundException(__('Variant not found!', 'kirki-ecommerce'));
         }
 
-        return $variant->update($data) ? $variant : false;
+        return $variant->update($data) ? $variant->load('product.media', 'attribute_values') : false;
     }
 
     /**
@@ -351,8 +351,10 @@ class VariantService
 
         $query->filter_with_datetime_range($filters->from_date, $filters->to_date);
 
-        $query->when($filters->sort_by, function ($query) use ($filters) {
+        $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function ($query) use ($filters) {
             return $query->order_by($filters->sort_by, $filters->sort_order);
+        }, function ($query) {
+            return $query->order_by('id', 'desc');
         });
 
         return $query;

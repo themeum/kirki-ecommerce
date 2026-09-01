@@ -1,41 +1,39 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { applyTimeToDate, END_OF_DAY_TIME, formatAtomDateTime, START_OF_DAY_TIME } from '@/libs/date';
+import {
+  applyTimeToDate,
+  END_OF_DAY_TIME,
+  formatAtomDateTime,
+  START_OF_DAY_TIME,
+} from '@/libs/date';
 import type { ListFilterConfig, ListParams, ListQueryParams, SortOrder } from '@/types/list-state';
 import { serializeFilterValue } from '@/types/list-state';
 import { isDefined } from '@/utils/object';
 
 type ListParamsDefaults = ListQueryParams;
 
-type ListParamsUpdate<
-  TFilter extends Record<string, unknown> = {},
-> = Partial<ListQueryParams & TFilter> | Partial<ListQueryParams>;
+type ListParamsUpdate<TFilter extends Record<string, unknown> = {}> =
+  Partial<ListQueryParams & TFilter> | Partial<ListQueryParams>;
 
-type UseListParamsOptions<
-  TFilter extends Record<string, unknown> = {},
-> = {
+type UseListParamsOptions<TFilter extends Record<string, unknown> = {}> = {
   defaults?: ListParamsDefaults;
   filter?: ListFilterConfig<TFilter>;
 };
 
 type SetParamKey<TFilter extends Record<string, unknown>> =
-  | keyof ListQueryParams
-  | 'filter'
-  | (keyof TFilter & string);
+  keyof ListQueryParams | 'filter' | (keyof TFilter & string);
 
-const useListParams = <
-  TFilter extends Record<string, unknown> = {},
->(
+const useListParams = <TFilter extends Record<string, unknown> = {}>(
   options: UseListParamsOptions<TFilter> = {},
 ) => {
   const {
     defaults = {
       search: '',
       sort_by: 'id',
-      sort_order: 'asc',
+      sort_order: 'desc',
       page: 1,
-      limit: 10,
+      limit: 20,
     },
     filter: filterConfig,
   } = options;
@@ -80,11 +78,13 @@ const useListParams = <
       sort_by: searchParams.get('sort_by') ?? defaults.sort_by ?? 'id',
       sort_order: sortOrder ?? defaults.sort_order ?? 'asc',
       page: pageValue ? Number(pageValue) : (defaults.page ?? 1),
-      limit: limitValue
-        ? Number(limitValue) || limitValue
-        : (defaults.limit ?? 10),
-      from_date: isDefined(fromDate) ? formatAtomDateTime(applyTimeToDate(new Date(fromDate), START_OF_DAY_TIME)) : null,
-      to_date: isDefined(toDate) ? formatAtomDateTime(applyTimeToDate(new Date(toDate), END_OF_DAY_TIME)) : null,
+      limit: limitValue ? Number(limitValue) || limitValue : (defaults.limit ?? 10),
+      from_date: isDefined(fromDate)
+        ? formatAtomDateTime(applyTimeToDate(new Date(fromDate), START_OF_DAY_TIME))
+        : null,
+      to_date: isDefined(toDate)
+        ? formatAtomDateTime(applyTimeToDate(new Date(toDate), END_OF_DAY_TIME))
+        : null,
       ...parsedFilter,
     } as ListParams<TFilter>;
   }, [searchParams, defaults, filterConfig]);
@@ -109,9 +109,15 @@ const useListParams = <
           const next = new URLSearchParams(prev);
 
           const shouldResetPage = Object.keys(updates).some((key) =>
-            ['search', 'sort_by', 'sort_order', 'limit', 'from_date', 'to_date', ...filterKeys].includes(
-              key,
-            ),
+            [
+              'search',
+              'sort_by',
+              'sort_order',
+              'limit',
+              'from_date',
+              'to_date',
+              ...filterKeys,
+            ].includes(key),
           );
 
           Object.entries(updates).forEach(([key, value]) => {
@@ -132,11 +138,7 @@ const useListParams = <
               return;
             }
             const current = next.get(key);
-            if (
-              current !== null &&
-              String(defaultValue) === current &&
-              key !== 'page'
-            ) {
+            if (current !== null && String(defaultValue) === current && key !== 'page') {
               next.delete(key);
             }
           });

@@ -23,7 +23,7 @@
   .kecom-checkout-left {
     display: flex;
     flex-direction: column;
-    gap: $spacing-16;
+    gap: $spacing-12;
     padding: $spacing-18 $spacing-19;
 
     @include breakpoint-down(md) {
@@ -53,6 +53,75 @@
     @include typography(xl, semibold);
     margin-top: $spacing-0;
     margin-bottom: $spacing-6;
+  }
+
+  // Contact Section
+  .kecom-contact-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kecom-contact-header {
+    @include flex-between();
+    gap: $spacing-4;
+    margin-bottom: $spacing-8;
+
+    .kecom-section-title {
+      margin-bottom: 0;
+    }
+  }
+
+  .kecom-contact-login-prompt {
+    @include typography(base, regular, $text-secondary);
+
+    a,
+    .kecom-link {
+      color: $text-emphasis;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .kecom-contact-guest-notice {
+    @include typography(sm, regular, $text-secondary);
+    margin-top: $spacing-2;
+    margin-bottom: 0;
+  }
+
+  .kecom-contact-user-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+    padding: $spacing-6 $spacing-8;
+    background-color: $background-surface-secondary;
+    border: 1px solid $border-secondary;
+    border-radius: $radius-lg;
+  }
+
+  .kecom-contact-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .kecom-contact-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+    min-width: 0;
+  }
+
+  .kecom-contact-user-name {
+    @include typography(base, semibold, $text-primary);
+  }
+
+  .kecom-contact-user-email {
+    @include typography(base, regular, $text-secondary);
   }
 
   // Billing Form
@@ -154,7 +223,6 @@
 
     .kecom-payment-logo {
       @include flex-center();
-      width: 64px;
       height: 20px;
     }
 

@@ -5,14 +5,18 @@ import { VariantSchema } from '@/features/products/schemas/catalog/variant';
 import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
-export const ProductStatusSchema = z.enum([
-  'draft',
-  'published',
-  'unpublished',
-  'archived',
-]);
+export const ProductStatusSchema = z.enum(['draft', 'published', 'trashed']);
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
+
+export const AvailabilityStatusSchema = z.enum([
+  'in_stock',
+  'low_stock',
+  'out_of_stock',
+  'partially_stocked',
+]);
+
+export type AvailabilityStatus = z.infer<typeof AvailabilityStatusSchema>;
 
 export const ProductCurrencySchema = z.object({
   id: z.number(),
@@ -68,7 +72,8 @@ export const ProductListItemSchema = z.object({
   slug: z.string().optional(),
   image: z.string().nullish(),
   sku: z.string().nullish(),
-  inventory: z.number().optional(),
+  availability_status: z.union([AvailabilityStatusSchema, z.string()]).nullish(),
+  availability_label: z.string().nullish(),
   base_price: MoneyAmountSchema,
   base_price_money_object: MoneyObjectSchema,
   display_price: MoneyAmountSchema,
@@ -77,7 +82,7 @@ export const ProductListItemSchema = z.object({
   base_sale_price_money_object: MoneyObjectSchema.nullable(),
   display_sale_price: MoneyAmountSchema.nullish(),
   display_sale_price_money_object: MoneyObjectSchema.nullish(),
-  status: z.union([ProductStatusSchema, z.string()]),
+  status: ProductStatusSchema,
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });
@@ -88,7 +93,7 @@ export const ProductListItemWithVariantsSchema = ProductListItemSchema.extend({
   has_variants: z.boolean(),
   attributes: z.array(ProductAttributeSchema),
   variants: z.array(VariantSchema),
-})
+});
 
 export type ProductListItemWithVariants = z.infer<typeof ProductListItemWithVariantsSchema>;
 
@@ -96,7 +101,7 @@ export const ProductSchema = z.object({
   id: z.number().optional(),
   title: z.string(),
   slug: z.string(),
-  status: z.union([ProductStatusSchema, z.string()]),
+  status: ProductStatusSchema,
   ribbon: z.string().nullable(),
   currency: ProductCurrencySchema.nullable(),
   brand: ProductBrandSchema.nullable(),
@@ -120,6 +125,9 @@ export const ProductSchema = z.object({
   attributes: z.array(ProductAttributeSchema),
   variants: z.array(VariantSchema),
   media: z.array(MediaRefSchema),
+  preview_url: z.string().nullish(),
+  published_at: z.string().nullish(),
+  trashed_at: z.string().nullish(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });
@@ -128,4 +136,3 @@ export type Product = z.infer<typeof ProductSchema>;
 
 export type { ProductAttribute } from '@/features/products/schemas/catalog/attribute';
 export type { InventoryVariant, ProductVariant } from '@/features/products/schemas/catalog/variant';
-

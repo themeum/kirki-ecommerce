@@ -7,15 +7,19 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Image from '@/components/ui/image';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import OnlinePaymentPopup from '@/features/settings/payment/pages/online-payment-dialog';
 import OnlinePaymentEditPopup from '@/features/settings/payment/pages/online-payment-edit-dialog';
 import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/payment';
-import { getOnlinePayment, useSetEnabledOnlinePaymentMutation } from '@/features/settings/payment/services/payment';
+import {
+  getOnlinePayment,
+  useSetEnabledOnlinePaymentMutation,
+} from '@/features/settings/payment/services/payment';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
@@ -38,9 +42,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
     }
     const isEnabled = Boolean(item?.is_enabled);
 
-    setEnabledOnlinePayment(
-      { id: item.id, data: { is_enabled: !isEnabled } },
-    );
+    setEnabledOnlinePayment({ id: item.id, data: { is_enabled: !isEnabled } });
   };
 
   const handleAction = async (
@@ -68,7 +70,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
   return (
     <>
       <Card cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <Flex direction="column" gap={4}>
             <HeaderActionsCard
               header={__('Payment gateways', 'kirki-ecommerce')}
@@ -83,16 +85,11 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
             {onlinePaymentList.length === 0 ? (
               <Card cssOverride={cardStyles.innerDarkCard}>
                 <CardContent
-                  cssOverride={mergeCss(
-                    cardStyles.innerDarkContent,
-                    styles.emptyStateContent,
-                  )}
+                  cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}
                 >
                   <Flex direction="column" gap={2} align="center">
                     <CardSimIcon />
-                    <Text color="subdued">
-                      {__('No payment added yet', 'kirki-ecommerce')}
-                    </Text>
+                    <Text color="subdued">{__('No payment added yet', 'kirki-ecommerce')}</Text>
                   </Flex>
                 </CardContent>
               </Card>
@@ -101,29 +98,33 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
                 {onlinePaymentList.map((item) => (
                   <Card key={item.id} cssOverride={cardStyles.innerCard}>
                     <CardContent
-                      cssOverride={mergeCss(
-                        cardStyles.innerContent,
-                        styles.onlinePaymentContent,
-                      )}
+                      cssOverride={mergeCss(cardStyles.innerContent, styles.onlinePaymentContent)}
                     >
                       <Flex align="center">
                         <Flex gap={2} align="center">
-                          {item.icon && <img src={item.icon} alt="online-payment-icon" css={scoped(styles.icon)} />}
-                          <Text
-                            weight="medium"
-                            color={!item?.is_enabled ? 'disabled' : 'primary'}
-                          >
+                          {item.icon && (
+                            <Image
+                              src={item.icon}
+                              alt="online-payment-icon"
+                              height={20}
+                              width={20}
+                              fit="contain"
+                              cssOverride={styles.icon}
+                            />
+                          )}
+                          <Text weight="medium" color={!item?.is_enabled ? 'disabled' : 'primary'}>
                             {item?.name}
                           </Text>
                           {!item?.is_enabled && (
-                            <Badge variant="destructive">
-                              {__('Inactive', 'kirki-ecommerce')}
-                            </Badge>
+                            <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                           )}
                         </Flex>
 
                         <ActionGroup>
-                          <Switch checked={Boolean(item?.is_enabled)} onCheckedChange={() => handleToggleOnlinePayment(item)} />
+                          <Switch
+                            checked={Boolean(item?.is_enabled)}
+                            onCheckedChange={() => handleToggleOnlinePayment(item)}
+                          />
                           <DropdownButton
                             dropdownStyle={{ width: 120 }}
                             options={[
@@ -156,10 +157,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
       />
 
       {isEditPopupOpen && (
-        <OnlinePaymentPopup
-          openPopup={isEditPopupOpen}
-          setOpenPopup={setIsEditPopupOpen}
-        />
+        <OnlinePaymentPopup openPopup={isEditPopupOpen} setOpenPopup={setIsEditPopupOpen} />
       )}
     </>
   );
@@ -177,8 +175,9 @@ const styles = defineStyles({
     paddingBlock: theme.spacing[9],
   },
   icon: {
-    height: 20,
     width: 'auto',
-    objectFit: 'contain',
+    border: 'none',
+    borderRadius: theme.radius.none,
+    backgroundColor: 'transparent',
   },
 });

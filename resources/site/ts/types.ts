@@ -23,6 +23,12 @@ export type KirkiEcommerceConfig = {
   cart_variant_ids: number[];
   is_logged_in: boolean;
   login_url: string;
+  current_user?: {
+    id: number;
+    name: string;
+    email: string;
+    avatar_url: string;
+  } | null;
   cart: CartUpdateItem;
   thank_you_url: string;
   checkout_cart?: {
@@ -48,6 +54,7 @@ declare global {
         __: (text: string, domain?: string) => string;
         _n: (single: string, plural: string, number: number, domain?: string) => string;
         _x: (text: string, context: string, domain?: string) => string;
+        sprintf: (format: string, ...args: any[]) => string;
       };
     };
     Alpine: any;
@@ -184,7 +191,7 @@ export type CheckoutRequest = {
   shipping_postcode: string;
   shipping_country: string;
   shipping_phone: string;
-  shipping_email: string;
+  shipping_email?: string;
   shipping_company?: string | null;
   billing_first_name?: string;
   billing_last_name?: string;
@@ -231,7 +238,7 @@ export type ApiError = {
 
 // ── Toast types ───────────────────────────────────────────────────────────────
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default';
+export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'default' | 'action';
 
 export type ToastPosition =
   'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
@@ -264,6 +271,10 @@ export type ToastOptions = {
   richColors?: boolean;
   position?: ToastPosition;
   theme?: ToastTheme;
+  thumbnail?: string;
+  actionUrl?: string;
+  actionText?: string;
+  containerClass?: string;
 };
 
 export type ToastConfig = {

@@ -29,10 +29,13 @@ use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -139,6 +142,8 @@ class CreateOrderAction
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
 
+            OrderActivity::log($order->fresh('items'), OrderActivityType::ORDER_PLACED);
+
             DB::commit();
 
             return $order->fresh('items');
@@ -214,7 +219,7 @@ class CreateOrderAction
             $this->customer_service->set_billing_same_as_shipping($customer->id, false);
             return $customer->id;
         }
-        
+
         if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
             $this->create_address($dto, $customer, AddressType::BILLING);
             $this->update_address($dto, $customer, AddressType::SHIPPING);
@@ -248,7 +253,7 @@ class CreateOrderAction
 
         $this->address_service->create($address_dto);
     }
-    
+
     protected function update_address(CreateOrderPayloadDTO $dto, $customer, $type)
     {
         $address_dto = $this->prepare_checkout_address_dto($dto, $type, true);
@@ -257,7 +262,7 @@ class CreateOrderAction
 
         $this->address_service->update($address_dto);
     }
-   
+
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
     {
         $wp_user = get_userdata($dto->created_by) ?: null;
@@ -287,7 +292,7 @@ class CreateOrderAction
         return [
             'first_name' => !empty($wp_user->first_name) ? $wp_user->first_name : $dto->billing_first_name,
             'last_name' => !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name,
-            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email,
+            'email' => !empty($wp_user->user_email) ? $wp_user->user_email : $dto->customer_email ?? $dto->billing_email,
             'phone' => !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone,
         ];
     }
@@ -430,19 +435,34 @@ class CreateOrderAction
         $order_dto->shipping_email = $dto->shipping_email;
         $order_dto->shipping_company = $dto->shipping_company;
 
-        $order_dto->is_billing_same_as_shipping = filter_var($dto->is_billing_same_as_shipping, FILTER_VALIDATE_BOOLEAN);
+        $is_billing_same_as_shipping = Sanitizer::apply_rule($dto->is_billing_same_as_shipping, Sanitizer::BOOL);
+        $order_dto->is_billing_same_as_shipping = $is_billing_same_as_shipping;
 
-        $order_dto->billing_first_name = $dto->billing_first_name;
-        $order_dto->billing_last_name = $dto->billing_last_name;
-        $order_dto->billing_address_line1 = $dto->billing_address_line1;
-        $order_dto->billing_address_line2 = $dto->billing_address_line2;
-        $order_dto->billing_city = $dto->billing_city;
-        $order_dto->billing_state = $dto->billing_state;
-        $order_dto->billing_country = $dto->billing_country;
-        $order_dto->billing_postal_code = $dto->billing_postcode;
-        $order_dto->billing_phone = $dto->billing_phone;
-        $order_dto->billing_email = $dto->billing_email;
-        $order_dto->billing_company = $dto->billing_company;
+        if ($is_billing_same_as_shipping) {
+            $order_dto->billing_first_name = $dto->shipping_first_name;
+            $order_dto->billing_last_name = $dto->shipping_last_name;
+            $order_dto->billing_address_line1 = $dto->shipping_address_line1;
+            $order_dto->billing_address_line2 = $dto->shipping_address_line2;
+            $order_dto->billing_city = $dto->shipping_city;
+            $order_dto->billing_state = $dto->shipping_state;
+            $order_dto->billing_country = $dto->shipping_country;
+            $order_dto->billing_postal_code = $dto->shipping_postcode;
+            $order_dto->billing_phone = $dto->shipping_phone;
+            $order_dto->billing_email = $dto->shipping_email;
+            $order_dto->billing_company = $dto->shipping_company;
+        } else {
+            $order_dto->billing_first_name = $dto->billing_first_name;
+            $order_dto->billing_last_name = $dto->billing_last_name;
+            $order_dto->billing_address_line1 = $dto->billing_address_line1;
+            $order_dto->billing_address_line2 = $dto->billing_address_line2;
+            $order_dto->billing_city = $dto->billing_city;
+            $order_dto->billing_state = $dto->billing_state;
+            $order_dto->billing_country = $dto->billing_country;
+            $order_dto->billing_postal_code = $dto->billing_postcode;
+            $order_dto->billing_phone = $dto->billing_phone;
+            $order_dto->billing_email = $dto->billing_email;
+            $order_dto->billing_company = $dto->billing_company;
+        }
 
         $customer_contact = $this->resolve_customer_contact_details($dto);
         $order_dto->customer_first_name = $customer_contact['first_name'];

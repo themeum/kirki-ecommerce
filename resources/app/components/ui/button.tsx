@@ -4,30 +4,20 @@ import { Loader2 } from 'lucide-react';
 import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import {
+  defineStyles,
+  flexCenter,
+  mergeCss,
+  scoped,
+  scopedMerge,
+  uiFocusRing,
+} from '@/theme/mixins';
 
-type ButtonVariant =
-  | 'primary'
-  | 'destructive'
-  | 'outline'
-  | 'secondary'
-  | 'ghost'
-  | 'link';
+type ButtonVariant = 'primary' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
 
-type ButtonSize =
-  | 'default'
-  | 'xs'
-  | 'sm'
-  | 'lg'
-  | 'icon'
-  | 'icon-xs'
-  | 'icon-sm'
-  | 'icon-lg';
+type ButtonSize = 'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg';
 
-type ButtonProps = Omit<
-  ComponentPropsWithoutRef<'button'>,
-  'className' | 'css'
-> & {
+type ButtonProps = Omit<ComponentPropsWithoutRef<'button'>, 'className' | 'css'> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   asChild?: boolean;
@@ -61,12 +51,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
 
   if (asChild && !loading) {
     return (
-      <Slot
-        ref={ref}
-        data-slot="button"
-        css={buttonCss}
-        {...rest}
-      >
+      <Slot ref={ref} data-slot="button" css={buttonCss} {...rest}>
         {children}
       </Slot>
     );
@@ -85,10 +70,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     >
       {loading ? (
         <>
-          <span
-            css={scoped(mergeCss(styles.content, styles.contentHidden))}
-            aria-hidden="true"
-          >
+          <span css={scoped(mergeCss(styles.content, styles.contentHidden))} aria-hidden="true">
             {children}
           </span>
           <span css={scoped(styles.loader)}>
@@ -184,7 +166,7 @@ const styles = defineStyles({
       backgroundColor: theme.colors.background.fill,
       color: theme.colors.text.primary,
       '&:hover': {
-        backgroundColor: theme.colors.background.fillSpecial3Tertiary,
+        backgroundColor: theme.colors.background.fillHover,
         color: theme.colors.text.primary,
       },
     },
@@ -195,7 +177,7 @@ const styles = defineStyles({
   },
   sizes: {
     xs: {
-      ...theme.typography.small(),
+      ...theme.typography.tiny(),
       height: '24px',
       padding: `0 ${theme.spacing[2]}`,
       borderRadius: theme.radius.md,
@@ -205,7 +187,7 @@ const styles = defineStyles({
       },
     },
     sm: {
-      ...theme.typography.small(),
+      ...theme.typography.tiny(),
       height: '28px',
       padding: '0 10px',
       borderRadius: theme.radius.md,

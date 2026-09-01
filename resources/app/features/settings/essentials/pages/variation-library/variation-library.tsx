@@ -1,3 +1,4 @@
+import { Package, Palette, PlusIcon } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -26,7 +27,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
-import { Package, Palette, PlusIcon } from 'lucide-react';
 
 type AttributeListItem = Attribute & {
   badge1?: string;

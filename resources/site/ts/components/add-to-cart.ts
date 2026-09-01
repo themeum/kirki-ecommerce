@@ -11,7 +11,8 @@
 
 import { cartApi } from '../api/cart';
 import { Cookie } from '../cookie';
-import { toastManager } from '../services/toast/runtime';
+import { toast } from '../services/toast/runtime';
+import type { CartItem } from '../types';
 import { config } from '../utils';
 
 export type AddToCartConfig = {
@@ -20,6 +21,8 @@ export type AddToCartConfig = {
   cartUrl?: string;
   watchVariantId?: () => number;
   buttonText?: string;
+  imageUrl?: string;
+  containerClass?: string;
 };
 
 export function addToCart(componentConfig: AddToCartConfig) {
@@ -29,23 +32,22 @@ export function addToCart(componentConfig: AddToCartConfig) {
     variantId: componentConfig.variantId,
     qty: componentConfig.qty ?? 1,
     cartUrl: componentConfig.cartUrl || '/cart',
+    imageUrl: componentConfig.imageUrl || '',
     watchVariantId: componentConfig.watchVariantId,
     buttonText: componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce'),
+    containerClass: componentConfig.containerClass || '',
     loading: false,
     success: false,
     error: null as string | null,
     viewCartText: __('View Cart', 'kirki-ecommerce'),
 
     init(this: any) {
-      this.checkIfInCart();
-
       // Watch for variant ID changes (for product detail page)
       if (this.watchVariantId) {
         this.$watch(
           () => this.watchVariantId(),
           () => {
             this.variantId = this.watchVariantId();
-            this.checkIfInCart();
           },
         );
       }
@@ -73,10 +75,26 @@ export function addToCart(componentConfig: AddToCartConfig) {
         }
 
         this.success = true;
-        this.buttonText = 'View Cart';
 
-        // Show success toast
-        toastManager.success(__('Item added to cart', 'kirki-ecommerce'));
+        const product = data.items.find(
+          (item: CartItem) => item.product.variant_id === this.variantId,
+        )?.product;
+        const title = product?.title || __('Item added to cart', 'kirki-ecommerce');
+        const toastTitle = quantity > 1 ? `${quantity} x ${title}` : title;
+        const toastDescription = Array.isArray(product?.attributes)
+          ? product.attributes.join(' / ')
+          : '';
+        const toastThumbnail =
+          this.imageUrl ||
+          (typeof product?.media === 'string' ? product.media : product?.media?.[0]?.url || '');
+
+        toast.action(toastTitle, 5000, {
+          description: toastDescription,
+          thumbnail: toastThumbnail || undefined,
+          actionUrl: this.cartUrl,
+          containerClass: this.containerClass,
+          actionText: __('View Cart', 'kirki-ecommerce'),
+        });
 
         document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: data }));
 
@@ -91,7 +109,7 @@ export function addToCart(componentConfig: AddToCartConfig) {
         this.buttonText = componentConfig.buttonText || __('Add to Cart', 'kirki-ecommerce');
 
         // Show error toast
-        toastManager.error(this.error);
+        toast.error(this.error);
       } finally {
         this.loading = false;
       }

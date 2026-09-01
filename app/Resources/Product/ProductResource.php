@@ -3,11 +3,28 @@
 namespace Kirki\Ecommerce\App\Resources\Product;
 
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
+use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Services\AvailabilityService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
+use function Kirki\Ecommerce\Framework\app;
 
 class ProductResource extends Resource
 {
+    /**
+     * The preview url
+     * 
+     * @var ?string
+     */
+    protected $preview_url;
+
+    public function __construct(Product $product, ?string $preview_url = null)
+    {
+        $this->preview_url = $preview_url;
+        parent::__construct($product);
+    }
     /**
      * Convert the product resource to an array.
      *
@@ -15,6 +32,10 @@ class ProductResource extends Resource
      */
     public function to_array()
     {
+        $availability_service = app()->make(AvailabilityService::class);
+        $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
+        $availability_status = $availability_service->resolve_product_status($this->variants->all(), $store_default_threshold);
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -47,6 +68,8 @@ class ProductResource extends Resource
             'schema_id' => $this->schema_id,
             'llm_instructions' => $this->llm_instructions,
             'has_variants' => $this->has_variants,
+            'availability_status' => $availability_status,
+            'availability_label' => !is_null($availability_status) ? AvailabilityStatus::get_formatted($availability_status) : null,
 
             'categories' => $this->categories->map(function ($item) {
                 return [
@@ -73,6 +96,10 @@ class ProductResource extends Resource
             'variants' => VariantResource::collection($this->variants),
             'media' => MediaAttachment::make_many($this->media->pluck('ID')->all()),
 
+            'preview_url' => $this->preview_url,
+
+            'published_at' => $this->published_at,
+            'trashed_at' => $this->trashed_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

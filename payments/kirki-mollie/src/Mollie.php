@@ -120,8 +120,8 @@ class Mollie extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'api_key' => 'required|string',
-            'sandbox' => 'boolean',
+            'api_key' => 'sometimes|string',
+            'sandbox' => 'sometimes|boolean',
         ])->validate();
 
         return true;

@@ -1,8 +1,9 @@
 import type { RequestHandler } from 'msw';
 
+import { handlers as mediaHandlers } from './media';
+
 /**
- * Aggregates per-feature handler files (e.g. `./settings.ts`), following the
- * same one-file-per-resource convention as `services/`. Empty until a
- * feature's service layer gets MSW coverage.
+ * Aggregates per-feature handler files (e.g. `./media.ts`), following the
+ * same one-file-per-resource convention as `services/`.
  */
-export const handlers: RequestHandler[] = [];
+export const handlers: RequestHandler[] = [...mediaHandlers];
