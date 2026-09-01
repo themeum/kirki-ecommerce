@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
@@ -119,6 +120,116 @@ class CartApiTest extends RestTestCase
         $this->assertEquals(2, $payload['items'][0]['quantity']);
 
         $this->cart_item_id = $payload['items'][0]['id'];
+    }
+
+    /**
+     * Two sequential add-to-cart calls whose combined quantity exceeds the
+     * variant's per-order limit are rejected on the call that crosses it,
+     * even though each call's own quantity is within the limit.
+     *
+     * @return void
+     */
+    public function test_add_item_rejects_when_cumulative_quantity_exceeds_limit(): void
+    {
+        $product = $this->create_product([
+            'variants' => [[
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+                'has_limit_per_order' => true,
+                'max_per_order' => 3,
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+
+        $cart = $this->add_cart_item(2);
+        $this->assertEquals(2, $cart['items'][0]['quantity']);
+
+        $response = $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 2,
+        ], $this->cart_headers);
+
+        $this->assert_api_error($response, 500);
+
+        $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+        $this->assertCount(1, $current['items']);
+        $this->assertEquals(2, $current['items'][0]['quantity']);
+    }
+
+    /**
+     * Two sequential add-to-cart calls whose combined quantity exceeds
+     * available stock are rejected on the call that crosses it, even though
+     * each call's own quantity is within stock.
+     *
+     * @return void
+     */
+    public function test_add_item_rejects_when_cumulative_quantity_exceeds_stock(): void
+    {
+        $product = $this->create_product([
+            'variants' => [[
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 3,
+                'in_stock' => true,
+                'track_inventory' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+
+        $cart = $this->add_cart_item(2);
+        $this->assertEquals(2, $cart['items'][0]['quantity']);
+
+        $response = $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 2,
+        ], $this->cart_headers);
+
+        $this->assert_api_error($response, 500);
+
+        $current = $this->assert_api_success($this->request('GET', 'cart', [], $this->cart_headers))['data'];
+        $this->assertCount(1, $current['items']);
+        $this->assertEquals(2, $current['items'][0]['quantity']);
+    }
+
+    /**
+     * A single add-to-cart call that alone exceeds the per-order limit is
+     * still rejected, guarding against regressing the already-working
+     * single-call case while fixing the cumulative one.
+     *
+     * @return void
+     */
+    public function test_add_item_rejects_single_call_exceeding_limit(): void
+    {
+        $product = $this->create_product([
+            'variants' => [[
+                'base_price' => 29.99,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+                'has_limit_per_order' => true,
+                'max_per_order' => 3,
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+
+        $response = $this->request('POST', 'cart/items', [
+            'variant_id' => $this->variant_id,
+            'quantity' => 5,
+        ], $this->cart_headers);
+
+        $this->assert_api_error($response, 500);
+
+        $current = $this->request('GET', 'cart', [], $this->cart_headers);
+        $payload = $this->assert_api_success($current)['data'];
+        $this->assertEmpty($payload);
     }
 
     /**
@@ -496,7 +607,7 @@ class CartApiTest extends RestTestCase
         $dto->quantity = $quantity;
         $dto->user_id = $user_id;
 
-        return app()->make(CartService::class)->add_item($dto);
+        return app()->make(AddToCartAction::class)->execute($dto);
     }
 
     protected function raw_cart(array $overrides = [])

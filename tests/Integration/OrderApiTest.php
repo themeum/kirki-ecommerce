@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Constants\AddressType;
@@ -1028,7 +1029,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $cart->cart_token;
 
         $this->assertNotNull(Cart::where('cart_token', $cart_token)->first());
@@ -1074,7 +1075,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $this->variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $guest_cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $guest_cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $guest_cart->cart_token;
         $user_id = $this->create_shopper_user();
 
