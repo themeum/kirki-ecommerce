@@ -436,7 +436,23 @@ class PaymentProvider
      */
     public function webhook_url()
     {
-        return Route::url('payment/webhook/' . $this->id());
+        $webhook_url = Route::url('payment/webhook/' . $this->id());
+
+        if (!defined('KECOM_WEBHOOK_BASE_URL') || !app()->is_dev_mode()) {
+            return $webhook_url;
+        }
+
+        $base     = untrailingslashit(home_url());
+        $override = untrailingslashit(KECOM_WEBHOOK_BASE_URL);
+
+        if (!wp_http_validate_url($override) || $base === $override) {
+            return $webhook_url;
+        }
+
+        $parts = wp_parse_url($webhook_url);
+        $path  = $parts['path'] ?? '/';
+
+        return $override . '/' . ltrim($path, '/');
     }
 
     /**
