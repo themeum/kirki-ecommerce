@@ -204,6 +204,7 @@ foreach ($media as $media_item) {
                             type="number"
                             :value="quantity"
                             @change="handleBlur($el)"
+                            onwheel="this.blur()"
                             min="1"
                             :max="max"
                             :disabled="!selectedVariant?.available"
