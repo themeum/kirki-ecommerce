@@ -26,6 +26,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
+import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingZonePage = () => {
@@ -46,6 +47,16 @@ const ShippingZonePage = () => {
   );
 
   const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
+
+  const disabledRegions = useMemo(
+    () =>
+      mergeRegionsByCountry(
+        zones
+          .filter((zone) => String(zone.id) !== String(zoneId))
+          .flatMap((zone) => zone.regions ?? []),
+      ),
+    [zones, zoneId],
+  );
 
   const form = useForm<ShippingZoneFormInput, unknown, ShippingZoneFormPayload>({
     resolver: zodResolver(ShippingZoneFormSchema),
@@ -133,7 +144,11 @@ const ShippingZonePage = () => {
                       label={__('Title', 'kirki-ecommerce')}
                       placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
                     />
-                    <RegionsField name="regions" label={__('Regions', 'kirki-ecommerce')} />
+                    <RegionsField
+                      name="regions"
+                      label={__('Regions', 'kirki-ecommerce')}
+                      disabledRegions={disabledRegions}
+                    />
                   </Flex>
                 </CardContent>
               </Card>

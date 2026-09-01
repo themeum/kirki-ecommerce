@@ -32,6 +32,7 @@ const ShippingSettings = () => {
     loaded,
     shippingZonesObj,
     countryList,
+    usedRegions,
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,
@@ -172,6 +173,7 @@ const ShippingSettings = () => {
           open={showCreateZonePopup}
           onOpenChange={setShowCreateZonePopup}
           countries={countryList}
+          disabledRegions={usedRegions}
           onDone={handleCreateZone}
           errors={popupErrors}
         />

@@ -14,14 +14,29 @@ import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-p
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
-import { applyRegionRules, applyRegionTaxUpdate, mergeCitiesIntoTaxRates } from '@/features/settings/tax/lib/region-tax';
-import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/features/settings/tax/lib/utils';
+import {
+  applyRegionRules,
+  applyRegionTaxUpdate,
+  mergeCitiesIntoTaxRates,
+} from '@/features/settings/tax/lib/region-tax';
+import type {
+  TaxRate,
+  TaxRegion,
+  TaxRegionState,
+  TaxRule,
+} from '@/features/settings/tax/lib/utils';
 import AddCitiesPopup from '@/features/settings/tax/pages/tax-region/add-cities-dialog';
 import { SingleTaxRate } from '@/features/settings/tax/pages/tax-region/single-tax-rate';
 import { TaxRateList } from '@/features/settings/tax/pages/tax-region/tax-rate-list';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
-import { type TaxRegionGeneralFormInput, TaxRegionGeneralFormSchema } from '@/features/settings/tax/schemas/forms/tax-region-general-form';
-import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax-settings-form';
+import {
+  type TaxRegionGeneralFormInput,
+  TaxRegionGeneralFormSchema,
+} from '@/features/settings/tax/schemas/forms/tax-region-general-form';
+import {
+  type TaxSettingsFormPayload,
+  TaxSettingsFormSchema,
+} from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import TaxRegionSkeleton from '@/features/settings/tax/skeletons/tax-region-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -42,8 +57,7 @@ const GeneralEditRegion = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
-  const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation<'tax'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettingsData);
 
@@ -57,9 +71,7 @@ const GeneralEditRegion = () => {
     control: form.control,
     name: 'is_central_tax_enabled',
   });
-  const taxRates =
-    (useWatch({ control: form.control, name: 'product_tax' }) as TaxRate[]) ||
-    [];
+  const taxRates = (useWatch({ control: form.control, name: 'product_tax' }) as TaxRate[]) || [];
   const centralTaxValue = useWatch({
     control: form.control,
     name: 'central_product_tax',
@@ -107,8 +119,7 @@ const GeneralEditRegion = () => {
   const buildUpdatedRegions = (
     values: TaxRegionGeneralFormInput,
     updatedTaxRates?: TaxRate[],
-  ): TaxRegion[] =>
-    code ? applyRegionTaxUpdate(regions, code, values, updatedTaxRates) : regions;
+  ): TaxRegion[] => (code ? applyRegionTaxUpdate(regions, code, values, updatedTaxRates) : regions);
 
   const updateTaxRules = async (rulesList: TaxRule[]) => {
     const updatedData = applyRegionRules(regions, selectedCountry?.code ?? '', rulesList);
@@ -165,10 +176,7 @@ const GeneralEditRegion = () => {
     form.reset();
   };
 
-  const handleSaveFromRateList = async (
-    updatedTaxRates?: TaxRate[],
-    from = '',
-  ) => {
+  const handleSaveFromRateList = async (updatedTaxRates?: TaxRate[], from = '') => {
     await handleSaveData(form.getValues(), updatedTaxRates, from);
   };
 
@@ -192,7 +200,7 @@ const GeneralEditRegion = () => {
                   onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
                 />
 
-                <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)} >
+                <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
                   <CardContent>
                     <HeaderActionsCard
                       header={__('Cities', 'kirki-ecommerce')}
@@ -204,10 +212,7 @@ const GeneralEditRegion = () => {
                     <div css={scoped({ marginTop: theme.spacing[5] })}>
                       <CheckboxField
                         name="is_central_tax_enabled"
-                        label={__(
-                          'Apply single tax rate for entire country',
-                          'kirki-ecommerce',
-                        )}
+                        label={__('Apply single tax rate for entire country', 'kirki-ecommerce')}
                       />
                     </div>
                     <div css={scoped({ marginTop: theme.spacing[5] })}>
@@ -223,12 +228,9 @@ const GeneralEditRegion = () => {
                       ) : (
                         <TaxRateList
                           taxRates={taxRates}
-                          applySingleTax={!!applySingleTax}
                           setTaxRates={(updater) => {
                             const next =
-                              typeof updater === 'function'
-                                ? updater(taxRates)
-                                : updater;
+                              typeof updater === 'function' ? updater(taxRates) : updater;
                             form.setValue('product_tax', next, {
                               shouldDirty: true,
                             });
@@ -236,14 +238,10 @@ const GeneralEditRegion = () => {
                           handleSaveData={handleSaveFromRateList}
                         />
                       )}
-
                     </div>
                   </CardContent>
                 </Card>
-                <TaxRules
-                  region={selectedCountry}
-                  updateTaxRules={updateTaxRules}
-                />
+                <TaxRules region={selectedCountry} updateTaxRules={updateTaxRules} />
               </Flex>
             </Form>
           ) : (

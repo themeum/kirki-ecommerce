@@ -4,6 +4,8 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import { __ } from '@/wpi18n';
+import { mergeCss } from '@/theme/mixins';
+import { theme } from '@/theme';
 
 const options = [
   {
@@ -44,7 +46,10 @@ const TaxCollectionField = () => {
                   id={`tax-collection-${option.value}`}
                   disabled={option.disabled ?? false}
                 />
-                <FieldLabel htmlFor={`tax-collection-${option.value}`}>
+                <FieldLabel
+                  htmlFor={`tax-collection-${option.value}`}
+                  cssOverride={mergeCss(option.disabled ? {color: theme.colors.text.subdued} : null)}
+                >
                   {option.title}
                 </FieldLabel>
               </Field>

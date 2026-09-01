@@ -56,19 +56,6 @@ type TaxRegion = {
   is_central_tax_enabled?: boolean;
 };
 
-type SelectedTaxRegionDraft = {
-  id: string;
-  country: string;
-  states: {
-    id: string | number;
-    title: string;
-    flag: string;
-  }[];
-  hasDeselectedState?: boolean;
-  flag?: string;
-  is_enabled?: boolean;
-};
-
 type TaxConditionRow = {
   id: string;
   condition: string;
@@ -77,7 +64,6 @@ type TaxConditionRow = {
 };
 
 export type {
-  SelectedTaxRegionDraft,
   SelectOption,
   TaxConditionRow,
   TaxRate,

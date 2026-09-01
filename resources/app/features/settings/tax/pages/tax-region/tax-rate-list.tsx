@@ -18,35 +18,22 @@ import { __, sprintf } from '@/wpi18n';
 
 type TaxRateListProps = {
   taxRates: TaxRate[];
-  applySingleTax: boolean;
   setTaxRates: Dispatch<SetStateAction<TaxRate[]>>;
-  handleSaveData: (
-    updatedTaxRates?: TaxRate[],
-    from?: string,
-  ) => void | Promise<void>;
+  handleSaveData: (updatedTaxRates?: TaxRate[], from?: string) => void | Promise<void>;
 };
 
-export const TaxRateList = ({
-  taxRates,
-  applySingleTax,
-  setTaxRates,
-  handleSaveData,
-}: TaxRateListProps) => {
+export const TaxRateList = ({ taxRates, setTaxRates, handleSaveData }: TaxRateListProps) => {
   const handleTaxRate = (item: TaxRate, value: number | string) => {
     setUnsavedDataStatus(true);
     setTaxRates((prev) =>
-      prev.map((taxRate) =>
-        taxRate.state === item.state ? { ...taxRate, rate: value } : taxRate,
-      ),
+      prev.map((taxRate) => (taxRate.state === item.state ? { ...taxRate, rate: value } : taxRate)),
     );
   };
 
   const handleDeleteRate = (item: TaxRate) => {
     const initialList = Array.isArray(taxRates) ? [...taxRates] : [];
 
-    const updatedTaxRates = initialList.filter(
-      (taxItem) => taxItem.state !== item.state,
-    );
+    const updatedTaxRates = initialList.filter((taxItem) => taxItem.state !== item.state);
     setTaxRates(updatedTaxRates);
     toast(__('VAT rate deleted', 'kirki-ecommerce'), {
       duration: 5000,
@@ -64,7 +51,7 @@ export const TaxRateList = ({
 
   return (
     <div>
-      {!applySingleTax && !taxRates.length ? (
+      {!taxRates.length ? (
         <Card cssOverride={cardStyles.innerDarkCard}>
           <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyContent)}>
             <Flex direction="column" gap={2} align="center">

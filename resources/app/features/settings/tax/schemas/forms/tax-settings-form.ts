@@ -1,14 +1,36 @@
 import { z } from 'zod';
 
+import { TaxRegionSchema } from '@/features/settings/tax/schemas/catalog/tax';
 import { prepareFormSchema } from '@/libs/zod';
 
+const TaxRegionStateShape = z
+  .object({
+    id: z.union([z.string(), z.number()]),
+    title: z.string().optional(),
+    name: z.string().optional(),
+    flag: z.string().optional(),
+    code: z.string().optional(),
+  })
+  .passthrough();
+
 /**
- * A tax region's rules/conditions are edited by several sub-dialogs
- * (Group 5) with shapes not modeled anywhere else in the app — kept loose
- * here rather than guessed at, matching shipping's zones (design.md -
- * Decision 6).
+ * The form-side view of a tax region: the response shape
+ * ({@link TaxRegionSchema}) plus the fields the region cards and Group 5
+ * sub-dialogs manage locally (`is_enabled`, `states`, per-region central
+ * tax). Every level stays `.passthrough()`, so the deeper rule/condition
+ * structures those dialogs own ride through untouched and the schema stays
+ * `.extend()`-able for fields added later.
  */
-const TaxRegionFormShape = z.record(z.any());
+const TaxRegionFormShape = TaxRegionSchema.extend({
+  is_enabled: z.boolean().optional(),
+  states: z.array(TaxRegionStateShape).optional(),
+  flag: z.string().optional(),
+  central_product_tax: z.union([z.number(), z.string()]).optional(),
+  is_central_tax_enabled: z.boolean().optional(),
+});
+
+export type TaxRegionForm = z.infer<typeof TaxRegionFormShape>;
+export type TaxRegionStateForm = z.infer<typeof TaxRegionStateShape>;
 
 const TaxSettingsFormShape = z.object({
   is_tax_inclusive_price: z.boolean().default(false),
