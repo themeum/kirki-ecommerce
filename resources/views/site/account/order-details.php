@@ -44,7 +44,7 @@ $order_activities = view_data('activities') ?? [];
 
 $items = $order['items']->to_array() ?? [];
 $items_product_data = $order['item_product_data'] ?? [];
-$order_placed = isset($order['created_at']) ? date('M j, Y', strtotime($order['created_at'])) : '';
+$order_placed = isset($order['created_at']) ? $order['created_at'] : '';
 $shipping_address = $order['shipping_address'] ?? [];
 $shipping_country = $order['shipping_country'] ?? [];
 $shipping_state = array_find($shipping_country['states'] ?? [], fn($item) => $item['id'] == $shipping_address['state']);
@@ -81,7 +81,10 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                         <?php echo esc_html($order['payment_status'] === 'paid' ? __('Paid', 'kirki-ecommerce') : __('Unpaid', 'kirki-ecommerce')); ?>
                                     </span>
                                 </div>
-                                <span class="kecom-order-details-placed"><?php echo esc_html(__('Placed on ', 'kirki-ecommerce') . $order_placed); ?></span>
+                                <div class="kecom-order-details-placed">
+                                    <?php esc_html_e('Placed on ', 'kirki-ecommerce'); ?>
+                                    <span x-data x-local-time="'<?php echo esc_js($order_placed); ?>'"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -99,14 +102,14 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                                 <div class="kecom-order-step <?php echo 0 === $key ? 'kecom-order-step-active' : '' ?> <?php echo $timeline['activity_type'] === OrderActivityType::DELIVERED ? 'kecom-order-step-delivered' : '' ?>">
                                                     <div class="kecom-order-step-indicator">
                                                         <?php if($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
-                                                            <?php Icon::render('check'); ?>
+                                                             <?php Icon::render('check'); ?>
                                                         <?php else: ?>
                                                             <span class="kecom-order-step-dot"></span>
                                                         <?php endif; ?>
                                                     </div>
                                                     <div class="kecom-order-step-content">
                                                         <h4 class="kecom-order-step-title"><?php echo esc_html(OrderActivityType::get_formatted($timeline['activity_type']) ?? ''); ?></h4>
-                                                        <span class="kecom-order-step-date"><?php echo esc_html($timeline['created_at']->format(DateTimeFormats::HUMAN_READABLE_DATE_TIME)); ?></span>
+                                                        <span class="kecom-order-step-date" x-data x-local-time="'<?php echo esc_js($timeline['created_at']); ?>'"></span>
                                                     </div>
                                                 </div>
                                         <?php endforeach; ?>

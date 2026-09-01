@@ -27,6 +27,7 @@ define('WP_ENVIRONMENT_TYPE', 'local');
 $wp_url = getenv('WP_URL') ?: 'http://localhost:20100';
 define('WP_HOME', $wp_url);
 define('WP_SITEURL', $wp_url);
+define('KECOM_WEBHOOK_BASE_URL', getenv('KECOM_WEBHOOK_BASE_URL') ?: 'http://localhost:20100');
 
 define('FS_METHOD', 'direct');
 
