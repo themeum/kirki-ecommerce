@@ -57,15 +57,15 @@ class UpdateAccountAddressesAction
         try {
             $address_data = $data->all();
 
+            $this->customer_service->set_billing_same_as_shipping($customer->id, $data->is_billing_same_as_shipping ?? false);
+
             if ($data->type === AddressType::BILLING && $data->is_billing_same_as_shipping && !empty($customer->shipping_address)) {
-                $this->customer_service->set_billing_same_as_shipping($customer->id, $data->is_billing_same_as_shipping);
                 $address_data = $customer->shipping_address->to_array();
             }
 
             if ($data->type === AddressType::BILLING && $data->is_billing_same_as_shipping && empty($customer->shipping_address)) {
                 throw new Exception(__('Shipping address is not set.', 'kirki-ecommerce'));
             }
-                
 
             $this->update_address($customer, $address_data, $data->type);
 
