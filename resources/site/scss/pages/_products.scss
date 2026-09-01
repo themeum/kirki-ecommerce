@@ -134,6 +134,56 @@
     }
   }
 
+  .kecom-products-empty {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 360px;
+    padding: $spacing-16 $spacing-8;
+    background-color: $background-surface;
+    border: 1px solid $border-default;
+    border-radius: $radius-2xl;
+    @include flex(column, center, center);
+    text-align: center;
+    box-sizing: border-box;
+
+    @include breakpoint-down(md) {
+      padding: $spacing-12 $spacing-6;
+      min-height: 300px;
+      border-radius: $radius-xl;
+    }
+
+    .kecom-products-empty-icon {
+      @include flex-center();
+      margin-bottom: $spacing-6;
+
+      img {
+        width: 88px;
+        height: 88px;
+        display: block;
+      }
+    }
+
+    .kecom-products-empty-title {
+      @include typography(xl, semibold, $text-primary);
+      margin: 0 0 $spacing-3 0;
+
+      @include breakpoint-down(sm) {
+        font-size: $font-size-lg;
+      }
+    }
+
+    .kecom-products-empty-desc {
+      @include typography(base, normal, $text-secondary);
+      max-width: 440px;
+      margin: 0 0 $spacing-8 0;
+
+      @include breakpoint-down(sm) {
+        font-size: $font-size-sm;
+        margin-bottom: $spacing-6;
+      }
+    }
+  }
+
   .kecom-pagination {
     @include flex-center();
     padding-top: $spacing-14;
