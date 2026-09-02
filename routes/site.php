@@ -19,6 +19,8 @@ use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 
+use function Kirki\Ecommerce\Framework\app;
+
 Route::set_site_namespace('kirki_ecommerce');
 Route::set_routing_method(Route::ROUTING_PARSE_REQUEST);
 
@@ -71,6 +73,10 @@ Route::site(function () {
         Route::post($register_page_slug, [AuthController::class, 'handle_registration'])
             ->template_redirect()
             ->name('register');
+    }
+
+    if (app()->is_dev_mode()) {
+        Route::get('design-system', [SiteController::class, 'design_system_page']);
     }
 });
 
