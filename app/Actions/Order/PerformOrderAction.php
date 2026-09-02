@@ -109,7 +109,7 @@ class PerformOrderAction
             throw $error;
         }
 
-        return $order->fresh('refunds', 'items', 'coupons.item_attributions');
+        return $order->fresh('refunds', 'items', 'order_coupons.item_attributions');
     }
 
     /**

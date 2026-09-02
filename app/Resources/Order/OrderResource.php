@@ -44,7 +44,7 @@ class OrderResource extends Resource
                 'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             ],
 
-            'coupons' => empty($this->coupons) ? [] : $this->coupons->map(function ($order_coupon) {
+            'coupons' => empty($this->order_coupons) ? [] : $this->order_coupons->map(function ($order_coupon) {
                 return [
                     'id' => $order_coupon->id,
                     'coupon_id' => $order_coupon->coupon_id,

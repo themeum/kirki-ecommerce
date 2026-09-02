@@ -141,7 +141,7 @@ class CreateOrderAction
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
 
-            $order = $order->fresh('items', 'coupons.item_attributions');
+            $order = $order->fresh('items', 'order_coupons.item_attributions');
 
             OrderActivity::log($order, OrderActivityType::ORDER_PLACED);
 
@@ -334,7 +334,7 @@ class CreateOrderAction
             'postcode' => $dto->shipping_postcode,
             'country' => $dto->shipping_country,
         ];
-        $context->coupons = $dto->coupon_codes;
+        $context->coupon_codes = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
         $context->items = $this->prepare_context_items($dto);

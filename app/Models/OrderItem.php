@@ -63,7 +63,7 @@ class OrderItem extends Model
         return $this->belongs_to(Variant::class, 'variant_id');
     }
 
-    public function coupons()
+    public function order_item_coupons()
     {
         return $this->has_many(OrderItemCoupon::class, 'order_item_id');
     }

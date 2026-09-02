@@ -167,7 +167,7 @@ class RecalculateCartAction
 
     protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        $coupons = $this->resolve_coupons($context->coupons);
+        $coupons = $this->resolve_coupons($context->coupon_codes);
 
         $discount_result = $this->discount_service->calculate($context, $coupons);
 

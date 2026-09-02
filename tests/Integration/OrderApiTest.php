@@ -863,7 +863,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);
@@ -903,7 +903,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);
@@ -937,7 +937,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);
@@ -969,13 +969,13 @@ class OrderApiTest extends RestTestCase
 
         $first = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ])), 201);
         $this->assertEquals(0.0, $first['data']['totals']['base_shipping']);
 
         $second = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ])), 201);
 
         $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping']);
@@ -1074,7 +1074,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);

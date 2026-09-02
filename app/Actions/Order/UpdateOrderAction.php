@@ -79,7 +79,7 @@ class UpdateOrderAction
 
             DB::commit();
 
-            return $order->fresh('items', 'coupons.item_attributions');
+            return $order->fresh('items', 'order_coupons.item_attributions');
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
@@ -222,7 +222,7 @@ class UpdateOrderAction
             'postcode' => $dto->shipping_postcode,
             'country' => $dto->shipping_country,
         ];
-        $context->coupons = $dto->coupon_codes;
+        $context->coupon_codes = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
         $context->items = $this->prepare_context_items($dto);

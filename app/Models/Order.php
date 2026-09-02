@@ -154,7 +154,7 @@ class Order extends Model
         return $this->belongs_to(Customer::class, 'customer_id');
     }
 
-    public function coupons()
+    public function order_coupons()
     {
         return $this->has_many(OrderCoupon::class, 'order_id');
     }
