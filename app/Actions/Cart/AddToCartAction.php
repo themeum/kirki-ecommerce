@@ -28,15 +28,6 @@ class AddToCartAction
     public function execute(AddToCartDTO $dto)
     {
         $variant = $this->variant_service->find($dto->variant_id);
-        $cart = $this->cart_service->get_cart($dto->user_id, $dto->token);
-        $cart_id = $cart->id ?? 0;
-
-        $existing_item = $this->cart_service->find_item_in_cart($cart_id, $dto->variant_id);
-        $quantity = $dto->quantity;
-
-        if (!empty($existing_item)) {
-            $quantity = $existing_item->quantity + $dto->quantity;
-        }
 
         if (!$variant) {
             throw new Exception(__('Variant not found.', 'kirki-ecommerce'));
