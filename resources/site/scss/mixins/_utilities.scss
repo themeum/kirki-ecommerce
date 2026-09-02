@@ -74,12 +74,15 @@
 }
 
 // Scrollbar styling
-@mixin scrollbar($width: 6px, $thumb: $border-hover, $track: transparent) {
-  scrollbar-width: thin;
-  scrollbar-color: $thumb $track;
+@mixin scrollbar($width: 6px, $height: 6px, $thumb: $border-hover, $track: transparent) {
+  @supports not (selector(::-webkit-scrollbar)) {
+    scrollbar-width: thin;
+    scrollbar-color: $thumb $track;
+  }
 
   &::-webkit-scrollbar {
     width: $width;
+    height: $height;
   }
   &::-webkit-scrollbar-track {
     background: $track;

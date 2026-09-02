@@ -78,10 +78,14 @@
 // Card 1: Order Status Timeline
 .kecom-order-status-card {
   .kecom-order-stepper {
+    @include scrollbar($spacing-2, $spacing-19, $background-fill-tertiary, $background-surface-secondary);
     display: flex;
     flex-direction: column;
     gap: $spacing-9;
     margin-top: $spacing-9;
+    max-height: 250px;
+    overflow: auto;
+    scrollbar-gutter: stable;
   }
 
   .kecom-order-step.kecom-order-step-active {
@@ -149,8 +153,8 @@
     }
 
     &-dot {
-      width: 8px;
-      height: 8px;
+      width: 6.67px;
+      height: 6.67px;
       border-radius: $radius-full;
       background-color: $icon-secondary;
     }
@@ -222,8 +226,7 @@
 // ----------------------------------------------------------------------------
 .kecom-order-details-col-right {
   .kecom-order-summary-card {
-    display: flex;
-    flex-direction: column;
+    @include flex(column, stretch, space-between);
     gap: $spacing-10;
     min-height: 100%;
   }
