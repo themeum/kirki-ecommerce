@@ -25,10 +25,7 @@ class VariantResource extends Resource
         $availability_service = app()->make(AvailabilityService::class);
         $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
         $availability_status = $availability_service->resolve_variant_status(
-            $this->track_inventory,
-            $this->in_stock,
-            $this->available_quantity,
-            $this->low_stock_threshold,
+            $this->resource,
             $store_default_threshold
         );
 

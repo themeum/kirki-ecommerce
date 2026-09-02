@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit\Services;
 
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
@@ -21,57 +22,102 @@ class AvailabilityServiceTest extends TestCase
 
     public function test_untracked_variant_in_stock_flag_true_is_in_stock(): void
     {
-        $status = $this->service->resolve_variant_status(false, true, 0, null, 0);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => false,
+            'in_stock' => true,
+            'available_quantity' => 0,
+            'low_stock_threshold' => null,
+        ]), 0);
 
         $this->assertSame(AvailabilityStatus::IN_STOCK, $status);
     }
 
     public function test_untracked_variant_in_stock_flag_false_is_out_of_stock(): void
     {
-        $status = $this->service->resolve_variant_status(false, false, 999, null, 0);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => false,
+            'in_stock' => false,
+            'available_quantity' => 999,
+            'low_stock_threshold' => null,
+        ]), 0);
 
         $this->assertSame(AvailabilityStatus::OUT_OF_STOCK, $status);
     }
 
     public function test_tracked_variant_at_zero_quantity_is_out_of_stock(): void
     {
-        $status = $this->service->resolve_variant_status(true, true, 0, null, 5);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 0,
+            'low_stock_threshold' => null,
+        ]), 5);
 
         $this->assertSame(AvailabilityStatus::OUT_OF_STOCK, $status);
     }
 
     public function test_tracked_variant_at_threshold_is_low_stock(): void
     {
-        $status = $this->service->resolve_variant_status(true, true, 3, 3, 0);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 3,
+            'low_stock_threshold' => 3,
+        ]), 0);
 
         $this->assertSame(AvailabilityStatus::LOW_STOCK, $status);
     }
 
     public function test_tracked_variant_above_threshold_is_in_stock(): void
     {
-        $status = $this->service->resolve_variant_status(true, true, 4, 3, 0);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 4,
+            'low_stock_threshold' => 3,
+        ]), 0);
 
         $this->assertSame(AvailabilityStatus::IN_STOCK, $status);
     }
 
     public function test_zero_threshold_never_yields_low_stock(): void
     {
-        $status = $this->service->resolve_variant_status(true, true, 1, 0, 5);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 1,
+            'low_stock_threshold' => 0,
+        ]), 5);
 
         $this->assertSame(AvailabilityStatus::IN_STOCK, $status);
     }
 
     public function test_back_order_at_zero_quantity_still_reports_out_of_stock(): void
     {
-        $status = $this->service->resolve_variant_status(true, true, 0, null, 0);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 0,
+            'low_stock_threshold' => null,
+        ]), 0);
 
         $this->assertSame(AvailabilityStatus::OUT_OF_STOCK, $status);
     }
 
     public function test_null_threshold_falls_back_to_store_default(): void
     {
-        $low_stock = $this->service->resolve_variant_status(true, true, 5, null, 5);
-        $in_stock = $this->service->resolve_variant_status(true, true, 6, null, 5);
+        $low_stock = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 5,
+            'low_stock_threshold' => null,
+        ]), 5);
+        $in_stock = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 6,
+            'low_stock_threshold' => null,
+        ]), 5);
 
         $this->assertSame(AvailabilityStatus::LOW_STOCK, $low_stock);
         $this->assertSame(AvailabilityStatus::IN_STOCK, $in_stock);
@@ -79,7 +125,12 @@ class AvailabilityServiceTest extends TestCase
 
     public function test_explicit_zero_threshold_does_not_fall_back_to_store_default(): void
     {
-        $status = $this->service->resolve_variant_status(true, true, 5, 0, 5);
+        $status = $this->service->resolve_variant_status(new Variant([
+            'track_inventory' => true,
+            'in_stock' => true,
+            'available_quantity' => 5,
+            'low_stock_threshold' => 0,
+        ]), 5);
 
         $this->assertSame(AvailabilityStatus::IN_STOCK, $status);
     }
@@ -174,8 +225,8 @@ class AvailabilityServiceTest extends TestCase
     public function test_resolve_product_status_combines_both_layers(): void
     {
         $variants = [
-            (object) ['track_inventory' => true, 'in_stock' => true, 'available_quantity' => 10, 'low_stock_threshold' => null],
-            (object) ['track_inventory' => true, 'in_stock' => true, 'available_quantity' => 0, 'low_stock_threshold' => null],
+            new Variant(['track_inventory' => true, 'in_stock' => true, 'available_quantity' => 10, 'low_stock_threshold' => null]),
+            new Variant(['track_inventory' => true, 'in_stock' => true, 'available_quantity' => 0, 'low_stock_threshold' => null]),
         ];
 
         $status = $this->service->resolve_product_status($variants, 0);

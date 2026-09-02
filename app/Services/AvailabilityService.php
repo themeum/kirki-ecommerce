@@ -3,33 +3,31 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
+use Kirki\Ecommerce\App\Models\Variant;
 
 class AvailabilityService
 {
     /**
      * Resolve a single variant's stock state (Layer 1).
      *
-     * @param bool $track_inventory
-     * @param bool $in_stock
-     * @param int $available_quantity
-     * @param int|null $low_stock_threshold The variant's own threshold, or null to fall back to the store default.
+     * @param Variant $variant
      * @param int $store_default_threshold
      *
      * @return string One of AvailabilityStatus::IN_STOCK|LOW_STOCK|OUT_OF_STOCK
      */
-    public function resolve_variant_status($track_inventory, $in_stock, $available_quantity, $low_stock_threshold, $store_default_threshold)
+    public function resolve_variant_status(Variant $variant, int $store_default_threshold = 0)
     {
-        if (!$track_inventory) {
-            return $in_stock ? AvailabilityStatus::IN_STOCK : AvailabilityStatus::OUT_OF_STOCK;
+        if (!$variant->track_inventory) {
+            return $variant->in_stock ? AvailabilityStatus::IN_STOCK : AvailabilityStatus::OUT_OF_STOCK;
         }
 
-        if ($available_quantity <= 0) {
+        if ($variant->available_quantity <= 0) {
             return AvailabilityStatus::OUT_OF_STOCK;
         }
 
-        $threshold = is_null($low_stock_threshold) ? $store_default_threshold : $low_stock_threshold;
+        $threshold = is_null($variant->low_stock_threshold) ? $store_default_threshold : $variant->low_stock_threshold;
 
-        if ($available_quantity <= $threshold) {
+        if ($variant->available_quantity <= $threshold) {
             return AvailabilityStatus::LOW_STOCK;
         }
 
@@ -82,13 +80,7 @@ class AvailabilityService
         $statuses = [];
 
         foreach ($variants as $variant) {
-            $statuses[] = $this->resolve_variant_status(
-                $variant->track_inventory,
-                $variant->in_stock,
-                $variant->available_quantity,
-                $variant->low_stock_threshold,
-                $store_default_threshold
-            );
+            $statuses[] = $this->resolve_variant_status($variant, $store_default_threshold);
         }
 
         return $this->resolve_group_status($statuses);
@@ -118,6 +110,6 @@ class AvailabilityService
         }
 
         /* translators: 1: availability label, 2: variant count */
-        return sprintf(__('%1$s across %2$d variants', 'kirki-ecommerce'), $label, $variant_count);
+        return sprintf(__('%1$s <span>across %2$d variants<span>', 'kirki-ecommerce'), $label, $variant_count);
     }
 }

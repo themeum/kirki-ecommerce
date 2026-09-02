@@ -76,7 +76,6 @@ class UserService
      *
      * @param int $user_id User ID.
      *
-     * @throws ValidationException
      * @throws Exception
      *
      * @return bool
@@ -86,15 +85,19 @@ class UserService
         $user = new User($user_id);
 
         if (empty($user->get_id())) {
-            throw ValidationException::with_errors([
-                'user' => [__('User not found.', 'kirki-ecommerce')],
-            ]);
+            throw new Exception(__('User not found.', 'kirki-ecommerce'));
         }
 
         if ($user->email_verified()) {
-            throw ValidationException::with_errors([
-                'email' => [__('Email address is already verified.', 'kirki-ecommerce')],
-            ]);
+            throw new Exception(__('Email address is already verified.', 'kirki-ecommerce'));
+        }
+
+        // TODO: we need to add this in route level rate limit.
+        $last_sent = $user->get_email_verification_sent_at();
+        $cooldown_period = MINUTE_IN_SECONDS * 2;
+        if ($last_sent && (time() - $last_sent) < $cooldown_period) {
+            $remaining = $cooldown_period - (time() - $last_sent);
+            throw new Exception(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining));
         }
 
         $token = $user->generate_verification_token();

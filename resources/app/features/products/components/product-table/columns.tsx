@@ -15,6 +15,7 @@ import {
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { InfoIcon } from '@/icons';
 import { DATE_FORMATS } from '@/libs/date';
+import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { displayMoney } from '@/utils/money';
@@ -67,9 +68,12 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       }
 
       const label = (
-        <Text variant="tiny" color={getAvailabilityColor(status)}>
-          {row.original?.availability_label ?? status}
-        </Text>
+        <Text
+          variant="tiny"
+          color={getAvailabilityColor(status)}
+          dangerouslySetInnerHTML={{ __html: row.original?.availability_label ?? status }}
+          cssOverride={styles.availabilityLabel}
+        />
       );
 
       const description = getAvailabilityDescription(status);
@@ -140,5 +144,10 @@ const styles = defineStyles({
     color: 'inherit',
     textAlign: 'left',
     cursor: 'pointer',
+  },
+  availabilityLabel: {
+    '& span': {
+      color: theme.colors.text.primary,
+    },
   },
 });

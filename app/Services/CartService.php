@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart as CartConstants;
-use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
+use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\Models\Cart as CartModel;
@@ -54,6 +54,25 @@ class CartService
         }
 
         return $guest_cart;
+    }
+
+    /**
+     * Resolve the canonical cart for the given identity, creating a new
+     * one if none exists.
+     *
+     * @param int|null $user_id
+     * @param string|null $token
+     * @return CartModel
+     */
+    public function get_or_create_cart($user_id = null, $token = null)
+    {
+        $cart = $this->get_cart($user_id, $token);
+
+        if (empty($cart)) {
+            $cart = $this->create_new_cart($user_id);
+        }
+
+        return $cart;
     }
 
     protected function resolve_owned_cart(int $user_id, ?string $token = null)
@@ -137,9 +156,9 @@ class CartService
         return $this->find($id);
     }
 
-    protected function add_item_to_cart($cart_id, array $item_data)
+    public function add_item_to_cart(CreateCartItemDTO $dto)
     {
-        return CartItem::create(array_merge(['cart_id' => $cart_id], $item_data));
+        return CartItem::create($dto->to_array());
     }
 
     protected function create_new_cart($user_id = null)
@@ -170,32 +189,6 @@ class CartService
         return CartItem::where('cart_id', $cart_id)
             ->where('variant_id', $variant_id)
             ->first();
-    }
-
-    public function add_item(AddToCartDTO $dto)
-    {
-        $cart = $this->get_cart($dto->user_id, $dto->token);
-
-        if (empty($cart)) {
-            $cart = $this->create_new_cart($dto->user_id);
-        }
-
-        $cart_id = $cart->id;
-
-        $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
-
-        if ($existing_item) {
-            $new_quantity = $existing_item->quantity + $dto->quantity;
-            $this->update_item_quantity($cart_id, $existing_item->id, $new_quantity);
-        } else {
-            $this->add_item_to_cart($cart_id, [
-                'product_id' => $dto->product_id,
-                'variant_id' => $dto->variant_id,
-                'quantity' => $dto->quantity,
-            ]);
-        }
-
-        return $this->find($cart_id);
     }
 
     public function update_item_quantity($cart_id, $item_id, $quantity)

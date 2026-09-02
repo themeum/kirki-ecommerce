@@ -33,7 +33,7 @@ const useListParams = <TFilter extends Record<string, unknown> = {}>(
       sort_by: 'id',
       sort_order: 'desc',
       page: 1,
-      limit: 10,
+      limit: 20,
     },
     filter: filterConfig,
   } = options;
