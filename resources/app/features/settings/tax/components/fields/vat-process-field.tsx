@@ -12,11 +12,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-const VatProcessDescription = ({
-  processValue,
-}: {
-  processValue: string;
-}) => {
+const VatProcessDescription = ({ processValue }: { processValue: string }) => {
   const currentProcess = useWatch<TaxRegionEuFormInput>({ name: 'type' });
 
   if (currentProcess !== processValue) {
@@ -24,19 +20,18 @@ const VatProcessDescription = ({
   }
 
   return (
-    <Card cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[2] }} >
+    <Card cssOverride={{ ...cardStyles.innerDarkCard, width: '100%' }}>
       <CardContent cssOverride={cardStyles.innerDarkContent}>
         <Text color="secondary" variant="small">
-          {processValue === 'oss' ?
-            __(
-              'Collect VAT based on the customer’s EU country for cross-border sales. VAT from all EU countries is reported through a single OSS return. Required once your EU cross-border sales exceed €10,000 per year.',
-              'kirki-ecommerce',
-            )
+          {processValue === 'oss'
+            ? __(
+                'Collect VAT based on the customer’s EU country for cross-border sales. VAT from all EU countries is reported through a single OSS return. Required once your EU cross-border sales exceed €10,000 per year.',
+                'kirki-ecommerce',
+              )
             : __(
-              'Collect VAT using your local country’s rate only. Applies when selling mainly within your own country. Available while EU cross-border sales remain below €10,000 per year.',
-              'kirki-ecommerce',
-            )
-          }
+                'Collect VAT using your local country’s rate only. Applies when selling mainly within your own country. Available while EU cross-border sales remain below €10,000 per year.',
+                'kirki-ecommerce',
+              )}
         </Text>
       </CardContent>
     </Card>
@@ -68,32 +63,36 @@ const VatProcessField = () => {
             aria-invalid={fieldState.invalid}
             cssOverride={styles.processGroup}
           >
-            <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
-              <CardContent cssOverride={cardStyles.innerContent}>
-                <Field orientation="horizontal">
-                  <RadioGroupItem value="oss" id="vat-process-oss" />
-                  <FieldLabel htmlFor="vat-process-oss">
-                    {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
-                  </FieldLabel>
-                </Field>
-                <VatProcessDescription processValue="oss" />
-              </CardContent>
-            </Card>
+            <Field>
+              <FieldLabel htmlFor="vat-process-oss" cssOverride={styles.vatProcessLabel}>
+                <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)}>
+                  <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatProcessContent)}>
+                    <RadioGroupItem value="oss" id="vat-process-oss" />
+                    <Text variant="small" weight="medium">
+                      {__('One Stop Shop (OSS)', 'kirki-ecommerce')}
+                    </Text>
+                    <VatProcessDescription processValue="oss" />
+                  </CardContent>
+                </Card>
+              </FieldLabel>
+            </Field>
 
-            <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)} >
-              <CardContent cssOverride={cardStyles.innerContent}>
-                <Field orientation="horizontal">
-                  <RadioGroupItem
-                    value="micro_business"
-                    id="vat-process-micro-business"
-                  />
-                  <FieldLabel htmlFor="vat-process-micro-business">
-                    {__('Micro Business', 'kirki-ecommerce')}
-                  </FieldLabel>
-                </Field>
-                <VatProcessDescription processValue="micro_business" />
-              </CardContent>
-            </Card>
+            <Field>
+              <FieldLabel
+                htmlFor="vat-process-micro-business"
+                cssOverride={styles.vatProcessLabel}
+              >
+                <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)}>
+                  <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatProcessContent)}>
+                    <RadioGroupItem value="micro_business" id="vat-process-micro-business" />
+                    <Text variant="small" weight="medium">
+                      {__('Micro Business', 'kirki-ecommerce')}
+                    </Text>
+                    <VatProcessDescription processValue="micro_business" />
+                  </CardContent>
+                </Card>
+              </FieldLabel>
+            </Field>
           </RadioGroup>
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
@@ -113,6 +112,19 @@ const styles = defineStyles({
   vatProcessCard: {
     display: 'flex',
     flexDirection: 'column',
+    gap: theme.spacing[2],
+  },
+  vatProcessLabel: {
+    width: '100%',
+    cursor: 'pointer',
+    '&:has([data-state="checked"])': {
+      backgroundColor: 'transparent',
+    },
+  },
+  vatProcessContent: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: theme.spacing[2],
   },
 });
