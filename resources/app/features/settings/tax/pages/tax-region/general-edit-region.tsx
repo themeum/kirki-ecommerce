@@ -26,8 +26,8 @@ import type {
   TaxRule,
 } from '@/features/settings/tax/lib/utils';
 import AddCitiesPopup from '@/features/settings/tax/pages/tax-region/add-cities-dialog';
-import { SingleTaxRate } from '@/features/settings/tax/pages/tax-region/single-tax-rate';
-import { TaxRateList } from '@/features/settings/tax/pages/tax-region/tax-rate-list';
+import SingleTaxRate from '@/features/settings/tax/pages/tax-region/single-tax-rate';
+import TaxRateList from '@/features/settings/tax/pages/tax-region/tax-rate-list';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import {
   type TaxRegionGeneralFormInput,
@@ -47,6 +47,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { Package, Truck } from 'lucide-react';
 
 const GeneralEditRegion = () => {
   const { code } = useParams();
@@ -72,10 +73,6 @@ const GeneralEditRegion = () => {
     name: 'is_central_tax_enabled',
   });
   const taxRates = (useWatch({ control: form.control, name: 'product_tax' }) as TaxRate[]) || [];
-  const centralTaxValue = useWatch({
-    control: form.control,
-    name: 'central_product_tax',
-  });
 
   const selectedCountry = useMemo(() => {
     return regions.find((country) => country.code === code);
@@ -97,6 +94,7 @@ const GeneralEditRegion = () => {
       product_tax: country?.product_tax?.length ? country.product_tax : [],
       is_central_tax_enabled: country?.is_central_tax_enabled || false,
       central_product_tax: country?.central_product_tax || 0,
+      central_shipping_tax: country?.central_shipping_tax || 0,
     });
   }, [regions, code, form]);
 
@@ -188,80 +186,81 @@ const GeneralEditRegion = () => {
   });
 
   return (
-    <div>
-      <>
-        <Container size="sm">
-          {loaded ? (
-            <Form {...form}>
-              <Flex direction="column" gap={4}>
-                <SettingsPageHeader
-                  title={selectedCountry?.name}
-                  icon={selectedCountry?.flag}
-                  onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
-                />
+    <>
+      <Container size="sm">
+        {loaded ? (
+          <Form {...form}>
+            <Flex direction="column" gap={4}>
+              <SettingsPageHeader
+                title={selectedCountry?.name}
+                icon={selectedCountry?.flag}
+                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
+              />
 
-                <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
-                  <CardContent>
-                    <HeaderActionsCard
-                      header={__('Cities', 'kirki-ecommerce')}
-                      subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
-                      buttonText={__('Add', 'kirki-ecommerce')}
-                      onAdd={() => setShowPopup(true)}
-                      hideButton={!!applySingleTax}
+              <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
+                <CardContent>
+                  <HeaderActionsCard
+                    header={__('Cities', 'kirki-ecommerce')}
+                    subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
+                    buttonText={__('Add', 'kirki-ecommerce')}
+                    onAdd={() => setShowPopup(true)}
+                    hideButton={!!applySingleTax}
+                  />
+                  <div css={scoped({ marginTop: theme.spacing[5] })}>
+                    <CheckboxField
+                      name="is_central_tax_enabled"
+                      label={__('Apply single tax rate for entire country', 'kirki-ecommerce')}
                     />
-                    <div css={scoped({ marginTop: theme.spacing[5] })}>
-                      <CheckboxField
-                        name="is_central_tax_enabled"
-                        label={__('Apply single tax rate for entire country', 'kirki-ecommerce')}
-                      />
-                    </div>
-                    <div css={scoped({ marginTop: theme.spacing[5] })}>
-                      {applySingleTax ? (
+                  </div>
+                  <div css={scoped({ marginTop: theme.spacing[5] })}>
+                    {applySingleTax ? (
+                      <Flex direction="column" gap={2}>
                         <SingleTaxRate
-                          centralTaxValue={centralTaxValue ?? 0}
-                          setCentralTaxValue={(value) =>
-                            form.setValue('central_product_tax', value, {
-                              shouldDirty: true,
-                            })
-                          }
+                          name="central_product_tax"
+                          label={__('Product Tax Rate', 'kirki-ecommerce')}
+                          icon={<Package />}
                         />
-                      ) : (
-                        <TaxRateList
-                          taxRates={taxRates}
-                          setTaxRates={(updater) => {
-                            const next =
-                              typeof updater === 'function' ? updater(taxRates) : updater;
-                            form.setValue('product_tax', next, {
-                              shouldDirty: true,
-                            });
-                          }}
-                          handleSaveData={handleSaveFromRateList}
+                        <SingleTaxRate
+                          name="central_shipping_tax"
+                          label={__('Shipping Tax Rate', 'kirki-ecommerce')}
+                          icon={<Truck />}
                         />
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-                <TaxRules region={selectedCountry} updateTaxRules={updateTaxRules} />
-              </Flex>
-            </Form>
-          ) : (
-            <TaxRegionSkeleton />
-          )}
-        </Container>
-        {showPopup && (
-          <AddCitiesPopup
-            openPopup={showPopup}
-            setOpenPopup={setShowPopup}
-            taxRates={taxRates}
-            countryName={selectedCountry?.name}
-            cityList={selectedCountry?.states}
-            selectedCities={selectedCities}
-            setSelectedCities={setSelectedCities}
-            onAdd={handleAddCities}
-          />
+                      </Flex>
+                    ) : (
+                      <TaxRateList
+                        taxRates={taxRates}
+                        setTaxRates={(updater) => {
+                          const next = typeof updater === 'function' ? updater(taxRates) : updater;
+                          form.setValue('product_tax', next, {
+                            shouldDirty: true,
+                          });
+                        }}
+                        handleSaveData={handleSaveFromRateList}
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              <TaxRules region={selectedCountry} updateTaxRules={updateTaxRules} />
+            </Flex>
+          </Form>
+        ) : (
+          <TaxRegionSkeleton />
         )}
-      </>
-    </div>
+      </Container>
+      {showPopup && (
+        <AddCitiesPopup
+          openPopup={showPopup}
+          setOpenPopup={setShowPopup}
+          taxRates={taxRates}
+          countryName={selectedCountry?.name}
+          cityList={selectedCountry?.states}
+          selectedCities={selectedCities}
+          setSelectedCities={setSelectedCities}
+          onAdd={handleAddCities}
+        />
+      )}
+    </>
   );
 };
 

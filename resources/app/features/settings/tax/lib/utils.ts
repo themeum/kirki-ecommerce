@@ -53,6 +53,7 @@ type TaxRegion = {
   shipping_tax?: TaxRate[];
   rules?: TaxRule[];
   central_product_tax?: number | string;
+  central_shipping_tax?: number | string;
   is_central_tax_enabled?: boolean;
 };
 

@@ -1,4 +1,9 @@
-import type { TaxRate, TaxRegion, TaxRegionState, TaxRule } from '@/features/settings/tax/lib/utils';
+import type {
+  TaxRate,
+  TaxRegion,
+  TaxRegionState,
+  TaxRule,
+} from '@/features/settings/tax/lib/utils';
 
 /**
  * Adds a zero-rate entry for each newly picked city, skipping any that
@@ -15,10 +20,7 @@ export const mergeCitiesIntoTaxRates = (
   }));
 
   const existingStates = new Set(taxRates.map((rate) => rate.state));
-  return [
-    ...taxRates,
-    ...newTaxRates.filter((rate) => !existingStates.has(rate.state)),
-  ];
+  return [...taxRates, ...newTaxRates.filter((rate) => !existingStates.has(rate.state))];
 };
 
 /**
@@ -30,19 +32,24 @@ export const applyRegionTaxUpdate = (
   code: string,
   values: {
     product_tax?: TaxRate[];
+    shipping_tax?: TaxRate[];
     is_central_tax_enabled?: boolean;
     central_product_tax?: number | string;
+    central_shipping_tax?: number | string;
   },
-  updatedTaxRates?: TaxRate[],
+  updatedProductTaxRates?: TaxRate[],
+  updatedShippingTaxRates?: TaxRate[],
 ): TaxRegion[] =>
   regions.map((region) =>
     region.code === code
       ? {
-        ...region,
-        product_tax: updatedTaxRates ?? values.product_tax ?? [],
-        is_central_tax_enabled: values.is_central_tax_enabled,
-        central_product_tax: values.central_product_tax,
-      }
+          ...region,
+          product_tax: updatedProductTaxRates ?? values.product_tax ?? [],
+          shipping_tax: updatedShippingTaxRates ?? values.shipping_tax ?? [],
+          is_central_tax_enabled: values.is_central_tax_enabled,
+          central_product_tax: values.central_product_tax,
+          central_shipping_tax: values.central_shipping_tax,
+        }
       : region,
   );
 
@@ -54,8 +61,7 @@ export const applyRegionRules = (
   regions: TaxRegion[],
   code: string,
   rules: TaxRule[],
-): TaxRegion[] =>
-  regions.map((region) => (region.code === code ? { ...region, rules } : region));
+): TaxRegion[] => regions.map((region) => (region.code === code ? { ...region, rules } : region));
 
 /**
  * Writes the EU region's VAT collection type / rate list back into the

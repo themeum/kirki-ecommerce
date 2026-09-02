@@ -400,7 +400,9 @@ export const RegionsDialog = ({
                               disabled={countryDisabled}
                               checked={
                                 countryDisabled
-                                  ? true
+                                  ? regionInfo?.hasDeselectedState
+                                    ? 'indeterminate'
+                                    : true
                                   : !euRow && regionInfo?.hasDeselectedState
                                     ? 'indeterminate'
                                     : formCountries.includes(country?.code)

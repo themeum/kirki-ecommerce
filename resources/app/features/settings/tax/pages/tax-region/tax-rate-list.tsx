@@ -22,7 +22,7 @@ type TaxRateListProps = {
   handleSaveData: (updatedTaxRates?: TaxRate[], from?: string) => void | Promise<void>;
 };
 
-export const TaxRateList = ({ taxRates, setTaxRates, handleSaveData }: TaxRateListProps) => {
+const TaxRateList = ({ taxRates, setTaxRates, handleSaveData }: TaxRateListProps) => {
   const handleTaxRate = (item: TaxRate, value: number | string) => {
     setUnsavedDataStatus(true);
     setTaxRates((prev) =>
@@ -112,6 +112,8 @@ export const TaxRateList = ({ taxRates, setTaxRates, handleSaveData }: TaxRateLi
 };
 
 TaxRateList.displayName = 'TaxRateList';
+
+export default TaxRateList;
 
 const styles = defineStyles({
   emptyContent: { padding: `${theme.spacing[9]} 0` },

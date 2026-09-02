@@ -26,6 +26,7 @@ const TaxRegionFormShape = TaxRegionSchema.extend({
   states: z.array(TaxRegionStateShape).optional(),
   flag: z.string().optional(),
   central_product_tax: z.union([z.number(), z.string()]).optional(),
+  central_shipping_tax: z.union([z.number(), z.string()]).optional(),
   is_central_tax_enabled: z.boolean().optional(),
 });
 

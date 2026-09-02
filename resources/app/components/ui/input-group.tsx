@@ -1,5 +1,11 @@
 import { type CSSObject } from '@emotion/react';
-import { type ComponentPropsWithoutRef, forwardRef, type MouseEvent } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  forwardRef,
+  KeyboardEvent,
+  type MouseEvent,
+  WheelEvent,
+} from 'react';
 
 import Button from '@/components/ui/button';
 import { theme } from '@/theme';
@@ -127,6 +133,24 @@ InputGroupAddon.displayName = 'InputGroupAddon';
 const InputGroupInput = forwardRef<HTMLInputElement, InputGroupInputProps>((props, ref) => {
   const { cssOverride, type = 'text', value, ...rest } = props;
 
+  const preventStepKeys = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (type !== 'number') {
+      return;
+    }
+
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      event.preventDefault();
+    }
+  };
+
+  const preventStepScroll = (event: WheelEvent<HTMLInputElement>) => {
+    if (type !== 'number') {
+      return;
+    }
+
+    event.currentTarget.blur();
+  };
+
   return (
     <input
       ref={ref}
@@ -135,6 +159,8 @@ const InputGroupInput = forwardRef<HTMLInputElement, InputGroupInputProps>((prop
       css={scopedMerge(styles.control, styles.input, cssOverride)}
       {...rest}
       {...('value' in props ? { value: value ?? '' } : {})}
+      onKeyDown={preventStepKeys}
+      onWheel={preventStepScroll}
     />
   );
 });
