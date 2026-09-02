@@ -107,7 +107,11 @@ const OrderDetails = () => {
               {orderActions.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" aria-label="More options">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={__('More options', 'kirki-ecommerce')}
+                    >
                       <ShowMoreIcon />
                     </Button>
                   </DropdownMenuTrigger>

@@ -263,4 +263,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/account/profile', [AccountController::class, 'update_profile']);
     Route::put('/account/password-change', [AccountController::class, 'change_password']);
     Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+
+    //TODO: this should have rate limit. Currently framework has no rate limit option.
+    Route::post('/account/resend-verification-email', [AccountController::class, 'resend_verification_email']);
 });

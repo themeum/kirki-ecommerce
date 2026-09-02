@@ -1,0 +1,132 @@
+info:
+  name: QuickPay
+  type: http
+  seq: 5
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/quickpay"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+          "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/quickpay"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+               "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "quickpay",
+              "name": "QuickPay",
+              "icon": "quickpay",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "QuickPay payment gateway",
+              "settings": {
+              "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+              "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "api_key",
+                  "label": "API Key",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "private_key",
+                  "label": "Private Key",
+                  "type": "password",
+                  "required": true
+                },
+
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/quickpay",
+              "webhook_events": [
+
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/quickpay"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+               "api_key": "c30eb2d05ecb11713856d5d93e033d2417d422fb4006c3f9a245d1c10f27d867",
+              "private_key": "758e7a2298b7554c4b31a0f586d871984dc0f91947a4cf944dad7cb4129c482c",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.

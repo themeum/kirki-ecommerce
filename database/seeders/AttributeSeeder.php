@@ -17,9 +17,14 @@ class AttributeSeeder extends Seeder
                 'slug' => 'color',
                 'type' => 'color',
                 'values' => [
-                    ['value' => 'Red', 'color' => '#FF0000'],
-                    ['value' => 'Green', 'color' => '#00FF00'],
-                    ['value' => 'Blue', 'color' => '#0000FF'],
+                    ['value' => 'Blush', 'color' => '#E3A9A0'],
+                    ['value' => 'Terracotta', 'color' => '#B5603D'],
+                    ['value' => 'Mustard', 'color' => '#D8B45C'],
+                    ['value' => 'Forest', 'color' => '#4F6B4F'],
+                    ['value' => 'Sky', 'color' => '#7FA8C9'],
+                    ['value' => 'Teal', 'color' => '#2F6F6B'],
+                    ['value' => 'Sand', 'color' => '#D9C4A0'],
+                    ['value' => 'Plum', 'color' => '#6B3F52'],
                 ]
             ],
             [
@@ -28,20 +33,40 @@ class AttributeSeeder extends Seeder
                 'slug' => 'size',
                 'type' => 'list',
                 'values' => [
-                    ['value' => 'Small'],
-                    ['value' => 'Medium'],
-                    ['value' => 'Large'],
+                    ['value' => 'XS'],
+                    ['value' => 'S'],
+                    ['value' => 'M'],
+                    ['value' => 'L'],
+                    ['value' => 'XL'],
+                    ['value' => 'XXL'],
                 ]
             ],
             [
                 'id' => 3,
+                'name' => 'Shoe Size',
+                'slug' => 'shoe-size',
+                'type' => 'list',
+                'values' => [
+                    ['value' => '7'],
+                    ['value' => '8'],
+                    ['value' => '9'],
+                    ['value' => '10'],
+                    ['value' => '11'],
+                    ['value' => '12'],
+                ]
+            ],
+            [
+                'id' => 4,
                 'name' => 'Material',
                 'slug' => 'material',
                 'type' => 'list',
                 'values' => [
                     ['value' => 'Cotton'],
+                    ['value' => 'Denim'],
+                    ['value' => 'Leather'],
                     ['value' => 'Polyester'],
-                    ['value' => 'Silk'],
+                    ['value' => 'Wool'],
+                    ['value' => 'Linen'],
                 ]
             ],
         ];

@@ -11,12 +11,12 @@ import DiscountPopover from '@/features/orders/components/order-create/payment/d
 import ShippingPopover from '@/features/orders/components/order-create/payment/shipping-popover';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
-import { PlusCircleIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
+import { PlusCircle } from 'lucide-react';
 
 const EMPTY_AMOUNT = '—';
 
@@ -58,9 +58,9 @@ const PaymentSummaryCard = ({
 
   const appliedCouponCode = draftCouponCode ?? couponCode;
 
-  const selectedShippingMethodName = availableShippingMethods.find(
-    (method) => String(method.id) === shippingMethodId,
-  )?.name ?? shippingMethodName;
+  const selectedShippingMethodName =
+    availableShippingMethods.find((method) => String(method.id) === shippingMethodId)?.name ??
+    shippingMethodName;
 
   const itemsCount = amounts?.itemsCount;
   const subtotalDisplay = amounts?.subtotal ?? EMPTY_AMOUNT;
@@ -72,7 +72,9 @@ const PaymentSummaryCard = ({
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
-        <CardTitle><Text variant="heading6">{__('Payment', 'kirki-ecommerce')}</Text></CardTitle>
+        <CardTitle>
+          <Text variant="heading6">{__('Payment', 'kirki-ecommerce')}</Text>
+        </CardTitle>
         <Flex gap={2} align="center">
           {isCalculating && <Spinner />}
           {badge}
@@ -87,7 +89,9 @@ const PaymentSummaryCard = ({
             {isDefined(itemsCount) && itemsCount > 0 ? (
               <Flex justify="space-between" grow={1}>
                 {/* translators: %s: number of items */}
-                <Text variant="small" color="secondary">{sprintf(__('%s items', 'kirki-ecommerce'), itemsCount)}</Text>
+                <Text variant="small" color="secondary">
+                  {sprintf(__('%s items', 'kirki-ecommerce'), itemsCount)}
+                </Text>
                 <Text>{subtotalDisplay}</Text>
               </Flex>
             ) : (
@@ -99,8 +103,10 @@ const PaymentSummaryCard = ({
               <DiscountPopover>
                 <Button variant="link" cssOverride={styles.buttonLink}>
                   <Flex gap={1} align="center" cssOverride={styles.info}>
-                    <PlusCircleIcon color={theme.colors.text.emphasis} />
-                    <Text variant="tiny" color="emphasis">{__('Discount', 'kirki-ecommerce')}</Text>
+                    <PlusCircle color={theme.colors.text.emphasis} size={16} />
+                    <Text variant="tiny" color="emphasis" weight="medium">
+                      {__('Discount', 'kirki-ecommerce')}
+                    </Text>
                   </Flex>
                 </Button>
               </DiscountPopover>
@@ -110,7 +116,9 @@ const PaymentSummaryCard = ({
               </Text>
             )}
             <Flex justify="space-between" grow={1}>
-              <Text variant="small" color="secondary">{appliedCouponCode}</Text>
+              <Text variant="small" color="secondary">
+                {appliedCouponCode}
+              </Text>
               <Text variant="small">{discountDisplay}</Text>
             </Flex>
           </Flex>
@@ -122,18 +130,22 @@ const PaymentSummaryCard = ({
               >
                 <Button variant="link" cssOverride={styles.buttonLink}>
                   <Flex gap={1} align="center" cssOverride={styles.info}>
-                    <PlusCircleIcon color={theme.colors.text.emphasis} />
-                    <Text variant="tiny" color="emphasis">{__('Shipping', 'kirki-ecommerce')}</Text>
+                    <PlusCircle color={theme.colors.text.emphasis} size={16} />
+                    <Text variant="tiny" color="emphasis" weight="medium">
+                      {__('Shipping', 'kirki-ecommerce')}
+                    </Text>
                   </Flex>
                 </Button>
               </ShippingPopover>
             ) : (
-              <Text variant="tiny" color="emphasis" cssOverride={styles.info}>
+              <Text variant="tiny" color="emphasis" weight="medium" cssOverride={styles.info}>
                 {__('Shipping', 'kirki-ecommerce')}
               </Text>
             )}
             <Flex justify="space-between" grow={1}>
-              <Text variant="small" color="secondary">{selectedShippingMethodName}</Text>
+              <Text variant="small" color="secondary">
+                {selectedShippingMethodName}
+              </Text>
               <Text variant="small">{shippingDisplay}</Text>
             </Flex>
           </Flex>
@@ -145,8 +157,12 @@ const PaymentSummaryCard = ({
           </Flex>
           <Separator />
           <Flex justify="space-between">
-            <Text variant="small" weight="semibold">{__('Total', 'kirki-ecommerce')}</Text>
-            <Text variant="small" weight="semibold">{totalDisplay}</Text>
+            <Text variant="small" weight="semibold">
+              {__('Total', 'kirki-ecommerce')}
+            </Text>
+            <Text variant="small" weight="semibold">
+              {totalDisplay}
+            </Text>
           </Flex>
         </Flex>
       </CardContent>

@@ -20,7 +20,6 @@ $billing_country = $billing_address["country"] ?? '';
 $billing_postal_code = $billing_address["postal_code"] ?? '';
 
 $billing_phone = $billing_address["phone"] ?? '';
-$billing_email = $billing_address["email"] ?? '';
 ?>
 
 <!-- Billing Form -->
@@ -37,7 +36,6 @@ $billing_email = $billing_address["email"] ?? '';
             state: '<?php echo esc_js($billing_state); ?>',
             postal_code: '<?php echo esc_js($billing_postal_code); ?>',
             phone: '<?php echo esc_js($billing_phone); ?>',
-            email: '<?php echo esc_js($billing_email); ?>'
         },
         mode: 'onChange'
    })" :inert="billingSameAsShipping" x-on:kecom:billing-form:validate.window="await validateForm(); $dispatch('kecom:billing-form:validated', { isValid })">
@@ -137,18 +135,8 @@ $billing_email = $billing_address["email"] ?? '';
                 type="tel"
                 id="billing-phone"
                 name="phone"
-                x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
+                x-bind="register('phone')">
             <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
-        </div>
-        <div class="kecom-field" x-bind="fieldWrapper('email')">
-            <label class="kecom-field-label" for="billing-email"><?php esc_html_e('Email Address', 'kirki-ecommerce'); ?></label>
-            <input
-                class="kecom-input"
-                type="email"
-                id="billing-email"
-                name="email"
-                x-bind="register('email', { required: '<?php esc_html_e('Email address is required', 'kirki-ecommerce'); ?>', email: '<?php esc_html_e('Please enter a valid email address', 'kirki-ecommerce'); ?>' })">
-            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
         </div>
     </form>
 </div>

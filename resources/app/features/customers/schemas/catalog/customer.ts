@@ -8,7 +8,7 @@ export const CustomerAddressSchema = z.object({
   customer_id: z.number().optional(),
   first_name: z.string().optional(),
   last_name: z.string().nullish(),
-  email: z.string().optional(),
+  email: z.string().nullish(),
   phone: z.string().optional(),
   country: z.string().optional(),
   address_line1: z.string().optional(),

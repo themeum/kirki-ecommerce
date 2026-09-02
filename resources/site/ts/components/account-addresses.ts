@@ -233,7 +233,6 @@ export function accountAddresses() {
         { field: 'city', message: __('Town / City is required.', 'kirki-ecommerce') },
         { field: 'postal_code', message: __('Postcode / ZIP is required.', 'kirki-ecommerce') },
         { field: 'phone', message: __('Phone number is required.', 'kirki-ecommerce') },
-        { field: 'email', message: __('Email address is required.', 'kirki-ecommerce') },
       ];
 
       for (const rule of requiredRules) {

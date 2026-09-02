@@ -15,6 +15,10 @@ use function Kirki\Ecommerce\Framework\include_view;
 
 $products = $data['products'] ?? [];
 
-foreach ($products as $product) {
-    include_view('site.shop.parts.product-card', ['product' => $product]);
+if (!empty($products)) {
+    foreach ($products as $product) {
+        include_view('site.shop.parts.product-card', ['product' => $product]);
+    }
+} else {
+    include_view('site.shop.parts.empty');
 }
