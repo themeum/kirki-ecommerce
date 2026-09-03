@@ -2,12 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type ReactNode, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
+import InputGroupField from '@/components/form/input-group-field';
 import SelectField from '@/components/form/select-field';
-import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
-import type { TaxRate } from '@/features/settings/tax/lib/utils';
+import { InputGroupText } from '@/components/ui/input-group';
+import type { CountryTaxRate } from '@/features/settings/tax/lib/utils';
 import {
   type VatCollectionFormInput,
   type VatCollectionFormPayload,
@@ -16,25 +17,25 @@ import {
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
-type VatStateOption = SelectOption & {
+type VatCountryOption = SelectOption & {
   leftIcon?: ReactNode;
 };
 
 type VatCollectionPopupProps = {
   openPopup: boolean;
   setOpenPopup: (open: boolean) => void;
-  statesOption: VatStateOption[];
-  onAdd: (item: TaxRate, index?: number | null) => void;
+  countryOptions: VatCountryOption[];
+  onAdd: (item: CountryTaxRate, index?: number | null) => void;
   editIndex: number | null;
   setEditIndex: (index: number | null) => void;
-  vatCollectionList: TaxRate[];
+  vatCollectionList: CountryTaxRate[];
 };
 
 const VatCollectionPopup = (props: VatCollectionPopupProps) => {
   const {
     openPopup,
     setOpenPopup,
-    statesOption,
+    countryOptions,
     onAdd,
     editIndex,
     setEditIndex,
@@ -44,13 +45,14 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
   const form = useForm<VatCollectionFormInput, unknown, VatCollectionFormPayload>({
     resolver: zodResolver(VatCollectionFormSchema),
     defaultValues: {
-      state: '',
-      rate: '',
+      code: '',
+      name: '',
       flag: '',
+      rate: '',
     },
   });
 
-  const stateValue = form.watch('state');
+  const codeValue = form.watch('code');
   const rateValue = form.watch('rate');
 
   useEffect(() => {
@@ -61,14 +63,15 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
     if (typeof editIndex === 'number' && vatCollectionList?.[editIndex]) {
       const item = vatCollectionList[editIndex];
       form.reset({
-        state: String(item.state),
-        rate: item.rate,
-        flag: item.flag || '',
+        code: String(item.code),
+        name: item.name ?? '',
+        flag: item.flag ?? '',
+        rate: item.rate ?? '',
       });
       return;
     }
 
-    form.reset({ state: '', rate: '', flag: '' });
+    form.reset({ code: '', name: '', flag: '', rate: '' });
   }, [editIndex, vatCollectionList, openPopup, form]);
 
   const handleClose = () => {
@@ -76,12 +79,25 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
     setEditIndex(null);
   };
 
+  /**
+   * The picked country's name and flag are resolved from the option list at
+   * submit time — the form only ever binds the code.
+   */
   const handleSubmit = (payload: VatCollectionFormPayload) => {
-    onAdd(payload, editIndex);
+    const option = countryOptions.find((item) => String(item.value) === payload.code);
+
+    onAdd(
+      {
+        ...payload,
+        name: option?.title ?? payload.name,
+        flag: (option?.leftIcon as string | undefined) ?? payload.flag,
+      },
+      editIndex,
+    );
     setOpenPopup(false);
   };
 
-  const buttonState = stateValue === '' || rateValue === '';
+  const buttonState = codeValue === '' || rateValue === '';
 
   return (
     <Dialog
@@ -100,19 +116,23 @@ const VatCollectionPopup = (props: VatCollectionPopupProps) => {
         <Form {...form}>
           <DialogBody>
             <SelectField
-              name="state"
+              name="code"
               label={__('Select country', 'kirki-ecommerce')}
               placeholder={__('Select', 'kirki-ecommerce')}
-              options={statesOption.map((option) => ({
+              options={countryOptions.map((option) => ({
                 value: String(option.value),
                 label: String(option.title),
                 icon: option.leftIcon,
               }))}
             />
-            <TextField
+            <InputGroupField
               name="rate"
+              type="number"
+              min={0}
+              max={100}
               label={__('VAT (%)', 'kirki-ecommerce')}
-              placeholder="e.g. 20%"
+              placeholder="e.g. 20"
+              endContent={<InputGroupText>%</InputGroupText>}
             />
           </DialogBody>
           <DialogFooter>

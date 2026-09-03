@@ -1,22 +1,31 @@
 import type { ReactNode } from 'react';
-import type { FieldPath } from 'react-hook-form';
+import type { FieldPath, FieldValues } from 'react-hook-form';
 
 import InputGroupField from '@/components/form/input-group-field';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { InputGroupText } from '@/components/ui/input-group';
 import Text from '@/components/ui/text';
-import type { TaxRegionGeneralFormInput } from '@/features/settings/tax/schemas/forms/tax-region-general-form';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
 
-type SingleTaxRateProps = {
+type SingleTaxRateProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> = {
   label: string;
-  name: FieldPath<TaxRegionGeneralFormInput>;
+  name: TName;
   icon?: ReactNode;
 };
 
-const SingleTaxRate = ({ label, name, icon }: SingleTaxRateProps) => {
+const SingleTaxRate = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  label,
+  name,
+  icon,
+}: SingleTaxRateProps<TFieldValues, TName>) => {
   return (
     <Card cssOverride={mergeCss(cardStyles.innerDarkCard)}>
       <CardContent cssOverride={{ width: '100%' }}>

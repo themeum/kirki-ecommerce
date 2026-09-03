@@ -54,6 +54,13 @@ type RegionsDialogProps = {
   from?: 'add' | 'edit' | '';
   enableEuropeanRegion?: boolean;
   disabledRegions?: Region[];
+  /**
+   * Country-only selection: no per-state expander, each picked country
+   * contributes itself with an empty `states` array, and a country that
+   * already has a region is disabled outright. Used by the tax-region add
+   * flow; omitted by shipping zones and coupon targeting.
+   */
+  countryOnly?: boolean;
   onDone: (values: RegionsDialogFormPayload) => void;
   errors?: FormErrors;
 };
@@ -76,6 +83,7 @@ export const RegionsDialog = ({
   from = '',
   enableEuropeanRegion = false,
   disabledRegions,
+  countryOnly = false,
   onDone,
   errors,
 }: RegionsDialogProps) => {
@@ -126,6 +134,10 @@ export const RegionsDialog = ({
     getDisabledStateIds(countryCode).has(String(stateId));
 
   const isCountryFullyDisabled = (country: Country) => {
+    if (countryOnly) {
+      return disabledStateMap.has(country.code);
+    }
+
     const disabledIds = disabledStateMap.get(country.code);
 
     if (!disabledIds) {
@@ -212,7 +224,7 @@ export const RegionsDialog = ({
 
     const selectedRegion = {
       country: country.code,
-      states: allStates.map((state) => state.id),
+      states: countryOnly ? [] : allStates.map((state) => state.id),
       hasDeselectedState: false,
       flag: country?.flag,
     };
@@ -228,7 +240,7 @@ export const RegionsDialog = ({
     form.setValue('countries', nextCountryCodes, { shouldValidate: true });
     form.setValue('regions', nextRegions, { shouldValidate: true });
 
-    if (allStates.length > 0) {
+    if (!countryOnly && allStates.length > 0) {
       setExpandedCountries((prev) =>
         prev.includes(country.code) ? prev : [...prev, country.code],
       );
@@ -240,7 +252,7 @@ export const RegionsDialog = ({
       return;
     }
 
-    if (isEuRegionRow(country.code) || (country.states?.length ?? 0) === 0) {
+    if (countryOnly || isEuRegionRow(country.code) || (country.states?.length ?? 0) === 0) {
       handleSelectCountries(country);
       return;
     }
@@ -384,7 +396,7 @@ export const RegionsDialog = ({
                       const euRow = isEuRegionRow(country.code);
                       const countryDisabled = isCountryFullyDisabled(country);
                       const disabledStateIds = getDisabledStateIds(country.code);
-                      const hasStates = (country?.states?.length ?? 0) > 0;
+                      const hasStates = !countryOnly && (country?.states?.length ?? 0) > 0;
                       const selectedStateCount = regionInfo?.states?.length ?? 0;
                       const hasDisabledStates = !countryDisabled && disabledStateIds.size > 0;
                       const isExpanded =

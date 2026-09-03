@@ -276,25 +276,20 @@ class SettingsSeeder extends Seeder
                     [
                         "code" => "EU",
                         "name" => "European Union",
+                        "flag" => "🇪🇺",
                         "is_enabled" => true,
                         "type" => "oss",
-                        "product_tax" => [
+                        "countries" => [
                             [
-                                "country" => "AT",
+                                "code" => "AT",
+                                "name" => "Austria",
+                                "flag" => "🇦🇹",
                                 "rate" => 20
                             ],
                             [
-                                "country" => "BE",
-                                "rate" => 21
-                            ]
-                        ],
-                        "shipping_tax" => [
-                            [
-                                "country" => "AT",
-                                "rate" => 20
-                            ],
-                            [
-                                "country" => "BE",
+                                "code" => "BE",
+                                "name" => "Belgium",
+                                "flag" => "🇧🇪",
                                 "rate" => 21
                             ]
                         ],
@@ -318,44 +313,40 @@ class SettingsSeeder extends Seeder
                     [
                         "code" => "BD",
                         "name" => "Bangladesh",
+                        "flag" => "🇧🇩",
                         "is_enabled" => true,
-                        "is_central_tax_enabled" => true,
-                        "central_product_tax" => 20,
-                        "central_shipping_tax" => 20,
-                        "product_tax" => [
+                        "type" => null,
+                        "is_central_tax_enabled" => false,
+                        "rules" => [],
+                        "states" => [
                             [
-                                "state" => "1200",
-                                "rate" => 20
-                            ],
-                            [
-                                "state" => "1250",
-                                "rate" => 21
-                            ]
-                        ],
-                        "shipping_tax" => [
-                            [
-                                "state" => "1200",
-                                "rate" => 20
-                            ],
-                            [
-                                "state" => "1250",
-                                "rate" => 21
-                            ]
-                        ],
-                        "rules" => [
-                            [
-                                "relation" => "AND",
-                                "conditions" => [
+                                "id" => "771",
+                                "name" => "Dhaka District",
+                                "product_tax_rate" => 20,
+                                "shipping_tax_rate" => 5,
+                                "rules" => [
                                     [
-                                        "type" => "shipping_profile",
-                                        "operator" => "=",
-                                        "value" => "laptop"
+                                        "relation" => "AND",
+                                        "conditions" => [
+                                            [
+                                                "type" => "shipping_profile",
+                                                "operator" => "=",
+                                                "value" => "laptop"
+                                            ]
+                                        ],
+                                        "action" => [
+                                            "type" => "set_product_tax_rate",
+                                            "value" => 5
+                                        ]
                                     ]
-                                ],
-                                "action" => [
-                                    "type" => "set_product_tax_rate",
-                                    "value" => 5
                                 ]
+                            ],
+                            [
+                                "id" => "785",
+                                "name" => "Chittagong District",
+                                "product_tax_rate" => 21,
+                                "shipping_tax_rate" => 6,
+                                "rules" => []
                             ]
                         ]
                     ]

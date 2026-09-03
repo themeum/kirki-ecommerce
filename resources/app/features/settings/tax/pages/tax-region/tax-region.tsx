@@ -13,7 +13,11 @@ import Flex from '@/components/ui/flex';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import type { TaxRegion } from '@/features/settings/tax/lib/utils';
+import type {
+  EuTaxRegion,
+  GeneralTaxRegion,
+  TaxRegion,
+} from '@/features/settings/tax/lib/utils';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
@@ -51,21 +55,43 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
 
-  const disabledRegions = useMemo<Region[]>(() => {
-    const euMemberIds = countryList
-      .filter((country) => country.group === 'eu')
-      .map((country) => country.name);
+  const disabledRegions = useMemo<Region[]>(
+    () => taxRegions.map((region) => ({ country: region.code, states: [] })),
+    [taxRegions],
+  );
 
-    return taxRegions.map((region) => ({
-      country: region.code,
-      states:
-        region.code === 'EU'
-          ? euMemberIds
-          : (countryList.find((country) => country.code === region.code)?.states ?? []).map(
-              (state) => state.id,
-            ),
-    }));
-  }, [countryList, taxRegions]);
+  /**
+   * The country dataset is authoritative whenever the code is known; the
+   * persisted `name`/`flag` are only a fallback for a code it doesn't carry.
+   */
+  const resolveRegionMeta = (region: TaxRegion) => {
+    if (region.code === 'EU') {
+      return { name: __('European Union', 'kirki-ecommerce'), flag: '🇪🇺' };
+    }
+    const country = countryList.find((item) => item.code === region.code);
+    return {
+      name: country?.name ?? region.name ?? region.code,
+      flag: country?.flag ?? region.flag ?? '',
+    };
+  };
+
+  const resolveRegionSummary = (region: TaxRegion) => {
+    if (region.code === 'EU') {
+      const countryCount = (region as EuTaxRegion).countries?.length ?? 0;
+      /* translators: %d: number of member countries */
+      return sprintf(_n('%d country', '%d countries', countryCount, 'kirki-ecommerce'), countryCount);
+    }
+
+    const general = region as GeneralTaxRegion;
+    const stateCount = general.states?.length ?? 0;
+
+    if (general.is_central_tax_enabled || stateCount === 0) {
+      return __('Entire country', 'kirki-ecommerce');
+    }
+
+    /* translators: %d: number of states */
+    return sprintf(_n('%d state', '%d states', stateCount, 'kirki-ecommerce'), stateCount);
+  };
 
   const popupErrors = {
     ...(formState.errors.tax_regions?.message
@@ -129,35 +155,31 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
     const updatedRegions: TaxRegion[] = values.regions.map((region) => {
       const isEU = region.country === 'EU';
+
+      if (isEU) {
+        return {
+          code: 'EU',
+          name: __('European Union', 'kirki-ecommerce'),
+          flag: '🇪🇺',
+          is_enabled: true,
+          type: 'oss',
+          countries: [],
+          rules: [],
+        };
+      }
+
       const country = countryList.find((item) => item.code === region.country);
-      const stateSource = isEU
-        ? countryList
-            .filter((item) => item.group === 'eu')
-            .map((item) => ({
-              id: item.name,
-              name: item.name,
-              code: item.code,
-              flag: item.flag,
-            }))
-        : (country?.states ?? []);
 
       return {
         code: region.country,
-        name: isEU ? __('European Union', 'kirki-ecommerce') : (country?.name ?? region.country),
+        name: country?.name,
+        flag: country?.flag,
         is_enabled: true,
-        states: region.states.map((stateId) => {
-          const match = stateSource.find((state) => state.id === stateId);
-          return {
-            id: stateId,
-            title: String(match?.name ?? stateId),
-            flag: match?.flag ?? '',
-            ...(isEU ? { code: match?.code } : {}),
-          };
-        }),
-        type: isEU ? 'oss' : null,
-        flag: region.flag ?? country?.flag ?? '',
-        product_tax: [],
-        shipping_tax: [],
+        type: null,
+        is_central_tax_enabled: true,
+        central_product_tax: 0,
+        central_shipping_tax: 0,
+        states: [],
         rules: [],
       };
     });
@@ -203,18 +225,21 @@ const TaxRegions = (props: TaxRegionsProps) => {
               </Card>
             ) : (
               <Flex direction="column" gap={3}>
-                {taxRegions.map((item, index) => (
+                {taxRegions.map((item, index) => {
+                  const meta = resolveRegionMeta(item);
+
+                  return (
                   <Card cssOverride={cardStyles.innerCard} key={index}>
                     <CardContent cssOverride={cardStyles.innerContent}>
                       <Flex gap={2} align="flex-start">
-                        <span>{item?.flag}</span>
+                        <span>{meta.flag}</span>
                         <Flex direction="column" gap={1}>
                           <Flex gap={2} align="center">
                             <Text
                               weight="medium"
                               color={!item?.is_enabled ? 'disabled' : 'primary'}
                             >
-                              {item?.name}
+                              {meta.name}
                             </Text>
                             {!item?.is_enabled && (
                               <Badge variant="destructive">
@@ -223,18 +248,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                             )}
                           </Flex>
                           <Text variant="small" color="secondary">
-                            {item?.states?.length
-                              ? /* translators: %d: number of states */
-                                sprintf(
-                                  _n(
-                                    '%d state',
-                                    '%d states',
-                                    item.states.length,
-                                    'kirki-ecommerce',
-                                  ),
-                                  item.states.length,
-                                )
-                              : __('Entire country', 'kirki-ecommerce')}
+                            {resolveRegionSummary(item)}
                           </Text>
                         </Flex>
                         <ActionGroup
@@ -274,7 +288,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
                       </Flex>
                     </CardContent>
                   </Card>
-                ))}
+                  );
+                })}
               </Flex>
             )}
           </div>
@@ -285,6 +300,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
         onOpenChange={setShowPopup}
         countries={countryList}
         enableEuropeanRegion
+        countryOnly
         disabledRegions={disabledRegions}
         from="edit"
         dialogTitle={__('Add tax region', 'kirki-ecommerce')}

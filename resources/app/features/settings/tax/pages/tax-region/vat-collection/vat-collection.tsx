@@ -8,62 +8,51 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import type { TaxRate, TaxRegion } from '@/features/settings/tax/lib/utils';
+import type { CountryTaxRate, TaxRegionState } from '@/features/settings/tax/lib/utils';
 import VatCollectionPopup from '@/features/settings/tax/pages/tax-region/vat-collection/vat-collection-dialog';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
-type VatStateOption = SelectOption & {
+type VatCountryOption = SelectOption & {
   leftIcon?: ReactNode;
 };
 
 type VatCollectionProps = {
-  region?: TaxRegion;
+  memberCountries: TaxRegionState[];
   process: string;
-  vatCollectionList: TaxRate[];
-  setVatCollectionList: Dispatch<SetStateAction<TaxRate[]>>;
-  updateVatCollection: (
-    vatList: TaxRate[],
-    from?: string,
-  ) => void | Promise<void>;
+  vatCollectionList: CountryTaxRate[];
+  setVatCollectionList: Dispatch<SetStateAction<CountryTaxRate[]>>;
+  updateVatCollection: (vatList: CountryTaxRate[], from?: string) => void | Promise<void>;
 };
 
 export const VatCollection = (props: VatCollectionProps) => {
-  const {
-    region,
-    process,
-    vatCollectionList,
-    setVatCollectionList,
-    updateVatCollection,
-  } = props;
+  const { memberCountries, process, vatCollectionList, setVatCollectionList, updateVatCollection } =
+    props;
   const [showVatCollectionPopup, setShowVatCollectionPopup] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
-  const disableAddVatButton =
-    process !== 'oss' && vatCollectionList?.length >= 1;
+  const disableAddVatButton = process !== 'oss' && vatCollectionList?.length >= 1;
 
-  const filteredStatesOption: VatStateOption[] = Array.isArray(region?.states)
-    ? region.states
-      .filter((state) => {
-        if (editIndex === null || editIndex === undefined) {
-          return !vatCollectionList.some((vat) => vat.state === state?.id);
-        }
+  const filteredCountryOptions: VatCountryOption[] = memberCountries
+    .filter((country) => {
+      const code = country.code ?? String(country.id);
 
-        return !vatCollectionList.some(
-          (vat, index) => index !== editIndex && vat.state === state?.id,
-        );
-      })
-      .map((state) => ({
-        title: String(state?.id),
-        value: state?.id,
-        leftIcon: state?.flag,
-      }))
-    : [];
+      if (editIndex === null || editIndex === undefined) {
+        return !vatCollectionList.some((vat) => vat.code === code);
+      }
 
-  const handleAddOrUpdateVAT = (newItem: TaxRate, index?: number | null) => {
+      return !vatCollectionList.some((vat, index) => index !== editIndex && vat.code === code);
+    })
+    .map((country) => ({
+      title: country.name ?? country.code ?? String(country.id),
+      value: country.code ?? String(country.id),
+      leftIcon: country.flag,
+    }));
+
+  const handleAddOrUpdateVAT = (newItem: CountryTaxRate, index?: number | null) => {
     setVatCollectionList((prev) => {
       const safePrev = Array.isArray(prev) ? prev : [];
       const updatedList =
@@ -84,15 +73,10 @@ export const VatCollection = (props: VatCollectionProps) => {
     setShowVatCollectionPopup(true);
   };
 
-  const handleDeleteItem = (itemToDelete: TaxRate) => {
-    const initialList = Array.isArray(vatCollectionList)
-      ? [...vatCollectionList]
-      : [];
+  const handleDeleteItem = (itemToDelete: CountryTaxRate) => {
+    const initialList = Array.isArray(vatCollectionList) ? [...vatCollectionList] : [];
 
-    const updatedList = initialList.filter(
-      (item) =>
-        item.state !== itemToDelete.state || item.rate !== itemToDelete.rate,
-    );
+    const updatedList = initialList.filter((item) => item.code !== itemToDelete.code);
     setVatCollectionList(updatedList);
     toast(__('VAT collection deleted', 'kirki-ecommerce'), {
       duration: 5000,
@@ -108,68 +92,77 @@ export const VatCollection = (props: VatCollectionProps) => {
     });
   };
 
-  const getFlagForState = (stateName: string | number) => {
-    const country = region?.states?.find((region) => region.id === stateName);
-    return country?.flag || '';
+  /**
+   * The persisted copy is a fallback only — the country dataset is refreshed
+   * from whenever the code is known.
+   */
+  const resolveCountryMeta = (item: CountryTaxRate) => {
+    const member = memberCountries.find((country) => country.code === item.code);
+    return {
+      name: member?.name ?? item.name ?? item.code,
+      flag: member?.flag ?? item.flag ?? '',
+    };
   };
 
   return (
     <div>
       <Card cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <HeaderActionsCard
             header={__('VAT Collection', 'kirki-ecommerce')}
-            subHeader={__(
-              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
-              'kirki-ecommerce',
-            )}
+            subHeader={__('Set VAT rates by country for sales to EU customers.', 'kirki-ecommerce')}
             buttonText={__('Collect VAT', 'kirki-ecommerce')}
             hideButton={disableAddVatButton}
             onAdd={() => setShowVatCollectionPopup(true)}
           />
           <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
-            {vatCollectionList?.map((item, index) => (
-              <Card
-                key={index}
-                cssOverride={mergeCss(cardStyles.innerCard)}
-              >
-                <CardContent cssOverride={{ ...cardStyles.innerContent, width: '100%' }}>
-                  <Flex justify="space-between">
-                    <Flex gap={2} align="center">
+            {vatCollectionList?.map((item, index) => {
+              const meta = resolveCountryMeta(item);
+
+              return (
+                <Card key={item.code ?? index} cssOverride={mergeCss(cardStyles.innerCard)}>
+                  <CardContent cssOverride={{ ...cardStyles.innerContent, width: '100%' }}>
+                    <Flex justify="space-between">
                       <Flex gap={2} align="center">
-                        {getFlagForState(item?.state ?? '')}
-                        <Text>{item?.state}</Text>
+                        <Flex gap={2} align="center">
+                          {meta.flag}
+                          <Text>{meta.name}</Text>
+                        </Flex>
+                        <Text cssOverride={mergeCss(styles.vatText)}>
+                          {sprintf(
+                            /* translators: %s: VAT rate */
+                            __('%s%% VAT', 'kirki-ecommerce'),
+                            item?.rate ?? 0,
+                          )}
+                        </Text>
                       </Flex>
-                      <Text cssOverride={mergeCss(styles.vatText)}>
-                        {`${item?.rate}%`}
-                      </Text>
+                      <Flex gap={2} cssOverride={mergeCss(styles.vatActions)}>
+                        <Button
+                          variant="outline"
+                          size="icon-sm"
+                          onClick={() => handleDeleteItem(item)}
+                        >
+                          <Trash2 />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleEditVatRate(index)}
+                          size="sm"
+                        >
+                          {__('Edit Rates', 'kirki-ecommerce')}
+                        </Button>
+                      </Flex>
                     </Flex>
-                    <Flex gap={2} cssOverride={mergeCss(styles.vatActions)}>
-                      <Button
-                        variant="outline"
-                        size="icon-sm"
-                        onClick={() => handleDeleteItem(item)}
-                      >
-                        <Trash2 />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => handleEditVatRate(index)}
-                        size="sm"
-                      >
-                        {__('Edit Rates', 'kirki-ecommerce')}
-                      </Button>
-                    </Flex>
-                  </Flex>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </Flex>
         </CardContent>
       </Card>
       {showVatCollectionPopup && (
         <VatCollectionPopup
-          statesOption={filteredStatesOption}
+          countryOptions={filteredCountryOptions}
           openPopup={showVatCollectionPopup}
           setOpenPopup={setShowVatCollectionPopup}
           onAdd={handleAddOrUpdateVAT}

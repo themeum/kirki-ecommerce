@@ -18,6 +18,9 @@ const CheckoutSettings = lazy(() => import('@/features/settings/checkout/pages/c
 const EditTemplate = lazy(() => import('@/features/settings/email/pages/edit-template'));
 const GeneralEditRegion = lazy(() => import('@/features/settings/tax/pages/tax-region/general-edit-region'));
 const EditRegionEU = lazy(() => import('@/features/settings/tax/pages/tax-region/edit-region-eu'));
+const GeneralEditRegionState = lazy(
+  () => import('@/features/settings/tax/pages/tax-region/general-edit-region-state'),
+);
 const EssentialsSettings = lazy(() => import('@/features/settings/essentials/pages/essential-settings'));
 const ColorVariation = lazy(() => import('@/features/settings/essentials/pages/variation-library/color-variation'));
 const ListVariation = lazy(() => import('@/features/settings/essentials/pages/variation-library/list-variation'));
@@ -73,6 +76,10 @@ const settingsRoutes: RouteObject[] = [
       {
         path: SettingsRoutes.get('TaxSettings').get('EditTaxRegion').template,
         element: withSuspense(GeneralEditRegion),
+      },
+      {
+        path: SettingsRoutes.get('TaxSettings').get('EditTaxRegionState').template,
+        element: withSuspense(GeneralEditRegionState),
       },
       { path: SettingsRoutes.get('EmailSettings').template, element: withSuspense(EmailSettings) },
       {

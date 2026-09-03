@@ -14,46 +14,62 @@ use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
-use Kirki\Ecommerce\Framework\Validation\Rule;
 
 class SettingsUpdateRequest extends Request
 {
     protected function prepare_for_validation()
     {
-        if ($this->get_string('key') !== OptionKeys::SHIPPING_SETTINGS) {
-            return;
-        }
-
         $data = $this->input('data');
 
-        if (!is_array($data) || !isset($data['shipping_zones']) || !is_array($data['shipping_zones'])) {
-            return;
-        }
-
-        foreach ($data['shipping_zones'] as $zone_index => $zone) {
-            if (!is_array($zone) || !isset($zone['shipping_methods']) || !is_array($zone['shipping_methods'])) {
-                continue;
-            }
-
-            foreach ($zone['shipping_methods'] as $method_index => $method) {
-                if (!is_array($method)) {
-                    continue;
+        switch ($this->get_string('key')) {
+            case OptionKeys::SHIPPING_SETTINGS:
+                if (!is_array($data) || !isset($data['shipping_zones']) || !is_array($data['shipping_zones'])) {
+                    return;
                 }
 
-                foreach (['base_amount', 'base_free_shipping_min_amount'] as $field) {
-                    if (array_key_exists($field, $method) && !empty($method[$field])) {
-                        $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index][$field] = Money::to_minor($method[$field]);
+                foreach ($data['shipping_zones'] as $zone_index => $zone) {
+                    if (!is_array($zone) || !isset($zone['shipping_methods']) || !is_array($zone['shipping_methods'])) {
+                        continue;
                     }
-                }
 
-                if (isset($method['ranges']) && is_array($method['ranges'])) {
-                    foreach ($method['ranges'] as $range_index => $range) {
-                        if (is_array($range) && array_key_exists('base_amount', $range) && !empty($range['base_amount'])) {
-                            $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index]['ranges'][$range_index]['base_amount'] = Money::to_minor($range['base_amount']);
+                    foreach ($zone['shipping_methods'] as $method_index => $method) {
+                        if (!is_array($method)) {
+                            continue;
+                        }
+
+                        foreach (['base_amount', 'base_free_shipping_min_amount'] as $field) {
+                            if (array_key_exists($field, $method) && !empty($method[$field])) {
+                                $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index][$field] = Money::to_minor($method[$field]);
+                            }
+                        }
+
+                        if (isset($method['ranges']) && is_array($method['ranges'])) {
+                            foreach ($method['ranges'] as $range_index => $range) {
+                                if (is_array($range) && array_key_exists('base_amount', $range) && !empty($range['base_amount'])) {
+                                    $data['shipping_zones'][$zone_index]['shipping_methods'][$method_index]['ranges'][$range_index]['base_amount'] = Money::to_minor($range['base_amount']);
+                                }
+                            }
                         }
                     }
                 }
-            }
+                break;
+            case OptionKeys::TAX_SETTINGS:
+                if (!is_array($data) || !isset($data['tax_regions']) || !is_array($data['tax_regions'])) {
+                    return;
+                }
+
+                foreach ($data['tax_regions'] as $index => $region) {
+                    if (!is_array($region) || ($region['code'] ?? null) === 'EU') {
+                        continue;
+                    }
+
+                    if (Sanitizer::apply_rule($region['is_central_tax_enabled'] ?? false, Sanitizer::BOOL)) {
+                        $data['tax_regions'][$index]['states'] = [];
+                    }
+                }
+                break;
+            default:
+                return;
         }
 
         $this->merge(['data' => $data]);
@@ -390,76 +406,117 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
-    protected function get_tax_settings_rules()
+    /**
+     * Validation rules for one tax rule list, applied to both a region's
+     * country-wide rules and a state's per-state rules.
+     *
+     * @param string $prefix Fully qualified path of the rules array.
+     *
+     * @return array
+     */
+    protected function get_tax_rules_rules($prefix)
     {
         return [
-            'data.is_tax_inclusive_price' => 'required|boolean',
-            'data.is_shipping_tax_enabled' => 'required|boolean',
-            'data.is_enabled_taxed_price' => 'required|boolean',
-            'data.tax_regions' => 'nullable|array',
-            'data.tax_regions.*.code' => 'required|string',
-            'data.tax_regions.*.name' => 'required|string',
-            'data.tax_regions.*.is_enabled' => 'required|boolean',
-            'data.tax_regions.*.type' => 'required_if:code,EU|string|nullable',
-            'data.tax_regions.*.is_central_tax_enabled' => 'nullable|boolean',
-            'data.tax_regions.*.central_product_tax' => 'required_if:is_central_tax_enabled,true|number',
-            'data.tax_regions.*.central_shipping_tax' => 'nullable|number',
-            'data.tax_regions.*.product_tax' => 'required_if:code,EU|array',
-            'data.tax_regions.*.product_tax.*.country' => 'required_if:code,EU|string',
-            'data.tax_regions.*.product_tax.*.state' => 'nullable|string',
-            'data.tax_regions.*.product_tax.*.rate' => 'required|number',
-            'data.tax_regions.*.shipping_tax' => 'nullable|array',
-            'data.tax_regions.*.shipping_tax.*.country' => 'required_if:code,EU|string',
-            'data.tax_regions.*.shipping_tax.*.state' => 'nullable|string',
-            'data.tax_regions.*.shipping_tax.*.rate' => 'required|number',
-            'data.tax_regions.*.rules' => 'nullable|array',
-            'data.tax_regions.*.rules.*.relation' => 'required|string',
-            'data.tax_regions.*.rules.*.conditions' => 'required|array',
-            'data.tax_regions.*.rules.*.conditions.*.type' => 'required|string',
-            'data.tax_regions.*.rules.*.conditions.*.operator' => 'required|string',
-            'data.tax_regions.*.rules.*.conditions.*.value' => 'required',
-            'data.tax_regions.*.rules.*.action' => 'required|array',
-            'data.tax_regions.*.rules.*.action.type' => 'required|string',
-            'data.tax_regions.*.rules.*.action.value' => 'nullable',
-            'data.tax_services' => 'nullable|array',
-            'data.tax_ids' => 'nullable|array',
+            $prefix => 'nullable|array',
+            $prefix . '.*.relation' => 'required|string',
+            $prefix . '.*.conditions' => 'required|array',
+            $prefix . '.*.conditions.*.type' => 'required|string',
+            $prefix . '.*.conditions.*.operator' => 'required|string',
+            $prefix . '.*.conditions.*.value' => 'required',
+            $prefix . '.*.action' => 'required|array',
+            $prefix . '.*.action.type' => 'required|string',
+            $prefix . '.*.action.value' => 'nullable',
+        ];
+    }
+
+    protected function get_tax_settings_rules()
+    {
+        return array_merge(
+            [
+                'data.is_tax_inclusive_price' => 'required|boolean',
+                'data.is_shipping_tax_enabled' => 'required|boolean',
+                'data.is_enabled_taxed_price' => 'required|boolean',
+                'data.tax_regions' => 'nullable|array',
+                'data.tax_regions.*.code' => 'required|string',
+                'data.tax_regions.*.name' => 'nullable|string',
+                'data.tax_regions.*.flag' => 'nullable|string',
+                'data.tax_regions.*.is_enabled' => 'required|boolean',
+                'data.tax_regions.*.type' => 'nullable|string',
+                'data.tax_regions.*.is_central_tax_enabled' => 'nullable|boolean',
+                'data.tax_regions.*.central_product_tax' => 'nullable|number',
+                'data.tax_regions.*.central_shipping_tax' => 'nullable|number',
+                'data.tax_regions.*.states' => 'nullable|array',
+                'data.tax_regions.*.states.*.id' => 'required|string',
+                'data.tax_regions.*.states.*.name' => 'nullable|string',
+                'data.tax_regions.*.states.*.product_tax_rate' => 'required|number',
+                'data.tax_regions.*.states.*.shipping_tax_rate' => 'required|number',
+                'data.tax_regions.*.countries' => 'nullable|array',
+                'data.tax_regions.*.countries.*.code' => 'required|string',
+                'data.tax_regions.*.countries.*.name' => 'nullable|string',
+                'data.tax_regions.*.countries.*.flag' => 'nullable|string',
+                'data.tax_regions.*.countries.*.rate' => 'required|number',
+                'data.tax_services' => 'nullable|array',
+                'data.tax_ids' => 'nullable|array',
+            ],
+            $this->get_tax_rules_rules('data.tax_regions.*.rules'),
+            $this->get_tax_rules_rules('data.tax_regions.*.states.*.rules')
+        );
+    }
+
+    /**
+     * Sanitizers for one tax rule list, mirroring {@see static::get_tax_rules_rules()}.
+     *
+     * @param string $prefix Fully qualified path of the rules array.
+     *
+     * @return array
+     */
+    protected function get_tax_rules_filters($prefix)
+    {
+        return [
+            $prefix => Sanitizer::ARRAY,
+            $prefix . '.*.relation' => Sanitizer::TEXT,
+            $prefix . '.*.conditions' => Sanitizer::ARRAY,
+            $prefix . '.*.conditions.*.type' => Sanitizer::TEXT,
+            $prefix . '.*.conditions.*.operator' => Sanitizer::TEXT,
+            $prefix . '.*.conditions.*.value' => Sanitizer::ANY,
+            $prefix . '.*.action' => Sanitizer::ARRAY,
+            $prefix . '.*.action.type' => Sanitizer::TEXT,
+            $prefix . '.*.action.value' => Sanitizer::ANY,
         ];
     }
 
     protected function get_tax_settings_filters()
     {
-        return [
-            'data.is_tax_inclusive_price' => Sanitizer::BOOL,
-            'data.is_shipping_tax_enabled' => Sanitizer::BOOL,
-            'data.is_enabled_taxed_price' => Sanitizer::BOOL,
-            'data.tax_regions' => Sanitizer::ARRAY,
-            'data.tax_regions.*.code' => Sanitizer::TEXT,
-            'data.tax_regions.*.name' => Sanitizer::TEXT,
-            'data.tax_regions.*.is_enabled' => Sanitizer::BOOL,
-            'data.tax_regions.*.type' => Sanitizer::TEXT,
-            'data.tax_regions.*.is_central_tax_enabled' => Sanitizer::BOOL,
-            'data.tax_regions.*.central_product_tax' => Sanitizer::FLOAT,
-            'data.tax_regions.*.central_shipping_tax' => Sanitizer::FLOAT,
-            'data.tax_regions.*.product_tax' => Sanitizer::ARRAY,
-            'data.tax_regions.*.product_tax.*.country' => Sanitizer::TEXT,
-            'data.tax_regions.*.product_tax.*.state' => Sanitizer::TEXT,
-            'data.tax_regions.*.product_tax.*.rate' => Sanitizer::FLOAT,
-            'data.tax_regions.*.shipping_tax' => Sanitizer::ARRAY,
-            'data.tax_regions.*.shipping_tax.*.country' => Sanitizer::TEXT,
-            'data.tax_regions.*.shipping_tax.*.state' => Sanitizer::TEXT,
-            'data.tax_regions.*.shipping_tax.*.rate' => Sanitizer::FLOAT,
-            'data.tax_regions.*.rules' => Sanitizer::ARRAY,
-            'data.tax_regions.*.rules.*.relation' => Sanitizer::TEXT,
-            'data.tax_regions.*.rules.*.conditions' => Sanitizer::ARRAY,
-            'data.tax_regions.*.rules.*.conditions.*.type' => Sanitizer::TEXT,
-            'data.tax_regions.*.rules.*.conditions.*.operator' => Sanitizer::TEXT,
-            'data.tax_regions.*.rules.*.conditions.*.value' => Sanitizer::ANY,
-            'data.tax_regions.*.rules.*.action' => Sanitizer::ARRAY,
-            'data.tax_regions.*.rules.*.action.type' => Sanitizer::TEXT,
-            'data.tax_regions.*.rules.*.action.value' => Sanitizer::ANY,
-            'data.tax_services' => Sanitizer::ARRAY,
-            'data.tax_ids' => Sanitizer::ARRAY,
-        ];
+        return array_merge(
+            [
+                'data.is_tax_inclusive_price' => Sanitizer::BOOL,
+                'data.is_shipping_tax_enabled' => Sanitizer::BOOL,
+                'data.is_enabled_taxed_price' => Sanitizer::BOOL,
+                'data.tax_regions' => Sanitizer::ARRAY,
+                'data.tax_regions.*.code' => Sanitizer::TEXT,
+                'data.tax_regions.*.name' => Sanitizer::TEXT,
+                'data.tax_regions.*.flag' => Sanitizer::TEXT,
+                'data.tax_regions.*.is_enabled' => Sanitizer::BOOL,
+                'data.tax_regions.*.type' => Sanitizer::TEXT,
+                'data.tax_regions.*.is_central_tax_enabled' => Sanitizer::BOOL,
+                'data.tax_regions.*.central_product_tax' => Sanitizer::FLOAT,
+                'data.tax_regions.*.central_shipping_tax' => Sanitizer::FLOAT,
+                'data.tax_regions.*.states' => Sanitizer::ARRAY,
+                'data.tax_regions.*.states.*.id' => Sanitizer::TEXT,
+                'data.tax_regions.*.states.*.name' => Sanitizer::TEXT,
+                'data.tax_regions.*.states.*.product_tax_rate' => Sanitizer::FLOAT,
+                'data.tax_regions.*.states.*.shipping_tax_rate' => Sanitizer::FLOAT,
+                'data.tax_regions.*.countries' => Sanitizer::ARRAY,
+                'data.tax_regions.*.countries.*.code' => Sanitizer::TEXT,
+                'data.tax_regions.*.countries.*.name' => Sanitizer::TEXT,
+                'data.tax_regions.*.countries.*.flag' => Sanitizer::TEXT,
+                'data.tax_regions.*.countries.*.rate' => Sanitizer::FLOAT,
+                'data.tax_services' => Sanitizer::ARRAY,
+                'data.tax_ids' => Sanitizer::ARRAY,
+            ],
+            $this->get_tax_rules_filters('data.tax_regions.*.rules'),
+            $this->get_tax_rules_filters('data.tax_regions.*.states.*.rules')
+        );
     }
 
     protected function get_checkout_settings_rules()

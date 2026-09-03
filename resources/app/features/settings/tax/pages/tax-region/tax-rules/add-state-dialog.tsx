@@ -16,7 +16,7 @@ import { type AddStatePopupFormInput, AddStatePopupFormSchema } from '@/features
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { __, sprintf } from '@/wpi18n';
+import { __ } from '@/wpi18n';
 
 type DestinationSelection = string | number;
 
@@ -67,15 +67,22 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
     setSelectedCountries(next);
   };
 
-  const allCountryIds = countryList.map((country) => country?.id);
+  /**
+   * A destination is identified by the state's id or the member country's
+   * code — never its display name, which is what the checkout has to match on.
+   */
+  const destinationIdOf = (item: TaxRegionState): DestinationSelection =>
+    item.code ?? String(item.id);
+
+  const allCountryIds = countryList.map(destinationIdOf);
   const selectAll =
     formSelected.length > 0 && formSelected.length === allCountryIds.length;
 
-  const handleToggleCountry = (countryId: DestinationSelection | undefined) => {
+  const handleToggleCountry = (countryId: DestinationSelection) => {
     const current = form.getValues('selectedCountries');
-    const next = current.includes(countryId!)
+    const next = current.includes(countryId)
       ? current.filter((id) => id !== countryId)
-      : [...current, countryId!];
+      : [...current, countryId];
     syncSelection(next);
   };
 
@@ -141,21 +148,19 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                 </Flex>
 
                 {filteredCountries?.map((country, index) => {
+                  const destinationId = destinationIdOf(country);
+
                   return (
-                    <div key={index} css={scoped(styles.checkboxItemIndented)}>
+                    <div key={destinationId} css={scoped(styles.checkboxItemIndented)}>
                       <Flex gap={2} align="center">
                         <Checkbox
                           id={`add-state-country-${index}`}
-                          checked={formSelected?.includes(
-                            country?.title as DestinationSelection,
-                          )}
-                          onCheckedChange={() =>
-                            handleToggleCountry(country?.title)
-                          }
+                          checked={formSelected?.includes(destinationId)}
+                          onCheckedChange={() => handleToggleCountry(destinationId)}
                         />
                         <Label htmlFor={`add-state-country-${index}`}>
                           {country?.flag}
-                          {sprintf(__('%s', 'kirki-ecommerce'), country?.title ?? '')}
+                          {country?.name ?? country?.title ?? destinationId}
                         </Label>
                       </Flex>
                     </div>

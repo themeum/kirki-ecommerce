@@ -15,6 +15,16 @@ describe('RegionsDialogFormSchema', () => {
     expect(result.title).toBeNull();
   });
 
+  it('accepts a country-only region with no states (RegionsDialog countryOnly mode)', () => {
+    const countryOnly = [{ country: 'US', states: [] }];
+    const result = RegionsDialogFormSchema.safeParse({
+      title: '',
+      countries: ['US'],
+      regions: countryOnly,
+    });
+    expect(result.success).toBe(true);
+  });
+
   it('rejects an empty countries or regions selection', () => {
     expect(RegionsDialogFormSchema.safeParse({ title: '', countries: [], regions }).success).toBe(false);
     expect(RegionsDialogFormSchema.safeParse({ title: '', countries: ['US'], regions: [] }).success).toBe(false);

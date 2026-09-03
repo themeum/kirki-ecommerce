@@ -1,5 +1,5 @@
 {
-  "is_tax_inclusive_price": true,
+  "is_tax_inclusive_price": false,
   "is_enabled_taxed_price": true,
   "is_shipping_tax_enabled": true,
   "tax_regions": [],

@@ -14,17 +14,34 @@ import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import VatProcessField from '@/features/settings/tax/components/fields/vat-process-field';
 import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
-import { applyEuRegionUpdate, applyRegionRules, deriveEuRegion } from '@/features/settings/tax/lib/region-tax';
-import type { TaxRate, TaxRegion, TaxRule } from '@/features/settings/tax/lib/utils';
+import {
+  applyEuRegionUpdate,
+  applyRegionRules,
+  deriveEuRegion,
+} from '@/features/settings/tax/lib/region-tax';
+import type {
+  CountryTaxRate,
+  EuTaxRegion,
+  TaxRegion,
+  TaxRegionState,
+  TaxRule,
+} from '@/features/settings/tax/lib/utils';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import { VatCollection } from '@/features/settings/tax/pages/tax-region/vat-collection/vat-collection';
-import { type TaxRegionEuFormInput, TaxRegionEuFormSchema } from '@/features/settings/tax/schemas/forms/tax-region-eu-form';
-import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax-settings-form';
+import {
+  type TaxRegionEuFormInput,
+  TaxRegionEuFormSchema,
+} from '@/features/settings/tax/schemas/forms/tax-region-eu-form';
+import {
+  type TaxSettingsFormPayload,
+  TaxSettingsFormSchema,
+} from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import TaxRegionSkeleton from '@/features/settings/tax/skeletons/tax-region-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import type { TaxSettings } from '@/schemas/catalog/settings';
+import { useCountriesQuery } from '@/services/country';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
@@ -40,8 +57,7 @@ const EditRegionEU = () => {
   const [regions, setRegions] = useState<TaxRegion[]>([]);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
-  const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation<'tax'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettingsData);
 
@@ -55,17 +71,32 @@ const EditRegionEU = () => {
     control: form.control,
     name: 'type',
   });
-  const watchedProductTax = useWatch({
+  const watchedCountries = useWatch({
     control: form.control,
-    name: 'product_tax',
+    name: 'countries',
   });
-  const vatCollectionList = useMemo(
-    () => watchedProductTax ?? [],
-    [watchedProductTax],
+  const vatCollectionList = useMemo<CountryTaxRate[]>(
+    () => watchedCountries ?? [],
+    [watchedCountries],
+  );
+
+  const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
+
+  /**
+   * Member countries are identified by their code, never their name — the same
+   * key the EU strategy matches a shopper's address on.
+   */
+  const euMemberCountries = useMemo<TaxRegionState[]>(
+    () =>
+      countryList
+        .filter((item) => item.group === 'eu')
+        .map((item) => ({ id: item.code, code: item.code, name: item.name, flag: item.flag })),
+    [countryList],
   );
 
   const euRegion = useMemo(
-    () => deriveEuRegion(regions, vatCollectionProcess, vatCollectionList),
+    () =>
+      deriveEuRegion(regions, vatCollectionProcess, vatCollectionList) as EuTaxRegion | undefined,
     [regions, vatCollectionProcess, vatCollectionList],
   );
 
@@ -76,10 +107,10 @@ const EditRegionEU = () => {
     }
 
     setRegions(regionList);
-    const eu = regionList.find((region) => region.code === 'EU');
+    const eu = regionList.find((region) => region.code === 'EU') as EuTaxRegion | undefined;
     form.reset({
-      type: eu?.type ? String(eu.type) : 'oss',
-      product_tax: eu?.product_tax ?? [],
+      type: eu?.type === 'micro_business' ? 'micro_business' : 'oss',
+      countries: eu?.countries ?? [],
     });
   }, [taxSettingsData, form]);
 
@@ -92,12 +123,12 @@ const EditRegionEU = () => {
     overrides?: Partial<TaxRegion>,
   ): TaxRegion[] => applyEuRegionUpdate(regions, values, overrides);
 
-  const updateEUVatCollection = async (vatList: TaxRate[], from = '') => {
-    form.setValue('product_tax', vatList, {
+  const updateEUVatCollection = async (vatList: CountryTaxRate[], from = '') => {
+    form.setValue('countries', vatList, {
       shouldDirty: from !== 'delete',
     });
     const updatedData = buildUpdatedRegions(form.getValues(), {
-      product_tax: vatList,
+      countries: vatList,
     });
     setRegions(updatedData);
     await handleSaveData(updatedData, from);
@@ -109,10 +140,7 @@ const EditRegionEU = () => {
     await handleSaveData(updatedRules, from);
   };
 
-  const handleSaveData = async (
-    updatedDataObj?: TaxRegion[],
-    from = '',
-  ) => {
+  const handleSaveData = async (updatedDataObj?: TaxRegion[], from = '') => {
     const values = form.getValues();
     const taxRegions = updatedDataObj ?? buildUpdatedRegions(values);
     const currentTaxSettings = TaxSettingsFormSchema.parse(
@@ -120,7 +148,7 @@ const EditRegionEU = () => {
     );
     const payload: TaxSettingsFormPayload = {
       ...currentTaxSettings,
-      tax_regions: taxRegions as TaxSettingsFormPayload['tax_regions'],
+      tax_regions: taxRegions,
     };
 
     if (from === 'delete') {
@@ -166,27 +194,31 @@ const EditRegionEU = () => {
                 onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
-              <Card cssOverride={cardStyles.formCard} >
+              <Card cssOverride={cardStyles.formCard}>
                 <CardContent>
-                  <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
+                  <Text weight="semibold">
+                    {__('How would you like to collect VAT?', 'kirki-ecommerce')}
+                  </Text>
                   <VatProcessField />
                 </CardContent>
               </Card>
 
               <VatCollection
-                region={euRegion}
+                memberCountries={euMemberCountries}
                 process={vatCollectionProcess || 'oss'}
                 vatCollectionList={vatCollectionList}
                 setVatCollectionList={(updater) => {
-                  const next =
-                    typeof updater === 'function'
-                      ? updater(vatCollectionList)
-                      : updater;
-                  form.setValue('product_tax', next, { shouldDirty: true });
+                  const next = typeof updater === 'function' ? updater(vatCollectionList) : updater;
+                  form.setValue('countries', next, { shouldDirty: true });
                 }}
                 updateVatCollection={updateEUVatCollection}
               />
-              <TaxRules region={euRegion} updateTaxRules={updateTaxRules} />
+              <TaxRules
+                rules={euRegion?.rules ?? []}
+                states={euMemberCountries}
+                destinationLabel={__('EU', 'kirki-ecommerce')}
+                updateTaxRules={updateTaxRules}
+              />
             </Flex>
           </Form>
         ) : (

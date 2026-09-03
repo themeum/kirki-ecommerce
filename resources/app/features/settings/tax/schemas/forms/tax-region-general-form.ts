@@ -1,24 +1,41 @@
 import { z } from 'zod';
 
-import { TaxRateSchema } from '@/features/settings/tax/schemas/catalog/tax';
-import { prepareFormSchema } from '@/libs/zod';
+import { StateTaxRateSchema } from '@/features/settings/tax/schemas/catalog/tax';
+import { isEmptyValue, prepareFormSchema, requiredWhen } from '@/libs/zod';
+import { __ } from '@/wpi18n';
+
+const isCentralOn = (values: Record<string, unknown>) => values.is_central_tax_enabled === true;
 
 const TaxRegionGeneralFormShape = z.object({
-  product_tax: z.array(TaxRateSchema).default([]),
-  shipping_tax: z.array(TaxRateSchema).default([]),
-  is_central_tax_enabled: z.boolean().default(false),
-  central_product_tax: z.union([z.number(), z.string()]).default(0),
-  central_shipping_tax: z.union([z.number(), z.string()]).default(0),
+  is_central_tax_enabled: z.boolean().default(true),
+  central_product_tax: requiredWhen(
+    z.union([z.number(), z.string()]).default(0),
+    (values) => isCentralOn(values) && isEmptyValue(values.central_product_tax),
+    __('This field is required', 'kirki-ecommerce'),
+  ),
+  central_shipping_tax: requiredWhen(
+    z.union([z.number(), z.string()]).default(0),
+    (values) => isCentralOn(values) && isEmptyValue(values.central_shipping_tax),
+    __('This field is required', 'kirki-ecommerce'),
+  ),
+  states: requiredWhen(
+    z.array(StateTaxRateSchema).default([]),
+    (values) => !isCentralOn(values) && isEmptyValue(values.states),
+    __('Add at least one state', 'kirki-ecommerce'),
+  ),
 });
 
 export const TaxRegionGeneralFormSchema = prepareFormSchema(TaxRegionGeneralFormShape).transform(
-  (values) => ({
-    product_tax: values.product_tax,
-    shipping_tax: values.shipping_tax,
-    is_central_tax_enabled: values.is_central_tax_enabled,
-    central_product_tax: values.central_product_tax,
-    central_shipping_tax: values.central_shipping_tax,
-  }),
+  (values) => {
+    const central = values.is_central_tax_enabled;
+
+    return {
+      is_central_tax_enabled: central,
+      central_product_tax: Number(values.central_product_tax) || 0,
+      central_shipping_tax: Number(values.central_shipping_tax) || 0,
+      states: central ? [] : (values.states ?? []),
+    };
+  },
 );
 
 export type TaxRegionGeneralFormInput = z.input<typeof TaxRegionGeneralFormSchema>;

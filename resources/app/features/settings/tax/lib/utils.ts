@@ -1,3 +1,11 @@
+import type {
+  CountryTaxRate,
+  EuTaxRegion,
+  GeneralTaxRegion,
+  StateTaxRate,
+  TaxRegion,
+  TaxRule,
+} from '@/features/settings/tax/schemas/catalog/tax';
 import { __ } from '@/wpi18n';
 
 type SelectOption = {
@@ -6,55 +14,16 @@ type SelectOption = {
 };
 
 /**
- * `state` keys a general region's rate, `country` an EU/OSS region's —
- * confirmed against live `GET /settings/tax` data, where neither key is
- * guaranteed (see `schemas/catalog/tax.ts`'s `TaxRateSchema`).
+ * A state/province as shown in the editor. Purely a display shape resolved
+ * from the country dataset (`useCountriesQuery`) at render time — never part
+ * of the persisted region, which stores {@link StateTaxRate} instead.
  */
-type TaxRate = {
-  state?: string;
-  country?: string;
-  rate: number | string;
-  flag?: string;
-};
-
-type TaxRuleCondition = {
-  type: string;
-  operator: string;
-  value: unknown;
-};
-
-type TaxRuleAction = {
-  type: string;
-  value: unknown;
-};
-
-type TaxRule = {
-  relation?: string;
-  conditions: TaxRuleCondition[];
-  action: TaxRuleAction;
-};
-
 type TaxRegionState = {
   id: string | number;
   title?: string;
   name?: string;
   flag?: string;
   code?: string;
-};
-
-type TaxRegion = {
-  code: string;
-  name: string;
-  is_enabled: boolean;
-  states: TaxRegionState[];
-  type?: string | null;
-  flag?: string;
-  product_tax?: TaxRate[];
-  shipping_tax?: TaxRate[];
-  rules?: TaxRule[];
-  central_product_tax?: number | string;
-  central_shipping_tax?: number | string;
-  is_central_tax_enabled?: boolean;
 };
 
 type TaxConditionRow = {
@@ -65,14 +34,15 @@ type TaxConditionRow = {
 };
 
 export type {
+  CountryTaxRate,
+  EuTaxRegion,
+  GeneralTaxRegion,
   SelectOption,
+  StateTaxRate,
   TaxConditionRow,
-  TaxRate,
   TaxRegion,
   TaxRegionState,
   TaxRule,
-  TaxRuleAction,
-  TaxRuleCondition,
 };
 
 export const taxRuleConditionOptions: SelectOption[] = [

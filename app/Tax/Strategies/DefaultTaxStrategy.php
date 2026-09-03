@@ -30,11 +30,12 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
 
         $rate = $this->get_rate($type);
         $amount = Money::from_minor($amount);
+        $rules = $this->get_rules();
 
-        if (!empty($this->settings['rules']) && !empty($context_data)) {
+        if (!empty($rules) && !empty($context_data)) {
             $context_data[$type] = $rate;
             $context = $this->prepare_decision_context($context_data);
-            $context = $this->apply_rules($context, $this->settings['rules']);
+            $context = $this->apply_rules($context, $rules);
 
             $rate = $context->get($type);
         }
@@ -75,26 +76,63 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
      */
     protected function get_rate(string $type): float
     {
-        $is_central_tax_enabled = $this->settings['is_central_tax_enabled'] ?? false;
-
-        if ($is_central_tax_enabled) {
+        if (!empty($this->settings['is_central_tax_enabled'])) {
             $central_key = $type === 'product_tax' ? 'central_product_tax' : 'central_shipping_tax';
-            return $this->settings[$central_key] ?? 0;
+            return (float) ($this->settings[$central_key] ?? 0);
         }
 
-        $rates = $this->settings[$type] ?? [];
-        $state = $this->address['state'] ?? null;
+        $state = $this->get_matched_state();
 
         if (empty($state)) {
             return 0;
         }
 
-        foreach ($rates as $rate_config) {
-            if ($state === $rate_config['state']) {
-                return (float) $rate_config['rate'];
+        $rate_key = $type === 'product_tax' ? 'product_tax_rate' : 'shipping_tax_rate';
+
+        return (float) ($state[$rate_key] ?? 0);
+    }
+
+    /**
+     * The configured state matching the shipping address, keyed by state id.
+     * Always null in central tax mode, where no state is consulted.
+     *
+     * @return array|null
+     */
+    protected function get_matched_state()
+    {
+        if (!empty($this->settings['is_central_tax_enabled'])) {
+            return null;
+        }
+
+        $address_state = (string) ($this->address['state'] ?? '');
+
+        if ($address_state === '') {
+            return null;
+        }
+
+        foreach ($this->settings['states'] ?? [] as $state) {
+            if (is_array($state) && (string) ($state['id'] ?? '') === $address_state) {
+                return $state;
             }
         }
 
-        return 0;
+        return null;
+    }
+
+    /**
+     * The rule set that applies to this address: the region's own rules in central
+     * tax mode, the matched state's rules otherwise. Never both.
+     *
+     * @return array
+     */
+    protected function get_rules(): array
+    {
+        if (!empty($this->settings['is_central_tax_enabled'])) {
+            return $this->settings['rules'] ?? [];
+        }
+
+        $state = $this->get_matched_state();
+
+        return $state['rules'] ?? [];
     }
 }

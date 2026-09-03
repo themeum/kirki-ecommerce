@@ -11,8 +11,9 @@ import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
+import Tooltip from '@/components/ui/tooltip';
 import { getSearchedValue } from '@/features/settings/lib/utils';
-import type { TaxRate, TaxRegionState } from '@/features/settings/tax/lib/utils';
+import type { TaxRegionState } from '@/features/settings/tax/lib/utils';
 import { type AddCitiesPopupFormInput, AddCitiesPopupFormSchema } from '@/features/settings/tax/schemas/forms/add-cities-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -22,9 +23,14 @@ import { __ } from '@/wpi18n';
 type AddCitiesPopupProps = {
   openPopup: boolean;
   setOpenPopup: (open: boolean) => void;
-  taxRates: TaxRate[];
   countryName?: string;
   cityList?: TaxRegionState[];
+  /**
+   * States that already have a rate row. They stay listed — shown checked and
+   * disabled under an "Already in use" tooltip — rather than being filtered
+   * out, so the list reads the same on every visit.
+   */
+  disabledIds?: Set<string>;
   selectedCities: TaxRegionState[];
   setSelectedCities: Dispatch<SetStateAction<TaxRegionState[]>>;
   onAdd: () => void;
@@ -34,9 +40,9 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
   const {
     openPopup,
     setOpenPopup,
-    taxRates,
     countryName,
     cityList,
+    disabledIds,
     selectedCities,
     setSelectedCities,
     onAdd,
@@ -68,34 +74,39 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
     setSelectedCities(next);
   };
 
-  const allCityIds = useMemo(
-    () => cityList?.map((city) => city.id) ?? [],
-    [cityList],
+  const isDisabled = (city: TaxRegionState) => Boolean(disabledIds?.has(String(city.id)));
+
+  /**
+   * Select-all and its partial state count only the states still available —
+   * the disabled ones can never be part of the selection.
+   */
+  const selectableCities = useMemo(
+    () => (cityList ?? []).filter((city) => !disabledIds?.has(String(city.id))),
+    [cityList, disabledIds],
   );
 
   const selectAll =
     formSelectedCities.length > 0 &&
-    formSelectedCities.length === allCityIds.length;
+    formSelectedCities.length === selectableCities.length;
 
   const isPartialChecked =
     formSelectedCities.length > 0 &&
-    formSelectedCities.length < allCityIds.length;
+    formSelectedCities.length < selectableCities.length;
 
   const handleToggleCity = (city: TaxRegionState) => {
+    if (isDisabled(city)) {
+      return;
+    }
+
     const current = form.getValues('selectedCities') as TaxRegionState[];
-    const exists = current.some((c) => c.id === city.id);
+    const exists = current.some((c) => String(c.id) === String(city.id));
     const next = exists
-      ? current.filter((c) => c.id !== city.id)
+      ? current.filter((c) => String(c.id) !== String(city.id))
       : [...current, city];
     syncSelection(next);
   };
 
-  const filteredCities = getSearchedValue(
-    searchValue,
-    (cityList ?? []).filter(
-      (city) => !taxRates.some((tax) => tax.state === city.title),
-    ),
-  );
+  const filteredCities = getSearchedValue(searchValue, cityList ?? []);
 
   const handleSelectAll = () => {
     if (isPartialChecked) {
@@ -103,7 +114,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
       return;
     }
 
-    syncSelection(selectAll ? [] : [...(cityList ?? [])]);
+    syncSelection(selectAll ? [] : [...selectableCities]);
   };
 
   const buttonState = formSelectedCities?.length <= 0;
@@ -165,21 +176,44 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                 </Flex>
 
                 {filteredCities?.length > 0 ? (
-                  filteredCities.map((city, index) => {
+                  filteredCities.map((city) => {
+                    const disabled = isDisabled(city);
+                    const cityRowContent = (
+                      <>
+                        <Checkbox
+                          id={`add-cities-city-${city.id}`}
+                          disabled={disabled}
+                          checked={
+                            disabled ||
+                            formSelectedCities.some(
+                              (item) => String(item.id) === String(city.id),
+                            )
+                          }
+                          onCheckedChange={() => handleToggleCity(city)}
+                        />
+                        <Label htmlFor={`add-cities-city-${city.id}`}>
+                          {city.name ?? city.title}
+                        </Label>
+                      </>
+                    );
+
                     return (
-                      <div key={index} css={scoped(styles.checkboxItemIndented)}>
-                        <Flex gap={2} align="center">
-                          <Checkbox
-                            id={`add-cities-city-${city.id}`}
-                            checked={formSelectedCities.some(
-                              (item) => item.id === city.id,
-                            )}
-                            onCheckedChange={() => handleToggleCity(city)}
-                          />
-                          <Label htmlFor={`add-cities-city-${city.id}`}>
-                            {city.title}
-                          </Label>
-                        </Flex>
+                      <div key={String(city.id)} css={scoped(styles.checkboxItemIndented)}>
+                        {disabled ? (
+                          <Tooltip
+                            tip={__('Already in use', 'kirki-ecommerce')}
+                            position="right"
+                            cssOverride={styles.disabledRowTrigger}
+                          >
+                            <Flex gap={2} align="center">
+                              {cityRowContent}
+                            </Flex>
+                          </Tooltip>
+                        ) : (
+                          <Flex gap={2} align="center">
+                            {cityRowContent}
+                          </Flex>
+                        )}
                       </div>
                     );
                   })
@@ -238,5 +272,10 @@ const styles = defineStyles({
   },
   emptyCitiesCard: {
     padding: `${theme.spacing[9]} 0`,
+  },
+  disabledRowTrigger: {
+    display: 'flex',
+    width: '100%',
+    cursor: 'not-allowed',
   },
 });

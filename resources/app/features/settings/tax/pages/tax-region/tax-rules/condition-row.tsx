@@ -7,7 +7,7 @@ import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { getDestinationDisplayValue } from '@/features/settings/tax/lib/tax-rules/helper';
-import type { TaxConditionRow, TaxRegion } from '@/features/settings/tax/lib/utils';
+import type { TaxConditionRow, TaxRegionState } from '@/features/settings/tax/lib/utils';
 import { taxRuleConditionOptions } from '@/features/settings/tax/lib/utils';
 import { AddStatePopup } from '@/features/settings/tax/pages/tax-region/tax-rules/add-state-dialog';
 import { PlusIcon, TrashIcon } from '@/icons';
@@ -32,7 +32,8 @@ type ConditionRowProps = {
   selectedCountries: (string | number)[];
   setSelectedCountries: Dispatch<SetStateAction<(string | number)[]>>;
   from?: string;
-  region?: TaxRegion;
+  states: TaxRegionState[];
+  destinationLabel?: string;
 };
 
 const ConditionRow = (props: ConditionRowProps) => {
@@ -44,7 +45,8 @@ const ConditionRow = (props: ConditionRowProps) => {
     getConditionValue,
     selectedCountries,
     setSelectedCountries,
-    region,
+    states,
+    destinationLabel,
   } = props;
 
   const [showStatesPopup, setShowStatesPopup] = useState(false);
@@ -184,8 +186,8 @@ const ConditionRow = (props: ConditionRowProps) => {
         <AddStatePopup
           openPopup={showStatesPopup}
           setOpenPopup={setShowStatesPopup}
-          countryName={region?.code}
-          countryList={region?.states ?? []}
+          countryName={destinationLabel}
+          countryList={states}
           selectedCountries={selectedCountries}
           setSelectedCountries={setSelectedCountries}
           onAdd={handleAddStates}

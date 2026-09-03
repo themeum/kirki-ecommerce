@@ -6,7 +6,10 @@ import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import Text from '@/components/ui/text';
 import { resolveVatProcessChange } from '@/features/settings/tax/lib/region-tax';
-import type { TaxRegionEuFormInput } from '@/features/settings/tax/schemas/forms/tax-region-eu-form';
+import type {
+  TaxRegionEuFormInput,
+  VatProcess,
+} from '@/features/settings/tax/schemas/forms/tax-region-eu-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -42,12 +45,12 @@ const VatProcessField = () => {
   const { control, setValue, getValues } = useFormContext<TaxRegionEuFormInput>();
 
   const handleProcessChange = (value: string | number) => {
-    const nextType = String(value);
+    const nextType = String(value) as VatProcess;
     setValue('type', nextType, { shouldDirty: true });
 
-    const nextProductTax = resolveVatProcessChange(nextType, getValues('product_tax') ?? []);
-    if (nextProductTax) {
-      setValue('product_tax', nextProductTax, { shouldDirty: true });
+    const nextCountries = resolveVatProcessChange(nextType, getValues('countries') ?? []);
+    if (nextCountries) {
+      setValue('countries', nextCountries, { shouldDirty: true });
     }
   };
 

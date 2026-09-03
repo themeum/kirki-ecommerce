@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Package, Truck } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
@@ -15,22 +16,23 @@ import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
 import {
+  addStatesToRegion,
   applyRegionRules,
   applyRegionTaxUpdate,
-  mergeCitiesIntoTaxRates,
 } from '@/features/settings/tax/lib/region-tax';
 import type {
-  TaxRate,
+  GeneralTaxRegion,
   TaxRegion,
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/lib/utils';
 import AddCitiesPopup from '@/features/settings/tax/pages/tax-region/add-cities-dialog';
 import SingleTaxRate from '@/features/settings/tax/pages/tax-region/single-tax-rate';
-import TaxRateList from '@/features/settings/tax/pages/tax-region/tax-rate-list';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
+import TaxStateRows from '@/features/settings/tax/pages/tax-region/tax-state-rows';
 import {
   type TaxRegionGeneralFormInput,
+  type TaxRegionGeneralFormPayload,
   TaxRegionGeneralFormSchema,
 } from '@/features/settings/tax/schemas/forms/tax-region-general-form';
 import {
@@ -41,13 +43,14 @@ import TaxRegionSkeleton from '@/features/settings/tax/skeletons/tax-region-skel
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import { useCountriesQuery } from '@/services/country';
 import { toastMutationError } from '@/services/helpers';
 import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-import { Package, Truck } from 'lucide-react';
 
 const GeneralEditRegion = () => {
   const { code } = useParams();
@@ -58,29 +61,54 @@ const GeneralEditRegion = () => {
   const [showPopup, setShowPopup] = useState(false);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
+  const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
   const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettingsData);
 
-  const form = useForm<TaxRegionGeneralFormInput>({
+  const form = useForm<TaxRegionGeneralFormInput, unknown, TaxRegionGeneralFormPayload>({
     resolver: zodResolver(TaxRegionGeneralFormSchema),
     defaultValues: getDefaults(TaxRegionGeneralFormSchema),
   });
 
   const { isDirty } = form.formState;
-  const applySingleTax = useWatch({
-    control: form.control,
-    name: 'is_central_tax_enabled',
-  });
-  const taxRates = (useWatch({ control: form.control, name: 'product_tax' }) as TaxRate[]) || [];
+  const applySingleTax = useWatch({ control: form.control, name: 'is_central_tax_enabled' });
+  const formStates = useWatch({ control: form.control, name: 'states' });
 
-  const selectedCountry = useMemo(() => {
-    return regions.find((country) => country.code === code);
-  }, [regions, code]);
+  const country = useMemo(
+    () => countryList.find((item) => item.code === code),
+    [countryList, code],
+  );
+
+  const storedRegion = useMemo(
+    () => regions.find((region) => region.code === code),
+    [regions, code],
+  );
+
+  const countryStates = useMemo<TaxRegionState[]>(
+    () => (country?.states ?? []).map((state) => ({ ...state, id: String(state.id) })),
+    [country],
+  );
+
+  const stateNameById = useMemo(
+    () =>
+      countryStates.reduce<Record<string, string>>((acc, state) => {
+        acc[String(state.id)] = state.name ?? String(state.id);
+        return acc;
+      }, {}),
+    [countryStates],
+  );
+
+  const usedStateIds = useMemo(() => {
+    if (!isDefined(formStates)) {
+      return new Set<string>();
+    }
+    return new Set(formStates.map((state) => String(state.id)));
+  }, [formStates]);
 
   useEffect(() => {
     if (Array.isArray(taxSettingsData?.tax_regions)) {
-      setRegions(taxSettingsData.tax_regions as TaxRegion[]);
+      setRegions(taxSettingsData.tax_regions);
     }
   }, [taxSettingsData]);
 
@@ -89,12 +117,12 @@ const GeneralEditRegion = () => {
       return;
     }
 
-    const country = regions.find((item) => item.code === code);
+    const region = regions.find((item) => item.code === code) as GeneralTaxRegion | undefined;
     form.reset({
-      product_tax: country?.product_tax?.length ? country.product_tax : [],
-      is_central_tax_enabled: country?.is_central_tax_enabled || false,
-      central_product_tax: country?.central_product_tax || 0,
-      central_shipping_tax: country?.central_shipping_tax || 0,
+      is_central_tax_enabled: region?.is_central_tax_enabled ?? true,
+      central_product_tax: region?.central_product_tax ?? 0,
+      central_shipping_tax: region?.central_shipping_tax ?? 0,
+      states: region?.states ?? [],
     });
   }, [regions, code, form]);
 
@@ -102,58 +130,18 @@ const GeneralEditRegion = () => {
     setUnsavedDataStatus(isDirty);
   }, [isDirty]);
 
-  useEffect(() => {
-    if (applySingleTax) {
-      setSelectedCities([]);
-    }
-  }, [applySingleTax]);
-
-  const handleAddCities = () => {
-    const nextRates = mergeCitiesIntoTaxRates(taxRates, selectedCities);
-    form.setValue('product_tax', nextRates, { shouldDirty: true });
-    setShowPopup(false);
-  };
-
-  const buildUpdatedRegions = (
-    values: TaxRegionGeneralFormInput,
-    updatedTaxRates?: TaxRate[],
-  ): TaxRegion[] => (code ? applyRegionTaxUpdate(regions, code, values, updatedTaxRates) : regions);
-
-  const updateTaxRules = async (rulesList: TaxRule[]) => {
-    const updatedData = applyRegionRules(regions, selectedCountry?.code ?? '', rulesList);
-    setRegions(updatedData);
-    await saveDataToDB(updatedData, 'delete');
-  };
-
-  const handleSaveData = async (
-    values: TaxRegionGeneralFormInput,
-    updatedTaxRates?: TaxRate[],
-    from = '',
-  ) => {
-    const updatedDataObj = buildUpdatedRegions(values, updatedTaxRates);
-    await saveDataToDB(updatedDataObj, from);
-    if (from !== 'delete') {
-      form.reset({
-        ...values,
-        product_tax: updatedTaxRates ?? values.product_tax,
-      });
-      setRegions(updatedDataObj);
-    }
-  };
-
-  const saveDataToDB = async (updatedDataObj: TaxRegion[], from = '') => {
+  const saveRegions = async (updatedRegions: TaxRegion[], from = '') => {
     const currentTaxSettings = TaxSettingsFormSchema.parse(
       pickFormValues(TaxSettingsFormSchema, taxSettingsData ?? {}),
     );
     const payload: TaxSettingsFormPayload = {
       ...currentTaxSettings,
-      tax_regions: updatedDataObj as TaxSettingsFormPayload['tax_regions'],
+      tax_regions: updatedRegions,
     };
 
     if (from === 'delete') {
       try {
         await updateSettings({ key: 'tax', data: payload });
-        setSelectedCities([]);
         setUnsavedDataStatus(false);
         invalidateTaxSettings();
       } catch (error) {
@@ -164,25 +152,70 @@ const GeneralEditRegion = () => {
 
     try {
       await saveSettings({ key: 'tax', data: payload });
-      setSelectedCities([]);
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
   };
 
-  const handleDiscardData = () => {
-    form.reset();
+  /**
+   * New states are persisted immediately rather than left pending: the merchant
+   * is taken straight to the first one's page, which reads them back from the
+   * saved settings.
+   */
+  const handleAddCities = async () => {
+    if (!code) {
+      return;
+    }
+
+    const nextStates = addStatesToRegion(formStates ?? [], selectedCities);
+    const firstNewId = isDefined(formStates) ? nextStates[formStates.length]?.id : null;
+
+    setSelectedCities([]);
+    setShowPopup(false);
+
+    if (!firstNewId) {
+      return;
+    }
+
+    const updatedRegions = applyRegionTaxUpdate(regions, code, {
+      is_central_tax_enabled: false,
+      central_product_tax: Number(form.getValues('central_product_tax')) || 0,
+      central_shipping_tax: Number(form.getValues('central_shipping_tax')) || 0,
+      states: nextStates,
+    });
+
+    setRegions(updatedRegions);
+    await saveRegions(updatedRegions, 'delete');
+
+    void navigate(
+      RouteConfig.Settings.get('TaxSettings')
+        .get('EditTaxRegionState')
+        .buildLink({ code, state: String(firstNewId) }),
+    );
   };
 
-  const handleSaveFromRateList = async (updatedTaxRates?: TaxRate[], from = '') => {
-    await handleSaveData(form.getValues(), updatedTaxRates, from);
+  const handleSaveData = async (values: TaxRegionGeneralFormPayload) => {
+    if (!code) {
+      return;
+    }
+
+    const updatedRegions = applyRegionTaxUpdate(regions, code, values);
+    await saveRegions(updatedRegions);
+    setRegions(updatedRegions);
+    form.reset(values);
+  };
+
+  const updateRegionRules = async (rulesList: TaxRule[]) => {
+    const updatedRegions = applyRegionRules(regions, code ?? '', rulesList);
+    setRegions(updatedRegions);
+    await saveRegions(updatedRegions, 'delete');
   };
 
   useSettingsPageActions({
     isDirty,
     isSaving,
     onSave: form.handleSubmit((values) => handleSaveData(values)),
-    onDiscard: handleDiscardData,
+    onDiscard: () => form.reset(),
   });
 
   return (
@@ -192,56 +225,60 @@ const GeneralEditRegion = () => {
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
-                title={selectedCountry?.name}
-                icon={selectedCountry?.flag}
+                title={country?.name ?? storedRegion?.name ?? code}
+                icon={country?.flag ?? storedRegion?.flag}
                 onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
               <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
                 <CardContent>
                   <HeaderActionsCard
-                    header={__('Cities', 'kirki-ecommerce')}
-                    subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
+                    header={__('States', 'kirki-ecommerce')}
+                    subHeader={__(
+                      'Set product and shipping tax rates per state',
+                      'kirki-ecommerce',
+                    )}
                     buttonText={__('Add', 'kirki-ecommerce')}
                     onAdd={() => setShowPopup(true)}
-                    hideButton={!!applySingleTax}
+                    hideButton={Boolean(applySingleTax)}
                   />
                   <div css={scoped({ marginTop: theme.spacing[5] })}>
                     <CheckboxField
                       name="is_central_tax_enabled"
-                      label={__('Apply single tax rate for entire country', 'kirki-ecommerce')}
+                      label={__('Apply one rate for the entire country', 'kirki-ecommerce')}
                     />
                   </div>
                   <div css={scoped({ marginTop: theme.spacing[5] })}>
                     {applySingleTax ? (
                       <Flex direction="column" gap={2}>
-                        <SingleTaxRate
+                        <SingleTaxRate<TaxRegionGeneralFormInput>
                           name="central_product_tax"
                           label={__('Product Tax Rate', 'kirki-ecommerce')}
-                          icon={<Package />}
+                          icon={<Package size={16} />}
                         />
-                        <SingleTaxRate
+                        <SingleTaxRate<TaxRegionGeneralFormInput>
                           name="central_shipping_tax"
                           label={__('Shipping Tax Rate', 'kirki-ecommerce')}
-                          icon={<Truck />}
+                          icon={<Truck size={16} />}
                         />
                       </Flex>
                     ) : (
-                      <TaxRateList
-                        taxRates={taxRates}
-                        setTaxRates={(updater) => {
-                          const next = typeof updater === 'function' ? updater(taxRates) : updater;
-                          form.setValue('product_tax', next, {
-                            shouldDirty: true,
-                          });
-                        }}
-                        handleSaveData={handleSaveFromRateList}
-                      />
+                      <TaxStateRows code={code ?? ''} stateNameById={stateNameById} />
                     )}
                   </div>
                 </CardContent>
               </Card>
-              <TaxRules region={selectedCountry} updateTaxRules={updateTaxRules} />
+
+              {/* Rules are country-wide XOR per state: in per-state mode each state
+                  carries its own, edited on that state's page. */}
+              {applySingleTax && (
+                <TaxRules
+                  rules={storedRegion?.rules ?? []}
+                  states={countryStates}
+                  destinationLabel={country?.name ?? code}
+                  updateTaxRules={updateRegionRules}
+                />
+              )}
             </Flex>
           </Form>
         ) : (
@@ -252,9 +289,9 @@ const GeneralEditRegion = () => {
         <AddCitiesPopup
           openPopup={showPopup}
           setOpenPopup={setShowPopup}
-          taxRates={taxRates}
-          countryName={selectedCountry?.name}
-          cityList={selectedCountry?.states}
+          countryName={country?.name}
+          cityList={countryStates}
+          disabledIds={usedStateIds}
           selectedCities={selectedCities}
           setSelectedCities={setSelectedCities}
           onAdd={handleAddCities}

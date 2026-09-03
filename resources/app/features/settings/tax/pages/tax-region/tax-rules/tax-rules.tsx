@@ -1,6 +1,6 @@
 import { LightningBoltIcon } from '@radix-ui/react-icons';
 import { Edit3, Trash2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -20,7 +20,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { getDestinationDisplayValue } from '@/features/settings/tax/lib/tax-rules/helper';
-import type { TaxRegion, TaxRule } from '@/features/settings/tax/lib/utils';
+import type { TaxRegionState, TaxRule } from '@/features/settings/tax/lib/utils';
 import TaxRulesDialog from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules-dialog';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -28,7 +28,17 @@ import { defineStyles } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 type TaxRulesProps = {
-  region?: TaxRegion;
+  /**
+   * The rule set this section edits — a region's own rules in country-wide
+   * mode, a single state's in per-state mode, the EU region's on the EU page.
+   */
+  rules: TaxRule[];
+  /**
+   * Destinations offered to a `destination_region` condition: a general
+   * region's states, or the EU's member countries.
+   */
+  states: TaxRegionState[];
+  destinationLabel?: string;
   updateTaxRules: (
     rulesList: TaxRule[],
     from?: string,
@@ -36,14 +46,14 @@ type TaxRulesProps = {
 };
 
 const TaxRules = (props: TaxRulesProps) => {
-  const { region, updateTaxRules } = props;
+  const { rules, states, destinationLabel, updateTaxRules } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [rulesObj, setRulesObj] = useState<TaxRule[]>([]);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    setRulesObj(Array.isArray(region?.rules) ? [...region.rules] : []);
-  }, [region]);
+    setRulesObj(Array.isArray(rules) ? [...rules] : []);
+  }, [rules]);
 
   const handleDeleteRules = (_item: TaxRule, index: number) => {
     const initialRules = Array.isArray(rulesObj) ? [...rulesObj] : [];
@@ -87,7 +97,8 @@ const TaxRules = (props: TaxRulesProps) => {
                   setRulesObj={setRulesObj}
                   updateTaxRules={updateTaxRules}
                   from="add"
-                  region={region}
+                  states={states}
+                  destinationLabel={destinationLabel}
                 />
               )}
               <RuleItems cssOverride={styles.ruleItems}>
@@ -101,19 +112,19 @@ const TaxRules = (props: TaxRulesProps) => {
                         </Text>
                       </RuleItemBadge>
                       <RuleItemConditions>
-                        {item?.conditions.map((condition, conditionIndex) => (
+                        {(item?.conditions ?? []).map((condition, conditionIndex) => (
                           <RuleItemCondition key={conditionIndex}>
                             <Text variant="small" weight="medium">
                               {conditionIndex === 0
                                 ? sprintf(
                                   __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                  condition?.type,
-                                  condition?.operator,
+                                  condition?.type ?? '',
+                                  condition?.operator ?? '',
                                 )
                                 : sprintf(
                                   __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                  condition?.type,
-                                  condition?.operator,
+                                  condition?.type ?? '',
+                                  condition?.operator ?? '',
                                 )}
                             </Text>
                             <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>{condition?.type === 'destination_region'
@@ -161,7 +172,8 @@ const TaxRules = (props: TaxRulesProps) => {
                     </RuleItemActions>
                     {editingRuleIndex === index && (
                       <TaxRulesDialog
-                        region={region}
+                        states={states}
+                        destinationLabel={destinationLabel}
                         rulesObj={rulesObj}
                         setRulesObj={setRulesObj}
                         updateTaxRules={updateTaxRules}
@@ -184,7 +196,16 @@ const TaxRules = (props: TaxRulesProps) => {
 
 TaxRules.displayName = 'TaxRules';
 
-export default TaxRules;
+/**
+ * Memoized so a VAT edit — which re-renders the page shell through the form's
+ * `isDirty` — does not drag this card into the same commit that unmounts the
+ * VAT dialog. Both props are kept referentially stable by `EditRegionEU`.
+ */
+const MemoizedTaxRules = memo(TaxRules);
+
+MemoizedTaxRules.displayName = 'TaxRules';
+
+export default MemoizedTaxRules;
 
 const styles = defineStyles({
   ruleItems: {

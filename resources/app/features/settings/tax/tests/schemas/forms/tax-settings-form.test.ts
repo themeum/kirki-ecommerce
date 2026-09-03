@@ -4,7 +4,30 @@ import { TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax
 
 describe('TaxSettingsFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {
-    const regions = [{ code: 'US', name: 'United States', is_enabled: true }];
+    const regions = [
+      {
+        code: 'US',
+        name: 'United States',
+        flag: '🇺🇸',
+        is_enabled: true,
+        is_central_tax_enabled: true,
+        central_product_tax: 5,
+        central_shipping_tax: 3,
+        states: [],
+        rules: [],
+      },
+      {
+        code: 'EU',
+        name: 'European Union',
+        flag: '🇪🇺',
+        is_enabled: true,
+        type: 'oss',
+        countries: [
+          { code: 'AT', name: 'Austria', flag: '🇦🇹', product_tax_rate: 20, shipping_tax_rate: 20 },
+        ],
+        rules: [],
+      },
+    ];
     const result = TaxSettingsFormSchema.parse({
       is_tax_inclusive_price: true,
       is_enabled_taxed_price: false,
@@ -18,7 +41,7 @@ describe('TaxSettingsFormSchema', () => {
       is_tax_inclusive_price: true,
       is_enabled_taxed_price: false,
       is_shipping_tax_enabled: true,
-      tax_regions: regions,
+      tax_regions: [{ ...regions[0], type: 'general' }, regions[1]],
       tax_services: [],
       tax_ids: [],
     });

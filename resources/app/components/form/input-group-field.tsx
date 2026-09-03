@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import type { ChangeEvent, ComponentPropsWithoutRef, ReactNode } from 'react';
+import type { ChangeEvent, ComponentPropsWithoutRef, FocusEvent, ReactNode } from 'react';
 import {
   Controller,
   type ControllerFieldState,
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/input-group';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
+import { clampValue } from '@/utils/number';
 
 type InputGroupFieldRenderArg<
   TFieldValues extends FieldValues,
@@ -46,10 +47,9 @@ type InputGroupFieldProps<
   placeholder?: string;
   disabled?: boolean;
   readOnly?: boolean;
-  autoFocus?: boolean;
   rows?: number;
-  min?: number;
-  max?: number;
+  min?: number | null;
+  max?: number | null;
   step?: number;
   inputMode?: ComponentPropsWithoutRef<'input'>['inputMode'];
   inputProps?: Partial<Omit<InputGroupInputProps, 'value' | 'onChange'>>;
@@ -80,7 +80,6 @@ const InputGroupField = <
   placeholder,
   disabled,
   readOnly,
-  autoFocus = false,
   rows = 5,
   min,
   max,
@@ -112,6 +111,23 @@ const InputGroupField = <
             type === 'number' && !multiline ? (raw === '' ? undefined : Number(raw)) : raw;
           field.onChange(next);
           onValueChange?.(next);
+        };
+
+        const handleNumberBlur = (event: FocusEvent<HTMLInputElement>) => {
+          field.onBlur();
+
+          const entered = Number(event.target.value);
+
+          if (event.target.value === '' || Number.isNaN(entered)) {
+            return;
+          }
+
+          const clamped = clampValue(entered, min, max);
+
+          if (clamped !== entered) {
+            field.onChange(clamped);
+            onValueChange?.(clamped);
+          }
         };
 
         return (
@@ -165,14 +181,11 @@ const InputGroupField = <
                       placeholder={placeholder}
                       disabled={disabled}
                       readOnly={readOnly}
-                      min={min}
-                      max={max}
                       step={step}
                       inputMode={inputMode}
                       aria-invalid={fieldState.invalid}
-                      autoFocus={autoFocus}
                       onChange={handleChange}
-                      onBlur={field.onBlur}
+                      onBlur={type === 'number' ? handleNumberBlur : field.onBlur}
                       cssOverride={inputCssOverride}
                       {...inputProps}
                     />

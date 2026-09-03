@@ -13,7 +13,7 @@ import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type {
   TaxConditionRow,
-  TaxRegion,
+  TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/lib/utils';
 import { taxRuleActionOptionsArray } from '@/features/settings/tax/lib/utils';
@@ -38,7 +38,8 @@ type TaxRulesDialogProps = {
   ) => void | Promise<void>;
   from?: string;
   ruleIndex?: number;
-  region?: TaxRegion;
+  states: TaxRegionState[];
+  destinationLabel?: string;
 };
 
 type ConditionOption = {
@@ -56,7 +57,8 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
     updateTaxRules,
     from = '',
     ruleIndex,
-    region,
+    states,
+    destinationLabel,
   } = props;
 
   const { data: taxProfiles } = useTaxProfilesQuery();
@@ -88,14 +90,15 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
 
     if (from === 'edit' && ruleIndex !== undefined && rulesObj?.[ruleIndex]) {
       const existingRule = rulesObj[ruleIndex];
-      const destinationCondition = existingRule.conditions.find(
+      const existingConditions = existingRule.conditions ?? [];
+      const destinationCondition = existingConditions.find(
         (c) => c.type === 'destination_region',
       );
 
       form.reset({
-        conditions: existingRule.conditions.map((c) => ({
+        conditions: existingConditions.map((c) => ({
           id: uuid(),
-          condition: c.type,
+          condition: c.type ?? 'tax_profile',
           value: c.value ?? null,
         })),
         action_type: existingRule.action?.type || 'set_tax_rate',
@@ -195,7 +198,8 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
                     selectedCountries={selectedCountries}
                     setSelectedCountries={setSelectedCountries}
                     from={from}
-                    region={region}
+                    states={states}
+                    destinationLabel={destinationLabel}
                   />
                 ))}
               </Flex>
