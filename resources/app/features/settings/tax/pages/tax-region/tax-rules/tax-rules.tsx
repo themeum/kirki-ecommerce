@@ -1,7 +1,6 @@
 import { LightningBoltIcon } from '@radix-ui/react-icons';
 import { Edit3, Trash2 } from 'lucide-react';
-import { memo, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { memo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import {
@@ -40,10 +39,7 @@ type TaxRulesProps = {
    */
   states: TaxRegionState[];
   destinationLabel?: string;
-  updateTaxRules: (
-    rulesList: TaxRule[],
-    from?: string,
-  ) => void | Promise<void>;
+  updateTaxRules: (rulesList: TaxRule[]) => void;
   /**
    * Condition types the rule editor offers. Defaults to Tax Profile plus
    * Destination; a state's page passes Tax Profile only.
@@ -60,36 +56,18 @@ const TaxRules = (props: TaxRulesProps) => {
     conditionOptions = taxRuleConditionOptions,
   } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
-  const [rulesObj, setRulesObj] = useState<TaxRule[]>([]);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    setRulesObj(Array.isArray(rules) ? [...rules] : []);
-  }, [rules]);
-
   const handleDeleteRules = (_item: TaxRule, index: number) => {
-    const initialRules = Array.isArray(rulesObj) ? [...rulesObj] : [];
+    const initialRules = Array.isArray(rules) ? [...rules] : [];
     const updatedRules = initialRules.filter((_, i) => i !== index);
-    setRulesObj(updatedRules);
-
-    toast(__('Tax rule deleted', 'kirki-ecommerce'), {
-      duration: 5000,
-      action: {
-        label: __('Undo', 'kirki-ecommerce'),
-        onClick: () => {
-          setRulesObj(initialRules);
-        },
-      },
-      onAutoClose: () => {
-        void updateTaxRules(updatedRules, 'delete');
-      },
-    });
+    updateTaxRules(updatedRules);
   };
 
   return (
     <div>
       <Card cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <HeaderActionsCard
             header={__('Tax Rules', 'kirki-ecommerce')}
             subHeader={__(
@@ -99,14 +77,13 @@ const TaxRules = (props: TaxRulesProps) => {
             buttonText={__('Add Rule', 'kirki-ecommerce')}
             onAdd={() => setAddRuleModal(true)}
           />
-          {(addRuleModal || rulesObj.length > 0) && (
+          {(addRuleModal || rules.length > 0) && (
             <Flex direction="column" gap={4}>
               {addRuleModal && (
                 <TaxRulesDialog
                   showModal={addRuleModal}
                   setShowModal={setAddRuleModal}
-                  rulesObj={rulesObj}
-                  setRulesObj={setRulesObj}
+                  rules={rules}
                   updateTaxRules={updateTaxRules}
                   from="add"
                   states={states}
@@ -115,7 +92,7 @@ const TaxRules = (props: TaxRulesProps) => {
                 />
               )}
               <RuleItems cssOverride={styles.ruleItems}>
-                {rulesObj?.map((item, index) => (
+                {rules?.map((item, index) => (
                   <RuleItem key={index} id={String(index)}>
                     <RuleItemContent>
                       <RuleItemBadge>
@@ -130,27 +107,31 @@ const TaxRules = (props: TaxRulesProps) => {
                             <Text variant="small" weight="medium">
                               {conditionIndex === 0
                                 ? sprintf(
-                                  __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                  condition?.type ?? '',
-                                  condition?.operator ?? '',
-                                )
+                                    __('IF %1$s %2$s', 'kirki-ecommerce'),
+                                    condition?.type ?? '',
+                                    condition?.operator ?? '',
+                                  )
                                 : sprintf(
-                                  __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                  condition?.type ?? '',
-                                  condition?.operator ?? '',
-                                )}
+                                    __('AND IF %1$s %2$s', 'kirki-ecommerce'),
+                                    condition?.type ?? '',
+                                    condition?.operator ?? '',
+                                  )}
                             </Text>
-                            <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>{condition?.type === 'destination_region'
-                              ? __(
-                                getDestinationDisplayValue(
-                                  condition?.value,
-                                ),
-                                'kirki-ecommerce',
-                              )
-                              : sprintf(
-                                __('%s', 'kirki-ecommerce'),
-                                condition?.value as string | number,
-                              )}</Text>
+                            <Text
+                              variant="small"
+                              weight="medium"
+                              cssOverride={styles.conditionValue}
+                            >
+                              {condition?.type === 'destination_region'
+                                ? __(
+                                    getDestinationDisplayValue(condition?.value),
+                                    'kirki-ecommerce',
+                                  )
+                                : sprintf(
+                                    __('%s', 'kirki-ecommerce'),
+                                    condition?.value as string | number,
+                                  )}
+                            </Text>
                           </RuleItemCondition>
                         ))}
                       </RuleItemConditions>
@@ -161,7 +142,9 @@ const TaxRules = (props: TaxRulesProps) => {
                             : `Then ${item?.action?.type}`}
                         </Text>
                         {item?.action?.type === 'set_tax_rate' && (
-                          <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>{item?.action?.value as string}</Text>
+                          <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>
+                            {item?.action?.value as string}
+                          </Text>
                         )}
                       </RuleItemAction>
                     </RuleItemContent>
@@ -188,8 +171,7 @@ const TaxRules = (props: TaxRulesProps) => {
                         states={states}
                         destinationLabel={destinationLabel}
                         conditionOptions={conditionOptions}
-                        rulesObj={rulesObj}
-                        setRulesObj={setRulesObj}
+                        rules={rules}
                         updateTaxRules={updateTaxRules}
                         showModal={true}
                         setShowModal={() => setEditingRuleIndex(null)}

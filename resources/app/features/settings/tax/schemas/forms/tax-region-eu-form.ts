@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { CountryTaxRateSchema } from '@/features/settings/tax/schemas/catalog/tax';
+import { CountryTaxRateSchema, TaxRuleSchema } from '@/features/settings/tax/schemas/catalog/tax';
 import { prepareFormSchema } from '@/libs/zod';
 
 const VatProcessSchema = z.enum(['oss', 'micro_business']);
@@ -17,11 +17,13 @@ export type VatProcess = z.infer<typeof VatProcessSchema>;
 const TaxRegionEuFormShape = z.object({
   type: VatProcessSchema.default('oss'),
   countries: z.array(CountryTaxRateSchema).default([]),
+  rules: z.array(TaxRuleSchema).default([]),
 });
 
 export const TaxRegionEuFormSchema = prepareFormSchema(TaxRegionEuFormShape).transform((values) => ({
   type: values.type,
   countries: values.countries,
+  rules: values.rules,
 }));
 
 export type TaxRegionEuFormInput = z.input<typeof TaxRegionEuFormSchema>;

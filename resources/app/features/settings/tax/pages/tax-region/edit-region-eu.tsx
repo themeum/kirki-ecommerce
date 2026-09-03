@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
@@ -13,12 +13,7 @@ import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-p
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import VatProcessField from '@/features/settings/tax/components/fields/vat-process-field';
-import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
-import {
-  applyEuRegionUpdate,
-  applyRegionRules,
-  deriveEuRegion,
-} from '@/features/settings/tax/lib/region-tax';
+import { applyEuRegionUpdate } from '@/features/settings/tax/lib/region-tax';
 import type {
   CountryTaxRate,
   EuTaxRegion,
@@ -42,8 +37,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import type { TaxSettings } from '@/schemas/catalog/settings';
 import { useCountriesQuery } from '@/services/country';
-import { toastMutationError } from '@/services/helpers';
-import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -53,7 +47,6 @@ type TaxSettingsFormData = Omit<TaxSettings, 'tax_regions'> & {
 
 const EditRegionEU = () => {
   const navigate = useNavigate();
-  const invalidateTaxSettings = useInvalidateTaxSettings();
   const [regions, setRegions] = useState<TaxRegion[]>([]);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
@@ -71,21 +64,14 @@ const EditRegionEU = () => {
     control: form.control,
     name: 'type',
   });
-  const watchedCountries = useWatch({
+  const usedCountries = useWatch({
     control: form.control,
     name: 'countries',
   });
-  const vatCollectionList = useMemo<CountryTaxRate[]>(
-    () => watchedCountries ?? [],
-    [watchedCountries],
-  );
+  const vatCollectionList = useMemo<CountryTaxRate[]>(() => usedCountries ?? [], [usedCountries]);
 
   const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
 
-  /**
-   * Member countries are identified by their code, never their name — the same
-   * key the EU strategy matches a shopper's address on.
-   */
   const euMemberCountries = useMemo<TaxRegionState[]>(
     () =>
       countryList
@@ -94,11 +80,10 @@ const EditRegionEU = () => {
     [countryList],
   );
 
-  const euRegion = useMemo(
-    () =>
-      deriveEuRegion(regions, vatCollectionProcess, vatCollectionList) as EuTaxRegion | undefined,
-    [regions, vatCollectionProcess, vatCollectionList],
-  );
+  const watchedRules = useWatch({
+    control: form.control,
+    name: 'rules',
+  });
 
   useEffect(() => {
     const regionList = (taxSettingsData as TaxSettingsFormData)?.tax_regions;
@@ -111,6 +96,7 @@ const EditRegionEU = () => {
     form.reset({
       type: eu?.type === 'micro_business' ? 'micro_business' : 'oss',
       countries: eu?.countries ?? [],
+      rules: eu?.rules ?? [],
     });
   }, [taxSettingsData, form]);
 
@@ -118,20 +104,19 @@ const EditRegionEU = () => {
     setUnsavedDataStatus(isDirty);
   }, [isDirty]);
 
-  const buildUpdatedRegions = (
-    values: TaxRegionEuFormInput,
-    overrides?: Partial<TaxRegion>,
-  ): TaxRegion[] => applyEuRegionUpdate(regions, values, overrides);
+  const updateTaxRules = useCallback(
+    (rulesList: TaxRule[]) => {
+      form.setValue('rules', rulesList, { shouldDirty: true });
+    },
+    [form],
+  );
 
-  const updateTaxRules = async (rulesList: TaxRule[], from = '') => {
-    const updatedRules = applyRegionRules(regions, 'EU', rulesList);
-    setRegions(updatedRules);
-    await handleSaveData(updatedRules, from);
-  };
+  const buildUpdatedRegions = (values: TaxRegionEuFormInput): TaxRegion[] =>
+    applyEuRegionUpdate(regions, values, { rules: values.rules });
 
-  const handleSaveData = async (updatedDataObj?: TaxRegion[], from = '') => {
+  const handleSaveData = async () => {
     const values = form.getValues();
-    const taxRegions = updatedDataObj ?? buildUpdatedRegions(values);
+    const taxRegions = buildUpdatedRegions(values);
     const currentTaxSettings = TaxSettingsFormSchema.parse(
       pickFormValues(TaxSettingsFormSchema, taxSettingsData ?? {}),
     );
@@ -139,17 +124,6 @@ const EditRegionEU = () => {
       ...currentTaxSettings,
       tax_regions: taxRegions,
     };
-
-    if (from === 'delete') {
-      try {
-        await updateSettings({ key: 'tax', data: payload });
-        setUnsavedDataStatus(false);
-        invalidateTaxSettings();
-      } catch (error) {
-        toastMutationError(error);
-      }
-      return;
-    }
 
     try {
       await saveSettings({ key: 'tax', data: payload });
@@ -202,7 +176,7 @@ const EditRegionEU = () => {
                 }}
               />
               <TaxRules
-                rules={euRegion?.rules ?? []}
+                rules={watchedRules ?? []}
                 states={euMemberCountries}
                 destinationLabel={__('EU', 'kirki-ecommerce')}
                 updateTaxRules={updateTaxRules}

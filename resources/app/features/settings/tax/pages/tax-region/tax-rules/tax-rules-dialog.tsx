@@ -31,12 +31,8 @@ import { __ } from '@/wpi18n';
 type TaxRulesDialogProps = {
   showModal: boolean;
   setShowModal: (open: boolean) => void;
-  rulesObj: TaxRule[];
-  setRulesObj: Dispatch<SetStateAction<TaxRule[]>>;
-  updateTaxRules: (
-    rulesList: TaxRule[],
-    from?: string,
-  ) => void | Promise<void>;
+  rules: TaxRule[];
+  updateTaxRules: (rulesList: TaxRule[]) => void;
   from?: string;
   ruleIndex?: number;
   states: TaxRegionState[];
@@ -54,8 +50,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
   const {
     showModal,
     setShowModal,
-    rulesObj,
-    setRulesObj,
+    rules,
     updateTaxRules,
     from = '',
     ruleIndex,
@@ -91,8 +86,8 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
       return;
     }
 
-    if (from === 'edit' && ruleIndex !== undefined && rulesObj?.[ruleIndex]) {
-      const existingRule = rulesObj[ruleIndex];
+    if (from === 'edit' && ruleIndex !== undefined && rules?.[ruleIndex]) {
+      const existingRule = rules[ruleIndex];
       const existingConditions = existingRule.conditions ?? [];
       const destinationCondition = existingConditions.find(
         (c) => c.type === 'destination_region',
@@ -122,7 +117,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
       action_value: '',
       selectedCountries: [],
     });
-  }, [showModal, from, ruleIndex, rulesObj, form]);
+  }, [showModal, from, ruleIndex, rules, form]);
 
   const setConditions: Dispatch<SetStateAction<TaxConditionRow[]>> = (
     updater,
@@ -141,16 +136,15 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
   };
 
   const handleSubmit = (rule: TaxRulesFormPayload) => {
-    const newRulesObj = Array.isArray(rulesObj) ? rulesObj : [];
+    const currentRules = Array.isArray(rules) ? rules : [];
     const updatedRules =
       from === 'edit' && typeof ruleIndex === 'number'
-        ? newRulesObj.map((existingRule, index) =>
+        ? currentRules.map((existingRule, index) =>
           index === ruleIndex ? (rule as TaxRule) : existingRule,
         )
-        : [...newRulesObj, rule as TaxRule];
+        : [...currentRules, rule as TaxRule];
 
-    setRulesObj(updatedRules);
-    void updateTaxRules(updatedRules);
+    updateTaxRules(updatedRules);
     setShowModal(false);
   };
 

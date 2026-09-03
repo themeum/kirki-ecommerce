@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Package, Truck } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
@@ -73,7 +73,8 @@ const GeneralEditRegion = () => {
 
   const { isDirty } = form.formState;
   const applySingleTax = useWatch({ control: form.control, name: 'is_central_tax_enabled' });
-  const formStates = useWatch({ control: form.control, name: 'states' });
+  const usedStates = useWatch({ control: form.control, name: 'states' });
+  const centralTaxRules = useWatch({ control: form.control, name: 'rules' });
 
   const country = useMemo(
     () => countryList.find((item) => item.code === code),
@@ -100,11 +101,11 @@ const GeneralEditRegion = () => {
   );
 
   const usedStateIds = useMemo(() => {
-    if (!isDefined(formStates)) {
+    if (!isDefined(usedStates)) {
       return new Set<string>();
     }
-    return new Set(formStates.map((state) => String(state.id)));
-  }, [formStates]);
+    return new Set(usedStates.map((state) => String(state.id)));
+  }, [usedStates]);
 
   useEffect(() => {
     if (Array.isArray(taxSettingsData?.tax_regions)) {
@@ -123,6 +124,7 @@ const GeneralEditRegion = () => {
       central_product_tax: region?.central_product_tax ?? 0,
       central_shipping_tax: region?.central_shipping_tax ?? 0,
       states: region?.states ?? [],
+      rules: region?.rules ?? [],
     });
   }, [regions, code, form]);
 
@@ -157,18 +159,13 @@ const GeneralEditRegion = () => {
     }
   };
 
-  /**
-   * New states are persisted immediately rather than left pending: the merchant
-   * is taken straight to the first one's page, which reads them back from the
-   * saved settings.
-   */
   const handleAddCities = async () => {
     if (!code) {
       return;
     }
 
-    const nextStates = addStatesToRegion(formStates ?? [], selectedCities);
-    const firstNewId = isDefined(formStates) ? nextStates[formStates.length]?.id : null;
+    const nextStates = addStatesToRegion(usedStates ?? [], selectedCities);
+    const firstNewId = isDefined(usedStates) ? nextStates[usedStates.length]?.id : null;
 
     setSelectedCities([]);
     setShowPopup(false);
@@ -199,17 +196,22 @@ const GeneralEditRegion = () => {
       return;
     }
 
-    const updatedRegions = applyRegionTaxUpdate(regions, code, values);
+    const updatedRegions = applyRegionRules(
+      applyRegionTaxUpdate(regions, code, values),
+      code,
+      values.rules,
+    );
     await saveRegions(updatedRegions);
     setRegions(updatedRegions);
     form.reset(values);
   };
 
-  const updateRegionRules = async (rulesList: TaxRule[]) => {
-    const updatedRegions = applyRegionRules(regions, code ?? '', rulesList);
-    setRegions(updatedRegions);
-    await saveRegions(updatedRegions, 'delete');
-  };
+  const updateRegionRules = useCallback(
+    (rulesList: TaxRule[]) => {
+      form.setValue('rules', rulesList, { shouldDirty: true });
+    },
+    [form],
+  );
 
   useSettingsPageActions({
     isDirty,
@@ -273,7 +275,7 @@ const GeneralEditRegion = () => {
                   carries its own, edited on that state's page. */}
               {applySingleTax && (
                 <TaxRules
-                  rules={storedRegion?.rules ?? []}
+                  rules={centralTaxRules ?? []}
                   states={countryStates}
                   destinationLabel={country?.name ?? code}
                   updateTaxRules={updateRegionRules}

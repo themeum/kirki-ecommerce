@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Package, Truck } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,7 +12,6 @@ import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
 import { updateRegionState } from '@/features/settings/tax/lib/region-tax';
 import type {
   GeneralTaxRegion,
@@ -37,8 +36,7 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
-import { toastMutationError } from '@/services/helpers';
-import { updateSettings, useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -46,7 +44,6 @@ import { __ } from '@/wpi18n';
 const GeneralEditRegionState = () => {
   const { code, state: stateId } = useParams();
   const navigate = useNavigate();
-  const invalidateTaxSettings = useInvalidateTaxSettings();
   const [regions, setRegions] = useState<TaxRegion[]>([]);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
@@ -61,6 +58,7 @@ const GeneralEditRegionState = () => {
   });
 
   const { isDirty } = form.formState;
+  const stateRules = useWatch({ control: form.control, name: 'rules' });
 
   const country = useMemo(
     () => countryList.find((item) => item.code === code),
@@ -72,7 +70,7 @@ const GeneralEditRegionState = () => {
     [country],
   );
 
-  const storedState = useMemo(() => {
+  const currentState = useMemo(() => {
     const region = regions.find((item) => item.code === code) as GeneralTaxRegion | undefined;
     return (region?.states ?? []).find((item) => String(item.id) === String(stateId));
   }, [regions, code, stateId]);
@@ -80,9 +78,9 @@ const GeneralEditRegionState = () => {
   const stateName = useMemo(
     () =>
       countryStates.find((item) => String(item.id) === String(stateId))?.name ??
-      storedState?.name ??
+      currentState?.name ??
       stateId,
-    [countryStates, stateId, storedState],
+    [countryStates, stateId, currentState],
   );
 
   useEffect(() => {
@@ -92,15 +90,16 @@ const GeneralEditRegionState = () => {
   }, [taxSettingsData]);
 
   useEffect(() => {
-    if (!storedState) {
+    if (!currentState) {
       return;
     }
 
     form.reset({
-      product_tax_rate: storedState.product_tax_rate ?? 0,
-      shipping_tax_rate: storedState.shipping_tax_rate ?? 0,
+      product_tax_rate: currentState.product_tax_rate ?? 0,
+      shipping_tax_rate: currentState.shipping_tax_rate ?? 0,
+      rules: currentState.rules ?? [],
     });
-  }, [storedState, form]);
+  }, [currentState, form]);
 
   useEffect(() => {
     setUnsavedDataStatus(isDirty);
@@ -117,14 +116,14 @@ const GeneralEditRegionState = () => {
   );
 
   useEffect(() => {
-    if (!loaded || !regions.length || storedState) {
+    if (!loaded || !regions.length || currentState) {
       return;
     }
 
     void backToRegion();
-  }, [loaded, regions, storedState, backToRegion]);
+  }, [loaded, regions, currentState, backToRegion]);
 
-  const saveRegions = async (updatedRegions: TaxRegion[], from = '') => {
+  const saveRegions = async (updatedRegions: TaxRegion[]) => {
     const currentTaxSettings = TaxSettingsFormSchema.parse(
       pickFormValues(TaxSettingsFormSchema, taxSettingsData ?? {}),
     );
@@ -132,17 +131,6 @@ const GeneralEditRegionState = () => {
       ...currentTaxSettings,
       tax_regions: updatedRegions,
     };
-
-    if (from === 'delete') {
-      try {
-        await updateSettings({ key: 'tax', data: payload });
-        setUnsavedDataStatus(false);
-        invalidateTaxSettings();
-      } catch (error) {
-        toastMutationError(error);
-      }
-      return;
-    }
 
     try {
       await saveSettings({ key: 'tax', data: payload });
@@ -162,15 +150,12 @@ const GeneralEditRegionState = () => {
     form.reset(values);
   };
 
-  const updateStateRules = async (rulesList: TaxRule[]) => {
-    if (!code || !stateId) {
-      return;
-    }
-
-    const updatedRegions = updateRegionState(regions, code, stateId, { rules: rulesList });
-    setRegions(updatedRegions);
-    await saveRegions(updatedRegions, 'delete');
-  };
+  const updateStateRules = useCallback(
+    (rulesList: TaxRule[]) => {
+      form.setValue('rules', rulesList, { shouldDirty: true });
+    },
+    [form],
+  );
 
   useSettingsPageActions({
     isDirty,
@@ -181,7 +166,7 @@ const GeneralEditRegionState = () => {
 
   return (
     <Container size="sm">
-      {loaded && storedState ? (
+      {loaded && currentState ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
             <SettingsPageHeader title={stateName} onBack={backToRegion} />
@@ -204,7 +189,7 @@ const GeneralEditRegionState = () => {
             </Card>
 
             <TaxRules
-              rules={storedState.rules ?? []}
+              rules={stateRules ?? []}
               states={countryStates}
               destinationLabel={country?.name ?? code}
               updateTaxRules={updateStateRules}

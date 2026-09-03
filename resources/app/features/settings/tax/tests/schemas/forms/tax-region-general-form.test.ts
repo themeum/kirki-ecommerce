@@ -10,6 +10,12 @@ const state = {
   rules: [],
 };
 
+const countryWideRule = {
+  relation: 'AND',
+  conditions: [{ type: 'destination_region', operator: '=', value: ['771'] }],
+  action: { type: 'set_tax_rate', value: 12 },
+};
+
 describe('TaxRegionGeneralFormSchema', () => {
   it('clears the states in country-wide mode and coerces central rates to numbers', () => {
     const result = TaxRegionGeneralFormSchema.parse({
@@ -17,6 +23,7 @@ describe('TaxRegionGeneralFormSchema', () => {
       central_product_tax: '5',
       central_shipping_tax: 3,
       states: [state],
+      rules: [countryWideRule],
     });
 
     expect(result).toEqual({
@@ -24,6 +31,7 @@ describe('TaxRegionGeneralFormSchema', () => {
       central_product_tax: 5,
       central_shipping_tax: 3,
       states: [],
+      rules: [countryWideRule],
     });
   });
 
@@ -52,6 +60,7 @@ describe('TaxRegionGeneralFormSchema', () => {
       central_product_tax: 0,
       central_shipping_tax: 0,
       states: [state, second],
+      rules: [],
     });
   });
 
@@ -63,6 +72,7 @@ describe('TaxRegionGeneralFormSchema', () => {
       central_product_tax: 0,
       central_shipping_tax: 0,
       states: [],
+      rules: [],
     });
   });
 

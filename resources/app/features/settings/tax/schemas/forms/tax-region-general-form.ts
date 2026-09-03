@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { StateTaxRateSchema } from '@/features/settings/tax/schemas/catalog/tax';
+import { StateTaxRateSchema, TaxRuleSchema } from '@/features/settings/tax/schemas/catalog/tax';
 import { isEmptyValue, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
@@ -23,6 +23,7 @@ const TaxRegionGeneralFormShape = z.object({
     (values) => !isCentralOn(values) && isEmptyValue(values.states),
     __('Add at least one state', 'kirki-ecommerce'),
   ),
+  rules: z.array(TaxRuleSchema).default([]),
 });
 
 export const TaxRegionGeneralFormSchema = prepareFormSchema(TaxRegionGeneralFormShape).transform(
@@ -34,6 +35,7 @@ export const TaxRegionGeneralFormSchema = prepareFormSchema(TaxRegionGeneralForm
       central_product_tax: Number(values.central_product_tax) || 0,
       central_shipping_tax: Number(values.central_shipping_tax) || 0,
       states: central ? [] : (values.states ?? []),
+      rules: values.rules ?? [],
     };
   },
 );

@@ -1,7 +1,6 @@
 import { css } from '@emotion/react';
 import { Trash2 } from 'lucide-react';
 import { type Dispatch, type ReactNode, type SetStateAction, useState } from 'react';
-import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import Button from '@/components/ui/button';
@@ -14,6 +13,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 type VatCountryOption = SelectOption & {
@@ -38,7 +38,7 @@ export const VatCollection = (props: VatCollectionProps) => {
     .filter((country) => {
       const code = country.code ?? String(country.id);
 
-      if (editIndex === null || editIndex === undefined) {
+      if (!isDefined(editIndex)) {
         return !vatCollectionList.some((vat) => vat.code === code);
       }
 
@@ -69,18 +69,8 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   const handleDeleteItem = (itemToDelete: CountryTaxRate) => {
     const initialList = Array.isArray(vatCollectionList) ? [...vatCollectionList] : [];
-
     const updatedList = initialList.filter((item) => item.code !== itemToDelete.code);
     setVatCollectionList(updatedList);
-    toast(__('VAT collection deleted', 'kirki-ecommerce'), {
-      duration: 5000,
-      action: {
-        label: __('Undo', 'kirki-ecommerce'),
-        onClick: () => {
-          setVatCollectionList(initialList);
-        },
-      },
-    });
   };
 
   /**

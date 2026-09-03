@@ -7,13 +7,20 @@ describe('TaxRegionEuFormSchema', () => {
     const countries = [
       { code: 'DE', name: 'Germany', flag: '🇩🇪', product_tax_rate: 19, shipping_tax_rate: 19 },
     ];
-    const result = TaxRegionEuFormSchema.parse({ type: 'micro_business', countries });
+    const rules = [
+      {
+        relation: 'AND',
+        conditions: [{ type: 'destination_region', operator: '=', value: ['FR'] }],
+        action: { type: 'set_tax_rate', value: 20 },
+      },
+    ];
+    const result = TaxRegionEuFormSchema.parse({ type: 'micro_business', countries, rules });
 
-    expect(result).toEqual({ type: 'micro_business', countries });
+    expect(result).toEqual({ type: 'micro_business', countries, rules });
   });
 
-  it('defaults type to oss and countries to empty', () => {
-    expect(TaxRegionEuFormSchema.parse({})).toEqual({ type: 'oss', countries: [] });
+  it('defaults type to oss and countries and rules to empty', () => {
+    expect(TaxRegionEuFormSchema.parse({})).toEqual({ type: 'oss', countries: [], rules: [] });
   });
 
   it('rejects an unrecognized process (the page normalizes on hydration)', () => {
