@@ -25,6 +25,7 @@ OPTIONAL_PATHS=(
   "database"
   "payments"
   "routes"
+  "languages"
   "resources/data"
   "resources/images"
   "resources/assets"
