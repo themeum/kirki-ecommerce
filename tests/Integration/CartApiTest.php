@@ -402,6 +402,251 @@ class CartApiTest extends RestTestCase
         $this->assertEquals($coupon_discount, $cart_discount_total);
     }
 
+    public function test_display_price_has_no_strikethrough_without_sale_or_product_coupon(): void
+    {
+        $this->prepare_variant();
+        $cart = $this->add_cart_item(1);
+        $item = $cart['items'][0];
+
+        $this->assertNull($item['display_strikethrough_price_money_object']);
+        $this->assertEquals(29.99, $item['display_line_price_money_object']['raw']);
+        $this->assertSame([], $item['applied_product_coupons']);
+    }
+
+    public function test_display_price_strikes_through_regular_price_when_only_a_sale_is_active(): void
+    {
+        $product = $this->create_product([
+            'title' => 'Sale Only Product ' . wp_generate_password(4, false),
+            'variants' => [[
+                'base_price' => 50,
+                'base_sale_price' => 25,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+        $cart = $this->add_cart_item(1);
+        $item = $cart['items'][0];
+
+        $this->assertEquals(25.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(50.0, $item['display_strikethrough_price_money_object']['raw']);
+        $this->assertSame([], $item['applied_product_coupons']);
+    }
+
+    public function test_display_price_strikes_through_sale_price_when_a_product_coupon_also_applies(): void
+    {
+        $product = $this->create_product([
+            'title' => 'Sale Plus Coupon Product ' . wp_generate_password(4, false),
+            'variants' => [[
+                'base_price' => 50,
+                'base_sale_price' => 25,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+        $this->add_cart_item(1);
+
+        $code = 'ITEMCOUPON-' . wp_generate_password(6, false);
+        $this->create_coupon($code, [
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'discount_amount' => 10,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'product_ids' => [(int) $product['id']],
+        ]);
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
+        $item = $applied['data']['items'][0];
+
+        // Sale-adjusted price ($25) minus the $10 product coupon.
+        $this->assertEquals(15.0, $item['display_line_price_money_object']['raw']);
+        // Strikethrough is the sale price ($25), not the original regular price ($50).
+        $this->assertEquals(25.0, $item['display_strikethrough_price_money_object']['raw']);
+        $this->assertCount(1, $item['applied_product_coupons']);
+        $this->assertEquals($code, $item['applied_product_coupons'][0]['code']);
+        $this->assertEquals(10.0, $item['applied_product_coupons'][0]['display_discount_amount_money_object']['raw']);
+    }
+
+    public function test_display_price_strikes_through_regular_price_when_product_coupon_applies_without_a_sale(): void
+    {
+        $product = $this->create_product([
+            'title' => 'Coupon Only Product ' . wp_generate_password(4, false),
+            'variants' => [[
+                'base_price' => 50,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+        $this->add_cart_item(1);
+
+        $code = 'NOCASE-' . wp_generate_password(6, false);
+        $this->create_coupon($code, [
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'discount_amount' => 10,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'product_ids' => [(int) $product['id']],
+        ]);
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
+        $item = $applied['data']['items'][0];
+
+        $this->assertEquals(40.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(50.0, $item['display_strikethrough_price_money_object']['raw']);
+    }
+
+    public function test_order_scoped_coupon_never_changes_line_item_display_price(): void
+    {
+        $product = $this->create_product([
+            'title' => 'Order Coupon Only Product ' . wp_generate_password(4, false),
+            'variants' => [[
+                'base_price' => 50,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+        $this->add_cart_item(1);
+
+        // create_coupon() defaults to an ORDER-scoped 10% coupon.
+        $code = 'ORDERONLY-' . wp_generate_password(6, false);
+        $this->create_coupon($code);
+
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
+        $item = $applied['data']['items'][0];
+
+        // The order coupon still discounts the item's combined base_discount_amount...
+        $this->assertGreaterThan(0, $item['base_discount_amount_money_object']['raw']);
+        // ...but never changes its display price or strikethrough.
+        $this->assertNull($item['display_strikethrough_price_money_object']);
+        $this->assertEquals(50.0, $item['display_line_price_money_object']['raw']);
+        $this->assertSame([], $item['applied_product_coupons']);
+    }
+
+    public function test_multiple_product_coupons_on_the_same_item_collapse_into_a_single_display_tier(): void
+    {
+        $product = $this->create_product([
+            'title' => 'Stacked Coupons Product ' . wp_generate_password(4, false),
+            'variants' => [[
+                'base_price' => 100,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+        $this->add_cart_item(1);
+
+        $first_code = 'STACK1-' . wp_generate_password(6, false);
+        $this->create_coupon($first_code, [
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'discount_amount' => 10,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'product_ids' => [(int) $product['id']],
+        ]);
+        $second_code = 'STACK2-' . wp_generate_password(6, false);
+        $this->create_coupon($second_code, [
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'discount_amount' => 15,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'product_ids' => [(int) $product['id']],
+        ]);
+
+        $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $first_code], $this->cart_headers));
+        $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $second_code], $this->cart_headers));
+        $item = $applied['data']['items'][0];
+
+        // Both discounts summed into one tier: $100 - $10 - $15 = $75.
+        $this->assertEquals(75.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(100.0, $item['display_strikethrough_price_money_object']['raw']);
+        $this->assertCount(2, $item['applied_product_coupons']);
+        $this->assertEqualsCanonicalizing(
+            [$first_code, $second_code],
+            array_column($item['applied_product_coupons'], 'code')
+        );
+    }
+
+    public function test_total_after_discount_excludes_free_shipping_waiver_but_grand_total_still_reconciles(): void
+    {
+        $product = $this->create_product([
+            'title' => 'Free Shipping Product ' . wp_generate_password(4, false),
+            'variants' => [[
+                'base_price' => 100,
+                'sku' => 'SKU-' . wp_generate_password(6, false),
+                'available_quantity' => 100,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]);
+        $this->variant_id = $this->default_variant_id($product);
+        $this->add_cart_item(1);
+
+        $this->assert_api_success($this->request('PUT', 'cart', [
+            'shipping_address' => [
+                'first_name' => 'Jane',
+                'last_name' => 'Doe',
+                'email' => 'jane@example.com',
+                'phone' => '1234567890',
+                'address_line1' => '1 Test St',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country' => 'US',
+            ],
+            'shipping_method' => 'method-0001',
+        ], $this->cart_headers));
+
+        $amount_off_code = 'AMOUNTOFF-' . wp_generate_password(6, false);
+        $this->create_coupon($amount_off_code, [
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'discount_amount' => 10,
+        ]);
+        $free_shipping_code = 'FREESHIP-' . wp_generate_password(6, false);
+        $this->create_coupon($free_shipping_code, [
+            'discount_type' => DiscountType::FREE_SHIPPING,
+        ]);
+
+        $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $amount_off_code], $this->cart_headers));
+        $applied = $this->assert_api_success(
+            $this->request('POST', 'cart/coupon', ['code' => $free_shipping_code], $this->cart_headers)
+        );
+
+        $pricing = $applied['data']['pricing'];
+
+        // $100 subtotal - $10 amount-off coupon, unaffected by the shipping waiver.
+        $this->assertEquals(90.0, $pricing['display_total_after_discount_money_object']['raw']);
+
+        // Grand total still reconciles: pre-shipping total + shipping (waived) + tax.
+        $expected_total = round(
+            $pricing['display_total_after_discount_money_object']['raw']
+            + $pricing['display_shipping_total_money_object']['raw']
+            + $pricing['display_tax_total_money_object']['raw'],
+            2
+        );
+        $this->assertEquals($expected_total, round($pricing['display_total_money_object']['raw'], 2));
+        $this->assertEquals(0.0, $pricing['display_shipping_total_money_object']['raw']);
+    }
+
     /**
      * Add item validation fails without variant id.
      *

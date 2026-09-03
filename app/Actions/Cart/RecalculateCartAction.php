@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
-use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\DiscountService;
@@ -129,10 +128,13 @@ class RecalculateCartAction
         // Calculate Shipping Tax
         $shipping_tax_money = Money::zero();
 
+        $shipping_tax_breakdown = [];
+
         if ($tax_strategy && $this->is_shipping_method_taxable($context)) {
             $shipping_taxable_money = $shipping_subtotal_money->minus($shipping_discount_money);
             $shipping_tax_result = $tax_strategy->calculate_shipping_tax($shipping_taxable_money->getMinorAmount()->toInt());
             $shipping_tax_money = Money::of_minor($shipping_tax_result->base_total);
+            $shipping_tax_breakdown = $shipping_tax_result->breakdown;
         }
 
         // Shipping Total
@@ -159,6 +161,7 @@ class RecalculateCartAction
         $result->base_shipping_subtotal = $shipping_subtotal_money->getMinorAmount()->toInt();
         $result->base_shipping_discount = $shipping_discount_money->getMinorAmount()->toInt();
         $result->base_shipping_tax = $shipping_tax_money->getMinorAmount()->toInt();
+        $result->shipping_tax_breakdown = $shipping_tax_breakdown;
         $result->base_shipping_total = $shipping_total_money->getMinorAmount()->toInt();
         $result->base_product_total = $total_product_amount_money->getMinorAmount()->toInt();
 

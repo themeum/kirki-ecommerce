@@ -78,6 +78,7 @@ class OrderCalculationController
 
             $item_dto->product_id = $variant->product_id;
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
+            $item_dto->base_product_total = $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $variant->product->tax_profile_id;
