@@ -49,7 +49,7 @@ class ShippingBoxService
         $shipping_box = ShippingBox::find($id);
 
         if (!$shipping_box) {
-            throw new NotFoundException(__('Shipping box not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Shipping box not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $shipping_box;
@@ -98,7 +98,7 @@ class ShippingBoxService
         $shipping_box = ShippingBox::find($data->id);
 
         if (empty($shipping_box)) {
-            throw new NotFoundException(__('Shipping box could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Shipping box could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $current_default = $this->find_default();
@@ -108,13 +108,13 @@ class ShippingBoxService
         }
 
         if (!$data->is_default && $current_default && $current_default->id === $data->id) {
-            throw new NotFoundException(__('At least one default shipping box is required.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new NotFoundException(__('At least one default shipping box is required.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $is_updated = (bool) $shipping_box->update($data->to_array());
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Shipping box could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Shipping box could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return ShippingBox::find($data->id);
@@ -132,7 +132,7 @@ class ShippingBoxService
         $is_deleted = (bool) ShippingBox::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping box could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Shipping box could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -150,7 +150,7 @@ class ShippingBoxService
         $is_deleted = (bool) ShippingBox::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping boxes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Shipping boxes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

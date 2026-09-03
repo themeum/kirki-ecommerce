@@ -375,11 +375,11 @@ class MoneyManager
         $method = Str::camel($method);
 
         if (!method_exists(Money::class, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist on " . Money::class);
+            throw new BadMethodCallException("Method {$method} does not exist on " . Money::class); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (empty($parameters)) {
-            throw new InvalidArgumentException("Money {$method} method requires at least one parameter.");
+            throw new InvalidArgumentException("Money {$method} method requires at least one parameter."); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (empty($parameters[1])) {

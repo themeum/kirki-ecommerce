@@ -33,7 +33,7 @@ class Currency
         }
 
         if ($from->exchange_rate === 0) {
-            throw new Exception(__('Exchange rate 0 is not allowed', 'kirki-ecommerce'));
+            throw new Exception(__('Exchange rate 0 is not allowed', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return ($amount / $from->exchange_rate) * $to->exchange_rate; //todo: need to check this later with major minor currency implementation
@@ -50,11 +50,11 @@ class Currency
         $to = static::resolve_currency($to_currency);
 
         if (!$to) {
-            throw new Exception(__('Currency not found', 'kirki-ecommerce'));
+            throw new Exception(__('Currency not found', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if ($to->exchange_rate === 0) {
-            throw new Exception(__('Exchange rate 0 is not allowed', 'kirki-ecommerce'));
+            throw new Exception(__('Exchange rate 0 is not allowed', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $to->exchange_rate;

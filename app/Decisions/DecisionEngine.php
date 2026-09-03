@@ -92,13 +92,15 @@ class DecisionEngine
         }
 
         if (!class_exists($this->conditions[$type])) {
-            throw new Exception(sprintf(__('Condition %s does not exist', 'kirki-ecommerce'), $type));
+            /* translators: %s: condition type */
+            throw new Exception(sprintf(__('Condition %s does not exist', 'kirki-ecommerce'), $type)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $condition_instance = new $this->conditions[$type]();
 
         if (!$condition_instance instanceof Condition) {
-            throw new Exception(sprintf(__('Condition %s does not implement Condition interface', 'kirki-ecommerce'), $type));
+            /* translators: %s: condition type */
+            throw new Exception(sprintf(__('Condition %s does not implement Condition interface', 'kirki-ecommerce'), $type)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $condition_instance->evaluate(

@@ -78,7 +78,7 @@ class ExchangeRatesApiProvider implements CurrencyProvider
         $api_key = $this->config['api_key'] ?? '';
 
         if (empty($api_key)) {
-            throw new Exception(__('Exchange Rates API access key is missing.', 'kirki-ecommerce'));
+            throw new Exception(__('Exchange Rates API access key is missing.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
         $response = Http::get(static::API_URL . '/latest', [
             'access_key' => $api_key,
@@ -87,17 +87,17 @@ class ExchangeRatesApiProvider implements CurrencyProvider
         ]);
 
         if ($response->status() === Response::UNAUTHORIZED) {
-            throw new Exception(__('Invalid API key.', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid API key.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (!$response->successful()) {
-            throw new Exception($response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'));
+            throw new Exception($response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $data = $response->json();
 
         if (empty($data['success']) || !$data['success']) {
-            throw new Exception($data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce'));
+            throw new Exception($data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return ExchangeRateDTO::from_array([

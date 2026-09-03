@@ -65,7 +65,7 @@ final class OrderStatus
         $matrix = static::get_transition_matrix();
 
         if (!isset($matrix[$order_status])) {
-            throw new Exception(__('Unknown order status.', 'kirki-ecommerce'));
+            throw new Exception(__('Unknown order status.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $matrix[$order_status];
@@ -88,7 +88,7 @@ final class OrderStatus
             }
         }
 
-        throw new Exception(__('Cannot resolve order status.', 'kirki-ecommerce'));
+        throw new Exception(__('Cannot resolve order status.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
     }
 
     /**

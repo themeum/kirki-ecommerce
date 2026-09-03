@@ -50,7 +50,7 @@ class OrderActivityController
         $order = $order_service->find_order($order_id);
 
         if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $params = ListFilterDTO::from_array($request->all());

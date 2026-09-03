@@ -33,7 +33,7 @@ class DuplicateCouponAction
         $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
 
         if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $data = CreateCouponDTO::from_array($coupon->to_array());

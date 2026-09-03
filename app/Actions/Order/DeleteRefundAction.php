@@ -21,7 +21,7 @@ class DeleteRefundAction
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $id)->values()->first();
 
         if (!$refund) {
-            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce'));
+            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         // @todo should we allow delete refund? what if its completed?

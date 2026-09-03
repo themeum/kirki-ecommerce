@@ -57,7 +57,7 @@ class AttributeValueService
         $attribute_value = AttributeValue::find($id);
 
         if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Attribute value not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $attribute_value;
@@ -97,13 +97,13 @@ class AttributeValueService
         $attribute_value = AttributeValue::find($data->id);
 
         if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $is_updated = (bool) $attribute_value->update($data->to_array());
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Attribute value could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Attribute value could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return AttributeValue::find($data->id);
@@ -121,7 +121,7 @@ class AttributeValueService
         $is_deleted = (bool) AttributeValue::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Attribute value could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Attribute value could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -139,7 +139,7 @@ class AttributeValueService
         $is_deleted = (bool) AttributeValue::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

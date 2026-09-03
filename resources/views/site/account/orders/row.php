@@ -47,7 +47,8 @@ $items_images = $order['items_images'] ?? [];
                 #<?php echo esc_html($order_number); ?>
             </a>
             <span class="kecom-account-order-items">
-                <?php printf(esc_html(_n('%d item', '%d items', $order_items, 'kirki-ecommerce')), $order_items); ?>
+                <?php /* translators: %d: number of items */ ?>
+                <?php printf(esc_html(_n('%d item', '%d items', $order_items, 'kirki-ecommerce')), esc_html($order_items)); ?>
             </span>
         </div>
     </td>

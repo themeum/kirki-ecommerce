@@ -12,7 +12,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Icon;
 
 if (!current_user_can('manage_options')) {
-    wp_die(__('You are not allowed to access this page.', 'kirki-ecommerce'));
+    wp_die(esc_html__('You are not allowed to access this page.', 'kirki-ecommerce'));
 }
 ?>
 <style>

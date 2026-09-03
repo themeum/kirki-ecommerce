@@ -11,10 +11,10 @@ class SendEmailJob
     protected $retry = 3;
     public function handle($args)
     {
-        $result = wp_mail($args['email'], 'Testing email', 'This is a test email: ' . $args['id']);
+        // $result = wp_mail($args['email'], 'Testing email', 'This is a test email: ' . $args['id']);
 
-        if (!$result) {
-            throw new Exception('Failed to send email');
-        }
+        // if (!$result) {
+        //     throw new Exception('Failed to send email');
+        // }
     }
 }

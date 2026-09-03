@@ -52,7 +52,7 @@ class CategoryService
         $category = Category::with_count('products')->find($id);
 
         if (empty($category)) {
-            throw new NotFoundException(__('Category not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Category not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $category;
@@ -106,7 +106,7 @@ class CategoryService
         $category = Category::find($data->id);
 
         if (empty($category)) {
-            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
@@ -127,7 +127,7 @@ class CategoryService
         $is_updated = (bool) $category->update($attributes);
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Category could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new NotFoundException(__('Category could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return Category::with_count('products')->find($data->id);
@@ -145,17 +145,17 @@ class CategoryService
         $category = Category::find($id);
 
         if (empty($category)) {
-            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if ($category->is_deletable === false) {
-            throw new Exception(__('Category is not deletable.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Category is not deletable.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $is_deleted = (bool) Category::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Category could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Category could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -173,7 +173,7 @@ class CategoryService
         $is_deleted = (bool) Category::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Categories could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Categories could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

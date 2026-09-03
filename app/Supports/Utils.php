@@ -315,7 +315,7 @@ class Utils
 
         // Resolve the account page base path (e.g. "/account" or "/shop/account").
         $account_url  = get_permalink($account_page_id);
-        $account_path = rtrim(parse_url($account_url, PHP_URL_PATH), '/');
+        $account_path = rtrim(wp_parse_url($account_url, PHP_URL_PATH), '/');
 
         // Current request path, stripped of query string.
         $current_path = rtrim(strtok($_SERVER['REQUEST_URI'] ?? '', '?'), '/');

@@ -215,7 +215,7 @@ class Scheduler
         $secret = Option::get(Config::ASYNC_WORKER_SECRET_KEY_NAME);
 
         if (!isset($_POST['secret']) || $_POST['secret'] !== $secret) {
-            wp_die(__('Access Denied!', 'kirki-ecommerce'));
+            wp_die(esc_html__('Access Denied!', 'kirki-ecommerce'));
         }
 
         static::run();

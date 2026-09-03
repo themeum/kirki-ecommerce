@@ -53,7 +53,7 @@ class CollectionService
         $collection = Collection::with_count('products')->find($id);
 
         if (empty($collection)) {
-            throw new NotFoundException(__('Collection not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Collection not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $collection;
@@ -90,7 +90,7 @@ class CollectionService
         $collection = Collection::find($data->id);
 
         if (empty($collection)) {
-            throw new NotFoundException(__('Collection could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Collection could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
@@ -102,7 +102,7 @@ class CollectionService
         $updated = (bool) $collection->update($attributes);
 
         if (!$updated) {
-            throw new Exception(__('Collection could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Collection could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return Collection::with_count('products')->find($data->id);
@@ -120,7 +120,7 @@ class CollectionService
         $deleted = (bool) Collection::query()->where('id', $id)->delete();
 
         if (!$deleted) {
-            throw new Exception(__('Collection could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Collection could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -138,7 +138,7 @@ class CollectionService
         $deleted = (bool) Collection::where_in('id', $ids)->delete();
 
         if (!$deleted) {
-            throw new Exception(__('Collections could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Collections could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

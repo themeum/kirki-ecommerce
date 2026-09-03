@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Database\Migrations\CreateAddressesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterAddressesTypeColumnToString;
 use Kirki\Ecommerce\Database\Migrations\CreateLanguagesTable;

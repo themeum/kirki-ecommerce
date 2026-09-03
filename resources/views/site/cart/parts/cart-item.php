@@ -38,7 +38,7 @@ $unit_price = $product['base_sale_price'] > 0
 
 ?>
 
-<div class="kecom-cart-item" id="<?php echo esc_html($item['id']); ?>" x-data="<?php printf('quantitySelector({ min:1, max:%s, initial:%d, onChange: (q) => update(%d,q) })', $max_quantity, $quantity, $item['id']); ?>">
+<div class="kecom-cart-item" id="<?php echo esc_html($item['id']); ?>" x-data="<?php echo esc_attr(sprintf('quantitySelector({ min:1, max:%s, initial:%d, onChange: (q) => update(%d,q) })', $max_quantity, $quantity, $item['id'])); ?>">
     <?php include_view('site.cart.parts.item.image', ['media' => $media, 'product' => $product]); ?>
     <div class="kecom-cart-item-container">
         <?php include_view('site.cart.parts.item.info', ['product' => $product, 'item' => $item, 'unit_price' => $unit_price]); ?>

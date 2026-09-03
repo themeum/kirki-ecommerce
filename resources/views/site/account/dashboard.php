@@ -34,7 +34,7 @@ $user_email = $user->get_email() ?: '';
 
 $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
-$register_since = $user ? date('M j, Y', strtotime($user->get()->user_registered)) : '';
+$register_since = $user ? gmdate('M j, Y', strtotime($user->get()->user_registered)) : '';
 $email_verified = $user->email_verified();
 ?>
 

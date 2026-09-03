@@ -87,7 +87,7 @@ class Template
                 <?php wp_body_open(); ?>
                 <div class="wp-site-blocks">
                 <?php
-                echo static::$block_header;
+                echo static::$block_header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks() output for the site's block template; escaping would corrupt the markup.
             } else {
                 get_header();
             }
@@ -103,7 +103,7 @@ class Template
         public static function get_footer()
         {
             if (static::is_block_theme()) {
-                echo static::$block_footer;
+                echo static::$block_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks() output for the site's block template; escaping would corrupt the markup.
 
                 // End of wp-site-blocks div.
                 echo '</div>';
@@ -201,13 +201,13 @@ class Template
                     return;
                 }
 
-                echo '<ul class="category-level category-level-' . $level . '">';
+                echo '<ul class="category-level category-level-' . esc_attr($level) . '">';
 
                 foreach ($tree[$parent_id] as $category) {
                     $hasChildren = isset($tree[$category->id]);
 
                 ?>
-                    <li class="category-item level-<?php echo $level; ?>">
+                    <li class="category-item level-<?php echo esc_attr($level); ?>">
 
                         <div class="category-row">
 

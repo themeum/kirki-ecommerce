@@ -16,7 +16,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
 <div class="kecom-login-social">
     <div class="kecom-login-social-divider">
         <div class="kecom-divider"></div>
-        <span class="kecom-divider-text"><?php _e('or continue with', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-divider-text"><?php esc_html_e('or continue with', 'kirki-ecommerce'); ?></span>
         <div class="kecom-divider"></div>
     </div>
     <div class="kecom-login-social-btn-container">

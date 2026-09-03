@@ -28,7 +28,7 @@ class CartSeeder extends Seeder
                 'currency_code' => 'USD',
                 'base_currency_code' => 'USD',
                 'items_count' => 2,
-                'expires_at' => date('Y-m-d H:i:s', strtotime('+7 days')),
+                'expires_at' => gmdate('Y-m-d H:i:s', strtotime('+7 days')),
             ]);
 
             $cart->items()->create_many([

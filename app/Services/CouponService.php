@@ -70,7 +70,7 @@ class CouponService
         $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
         if (!$coupon) {
-            throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $coupon;
@@ -88,7 +88,7 @@ class CouponService
         $coupon = Coupon::with(['categories', 'products.categories', 'customers'])->where('code', $code)->first();
 
         if (!$coupon) {
-            throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $coupon;
@@ -127,7 +127,7 @@ class CouponService
         $coupon = Coupon::find($data->id);
 
         if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'exclude_customer_ids', 'reward_product_ids']);
@@ -142,7 +142,7 @@ class CouponService
         $is_updated = (bool) $coupon->update($attributes);
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $is_updated;
@@ -160,7 +160,7 @@ class CouponService
         $is_deleted = (bool) Coupon::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Coupon could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupon could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -176,13 +176,13 @@ class CouponService
     public function bulk_delete(array $ids)
     {
         if (empty($ids)) {
-            throw new NotFoundException(__('No coupons selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('No coupons selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $is_deleted = (bool) Coupon::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Coupons could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Coupons could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -292,11 +292,11 @@ class CouponService
         $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
         if ($is_active && $coupon->is_active) {
-            throw new Exception(__('The coupon is already activated', 'kirki-ecommerce'));
+            throw new Exception(__('The coupon is already activated', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (!$is_active && !$coupon->is_active) {
-            throw new Exception(__('The coupon is already deactivated', 'kirki-ecommerce'));
+            throw new Exception(__('The coupon is already deactivated', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $coupon->is_active = $is_active ? 1 : 0;

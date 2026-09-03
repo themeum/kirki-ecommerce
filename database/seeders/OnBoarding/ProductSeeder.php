@@ -345,11 +345,18 @@ class ProductSeeder extends Seeder
 
         foreach (glob($directory . '/*') ?: [] as $file) {
             if (is_file($file)) {
-                unlink($file);
+                wp_delete_file($file);
             }
         }
 
-        rmdir($directory);
+        global $wp_filesystem;
+
+        if (empty($wp_filesystem)) {
+            require_once ABSPATH . '/wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
+        $wp_filesystem->rmdir($directory);
 
         Log::info('OnBoarding ProductSeeder removed the bundled product images');
     }

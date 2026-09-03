@@ -26,6 +26,7 @@ class SMTPConfig extends BaseHook
         if (empty($args)) {
             error_log(
                 sprintf(
+                    /* translators: %s: hook name */
                     __('%s hook configured in a wrong way.', 'kirki-ecommerce'),
                     $this->get_name()
                 )
