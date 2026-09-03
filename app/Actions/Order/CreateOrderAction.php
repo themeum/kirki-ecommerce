@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -46,6 +47,8 @@ use function Kirki\Ecommerce\Framework\uuid;
 
 class CreateOrderAction
 {
+    use PersistsOrderCoupons;
+
     protected $recalculate_cart_action;
     protected $variant_service;
     protected $order_service;
@@ -113,15 +116,6 @@ class CreateOrderAction
 
         try {
             $order = $this->order_service->create_order($create_order_dto);
-            $coupon = !empty($order->discount_details) ? $this->coupon_service->find($order->discount_details['id']) : null;
-
-            if ($coupon) {
-                $coupon->usage()->create([
-                    'order_id' => $order->id,
-                    'customer_id' => $create_order_dto->customer_id,
-                ]);
-                $this->coupon_service->increment($coupon->id, 'current_usage_count');
-            }
 
             foreach ($dto->items as $item_data) {
                 $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
@@ -134,6 +128,12 @@ class CreateOrderAction
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
             }
 
+            $order_coupons = $this->sync_order_coupons($order->fresh('items'), $calculated_result, $dto->currency_code, $order->exchange_rate);
+
+            foreach ($order_coupons as $order_coupon) {
+                $this->coupon_service->increment($order_coupon->coupon_id, 'current_usage_count');
+            }
+
             if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
                 $empty_cart_dto->token = $dto->cart_token;
@@ -142,11 +142,13 @@ class CreateOrderAction
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
 
-            OrderActivity::log($order->fresh('items'), OrderActivityType::ORDER_PLACED);
+            $order = $order->fresh('items', 'order_coupons.item_attributions');
+
+            OrderActivity::log($order, OrderActivityType::ORDER_PLACED);
 
             DB::commit();
 
-            return $order->fresh('items');
+            return $order;
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
@@ -176,10 +178,7 @@ class CreateOrderAction
 
         $dto->items = $items;
         $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
-
-        if (empty($dto->coupon_code) && !empty($cart->discount_details['code'])) {
-            $dto->coupon_code = $cart->discount_details['code'];
-        }
+        $dto->coupon_codes = $cart->coupons->pluck('code')->to_array();
 
         if (empty($dto->shipping_method) && !empty($cart->shipping_method)) {
             $dto->shipping_method = $cart->shipping_method;
@@ -336,7 +335,7 @@ class CreateOrderAction
             'postcode' => $dto->shipping_postcode,
             'country' => $dto->shipping_country,
         ];
-        $context->coupon = $dto->coupon_code ?? null;
+        $context->coupon_codes = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
         $context->items = $this->prepare_context_items($dto);
@@ -407,7 +406,6 @@ class CreateOrderAction
 
         $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_discount_total = $calculated_result->base_discount_total;
-        $order_dto->discount_details = $calculated_result->discount_details;
 
         $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_tax_total = $calculated_result->base_tax_total;

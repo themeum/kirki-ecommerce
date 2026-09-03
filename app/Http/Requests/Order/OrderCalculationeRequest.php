@@ -17,7 +17,8 @@ class OrderCalculationeRequest extends Request
 
             'currency_code' => 'nullable|string',
             'payment_provider' => 'nullable|string',
-            'coupon_code' => 'nullable|string',
+            'coupon_codes' => 'nullable|array',
+            'coupon_codes.*' => 'string',
 
             'shipping_method' => 'nullable|string',
             'shipping_first_name' => 'nullable|string',
@@ -64,7 +65,8 @@ class OrderCalculationeRequest extends Request
 
             'currency_code' => Sanitizer::TEXT,
             'payment_provider' => Sanitizer::TEXT,
-            'coupon_code' => Sanitizer::TEXT,
+            'coupon_codes' => Sanitizer::ARRAY,
+            'coupon_codes.*' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
 

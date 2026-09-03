@@ -171,19 +171,21 @@ class PageInlineScript extends BaseHook
         $cart    = $data->cart ?? null;
         $pricing = $cart['pricing'] ?? [];
 
-        $discount_details = $pricing['discount_details'] ?? null;
+        $coupons = $pricing['coupons'] ?? [];
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
             'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
             'pricing'                     => [
-                'discount_details'                   => $discount_details ? [
-                    'code'                       => $discount_details['code'] ?? null,
-                    'title'                      => $discount_details['title'] ?? null,
-                    'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
-                    'discount_amount_percentage' => $discount_details['discount_amount_percentage'] ?? null,
-                    'base_discount_amount_fixed' => $discount_details['base_discount_amount_fixed'] ?? null,
-                ] : null,
+                'coupons'                             => array_map(function ($coupon) {
+                    return [
+                        'code'                       => $coupon['code'] ?? null,
+                        'title'                      => $coupon['title'] ?? null,
+                        'discount_value_type'        => $coupon['discount_value_type'] ?? null,
+                        'discount_amount_percentage' => $coupon['discount_amount_percentage'] ?? null,
+                        'base_discount_amount_fixed' => $coupon['base_discount_amount_fixed'] ?? null,
+                    ];
+                }, $coupons),
                 'display_subtotal_money_object'      => $pricing['display_subtotal_money_object'] ?? null,
                 'display_tax_total_money_object'     => $pricing['display_tax_total_money_object'] ?? null,
                 'display_discount_total_money_object' => $pricing['display_discount_total_money_object'] ?? null,

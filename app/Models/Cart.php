@@ -13,7 +13,6 @@ class Cart extends Model
         'cart_token',
         'currency_code',
         'base_currency_code',
-        'discount_details',
         'shipping_method',
         'shipping_details',
         'items_count',
@@ -31,7 +30,6 @@ class Cart extends Model
         'user_id' => 'integer',
         'items_count' => 'integer',
         'expires_at' => 'datetime',
-        'discount_details' => 'json',
         'shipping_address' => 'json',
         'billing_address' => 'json',
         'shipping_details' => 'json',
@@ -46,5 +44,10 @@ class Cart extends Model
     public function currency()
     {
         return $this->belongs_to(Currency::class, 'currency_code', 'currency_code');
+    }
+
+    public function coupons()
+    {
+        return $this->belongs_to_many(Coupon::class, 'kirki_ecommerce_cart_coupons', 'cart_id', 'coupon_id');
     }
 }

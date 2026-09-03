@@ -11,11 +11,9 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
 use Kirki\Ecommerce\App\Supports\Tax;
-use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
-use Throwable;
 
 use function Kirki\Ecommerce\Framework\collection;
 
@@ -42,6 +40,11 @@ class RecalculateCartAction
     {
         $result = new CalculationResultDTO();
 
+        // Calculate Shipping Subtotal first
+        $shipping_subtotal_int = $this->get_shipping_total($context);
+        $context->shipping_subtotal = $shipping_subtotal_int;
+        $shipping_subtotal_money = Money::of_minor($shipping_subtotal_int);
+
         // Initialize totals as Money zero
         $total_subtotal_money = Money::zero();
         $total_tax_money = Money::zero();
@@ -51,6 +54,8 @@ class RecalculateCartAction
 
         // Calculate Coupons & Discounts
         $discount_result = $this->get_discount_result($context);
+        $shipping_discount_money = Money::of_minor($discount_result->shipping_discount);
+        $total_discount_money = $total_discount_money->plus($shipping_discount_money);
 
         // Get Tax Settings & Strategy
         $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
@@ -120,21 +125,16 @@ class RecalculateCartAction
             $result->items_count += $item->quantity;
         }
 
-        // Calculate Shipping
-        $shipping_subtotal_int = $this->get_shipping_total($context);
-        $shipping_subtotal_money = Money::of_minor($shipping_subtotal_int);
-
-        $shipping_discount_money = $discount_result->is_free_shipping ? $shipping_subtotal_money : Money::zero();
-
-        $total_discount_money = $total_discount_money->plus($shipping_discount_money);
-
         // Calculate Shipping Tax
         $shipping_tax_money = Money::zero();
+
+        $shipping_tax_breakdown = [];
 
         if ($tax_strategy && $this->is_shipping_method_taxable($context)) {
             $shipping_taxable_money = $shipping_subtotal_money->minus($shipping_discount_money);
             $shipping_tax_result = $tax_strategy->calculate_shipping_tax($shipping_taxable_money->getMinorAmount()->toInt());
             $shipping_tax_money = Money::of_minor($shipping_tax_result->base_total);
+            $shipping_tax_breakdown = $shipping_tax_result->breakdown;
         }
 
         // Shipping Total
@@ -155,33 +155,49 @@ class RecalculateCartAction
         $result->base_subtotal = $total_subtotal_money->getMinorAmount()->toInt();
         $result->base_tax_total = $total_tax_money->getMinorAmount()->toInt();
         $result->base_discount_total = $total_discount_money->getMinorAmount()->toInt();
-        $result->discount_details = $discount_result->discount_details;
+        $result->coupon_results = $discount_result->coupon_results;
         $result->base_total = $total_grand_money->getMinorAmount()->toInt();
 
         $result->base_shipping_subtotal = $shipping_subtotal_money->getMinorAmount()->toInt();
         $result->base_shipping_discount = $shipping_discount_money->getMinorAmount()->toInt();
         $result->base_shipping_tax = $shipping_tax_money->getMinorAmount()->toInt();
+        $result->shipping_tax_breakdown = $shipping_tax_breakdown;
         $result->base_shipping_total = $shipping_total_money->getMinorAmount()->toInt();
         $result->base_product_total = $total_product_amount_money->getMinorAmount()->toInt();
 
         return $result;
     }
 
-    protected function get_discount_result(CalculationContextDTO $context)
+    protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        try {
-            $coupon_code = $context->coupon ?? null;
-            $coupon = $coupon_code ? $this->coupon_service->find_by_code($coupon_code) : null;
+        $coupons = $this->resolve_coupons($context->coupon_codes);
 
-            return $this->discount_service->calculate($context, $coupon);
-        } catch (Throwable $e) {
-            if ($context->cart_id) {
-                $this->cart_service->partial_update($context->cart_id, ['discount_details' => null]);
-            }
+        $discount_result = $this->discount_service->calculate($context, $coupons);
 
-            return new DiscountCalculationResultDTO();
+        if ($context->cart_id && !empty($discount_result->invalid_coupons)) {
+            $invalid_coupon_ids = collection($discount_result->invalid_coupons)->pluck('id')->to_array();
+
+            $this->cart_service->remove_coupons($context->cart_id, $invalid_coupon_ids);
         }
+
+        return $discount_result;
     }
+
+    /**
+     * Resolve coupon codes to Coupon models in a single query, silently
+     * skipping codes that don't resolve to a coupon (e.g. an ad-hoc code
+     * submitted for an order preview that doesn't exist) rather than failing
+     * the whole calculation.
+     *
+     * @param string[] $codes
+     * @return \Kirki\Ecommerce\App\Models\Coupon[]
+     */
+    protected function resolve_coupons(array $codes)
+    {
+        return $this->coupon_service->find_by_codes($codes)->all();
+    }
+
+
 
     protected function get_shipping_total(CalculationContextDTO $context)
     {
@@ -191,7 +207,7 @@ class RecalculateCartAction
 
         return $this->shipping_service->calculate($context);
     }
-    
+
     protected function is_shipping_method_taxable(CalculationContextDTO $context)
     {
         if (empty($context->shipping_address) || empty($context->shipping_method_id)) {

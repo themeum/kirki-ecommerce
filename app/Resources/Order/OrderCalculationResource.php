@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+use Kirki\Ecommerce\App\Resources\Concerns\FormatsCouponResults;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -10,6 +11,8 @@ use function Kirki\Ecommerce\Framework\app;
 
 class OrderCalculationResource extends Resource
 {
+    use FormatsCouponResults;
+
     /**
      * Convert the cart resource to an array.
      *
@@ -37,7 +40,7 @@ class OrderCalculationResource extends Resource
                 'display_tax_total' => Money::prepare_amount_from_minor($result->base_tax_total, $result->currency_code, $display_currency),
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($result->base_tax_total, $result->currency_code, $display_currency),
 
-                'discount_details' => $result->discount_details,
+                'coupons' => $this->format_coupon_results($result->coupon_results, $result->currency_code, $display_currency),
                 'base_discount_total' => Money::prepare_amount_from_minor($result->base_discount_total, $result->currency_code),
                 'base_discount_total_money_object' => Money::prepare_amount_object_from_minor($result->base_discount_total, $result->currency_code),
                 'display_discount_total' => Money::prepare_amount_from_minor($result->base_discount_total, $result->currency_code, $display_currency),
@@ -67,6 +70,14 @@ class OrderCalculationResource extends Resource
                 'base_total_money_object' => Money::prepare_amount_object_from_minor($result->base_total, $result->currency_code),
                 'display_total' => Money::prepare_amount_from_minor($result->base_total, $result->currency_code, $display_currency),
                 'display_total_money_object' => Money::prepare_amount_object_from_minor($result->base_total, $result->currency_code, $display_currency),
+
+                'display_total_after_discount_money_object' => Money::prepare_amount_object_from_minor(
+                    $result->base_subtotal - ($result->base_discount_total - $result->base_shipping_discount),
+                    $result->currency_code,
+                    $display_currency
+                ),
+                'tax_breakdown' => $this->format_tax_breakdown($this->flatten_item_tax_breakdowns($result), $result->currency_code, $display_currency),
+                'shipping_tax_breakdown' => $this->format_tax_breakdown($result->shipping_tax_breakdown, $result->currency_code, $display_currency),
             ],
 
             'items_count' => $result->items_count,
@@ -92,6 +103,7 @@ class OrderCalculationResource extends Resource
         foreach ($items as $item) {
             if (isset($result->items[$item->variant_id])) {
                 $calculated_item = $result->items[$item->variant_id];
+                $product_coupon_discount = $this->get_product_coupon_discount_for_item($result->coupon_results, $item->variant_id);
 
                 $tax_breakdowns = [];
 
@@ -127,6 +139,9 @@ class OrderCalculationResource extends Resource
                     'base_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_total, $result->currency_code),
                     'display_total' => Money::prepare_amount_from_minor($calculated_item->base_total, $result->currency_code, $display_currency),
                     'display_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_total, $result->currency_code, $display_currency),
+                    'display_line_price_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal - $product_coupon_discount, $result->currency_code, $display_currency),
+                    'display_strikethrough_price_money_object' => $this->prepare_strikethrough_price($calculated_item, $product_coupon_discount, $result->currency_code, $display_currency),
+                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id, $result->currency_code, $display_currency),
                 ];
             }
         }

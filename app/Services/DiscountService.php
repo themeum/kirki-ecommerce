@@ -15,6 +15,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\SpendConditionType;
 use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
+use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -29,15 +30,26 @@ class DiscountService
      *
      * @param Coupon $coupon
      * @param CalculationContextDTO $context
+     * @param string[]|null $already_applied_coupon_codes Codes of coupons already confirmed valid in this same
+     *        calculation. Only `calculate()`'s batch loop needs to pass this explicitly - it validates coupons
+     *        one at a time, so `$context->coupon_codes` (the full candidate list) still includes ones not yet
+     *        confirmed valid, and even the coupon being validated itself. Every other caller can omit it: it
+     *        defaults to `$context->coupon_codes` minus the coupon's own code, which is already correct whenever
+     *        the coupon being validated isn't part of that list yet (e.g. applying a new coupon to a cart).
      * @throws ValidationException
      */
-    public function validate_coupon(Coupon $coupon, CalculationContextDTO $context)
+    public function validate_coupon(Coupon $coupon, CalculationContextDTO $context, ?array $already_applied_coupon_codes = null)
     {
+        if ($already_applied_coupon_codes === null) {
+            $already_applied_coupon_codes = array_diff($context->coupon_codes, [$coupon->code]);
+        }
+
         $this->validate_status($coupon);
         $this->validate_items_eligibility($coupon, $context);
         $this->validate_conditions($coupon, $context);
         $this->validate_region($coupon, $context);
         $this->validate_customers_eligibility($coupon, $context);
+        $this->validate_against_other_applied_coupons($coupon, $already_applied_coupon_codes);
     }
 
     protected function validate_status(Coupon $coupon)
@@ -73,6 +85,10 @@ class DiscountService
 
     protected function validate_conditions(Coupon $coupon, CalculationContextDTO $context)
     {
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING && $context->shipping_subtotal <= 0) {
+            throw new ValidationException(esc_html__('Free shipping coupon cannot be applied when shipping cost is zero.', 'kirki-ecommerce'));
+        }
+
         if ($coupon->has_usage_limit && $coupon->current_usage_count >= $coupon->usage_limit) {
             throw new ValidationException(esc_html__('Coupon usage limit reached.', 'kirki-ecommerce'));
         }
@@ -91,7 +107,10 @@ class DiscountService
                 throw new ValidationException(esc_html__('Please login to use this coupon.', 'kirki-ecommerce'));
             }
 
-            $current_customer_usage = $coupon->usage()->where('customer_id', $context->customer_id)->count();
+            $current_customer_usage = $coupon->order_coupons()
+                ->where('customer_id', $context->customer_id)
+                ->where_null('usage_reversed_at')
+                ->count();
 
             if ($current_customer_usage >= $coupon->customer_limit) {
                 throw new ValidationException(esc_html__('You have reached the usage limit for this coupon.', 'kirki-ecommerce'));
@@ -180,82 +199,283 @@ class DiscountService
     }
 
     /**
-     * Calculate discounts for the context.
+     * Reject a coupon that's already applied, and serve as the seam for a
+     * future coupon-combinability rule. Every other combination is allowed
+     * today - a future rule (reading `coupons.combinations`) plugs in here
+     * without touching calculation math.
+     *
+     * @param Coupon $coupon
+     * @param string[] $already_applied_coupon_codes
+     * @throws ValidationException
+     */
+    protected function validate_against_other_applied_coupons(Coupon $coupon, array $already_applied_coupon_codes)
+    {
+        if (in_array($coupon->code, $already_applied_coupon_codes, true)) {
+            throw new ValidationException(esc_html__('This coupon is already applied.', 'kirki-ecommerce'));
+        }
+
+        if ($coupon->discount_type === DiscountType::FREE_SHIPPING && !empty($already_applied_coupon_codes)) {
+            $has_existing_free_shipping = Coupon::query()
+                ->where_in('code', $already_applied_coupon_codes)
+                ->where('discount_type', DiscountType::FREE_SHIPPING)
+                ->exists();
+
+            if ($has_existing_free_shipping) {
+                throw new ValidationException(esc_html__('A free shipping coupon is already applied.', 'kirki-ecommerce'));
+            }
+        }
+    }
+
+    /**
+     * Calculate discounts for the context against every applied coupon.
+     *
+     * Coupons that fail validation are excluded from the calculation and
+     * reported back via `invalid_coupons`, rather than aborting the whole
+     * calculation - the remaining valid coupons still apply.
      *
      * @param CalculationContextDTO $context
-     * @param Coupon|null $coupon
+     * @param Coupon[] $coupons
      * @return DiscountCalculationResultDTO
      */
-    public function calculate(CalculationContextDTO $context, Coupon $coupon)
+    public function calculate(CalculationContextDTO $context, array $coupons)
     {
         $result = new DiscountCalculationResultDTO();
 
-        if (empty($coupon)) {
+        if (empty($coupons)) {
             return $result;
         }
 
-        // @todo: implement automatic coupon calculation logic
+        $valid_coupons = [];
+        $already_applied_codes = [];
+        $has_free_shipping_applied = false;
 
-        $this->validate_coupon($coupon, $context);
+        foreach ($coupons as $coupon) {
+            try {
+                if ($coupon->discount_type === DiscountType::FREE_SHIPPING && $has_free_shipping_applied) {
+                    throw new ValidationException(esc_html__('A free shipping coupon is already applied.', 'kirki-ecommerce'));
+                }
 
-        $result->discount_details = $coupon;
+                $this->validate_coupon($coupon, $context, $already_applied_codes);
+                $valid_coupons[] = $coupon;
+                $already_applied_codes[] = $coupon->code;
 
-        switch ($coupon->discount_type) {
-            case DiscountType::AMOUNT_OFF:
-                return $this->apply_amount_off($context, $coupon, $result);
-            case DiscountType::FREE_SHIPPING:
-                $result->is_free_shipping = true;
-                return $result;
-            case DiscountType::BUY_X_GET_Y:
-                return $result;
+                if ($coupon->discount_type === DiscountType::FREE_SHIPPING) {
+                    $has_free_shipping_applied = true;
+                }
+            } catch (ValidationException $e) {
+                $result->invalid_coupons[] = $coupon;
+            }
         }
+
+        if (empty($valid_coupons)) {
+            return $result;
+        }
+
+        // Running remaining subtotal per item, reduced as each pass/coupon consumes it.
+        $remaining_per_item = [];
+
+        foreach ($context->items as $item) {
+            $remaining_per_item[$item->variant_id] = $item->base_unit_price * $item->quantity;
+        }
+
+        // Pass 1: item-scoped coupons apply directly and independently to their
+        // eligible items - two item-scoped coupons on the same item both apply,
+        // summed, neither capping nor excluding the other.
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::PRODUCTS) {
+                continue;
+            }
+
+            $coupon_result = $this->apply_item_scoped_amount_off($context, $coupon);
+            $result->coupon_results[] = $coupon_result;
+
+            foreach ($coupon_result->item_discounts as $variant_id => $amount) {
+                $result->item_discounts[$variant_id] = ($result->item_discounts[$variant_id] ?? 0) + $amount;
+                $remaining_per_item[$variant_id] = max(0, ($remaining_per_item[$variant_id] ?? 0) - $amount);
+            }
+        }
+
+        // Pass 2: cart-wide coupons apply sequentially against whatever subtotal
+        // pass 1 (and each earlier pass-2 coupon) left remaining.
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::ORDER) {
+                continue;
+            }
+
+            $coupon_result = $this->apply_order_scoped_amount_off($coupon, $remaining_per_item);
+            $result->coupon_results[] = $coupon_result;
+
+            foreach ($coupon_result->item_discounts as $variant_id => $amount) {
+                $result->item_discounts[$variant_id] = ($result->item_discounts[$variant_id] ?? 0) + $amount;
+                $remaining_per_item[$variant_id] = max(0, ($remaining_per_item[$variant_id] ?? 0) - $amount);
+            }
+        }
+
+        // Free shipping - waives up to $context->shipping_subtotal
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type !== DiscountType::FREE_SHIPPING) {
+                continue;
+            }
+
+            $shipping_discount_amount = max(0, $context->shipping_subtotal);
+
+            $result->shipping_discount += $shipping_discount_amount;
+
+            $coupon_result = new CouponDiscountResultDTO();
+            $coupon_result->coupon = $coupon;
+            $coupon_result->shipping_discount = $shipping_discount_amount;
+            $coupon_result->total_discount = $shipping_discount_amount;
+
+            $result->coupon_results[] = $coupon_result;
+        }
+
+        // Buy-x-get-y is not implemented yet - record the coupon as applied
+        // with no discount, matching today's no-op, rather than dropping it.
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type !== DiscountType::BUY_X_GET_Y) {
+                continue;
+            }
+
+            $coupon_result = new CouponDiscountResultDTO();
+            $coupon_result->coupon = $coupon;
+            $result->coupon_results[] = $coupon_result;
+        }
+
+        $this->clamp_item_discounts($context, $result);
 
         return $result;
     }
 
     /**
-     * Apply amount off discount.
+     * Two item-scoped coupons on the same item are each capped individually
+     * at that item's subtotal, but their sum can still exceed it. When that
+     * happens, coupons are honored in application order - whichever coupon
+     * was applied first keeps its full amount on that item, later coupons
+     * only get whatever room is left, and once the item's subtotal is fully
+     * covered, any further coupon's contribution to that item is dropped
+     * entirely (there's no room left to attribute, so no point recording a
+     * zero). Every coupon's reported total still reconciles exactly with
+     * what was actually applied.
+     *
+     * @param CalculationContextDTO $context
+     * @param DiscountCalculationResultDTO $result
+     */
+    protected function clamp_item_discounts(CalculationContextDTO $context, DiscountCalculationResultDTO $result)
+    {
+        $item_subtotals = [];
+
+        foreach ($context->items as $item) {
+            $item_subtotals[$item->variant_id] = $item->base_unit_price * $item->quantity;
+        }
+
+        foreach ($result->item_discounts as $variant_id => $total_for_item) {
+            $subtotal = $item_subtotals[$variant_id] ?? 0;
+
+            if ($total_for_item <= $subtotal) {
+                continue;
+            }
+
+            $remaining = $subtotal;
+
+            foreach ($result->coupon_results as $coupon_result) {
+                if (empty($coupon_result->item_discounts[$variant_id])) {
+                    continue;
+                }
+
+                $old_amount = $coupon_result->item_discounts[$variant_id];
+                $new_amount = $remaining > 0 ? min($old_amount, $remaining) : 0;
+                $remaining -= $new_amount;
+
+                if ($new_amount === $old_amount) {
+                    continue;
+                }
+
+                $coupon_result->total_discount -= ($old_amount - $new_amount);
+
+                if ($new_amount > 0) {
+                    $coupon_result->item_discounts[$variant_id] = $new_amount;
+                } else {
+                    unset($coupon_result->item_discounts[$variant_id]);
+                }
+            }
+
+            $result->item_discounts[$variant_id] = $subtotal;
+        }
+    }
+
+    /**
+     * Apply an item-scoped amount-off coupon: each eligible item is discounted
+     * independently against its own subtotal.
      *
      * @param CalculationContextDTO $context
      * @param Coupon $coupon
-     * @param DiscountCalculationResultDTO $result
-     * @return DiscountCalculationResultDTO
+     * @return CouponDiscountResultDTO
      */
-    protected function apply_amount_off(CalculationContextDTO $context, Coupon $coupon, DiscountCalculationResultDTO $result)
+    protected function apply_item_scoped_amount_off(CalculationContextDTO $context, Coupon $coupon)
     {
+        $coupon_result = new CouponDiscountResultDTO();
+        $coupon_result->coupon = $coupon;
+
         $eligible_items = $this->get_eligible_items($context, $coupon);
 
-        $eligible_items->each(function ($item) use ($coupon, $result, $context) {
+        $eligible_items->each(function ($item) use ($coupon, $coupon_result) {
             $item_subtotal = $item->base_unit_price * $item->quantity;
 
             if ($coupon->discount_value_type === DiscountValueType::FIXED) {
-                $result->item_discounts[$item->variant_id] = $this->get_fixed_discounted_amount($coupon->discount_target, $coupon->base_discount_amount_fixed, $item_subtotal, $context->get_subtotal());
-            } elseif ($coupon->discount_value_type === DiscountValueType::PERCENTAGE) {
-                $result->item_discounts[$item->variant_id] = $this->get_percent_discounted_amount($coupon->discount_amount_percentage, $item_subtotal);
+                $amount = $this->get_fixed_discounted_amount($coupon->base_discount_amount_fixed, $item_subtotal);
+            } else {
+                $amount = $this->get_percent_discounted_amount($coupon->discount_amount_percentage, $item_subtotal);
             }
+
+            $coupon_result->item_discounts[$item->variant_id] = $amount;
+            $coupon_result->total_discount += $amount;
         });
 
-        return $result;
+        return $coupon_result;
     }
 
     /**
-     * Get fixed discounted amount.
+     * Apply a cart-wide amount-off coupon against the subtotal remaining after
+     * earlier passes, allocating the total exactly across items by weight.
      *
-     * @param int|float $discount_amount
+     * @param Coupon $coupon
+     * @param array<int, int> $remaining_per_item
+     * @return CouponDiscountResultDTO
+     */
+    protected function apply_order_scoped_amount_off(Coupon $coupon, array $remaining_per_item)
+    {
+        $coupon_result = new CouponDiscountResultDTO();
+        $coupon_result->coupon = $coupon;
+
+        $remaining_subtotal = array_sum($remaining_per_item);
+
+        if ($remaining_subtotal <= 0) {
+            return $coupon_result;
+        }
+
+        if ($coupon->discount_value_type === DiscountValueType::FIXED) {
+            $total_discount = $this->get_fixed_discounted_amount($coupon->base_discount_amount_fixed, $remaining_subtotal);
+        } else {
+            $total_discount = $this->get_percent_discounted_amount($coupon->discount_amount_percentage, $remaining_subtotal);
+        }
+
+        $coupon_result->item_discounts = $this->allocate_by_weight($total_discount, $remaining_per_item);
+        $coupon_result->total_discount = $total_discount;
+
+        return $coupon_result;
+    }
+
+    /**
+     * Get fixed discounted amount, capped at the amount it is being applied against.
+     *
+     * @param int $discount_amount
      * @param int $amount
      * @return int
      */
-    protected function get_fixed_discounted_amount($discount_target, $discount_amount, $item_subtotal, $order_subtotal)
+    protected function get_fixed_discounted_amount($discount_amount, $amount)
     {
-        if ($discount_target === DiscountTarget::ORDER) {
-            $product = Money::from_minor($discount_amount * $item_subtotal);
-            $item_discount = $product->dividedBy($order_subtotal, RoundingMode::HALF_UP);
-
-            return $item_discount->getMinorAmount()->toInt();
-        }
-
-        if ($discount_amount > $item_subtotal) {
-            return $item_subtotal;
+        if ($discount_amount > $amount) {
+            return $amount;
         }
 
         return $discount_amount;
@@ -279,6 +499,66 @@ class DiscountService
         }
 
         return $discount_value->getMinorAmount()->toInt();
+    }
+
+    /**
+     * Split a total amount across weighted buckets so every share is an exact
+     * integer minor unit and the shares sum to exactly `$total_amount` - no
+     * fractional unit lost or invented. Uses the largest-remainder method:
+     * each bucket's share is truncated down first, then the leftover minor
+     * units are handed out one at a time to the buckets with the largest
+     * truncated remainder (ties broken by key, for determinism).
+     *
+     * @param int $total_amount
+     * @param array<int|string, int> $weights
+     * @return array<int|string, int>
+     */
+    protected function allocate_by_weight($total_amount, array $weights)
+    {
+        $shares = array_fill_keys(array_keys($weights), 0);
+
+        $total_weight = array_sum($weights);
+
+        if ($total_amount <= 0 || $total_weight <= 0) {
+            return $shares;
+        }
+
+        $remainders = [];
+        $allocated = 0;
+
+        foreach ($weights as $key => $weight) {
+            if ($weight <= 0) {
+                continue;
+            }
+
+            $product = $total_amount * $weight;
+            $shares[$key] = intdiv($product, $total_weight);
+            $remainders[$key] = $product % $total_weight;
+            $allocated += $shares[$key];
+        }
+
+        $leftover = $total_amount - $allocated;
+
+        if ($leftover <= 0) {
+            return $shares;
+        }
+
+        $remainder_keys = array_keys($remainders);
+
+        usort($remainder_keys, function ($a, $b) use ($remainders) {
+            return $remainders[$b] <=> $remainders[$a] ?: $a <=> $b;
+        });
+
+        foreach ($remainder_keys as $key) {
+            if ($leftover <= 0) {
+                break;
+            }
+
+            $shares[$key]++;
+            $leftover--;
+        }
+
+        return $shares;
     }
 
     /**

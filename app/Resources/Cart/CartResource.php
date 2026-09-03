@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Resources\Cart;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\App\Resources\Concerns\FormatsCouponResults;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
@@ -13,6 +14,8 @@ use function Kirki\Ecommerce\Framework\app;
 
 class CartResource extends Resource
 {
+    use FormatsCouponResults;
+
     /**
      * @var bool
      */
@@ -83,7 +86,7 @@ class CartResource extends Resource
                 'display_tax_total' => Money::prepare_amount_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
 
-                'discount_details' => $this->discount_details,
+                'coupons' => $this->format_coupon_results($result->coupon_results, $this->base_currency_code, $display_currency),
                 'base_discount_total' => Money::prepare_amount_from_minor($this->base_discount_total, $this->base_currency_code),
                 'base_discount_total_money_object' => Money::prepare_amount_object_from_minor($this->base_discount_total, $this->base_currency_code),
                 'display_discount_total' => Money::prepare_amount_from_minor($this->base_discount_total, $this->base_currency_code, $display_currency),
@@ -113,6 +116,14 @@ class CartResource extends Resource
                 'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total, $this->base_currency_code),
                 'display_total' => Money::prepare_amount_from_minor($this->base_total, $this->base_currency_code, $display_currency),
                 'display_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total, $this->base_currency_code, $display_currency),
+
+                'display_total_after_discount_money_object' => Money::prepare_amount_object_from_minor(
+                    $this->base_subtotal - ($this->base_discount_total - $this->base_shipping_discount),
+                    $this->base_currency_code,
+                    $display_currency
+                ),
+                'tax_breakdown' => $this->format_tax_breakdown($this->flatten_item_tax_breakdowns($result), $this->base_currency_code, $display_currency),
+                'shipping_tax_breakdown' => $this->format_tax_breakdown($result->shipping_tax_breakdown, $this->base_currency_code, $display_currency),
             ],
 
             'items_count' => $this->items_count,
@@ -149,6 +160,7 @@ class CartResource extends Resource
         foreach ($items as $item) {
             if (isset($result->items[$item->variant_id])) {
                 $calculated_item = $result->items[$item->variant_id];
+                $product_coupon_discount = $this->get_product_coupon_discount_for_item($result->coupon_results, $item->variant_id);
 
                 $cart_items[] = [
                     'id' => $item->id,
@@ -208,6 +220,9 @@ class CartResource extends Resource
                     'base_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_total, $this->base_currency_code),
                     'display_total' => Money::prepare_amount_from_minor($calculated_item->base_total, $this->base_currency_code, $display_currency),
                     'display_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_total, $this->base_currency_code, $display_currency),
+                    'display_line_price_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal - $product_coupon_discount, $this->base_currency_code, $display_currency),
+                    'display_strikethrough_price_money_object' => $this->prepare_strikethrough_price($calculated_item, $product_coupon_discount, $this->base_currency_code, $display_currency),
+                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id, $this->base_currency_code, $display_currency),
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
                 ];

@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\Models\Cart as CartModel;
+use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Framework\Exceptions\AuthorizationException;
@@ -274,6 +275,25 @@ class CartService
         return CartModel::with($this->cart_relations())->find($cart_id);
     }
 
+    public function add_coupon(int $cart_id, int $coupon_id)
+    {
+        return CartCoupon::create([
+            'cart_id' => $cart_id,
+            'coupon_id' => $coupon_id,
+        ]);
+    }
+
+    public function remove_coupons(int $cart_id, array $coupon_ids)
+    {
+        if (empty($coupon_ids)) {
+            return false;
+        }
+
+        return CartCoupon::where('cart_id', $cart_id)
+            ->where_in('coupon_id', $coupon_ids)
+            ->delete();
+    }
+
     protected function get_cookie_cart_token(): ?string
     {
         return Sanitizer::apply_rule(request()->cookie(CartConstants::COOKIE_TOKEN), Sanitizer::TEXT);
@@ -391,6 +411,7 @@ class CartService
                 'product' => ['media', 'categories'],
                 'variant' => ['media', 'attribute_values', 'available_quantity'],
             ],
+            'coupons',
         ];
     }
 }

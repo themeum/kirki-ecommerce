@@ -24,11 +24,14 @@ class CalculationContextDTO extends DTO
     /** @var int */
     public $customer_id;
 
-    /** @var string|null */
-    public $coupon = null;
+    /** @var string[] */
+    public $coupon_codes = [];
 
     /** @var int */
     public $shipping_method_id;
+
+    /** @var int Base shipping cost in minor units */
+    public $shipping_subtotal = 0;
 
     /** @var int */
     public $customer_order_count = 0;
@@ -69,9 +72,7 @@ class CalculationContextDTO extends DTO
         $dto->shipping_address = $cart->shipping_address ? $cart->shipping_address : [];
         $dto->shipping_method_id = $cart->shipping_method;
 
-        if (!empty($cart->discount_details['code'])) {
-            $dto->coupon = $cart->discount_details['code'];
-        }
+        $dto->coupon_codes = $cart->coupons->pluck('code')->to_array();
 
         $dto->items = $cart->items->map(function ($item) {
             $item_dto = new CalculationItemDTO();

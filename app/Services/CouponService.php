@@ -17,6 +17,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\user;
 
 class CouponService
@@ -92,6 +93,24 @@ class CouponService
         }
 
         return $coupon;
+    }
+
+    /**
+     * Find coupons by code in a single query. Codes that don't resolve to a
+     * coupon are silently omitted from the result rather than throwing, so
+     * callers resolving several applied-coupon codes at once (e.g. a cart's)
+     * don't need to query per code or handle a not-found error per code.
+     *
+     * @param string[] $codes
+     * @return Collection
+     */
+    public function find_by_codes(array $codes)
+    {
+        if (empty($codes)) {
+            return collection();
+        }
+
+        return Coupon::with(['categories', 'products.categories', 'customers'])->where_in('code', $codes)->get();
     }
 
     /**
