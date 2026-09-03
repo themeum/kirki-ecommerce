@@ -97,13 +97,13 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             <div class="kecom-card kecom-order-status-card">
                                 <h3 class="kecom-card-title"><?php esc_html_e('Order Activities', 'kirki-ecommerce'); ?></h3>
                                 <div class="kecom-order-stepper">
-                                    <?php if (count($order_activities)):?>
-                                        <?php foreach ($order_activities as $key => $timeline): ?>
+                                    <?php if (count($order_activities)) :?>
+                                        <?php foreach ($order_activities as $key => $timeline) : ?>
                                                 <div class="kecom-order-step <?php echo 0 === $key ? 'kecom-order-step-active' : '' ?> <?php echo $timeline['activity_type'] === OrderActivityType::DELIVERED ? 'kecom-order-step-delivered' : '' ?>">
                                                     <div class="kecom-order-step-indicator">
-                                                        <?php if($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
+                                                        <?php if ($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
                                                              <?php Icon::render('check'); ?>
-                                                        <?php else: ?>
+                                                        <?php else : ?>
                                                             <span class="kecom-order-step-dot"></span>
                                                         <?php endif; ?>
                                                     </div>
@@ -202,47 +202,60 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
 
                         <!-- Right Column (Products List & Total Breakdown) -->
                         <div class="kecom-order-details-col-right">
-                            <div class="kecom-card kecom-order-summary-card">
+                            <div class="kecom-order-summary-card" x-data="{ expanded: false, isAtBottom: false }">
                                 <!-- Order Items List -->
-                                <?php if (count($items)) : ?>
+                                <div class="kecom-product-list-wrapper" x-ref="list_wrapper" :class="expanded ? 'scrollable': ''" @scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
                                     <div class="kecom-product-list">
-                                        <!-- Item 1 -->
-                                        <?php foreach ($items as $key => $item):
-                                            $base_price_obj = $item['base_price_money_object'] ?? null;
-                                            $item_product = $items_product_data[$key]['product'] ?? [];
-                                            $categories = $item_product['categories'] ?? [];
-                                            $product_image = $item_product['media'][0] ?? [];
-                                            $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
-                                            $image = $item['image'] ? $item['image'] : $product_first_image;
-                                        ?>
+                                        <template x-for="item in kirki_ecommerce.order_details_items">
                                             <div class="kecom-product-item">
                                                 <div class="kecom-product-image-wrapper">
-                                                    <?php if (!empty($image) && isset($image['url'])): ?>
-                                                        <img src="<?php echo esc_url($image['url']); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
-                                                    <?php else: ?>
-                                                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
-                                                    <?php endif; ?>
-                                                    <span class="kecom-product-qty-badge"><?php echo esc_html($item['quantity'] ?? 0); ?></span>
+                                                    <img :src="item.image_url" :alt="item.name" class="kecom-product-image">
+                                                    <span class="kecom-product-qty-badge" x-text="item.quantity"></span>
                                                 </div>
 
                                                 <div class="kecom-product-info">
-                                                    <a href="<?php echo esc_url(Url::get_product_url($item_product['slug'] ?? '')); ?>" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
-                                                    <span class="kecom-product-category"><?php echo esc_html($categories[count($categories) - 1]['name'] ?? ''); ?></span>
-                                                    <div class="kecom-product-variant">
-                                                        <?php echo esc_html($item['variant_name'] ?? '') ?>
-                                                    </div>
+                                                    <a :href="item.url" class="kecom-product-name" x-text="item.name"></a>
+                                                    <span class="kecom-product-category" x-text="item.category"></span>
+                                                    <div class="kecom-product-variant" x-text="item.variant"></div>
                                                 </div>
 
                                                 <div class="kecom-product-price-wrapper">
-                                                    <span class="kecom-product-price"><?php echo esc_html($base_price_obj->display ?? ''); ?></span>
+                                                    <span class="kecom-product-price" x-text="item.price"></span>
                                                 </div>
                                             </div>
-                                        <?php endforeach; ?>
+                                        </template>
+                                        <template x-if="expanded" x-cloak>
+                                            <template x-for="item in kirki_ecommerce.order_details_more_items">
+                                                <div class="kecom-product-item">
+                                                    <div class="kecom-product-image-wrapper">
+                                                        <img :src="item.image_url" :alt="item.name" class="kecom-product-image">
+                                                        <span class="kecom-product-qty-badge" x-text="item.quantity"></span>
+                                                    </div>
+
+                                                    <div class="kecom-product-info">
+                                                        <a :href="item.url" class="kecom-product-name" x-text="item.name"></a>
+                                                        <span class="kecom-product-category" x-text="item.category"></span>
+                                                        <div class="kecom-product-variant" x-text="item.variant"></div>
+                                                    </div>
+
+                                                    <div class="kecom-product-price-wrapper">
+                                                        <span class="kecom-product-price" x-text="item.price"></span>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </template>
                                     </div>
-                                <?php endif; ?>
+                                    <div class="kecom-collapse-button" x-show="expanded" x-cloak>
+                                        <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php printf(__('Show Less', 'kirki-ecommerce')); ?></button>
+                                    </div>
+                                </div>
 
                                 <!-- Summary Totals Breakdown -->
-                                <div class="kecom-order-pricing-breakdown">
+                                <div class="kecom-order-pricing-breakdown" :class="expanded && !isAtBottom ? 'expanded' : ''">
+                                    <div class="kecom-expand-button" x-show="!expanded && kirki_ecommerce.order_details_more_items.length > 0" x-cloak>
+                                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php esc_html_e('Show More', 'kirki-ecommerce'); ?>' + ' (' + (kirki_ecommerce.order_details_more_items.length) + ')'"></button>
+                                    </div>
+
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label"><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
                                         <span class="kecom-pricing-value"><?php echo esc_html($subtotal->display ?? ''); ?></span>

@@ -78,7 +78,12 @@
 // Card 1: Order Status Timeline
 .kecom-order-status-card {
   .kecom-order-stepper {
-    @include scrollbar($spacing-2, $spacing-19, $background-fill-tertiary, $background-surface-secondary);
+    @include scrollbar(
+      $spacing-2,
+      $spacing-19,
+      $background-fill-tertiary,
+      $background-surface-secondary
+    );
     display: flex;
     flex-direction: column;
     gap: $spacing-9;
@@ -105,6 +110,7 @@
 
     .kecom-order-step-dot {
       background-color: $icon-emphasis;
+      animation: pulse 1s infinite;
     }
 
     &:not(:last-of-type) {
@@ -157,6 +163,20 @@
       height: 6.67px;
       border-radius: $radius-full;
       background-color: $icon-secondary;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+      }
     }
 
     &-content {
@@ -226,9 +246,58 @@
 // ----------------------------------------------------------------------------
 .kecom-order-details-col-right {
   .kecom-order-summary-card {
-    @include flex(column, stretch, space-between);
-    gap: $spacing-10;
+    max-height: 522px;
+    @include flex(column, stretch,space-between);
     min-height: 100%;
+    background-color: $background-surface;
+    border-radius: $radius-2xl;
+    width: 100%;
+    padding: $spacing-4;
+  }
+
+  .kecom-product-list-wrapper {
+    max-height: 245px;
+    overflow: hidden;
+    scrollbar-gutter: stable both-edges;
+    padding-top: $spacing-2;
+    padding: $spacing-9 $spacing-10;
+  }
+
+  .kecom-expand-button,
+  .kecom-collapse-button {
+    @include flex-center();
+    @include typography(base, normal, $text-secondary);
+
+    button{
+      text-decoration: underline;
+      color: $text-secondary;
+      cursor: pointer;
+
+      &:hover{
+        color: $text-subdued;
+      }
+    }
+  }
+
+  .kecom-expand-button{
+    padding-top: $spacing-14;
+    padding-bottom: $spacing-11;
+  }
+
+  .kecom-collapse-button{
+    margin-top: $spacing-11;
+  }
+
+  .kecom-product-list-wrapper.scrollable {
+    overflow: auto;
+    max-height: 300px;
+    margin: 0 -4px;
+    @include scrollbar(
+      $spacing-2,
+      $spacing-19,
+      $background-fill-tertiary,
+      $background-surface-secondary
+    );
   }
 
   // Pricing Breakdown
@@ -236,7 +305,19 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-4;
+    padding: 0 $spacing-10;
+    padding-bottom: $spacing-9;
+    margin: 0 -8px;
+    flex: 1;
+    justify-content: flex-end;
+    min-height: 228px;
   }
+
+  .kecom-order-pricing-breakdown.expanded{
+    box-shadow: 0 -5px 10px -11px rgba(0, 0, 0, 0.5);
+    
+  }
+    
 
   .kecom-pricing-row {
     @include flex-between();
