@@ -1,3 +1,4 @@
+import { PlusCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -16,7 +17,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
-import { PlusCircle } from 'lucide-react';
 
 const EMPTY_AMOUNT = '—';
 

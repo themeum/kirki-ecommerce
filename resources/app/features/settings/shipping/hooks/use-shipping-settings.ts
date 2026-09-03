@@ -7,13 +7,21 @@ import { useNavigate, useOutletContext } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
-import { getShippingMethodData as getZoneShippingMethods, removeZone, toggleMethod } from '@/features/settings/shipping/lib/shipping-zone-operations';
+import {
+  getShippingMethodData as getZoneShippingMethods,
+  removeZone,
+  toggleMethod,
+} from '@/features/settings/shipping/lib/shipping-zone-operations';
 import {
   type ShippingSettingsFormInput,
   type ShippingSettingsFormPayload,
   ShippingSettingsFormSchema,
 } from '@/features/settings/shipping/schemas/forms/shipping-settings-form';
-import type { CountryWithStates, ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import type {
+  CountryWithStates,
+  ShippingMethodData,
+  ShippingZone,
+} from '@/features/settings/shipping/types';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -29,10 +37,7 @@ import { __ } from '@/wpi18n';
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
+  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
 };
 
 type UseShippingSettingsResult = {
@@ -76,7 +81,11 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   });
 
   const { isDirty } = form.formState;
-  const shippingZonesObj = (useWatch({ control: form.control, name: 'shipping_zones' }) as ShippingZone[]) || [];
+  const watchedShippingZones = useWatch({ control: form.control, name: 'shipping_zones' });
+  const shippingZonesObj = useMemo(
+    () => (watchedShippingZones ?? []) as ShippingZone[],
+    [watchedShippingZones],
+  );
 
   const usedRegions = useMemo(
     () => mergeRegionsByCountry(shippingZonesObj.flatMap((zone) => zone.regions ?? [])),
@@ -101,13 +110,9 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   ) => {
     const current = (form.getValues('shipping_zones') as ShippingZone[]) || [];
     const next = typeof updater === 'function' ? updater(current) : updater;
-    form.setValue(
-      'shipping_zones',
-      next as ShippingSettingsFormInput['shipping_zones'],
-      {
-        shouldDirty: options?.shouldDirty ?? false,
-      },
-    );
+    form.setValue('shipping_zones', next as ShippingSettingsFormInput['shipping_zones'], {
+      shouldDirty: options?.shouldDirty ?? false,
+    });
   };
 
   const handleDeleteItem = async (item: ShippingZone) => {
@@ -161,9 +166,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
           }
           return {
             ...zone,
-            shipping_methods: (zone.shipping_methods || []).filter(
-              (item) => item.id !== method.id,
-            ),
+            shipping_methods: (zone.shipping_methods || []).filter((item) => item.id !== method.id),
           };
         });
         setShippingZonesObj(updatedZones, { shouldDirty: false });
@@ -200,9 +203,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
           return prev;
         }
         const newValue = !item.is_enabled;
-        return prev.map((zone) =>
-          zone.id === item.id ? { ...zone, is_enabled: newValue } : zone,
-        );
+        return prev.map((zone) => (zone.id === item.id ? { ...zone, is_enabled: newValue } : zone));
       },
       { shouldDirty: true },
     );
@@ -227,13 +228,13 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
         data: { shipping_zones: updatedZones },
       });
       setShowCreateZonePopup(false);
-      void navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }));
+      void navigate(
+        ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }),
+      );
       newZoneIdRef.current = uuid();
     } catch (error) {
       const errObj = error as ErrorResponse;
-      setPopupErrors(
-        normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors,
-      );
+      setPopupErrors(normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors);
     }
   };
 

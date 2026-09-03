@@ -1,14 +1,24 @@
 import { css } from '@emotion/react';
-import { type Dispatch, type SetStateAction, useState } from 'react';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import { getDestinationDisplayValue } from '@/features/settings/tax/lib/tax-rules/helper';
-import type { TaxConditionRow, TaxRegionState } from '@/features/settings/tax/lib/utils';
-import { taxRuleConditionOptions } from '@/features/settings/tax/lib/utils';
+import type {
+  SelectOption,
+  TaxConditionRow,
+  TaxRegionState,
+} from '@/features/settings/tax/lib/utils';
+import { taxProfileConditionOptions } from '@/features/settings/tax/lib/utils';
 import { AddStatePopup } from '@/features/settings/tax/pages/tax-region/tax-rules/add-state-dialog';
 import { PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -29,6 +39,7 @@ type ConditionRowProps = {
   conditions: TaxConditionRow[];
   setConditions: Dispatch<SetStateAction<TaxConditionRow[]>>;
   getConditionValue: (condition: string) => ConditionOption[];
+  conditionOptions: SelectOption[];
   selectedCountries: (string | number)[];
   setSelectedCountries: Dispatch<SetStateAction<(string | number)[]>>;
   from?: string;
@@ -43,6 +54,7 @@ const ConditionRow = (props: ConditionRowProps) => {
     conditions,
     setConditions,
     getConditionValue,
+    conditionOptions,
     selectedCountries,
     setSelectedCountries,
     states,
@@ -57,9 +69,9 @@ const ConditionRow = (props: ConditionRowProps) => {
       prev.map((item) =>
         item.id === row.id
           ? {
-            ...item,
-            value: selectedCountries,
-          }
+              ...item,
+              value: selectedCountries,
+            }
           : item,
       ),
     );
@@ -76,11 +88,7 @@ const ConditionRow = (props: ConditionRowProps) => {
       },
     ]);
   };
-  const updateCondition = (
-    id: string,
-    key: keyof TaxConditionRow,
-    value: unknown,
-  ) => {
+  const updateCondition = (id: string, key: keyof TaxConditionRow, value: unknown) => {
     setConditions((prev) =>
       prev.map((item) => (item.id === id ? { ...item, [key]: value } : item)),
     );
@@ -88,13 +96,19 @@ const ConditionRow = (props: ConditionRowProps) => {
   const handleDeleteConditionRow = (id: string) => {
     setConditions((prev) => prev.filter((row) => row.id !== id));
   };
-  const displayedValue = row.value;
-  const displayedCondition = row.type;
+  const rowConditionOptions = index === 1 ? taxProfileConditionOptions : conditionOptions;
+  const isConditionLocked = rowConditionOptions.length === 1;
+  const lockedConditionValue = rowConditionOptions[0]?.value;
 
-  const conditionOptions =
-    index === 1
-      ? [{ title: __('Tax Profile', 'kirki-ecommerce'), value: 'tax_profile' }]
-      : taxRuleConditionOptions;
+  useEffect(() => {
+    if (isConditionLocked && lockedConditionValue && row.condition !== lockedConditionValue) {
+      setConditions((prev) =>
+        prev.map((item) =>
+          item.id === row.id ? { ...item, condition: lockedConditionValue } : item,
+        ),
+      );
+    }
+  }, [isConditionLocked, lockedConditionValue, row.condition, row.id, setConditions]);
 
   return (
     <div
@@ -116,14 +130,15 @@ const ConditionRow = (props: ConditionRowProps) => {
         }
       >
         <Select
-          value={String(displayedCondition || row.condition)}
+          value={isConditionLocked ? lockedConditionValue : row.condition}
           onValueChange={(value) => updateCondition(row.id, 'condition', value)}
+          disabled={isConditionLocked}
         >
-          <SelectTrigger>
+          <SelectTrigger cssOverride={mergeCss(isConditionLocked && styles.lockedConditionTrigger)}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {conditionOptions.map((option) => (
+            {rowConditionOptions.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.title}
               </SelectItem>
@@ -141,20 +156,18 @@ const ConditionRow = (props: ConditionRowProps) => {
           />
         ) : (
           <Select
-            value={toDisplayString(displayedValue ?? row.value)}
+            value={toDisplayString(row.value)}
             onValueChange={(value) => updateCondition(row.id, 'value', value)}
           >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {getConditionValue(displayedCondition || row.condition).map(
-                (option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.title}
-                  </SelectItem>
-                ),
-              )}
+              {getConditionValue(row.condition).map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.title}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         )}
@@ -164,8 +177,10 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="outline"
             onClick={handleAddConditionRow}
-            cssOverride={mergeCss(styles.conditionActions,
-              isHovered && styles.conditionActionsActive)}
+            cssOverride={mergeCss(
+              styles.conditionActions,
+              isHovered && styles.conditionActionsActive,
+            )}
           >
             <PlusIcon />
           </Button>
@@ -175,8 +190,10 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            cssOverride={mergeCss(styles.conditionActions,
-              isHovered && styles.conditionActionsActive)}
+            cssOverride={mergeCss(
+              styles.conditionActions,
+              isHovered && styles.conditionActionsActive,
+            )}
           >
             <TrashIcon />
           </Button>
@@ -204,6 +221,17 @@ export default ConditionRow;
 const styles = defineStyles({
   conditionGrid: {
     marginTop: theme.spacing[2],
+  },
+  lockedConditionTrigger: {
+    '&[data-disabled]': {
+      backgroundColor: theme.colors.background.fill,
+      color: 'inherit',
+      opacity: 1,
+      borderColor: theme.colors.border.default,
+    },
+    '&[data-disabled] svg': {
+      display: 'none',
+    },
   },
   conditionActions: css({
     opacity: 0,

@@ -3,23 +3,17 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/schemas/forms/tax-settings-form';
-import { __ } from '@/wpi18n';
-import { mergeCss } from '@/theme/mixins';
 import { theme } from '@/theme';
+import { mergeCss } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const options = [
   {
-    title: __(
-      'Tax should be calculated & displayed in the checkout page',
-      'kirki-ecommerce',
-    ),
+    title: __('Tax should be calculated & displayed in the checkout page', 'kirki-ecommerce'),
     value: 'not_inclusive',
   },
   {
-    title: __(
-      'Tax is already included in product price and shipping rate',
-      'kirki-ecommerce',
-    ),
+    title: __('Tax is already included in product price and shipping rate', 'kirki-ecommerce'),
     value: 'inclusive',
     disabled: true,
   },
@@ -48,7 +42,9 @@ const TaxCollectionField = () => {
                 />
                 <FieldLabel
                   htmlFor={`tax-collection-${option.value}`}
-                  cssOverride={mergeCss(option.disabled ? {color: theme.colors.text.subdued} : null)}
+                  cssOverride={mergeCss(
+                    option.disabled ? { color: theme.colors.text.subdued } : null,
+                  )}
                 >
                   {option.title}
                 </FieldLabel>

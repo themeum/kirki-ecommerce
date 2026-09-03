@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -27,7 +28,6 @@ import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
 
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import VariantGroup from './variant-group';
 
 const VariantsTable = () => {

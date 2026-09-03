@@ -20,7 +20,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { getDestinationDisplayValue } from '@/features/settings/tax/lib/tax-rules/helper';
-import type { TaxRegionState, TaxRule } from '@/features/settings/tax/lib/utils';
+import type { SelectOption, TaxRegionState, TaxRule } from '@/features/settings/tax/lib/utils';
+import { taxRuleConditionOptions } from '@/features/settings/tax/lib/utils';
 import TaxRulesDialog from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules-dialog';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -43,10 +44,21 @@ type TaxRulesProps = {
     rulesList: TaxRule[],
     from?: string,
   ) => void | Promise<void>;
+  /**
+   * Condition types the rule editor offers. Defaults to Tax Profile plus
+   * Destination; a state's page passes Tax Profile only.
+   */
+  conditionOptions?: SelectOption[];
 };
 
 const TaxRules = (props: TaxRulesProps) => {
-  const { rules, states, destinationLabel, updateTaxRules } = props;
+  const {
+    rules,
+    states,
+    destinationLabel,
+    updateTaxRules,
+    conditionOptions = taxRuleConditionOptions,
+  } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [rulesObj, setRulesObj] = useState<TaxRule[]>([]);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
@@ -99,6 +111,7 @@ const TaxRules = (props: TaxRulesProps) => {
                   from="add"
                   states={states}
                   destinationLabel={destinationLabel}
+                  conditionOptions={conditionOptions}
                 />
               )}
               <RuleItems cssOverride={styles.ruleItems}>
@@ -174,6 +187,7 @@ const TaxRules = (props: TaxRulesProps) => {
                       <TaxRulesDialog
                         states={states}
                         destinationLabel={destinationLabel}
+                        conditionOptions={conditionOptions}
                         rulesObj={rulesObj}
                         setRulesObj={setRulesObj}
                         updateTaxRules={updateTaxRules}

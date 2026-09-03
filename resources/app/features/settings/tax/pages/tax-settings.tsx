@@ -33,10 +33,7 @@ import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TaxCollectionOptions = () => {
-  const isTaxInclusivePrice = useWatch<
-    TaxSettingsFormInput,
-    'is_tax_inclusive_price'
-  >({
+  const isTaxInclusivePrice = useWatch<TaxSettingsFormInput, 'is_tax_inclusive_price'>({
     name: 'is_tax_inclusive_price',
   });
 
@@ -53,10 +50,7 @@ const TaxCollectionOptions = () => {
         <CheckboxField
           name="is_enabled_taxed_price"
           label={__('Display prices inclusive tax', 'kirki-ecommerce')}
-          infoText={__(
-            'Tax value will be included inside the product price',
-            'kirki-ecommerce',
-          )}
+          infoText={__('Tax value will be included inside the product price', 'kirki-ecommerce')}
         />
       )}
     </div>
@@ -65,8 +59,7 @@ const TaxCollectionOptions = () => {
 
 const TaxSettings = () => {
   const { data: taxSettings, isLoading } = useSettingsQuery('tax');
-  const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation<'tax'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const loaded = !isLoading && Boolean(taxSettings);
 
@@ -84,9 +77,7 @@ const TaxSettings = () => {
 
     form.reset(
       pickFormValues(TaxSettingsFormSchema, taxSettings, {
-        tax_regions: Array.isArray(taxSettings.tax_regions)
-          ? (taxSettings.tax_regions as TaxRegion[])
-          : [],
+        tax_regions: Array.isArray(taxSettings.tax_regions) ? taxSettings.tax_regions : [],
         tax_services: [],
         tax_ids: [],
       }),
@@ -103,7 +94,7 @@ const TaxSettings = () => {
   ) => {
     const data: TaxSettingsFormPayload = {
       ...payload,
-      tax_regions: (updatedRegions ?? payload.tax_regions) as TaxSettingsFormPayload['tax_regions'],
+      tax_regions: updatedRegions ?? payload.tax_regions,
     };
 
     try {
@@ -134,19 +125,20 @@ const TaxSettings = () => {
       {loaded ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<TaxIcon />}
-              title={__('Tax', 'kirki-ecommerce')}
-            />
-            <Card cssOverride={cardStyles.formCard} >
+            <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={4}>
                   <Flex direction="column" gap={2}>
-                    <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
-                    <Text color="secondary">{__(
-                      'Configure how tax is displayed and how it appears on your product listings.',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
+                      {__('How would you like to collect tax?', 'kirki-ecommerce')}
+                    </Text>
+                    <Text color="secondary">
+                      {__(
+                        'Configure how tax is displayed and how it appears on your product listings.',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
                   </Flex>
                   <Flex direction="column" gap={3}>
                     <TaxCollectionField />

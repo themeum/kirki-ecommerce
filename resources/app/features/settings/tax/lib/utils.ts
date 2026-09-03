@@ -45,10 +45,17 @@ export type {
   TaxRule,
 };
 
+const taxProfileConditionOption: SelectOption = {
+  title: __('Tax Profile', 'kirki-ecommerce'),
+  value: 'tax_profile',
+};
+
 export const taxRuleConditionOptions: SelectOption[] = [
-  { title: __('Tax Profile', 'kirki-ecommerce'), value: 'tax_profile' },
+  taxProfileConditionOption,
   { title: __('Destination', 'kirki-ecommerce'), value: 'destination_region' },
 ];
+
+export const taxProfileConditionOptions: SelectOption[] = [taxProfileConditionOption];
 
 export const taxRuleActionOptionsArray: SelectOption[] = [
   { title: __('Set Tax Rate', 'kirki-ecommerce'), value: 'set_tax_rate' },

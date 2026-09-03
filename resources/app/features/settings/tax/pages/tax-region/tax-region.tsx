@@ -13,11 +13,7 @@ import Flex from '@/components/ui/flex';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import type {
-  EuTaxRegion,
-  GeneralTaxRegion,
-  TaxRegion,
-} from '@/features/settings/tax/lib/utils';
+import type { EuTaxRegion, GeneralTaxRegion, TaxRegion } from '@/features/settings/tax/lib/utils';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
@@ -47,8 +43,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const { handleSave } = props;
-  const { setValue, formState } = useFormContext<TaxSettingsFormInput>();
-  const taxRegions = (useWatch<TaxSettingsFormInput>({ name: 'tax_regions' }) as TaxRegion[]) || [];
+  const { setValue, formState, control } = useFormContext<TaxSettingsFormInput>();
+  const watchedTaxRegions = useWatch({ control, name: 'tax_regions' });
+  const taxRegions = useMemo(() => (watchedTaxRegions ?? []) as TaxRegion[], [watchedTaxRegions]);
 
   const [showPopup, setShowPopup] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -79,7 +76,10 @@ const TaxRegions = (props: TaxRegionsProps) => {
     if (region.code === 'EU') {
       const countryCount = (region as EuTaxRegion).countries?.length ?? 0;
       /* translators: %d: number of member countries */
-      return sprintf(_n('%d country', '%d countries', countryCount, 'kirki-ecommerce'), countryCount);
+      return sprintf(
+        _n('%d country', '%d countries', countryCount, 'kirki-ecommerce'),
+        countryCount,
+      );
     }
 
     const general = region as GeneralTaxRegion;
@@ -229,65 +229,65 @@ const TaxRegions = (props: TaxRegionsProps) => {
                   const meta = resolveRegionMeta(item);
 
                   return (
-                  <Card cssOverride={cardStyles.innerCard} key={index}>
-                    <CardContent cssOverride={cardStyles.innerContent}>
-                      <Flex gap={2} align="flex-start">
-                        <span>{meta.flag}</span>
-                        <Flex direction="column" gap={1}>
-                          <Flex gap={2} align="center">
-                            <Text
-                              weight="medium"
-                              color={!item?.is_enabled ? 'disabled' : 'primary'}
-                            >
-                              {meta.name}
+                    <Card cssOverride={cardStyles.innerCard} key={index}>
+                      <CardContent cssOverride={cardStyles.innerContent}>
+                        <Flex gap={2} align="flex-start">
+                          <span>{meta.flag}</span>
+                          <Flex direction="column" gap={1}>
+                            <Flex gap={2} align="center">
+                              <Text
+                                weight="medium"
+                                color={!item?.is_enabled ? 'disabled' : 'primary'}
+                              >
+                                {meta.name}
+                              </Text>
+                              {!item?.is_enabled && (
+                                <Badge variant="destructive">
+                                  {__('Inactive', 'kirki-ecommerce')}
+                                </Badge>
+                              )}
+                            </Flex>
+                            <Text variant="small" color="secondary">
+                              {resolveRegionSummary(item)}
                             </Text>
-                            {!item?.is_enabled && (
-                              <Badge variant="destructive">
-                                {__('Inactive', 'kirki-ecommerce')}
-                              </Badge>
-                            )}
                           </Flex>
-                          <Text variant="small" color="secondary">
-                            {resolveRegionSummary(item)}
-                          </Text>
+                          <ActionGroup
+                            cssOverride={mergeCss(
+                              hoverVisibleCss,
+                              activeIndex === index && activeCardCss,
+                            )}
+                          >
+                            <Switch
+                              checked={Boolean(item?.is_enabled)}
+                              onCheckedChange={() => handleToggleRegion(item)}
+                            />
+                            <DropdownButton
+                              dropdownStyle={{ width: 120 }}
+                              options={[
+                                {
+                                  title: __('Edit', 'kirki-ecommerce'),
+                                  value: 'edit',
+                                  icon: <EditIcon />,
+                                },
+                                {
+                                  title: __('Delete', 'kirki-ecommerce'),
+                                  value: 'delete',
+                                  icon: <TrashIcon />,
+                                },
+                              ]}
+                              onOptionToggle={(value) => {
+                                if (value === true) {
+                                  setActiveIndex(index);
+                                } else {
+                                  setActiveIndex(null);
+                                }
+                              }}
+                              onOptionSelect={(action) => handleEditAndDelete(String(action), item)}
+                            />
+                          </ActionGroup>
                         </Flex>
-                        <ActionGroup
-                          cssOverride={mergeCss(
-                            hoverVisibleCss,
-                            activeIndex === index && activeCardCss,
-                          )}
-                        >
-                          <Switch
-                            checked={Boolean(item?.is_enabled)}
-                            onCheckedChange={() => handleToggleRegion(item)}
-                          />
-                          <DropdownButton
-                            dropdownStyle={{ width: 120 }}
-                            options={[
-                              {
-                                title: __('Edit', 'kirki-ecommerce'),
-                                value: 'edit',
-                                icon: <EditIcon />,
-                              },
-                              {
-                                title: __('Delete', 'kirki-ecommerce'),
-                                value: 'delete',
-                                icon: <TrashIcon />,
-                              },
-                            ]}
-                            onOptionToggle={(value) => {
-                              if (value === true) {
-                                setActiveIndex(index);
-                              } else {
-                                setActiveIndex(null);
-                              }
-                            }}
-                            onOptionSelect={(action) => handleEditAndDelete(String(action), item)}
-                          />
-                        </ActionGroup>
-                      </Flex>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </Flex>

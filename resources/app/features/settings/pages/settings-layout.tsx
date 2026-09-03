@@ -77,10 +77,7 @@ const SettingsLayout = () => {
   return (
     <>
       {isBlocked && (
-        <ConfirmationDialog
-          onConfirm={handleConfirmLeave}
-          onCancel={handleCancelLeave}
-        />
+        <ConfirmationDialog onConfirm={handleConfirmLeave} onCancel={handleCancelLeave} />
       )}
       <PageHeading
         text={__('Settings', 'kirki-ecommerce')}
@@ -88,14 +85,23 @@ const SettingsLayout = () => {
         sticky
         style={{ height: '32px' }}
         actions={
-          <Button
-            variant="primary"
-            onClick={() => actions?.onSave()}
-            loading={isSaving}
-            disabled={!isDirty || isSaving}
-          >
-            {__('Save', 'kirki-ecommerce')}
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => actions?.onDiscard()}
+              disabled={!isDirty || isSaving}
+            >
+              {__('Discard', 'kirki-ecommerce')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => actions?.onSave()}
+              loading={isSaving}
+              disabled={!isDirty || isSaving}
+            >
+              {__('Save', 'kirki-ecommerce')}
+            </Button>
+          </>
         }
       />
       <div css={scoped(styles.centerRow)}>

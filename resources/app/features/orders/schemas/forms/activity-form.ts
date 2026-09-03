@@ -1,5 +1,6 @@
-import { required } from '@/libs/zod';
 import z from 'zod';
+
+import { required } from '@/libs/zod';
 
 const ActivityFormSchema = z.object({
   message: required(z.string().nullish(), 'Message is required'),
@@ -8,4 +9,4 @@ const ActivityFormSchema = z.object({
 type ActivityFormInput = z.input<typeof ActivityFormSchema>;
 type ActivityFormPayload = z.output<typeof ActivityFormSchema>;
 
-export { ActivityFormSchema, type ActivityFormInput, type ActivityFormPayload };
+export { type ActivityFormInput, type ActivityFormPayload, ActivityFormSchema };

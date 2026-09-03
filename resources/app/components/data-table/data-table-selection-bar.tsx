@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { useState } from 'react';
 
 import type { DataTableSelectionState } from '@/components/data-table/types';
@@ -15,7 +16,6 @@ import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
-import { CSSObject } from '@emotion/react';
 
 type DataTableSelectionBarProps = {
   selection: DataTableSelectionState;

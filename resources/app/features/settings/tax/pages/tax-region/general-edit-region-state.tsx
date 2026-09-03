@@ -20,6 +20,7 @@ import type {
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/lib/utils';
+import { taxProfileConditionOptions } from '@/features/settings/tax/lib/utils';
 import SingleTaxRate from '@/features/settings/tax/pages/tax-region/single-tax-rate';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import {
@@ -183,7 +184,7 @@ const GeneralEditRegionState = () => {
       {loaded && storedState ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
-            <SettingsPageHeader title={stateName} icon={country?.flag} onBack={backToRegion} />
+            <SettingsPageHeader title={stateName} onBack={backToRegion} />
 
             <Card cssOverride={mergeCss(cardStyles.formCard)}>
               <CardContent>
@@ -207,6 +208,7 @@ const GeneralEditRegionState = () => {
               states={countryStates}
               destinationLabel={country?.name ?? code}
               updateTaxRules={updateStateRules}
+              conditionOptions={taxProfileConditionOptions}
             />
           </Flex>
         </Form>

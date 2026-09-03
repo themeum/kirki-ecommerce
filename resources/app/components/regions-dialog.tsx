@@ -72,7 +72,7 @@ const emptyDefaultValue: RegionsDialogDefaultValue = {
 };
 
 const EU_REGION_CODE = 'EU';
-const emptyStateIds: Set<string> = new Set();
+const emptyStateIds = new Set<string>();
 
 export const RegionsDialog = ({
   open,

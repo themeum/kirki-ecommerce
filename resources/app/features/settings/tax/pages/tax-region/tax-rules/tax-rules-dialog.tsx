@@ -12,6 +12,7 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import type {
+  SelectOption,
   TaxConditionRow,
   TaxRegionState,
   TaxRule,
@@ -40,6 +41,7 @@ type TaxRulesDialogProps = {
   ruleIndex?: number;
   states: TaxRegionState[];
   destinationLabel?: string;
+  conditionOptions: SelectOption[];
 };
 
 type ConditionOption = {
@@ -59,6 +61,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
     ruleIndex,
     states,
     destinationLabel,
+    conditionOptions,
   } = props;
 
   const { data: taxProfiles } = useTaxProfilesQuery();
@@ -195,6 +198,7 @@ const TaxRulesDialog = (props: TaxRulesDialogProps) => {
                     conditions={conditions}
                     setConditions={setConditions}
                     getConditionValue={getConditionValue}
+                    conditionOptions={conditionOptions}
                     selectedCountries={selectedCountries}
                     setSelectedCountries={setSelectedCountries}
                     from={from}
