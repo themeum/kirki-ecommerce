@@ -324,7 +324,7 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
   return <Dialog>...</Dialog>;
 };
 
-ConfirmationDialog.displayName = 'ConfirmationDialog';
+ConfirmationDialog.displayName = "ConfirmationDialog";
 
 export default ConfirmationDialog;
 ```
@@ -354,9 +354,9 @@ if (condition) {
 - User-facing static text: use `__()` from `@/wpi18n` with domain `kirki-ecommerce`
 
 ```tsx
-import { __ } from '@/wpi18n';
+import { __ } from "@/wpi18n";
 
-<Button text={__('Save changes', 'kirki-ecommerce')} variant="primary" />;
+<Button text={__("Save changes", "kirki-ecommerce")} variant="primary" />;
 ```
 
 ### Imports
@@ -371,14 +371,14 @@ Always use the `@/` alias for internal paths — avoid deep relative imports whe
 Use `import type { ... }` for type-only imports.
 
 ```tsx
-import { Info } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { Info } from "lucide-react";
+import type { ReactNode } from "react";
 
-import Button from '@/components/ui/button';
-import { theme } from '@/theme';
-import { __ } from '@/wpi18n';
+import Button from "@/components/ui/button";
+import { theme } from "@/theme";
+import { __ } from "@/wpi18n";
 
-import './confirmation-dialog.scss';
+import "./confirmation-dialog.scss";
 ```
 
 ### Styling
@@ -396,7 +396,7 @@ Styling goes through `@emotion/react`, not plain CSS modules or inline
 const styles = defineStyles({
   title: {
     ...theme.typography.heading4(),
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 ```
@@ -431,3 +431,22 @@ Use `react-hook-form` with `@hookform/resolvers` to wire the schema to the form.
 ### Comments
 
 Do not add comments to describe code. Use meaningful variable and function names so the code reads clearly on its own.
+
+## 6. Documentation
+
+User-facing features get a `docs/<feature>.md`, structured like
+[`docs/cache.md`](docs/cache.md): a table of contents, then numbered `## N. Topic`
+sections, quick start first, configuration and drivers in the middle, and — for
+anything modelled on a Laravel API — a **"Where this differs from Laravel"**
+section near the end that is honest about the gaps. That section is not
+optional; it is what stops a consumer assuming parity we don't have.
+
+Keep docs in the same change as the code. A doc that describes the old
+behaviour is worse than no doc.
+
+---
+
+## 7. Commits
+
+Don't commit or push unless I ask. When I do ask commit the changes with a inferred
+commit message that is good enough for PR title and description and also push on behalf of me.
