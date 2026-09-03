@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Package, Truck } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
@@ -105,26 +105,23 @@ const GeneralEditRegionState = () => {
     setUnsavedDataStatus(isDirty);
   }, [isDirty]);
 
-  const backToRegion = () =>
-    navigate(
-      RouteConfig.Settings.get('TaxSettings')
-        .get('EditTaxRegion')
-        .buildLink({ code: code ?? '' }),
-    );
+  const backToRegion = useCallback(
+    () =>
+      navigate(
+        RouteConfig.Settings.get('TaxSettings')
+          .get('EditTaxRegion')
+          .buildLink({ code: code ?? '' }),
+      ),
+    [navigate, code],
+  );
 
-  /**
-   * The state can only go missing when the region no longer lists it — a
-   * removal from the region page, or a hand-typed URL. Either way there is
-   * nothing to edit, so fall back to the region.
-   */
   useEffect(() => {
     if (!loaded || !regions.length || storedState) {
       return;
     }
 
     void backToRegion();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- redirects once the load settles; backToRegion is stable enough and re-running on it would loop
-  }, [loaded, regions, storedState]);
+  }, [loaded, regions, storedState, backToRegion]);
 
   const saveRegions = async (updatedRegions: TaxRegion[], from = '') => {
     const currentTaxSettings = TaxSettingsFormSchema.parse(

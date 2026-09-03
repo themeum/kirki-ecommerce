@@ -25,12 +25,10 @@ type VatCollectionProps = {
   process: string;
   vatCollectionList: CountryTaxRate[];
   setVatCollectionList: Dispatch<SetStateAction<CountryTaxRate[]>>;
-  updateVatCollection: (vatList: CountryTaxRate[], from?: string) => void | Promise<void>;
 };
 
 export const VatCollection = (props: VatCollectionProps) => {
-  const { memberCountries, process, vatCollectionList, setVatCollectionList, updateVatCollection } =
-    props;
+  const { memberCountries, process, vatCollectionList, setVatCollectionList } = props;
   const [showVatCollectionPopup, setShowVatCollectionPopup] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
@@ -53,18 +51,14 @@ export const VatCollection = (props: VatCollectionProps) => {
     }));
 
   const handleAddOrUpdateVAT = (newItem: CountryTaxRate, index?: number | null) => {
-    setVatCollectionList((prev) => {
-      const safePrev = Array.isArray(prev) ? prev : [];
-      const updatedList =
-        typeof index === 'number'
-          ? safePrev.map((item, i) => (i === index ? newItem : item))
-          : [...safePrev, newItem];
+    const safePrev = Array.isArray(vatCollectionList) ? vatCollectionList : [];
+    const updatedList =
+      typeof index === 'number'
+        ? safePrev.map((item, i) => (i === index ? newItem : item))
+        : [...safePrev, newItem];
 
-      void updateVatCollection(updatedList);
-      setEditIndex(null);
-      return updatedList;
-    });
-
+    setVatCollectionList(updatedList);
+    setEditIndex(null);
     setShowVatCollectionPopup(false);
   };
 
@@ -85,9 +79,6 @@ export const VatCollection = (props: VatCollectionProps) => {
         onClick: () => {
           setVatCollectionList(initialList);
         },
-      },
-      onAutoClose: () => {
-        void updateVatCollection(updatedList, 'delete');
       },
     });
   };

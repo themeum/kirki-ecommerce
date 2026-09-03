@@ -123,17 +123,6 @@ const EditRegionEU = () => {
     overrides?: Partial<TaxRegion>,
   ): TaxRegion[] => applyEuRegionUpdate(regions, values, overrides);
 
-  const updateEUVatCollection = async (vatList: CountryTaxRate[], from = '') => {
-    form.setValue('countries', vatList, {
-      shouldDirty: from !== 'delete',
-    });
-    const updatedData = buildUpdatedRegions(form.getValues(), {
-      countries: vatList,
-    });
-    setRegions(updatedData);
-    await handleSaveData(updatedData, from);
-  };
-
   const updateTaxRules = async (rulesList: TaxRule[], from = '') => {
     const updatedRules = applyRegionRules(regions, 'EU', rulesList);
     setRegions(updatedRules);
@@ -211,7 +200,6 @@ const EditRegionEU = () => {
                   const next = typeof updater === 'function' ? updater(vatCollectionList) : updater;
                   form.setValue('countries', next, { shouldDirty: true });
                 }}
-                updateVatCollection={updateEUVatCollection}
               />
               <TaxRules
                 rules={euRegion?.rules ?? []}
