@@ -133,8 +133,11 @@ class MoneyManager
      */
     protected function get_requested_currency_code()
     {
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase
-        $code = $_COOKIE[static::DISPLAY_CURRENCY_COOKIE] ?? $_SERVER[static::DISPLAY_CURRENCY_HEADER] ?? null;
+        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized 2 lines below via sanitize_text_field(), after the empty()/is_string() guard.
+        $cookie_value = isset($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) ? wp_unslash($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) : null;
+        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized 2 lines below via sanitize_text_field(), after the empty()/is_string() guard.
+        $header_value = isset($_SERVER[static::DISPLAY_CURRENCY_HEADER]) ? wp_unslash($_SERVER[static::DISPLAY_CURRENCY_HEADER]) : null;
+        $code = $cookie_value ?? $header_value;
 
         if (empty($code) || !is_string($code)) {
             return null;

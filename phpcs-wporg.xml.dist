@@ -66,6 +66,17 @@
     <rule ref="WordPress.Security.ValidatedSanitizedInput">
         <type>warning</type>
     </rule>
+    <!--
+        Note: Kirki\Ecommerce\Framework\Sanitizer::apply_rule() (this
+        codebase's own sanitization dispatcher) can't be registered as a
+        recognized sanitizer here - WordPress.Security.ValidatedSanitizedInput
+        only recognizes global function calls (WordPress\Sniffs\Helpers\
+        ContextHelper::is_in_function_call() hard-excludes anything preceded
+        by `::`/`->`, by design, to avoid false-negatives from ambiguously
+        named methods on unrelated classes). Call sites using
+        Sanitizer::apply_rule() carry their own justified phpcs:ignore
+        instead of relying on ruleset config.
+    -->
 
     <rule ref="WordPress.WP.I18n"/>
     <rule ref="WordPress.WP.AlternativeFunctions"/>

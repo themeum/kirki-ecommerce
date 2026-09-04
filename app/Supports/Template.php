@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 /**
  * Class Template
@@ -340,7 +341,9 @@ class Template
                 }
 
                 $current_page = $paginator->get_current_page();
-                $base_url     = $options['base_url'] ?? strtok($_SERVER['REQUEST_URI'], '?');
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitizer::apply_rule() is this project's own sanitization dispatcher; WPCS can't statically recognize a static method call as a sanitizer.
+                $request_uri  = Sanitizer::apply_rule(wp_unslash($_SERVER['REQUEST_URI'] ?? ''), Sanitizer::TEXT);
+                $base_url     = $options['base_url'] ?? strtok($request_uri, '?');
                 $page_param   = $options['page_param'] ?? 'current_page';
                 $class        = $options['class'] ?? 'kecom-pagination';
                 $page_window = $options['page_window'] ?? 5;

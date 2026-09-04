@@ -118,6 +118,7 @@ class Runner
             $repository->mark_as_completed($job->id);
         } catch (Exception $error) {
             $repository->mark_as_failed($job->id, isset($resolver) ? $resolver->get_retry() : 0);
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine job-failure error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log(
                 sprintf(
                     "Failed to resolve job [%s] with error: %s",

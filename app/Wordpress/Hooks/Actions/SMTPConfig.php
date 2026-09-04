@@ -24,6 +24,7 @@ class SMTPConfig extends BaseHook
     public function handle(...$args)
     {
         if (empty($args)) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine misconfiguration error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log(
                 sprintf(
                     /* translators: %s: hook name */
@@ -37,6 +38,7 @@ class SMTPConfig extends BaseHook
         $mailer = $args[0];
 
         if (!$mailer instanceof PHPMailer) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine misconfiguration error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log(__('Mailer is not instance of PHPMailer.', 'kirki-ecommerce'));
             return;
         }
@@ -45,6 +47,7 @@ class SMTPConfig extends BaseHook
         $is_smtp = $config->get('mailer') === 'smtp';
 
         if ($is_smtp && empty($config->get('mail'))) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine misconfiguration error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log(__('Mail settings are not configured', 'kirki-ecommerce'));
             return;
         }
