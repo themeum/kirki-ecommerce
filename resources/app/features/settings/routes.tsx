@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router';
 import { Navigate } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
+import { taxRoutes } from '@/features/settings/tax/routes';
 
 const SettingsLayout = lazy(() => import('@/features/settings/pages/settings-layout'));
 const GeneralSettings = lazy(() => import('@/features/settings/general/pages/general-settings'));
@@ -10,17 +11,11 @@ const ProductsSettings = lazy(() => import('@/features/settings/products/pages/p
 const PaymentSettings = lazy(() => import('@/features/settings/payment/pages/payment-settings'));
 const ShippingSettings = lazy(() => import('@/features/settings/shipping/pages/shipping-settings'));
 const ShippingZone = lazy(() => import('@/features/settings/shipping/pages/shipping-zone/shipping-zone'));
-const TaxSettings = lazy(() => import('@/features/settings/tax/pages/tax-settings'));
 const EmailSettings = lazy(() => import('@/features/settings/email/pages/email-settings'));
 const ShippingDeliveryMethod = lazy(() => import('@/features/settings/shipping/pages/shipping-method/shipping-delivery-method'));
 const MultiCurrencySettings = lazy(() => import('@/features/settings/multi-currency/pages/multi-currency-settings'));
 const CheckoutSettings = lazy(() => import('@/features/settings/checkout/pages/checkout-settings'));
 const EditTemplate = lazy(() => import('@/features/settings/email/pages/edit-template'));
-const GeneralEditRegion = lazy(() => import('@/features/settings/tax/pages/tax-region/general-edit-region'));
-const EditRegionEU = lazy(() => import('@/features/settings/tax/pages/tax-region/edit-region-eu'));
-const GeneralEditRegionState = lazy(
-  () => import('@/features/settings/tax/pages/tax-region/general-edit-region-state'),
-);
 const EssentialsSettings = lazy(() => import('@/features/settings/essentials/pages/essential-settings'));
 const ColorVariation = lazy(() => import('@/features/settings/essentials/pages/variation-library/color-variation'));
 const ListVariation = lazy(() => import('@/features/settings/essentials/pages/variation-library/list-variation'));
@@ -68,19 +63,7 @@ const settingsRoutes: RouteObject[] = [
         path: SettingsRoutes.get('MultiCurrencySettings').template,
         element: withSuspense(MultiCurrencySettings),
       },
-      { path: SettingsRoutes.get('TaxSettings').template, element: withSuspense(TaxSettings) },
-      {
-        path: SettingsRoutes.get('TaxSettings').get('EditRegionEU').template,
-        element: withSuspense(EditRegionEU),
-      },
-      {
-        path: SettingsRoutes.get('TaxSettings').get('EditTaxRegion').template,
-        element: withSuspense(GeneralEditRegion),
-      },
-      {
-        path: SettingsRoutes.get('TaxSettings').get('EditTaxRegionState').template,
-        element: withSuspense(GeneralEditRegionState),
-      },
+      ...taxRoutes,
       { path: SettingsRoutes.get('EmailSettings').template, element: withSuspense(EmailSettings) },
       {
         path: SettingsRoutes.get('CheckoutSettings').template,

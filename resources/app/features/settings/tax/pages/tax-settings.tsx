@@ -12,16 +12,16 @@ import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import TaxCollectionField from '@/features/settings/tax/components/fields/tax-collection-field';
-import type { TaxRegion } from '@/features/settings/tax/lib/utils';
-import TaxProfile from '@/features/settings/tax/pages/tax-profile/tax-profile';
-import TaxRegions from '@/features/settings/tax/pages/tax-region/tax-region';
+import TaxRegions from '@/features/settings/tax/components/tax-region-list';
+import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
+import TaxProfile from '@/features/settings/tax/shared/components/tax-profile/tax-profile';
+import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import {
   type TaxSettingsFormInput,
   type TaxSettingsFormPayload,
   TaxSettingsFormSchema,
-} from '@/features/settings/tax/schemas/forms/tax-settings-form';
-import TaxSettingsSkeleton from '@/features/settings/tax/skeletons/tax-settings-skeleton';
+} from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
+import TaxSettingsSkeleton from '@/features/settings/tax/shared/skeletons/tax-settings-skeleton';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
