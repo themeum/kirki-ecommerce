@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 
 import SwitchField from '@/components/form/switch-field';
 import ActionGroup from '@/components/ui/action-group';
-import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
@@ -80,24 +79,21 @@ const CheckoutSettings = () => {
       {loaded ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<CartIcon />}
-              title={__('Checkout', 'kirki-ecommerce')}
-            />
-            <Card cssOverride={cardStyles.formCard} >
-              <CardContent >
-
+            <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />
+            <Card cssOverride={cardStyles.formCard}>
+              <CardContent>
                 <Flex align="center">
                   <Flex direction="column" gap={2}>
-                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')} <Badge>Work in progress</Badge></Text>
-                    <Text variant="small" color="secondary">{__(
-                      'Let customers buy without logging in or creating an account.',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                    <Text variant="small" color="secondary">
+                      {__(
+                        'Let customers buy without logging in or creating an account.',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
                   </Flex>
                   <ActionGroup>
-                    {/* @TODO: disabled need to be removed in the future */}
-                    <SwitchField name="is_allowed_guest_checkout" disabled />
+                    <SwitchField name="is_allowed_guest_checkout" />
                   </ActionGroup>
                 </Flex>
               </CardContent>

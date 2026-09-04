@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
-use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
@@ -488,7 +488,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertNotNull($customer);
         $this->assertEquals($customer->id, $payload['data']['customer_id']);
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
     }
 
     /**
@@ -719,8 +719,11 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * When billing is marked as same as shipping, the provisioned
-     * customer's billing address is duplicated from the shipping address.
+     * When the checkout request's billing fields already match its shipping
+     * fields (e.g. because the shopper checked "same as shipping" in the
+     * UI), the provisioned customer's two default addresses end up with the
+     * same field values - the backend does not do any copying itself, it
+     * just persists whatever billing fields were submitted.
      *
      * @return void
      */
@@ -731,50 +734,19 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'is_billing_same_as_shipping' => true,
         ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
         $customer = Customer::where('user_id', $user_id)->first();
 
-        $shipping_address = Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->first();
-        $billing_address = Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->first();
+        $shipping_address = Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->first();
+        $billing_address = Address::where('customer_id', $customer->id)->where('is_default_billing', true)->first();
 
         $this->assertNotNull($shipping_address);
         $this->assertNotNull($billing_address);
         $this->assertEquals($shipping_address->address_line1, $billing_address->address_line1);
         $this->assertEquals('123 Main St', $shipping_address->address_line1);
-    }
-
-    /**
-     * An order created with billing marked as same as shipping persists the
-     * flag and snapshots the shipping address into the billing fields,
-     * discarding any billing address sent alongside it.
-     *
-     * @return void
-     */
-    public function test_store_order_persists_billing_same_as_shipping(): void
-    {
-        $response = $this->request('POST', 'orders', $this->order_payload([
-            'is_billing_same_as_shipping' => true,
-            'shipping_address_line1' => '742 Evergreen Terrace',
-            'shipping_city' => 'Springfield',
-            'billing_address_line1' => '1 Stale Street',
-            'billing_city' => 'Oldtown',
-        ]));
-        $payload = $this->assert_api_success($response, 201);
-        $this->order_id = $payload['data']['id'];
-
-        $this->assertTrue($payload['data']['is_billing_same_as_shipping']);
-        $this->assertEquals($payload['data']['shipping_address'], $payload['data']['billing_address']);
-        $this->assertEquals('742 Evergreen Terrace', $payload['data']['billing_address']['address_line1']);
-        $this->assertEquals('Springfield', $payload['data']['billing_address']['city']);
-
-        $order = Order::find($this->order_id);
-
-        $this->assertTrue((bool) $order->is_billing_same_as_shipping);
-        $this->assertEquals('742 Evergreen Terrace', $order->billing_address_line1);
     }
 
     /**
@@ -819,8 +791,8 @@ class OrderApiTest extends RestTestCase
         $customer = Customer::where('user_id', $user_id)->first();
 
         $this->assertNotNull($customer);
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_billing', true)->exists());
         $this->assertEquals($order_count_before, Order::count());
     }
 
@@ -1028,7 +1000,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $cart->cart_token;
 
         $this->assertNotNull(Cart::where('cart_token', $cart_token)->first());
@@ -1074,7 +1046,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $this->variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $guest_cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $guest_cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $guest_cart->cart_token;
         $user_id = $this->create_shopper_user();
 
@@ -1129,7 +1101,6 @@ class OrderApiTest extends RestTestCase
         $customer_payload->first_name = 'Existing';
         $customer_payload->last_name = 'Customer';
         $customer_payload->email = 'existing-' . $unique . '@example.com';
-        $customer_payload->is_billing_same_as_shipping = true;
 
         $address_payload = new CreateAddressDTO();
         $address_payload->first_name = 'Existing';
@@ -1173,8 +1144,19 @@ class OrderApiTest extends RestTestCase
             'last_name' => 'Customer',
             'email' => 'order-customer-' . $unique . '@example.com',
             'phone' => '5550100',
-            'is_billing_same_as_shipping' => true,
             'shipping_address' => [
+                'first_name' => 'Order',
+                'last_name' => 'Customer',
+                'email' => 'order-customer-' . $unique . '@example.com',
+                'phone' => '5550100',
+                'address_line1' => '123 Main St',
+                'address_line2' => '',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country' => 'US',
+            ],
+            'billing_address' => [
                 'first_name' => 'Order',
                 'last_name' => 'Customer',
                 'email' => 'order-customer-' . $unique . '@example.com',

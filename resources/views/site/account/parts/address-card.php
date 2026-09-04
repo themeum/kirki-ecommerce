@@ -9,12 +9,10 @@
  * @since 1.0.0
  */
 
-use Kirki\Ecommerce\App\Constants\AddressType;
-
 defined('ABSPATH') || exit;
 
-$type = $data['type'] ?? AddressType::SHIPPING;
-$title = $data['title'] ?? ($type === AddressType::BILLING ? __('Billing Address', 'kirki-ecommerce') : __('Shipping Address', 'kirki-ecommerce'));
+$type = $data['type'] ?? 'shipping';
+$title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-ecommerce') : __('Shipping Address', 'kirki-ecommerce'));
 ?>
 
 <div class="kecom-card" x-cloak>

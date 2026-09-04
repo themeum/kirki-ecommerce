@@ -6,11 +6,24 @@ import type { OrderListFilter } from '@/features/orders';
 import { orderKeys } from '@/features/orders';
 import type { OrderActionPayload } from '@/features/orders/lib/order-actions';
 import type { OrderItem } from '@/features/orders/schemas/catalog/order';
-import { OrderCalculationSchema, OrderItemSchema, OrderListItemSchema } from '@/features/orders/schemas/catalog/order';
-import type { OrderCalculationRequestPayload, OrderFormPayload } from '@/features/orders/schemas/forms/order-form';
+import {
+  OrderCalculationSchema,
+  OrderItemSchema,
+  OrderListItemSchema,
+} from '@/features/orders/schemas/catalog/order';
+import type {
+  OrderCalculationRequestPayload,
+  OrderFormPayload,
+} from '@/features/orders/schemas/forms/order-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess, unwrapResponse } from '@/services/helpers';
+import {
+  parseData,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+  unwrapResponse,
+} from '@/services/helpers';
 import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
@@ -56,8 +69,7 @@ const useCreateOrderMutation = () => {
     mutationFn: createOrder,
     onSuccess(response) {
       toastMutationSuccess(
-        response.message ||
-        __('Order created successfully.', 'kirki-ecommerce'),
+        response.message || __('Order created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
     },
@@ -89,13 +101,13 @@ const useUpdateOrderMutation = () => {
     mutationFn: updateOrder,
     onSuccess(response, variables) {
       toastMutationSuccess(
-        response.message ||
-        __('Order updated successfully.', 'kirki-ecommerce'),
+        response.message || __('Order updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: orderKeys.detail(variables.id),
       });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -109,13 +121,13 @@ const useOrderActionMutation = () => {
     mutationFn: performOrderAction,
     onSuccess(response, variables) {
       toastMutationSuccess(
-        response.message ||
-        __('Action performed successfully.', 'kirki-ecommerce'),
+        response.message || __('Action performed successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: orderKeys.detail(variables.id),
       });
+      void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.id) });
     },
     onError(error) {
       toastMutationError(error);
@@ -123,10 +135,7 @@ const useOrderActionMutation = () => {
   });
 };
 
-const useOrderCalculationQuery = (
-  payload: OrderCalculationRequestPayload,
-  enabled = true,
-) => {
+const useOrderCalculationQuery = (payload: OrderCalculationRequestPayload, enabled = true) => {
   return useQuery({
     queryKey: orderKeys.calculation(payload),
     queryFn: () => calculateOrder(payload),
@@ -143,4 +152,3 @@ export {
   useOrdersQuery,
   useUpdateOrderMutation,
 };
-

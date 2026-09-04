@@ -36,12 +36,15 @@ class UpdateAddressDTO extends DTO
     /** @var string */
     public $postal_code;
 
-    /** @var string */
+    /** @var string|null */
     public $email;
 
     /** @var string|null */
     public $phone;
 
-    /** @var string billing or shipping */
+    /** @var string home, office, or others */
     public $type;
+
+    /** @var string|null */
+    public $label;
 }

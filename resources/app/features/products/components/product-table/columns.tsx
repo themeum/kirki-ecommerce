@@ -2,7 +2,6 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router';
 
-import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
@@ -12,14 +11,25 @@ import {
   getAvailabilityColor,
   getAvailabilityDescription,
 } from '@/features/products/lib/availability';
-import type { ProductListItem } from '@/features/products/schemas/catalog/product';
+import type { ProductListItem, ProductStatus } from '@/features/products/schemas/catalog/product';
 import { InfoIcon } from '@/icons';
 import { DATE_FORMATS } from '@/libs/date';
+import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { getBadgeVariantForStatus } from '@/utils/badge-status';
 import { displayMoney } from '@/utils/money';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
+
+const getStatusColor = (status: ProductStatus): keyof typeof theme.colors.text => {
+  switch (status) {
+    case 'draft':
+      return 'secondary';
+    case 'published':
+      return 'success';
+    case 'trashed':
+      return 'critical';
+  }
+};
 
 const ProductTitleCell = ({ item }: { item: ProductListItem }) => {
   const navigate = useNavigate();
@@ -67,9 +77,12 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       }
 
       const label = (
-        <Text variant="tiny" color={getAvailabilityColor(status)}>
-          {row.original?.availability_label ?? status}
-        </Text>
+        <Text
+          variant="tiny"
+          color={getAvailabilityColor(status)}
+          dangerouslySetInnerHTML={{ __html: row.original?.availability_label ?? status }}
+          cssOverride={styles.availabilityLabel}
+        />
       );
 
       const description = getAvailabilityDescription(status);
@@ -113,9 +126,9 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     header: __('Status', 'kirki-ecommerce'),
     enableSorting: false,
     cell: ({ row }) => (
-      <Badge variant={getBadgeVariantForStatus(row.original.status)}>
+      <Text variant="tiny" color={getStatusColor(row.original.status)}>
         {isDefined(STATUS_MAP[row.original.status]) ? STATUS_MAP[row.original.status] : '--'}
-      </Badge>
+      </Text>
     ),
   },
   {
@@ -140,5 +153,10 @@ const styles = defineStyles({
     color: 'inherit',
     textAlign: 'left',
     cursor: 'pointer',
+  },
+  availabilityLabel: {
+    '& span': {
+      color: theme.colors.text.primary,
+    },
   },
 });

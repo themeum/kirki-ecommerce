@@ -27,9 +27,6 @@ class CreateCustomerDTO extends DTO
     /** @var bool */
     public $accepts_marketing = 0;
 
-    /** @var bool */
-    public $is_billing_same_as_shipping = 0;
-
     /** @var string|null */
     public $notes;
 
