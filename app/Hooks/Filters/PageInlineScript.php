@@ -102,11 +102,11 @@ class PageInlineScript extends BaseHook
 
             $product['name'] = $item['product_name'] ?? '';
             $product['image_url'] = $image['url'] ?? Assets::get_url('images/product-fallback.webp');
-            $product['slug'] = Url::get_product_url($item_product['slug'] ?? '');
             $product['category'] = $categories[count($categories) - 1]['name'] ?? '';
             $product['variant'] = $item['variant_name'] ?? '';
             $product['price'] = $base_price_obj->display ?? '';
             $product['quantity'] = $item['quantity'] ?? 0;
+            $product['url'] = Url::get_product_url($item_product['slug'] ?? '');
 
             $products_data[] = $product;
         }
