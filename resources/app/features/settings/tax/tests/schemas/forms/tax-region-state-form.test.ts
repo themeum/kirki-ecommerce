@@ -21,21 +21,24 @@ describe('TaxRegionStateFormSchema', () => {
     expect(result).toEqual({ product_tax_rate: 20, shipping_tax_rate: 5, rules });
   });
 
-  it('seeds the form with zero for both rates and no rules', () => {
+  it('seeds the form with empty rates and no rules', () => {
     expect(getDefaults(TaxRegionStateFormSchema)).toEqual({
-      product_tax_rate: 0,
-      shipping_tax_rate: 0,
+      product_tax_rate: undefined,
+      shipping_tax_rate: undefined,
       rules: [],
     });
   });
 
-  it('rejects a missing or blank rate', () => {
-    expect(TaxRegionStateFormSchema.safeParse({}).success).toBe(false);
-    expect(
-      TaxRegionStateFormSchema.safeParse({ product_tax_rate: '', shipping_tax_rate: 5 }).success,
-    ).toBe(false);
-    expect(
-      TaxRegionStateFormSchema.safeParse({ product_tax_rate: 20, shipping_tax_rate: '' }).success,
-    ).toBe(false);
+  it('treats a missing or blank rate as zero', () => {
+    expect(TaxRegionStateFormSchema.parse({})).toEqual({
+      product_tax_rate: null,
+      shipping_tax_rate: null,
+      rules: [],
+    });
+    expect(TaxRegionStateFormSchema.parse({ product_tax_rate: '', shipping_tax_rate: 5 })).toEqual({
+      product_tax_rate: null,
+      shipping_tax_rate: 5,
+      rules: [],
+    });
   });
 });

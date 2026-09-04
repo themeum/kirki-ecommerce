@@ -1,18 +1,29 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { getSearchedValue } from '@/features/settings/lib/utils';
 import type { TaxRegionState } from '@/features/settings/tax/lib/utils';
-import { type AddStatePopupFormInput, AddStatePopupFormSchema } from '@/features/settings/tax/schemas/forms/add-state-popup-form';
+import {
+  type AddStatePopupFormInput,
+  AddStatePopupFormSchema,
+} from '@/features/settings/tax/schemas/forms/add-state-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -50,7 +61,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
     },
   });
 
-  const formSelected = form.watch('selectedCountries');
+  const formSelected = useWatch({ control: form.control, name: 'selectedCountries' });
 
   useEffect(() => {
     if (!openPopup) {
@@ -59,24 +70,18 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 
     form.reset({ selectedCountries });
     setSearchValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking selectedCountries would reset the form while the user is picking states
-  }, [openPopup]);
+  }, [openPopup, form, selectedCountries]);
 
   const syncSelection = (next: DestinationSelection[]) => {
     form.setValue('selectedCountries', next, { shouldDirty: true });
     setSelectedCountries(next);
   };
 
-  /**
-   * A destination is identified by the state's id or the member country's
-   * code — never its display name, which is what the checkout has to match on.
-   */
   const destinationIdOf = (item: TaxRegionState): DestinationSelection =>
     item.code ?? String(item.id);
 
   const allCountryIds = countryList.map(destinationIdOf);
-  const selectAll =
-    formSelected.length > 0 && formSelected.length === allCountryIds.length;
+  const selectAll = formSelected.length > 0 && formSelected.length === allCountryIds.length;
 
   const handleToggleCountry = (countryId: DestinationSelection) => {
     const current = form.getValues('selectedCountries');
@@ -108,16 +113,12 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>
-            {__('Select destination', 'kirki-ecommerce')}
-          </DialogTitle>
+          <DialogTitle>{__('Select destination', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
             <Flex direction="column" gap={2}>
-              <Label htmlFor="add-state-search">
-                {__('Regions', 'kirki-ecommerce')}
-              </Label>
+              <Label htmlFor="add-state-search">{__('Regions', 'kirki-ecommerce')}</Label>
               <Input
                 id="add-state-search"
                 type="search"
@@ -127,24 +128,16 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
             </Flex>
 
             <Card cssOverride={cardStyles.lightCard}>
-              <div
-                style={{
-                  height: '350px',
-                  overflowX: 'hidden',
-                  overflowY: 'scroll',
-                }}
-              >
-                <Flex>
-                  <Flex gap={2} align="center">
-                    <Checkbox
-                      id="add-state-select-all"
-                      checked={selectAll}
-                      onCheckedChange={handleSelectAll}
-                    />
-                    <Label htmlFor="add-state-select-all">
-                      {countryName || __('EU', 'kirki-ecommerce')}
-                    </Label>
-                  </Flex>
+              <CardContent cssOverride={styles.cardContent}>
+                <Flex gap={2} align="center">
+                  <Checkbox
+                    id="add-state-select-all"
+                    checked={selectAll}
+                    onCheckedChange={handleSelectAll}
+                  />
+                  <Label htmlFor="add-state-select-all">
+                    {countryName || __('EU', 'kirki-ecommerce')}
+                  </Label>
                 </Flex>
 
                 {filteredCountries?.map((country, index) => {
@@ -166,7 +159,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                     </div>
                   );
                 })}
-              </div>
+              </CardContent>
             </Card>
           </DialogBody>
           <DialogFooter>
@@ -179,10 +172,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
             >
               {__('Cancel', 'kirki-ecommerce')}
             </Button>
-            <Button
-              variant="primary"
-              onClick={form.handleSubmit(handleSubmit)}
-            >
+            <Button variant="primary" onClick={form.handleSubmit(handleSubmit)}>
               {__('Done', 'kirki-ecommerce')}
             </Button>
           </DialogFooter>
@@ -195,6 +185,12 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
 AddStatePopup.displayName = 'AddStatePopup';
 
 const styles = defineStyles({
+  cardContent: {
+    height: '350px',
+    overflowX: 'hidden',
+    overflowY: 'scroll',
+    paddingTop: theme.spacing[3],
+  },
   checkboxItemIndented: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[5]}`,

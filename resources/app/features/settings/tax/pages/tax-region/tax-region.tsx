@@ -74,10 +74,18 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   const resolveRegionSummary = (region: TaxRegion) => {
     if (region.code === 'EU') {
-      const countryCount = (region as EuTaxRegion).countries?.length ?? 0;
-      /* translators: %d: number of member countries */
+      const euRegion = region as EuTaxRegion;
+      const countryCount = euRegion.countries?.length ?? 0;
+      const type =
+        euRegion.type === 'micro_business'
+          ? __('Micro business', 'kirki-ecommerce')
+          : euRegion.type === 'oss'
+            ? 'OSS'
+            : '';
+      /* translators: %s: region type, %d: number of member countries */
       return sprintf(
-        _n('%d country', '%d countries', countryCount, 'kirki-ecommerce'),
+        _n('%s%d Country', '%s%d Countries', countryCount, 'kirki-ecommerce'),
+        `${type ? `${type}, ` : ''}`,
         countryCount,
       );
     }
@@ -90,7 +98,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
     }
 
     /* translators: %d: number of states */
-    return sprintf(_n('%d state', '%d states', stateCount, 'kirki-ecommerce'), stateCount);
+    return sprintf(_n('%d Region', '%d Regions', stateCount, 'kirki-ecommerce'), stateCount);
   };
 
   const popupErrors = {
@@ -226,20 +234,20 @@ const TaxRegions = (props: TaxRegionsProps) => {
             ) : (
               <Flex direction="column" gap={3}>
                 {taxRegions.map((item, index) => {
-                  const meta = resolveRegionMeta(item);
+                  const region = resolveRegionMeta(item);
 
                   return (
                     <Card cssOverride={cardStyles.innerCard} key={index}>
                       <CardContent cssOverride={cardStyles.innerContent}>
                         <Flex gap={2} align="flex-start">
-                          <span>{meta.flag}</span>
+                          <span>{region.flag}</span>
                           <Flex direction="column" gap={1}>
                             <Flex gap={2} align="center">
                               <Text
                                 weight="medium"
                                 color={!item?.is_enabled ? 'disabled' : 'primary'}
                               >
-                                {meta.name}
+                                {region.name}
                               </Text>
                               {!item?.is_enabled && (
                                 <Badge variant="destructive">

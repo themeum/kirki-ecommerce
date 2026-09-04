@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
 import type { FieldPath, FieldValues } from 'react-hook-form';
 
@@ -16,6 +17,8 @@ type SingleTaxRateProps<
   label: string;
   name: TName;
   icon?: ReactNode;
+  description?: string;
+  cssOverride?: CSSObject;
 };
 
 const SingleTaxRate = <
@@ -25,24 +28,34 @@ const SingleTaxRate = <
   label,
   name,
   icon,
+  description,
+  cssOverride,
 }: SingleTaxRateProps<TFieldValues, TName>) => {
   return (
-    <Card cssOverride={mergeCss(cardStyles.innerDarkCard)}>
-      <CardContent cssOverride={{ width: '100%' }}>
+    <Card cssOverride={mergeCss(cardStyles.innerDarkCard, cssOverride)}>
+      <CardContent cssOverride={mergeCss({ width: '100%' })}>
         <Flex align="center" justify="space-between" cssOverride={{ height: '56px' }}>
-          <Flex align="center" gap={2}>
-            {icon}
-            <Text variant="small" weight="medium">
-              {label}
-            </Text>
+          <Flex direction="column" gap={2}>
+            <Flex align="center" gap={2}>
+              {icon}
+              <Text variant="small" weight="medium">
+                {label}
+              </Text>
+            </Flex>
+            {description && (
+              <Text variant="tiny" color="secondary" cssOverride={{ lineBreak: 'auto' }}>
+                {description}
+              </Text>
+            )}
           </Flex>
           <InputGroupField
             name={name}
             type="number"
-            min={0}
-            max={100}
+            // min={0}
+            // max={100}
             placeholder="0"
             endContent={<InputGroupText>%</InputGroupText>}
+            inputCssOverride={{ width: '120px' }}
             cssOverride={{ width: '120px' }}
           />
         </Flex>

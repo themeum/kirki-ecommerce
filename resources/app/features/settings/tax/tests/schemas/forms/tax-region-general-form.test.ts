@@ -57,8 +57,8 @@ describe('TaxRegionGeneralFormSchema', () => {
 
     expect(result).toEqual({
       is_central_tax_enabled: false,
-      central_product_tax: 0,
-      central_shipping_tax: 0,
+      central_product_tax: null,
+      central_shipping_tax: null,
       states: [state, second],
       rules: [],
     });
@@ -69,20 +69,26 @@ describe('TaxRegionGeneralFormSchema', () => {
 
     expect(result).toEqual({
       is_central_tax_enabled: true,
-      central_product_tax: 0,
-      central_shipping_tax: 0,
+      central_product_tax: null,
+      central_shipping_tax: null,
       states: [],
       rules: [],
     });
   });
 
-  it('requires both central rates when country-wide mode is on', () => {
-    const result = TaxRegionGeneralFormSchema.safeParse({
+  it('treats blank central rates as zero when country-wide mode is on', () => {
+    const result = TaxRegionGeneralFormSchema.parse({
       is_central_tax_enabled: true,
       central_product_tax: '',
       central_shipping_tax: '',
     });
-    expect(result.success).toBe(false);
+    expect(result).toEqual({
+      is_central_tax_enabled: true,
+      central_product_tax: null,
+      central_shipping_tax: null,
+      states: [],
+      rules: [],
+    });
   });
 
   it('requires at least one state when per-state mode is on', () => {

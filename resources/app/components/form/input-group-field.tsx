@@ -7,6 +7,7 @@ import {
   type FieldPath,
   type FieldValues,
   useFormContext,
+  useWatch,
 } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
@@ -21,6 +22,7 @@ import {
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { clampValue } from '@/utils/number';
+import { isDefined } from '@/utils/object';
 
 type InputGroupFieldRenderArg<
   TFieldValues extends FieldValues,
@@ -54,7 +56,7 @@ type InputGroupFieldProps<
   inputMode?: ComponentPropsWithoutRef<'input'>['inputMode'];
   inputProps?: Partial<Omit<InputGroupInputProps, 'value' | 'onChange'>>;
   textareaProps?: Partial<Omit<InputGroupTextareaProps, 'value' | 'onChange'>>;
-  onValueChange?: (value: string | number | undefined) => void;
+  onValueChange?: (value?: string | number | null) => void;
   startContent?: ReactNode;
   endContent?: ReactNode;
   blockStartContent?: ReactNode;
@@ -99,6 +101,7 @@ const InputGroupField = <
 }: InputGroupFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const id = String(name);
+  const value = useWatch({ control, name });
 
   return (
     <Controller
@@ -108,7 +111,11 @@ const InputGroupField = <
         const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
           const raw = event.target.value;
           const next =
-            type === 'number' && !multiline ? (raw === '' ? undefined : Number(raw)) : raw;
+            type === 'number' && !multiline
+              ? raw === '' || !isDefined(raw)
+                ? undefined
+                : clampValue(Number(raw), min, max)
+              : raw;
           field.onChange(next);
           onValueChange?.(next);
         };
@@ -116,18 +123,13 @@ const InputGroupField = <
         const handleNumberBlur = (event: FocusEvent<HTMLInputElement>) => {
           field.onBlur();
 
-          const entered = Number(event.target.value);
+          const clamped =
+            event.target.value === '' || !isDefined(event.target.value)
+              ? undefined
+              : clampValue(Number(event.target.value), min, max);
 
-          if (event.target.value === '' || Number.isNaN(entered)) {
-            return;
-          }
-
-          const clamped = clampValue(entered, min, max);
-
-          if (clamped !== entered) {
-            field.onChange(clamped);
-            onValueChange?.(clamped);
-          }
+          field.onChange(clamped);
+          onValueChange?.(clamped);
         };
 
         return (
@@ -161,7 +163,7 @@ const InputGroupField = <
                       name={field.name}
                       ref={field.ref}
                       rows={rows}
-                      value={field.value ?? ''}
+                      value={value ?? ''}
                       placeholder={placeholder}
                       disabled={disabled}
                       readOnly={readOnly}
@@ -177,7 +179,7 @@ const InputGroupField = <
                       name={field.name}
                       ref={field.ref}
                       type={type}
-                      value={field.value ?? ''}
+                      value={value ?? ''}
                       placeholder={placeholder}
                       disabled={disabled}
                       readOnly={readOnly}

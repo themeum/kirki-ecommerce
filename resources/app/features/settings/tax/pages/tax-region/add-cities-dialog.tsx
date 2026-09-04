@@ -5,7 +5,15 @@ import { useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
-import { Dialog, DialogBody, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
@@ -14,10 +22,13 @@ import Text from '@/components/ui/text';
 import Tooltip from '@/components/ui/tooltip';
 import { getSearchedValue } from '@/features/settings/lib/utils';
 import type { TaxRegionState } from '@/features/settings/tax/lib/utils';
-import { type AddCitiesPopupFormInput, AddCitiesPopupFormSchema } from '@/features/settings/tax/schemas/forms/add-cities-popup-form';
+import {
+  type AddCitiesPopupFormInput,
+  AddCitiesPopupFormSchema,
+} from '@/features/settings/tax/schemas/forms/add-cities-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type AddCitiesPopupProps = {
@@ -86,12 +97,10 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
   );
 
   const selectAll =
-    formSelectedCities.length > 0 &&
-    formSelectedCities.length === selectableCities.length;
+    formSelectedCities.length > 0 && formSelectedCities.length === selectableCities.length;
 
   const isPartialChecked =
-    formSelectedCities.length > 0 &&
-    formSelectedCities.length < selectableCities.length;
+    formSelectedCities.length > 0 && formSelectedCities.length < selectableCities.length;
 
   const handleToggleCity = (city: TaxRegionState) => {
     if (isDisabled(city)) {
@@ -140,9 +149,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
         <Form {...form}>
           <DialogBody>
             <Flex direction="column" gap={2}>
-              <Label htmlFor="add-cities-search">
-                {__('Cities', 'kirki-ecommerce')}
-              </Label>
+              <Label htmlFor="add-cities-search">{__('Cities', 'kirki-ecommerce')}</Label>
               <Input
                 id="add-cities-search"
                 type="search"
@@ -152,27 +159,14 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
             </Flex>
 
             <Card cssOverride={cardStyles.tableCardRounded}>
-              <CardContent cssOverride={cardStyles.tableContent}>
-                <div
-                  style={{
-                    height: '350px',
-                    overflowX: 'hidden',
-                    overflowY: 'scroll',
-                  }}
-                >
-                <Flex>
-                  <Flex gap={2} align="center">
-                    <Checkbox
-                      id="add-cities-select-all"
-                      checked={
-                        isPartialChecked ? 'indeterminate' : selectAll
-                      }
-                      onCheckedChange={handleSelectAll}
-                    />
-                    <Label htmlFor="add-cities-select-all">
-                      {countryName}
-                    </Label>
-                  </Flex>
+              <CardContent cssOverride={mergeCss(cardStyles.tableContent, styles.cardContent)}>
+                <Flex gap={2} align="center">
+                  <Checkbox
+                    id="add-cities-select-all"
+                    checked={isPartialChecked ? 'indeterminate' : selectAll}
+                    onCheckedChange={handleSelectAll}
+                  />
+                  <Label htmlFor="add-cities-select-all">{countryName}</Label>
                 </Flex>
 
                 {filteredCities?.length > 0 ? (
@@ -185,9 +179,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                           disabled={disabled}
                           checked={
                             disabled ||
-                            formSelectedCities.some(
-                              (item) => String(item.id) === String(city.id),
-                            )
+                            formSelectedCities.some((item) => String(item.id) === String(city.id))
                           }
                           onCheckedChange={() => handleToggleCity(city)}
                         />
@@ -220,16 +212,12 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                 ) : (
                   <Card cssOverride={styles.emptyCitiesCard}>
                     <CardContent>
-                      <Flex
-                        direction="column"
-                        gap={2}
-                        align="center">
+                      <Flex direction="column" gap={2} align="center">
                         <Text weight="medium">{__('No cities available')}</Text>
                       </Flex>
                     </CardContent>
                   </Card>
                 )}
-                </div>
               </CardContent>
             </Card>
           </DialogBody>
@@ -262,6 +250,13 @@ AddCitiesPopup.displayName = 'AddCitiesPopup';
 export default AddCitiesPopup;
 
 const styles = defineStyles({
+  cardContent: {
+    height: '350px',
+    overflowX: 'hidden',
+    overflowY: 'scroll',
+    paddingLeft: theme.spacing[3],
+    paddingTop: theme.spacing[3],
+  },
   checkboxItemIndented: {
     width: 'auto',
     padding: `${theme.spacing[2]} ${theme.spacing[5]}`,

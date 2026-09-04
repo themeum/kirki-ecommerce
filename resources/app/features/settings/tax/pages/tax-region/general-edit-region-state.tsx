@@ -37,6 +37,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -95,8 +96,8 @@ const GeneralEditRegionState = () => {
     }
 
     form.reset({
-      product_tax_rate: currentState.product_tax_rate ?? 0,
-      shipping_tax_rate: currentState.shipping_tax_rate ?? 0,
+      product_tax_rate: Number(currentState.product_tax_rate) || null,
+      shipping_tax_rate: Number(currentState.shipping_tax_rate) || null,
       rules: currentState.rules ?? [],
     });
   }, [currentState, form]);
@@ -178,11 +179,21 @@ const GeneralEditRegionState = () => {
                     name="product_tax_rate"
                     label={__('Product Tax Rate', 'kirki-ecommerce')}
                     icon={<Package size={16} />}
+                    description={__(
+                      'Define how taxes are calculated for products based on buyer location.',
+                      'kirki-ecommerce',
+                    )}
+                    cssOverride={{ padding: `${theme.spacing[2]} 0` }}
                   />
                   <SingleTaxRate<TaxRegionStateFormInput>
                     name="shipping_tax_rate"
                     label={__('Shipping Tax Rate', 'kirki-ecommerce')}
                     icon={<Truck size={16} />}
+                    description={__(
+                      'Define how taxes are applied to shipping charges.',
+                      'kirki-ecommerce',
+                    )}
+                    cssOverride={{ padding: `${theme.spacing[2]} 0` }}
                   />
                 </Flex>
               </CardContent>

@@ -67,22 +67,28 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
             }
           >
             <CardContent cssOverride={cardStyles.innerContent}>
-              <Flex align="center" justify="space-between" gap={2} cssOverride={{ width: '100%' }}>
-                <Flex direction="column" gap={1}>
-                  <Text weight="medium">{stateLabel}</Text>
-                  <Text variant="small" color="secondary">
+              <Flex
+                align="center"
+                justify="space-between"
+                gap={2}
+                cssOverride={{ width: '100%', height: '32px' }}
+              >
+                <Text variant="small" weight="medium">
+                  {stateLabel}
+                </Text>
+                <Flex align="center" gap={2}>
+                  <Text variant="tiny" color="secondary" data-state-row="rate">
                     {sprintf(
                       /* translators: 1: product tax rate, 2: shipping tax rate */
-                      __('%1$s%% product · %2$s%% shipping', 'kirki-ecommerce'),
+                      __('%1$s%% Product Tax • %2$s%% Shipping Tax', 'kirki-ecommerce'),
                       String(row?.product_tax_rate ?? 0),
                       String(row?.shipping_tax_rate ?? 0),
                     )}
                   </Text>
-                </Flex>
-                <Flex align="center" gap={2}>
                   <Button
                     variant="outline"
                     size="icon-sm"
+                    data-state-row="remove"
                     aria-label={__('Remove state', 'kirki-ecommerce')}
                     onClick={(event) => {
                       event.stopPropagation();
@@ -113,6 +119,15 @@ const styles = defineStyles({
   },
   stateRow: {
     cursor: 'pointer',
+    '& [data-state-row="remove"]': {
+      display: 'none',
+    },
+    '&:hover [data-state-row="rate"]': {
+      display: 'none',
+    },
+    '&:hover [data-state-row="remove"]': {
+      display: 'flex',
+    },
   },
   chevron: {
     color: theme.colors.text.subdued,

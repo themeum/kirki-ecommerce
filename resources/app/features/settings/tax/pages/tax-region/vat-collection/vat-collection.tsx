@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { Trash2 } from 'lucide-react';
 import { type Dispatch, type ReactNode, type SetStateAction, useState } from 'react';
 
@@ -73,10 +72,6 @@ export const VatCollection = (props: VatCollectionProps) => {
     setVatCollectionList(updatedList);
   };
 
-  /**
-   * The persisted copy is a fallback only — the country dataset is refreshed
-   * from whenever the code is known.
-   */
   const resolveCountryMeta = (item: CountryTaxRate) => {
     const member = memberCountries.find((country) => country.code === item.code);
     return {
@@ -101,23 +96,19 @@ export const VatCollection = (props: VatCollectionProps) => {
               const meta = resolveCountryMeta(item);
 
               return (
-                <Card key={item.code ?? index} cssOverride={mergeCss(cardStyles.innerCard)}>
-                  <CardContent cssOverride={{ ...cardStyles.innerContent, width: '100%' }}>
-                    <Flex justify="space-between">
+                <Card key={item.code ?? index} cssOverride={cardStyles.innerCard}>
+                  <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatRow)}>
+                    <Flex justify="space-between" cssOverride={{ width: '100%' }}>
                       <Flex gap={2} align="center">
-                        <Flex gap={2} align="center">
-                          {meta.flag}
-                          <Text>{meta.name}</Text>
-                        </Flex>
-                        <Text cssOverride={mergeCss(styles.vatText)}>
-                          {sprintf(
-                            /* translators: %s: VAT rate */
-                            __('%s%% VAT', 'kirki-ecommerce'),
-                            item?.rate ?? 0,
-                          )}
+                        {meta.flag}
+                        <Text variant="small" weight="semibold">
+                          {meta.name}
                         </Text>
                       </Flex>
-                      <Flex gap={2} cssOverride={mergeCss(styles.vatActions)}>
+                      <Text variant="small" cssOverride={styles.vatText} data-vat-text>
+                        {sprintf('%s%%', item?.rate ?? 0)}
+                      </Text>
+                      <Flex gap={2} cssOverride={mergeCss(styles.vatActions)} data-vat-actions>
                         <Button
                           variant="outline"
                           size="icon-sm"
@@ -160,33 +151,31 @@ VatCollection.displayName = 'VatCollection';
 
 const styles = defineStyles({
   vatRow: {
-    height: '56px',
-    maxHeight: '56px',
+    height: '54px',
     display: 'flex',
-    justifyContent: 'space-between',
+    width: '100%',
     alignItems: 'center',
-    padding: theme.spacing[3],
+    '&:hover [data-vat-actions]': {
+      opacity: 1,
+      visibility: 'visible',
+      display: 'flex',
+      pointerEvents: 'auto',
+    },
+    '&:hover [data-vat-text]': {
+      opacity: 0,
+      display: 'none',
+    },
   },
-  vatActions: css({
+  vatActions: {
     opacity: 0,
     visibility: 'hidden',
     display: 'none',
     pointerEvents: 'none',
     transition: 'all 0.2s ease',
-  }),
-  vatActionsActive: css({
-    opacity: 1,
-    display: 'flex',
-    visibility: 'visible',
-    pointerEvents: 'auto',
-  }),
+  },
   vatText: {
     opacity: 1,
     display: 'block',
     transition: 'opacity 0.2s ease',
   },
-  vatTextHidden: css({
-    opacity: 0,
-    display: 'none',
-  }),
 });

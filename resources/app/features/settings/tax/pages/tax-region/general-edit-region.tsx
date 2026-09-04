@@ -50,7 +50,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 const GeneralEditRegion = () => {
   const { code } = useParams();
@@ -81,10 +81,7 @@ const GeneralEditRegion = () => {
     [countryList, code],
   );
 
-  const storedRegion = useMemo(
-    () => regions.find((region) => region.code === code),
-    [regions, code],
-  );
+  const usedRegion = useMemo(() => regions.find((region) => region.code === code), [regions, code]);
 
   const countryStates = useMemo<TaxRegionState[]>(
     () => (country?.states ?? []).map((state) => ({ ...state, id: String(state.id) })),
@@ -121,8 +118,8 @@ const GeneralEditRegion = () => {
     const region = regions.find((item) => item.code === code) as GeneralTaxRegion | undefined;
     form.reset({
       is_central_tax_enabled: region?.is_central_tax_enabled ?? true,
-      central_product_tax: region?.central_product_tax ?? 0,
-      central_shipping_tax: region?.central_shipping_tax ?? 0,
+      central_product_tax: Number(region?.central_product_tax) || null,
+      central_shipping_tax: Number(region?.central_shipping_tax) || null,
       states: region?.states ?? [],
       rules: region?.rules ?? [],
     });
@@ -227,18 +224,22 @@ const GeneralEditRegion = () => {
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
-                title={country?.name ?? storedRegion?.name ?? code}
-                icon={country?.flag ?? storedRegion?.flag}
+                title={country?.name ?? usedRegion?.name ?? code}
+                icon={country?.flag ?? usedRegion?.flag}
                 onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
               <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
                 <CardContent>
                   <HeaderActionsCard
-                    header={__('States', 'kirki-ecommerce')}
-                    subHeader={__(
-                      'Set product and shipping tax rates per state',
-                      'kirki-ecommerce',
+                    header={__('State & Rates', 'kirki-ecommerce')}
+                    subHeader={sprintf(
+                      /* translators: %s: Region name */
+                      __(
+                        'Set product and shipping tax rates for specific states/regions in %s.',
+                        'kirki-ecommerce',
+                      ),
+                      country?.name ?? usedRegion?.name ?? code ?? '',
                     )}
                     buttonText={__('Add', 'kirki-ecommerce')}
                     onAdd={() => setShowPopup(true)}

@@ -44,8 +44,8 @@ export const applyRegionTaxUpdate = (
   code: string,
   payload: {
     is_central_tax_enabled?: boolean;
-    central_product_tax?: number | string;
-    central_shipping_tax?: number | string;
+    central_product_tax?: number | string | null;
+    central_shipping_tax?: number | string | null;
     states?: StateTaxRate[];
   },
 ): TaxRegion[] =>
