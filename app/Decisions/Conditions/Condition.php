@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Decisions\Conditions;
 
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Exception;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 abstract class Condition
 {
@@ -52,7 +53,7 @@ abstract class Condition
             case '!in':
                 return !(is_array($value1) && is_array($value2) ? !empty(array_intersect($value1, $value2)) : in_array($value1, $value2));
             default:
-                throw new Exception(__('Invalid operator', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(__('Invalid operator', 'kirki-ecommerce')));
         }
     }
 }

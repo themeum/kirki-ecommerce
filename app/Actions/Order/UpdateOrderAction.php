@@ -23,6 +23,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Throwable;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\collection;
@@ -59,7 +60,7 @@ class UpdateOrderAction
         $context = $this->prepare_calculation_context_dto($dto);
 
         if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Invalid shipping method', 'kirki-ecommerce')));
         }
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
@@ -109,7 +110,7 @@ class UpdateOrderAction
 
                 if ($diff > 0 && !$this->inventory_service->has_stock($variant_id, $diff)) {
                     /* translators: %s: variant ID */
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                    ExceptionThrower::throw(new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id)));
                 }
 
                 if ($diff < 0) {
@@ -124,7 +125,7 @@ class UpdateOrderAction
             } else {
                 if (!$this->inventory_service->has_stock($variant_id, $calculated_item->quantity)) {
                     /* translators: %s: variant ID */
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                    ExceptionThrower::throw(new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id)));
                 }
 
                 $item_create_dto = $this->prepare_order_item_dto($order->id, $calculated_item, $currency_code, $exchange_rate);
@@ -254,7 +255,7 @@ class UpdateOrderAction
 
             if (!$variant) {
                 /* translators: %s: JSON-encoded item data */
-                throw new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))));
             }
 
             $product = $variant->product->load('categories');

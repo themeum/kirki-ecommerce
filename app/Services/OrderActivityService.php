@@ -11,6 +11,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class OrderActivityService
 {
@@ -101,7 +102,7 @@ class OrderActivityService
             ->first();
 
         if (!$activity) {
-            throw new NotFoundException(__('Activity not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Activity not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $activity;
@@ -126,7 +127,7 @@ class OrderActivityService
         $activity = $this->find_or_fail($order_id, $id);
 
         if ($activity->activity_type !== OrderActivityType::COMMENT_ADDED) {
-            throw new ValidationException(__('Only comments can be deleted.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new ValidationException(__('Only comments can be deleted.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY));
         }
 
         return (bool) $activity->delete();

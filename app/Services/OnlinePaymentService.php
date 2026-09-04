@@ -16,6 +16,7 @@ use Exception;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ZipArchive;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\app_path;
@@ -73,14 +74,14 @@ class OnlinePaymentService
     public function install(string $id)
     {
         if (Payment::get_provider($id)) {
-            throw new Exception(__('Payment method already installed.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Payment method already installed.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $addon_zip_url = Route::url('online-payments/download/' . $id); //@todo: implement cloud url
         $is_installed = AddonPlugin::install($addon_zip_url);
 
         if (!$is_installed) {
-            throw new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         Payment::init_registry();
@@ -127,7 +128,7 @@ class OnlinePaymentService
         $provider = $this->find($id);
 
         if (!$provider) {
-            throw new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $provider;
@@ -204,7 +205,7 @@ class OnlinePaymentService
             wp_delete_file($temp_zip_path);
             exit;
         } else {
-            throw new Exception(__('Failed to create zip file.', 'kirki-ecommerce'), Response::INTERNAL_SERVER_ERROR); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Failed to create zip file.', 'kirki-ecommerce'), Response::INTERNAL_SERVER_ERROR));
         }
     }
 }

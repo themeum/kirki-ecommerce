@@ -21,6 +21,7 @@ use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
@@ -126,7 +127,7 @@ class CartController
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
         if (empty($cart)) {
-            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Cart not found.', 'kirki-ecommerce')));
         }
 
         $cart = $apply_coupon_action->execute($cart, $code);
@@ -139,7 +140,7 @@ class CartController
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
         if (empty($cart)) {
-            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Cart not found.', 'kirki-ecommerce')));
         }
 
         $cart = $remove_coupon_action->execute($cart);

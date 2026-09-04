@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 use Throwable;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class CreateCustomerAction
 {
@@ -80,7 +81,7 @@ class CreateCustomerAction
     {
         if (!empty($customer->user_id)) {
             if (empty(get_userdata($customer->user_id))) {
-                throw new Exception(__('User could not be found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(__('User could not be found.', 'kirki-ecommerce')));
             }
 
             return $customer->user_id;
@@ -98,7 +99,7 @@ class CreateCustomerAction
         $user_id = wp_insert_user($new_user);
 
         if (is_wp_error($user_id)) {
-            throw new Exception($user_id->get_error_message()); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception($user_id->get_error_message()));
         }
 
         return $user_id;
@@ -109,7 +110,7 @@ class CreateCustomerAction
         $is_created_billing_address = $this->address_service->create($address_payload);
 
         if (!$is_created_billing_address) {
-            throw new Exception(__('Customer address could not be created.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Customer address could not be created.', 'kirki-ecommerce')));
         }
 
         return true;

@@ -13,6 +13,7 @@ use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\settings;
@@ -378,11 +379,11 @@ class MoneyManager
         $method = Str::camel($method);
 
         if (!method_exists(Money::class, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist on " . Money::class); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new BadMethodCallException("Method {$method} does not exist on " . Money::class));
         }
 
         if (empty($parameters)) {
-            throw new InvalidArgumentException("Money {$method} method requires at least one parameter."); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new InvalidArgumentException("Money {$method} method requires at least one parameter."));
         }
 
         if (empty($parameters[1])) {

@@ -38,6 +38,7 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
@@ -103,7 +104,7 @@ class CreateOrderAction
         $context = $this->prepare_calculation_context_dto($dto);
 
         if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Invalid shipping method', 'kirki-ecommerce')));
         }
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
@@ -159,7 +160,7 @@ class CreateOrderAction
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
         if (empty($cart) || empty($cart->items)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Cart not found.', 'kirki-ecommerce')));
         }
 
         $items = [];
@@ -172,7 +173,7 @@ class CreateOrderAction
         }
 
         if (empty($items)) {
-            throw new Exception(__('Cart is empty.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Cart is empty.', 'kirki-ecommerce')));
         }
 
         $dto->items = $items;
@@ -354,19 +355,19 @@ class CreateOrderAction
 
             if (!$variant) {
                 /* translators: %s: JSON-encoded item data */
-                throw new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))));
             }
 
             if ($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity']) {
                 /* translators: %s: variant ID */
-                throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id)));
             }
 
             $product = $variant->product;
 
             if (empty($product)) {
                 /* translators: %s: variant ID */
-                throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)));
             }
 
             $product->load('categories');
@@ -489,7 +490,7 @@ class CreateOrderAction
 
         if (empty($product)) {
             /* translators: %s: variant ID */
-            throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)));
         }
 
         $product->load('media');

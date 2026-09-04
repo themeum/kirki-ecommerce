@@ -12,6 +12,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class UpdateRefundAction
 {
@@ -29,7 +30,7 @@ class UpdateRefundAction
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $dto->id)->values()->first();
 
         if (!$refund) {
-            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Refund not found.', 'kirki-ecommerce')));
         }
 
         DB::begin_transaction();

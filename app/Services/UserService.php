@@ -6,6 +6,7 @@ use Exception;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class UserService
 {
@@ -43,9 +44,9 @@ class UserService
         $user = get_userdata($user_id);
 
         if (empty($user) || !wp_check_password($current_password, $user->user_pass, $user_id)) {
-            throw ValidationException::with_errors([
-                'current_password' => [__('Current password is incorrect.', 'kirki-ecommerce')], // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-            ]);
+            ExceptionThrower::throw(ValidationException::with_errors([
+                'current_password' => [__('Current password is incorrect.', 'kirki-ecommerce')],
+            ]));
         }
 
         wp_set_password($new_password, $user_id);
@@ -85,11 +86,11 @@ class UserService
         $user = new User($user_id);
 
         if (empty($user->get_id())) {
-            throw new Exception(__('User not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('User not found.', 'kirki-ecommerce')));
         }
 
         if ($user->email_verified()) {
-            throw new Exception(__('Email address is already verified.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Email address is already verified.', 'kirki-ecommerce')));
         }
 
         // TODO: we need to add this in route level rate limit.
@@ -98,7 +99,7 @@ class UserService
         if ($last_sent && (time() - $last_sent) < $cooldown_period) {
             $remaining = $cooldown_period - (time() - $last_sent);
             /* translators: %d: number of seconds to wait */
-            throw new Exception(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining)));
         }
 
         $token = $user->generate_verification_token();
@@ -111,7 +112,7 @@ class UserService
         $sent = $this->email_service->send_verification_email($user, $verify_url);
 
         if (!$sent) {
-            throw new Exception(__('Failed to send verification email. Please try again later.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Failed to send verification email. Please try again later.', 'kirki-ecommerce')));
         }
 
         return true;

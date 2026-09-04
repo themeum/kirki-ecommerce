@@ -15,6 +15,7 @@ use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\user;
 
@@ -65,7 +66,7 @@ class VariantService
         $variant = $this->find_or_null($id);
 
         if (empty($variant)) {
-            throw new NotFoundException(__('Variant not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Variant not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $variant;
@@ -123,7 +124,7 @@ class VariantService
 
         if (!$variant) {
             /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be updated.', 'kirki-ecommerce'), $data->id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(sprintf(__('Variant with id %s could not be updated.', 'kirki-ecommerce'), $data->id), Response::NOT_FOUND));
         }
 
         return $variant;
@@ -148,7 +149,7 @@ class VariantService
     public function bulk_update(array $variants)
     {
         if (empty($variants)) {
-            throw new NotFoundException(__('No variants selected.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('No variants selected.', 'kirki-ecommerce')));
         }
 
         DB::begin_transaction();
@@ -157,7 +158,7 @@ class VariantService
 
         foreach ($variants as $variant) {
             if (empty($variant['id'])) {
-                throw new NotFoundException(__('Variant id is required.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new NotFoundException(__('Variant id is required.', 'kirki-ecommerce')));
             }
 
             $updated_variant = $this->update_variant($variant['id'], $variant);
@@ -165,13 +166,13 @@ class VariantService
             if (!$updated_variant) {
                 DB::roll_back();
 
-                throw new NotFoundException(
+                ExceptionThrower::throw(new NotFoundException(
                     sprintf(
                         /* translators: %s: variant id */
-                        __('Variant with id %s could not be updated.', 'kirki-ecommerce'), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-                        $variant['id'] // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                        __('Variant with id %s could not be updated.', 'kirki-ecommerce'),
+                        $variant['id']
                     )
-                );
+                ));
             }
 
             $updated_variants[] = $updated_variant;
@@ -221,7 +222,7 @@ class VariantService
 
         if (!$is_deleted) {
             /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), Response::NOT_FOUND));
         }
 
         return true;
@@ -237,13 +238,13 @@ class VariantService
     public function bulk_delete(array $ids)
     {
         if (empty($ids)) {
-            throw new NotFoundException(__('No variants selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('No variants selected.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $is_deleted = (bool) Variant::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Variants could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Variants could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return true;
@@ -271,7 +272,7 @@ class VariantService
         $variant = Variant::find($id);
 
         if (empty($variant)) {
-            throw new NotFoundException(__('Variant not found!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Variant not found!', 'kirki-ecommerce')));
         }
 
         return $variant->update($data) ? $variant->load('product.media', 'attribute_values') : false;

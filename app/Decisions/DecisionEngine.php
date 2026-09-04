@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Decisions\Conditions\Condition;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\LogicalOperator;
 use Exception;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class DecisionEngine
 {
@@ -93,14 +94,14 @@ class DecisionEngine
 
         if (!class_exists($this->conditions[$type])) {
             /* translators: %s: condition type */
-            throw new Exception(sprintf(__('Condition %s does not exist', 'kirki-ecommerce'), $type)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(sprintf(__('Condition %s does not exist', 'kirki-ecommerce'), $type)));
         }
 
         $condition_instance = new $this->conditions[$type]();
 
         if (!$condition_instance instanceof Condition) {
             /* translators: %s: condition type */
-            throw new Exception(sprintf(__('Condition %s does not implement Condition interface', 'kirki-ecommerce'), $type)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(sprintf(__('Condition %s does not implement Condition interface', 'kirki-ecommerce'), $type)));
         }
 
         return $condition_instance->evaluate(

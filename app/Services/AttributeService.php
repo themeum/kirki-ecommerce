@@ -14,6 +14,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 use function Kirki\Ecommerce\Framework\user;
 
 class AttributeService
@@ -52,7 +53,7 @@ class AttributeService
         $attribute = Attribute::with('values')->find($id);
 
         if (empty($attribute)) {
-            throw new NotFoundException(__('Attribute not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Attribute not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $attribute;
@@ -92,7 +93,7 @@ class AttributeService
         $attribute = Attribute::find($data->id);
 
         if (empty($attribute)) {
-            throw new NotFoundException(__('Attribute could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Attribute could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
@@ -104,7 +105,7 @@ class AttributeService
         $is_updated = (bool) $attribute->update($attributes);
 
         if (!$is_updated) {
-            throw new Exception(__('Attribute could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Attribute could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST));
         }
 
         return $this->find($data->id);
@@ -123,7 +124,7 @@ class AttributeService
         $is_deleted = (bool) Attribute::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Attribute could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Attribute could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST));
         }
 
         return true;
@@ -140,13 +141,13 @@ class AttributeService
     public function bulk_delete(array $ids)
     {
         if (empty($ids)) {
-            throw new NotFoundException(__('No attributes selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('No attributes selected.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $is_deleted = (bool) Attribute::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST));
         }
 
         return true;
