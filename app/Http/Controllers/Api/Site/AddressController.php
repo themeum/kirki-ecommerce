@@ -183,7 +183,7 @@ class AddressController
         $customer = $this->customer_service->find_by_user_id(user()->get_id());
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $customer;

@@ -268,14 +268,14 @@ class AvailabilityServiceTest extends TestCase
     {
         $label = $this->service->format_status_label(AvailabilityStatus::IN_STOCK, 120, 9);
 
-        $this->assertSame('120 In Stock across 9 variants', $label);
+        $this->assertSame('120 In Stock <span>across 9 variants</span>', $label);
     }
 
     public function test_format_status_label_appends_variant_count_for_non_in_stock_statuses(): void
     {
         $label = $this->service->format_status_label(AvailabilityStatus::OUT_OF_STOCK, 0, 20);
 
-        $this->assertSame(AvailabilityStatus::get_formatted(AvailabilityStatus::OUT_OF_STOCK) . ' across 20 variants', $label);
+        $this->assertSame(AvailabilityStatus::get_formatted(AvailabilityStatus::OUT_OF_STOCK) . ' <span>across 20 variants</span>', $label);
     }
 
     public function test_format_status_label_omits_variant_suffix_when_variant_count_is_null(): void
