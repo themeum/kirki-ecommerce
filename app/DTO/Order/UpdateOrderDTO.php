@@ -86,9 +86,6 @@ class UpdateOrderDTO extends DTO
     /** @var string|null */
     public $shipping_company;
 
-    /** @var bool */
-    public $is_billing_same_as_shipping = false;
-
     // Billing Address Fields
     public $billing_first_name;
     public $billing_last_name;

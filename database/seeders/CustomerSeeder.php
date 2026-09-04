@@ -21,25 +21,25 @@ class CustomerSeeder extends Seeder
             $is_shipping_same_as_billing = $index % 2 === 0;
 
             $shipping_address = $this->make_address_data($customer_data, [
-                'type' => AddressType::SHIPPING,
                 'address_line1' => $this->get_address_line($index, 'shipping'),
                 'city' => $this->get_city($index),
                 'state' => $this->get_state($index),
                 'country' => $this->get_country($index),
                 'postal_code' => $this->get_postal_code($index),
+                'is_default_shipping' => true,
+                'is_default_billing' => $is_shipping_same_as_billing,
             ]);
 
-            if ($is_shipping_same_as_billing) {
-                $billing_address = $shipping_address;
-                $billing_address['type'] = AddressType::BILLING;
-            } else {
-                $billing_address = $this->make_address_data($customer_data, [
-                    'type' => AddressType::BILLING,
+            $addresses = [$shipping_address];
+
+            if (!$is_shipping_same_as_billing) {
+                $addresses[] = $this->make_address_data($customer_data, [
                     'address_line1' => $this->get_address_line($index, 'billing'),
                     'city' => $this->get_city($index + 1),
                     'state' => $this->get_state($index + 1),
                     'country' => $this->get_country($index),
                     'postal_code' => $this->get_postal_code($index + 1),
+                    'is_default_billing' => true,
                 ]);
             }
 
@@ -52,7 +52,7 @@ class CustomerSeeder extends Seeder
                 'notes' => $customer_data['note'] ?? $customer_data['notes'] ?? null,
             ]);
 
-            $customer->addresses()->create_many([$shipping_address, $billing_address]);
+            $customer->addresses()->create_many($addresses);
         }
 
         Log::info('CustomerSeeder run successfully');
@@ -80,7 +80,9 @@ class CustomerSeeder extends Seeder
             'state' => '',
             'country' => '',
             'postal_code' => '',
-            'type' => AddressType::SHIPPING,
+            'type' => AddressType::HOME,
+            'is_default_shipping' => false,
+            'is_default_billing' => false,
         ], $overrides);
     }
 
