@@ -77,17 +77,12 @@ class PageInlineScript extends BaseHook
      */
     protected function set_addresses_page_data($view_data, $config)
     {
-        $data             = (object) $view_data;
-        $customer         = $data->customer->get_customer() ?? null;
-        $billing_address  = $data->billing_address ?? [];
-        $shipping_address = $data->shipping_address ?? [];
+        $data     = (object) $view_data;
+        $customer = $data->customer->get_customer() ?? null;
 
         $config['countries']                   = $data->countries ?? Utils::get_countries();
         $config['customer_id']                 = $customer->id ?? 0;
-        $config['addresses']                   = [
-            'billing'  => $this->format_address($billing_address),
-            'shipping' => $this->format_address($shipping_address),
-        ];
+        $config['addresses']                   = $this->format_address($data->addresses ?? []);
 
         return $config;
     }
@@ -109,6 +104,12 @@ class PageInlineScript extends BaseHook
 
         if (is_object($address) && method_exists($address, 'to_array')) {
             return $address->to_array();
+        }
+
+        if (is_array($address)) {
+            return array_map(function ($item) {
+                return is_object($item) && method_exists($item, 'to_array') ? $item->to_array() : $item;
+            }, $address);
         }
 
         return (array) $address;

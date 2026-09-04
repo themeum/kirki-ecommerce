@@ -1,5 +1,5 @@
 // Account - Addresses
-// Styling for billing & shipping addresses view using shared card and form components
+// Styling for address book cards, empty state, and address modal
 
 @use '../../tokens' as *;
 @use '../../mixins' as *;
@@ -8,43 +8,145 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-6;
+}
+
+.kecom-account-addresses-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-6;
 
   .kecom-account-addresses-title {
-    @include typography(xl, semibold, $text-primary);
+    @include typography(2xl, semibold, $text-primary);
     margin: 0;
-  }
-
-  .kecom-card {
-    max-width: 732px;
   }
 }
 
 .kecom-account-addresses-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: $spacing-9;
 
   @include breakpoint-down(md) {
     grid-template-columns: 1fr;
   }
+}
 
-  .kecom-card-header {
-    margin-bottom: $spacing-6;
+.kecom-address-card {
+  padding: $spacing-9 $spacing-8 $spacing-9 $spacing-9;
+
+  .kecom-address-card-header {
+    @include flex-between();
+    gap: $spacing-3;
+    margin-bottom: $spacing-2;
   }
 
-  .kecom-address-card-same {
+  .kecom-address-card-title-group {
     display: flex;
-    margin-bottom: $spacing-6;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: $spacing-6;
+  }
+
+  .kecom-address-card-label {
+    @include typography(base, bold, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-address-card-badges {
+    @include flex();
+    gap: $spacing-2;
+  }
+
+  .kecom-address-card-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .kecom-address-card-body {
+    flex: 1;
   }
 
   .kecom-address-text {
     @include typography(base, normal, $text-primary);
     font-style: normal;
+    margin: 0;
   }
+}
+
+.kecom-account-addresses-empty {
+  background-color: $background-surface;
+  border-radius: $radius-xl;
+  padding: $spacing-12 $spacing-8;
+  @include flex-center;
+  text-align: center;
 
   .kecom-empty-text {
     @include typography(base, normal, $text-subdued);
-    font-style: italic;
-    margin: 0px;
+    margin: 0;
+  }
+}
+
+.kecom-address-modal-content {
+  max-width: 580px;
+
+  .kecom-modal-header {
+    padding: $spacing-6 $spacing-8;
+  }
+
+  .kecom-modal-header-close {
+    background-color: $background-fill-secondary;
+    border-radius: $radius-md;
+
+    &:hover {
+      background-color: $background-fill-hover;
+    }
+  }
+
+  .kecom-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    background-color: $background-surface;
+
+    max-height: calc(100dvh - 280px);
+    overflow-y: auto;
+
+    @include breakpoint-down(sm) {
+      max-height: calc(100dvh - 220px);
+    }
+  }
+
+  .kecom-form {
+    display: block;
+  }
+
+  .kecom-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-4;
+
+    @include breakpoint-down(sm) {
+      grid-template-columns: 1fr;
+    }
+
+    &-3 {
+      grid-template-columns: 1.2fr 1fr 1fr;
+
+      @include breakpoint-down(sm) {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+
+  .kecom-address-modal-defaults {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+    padding-top: $spacing-2;
+  }
+
+  .kecom-modal-footer {
+    padding: $spacing-6 $spacing-9;
   }
 }

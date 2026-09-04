@@ -1,13 +1,17 @@
 /**
  * Account Addresses Alpine Component
- * Handles viewing and saving billing & shipping addresses via POST /account/addresses
+ * Handles viewing, adding, editing, deleting, and setting default addresses via REST API
  */
 
 import { type AccountAddressPayload, accountApi } from '../api/account';
+import { toastManager } from '../services/toast/runtime';
 import { config } from '../utils';
-import { toastMeta } from './toast';
 
 export interface AddressItem {
+  id: number | string;
+  label?: string;
+  is_default_shipping?: boolean;
+  is_default_billing?: boolean;
   first_name?: string;
   last_name?: string;
   company?: string;
@@ -22,6 +26,7 @@ export interface AddressItem {
 }
 
 export interface AddressFormData {
+  label: string;
   first_name: string;
   last_name: string;
   company: string;
@@ -33,19 +38,43 @@ export interface AddressFormData {
   postal_code: string;
   phone: string;
   email: string;
+  is_default_shipping: boolean;
+  is_default_billing: boolean;
 }
 
 export function accountAddresses() {
   const { __ } = window.wp.i18n;
-  const toast = toastMeta.component();
 
-  const initialSameAsShipping = Boolean(
-    config?.is_billing_same_as_shipping ?? config?.isBillingSameAsShipping,
-  );
-  const addresses = config?.addresses ?? {
-    billing: {},
-    shipping: {},
-  };
+  // Normalize initial addresses from config
+  const rawAddresses = config?.addresses;
+  let initialAddresses: AddressItem[] = [];
+
+  if (Array.isArray(rawAddresses)) {
+    initialAddresses = rawAddresses;
+  } else if (rawAddresses && typeof rawAddresses === 'object') {
+    // Legacy support for { shipping: {...}, billing: {...} }
+    const items: AddressItem[] = [];
+    if (rawAddresses.shipping && (rawAddresses.shipping.address_line1 || rawAddresses.shipping.first_name)) {
+      items.push({
+        label: rawAddresses.shipping.label || __('Home', 'kirki-ecommerce'),
+        is_default_shipping: true,
+        is_default_billing: false,
+        ...rawAddresses.shipping,
+        id: rawAddresses.shipping.id || 1,
+      });
+    }
+    if (rawAddresses.billing && (rawAddresses.billing.address_line1 || rawAddresses.billing.first_name)) {
+      items.push({
+        label: rawAddresses.billing.label || __('Work', 'kirki-ecommerce'),
+        is_default_shipping: false,
+        is_default_billing: true,
+        ...rawAddresses.billing,
+        id: rawAddresses.billing.id || 2,
+      });
+    }
+    initialAddresses = items;
+  }
+
   const countries =
     (config?.countries as {
       code: string;
@@ -54,20 +83,20 @@ export function accountAddresses() {
     }[]) ?? [];
 
   return {
-    addresses,
+    addresses: initialAddresses,
     countries,
-    editingAddress: null as 'billing' | 'shipping' | null,
-    sameAsShipping: initialSameAsShipping,
-    customBillingAddress: { ...(addresses?.billing ?? {}) },
-    togglingSameAsShipping: false,
+    modalOpen: false,
+    isEditing: false,
+    editingId: null as number | string | null,
+    activeMenuId: null as number | string | null,
     loading: false,
-    errorMessage: '',
     errors: {} as Record<string, string>,
     formData: {
+      label: '',
       first_name: '',
       last_name: '',
       company: '',
-      country: '',
+      country: countries[0]?.code || '',
       address_line1: '',
       address_line2: '',
       city: '',
@@ -75,13 +104,17 @@ export function accountAddresses() {
       postal_code: '',
       phone: '',
       email: '',
-    },
+      is_default_shipping: false,
+      is_default_billing: false,
+    } as AddressFormData,
 
     get availableStates() {
       if (!this.formData.country) {
         return [];
       }
-      const country = this.countries.find((c: any) => (c.code || c.id) === this.formData.country);
+      const country = this.countries.find(
+        (c: any) => (c.code || c.id) === this.formData.country,
+      );
       return country?.states ?? [];
     },
 
@@ -89,7 +122,9 @@ export function accountAddresses() {
       if (!code) {
         return '';
       }
-      const country = this.countries.find((c: any) => (c.code || c.id) === code);
+      const country = this.countries.find(
+        (c: any) => (c.code || c.id) === code,
+      );
       return country ? country.name : code;
     },
 
@@ -97,7 +132,9 @@ export function accountAddresses() {
       if (!stateVal || !countryCode) {
         return String(stateVal || '');
       }
-      const country = this.countries.find((c: any) => (c.code || c.id) === countryCode);
+      const country = this.countries.find(
+        (c: any) => (c.code || c.id) === countryCode,
+      );
       if (!country?.states) {
         return String(stateVal);
       }
@@ -107,22 +144,7 @@ export function accountAddresses() {
       return state ? state.name : String(stateVal);
     },
 
-    getAddress(type: 'billing' | 'shipping'): AddressItem {
-      return type === 'billing' && this.sameAsShipping
-        ? this.addresses.shipping || {}
-        : this.addresses[type] || {};
-    },
-
-    getDisplayName(type: 'billing' | 'shipping'): string {
-      const addr = this.getAddress(type);
-      if (!addr) {
-        return '';
-      }
-      return `${addr.first_name || ''} ${addr.last_name || ''}`.trim();
-    },
-
-    getCityStateZip(type: 'billing' | 'shipping'): string {
-      const addr = this.getAddress(type);
+    getCityStateZip(addr: AddressItem): string {
       if (!addr) {
         return '';
       }
@@ -131,107 +153,86 @@ export function accountAddresses() {
       return `${parts} ${addr.postal_code || ''}`.trim();
     },
 
-    hasAddress(type: 'billing' | 'shipping'): boolean {
-      if (type === 'billing' && this.sameAsShipping) {
-        return Boolean(
-          this.addresses.shipping &&
-          (this.addresses.shipping.address_line1 || this.addresses.shipping.first_name),
-        );
+    getFormattedAddressLines(addr: AddressItem): string {
+      if (!addr) {
+        return '';
       }
-      const addr = this.addresses[type];
-      return Boolean(addr && (addr.address_line1 || addr.first_name));
+      return [addr.address_line1, addr.address_line2].filter(Boolean).join(', ');
     },
 
-    startEdit(type: 'billing' | 'shipping') {
-      this.editingAddress = type;
-      this.errorMessage = '';
+    toggleMenu(id: number | string) {
+      this.activeMenuId = this.activeMenuId === id ? null : id;
+    },
+
+    closeMenu() {
+      this.activeMenuId = null;
+    },
+
+    openAddModal() {
+      this.isEditing = false;
+      this.editingId = null;
+      this.activeMenuId = null;
       this.errors = {};
-      const current = this.addresses[type] || {};
+      const defaultCountry = this.countries[0]?.code || '';
       this.formData = {
-        first_name: current.first_name || '',
-        last_name: current.last_name || '',
-        company: current.company || '',
-        country: current.country || '',
-        address_line1: current.address_line1 || '',
-        address_line2: current.address_line2 || '',
-        city: current.city || '',
-        state: current.state || '',
-        postal_code: current.postal_code || '',
-        phone: current.phone || '',
-        email: current.email || '',
+        label: '',
+        first_name: '',
+        last_name: '',
+        company: '',
+        country: defaultCountry,
+        address_line1: '',
+        address_line2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+        phone: '',
+        email: '',
+        is_default_shipping: this.addresses.length === 0,
+        is_default_billing: this.addresses.length === 0,
       };
+      this.modalOpen = true;
     },
 
-    cancelEdit() {
-      this.editingAddress = null;
-      this.errorMessage = '';
+    openEditModal(address: AddressItem) {
+      this.isEditing = true;
+      this.editingId = address.id;
+      this.activeMenuId = null;
+      this.errors = {};
+      this.formData = {
+        label: address.label || '',
+        first_name: address.first_name || '',
+        last_name: address.last_name || '',
+        company: address.company || '',
+        country: address.country || this.countries[0]?.code || '',
+        address_line1: address.address_line1 || '',
+        address_line2: address.address_line2 || '',
+        city: address.city || '',
+        state: address.state || '',
+        postal_code: address.postal_code || '',
+        phone: address.phone || '',
+        email: address.email || '',
+        is_default_shipping: Boolean(address.is_default_shipping),
+        is_default_billing: Boolean(address.is_default_billing),
+      };
+      this.modalOpen = true;
+    },
+
+    closeModal() {
+      this.modalOpen = false;
+      this.editingId = null;
       this.errors = {};
     },
-
-    // @todo: we don't need this
-    // async onSameAsShippingChange() {
-    //   if (this.togglingSameAsShipping) {
-    //     return;
-    //   }
-    //   this.togglingSameAsShipping = true;
-
-    //   try {
-    //     if (this.sameAsShipping) {
-    //       // Backup current custom billing address in memory
-    //       this.customBillingAddress = { ...this.addresses.billing };
-    //       // Mirror shipping to billing
-    //       this.addresses.billing = { ...this.addresses.shipping };
-    //     } else {
-    //       // Restore previous custom billing address
-    //       this.addresses.billing = { ...this.customBillingAddress };
-    //     }
-
-    //     const payload: AccountAddressPayload = {
-    //       type: 'billing',
-    //       first_name: this.addresses.billing?.first_name || '',
-    //       last_name: this.addresses.billing?.last_name || '',
-    //       company: this.addresses.billing?.company || '',
-    //       country: this.addresses.billing?.country || '',
-    //       address_line1: this.addresses.billing?.address_line1 || '',
-    //       address_line2: this.addresses.billing?.address_line2 || '',
-    //       city: this.addresses.billing?.city || '',
-    //       state: String(this.addresses.billing?.state || ''),
-    //       postal_code: this.addresses.billing?.postal_code || '',
-    //       phone: this.addresses.billing?.phone || '',
-    //       email: this.addresses.billing?.email || '',
-    //       is_billing_same_as_shipping: this.sameAsShipping,
-    //     };
-
-    //     await accountApi.updateAddress(payload);
-
-    //     if (this.sameAsShipping) {
-    //       toast.success('Billing address set to same as shipping.');
-    //     } else {
-    //       toast.info('Separate billing address enabled.');
-    //     }
-    //   } catch (err: any) {
-    //     // Revert UI toggle on error
-    //     this.sameAsShipping = !this.sameAsShipping;
-    //     if (this.sameAsShipping) {
-    //       this.addresses.billing = { ...this.addresses.shipping };
-    //     } else {
-    //       this.addresses.billing = { ...this.customBillingAddress };
-    //     }
-    //     toast.error(err?.message || 'Failed to update billing address preference.');
-    //   } finally {
-    //     this.togglingSameAsShipping = false;
-    //   }
-    // },
 
     validateForm(): boolean {
       this.errors = {};
 
       const requiredRules: { field: keyof AddressFormData; message: string }[] = [
         { field: 'first_name', message: __('First name is required.', 'kirki-ecommerce') },
+        { field: 'last_name', message: __('Last name is required.', 'kirki-ecommerce') },
         { field: 'country', message: __('Country is required.', 'kirki-ecommerce') },
         { field: 'address_line1', message: __('Street address is required.', 'kirki-ecommerce') },
-        { field: 'city', message: __('Town / City is required.', 'kirki-ecommerce') },
-        { field: 'postal_code', message: __('Postcode / ZIP is required.', 'kirki-ecommerce') },
+        { field: 'city', message: __('City is required.', 'kirki-ecommerce') },
+        { field: 'postal_code', message: __('Postal code is required.', 'kirki-ecommerce') },
         { field: 'phone', message: __('Phone number is required.', 'kirki-ecommerce') },
       ];
 
@@ -242,16 +243,11 @@ export function accountAddresses() {
         }
       }
 
-      // State is only required if the selected country has states available
       if (this.availableStates.length > 0) {
         const stateVal = this.formData.state;
         if (!stateVal || (typeof stateVal === 'string' && stateVal.trim() === '')) {
           this.errors.state = __('State is required.', 'kirki-ecommerce');
         }
-      }
-
-      if (this.formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email)) {
-        this.errors.email = __('Please enter a valid email address.', 'kirki-ecommerce');
       }
 
       if (
@@ -265,7 +261,7 @@ export function accountAddresses() {
     },
 
     async saveAddress() {
-      if (!this.editingAddress || this.loading) {
+      if (this.loading) {
         return;
       }
 
@@ -274,76 +270,135 @@ export function accountAddresses() {
       }
 
       this.loading = true;
-      this.errorMessage = '';
       this.errors = {};
 
-      const type = this.editingAddress;
+      const payload: AccountAddressPayload = {
+        label: this.formData.label.trim() || undefined,
+        first_name: this.formData.first_name,
+        last_name: this.formData.last_name,
+        company: this.formData.company,
+        country: this.formData.country,
+        address_line1: this.formData.address_line1,
+        address_line2: this.formData.address_line2,
+        city: this.formData.city,
+        state: String(this.formData.state || ''),
+        postal_code: this.formData.postal_code,
+        phone: this.formData.phone,
+        email: this.formData.email,
+        is_default_shipping: this.formData.is_default_shipping,
+        is_default_billing: this.formData.is_default_billing,
+      };
 
       try {
-        const payload: AccountAddressPayload = {
-          type,
-          first_name: this.formData.first_name || '',
-          last_name: this.formData.last_name || '',
-          company: this.formData.company || '',
-          country: this.formData.country || '',
-          address_line1: this.formData.address_line1 || '',
-          address_line2: this.formData.address_line2 || '',
-          city: this.formData.city || '',
-          state: String(this.formData.state || ''),
-          postal_code: this.formData.postal_code || '',
-          phone: this.formData.phone || '',
-          email: this.formData.email || '',
-          ...(type === 'billing' ? { is_billing_same_as_shipping: false } : {}),
-        };
+        if (this.isEditing && this.editingId !== null) {
+          const res = await accountApi.editAddress(this.editingId, payload);
+          const index = this.addresses.findIndex((a) => a.id === this.editingId);
+          if (index !== -1) {
+            this.addresses[index] = {
+              ...this.addresses[index],
+              ...payload,
+              id: this.editingId,
+            };
+          }
 
-        const res = await accountApi.updateAddress(payload);
+          if (payload.is_default_shipping) {
+            this.addresses.forEach((a) => {
+              if (a.id !== this.editingId) {
+                a.is_default_shipping = false;
+              }
+            });
+          }
+          if (payload.is_default_billing) {
+            this.addresses.forEach((a) => {
+              if (a.id !== this.editingId) {
+                a.is_default_billing = false;
+              }
+            });
+          }
 
-        // Update local reactive state
-        this.addresses[type] = {
-          ...this.addresses[type],
-          first_name: this.formData.first_name,
-          last_name: this.formData.last_name,
-          company: this.formData.company,
-          country: this.formData.country,
-          address_line1: this.formData.address_line1,
-          address_line2: this.formData.address_line2,
-          city: this.formData.city,
-          state: this.formData.state,
-          postal_code: this.formData.postal_code,
-          phone: this.formData.phone,
-          email: this.formData.email,
-        };
+          this.closeModal();
+          toastManager.success(res?.message || __('Address updated successfully.', 'kirki-ecommerce'));
+        } else {
+          const res = await accountApi.createAddress(payload);
+          const newId = res?.data?.id ?? Date.now();
+          const newAddress: AddressItem = {
+            id: newId,
+            ...payload,
+          };
 
-        if (type === 'billing') {
-          this.sameAsShipping = false;
+          if (payload.is_default_shipping) {
+            this.addresses.forEach((a) => {
+              a.is_default_shipping = false;
+            });
+          }
+          if (payload.is_default_billing) {
+            this.addresses.forEach((a) => {
+              a.is_default_billing = false;
+            });
+          }
+
+          this.addresses.push(newAddress);
+          this.closeModal();
+          toastManager.success(res?.message || __('Address added successfully.', 'kirki-ecommerce'));
         }
-
-        // If shipping updated and sameAsShipping is active, update billing copy as well
-        if (type === 'shipping' && this.sameAsShipping) {
-          this.addresses.billing = { ...this.addresses.shipping };
-        }
-
-        this.editingAddress = null;
-        toast.success(res?.message || 'Address updated successfully.');
       } catch (err: any) {
         if (err?.errors && typeof err.errors === 'object') {
-          let hasFieldErrors = false;
           for (const [key, messages] of Object.entries(err.errors)) {
-            const field = key.replace(/^(billing|shipping)_address\./, '');
             const rawMsg = Array.isArray(messages) ? messages[0] : (messages as string);
             if (rawMsg) {
-              this.errors[field] = rawMsg;
-              hasFieldErrors = true;
+              this.errors[key] = rawMsg;
             }
           }
-          if (hasFieldErrors) {
-            toast.error(err.message || 'Validation failed!');
-            return;
-          }
+          toastManager.error(err.message || __('Validation failed!', 'kirki-ecommerce'));
+          return;
         }
-        const msg = err?.message || 'Failed to update address. Please try again.';
-        this.errorMessage = msg;
-        toast.error(msg);
+        const msg = err?.message || __('Failed to save address. Please try again.', 'kirki-ecommerce');
+        toastManager.error(msg);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async deleteAddress(id: number | string) {
+      this.closeMenu();
+
+      const confirmed = window.confirm(
+        __('Are you sure you want to delete this address?', 'kirki-ecommerce'),
+      );
+      if (!confirmed) {
+        return;
+      }
+
+      this.loading = true;
+      try {
+        const res = await accountApi.deleteAddress(id);
+        this.addresses = this.addresses.filter((a) => a.id !== id);
+        toastManager.success(res?.message || __('Address deleted successfully.', 'kirki-ecommerce'));
+      } catch (err: any) {
+        toastManager.error(err?.message || __('Failed to delete address.', 'kirki-ecommerce'));
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async setDefault(id: number | string, type: 'shipping' | 'billing') {
+      this.closeMenu();
+
+      this.loading = true;
+      try {
+        const res = await accountApi.setDefaultAddress(id, type);
+
+        this.addresses.forEach((a) => {
+          if (type === 'shipping') {
+            a.is_default_shipping = a.id === id;
+          } else {
+            a.is_default_billing = a.id === id;
+          }
+        });
+
+        toastManager.success(res?.message || __('Default address updated.', 'kirki-ecommerce'));
+      } catch (err: any) {
+        toastManager.error(err?.message || __('Failed to set default address.', 'kirki-ecommerce'));
       } finally {
         this.loading = false;
       }

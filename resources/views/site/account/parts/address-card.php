@@ -9,69 +9,69 @@
  * @since 1.0.0
  */
 
-defined('ABSPATH') || exit;
+use function Kirki\Ecommerce\Framework\include_view;
 
-$type = $data['type'] ?? 'shipping';
-$title = $data['title'] ?? ($type === 'billing' ? __('Billing Address', 'kirki-ecommerce') : __('Shipping Address', 'kirki-ecommerce'));
+defined('ABSPATH') || exit;
 ?>
 
-<div class="kecom-card" x-cloak>
-    <div class="kecom-card-header">
-        <h3 class="kecom-card-title"><?php echo esc_html($title); ?></h3>
-        <button
-            type="button"
-            class="kecom-btn kecom-btn-link kecom-btn-sm"
-            @click.prevent="startEdit('<?php echo esc_attr($type); ?>')">
-            <span x-show="hasAddress('<?php echo esc_attr($type); ?>')"><?php esc_html_e('Edit', 'kirki-ecommerce'); ?></span>
-            <span x-show="!hasAddress('<?php echo esc_attr($type); ?>')"><?php esc_html_e('Add', 'kirki-ecommerce'); ?></span>
-        </button>
+<div class="kecom-card kecom-address-card" x-cloak>
+    <div class="kecom-address-card-header">
+        <div class="kecom-address-card-title-group">
+            <h3 class="kecom-address-card-label" x-text="address.label || '<?php esc_attr_e('Address', 'kirki-ecommerce'); ?>'"></h3>
+            <div class="kecom-address-card-badges">
+                <span class="kecom-badge kecom-badge-info-light" x-show="address.is_default_billing">
+                    <?php esc_html_e('Default Billing', 'kirki-ecommerce'); ?>
+                </span>
+                <span class="kecom-badge kecom-badge-info-light" x-show="address.is_default_shipping">
+                    <?php esc_html_e('Default Shipping', 'kirki-ecommerce'); ?>
+                </span>
+            </div>
+        </div>
+
+        <!-- Action popover menu -->
+        <div class="kecom-address-card-actions">
+            <?php
+            include_view('site.components.popover', [
+                'placement'     => 'bottom-end',
+                'trigger_label' => __('Address options', 'kirki-ecommerce'),
+                'trigger_icon'  => 'dots-vertical',
+                'items'         => [
+                    [
+                        'label' => __('Edit Address', 'kirki-ecommerce'),
+                        'click' => 'openEditModal(address)',
+                    ],
+                    [
+                        'label'        => __('Set as Default Shipping', 'kirki-ecommerce'),
+                        'click'        => "setDefault(address.id, 'shipping')",
+                        'bind_class'   => "{ 'is-disabled': address.is_default_shipping }",
+                        'bind_disable' => 'address.is_default_shipping',
+                    ],
+                    [
+                        'label'        => __('Set as Default Billing', 'kirki-ecommerce'),
+                        'click'        => "setDefault(address.id, 'billing')",
+                        'bind_class'   => "{ 'is-disabled': address.is_default_billing }",
+                        'bind_disable' => 'address.is_default_billing',
+                    ],
+                    [
+                        'type' => 'divider',
+                    ],
+                    [
+                        'label'     => __('Delete', 'kirki-ecommerce'),
+                        'click'     => 'deleteAddress(address.id)',
+                        'is_danger' => true,
+                    ],
+                ],
+            ]);
+            ?>
+        </div>
     </div>
 
-    <div class="kecom-card-body">
-        <?php if ($type === 'billing') : ?>
-            <!-- @TODO: We have to handle it in a proper way -->
-            <!-- <div class="kecom-address-card-same">
-                <label class="kecom-checkbox">
-                    <input
-                        class="kecom-checkbox-input"
-                        type="checkbox"
-                        x-model="sameAsShipping"
-                        :disabled="togglingSameAsShipping"
-                        @change="onSameAsShippingChange"
-                    >
-                    <span class="kecom-checkbox-label"><?php esc_html_e('Same as shipping address', 'kirki-ecommerce'); ?></span>
-                </label>
-            </div> -->
-        <?php endif; ?>
-
-        <template x-if="hasAddress('<?php echo esc_attr($type); ?>')">
-            <address class="kecom-address-text">
-                <span x-text="getDisplayName('<?php echo esc_attr($type); ?>')"></span>
-                <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.company">
-                    <div><span x-text="getAddress('<?php echo esc_attr($type); ?>')?.company"></span></div>
-                </template>
-                <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.address_line1">
-                    <div><span x-text="getAddress('<?php echo esc_attr($type); ?>')?.address_line1"></span></div>
-                </template>
-                <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.address_line2">
-                    <div><span x-text="getAddress('<?php echo esc_attr($type); ?>')?.address_line2"></span></div>
-                </template>
-                <template x-if="getCityStateZip('<?php echo esc_attr($type); ?>')">
-                    <div><span x-text="getCityStateZip('<?php echo esc_attr($type); ?>')"></span></div>
-                </template>
-                <template x-if="getCountryName(getAddress('<?php echo esc_attr($type); ?>')?.country)">
-                    <div><span x-text="getCountryName(getAddress('<?php echo esc_attr($type); ?>')?.country)"></span></div>
-                </template>
-                <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.phone">
-                    <div><span><?php esc_html_e('Phone:', 'kirki-ecommerce'); ?> <span x-text="getAddress('<?php echo esc_attr($type); ?>')?.phone"></span></span></div>
-                </template>
-                <template x-if="getAddress('<?php echo esc_attr($type); ?>')?.email">
-                    <div><span><?php esc_html_e('Email:', 'kirki-ecommerce'); ?> <span x-text="getAddress('<?php echo esc_attr($type); ?>')?.email"></span></span></div>
-                </template>
-            </address>
-        </template>
-        <template x-if="!hasAddress('<?php echo esc_attr($type); ?>')">
-            <p class="kecom-empty-text"><?php esc_html_e('You have not set up this type of address yet.', 'kirki-ecommerce'); ?></p>
-        </template>
+    <div class="kecom-address-card-body">
+        <address class="kecom-address-text">
+            <div class="kecom-address-name" x-text="`${address.first_name || ''} ${address.last_name || ''}`.trim()"></div>
+            <div class="kecom-address-line" x-show="getFormattedAddressLines(address)" x-text="getFormattedAddressLines(address)"></div>
+            <div class="kecom-address-city-zip" x-show="getCityStateZip(address)" x-text="getCityStateZip(address)"></div>
+            <div class="kecom-address-country" x-show="getCountryName(address.country)" x-text="getCountryName(address.country)"></div>
+        </address>
     </div>
 </div>
