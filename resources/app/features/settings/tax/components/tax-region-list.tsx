@@ -100,7 +100,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
     await handleSave(updatedRegions);
   };
 
-  const handleToggleRegion = (item: TaxRegion) => {
+  const handleToggleRegion = async (item: TaxRegion) => {
     const updatedRegions = (Array.isArray(taxRegions) ? taxRegions : []).map((region) =>
       region.code === item.code ? { ...region, is_enabled: !region.is_enabled } : region,
     );
@@ -108,6 +108,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
     setValue('tax_regions', updatedRegions as TaxSettingsFormInput['tax_regions'], {
       shouldDirty: true,
     });
+    await handleSave(updatedRegions);
   };
 
   const handleAddRegion = async (values: RegionsDialogFormPayload) => {

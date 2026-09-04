@@ -18,7 +18,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import TaxRulesDialog from '@/features/settings/tax/shared/components/tax-rules/tax-rules-dialog';
+import TaxRuleFormCard from '@/features/settings/tax/shared/components/tax-rules/tax-rule-form-card';
 import { getDestinationDisplayValue } from '@/features/settings/tax/shared/lib/tax-rules/helper';
 import type { SelectOption, TaxRegionState, TaxRule } from '@/features/settings/tax/shared/lib/utils';
 import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
@@ -80,9 +80,8 @@ const TaxRules = (props: TaxRulesProps) => {
           {(addRuleModal || rules.length > 0) && (
             <Flex direction="column" gap={4}>
               {addRuleModal && (
-                <TaxRulesDialog
-                  showModal={addRuleModal}
-                  setShowModal={setAddRuleModal}
+                <TaxRuleFormCard
+                  onClose={() => setAddRuleModal(false)}
                   rules={rules}
                   updateTaxRules={updateTaxRules}
                   from="add"
@@ -92,95 +91,96 @@ const TaxRules = (props: TaxRulesProps) => {
                 />
               )}
               <RuleItems cssOverride={styles.ruleItems}>
-                {rules?.map((item, index) => (
-                  <RuleItem key={index} id={String(index)}>
-                    <RuleItemContent>
-                      <RuleItemBadge>
-                        <LightningBoltIcon width={12} height={12} />
-                        <Text variant="small">
-                          {sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
-                        </Text>
-                      </RuleItemBadge>
-                      <RuleItemConditions>
-                        {(item?.conditions ?? []).map((condition, conditionIndex) => (
-                          <RuleItemCondition key={conditionIndex}>
-                            <Text variant="small" weight="medium">
-                              {conditionIndex === 0
-                                ? sprintf(
-                                    __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                    condition?.type ?? '',
-                                    condition?.operator ?? '',
-                                  )
-                                : sprintf(
-                                    __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                    condition?.type ?? '',
-                                    condition?.operator ?? '',
-                                  )}
-                            </Text>
-                            <Text
-                              variant="small"
-                              weight="medium"
-                              cssOverride={styles.conditionValue}
-                            >
-                              {condition?.type === 'destination_region'
-                                ? __(
-                                    getDestinationDisplayValue(condition?.value),
-                                    'kirki-ecommerce',
-                                  )
-                                : sprintf(
-                                    __('%s', 'kirki-ecommerce'),
-                                    condition?.value as string | number,
-                                  )}
-                            </Text>
-                          </RuleItemCondition>
-                        ))}
-                      </RuleItemConditions>
-                      <RuleItemAction>
-                        <Text variant="small" weight="medium">
-                          {item?.action?.type === 'set_tax_rate'
-                            ? `Then ${item?.action?.type}:`
-                            : `Then ${item?.action?.type}`}
-                        </Text>
-                        {item?.action?.type === 'set_tax_rate' && (
-                          <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>
-                            {item?.action?.value as string}
+                {rules?.map((item, index) =>
+                  editingRuleIndex === index ? (
+                    <TaxRuleFormCard
+                      key={index}
+                      states={states}
+                      destinationLabel={destinationLabel}
+                      conditionOptions={conditionOptions}
+                      rules={rules}
+                      updateTaxRules={updateTaxRules}
+                      onClose={() => setEditingRuleIndex(null)}
+                      from="edit"
+                      ruleIndex={index}
+                    />
+                  ) : (
+                    <RuleItem key={index} id={String(index)}>
+                      <RuleItemContent>
+                        <RuleItemBadge>
+                          <LightningBoltIcon width={12} height={12} />
+                          <Text variant="small">
+                            {sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
                           </Text>
-                        )}
-                      </RuleItemAction>
-                    </RuleItemContent>
-                    <RuleItemActions>
-                      <ActionGroup>
-                        <Button
-                          variant="outline"
-                          size="icon-sm"
-                          onClick={() => handleDeleteRules(item, index)}
-                        >
-                          <Trash2 />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon-sm"
-                          onClick={() => setEditingRuleIndex(index)}
-                        >
-                          <Edit3 />
-                        </Button>
-                      </ActionGroup>
-                    </RuleItemActions>
-                    {editingRuleIndex === index && (
-                      <TaxRulesDialog
-                        states={states}
-                        destinationLabel={destinationLabel}
-                        conditionOptions={conditionOptions}
-                        rules={rules}
-                        updateTaxRules={updateTaxRules}
-                        showModal={true}
-                        setShowModal={() => setEditingRuleIndex(null)}
-                        from="edit"
-                        ruleIndex={index}
-                      />
-                    )}
-                  </RuleItem>
-                ))}
+                        </RuleItemBadge>
+                        <RuleItemConditions>
+                          {(item?.conditions ?? []).map((condition, conditionIndex) => (
+                            <RuleItemCondition key={conditionIndex}>
+                              <Text variant="small" weight="medium">
+                                {conditionIndex === 0
+                                  ? sprintf(
+                                      __('IF %1$s %2$s', 'kirki-ecommerce'),
+                                      condition?.type ?? '',
+                                      condition?.operator ?? '',
+                                    )
+                                  : sprintf(
+                                      __('AND IF %1$s %2$s', 'kirki-ecommerce'),
+                                      condition?.type ?? '',
+                                      condition?.operator ?? '',
+                                    )}
+                              </Text>
+                              <Text
+                                variant="small"
+                                weight="medium"
+                                cssOverride={styles.conditionValue}
+                              >
+                                {condition?.type === 'destination_region'
+                                  ? __(
+                                      getDestinationDisplayValue(condition?.value),
+                                      'kirki-ecommerce',
+                                    )
+                                  : sprintf(
+                                      __('%s', 'kirki-ecommerce'),
+                                      condition?.value as string | number,
+                                    )}
+                              </Text>
+                            </RuleItemCondition>
+                          ))}
+                        </RuleItemConditions>
+                        <RuleItemAction>
+                          <Text variant="small" weight="medium">
+                            {item?.action?.type === 'set_tax_rate'
+                              ? `Then ${item?.action?.type}:`
+                              : `Then ${item?.action?.type}`}
+                          </Text>
+                          {item?.action?.type === 'set_tax_rate' && (
+                            <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>
+                              {item?.action?.value as string}
+                            </Text>
+                          )}
+                        </RuleItemAction>
+                      </RuleItemContent>
+                      <RuleItemActions>
+                        <ActionGroup>
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
+                            onClick={() => handleDeleteRules(item, index)}
+                          >
+                            <Trash2 />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
+                            onClick={() => setEditingRuleIndex(index)}
+                          >
+                            <Edit3 />
+                          </Button>
+                        </ActionGroup>
+                      </RuleItemActions>
+                    </RuleItem>
+                  ),
+                )}
               </RuleItems>
             </Flex>
           )}
