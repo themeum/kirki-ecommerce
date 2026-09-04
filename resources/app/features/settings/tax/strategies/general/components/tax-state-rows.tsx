@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { FieldError } from '@/components/ui/field';
@@ -78,14 +79,22 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
                   {stateLabel}
                 </Text>
                 <Flex align="center" gap={2}>
-                  <Text variant="tiny" color="secondary" data-state-row="rate">
-                    {sprintf(
-                      /* translators: 1: product tax rate, 2: shipping tax rate */
-                      __('%1$s%% Product Tax • %2$s%% Shipping Tax', 'kirki-ecommerce'),
-                      String(row?.product_tax_rate ?? 0),
-                      String(row?.shipping_tax_rate ?? 0),
-                    )}
-                  </Text>
+                  <Flex align="center" gap={1} data-state-row="rate">
+                    <Badge variant="secondary">
+                      {sprintf(
+                        /* translators: %s: product tax rate */
+                        __('%s%% Product Tax', 'kirki-ecommerce'),
+                        String(row?.product_tax_rate ?? 0),
+                      )}
+                    </Badge>
+                    <Badge variant="secondary">
+                      {sprintf(
+                        /* translators: %s: shipping tax rate */
+                        __('%s%% Shipping Tax', 'kirki-ecommerce'),
+                        String(row?.shipping_tax_rate ?? 0),
+                      )}
+                    </Badge>
+                  </Flex>
                   <Button
                     variant="outline"
                     size="icon-sm"
