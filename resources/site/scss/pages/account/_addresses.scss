@@ -139,6 +139,13 @@
     }
   }
 
+  .kecom-address-type-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-6;
+    padding-top: $spacing-1;
+  }
+
   .kecom-address-modal-defaults {
     display: flex;
     flex-direction: column;

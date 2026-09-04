@@ -19,6 +19,7 @@ export interface PasswordChangePayload {
 }
 
 export interface AccountAddressPayload {
+  type?: string;
   label?: string;
   first_name?: string;
   last_name?: string;

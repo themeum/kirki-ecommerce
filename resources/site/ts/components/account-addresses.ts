@@ -9,6 +9,7 @@ import { config } from '../utils';
 
 export interface AddressItem {
   id: number | string;
+  type?: string;
   label?: string;
   is_default_shipping?: boolean;
   is_default_billing?: boolean;
@@ -26,6 +27,7 @@ export interface AddressItem {
 }
 
 export interface AddressFormData {
+  type: string;
   label: string;
   first_name: string;
   last_name: string;
@@ -92,6 +94,7 @@ export function accountAddresses() {
     loading: false,
     errors: {} as Record<string, string>,
     formData: {
+      type: 'home',
       label: '',
       first_name: '',
       last_name: '',
@@ -175,6 +178,7 @@ export function accountAddresses() {
       this.errors = {};
       const defaultCountry = this.countries[0]?.code || '';
       this.formData = {
+        type: 'home',
         label: '',
         first_name: '',
         last_name: '',
@@ -198,7 +202,16 @@ export function accountAddresses() {
       this.editingId = address.id;
       this.activeMenuId = null;
       this.errors = {};
+
+      let resolvedType = (address.type || 'home').toLowerCase();
+      if (resolvedType === 'office') {
+        resolvedType = 'work';
+      } else if (resolvedType === 'others') {
+        resolvedType = 'other';
+      }
+
       this.formData = {
+        type: resolvedType,
         label: address.label || '',
         first_name: address.first_name || '',
         last_name: address.last_name || '',
@@ -215,6 +228,27 @@ export function accountAddresses() {
         is_default_billing: Boolean(address.is_default_billing),
       };
       this.modalOpen = true;
+    },
+
+    onTypeChange() {
+      delete this.errors.label;
+      if (this.formData.type !== 'other') {
+        this.formData.label = '';
+      }
+    },
+
+    getAddressLabel(address: AddressItem): string {
+      const type = (address?.type || '').toLowerCase();
+      if (type === 'home') {
+        return __('Home', 'kirki-ecommerce');
+      }
+      if (type === 'work' || type === 'office') {
+        return __('Work', 'kirki-ecommerce');
+      }
+      if (type === 'other' || type === 'others') {
+        return address?.label?.trim() || __('Other', 'kirki-ecommerce');
+      }
+      return address?.label?.trim() || __('Address', 'kirki-ecommerce');
     },
 
     closeModal() {
@@ -272,8 +306,20 @@ export function accountAddresses() {
       this.loading = true;
       this.errors = {};
 
+      const isOther = this.formData.type === 'other';
+      const label = isOther ? (this.formData.label.trim() || undefined) : undefined;
+
+      // Backend API validates in:home,office,others
+      let apiType = 'home';
+      if (this.formData.type === 'work') {
+        apiType = 'office';
+      } else if (this.formData.type === 'other') {
+        apiType = 'others';
+      }
+
       const payload: AccountAddressPayload = {
-        label: this.formData.label.trim() || undefined,
+        type: apiType,
+        label,
         first_name: this.formData.first_name,
         last_name: this.formData.last_name,
         company: this.formData.company,
@@ -297,6 +343,8 @@ export function accountAddresses() {
             this.addresses[index] = {
               ...this.addresses[index],
               ...payload,
+              type: this.formData.type,
+              label: isOther ? this.formData.label.trim() : '',
               id: this.editingId,
             };
           }
@@ -324,6 +372,8 @@ export function accountAddresses() {
           const newAddress: AddressItem = {
             id: newId,
             ...payload,
+            type: this.formData.type,
+            label: isOther ? this.formData.label.trim() : '',
           };
 
           if (payload.is_default_shipping) {

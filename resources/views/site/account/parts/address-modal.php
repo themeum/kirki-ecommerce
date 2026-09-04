@@ -199,13 +199,52 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 </div>
 
                 <div class="kecom-field">
+                    <label class="kecom-field-label"><?php esc_html_e('Address type', 'kirki-ecommerce'); ?></label>
+                    <div class="kecom-address-type-group">
+                        <label class="kecom-radio">
+                            <input
+                                type="radio"
+                                name="address_type"
+                                class="kecom-radio-input"
+                                value="home"
+                                x-model="formData.type"
+                                @change="onTypeChange"
+                            />
+                            <span class="kecom-radio-label"><?php esc_html_e('Home', 'kirki-ecommerce'); ?></span>
+                        </label>
+                        <label class="kecom-radio">
+                            <input
+                                type="radio"
+                                name="address_type"
+                                class="kecom-radio-input"
+                                value="work"
+                                x-model="formData.type"
+                                @change="onTypeChange"
+                            />
+                            <span class="kecom-radio-label"><?php esc_html_e('Work', 'kirki-ecommerce'); ?></span>
+                        </label>
+                        <label class="kecom-radio">
+                            <input
+                                type="radio"
+                                name="address_type"
+                                class="kecom-radio-input"
+                                value="other"
+                                x-model="formData.type"
+                                @change="onTypeChange"
+                            />
+                            <span class="kecom-radio-label"><?php esc_html_e('Other', 'kirki-ecommerce'); ?></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="kecom-field" x-show="formData.type === 'other'" x-cloak>
                     <label for="modal_address_label" class="kecom-field-label"><?php esc_html_e('Address label', 'kirki-ecommerce'); ?></label>
                     <input
                         type="text"
                         id="modal_address_label"
                         name="label"
                         class="kecom-input"
-                        placeholder="<?php esc_attr_e('Other', 'kirki-ecommerce'); ?>"
+                        placeholder="<?php esc_attr_e('e.g. Vacation Home, Studio', 'kirki-ecommerce'); ?>"
                         x-model="formData.label"
                     />
                 </div>

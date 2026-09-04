@@ -17,7 +17,7 @@ defined('ABSPATH') || exit;
 <div class="kecom-card kecom-address-card" x-cloak>
     <div class="kecom-address-card-header">
         <div class="kecom-address-card-title-group">
-            <h3 class="kecom-address-card-label" x-text="address.label || '<?php esc_attr_e('Address', 'kirki-ecommerce'); ?>'"></h3>
+            <h3 class="kecom-address-card-label" x-text="getAddressLabel(address)"></h3>
             <div class="kecom-address-card-badges">
                 <span class="kecom-badge kecom-badge-info-light" x-show="address.is_default_billing">
                     <?php esc_html_e('Default Billing', 'kirki-ecommerce'); ?>
