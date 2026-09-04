@@ -5,6 +5,7 @@ import MoneyField from '@/components/form/money-field';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type GroupPriceCellProps = {
@@ -34,7 +35,7 @@ const GroupPriceCell = ({ minPrice, maxPrice, currencySymbol, onCommit }: GroupP
   }, [minPrice, isEditing]);
 
   useEffect(() => {
-    if (!isEditing || amount === '' || amount === null || amount === undefined) {
+    if (!isEditing || amount === '' || !isDefined(amount)) {
       return;
     }
 
@@ -97,4 +98,4 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-})
+});

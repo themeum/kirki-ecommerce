@@ -18,18 +18,15 @@ const isEffects = (schema: z.ZodTypeAny): schema is z.ZodEffects<z.ZodTypeAny> =
   schema instanceof z.ZodEffects;
 
 type WrappedSchema =
-  | z.ZodOptional<z.ZodTypeAny>
-  | z.ZodNullable<z.ZodTypeAny>
-  | z.ZodDefault<z.ZodTypeAny>;
+  z.ZodOptional<z.ZodTypeAny> | z.ZodNullable<z.ZodTypeAny> | z.ZodDefault<z.ZodTypeAny>;
 
 const isWrapped = (schema: z.ZodTypeAny): schema is WrappedSchema =>
   schema instanceof z.ZodOptional ||
   schema instanceof z.ZodNullable ||
   schema instanceof z.ZodDefault;
 
-const isObjectSchema = (
-  schema: z.ZodTypeAny,
-): schema is z.ZodObject<z.ZodRawShape> => schema instanceof z.ZodObject;
+const isObjectSchema = (schema: z.ZodTypeAny): schema is z.ZodObject<z.ZodRawShape> =>
+  schema instanceof z.ZodObject;
 
 function getShape(schema: z.ZodTypeAny): z.ZodRawShape {
   if (isEffects(schema)) {
@@ -51,11 +48,12 @@ function unwrapToDefault(schema: z.ZodTypeAny): unknown {
   return undefined;
 }
 
-type ShapeOf<Schema> = Schema extends z.ZodObject<infer Shape>
-  ? Shape
-  : Schema extends z.ZodEffects<infer Inner>
-    ? ShapeOf<Inner>
-    : never;
+type ShapeOf<Schema> =
+  Schema extends z.ZodObject<infer Shape>
+    ? Shape
+    : Schema extends z.ZodEffects<infer Inner>
+      ? ShapeOf<Inner>
+      : never;
 
 type NullishShape<Shape extends z.ZodRawShape> = {
   [Key in keyof Shape]: z.ZodType<
@@ -140,7 +138,9 @@ function required<Base extends z.ZodTypeAny>(schema: Base, message?: string) {
     message = __('This field is required', 'kirki-ecommerce');
   }
 
-  return schema.nullish().refine((value): value is z.output<Base> => !isEmptyValue(value), { message });
+  return schema
+    .nullish()
+    .refine((value): value is z.output<Base> => !isEmptyValue(value), { message });
 }
 
 type RequiredWhenValidate = (values: Record<string, unknown>) => boolean;
@@ -160,7 +160,11 @@ const requiredWhenRules = new WeakMap<z.ZodTypeAny, RequiredWhenRule[]>();
  * schema object. Without this, a shared field builder (e.g. `moneyAmount`)
  * would leak a `requiredWhen` rule into every form that imports it.
  */
-function requiredWhen<Base extends z.ZodTypeAny>(schema: Base, isValidationFailed: RequiredWhenValidate, message?: RequiredWhenMessage) {
+function requiredWhen<Base extends z.ZodTypeAny>(
+  schema: Base,
+  isValidationFailed: RequiredWhenValidate,
+  message?: RequiredWhenMessage,
+) {
   if (!isDefined(message)) {
     message = __('Validation failed.', 'kirki-ecommerce');
   }
@@ -190,15 +194,27 @@ function collectIssuesForShape(
     if (rules) {
       rules.forEach(({ isValidationFailed, message }) => {
         if (isValidationFailed(rootValues)) {
-          ctx.addIssue({ code: z.ZodIssueCode.custom, path: [...path, key], message: typeof message === 'string' ? message : message(rootValues) });
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: [...path, key],
+            message: typeof message === 'string' ? message : message(rootValues),
+          });
         }
       });
     }
 
     const nestedValue = values?.[key];
     const nestedShape = getNestedShape(fieldSchema);
-    if (nestedShape && nestedValue && typeof nestedValue === 'object' && !Array.isArray(nestedValue)) {
-      collectIssuesForShape(nestedShape, nestedValue as Record<string, unknown>, rootValues, ctx, [...path, key]);
+    if (
+      nestedShape &&
+      nestedValue &&
+      typeof nestedValue === 'object' &&
+      !Array.isArray(nestedValue)
+    ) {
+      collectIssuesForShape(nestedShape, nestedValue as Record<string, unknown>, rootValues, ctx, [
+        ...path,
+        key,
+      ]);
     }
   });
 }
@@ -254,7 +270,7 @@ function mediaId() {
     .custom<MediaRef | number | string>()
     .nullish()
     .transform((value): number | { id: number; poster: number | null } | null => {
-      if (value === null || value === undefined || value === '') {
+      if (!isDefined(value) || value === '') {
         return null;
       }
       if (typeof value === 'number' || typeof value === 'string') {
@@ -293,7 +309,7 @@ function numberOrNull() {
     .union([z.number(), z.string(), z.null()])
     .nullish()
     .transform((value): number | null => {
-      if (value === null || value === undefined || value === '') {
+      if (!isDefined(value) || value === '') {
         return null;
       }
       const parsed = Number(value);
@@ -309,7 +325,7 @@ function stringOrNull() {
       if (isEmptyValue(value)) {
         return null;
       }
-      return (value!).trim();
+      return value!.trim();
     });
 }
 
@@ -318,7 +334,7 @@ function booleanish(defaultValue = false) {
     .union([z.boolean(), z.string()])
     .nullish()
     .transform((value): boolean => {
-      if (value === null || value === undefined) {
+      if (!isDefined(value)) {
         return defaultValue;
       }
       if (typeof value === 'string') {
@@ -342,4 +358,3 @@ export {
   requiredWhen,
   stringOrNull,
 };
-

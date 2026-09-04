@@ -4,6 +4,7 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import Combobox from '@/components/ui/combobox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { isDefined } from '@/utils/object';
 
 type ComboboxFieldOption = {
   label: string;
@@ -55,10 +56,7 @@ const ComboboxField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field
-          data-invalid={fieldState.invalid || undefined}
-          cssOverride={cssOverride}
-        >
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && (
             <FieldLabel htmlFor={fieldId} infoText={infoText}>
               {label}
@@ -66,15 +64,9 @@ const ComboboxField = <
           )}
           <Combobox
             options={options}
-            value={
-              field.value === null || field.value === undefined
-                ? ''
-                : String(field.value)
-            }
+            value={!isDefined(field.value) ? '' : String(field.value)}
             onChange={(nextValue) => {
-              const value = Array.isArray(nextValue)
-                ? nextValue[0] ?? ''
-                : nextValue;
+              const value = Array.isArray(nextValue) ? (nextValue[0] ?? '') : nextValue;
               field.onChange(value === '' ? null : value);
             }}
             placeholder={placeholder}

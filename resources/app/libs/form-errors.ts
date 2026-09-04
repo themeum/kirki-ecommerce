@@ -17,10 +17,7 @@ type ApplyServerErrorsResult = {
   matchedFields: string[];
 };
 
-const resolvePath = (
-  source: unknown,
-  path: string,
-): { exists: boolean; value: unknown } => {
+const resolvePath = (source: unknown, path: string): { exists: boolean; value: unknown } => {
   const segments = path.split('.');
   let current = source;
 
@@ -68,9 +65,7 @@ const applyServerErrors = <
       return;
     }
 
-    const fieldName = key.startsWith(stripPrefix)
-      ? key.slice(stripPrefix.length)
-      : key;
+    const fieldName = key.startsWith(stripPrefix) ? key.slice(stripPrefix.length) : key;
 
     if (onUnmatched) {
       const { exists, value } = resolvePath(values, fieldName);

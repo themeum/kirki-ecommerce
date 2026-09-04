@@ -9,6 +9,7 @@ import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
+import { isDefined } from '@/utils/object';
 
 type CapsuleValue = string | number;
 type CapsuleValueOrArray = CapsuleValue | CapsuleValue[];
@@ -24,7 +25,7 @@ type CapsuleProps = {
 };
 
 const toStringValue = (value?: CapsuleValue) => {
-  return value === undefined || value === null ? '' : String(value);
+  return !isDefined(value) ? '' : String(value);
 };
 
 const Capsule = ({

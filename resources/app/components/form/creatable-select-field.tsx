@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PlusCircleIcon } from '@/icons';
+import { isDefined } from '@/utils/object';
 
 const ADD_NEW_VALUE = '__add_new__';
 
@@ -62,21 +63,14 @@ const CreatableSelectField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field
-          data-invalid={fieldState.invalid || undefined}
-          cssOverride={cssOverride}
-        >
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && (
             <FieldLabel htmlFor={fieldId} infoText={infoText}>
               {label}
             </FieldLabel>
           )}
           <Select
-            value={
-              field.value === null || field.value === undefined
-                ? ''
-                : String(field.value)
-            }
+            value={!isDefined(field.value) ? '' : String(field.value)}
             onValueChange={(nextValue) => {
               if (nextValue === ADD_NEW_VALUE) {
                 onCreateNew?.();
@@ -86,9 +80,7 @@ const CreatableSelectField = <
                 field.onChange(null);
                 return;
               }
-              field.onChange(
-                valueAsNumber ? Number(nextValue) : nextValue,
-              );
+              field.onChange(valueAsNumber ? Number(nextValue) : nextValue);
             }}
             disabled={disabled}
           >
@@ -108,14 +100,9 @@ const CreatableSelectField = <
                   </Flex>
                 </SelectItem>
               )}
-              {onCreateNew && addNewLabel && options.length > 0 && (
-                <SelectSeparator />
-              )}
+              {onCreateNew && addNewLabel && options.length > 0 && <SelectSeparator />}
               {options.map((option) => (
-                <SelectItem
-                  key={String(option.value)}
-                  value={String(option.value)}
-                >
+                <SelectItem key={String(option.value)} value={String(option.value)}>
                   {option.label}
                 </SelectItem>
               ))}

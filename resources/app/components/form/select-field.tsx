@@ -3,7 +3,14 @@ import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { isDefined } from '@/utils/object';
 
 type SelectFieldOption = {
   label: string;
@@ -49,13 +56,8 @@ const SelectField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => {
-        const currentValue =
-          field.value === null || field.value === undefined
-            ? ''
-            : String(field.value);
-        const selectedOption = options.find(
-          (option) => String(option.value) === currentValue,
-        );
+        const currentValue = !isDefined(field.value) ? '' : String(field.value);
+        const selectedOption = options.find((option) => String(option.value) === currentValue);
 
         return (
           <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
@@ -102,7 +104,7 @@ const SelectField = <
             {description && <FieldDescription>{description}</FieldDescription>}
             {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
           </Field>
-        )
+        );
       }}
     />
   );
