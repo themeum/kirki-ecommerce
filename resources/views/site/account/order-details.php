@@ -12,6 +12,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
@@ -132,11 +133,11 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                         <h4 class="kecom-order-info-title">
                                             <?php esc_html_e('Payment', 'kirki-ecommerce'); ?>
                                             <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['payment_status'])); ?>">
-                                                <?php echo esc_html($order['payment_status'] === 'paid' ? __('Paid', 'kirki-ecommerce') : __('Unpaid', 'kirki-ecommerce')); ?>
+                                                <?php echo esc_html(PaymentStatus::get_formatted($order['payment_status'])); ?>
                                             </span>
                                         </h4>
                                         <div class="kecom-order-info-content">
-                                            <p class="kecom-order-info-text"><?php echo esc_html($order['payment_provider_name'] ?? ''); ?></p>
+                                            <p class="kecom-order-info-text"><?php echo esc_html(ucfirst($order['payment_provider_name'] ?? $order['payment_provider'])); ?></p>
                                         </div>
                                     </div>
 
