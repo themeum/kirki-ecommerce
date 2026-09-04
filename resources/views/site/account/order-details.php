@@ -246,7 +246,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                         </template>
                                     </div>
                                     <div class="kecom-collapse-button" x-show="expanded" x-cloak>
-                                        <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php printf(__('Show Less', 'kirki-ecommerce')); ?></button>
+                                        <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php esc_html_e('Show Less', 'kirki-ecommerce'); ?></button>
                                     </div>
                                 </div>
                                 <div class="kecom-expand-button" x-show="!expanded && kirki_ecommerce.order_details_more_items.length > 0" x-cloak>
