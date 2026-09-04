@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class AddressService
 {
@@ -59,7 +60,7 @@ class AddressService
         $address = Address::find($id);
 
         if (!$address) {
-            throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $address;
@@ -92,13 +93,13 @@ class AddressService
         $address = Address::find($data->id);
 
         if (empty($address)) {
-            throw new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $is_updated = $address->update($data->to_array());
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Address could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Address could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return Address::find($data->id);
@@ -116,7 +117,7 @@ class AddressService
         $is_deleted = Address::where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Address could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Address could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return true;
@@ -134,7 +135,7 @@ class AddressService
         $is_deleted = Address::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Addresses could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Addresses could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return true;

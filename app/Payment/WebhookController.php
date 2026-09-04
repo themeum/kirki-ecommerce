@@ -7,6 +7,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 use function Kirki\Ecommerce\Framework\response;
 
 class WebhookController
@@ -16,7 +17,7 @@ class WebhookController
         $provider = Payment::get_provider($provider_id);
 
         if (!$provider) {
-            throw new NotFoundException(__('Invalid payment gateway', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Invalid payment gateway', 'kirki-ecommerce')));
         }
 
         $result = $provider->webhook();

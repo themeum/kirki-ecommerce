@@ -12,6 +12,7 @@ use Kirki\Ecommerce\App\DTO\ShippingProfile\CreateShippingProfileDTO;
 use Kirki\Ecommerce\App\DTO\ShippingProfile\UpdateShippingProfileDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class ShippingProfileService
 {
@@ -49,7 +50,7 @@ class ShippingProfileService
         $shipping_profile = ShippingProfile::find($id);
 
         if (!$shipping_profile) {
-            throw new NotFoundException(__('Shipping profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Shipping profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $shipping_profile;
@@ -80,13 +81,13 @@ class ShippingProfileService
         $shipping_profile = ShippingProfile::find($data->id);
 
         if (empty($shipping_profile)) {
-            throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $is_updated = (bool) $shipping_profile->update($data->to_array());
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Shipping profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Shipping profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return ShippingProfile::find($data->id);
@@ -104,7 +105,7 @@ class ShippingProfileService
         $is_deleted = (bool) ShippingProfile::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Shipping profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return true;
@@ -122,7 +123,7 @@ class ShippingProfileService
         $is_deleted = (bool) ShippingProfile::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Shipping profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return true;

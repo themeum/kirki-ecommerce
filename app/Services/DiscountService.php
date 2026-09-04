@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\user;
@@ -79,12 +80,12 @@ class DiscountService
 
         if ($coupon->spend_condition_type === SpendConditionType::MIN_CART_AMOUNT && $coupon->spend_condition_value > $context->get_subtotal()) {
             /* translators: %s: minimum spend amount */
-            throw new ValidationException(sprintf(esc_html__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new ValidationException(sprintf(esc_html__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value)));
         }
 
         if ($coupon->spend_condition_type === SpendConditionType::MIN_ITEMS && $coupon->spend_condition_value > $context->get_items_count()) {
             /* translators: %s: minimum number of items */
-            throw new ValidationException(sprintf(esc_html__('Minimum %s items required.', 'kirki-ecommerce'), $coupon->spend_condition_value)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new ValidationException(sprintf(esc_html__('Minimum %s items required.', 'kirki-ecommerce'), $coupon->spend_condition_value)));
         }
 
         // Has customer limit

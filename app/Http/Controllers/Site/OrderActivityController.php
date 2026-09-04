@@ -20,6 +20,7 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
@@ -50,7 +51,7 @@ class OrderActivityController
         $order = $order_service->find_order($order_id);
 
         if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $params = ListFilterDTO::from_array($request->all());

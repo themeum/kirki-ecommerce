@@ -15,6 +15,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\user;
 
@@ -54,7 +55,7 @@ class CustomerService
         $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Customer not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $customer;
@@ -84,7 +85,7 @@ class CustomerService
     public function create(CreateCustomerDTO $data)
     {
         if (!empty($data->user_id) && $this->find_by_user_id($data->user_id)) {
-            throw new Exception(__('Customer already exists', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Customer already exists', 'kirki-ecommerce')));
         }
 
         $data_array = $data->all();
@@ -109,7 +110,7 @@ class CustomerService
         $customer = Customer::with('billing_address', 'shipping_address')->find($data->id);
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $data_array = $data->all();
@@ -118,7 +119,7 @@ class CustomerService
         $is_updated = (bool) $customer->update($data_array);
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         if (!empty($data->user_id) && $this->find_by_user_id($customer->user_id)) {
@@ -150,7 +151,7 @@ class CustomerService
         $customer = $this->find($customer_id);
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $data['updated_by'] = user()->get_id();
@@ -158,7 +159,7 @@ class CustomerService
         $is_updated = (bool) $customer->update($data);
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $this->find($customer_id);
@@ -177,7 +178,7 @@ class CustomerService
         $customer = Customer::find($customer_id);
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $customer->update([
@@ -200,13 +201,13 @@ class CustomerService
         $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
         if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $is_deleted = (bool) Customer::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Customer could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customer could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         if (!function_exists('wp_delete_user')) {
@@ -231,7 +232,7 @@ class CustomerService
         $is_deleted = (bool) Customer::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Customers could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Customers could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         if (!function_exists('wp_delete_user')) {

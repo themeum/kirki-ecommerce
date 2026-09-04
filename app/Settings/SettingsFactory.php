@@ -10,6 +10,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\AppSettings;
 use Exception;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -36,7 +37,7 @@ class SettingsFactory
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
             if (empty($key_parts[1])) {
-                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(__('Invalid settings key!', 'kirki-ecommerce')));
             }
 
             if (empty($setting_instance)) {
@@ -63,11 +64,11 @@ class SettingsFactory
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
             if (empty($key_parts[1])) {
-                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(__('Invalid settings key!', 'kirki-ecommerce')));
             }
 
             if (empty($setting_instance)) {
-                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                ExceptionThrower::throw(new Exception(__('Invalid settings key!', 'kirki-ecommerce')));
             }
 
             $settings_array = $setting_instance->to_array();

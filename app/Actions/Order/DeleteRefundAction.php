@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Actions\Order;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class DeleteRefundAction
 {
@@ -21,7 +22,7 @@ class DeleteRefundAction
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $id)->values()->first();
 
         if (!$refund) {
-            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Refund not found.', 'kirki-ecommerce')));
         }
 
         // @todo should we allow delete refund? what if its completed?

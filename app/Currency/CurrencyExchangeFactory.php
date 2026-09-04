@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Currency;
 
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;
 use Exception;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 class CurrencyExchangeFactory
 {
@@ -47,13 +48,13 @@ class CurrencyExchangeFactory
             return $provider;
         }
 
-        throw new Exception(
+        ExceptionThrower::throw(new Exception(
             sprintf(
                 /* translators: %s: Currency provider ID */
-                __('Currency provider with ID %s not found.', 'kirki-ecommerce'), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-                $provider_id // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                __('Currency provider with ID %s not found.', 'kirki-ecommerce'),
+                $provider_id
             )
-        );
+        ));
     }
 
     /**

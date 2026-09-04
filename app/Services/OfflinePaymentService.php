@@ -11,6 +11,7 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Str;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\collection;
 
@@ -66,7 +67,7 @@ class OfflinePaymentService
         $provider = $this->find($id);
 
         if (!$provider) {
-            throw new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return $provider;
@@ -139,6 +140,6 @@ class OfflinePaymentService
             }
         }
 
-        throw new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+        ExceptionThrower::throw(new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
     }
 }

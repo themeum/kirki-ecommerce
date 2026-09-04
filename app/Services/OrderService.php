@@ -20,6 +20,7 @@ use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
@@ -174,7 +175,7 @@ class OrderService
         $order = $this->find_order($id);
 
         if (!$order) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
         }
 
         return $order;
@@ -241,7 +242,7 @@ class OrderService
         $order = Order::find($id);
 
         if (empty($order)) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
         }
 
         $is_updated = (bool) $order->update([
@@ -251,7 +252,7 @@ class OrderService
         ]);
 
         if (!$is_updated) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
         }
 
         return $is_updated;
@@ -302,7 +303,7 @@ class OrderService
         $result = $this->delete_order($id);
 
         if (!$result) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
         }
 
         return $result;
@@ -318,13 +319,13 @@ class OrderService
     public function bulk_delete(array $ids)
     {
         if (empty($ids)) {
-            throw new NotFoundException(__('No orders selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('No orders selected.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         $is_deleted = (bool) Order::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new NotFoundException(__('Orders could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new NotFoundException(__('Orders could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
         }
 
         return true;

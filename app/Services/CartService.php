@@ -17,6 +17,7 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Cookie as CookieFacade;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
@@ -196,11 +197,11 @@ class CartService
         $item = $this->find_item($item_id);
 
         if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Cart item not found.', 'kirki-ecommerce')));
         }
 
         if ($item->cart_id !== $cart_id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN));
         }
 
         return $this->update_item($item_id, ['quantity' => $quantity]);
@@ -232,17 +233,17 @@ class CartService
         $cart = $this->get_cart($dto->user_id, $dto->token);
 
         if (empty($cart)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Cart not found.', 'kirki-ecommerce')));
         }
 
         $item = $this->find_item($dto->item_id);
 
         if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new Exception(__('Cart item not found.', 'kirki-ecommerce')));
         }
 
         if ($item->cart_id !== $cart->id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN));
         }
 
         $is_last_item = $cart->items->count() === 1;
@@ -357,7 +358,7 @@ class CartService
     protected function assert_single_owner_identity(array $data): void
     {
         if (!empty($data['user_id']) && !empty($data['cart_token'])) {
-            throw new ValidationException(__('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            ExceptionThrower::throw(new ValidationException(__('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY));
         }
     }
 
