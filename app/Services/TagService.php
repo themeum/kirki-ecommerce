@@ -52,7 +52,7 @@ class TagService
         $tag = Tag::with_count('products')->find($id);
 
         if (empty($tag)) {
-            throw new NotFoundException(__('Tag not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Tag not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $tag;
@@ -92,7 +92,7 @@ class TagService
         $tag = Tag::find($data->id);
 
         if (empty($tag)) {
-            throw new NotFoundException(__('Tag could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Tag could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
@@ -104,7 +104,7 @@ class TagService
         $is_updated = (bool) $tag->update($attributes);
 
         if (!$is_updated) {
-            throw new Exception(__('Tag could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Tag could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $this->find($data->id);
@@ -123,7 +123,7 @@ class TagService
         $is_deleted = (bool) Tag::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Tag could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Tag could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -141,7 +141,7 @@ class TagService
         $is_deleted = (bool) Tag::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Tags could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Tags could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

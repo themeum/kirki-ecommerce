@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Decisions\Actions\AddShippingCostAction;
 use Kirki\Ecommerce\App\Decisions\Actions\DisableShippingMethodAction;
 use Kirki\Ecommerce\App\Decisions\Actions\MultiplyShippingCostAction;

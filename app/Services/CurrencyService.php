@@ -42,7 +42,7 @@ class CurrencyService
         $currency = Currency::where('code', $code)->first();
 
         if (!$currency) {
-            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if ($currency->is_base) {
@@ -98,7 +98,7 @@ class CurrencyService
         $currency = Currency::find($id);
 
         if (!$currency) {
-            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $currency;
@@ -116,7 +116,7 @@ class CurrencyService
         $currency = Currency::where('code', $code)->first();
 
         if (!$currency) {
-            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $currency;
@@ -169,11 +169,11 @@ class CurrencyService
         $currency = Currency::find($data->id);
 
         if (empty($currency)) {
-            throw new NotFoundException(__('Currency could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new NotFoundException(__('Currency could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if ($currency->code !== $data->code && Currency::where('code', $data->code)->first()) {
-            throw new Exception(__('Currency code already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Currency code already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $is_updated = (bool) $currency->update($data->to_array());
@@ -183,7 +183,7 @@ class CurrencyService
         }
 
         if (!$is_updated) {
-            throw new Exception(__('Currency could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Currency could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return Currency::find($data->id);
@@ -202,7 +202,7 @@ class CurrencyService
         $is_deleted = (bool) Currency::query()->where('id', $id)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Currency could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Currency could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;
@@ -220,7 +220,7 @@ class CurrencyService
         $is_deleted = (bool) Currency::where_in('id', $ids)->delete();
 
         if (!$is_deleted) {
-            throw new Exception(__('Currencies could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
+            throw new Exception(__('Currencies could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

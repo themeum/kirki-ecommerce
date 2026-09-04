@@ -104,14 +104,14 @@ class PayPal extends PaymentProvider
     protected function get_access_token()
     {
         if (!$this->enabled()) {
-            throw new Exception(__('PayPal is not enabled.', 'kirki-ecommerce'));
+            throw new Exception(__('PayPal is not enabled.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $client_id = $this->settings['client_id'] ?? '';
         $client_secret = $this->settings['client_secret'] ?? '';
 
         if (empty($client_id) || empty($client_secret)) {
-            throw new Exception(__('PayPal Client ID or Secret is missing.', 'kirki-ecommerce'));
+            throw new Exception(__('PayPal Client ID or Secret is missing.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $response = Http::with_headers([
@@ -124,7 +124,8 @@ class PayPal extends PaymentProvider
         );
 
         if ($response->failed()) {
-            throw new Exception(sprintf(__('Failed to authenticate with PayPal: %s', 'kirki-ecommerce'), $response->body()));
+            /* translators: %s: PayPal API error response */
+            throw new Exception(sprintf(__('Failed to authenticate with PayPal: %s', 'kirki-ecommerce'), $response->body())); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $data = $response->json();
@@ -177,6 +178,7 @@ class PayPal extends PaymentProvider
                     ],
                     'custom_id' => (string) $order->id,
                     'invoice_id' => (string) $order->order_number,
+                    /* translators: %s: order number */
                     'description' => sprintf(__('Order #%s', 'kirki-ecommerce'), $order->order_number),
                     'items' => $items,
                 ]
@@ -196,6 +198,7 @@ class PayPal extends PaymentProvider
                 ]);
 
             if ($response->failed()) {
+                /* translators: %s: PayPal API error response */
                 throw new Exception(sprintf(__('Failed to create PayPal order: %s', 'kirki-ecommerce'), $response->body()));
             }
 
@@ -214,7 +217,8 @@ class PayPal extends PaymentProvider
 
             throw new Exception(__('PayPal approve link not found.', 'kirki-ecommerce'));
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
+            /* translators: %s: underlying error message */
+            throw new Exception(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage())); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
     }
 
@@ -250,12 +254,14 @@ class PayPal extends PaymentProvider
                 ]);
 
             if ($response->failed()) {
+                /* translators: %s: PayPal API error response */
                 throw new Exception(sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $response->body()));
             }
 
             return true;
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $e->getMessage()));
+            /* translators: %s: underlying error message */
+            throw new Exception(sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $e->getMessage())); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
     }
 
@@ -275,7 +281,8 @@ class PayPal extends PaymentProvider
             ->post($this->get_base_url() . "/v2/checkout/orders/{$order_id}/capture");
 
         if ($response->failed()) {
-            throw new Exception(sprintf(__('Failed to capture PayPal order: %s', 'kirki-ecommerce'), $response->body()));
+            /* translators: %s: PayPal API error response */
+            throw new Exception(sprintf(__('Failed to capture PayPal order: %s', 'kirki-ecommerce'), $response->body())); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $response->json();

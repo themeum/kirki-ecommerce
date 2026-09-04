@@ -30,7 +30,7 @@ class AddToCartAction
         $variant = $this->variant_service->find($dto->variant_id);
 
         if (!$variant) {
-            throw new Exception(__('Variant not found.', 'kirki-ecommerce'));
+            throw new Exception(__('Variant not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $dto->product_id = $variant->product_id;
@@ -40,11 +40,12 @@ class AddToCartAction
         $resulting_quantity = $existing_item ? $existing_item->quantity + $dto->quantity : $dto->quantity;
 
         if (!$this->inventory_service->has_stock($dto->variant_id, $resulting_quantity)) {
-            throw new Exception(__('Not enough stock for this variant', 'kirki-ecommerce'));
+            throw new Exception(__('Not enough stock for this variant', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (!$this->inventory_service->is_within_limit($dto->variant_id, $resulting_quantity)) {
-            throw new Exception(sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $variant->max_per_order));
+            /* translators: %d: maximum allowed quantity per order */
+            throw new Exception(sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $variant->max_per_order)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $cart = $cart ?: $this->cart_service->get_or_create_cart($dto->user_id, $dto->token);

@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Scheduler;
 
 use Kirki\Ecommerce\App\Scheduler\Constants\Config;
 use Kirki\Ecommerce\App\Scheduler\Runner;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -213,9 +214,11 @@ class Scheduler
     public static function run_async_worker()
     {
         $secret = Option::get(Config::ASYNC_WORKER_SECRET_KEY_NAME);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Server-to-server worker trigger with no user session to attach a WP nonce to; authenticated via a shared secret instead, compared with hash_equals() below. Sanitizer::apply_rule() is this project's own sanitization dispatcher; WPCS can't statically recognize a static method call as a sanitizer.
+        $submitted_secret = isset($_POST['secret']) ? Sanitizer::apply_rule(wp_unslash($_POST['secret']), Sanitizer::TEXT) : '';
 
-        if (!isset($_POST['secret']) || $_POST['secret'] !== $secret) {
-            wp_die(__('Access Denied!', 'kirki-ecommerce'));
+        if (!is_string($secret) || $secret === '' || !hash_equals($secret, $submitted_secret)) {
+            wp_die(esc_html__('Access Denied!', 'kirki-ecommerce'));
         }
 
         static::run();

@@ -101,7 +101,8 @@ class CurrencyController
         if ($error_count > 0) {
             return response()->json([
                 'data' => CurrencyResource::collection($currencies),
-                'message' => sprintf(__('Updated %s currencies successfully. %s errors occurred.', 'kirki-ecommerce'), $total_count - $error_count, $error_count),
+                /* translators: %1$s: number of currencies updated, %2$s: number of errors */
+                'message' => sprintf(__('Updated %1$s currencies successfully. %2$s errors occurred.', 'kirki-ecommerce'), $total_count - $error_count, $error_count),
             ], Response::CREATED);
         }
 

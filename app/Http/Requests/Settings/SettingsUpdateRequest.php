@@ -508,8 +508,8 @@ class SettingsUpdateRequest extends Request
                 'string',
                 function ($value, $key, $data) {
                     if (!in_array($value, ThousandSeparator::get_constant_values())) {
-                        /* translators: %s: possible values */
-                        return sprintf(__('The value of %s must be one of the following: %s.', 'growfund'), $key, implode(',', ThousandSeparator::get_constant_values()));
+                        /* translators: %1$s: field name, %2$s: comma-separated list of allowed values */
+                        return sprintf(__('The value of %1$s must be one of the following: %2$s.', 'kirki-ecommerce'), $key, implode(',', ThousandSeparator::get_constant_values()));
                     }
 
                     return true;
@@ -520,8 +520,8 @@ class SettingsUpdateRequest extends Request
                 'string',
                 function ($value, $key, $data) {
                     if (!in_array($value, DecimalSeparator::get_constant_values())) {
-                        /* translators: %s: possible values */
-                        return sprintf(__('The value of %s must be one of the following: %s.', 'growfund'), $key, implode(',', DecimalSeparator::get_constant_values()));
+                        /* translators: %1$s: field name, %2$s: comma-separated list of allowed values */
+                        return sprintf(__('The value of %1$s must be one of the following: %2$s.', 'kirki-ecommerce'), $key, implode(',', DecimalSeparator::get_constant_values()));
                     }
 
                     return true;
@@ -536,11 +536,13 @@ class SettingsUpdateRequest extends Request
                 }
 
                 if ($value === null || $value === '') {
-                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key);
                 }
 
                 if (!is_string($value)) {
-                    return sprintf(__('The %s field must be a string.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field must be a string.', 'kirki-ecommerce'), $key);
                 }
 
                 return true;
@@ -553,11 +555,13 @@ class SettingsUpdateRequest extends Request
                 }
 
                 if ($value === null || (is_array($value) && empty($value))) {
-                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key);
                 }
 
                 if (!is_array($value)) {
-                    return sprintf(__('The %s field must be an array.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field must be an array.', 'kirki-ecommerce'), $key);
                 }
 
                 return true;

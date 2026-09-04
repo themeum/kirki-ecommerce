@@ -91,11 +91,11 @@ class Runner
     protected function validate($job)
     {
         if (empty($job)) {
-            throw new Exception(__("Invalid job provided to resolve", 'kirki-ecommerce'));
+            throw new Exception(__("Invalid job provided to resolve", 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (empty($job->resolver)) {
-            throw new Exception(__("Missing resolver class", 'kirki-ecommerce'));
+            throw new Exception(__("Missing resolver class", 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
     }
 
@@ -118,6 +118,7 @@ class Runner
             $repository->mark_as_completed($job->id);
         } catch (Exception $error) {
             $repository->mark_as_failed($job->id, isset($resolver) ? $resolver->get_retry() : 0);
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine job-failure error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log(
                 sprintf(
                     "Failed to resolve job [%s] with error: %s",
@@ -141,11 +142,13 @@ class Runner
     protected function make_resolver(string $resolver)
     {
         if (!class_exists($resolver)) {
-            throw new Exception(sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver));
+            /* translators: %s: job resolver class name */
+            throw new Exception(sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (!method_exists($resolver, 'handle')) {
-            throw new Exception(sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver));
+            /* translators: %s: job resolver class name */
+            throw new Exception(sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return app()->make($resolver);

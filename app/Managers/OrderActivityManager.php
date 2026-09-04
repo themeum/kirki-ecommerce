@@ -68,7 +68,7 @@ class OrderActivityManager
             case OrderActivityType::ON_HOLD:
                 return $this->on_hold($order);
             default:
-                throw new \InvalidArgumentException("No order-state activity handler for type [{$activity_type}].");
+                throw new \InvalidArgumentException("No order-state activity handler for type [{$activity_type}]."); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
     }
 
@@ -371,6 +371,7 @@ class OrderActivityManager
             return $items->first()->product_name;
         }
 
+        /* translators: %d: number of items */
         return sprintf(__('%d items', 'kirki-ecommerce'), $items->count());
     }
 
@@ -379,6 +380,7 @@ class OrderActivityManager
         $order_number = $metadata['order_number'] ?? '';
         $item_summary = $metadata['item_summary'] ?? '';
 
+        /* translators: %1$s: item summary, %2$s: order number */
         return sprintf(__('Order placed for %1$s #%2$s', 'kirki-ecommerce'), $item_summary, $order_number);
     }
 
@@ -391,15 +393,18 @@ class OrderActivityManager
         }
 
         if (!empty($metadata['provider'])) {
+            /* translators: %1$s: payment amount, %2$s: payment provider name */
             return sprintf(__('Payment of %1$s completed via %2$s.', 'kirki-ecommerce'), $amount, $metadata['provider']);
         }
 
+        /* translators: %s: payment amount */
         return sprintf(__('Payment of %s completed.', 'kirki-ecommerce'), $amount);
     }
 
     protected function describe_cancelled(array $metadata)
     {
         if (!empty($metadata['reason'])) {
+            /* translators: %s: cancellation reason */
             return sprintf(__('Order cancelled: %s', 'kirki-ecommerce'), $metadata['reason']);
         }
 
@@ -409,10 +414,12 @@ class OrderActivityManager
     protected function describe_tracking_added(array $metadata)
     {
         if (!empty($metadata['carrier']) && !empty($metadata['tracking_number'])) {
+            /* translators: %1$s: shipping carrier, %2$s: tracking number */
             return sprintf(__('Tracking added: %1$s #%2$s', 'kirki-ecommerce'), $metadata['carrier'], $metadata['tracking_number']);
         }
 
         if (!empty($metadata['tracking_number'])) {
+            /* translators: %s: tracking number */
             return sprintf(__('Tracking number added: %s', 'kirki-ecommerce'), $metadata['tracking_number']);
         }
 
@@ -427,6 +434,7 @@ class OrderActivityManager
             return __('Order partially refunded.', 'kirki-ecommerce');
         }
 
+        /* translators: %s: refund amount */
         return sprintf(__('Partial refund of %s issued.', 'kirki-ecommerce'), $amount);
     }
 
@@ -438,6 +446,7 @@ class OrderActivityManager
             return __('Order refunded.', 'kirki-ecommerce');
         }
 
+        /* translators: %s: refund amount */
         return sprintf(__('Refund of %s issued.', 'kirki-ecommerce'), $amount);
     }
 
@@ -449,6 +458,7 @@ class OrderActivityManager
             return __('Refund requested.', 'kirki-ecommerce');
         }
 
+        /* translators: %s: refund amount */
         return sprintf(__('Refund of %s requested.', 'kirki-ecommerce'), $amount);
     }
 
@@ -460,6 +470,7 @@ class OrderActivityManager
             return __('Refund deleted.', 'kirki-ecommerce');
         }
 
+        /* translators: %s: refund amount */
         return sprintf(__('Refund of %s deleted.', 'kirki-ecommerce'), $amount);
     }
 

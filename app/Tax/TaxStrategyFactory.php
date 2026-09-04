@@ -14,7 +14,7 @@ class TaxStrategyFactory
     public static function make(array $address)
     {
         if (empty($address['country'])) {
-            throw new Exception(__('Country is required', 'kirki-ecommerce'));
+            throw new Exception(__('Country is required', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
@@ -22,13 +22,13 @@ class TaxStrategyFactory
         $region = static::get_tax_settings($address['country'], $tax_settings);
 
         if (empty($region)) {
-            throw new Exception(__('Tax region not found', 'kirki-ecommerce'));
+            throw new Exception(__('Tax region not found', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $strategy = static::get_strategy($address['country']);
 
         if (empty($strategy)) {
-            throw new Exception(__('Tax strategy not found', 'kirki-ecommerce'));
+            throw new Exception(__('Tax strategy not found', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         // $is_shipping_tax_enabled = $tax_settings->get('is_shipping_tax_enabled') ?? true;

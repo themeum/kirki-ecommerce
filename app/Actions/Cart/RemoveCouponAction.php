@@ -22,7 +22,7 @@ class RemoveCouponAction
         $applied_coupon_info = $cart->discount_details;
 
         if (empty($applied_coupon_info)) {
-            throw new ValidationException(__('Coupon not found in cart.', 'kirki-ecommerce'), Response::NOT_FOUND);
+            throw new ValidationException(__('Coupon not found in cart.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $cart = $this->cart_service->partial_update($cart->id, [

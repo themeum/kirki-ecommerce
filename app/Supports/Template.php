@@ -14,6 +14,7 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 /**
  * Class Template
@@ -87,7 +88,7 @@ class Template
                 <?php wp_body_open(); ?>
                 <div class="wp-site-blocks">
                 <?php
-                echo static::$block_header;
+                echo static::$block_header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks() output for the site's block template; escaping would corrupt the markup.
             } else {
                 get_header();
             }
@@ -103,7 +104,7 @@ class Template
         public static function get_footer()
         {
             if (static::is_block_theme()) {
-                echo static::$block_footer;
+                echo static::$block_footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- do_blocks() output for the site's block template; escaping would corrupt the markup.
 
                 // End of wp-site-blocks div.
                 echo '</div>';
@@ -201,13 +202,13 @@ class Template
                     return;
                 }
 
-                echo '<ul class="category-level category-level-' . $level . '">';
+                echo '<ul class="category-level category-level-' . esc_attr($level) . '">';
 
                 foreach ($tree[$parent_id] as $category) {
                     $hasChildren = isset($tree[$category->id]);
 
                 ?>
-                    <li class="category-item level-<?php echo $level; ?>">
+                    <li class="category-item level-<?php echo esc_attr($level); ?>">
 
                         <div class="category-row">
 
@@ -340,7 +341,9 @@ class Template
                 }
 
                 $current_page = $paginator->get_current_page();
-                $base_url     = $options['base_url'] ?? strtok($_SERVER['REQUEST_URI'], '?');
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitizer::apply_rule() is this project's own sanitization dispatcher; WPCS can't statically recognize a static method call as a sanitizer.
+                $request_uri  = Sanitizer::apply_rule(wp_unslash($_SERVER['REQUEST_URI'] ?? ''), Sanitizer::TEXT);
+                $base_url     = $options['base_url'] ?? strtok($request_uri, '?');
                 $page_param   = $options['page_param'] ?? 'current_page';
                 $class        = $options['class'] ?? 'kecom-pagination';
                 $page_window = $options['page_window'] ?? 5;

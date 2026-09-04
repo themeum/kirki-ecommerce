@@ -47,10 +47,22 @@ $items_product_data = $order['item_product_data'] ?? [];
 $order_placed = isset($order['created_at']) ? $order['created_at'] : '';
 $shipping_address = $order['shipping_address'] ?? [];
 $shipping_country = $order['shipping_country'] ?? [];
-$shipping_state = array_find($shipping_country['states'] ?? [], fn($item) => $item['id'] == $shipping_address['state']);
+$shipping_state = null;
+foreach (($shipping_country['states'] ?? []) as $state) {
+    if ($state['id'] == $shipping_address['state']) {
+        $shipping_state = $state;
+        break;
+    }
+}
 $billing_country = $order['billing_country'] ?? [];
 $billing_address = $order['billing_address'] ?? [];
-$billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item['id'] == $billing_address['state']);
+$billing_state = null;
+foreach (($billing_country['states'] ?? []) as $state) {
+    if ($state['id'] == $billing_address['state']) {
+        $billing_state = $state;
+        break;
+    }
+}
 ?>
 
 <?php Template::get_header(); ?>
@@ -73,6 +85,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             </a>
                             <div class="kecom-order-details-title-wrap">
                                 <div class="kecom-order-details-heading-row">
+                                    <?php /* translators: %s: order number */ ?>
                                     <h1 class="kecom-order-details-title"><?php printf(esc_html__('Order #%s', 'kirki-ecommerce'), esc_html($order['order_number'] ?? '')); ?></h1>
                                     <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['fulfillment_status'])); ?>">
                                         <?php echo esc_html($order['formatted_status'] ?? '') ?>

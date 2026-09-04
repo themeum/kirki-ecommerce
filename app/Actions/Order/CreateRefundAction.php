@@ -38,13 +38,13 @@ class CreateRefundAction
         $order = $this->order_service->find_order_or_fail($dto->order_id);
 
         if ($order->payment_status !== PaymentStatus::PAID || !in_array($order->fulfillment_status, [FulfillmentStatus::DELIVERED, FulfillmentStatus::CANCELLED], true)) {
-            throw new ValidationException(__('Invalid order status for refund.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
+            throw new ValidationException(__('Invalid order status for refund.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $refundable_amount = $this->get_refundable_amount($order);
 
         if ($dto->invoiced_amount > $refundable_amount) {
-            throw new ValidationException(__('Refund amount exceeds refundable amount.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
+            throw new ValidationException(__('Refund amount exceeds refundable amount.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         DB::begin_transaction();

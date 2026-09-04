@@ -11,6 +11,7 @@ STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
 
 REQUIRED_PATHS=(
   "kirki-ecommerce.php"
+  "readme.txt"
   "app"
   "bootstrap"
   "vendor"
@@ -24,6 +25,7 @@ OPTIONAL_PATHS=(
   "database"
   "payments"
   "routes"
+  "languages"
   "resources/data"
   "resources/images"
   "resources/assets"

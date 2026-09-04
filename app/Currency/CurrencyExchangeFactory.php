@@ -50,8 +50,8 @@ class CurrencyExchangeFactory
         throw new Exception(
             sprintf(
                 /* translators: %s: Currency provider ID */
-                __('Currency provider with ID %s not found.', 'kirki-ecommerce'),
-                $provider_id
+                __('Currency provider with ID %s not found.', 'kirki-ecommerce'), // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                $provider_id // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
             )
         );
     }

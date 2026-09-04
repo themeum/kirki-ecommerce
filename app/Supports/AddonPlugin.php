@@ -22,7 +22,7 @@ class AddonPlugin
     public static function install(string $url, bool $activate = true)
     {
         if (empty($url)) {
-            throw new Exception(__('No ZIP URL provided', 'kirki-ecommerce'));
+            throw new Exception(__('No ZIP URL provided', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -35,11 +35,11 @@ class AddonPlugin
         $result = $upgrader->install($url, ['overwrite_package' => true]);
 
         if (empty($result)) {
-            throw new Exception(__('Plugin installation failed', 'kirki-ecommerce'));
+            throw new Exception(__('Plugin installation failed', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (is_wp_error($result)) {
-            throw new Exception($result->get_error_message());
+            throw new Exception($result->get_error_message()); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         if (!$activate) {
@@ -49,13 +49,13 @@ class AddonPlugin
         $plugin_path = $upgrader->plugin_info();
 
         if (!$plugin_path) {
-            throw new Exception(__('Could not determine plugin path.', 'kirki-ecommerce'));
+            throw new Exception(__('Could not determine plugin path.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $activation_result = activate_plugin($plugin_path);
 
         if (is_wp_error($activation_result)) {
-            throw new Exception($activation_result->get_error_message());
+            throw new Exception($activation_result->get_error_message()); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

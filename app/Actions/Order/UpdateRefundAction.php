@@ -29,7 +29,7 @@ class UpdateRefundAction
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $dto->id)->values()->first();
 
         if (!$refund) {
-            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce'));
+            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         DB::begin_transaction();

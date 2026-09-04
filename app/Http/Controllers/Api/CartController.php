@@ -126,7 +126,7 @@ class CartController
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
         if (empty($cart)) {
-            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
+            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $cart = $apply_coupon_action->execute($cart, $code);
@@ -139,7 +139,7 @@ class CartController
         $cart = $this->service->get_cart($this->current_user_id(), $this->cart_token($request));
 
         if (empty($cart)) {
-            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce'));
+            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $cart = $remove_coupon_action->execute($cart);
