@@ -11,14 +11,12 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
-use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
@@ -74,12 +72,6 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             <div class="kecom-order-details-title-wrap">
                                 <div class="kecom-order-details-heading-row">
                                     <h1 class="kecom-order-details-title"><?php printf(esc_html__('Order #%s', 'kirki-ecommerce'), esc_html($order['order_number'] ?? '')); ?></h1>
-                                    <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['fulfillment_status'])); ?>">
-                                        <?php echo esc_html($order['formatted_status'] ?? '') ?>
-                                    </span>
-                                    <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['payment_status'])); ?>">
-                                        <?php echo esc_html($order['payment_status'] === 'paid' ? __('Paid', 'kirki-ecommerce') : __('Unpaid', 'kirki-ecommerce')); ?>
-                                    </span>
                                 </div>
                                 <div class="kecom-order-details-placed">
                                     <?php esc_html_e('Placed on ', 'kirki-ecommerce'); ?>
@@ -94,15 +86,19 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <!-- Left Column (Status Stepper + Address Info) -->
                         <div class="kecom-order-details-col-left">
                             <!-- Card 1: Order Status Timeline -->
-                            <div class="kecom-card kecom-order-status-card">
+                            <div class="kecom-order-status-card">
                                 <h3 class="kecom-card-title"><?php esc_html_e('Order Activities', 'kirki-ecommerce'); ?></h3>
                                 <div class="kecom-order-stepper">
                                     <?php if (count($order_activities)) :?>
                                         <?php foreach ($order_activities as $key => $timeline) : ?>
-                                                <div class="kecom-order-step <?php echo 0 === $key ? 'kecom-order-step-active' : '' ?> <?php echo $timeline['activity_type'] === OrderActivityType::DELIVERED ? 'kecom-order-step-delivered' : '' ?>">
+                                                <div class="kecom-order-step <?php echo 0 === $key ? 'kecom-order-step-active' : '' ?> <?php
+                                                    echo $timeline['activity_type'] === OrderActivityType::DELIVERED ? 'kecom-order-step-delivered' : '' ?> <?php
+                                                     echo $timeline['activity_type'] === OrderActivityType::CANCELLED ? 'kecom-order-step-cancelled' : '' ?>">
                                                     <div class="kecom-order-step-indicator">
                                                         <?php if ($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
                                                              <?php Icon::render('check'); ?>
+                                                        <?php elseif ($timeline['activity_type'] === OrderActivityType::CANCELLED) : ?>
+                                                            <?php Icon::render('cross'); ?>
                                                         <?php else : ?>
                                                             <span class="kecom-order-step-dot"></span>
                                                         <?php endif; ?>
@@ -135,6 +131,9 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                     <div class="kecom-order-info-block">
                                         <h4 class="kecom-order-info-title">
                                             <?php esc_html_e('Payment', 'kirki-ecommerce'); ?>
+                                            <span class="kecom-badge <?php echo esc_attr(Utils::get_status_badge_class($order['payment_status'])); ?>">
+                                                <?php echo esc_html($order['payment_status'] === 'paid' ? __('Paid', 'kirki-ecommerce') : __('Unpaid', 'kirki-ecommerce')); ?>
+                                            </span>
                                         </h4>
                                         <div class="kecom-order-info-content">
                                             <p class="kecom-order-info-text"><?php echo esc_html($order['payment_provider_name'] ?? ''); ?></p>
@@ -249,13 +248,11 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                         <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php printf(__('Show Less', 'kirki-ecommerce')); ?></button>
                                     </div>
                                 </div>
-
+                                <div class="kecom-expand-button" x-show="!expanded && kirki_ecommerce.order_details_more_items.length > 0" x-cloak>
+                                    <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php esc_html_e('Show More', 'kirki-ecommerce'); ?>' + ' (' + (kirki_ecommerce.order_details_more_items.length) + ')'"></button>
+                                </div>
                                 <!-- Summary Totals Breakdown -->
                                 <div class="kecom-order-pricing-breakdown" :class="expanded && !isAtBottom ? 'expanded' : ''">
-                                    <div class="kecom-expand-button" x-show="!expanded && kirki_ecommerce.order_details_more_items.length > 0" x-cloak>
-                                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php esc_html_e('Show More', 'kirki-ecommerce'); ?>' + ' (' + (kirki_ecommerce.order_details_more_items.length) + ')'"></button>
-                                    </div>
-
                                     <div class="kecom-pricing-row">
                                         <span class="kecom-pricing-label"><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
                                         <span class="kecom-pricing-value"><?php echo esc_html($subtotal->display ?? ''); ?></span>
