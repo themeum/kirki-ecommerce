@@ -15,8 +15,11 @@ use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Supports\Assets;
+use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
@@ -60,10 +63,63 @@ class PageInlineScript extends BaseHook
             $config = $this->set_cart_page_data(view_data(), $config);
         } elseif (Route::is('account.addresses')) {
             $config = $this->set_addresses_page_data(view_data(), $config);
+        } elseif ( Route::is('account.orders.details') ) {
+            $config = $this->set_orders_details_page_data(view_data(), $config);
         }
 
         return $config;
     }
+
+    /**
+     * Set Order details product items data to the inline config.
+     * 
+     * @since 1.0.0
+     * 
+     * @param mixed $view_data  Data from the view context.
+     * @param array $config     Existing config array.
+     *
+     * @return array Updated config.
+     */
+    protected function set_orders_details_page_data($view_data, $config) {
+
+        $order = $view_data['order'] ?? null;
+
+        if ( ! isset( $order['items'] ) || ! isset( $order['item_product_data'] ) ) {
+            return $config;
+        }
+
+        $items = $order['items']->to_array();
+        $items_product_data = $order['item_product_data'];
+
+        $products_data = [];
+        foreach ($items as $key => $item) {
+            $base_price_obj = $item['base_price_money_object'] ?? null;
+            $item_product = $items_product_data[$key]['product'] ?? [];
+            $categories = $item_product['categories'] ?? [];
+            $product_image = $item_product['media'][0] ?? [];
+            $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
+            $image = $item['image'] ? $item['image'] : $product_first_image;
+
+            $product['name'] = $item['product_name'] ?? '';
+            $product['image_url'] = $image['url'] ?? Assets::get_url('images/product-fallback.webp');
+            $product['category'] = $categories[count($categories) - 1]['name'] ?? '';
+            $product['variant'] = $item['variant_name'] ?? '';
+            $product['price'] = $base_price_obj->display ?? '';
+            $product['quantity'] = $item['quantity'] ?? 0;
+            $product['url'] = Url::get_product_url($item_product['slug'] ?? '');
+
+            $products_data[] = $product;
+        }
+
+        $config['order_details_items'] = array_slice($products_data, 0, 3);
+        if(count($products_data) > 3) {
+            $config['order_details_more_items'] = array_slice($products_data, 3);
+            $config['order_details_more_items_count'] = count($products_data) - 3;
+        }
+
+        return $config;
+    }
+    
 
     /**
      * Add addresses page data to the inline config.
