@@ -54,8 +54,21 @@ class AddressApiTest extends RestTestCase
         $this->assertArrayHasKey('id', $payload['data']);
         $this->assertEquals('home', $payload['data']['type']);
         $this->assertEquals('123 Main St', $payload['data']['address_line1']);
+        $this->assertNull($payload['data']['label']);
         $this->assertFalse($payload['data']['is_default_shipping']);
         $this->assertFalse($payload['data']['is_default_billing']);
+    }
+
+    public function test_create_address_persists_label(): void
+    {
+        $this->login_as_new_customer();
+
+        $response = $this->request('POST', 'account/addresses', $this->address_payload([
+            'label' => "Mom's House",
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertEquals("Mom's House", $payload['data']['label']);
     }
 
     public function test_create_address_provisions_customer_when_none_exists(): void
@@ -171,6 +184,22 @@ class AddressApiTest extends RestTestCase
 
         $payload = $this->assert_api_success($response, 200);
         $this->assertEquals('Los Angeles', $payload['data']['city']);
+    }
+
+    public function test_update_address_persists_label(): void
+    {
+        $this->login_as_new_customer();
+        $create = $this->assert_api_success(
+            $this->request('POST', 'account/addresses', $this->address_payload(['label' => 'Old Label'])),
+            201
+        );
+
+        $response = $this->request('PUT', 'account/addresses/' . $create['data']['id'], $this->address_payload([
+            'label' => 'New Label',
+        ]));
+
+        $payload = $this->assert_api_success($response, 200);
+        $this->assertEquals('New Label', $payload['data']['label']);
     }
 
     public function test_update_address_does_not_change_default_status(): void

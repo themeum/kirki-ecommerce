@@ -37,7 +37,7 @@ The system SHALL reject any request to an `/account/addresses` endpoint from a u
 - **THEN** the response contains that address's full data
 
 ### Requirement: Customer can create a new address
-`POST /account/addresses` SHALL create a new `Address` linked to the authenticated customer's `Customer` record, provisioning one first if the authenticated user doesn't have one yet. A `type` of `home`, `office`, or `others` is required. `first_name`, `address_line1`, `city`, `state`, `country`, and `postal_code` are required; `last_name`, `email`, and `phone` are optional. `is_default_shipping` and `is_default_billing` are optional booleans, both defaulting to false — creating an address does not make it a default unless explicitly requested.
+`POST /account/addresses` SHALL create a new `Address` linked to the authenticated customer's `Customer` record, provisioning one first if the authenticated user doesn't have one yet. A `type` of `home`, `office`, or `others` is required. `first_name`, `address_line1`, `city`, `state`, `country`, and `postal_code` are required; `last_name`, `email`, `phone`, and `label` are optional. `label` is a free-text nickname for the address (e.g. "Weekend Home"), independent of `type` — for the shopper's own reference only, with no effect on any other behavior. `is_default_shipping` and `is_default_billing` are optional booleans, both defaulting to false — creating an address does not make it a default unless explicitly requested.
 
 #### Scenario: Successful creation
 - **WHEN** an authenticated customer submits a valid address with a `type` of `home`, `office`, or `others`
@@ -62,7 +62,7 @@ The system SHALL reject any request to an `/account/addresses` endpoint from a u
 - **THEN** the address is created successfully with both fields empty
 
 ### Requirement: Customer can update an existing address
-`PUT /account/addresses/{id}` SHALL update the address's `type` and contact/location fields, when the id belongs to the authenticated customer, using the same field requirements as creation. This endpoint SHALL NOT accept or change `is_default_shipping`/`is_default_billing` — changing default status is exclusively done through `PATCH /account/addresses/{id}/set-default`, so that updating an address's details (e.g. its city) never has the side effect of unsetting its default status.
+`PUT /account/addresses/{id}` SHALL update the address's `type`, `label`, and contact/location fields, when the id belongs to the authenticated customer, using the same field requirements as creation. This endpoint SHALL NOT accept or change `is_default_shipping`/`is_default_billing` — changing default status is exclusively done through `PATCH /account/addresses/{id}/set-default`, so that updating an address's details (e.g. its city) never has the side effect of unsetting its default status.
 
 #### Scenario: Updating address details does not change default status
 - **WHEN** an authenticated customer updates an address that is currently their default billing address, changing only its city

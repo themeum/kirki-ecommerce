@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
-use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -199,35 +199,35 @@ class CreateOrderAction
         $customer = $dto->customer_id ? $this->customer_service->find($dto->customer_id) : null;
 
         if (!empty($customer) && !empty($customer->shipping_address) && !empty($customer->billing_address)) {
-            $this->update_address($dto, $customer, 'shipping');
-            $this->update_address($dto, $customer, 'billing');
+            $this->update_address($dto, $customer, AddressPurpose::SHIPPING);
+            $this->update_address($dto, $customer, AddressPurpose::BILLING);
             return $customer->id;
         }
 
         if (!empty($customer) && empty($customer->shipping_address) && empty($customer->billing_address)) {
-            $this->create_address($dto, $customer, 'billing');
-            $this->create_address($dto, $customer, 'shipping');
+            $this->create_address($dto, $customer, AddressPurpose::BILLING);
+            $this->create_address($dto, $customer, AddressPurpose::SHIPPING);
 
             return $customer->id;
         }
 
         if (!empty($customer) && !empty($customer->billing_address) && empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, 'shipping');
-            $this->update_address($dto, $customer, 'billing');
+            $this->create_address($dto, $customer, AddressPurpose::SHIPPING);
+            $this->update_address($dto, $customer, AddressPurpose::BILLING);
             return $customer->id;
         }
 
         if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, 'billing');
-            $this->update_address($dto, $customer, 'shipping');
+            $this->create_address($dto, $customer, AddressPurpose::BILLING);
+            $this->update_address($dto, $customer, AddressPurpose::SHIPPING);
             return $customer->id;
         }
 
         try {
             $customer = $this->create_customer_action->execute(
                 $this->prepare_checkout_customer_dto($dto),
-                $this->prepare_checkout_address_dto($dto, 'shipping'),
-                $this->prepare_checkout_address_dto($dto, 'billing')
+                $this->prepare_checkout_address_dto($dto, AddressPurpose::SHIPPING),
+                $this->prepare_checkout_address_dto($dto, AddressPurpose::BILLING)
             );
 
             return $customer->id;
@@ -248,9 +248,10 @@ class CreateOrderAction
      *
      * @param CreateOrderPayloadDTO $dto
      * @param Customer $customer
-     * @param string $purpose 'shipping' or 'billing' - which request field
-     * prefix to read and which default flag to set. Unrelated to the
-     * Address's own type (home/office/others), which defaults to home here.
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING -
+     * which request field prefix to read and which default flag to set.
+     * Unrelated to the Address's own type (home/office/others), which
+     * defaults to home here.
      * @return void
      */
     protected function create_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
@@ -268,7 +269,7 @@ class CreateOrderAction
      *
      * @param CreateOrderPayloadDTO $dto
      * @param Customer $customer
-     * @param string $purpose 'shipping' or 'billing'
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
      * @return void
      */
     protected function update_address(CreateOrderPayloadDTO $dto, $customer, $purpose)

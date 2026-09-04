@@ -44,4 +44,7 @@ class UpdateAddressDTO extends DTO
 
     /** @var string home, office, or others */
     public $type;
+
+    /** @var string|null */
+    public $label;
 }

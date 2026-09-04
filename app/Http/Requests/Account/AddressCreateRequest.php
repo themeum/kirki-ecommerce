@@ -22,6 +22,7 @@ class AddressCreateRequest extends Request
             'state' => 'required|string',
             'postal_code' => 'required|string',
             'country' => 'required|string',
+            'label' => 'nullable|string',
             'is_default_shipping' => 'nullable|boolean',
             'is_default_billing' => 'nullable|boolean',
         ];
@@ -41,6 +42,7 @@ class AddressCreateRequest extends Request
             'state' => Sanitizer::TEXT,
             'postal_code' => Sanitizer::TEXT,
             'country' => Sanitizer::TEXT,
+            'label' => Sanitizer::TEXT,
             'is_default_shipping' => Sanitizer::BOOL,
             'is_default_billing' => Sanitizer::BOOL,
         ];

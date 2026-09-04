@@ -13,6 +13,7 @@ http:
     data: |-
       {
         "type": "home",
+        "label": "Lake House",
         "first_name": "Sarah",
         "last_name": "Johnson",
         "email": "sarah.johnson@example.com",
@@ -43,6 +44,7 @@ examples:
         data: |-
           {
             "type": "home",
+            "label": "Lake House",
             "first_name": "Sarah",
             "last_name": "Johnson",
             "email": "sarah.johnson@example.com",
@@ -68,6 +70,7 @@ examples:
               "id": 23,
               "customer_id": 12,
               "type": "home",
+              "label": "Lake House",
               "first_name": "Sarah",
               "last_name": "Johnson",
               "address_line1": "123 New St",
@@ -188,9 +191,9 @@ examples:
 docs: |-
   ## Update Address
 
-  Updates an existing address's `type` and contact/location fields, scoped to
-  the **currently authenticated** customer. Same field requirements as
-  Create Address.
+  Updates an existing address's `type`, `label`, and contact/location fields,
+  scoped to the **currently authenticated** customer. Same field requirements
+  as Create Address.
 
   - Does **not** accept or change `is_default_shipping`/`is_default_billing`
     — editing an address's details (e.g. its city) never has the side effect

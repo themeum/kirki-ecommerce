@@ -17,7 +17,8 @@ class AlterAddressesTableForAddressBook implements Migration
                 ->comment('Supported values: home, office, others')
                 ->change();
 
-            $table->boolean('is_default_shipping')->default(0)->after('type');
+            $table->string('label', 255)->nullable()->after('type');
+            $table->boolean('is_default_shipping')->default(0)->after('label');
             $table->boolean('is_default_billing')->default(0)->after('is_default_shipping');
         });
 
@@ -40,6 +41,7 @@ class AlterAddressesTableForAddressBook implements Migration
         Schema::table('kirki_ecommerce_addresses', function (Structure $table) {
             $table->drop_column('is_default_shipping');
             $table->drop_column('is_default_billing');
+            $table->drop_column('label');
 
             $table->string('type', 50)
                 ->default('billing')

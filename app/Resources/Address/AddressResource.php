@@ -17,6 +17,7 @@ class AddressResource extends Resource
             'id' => $this->id,
             'customer_id' => $this->customer_id,
             'type' => $this->type,
+            'label' => $this->label,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'address_line1' => $this->address_line1,

@@ -30,6 +30,7 @@ class Address extends Model
         'phone',
         'email',
         'type',
+        'label',
         'is_default_shipping',
         'is_default_billing'
     ];

@@ -13,6 +13,7 @@ http:
     data: |-
       {
         "type": "home",
+        "label": "Weekend Home",
         "first_name": "Sarah",
         "last_name": "Johnson",
         "email": "sarah.johnson@example.com",
@@ -44,6 +45,7 @@ examples:
         data: |-
           {
             "type": "home",
+            "label": "Weekend Home",
             "first_name": "Sarah",
             "last_name": "Johnson",
             "email": "sarah.johnson@example.com",
@@ -70,6 +72,7 @@ examples:
               "id": 23,
               "customer_id": 12,
               "type": "home",
+              "label": "Weekend Home",
               "first_name": "Sarah",
               "last_name": "Johnson",
               "address_line1": "123 New St",
@@ -122,6 +125,7 @@ examples:
               "id": 24,
               "customer_id": 12,
               "type": "office",
+              "label": null,
               "first_name": "Sarah",
               "last_name": "Johnson",
               "address_line1": "456 Billing Ave",
@@ -256,7 +260,9 @@ docs: |-
   - `type` is required: `home`, `office`, or `others` — this is a *kind of
     place*, not a purpose. It has nothing to do with billing/shipping.
   - `first_name`, `address_line1`, `city`, `state`, `country`, `postal_code`
-    are required. `last_name`, `email`, `phone` are optional.
+    are required. `last_name`, `email`, `phone`, `label` are optional.
+  - `label` is a free-text nickname for the address (e.g. "Weekend Home"),
+    unrelated to `type` — purely for the shopper's own reference.
   - `is_default_shipping` / `is_default_billing` are optional booleans,
     **both default to `false`** — creating an address never makes it a
     default unless you explicitly ask for that. Setting one to `true`

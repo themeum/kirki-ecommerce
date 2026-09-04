@@ -23,6 +23,7 @@ class AddressUpdateRequest extends Request
             'state' => 'required|string',
             'postal_code' => 'required|string',
             'country' => 'required|string',
+            'label' => 'nullable|string',
         ];
     }
 
@@ -41,6 +42,7 @@ class AddressUpdateRequest extends Request
             'state' => Sanitizer::TEXT,
             'postal_code' => Sanitizer::TEXT,
             'country' => Sanitizer::TEXT,
+            'label' => Sanitizer::TEXT,
         ];
     }
 }
