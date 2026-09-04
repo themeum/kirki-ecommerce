@@ -21,7 +21,6 @@ use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
-use Kirki\Ecommerce\Framework\Sanitizer;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
@@ -184,34 +183,17 @@ class UpdateOrderAction
         $order_dto->shipping_email = $dto->shipping_email;
         $order_dto->shipping_company = $dto->shipping_company;
 
-        $is_billing_same_as_shipping = Sanitizer::apply_rule($dto->is_billing_same_as_shipping, Sanitizer::BOOL);
-        $order_dto->is_billing_same_as_shipping = $is_billing_same_as_shipping;
-
-        if ($is_billing_same_as_shipping) {
-            $order_dto->billing_first_name = $dto->shipping_first_name;
-            $order_dto->billing_last_name = $dto->shipping_last_name;
-            $order_dto->billing_address_line1 = $dto->shipping_address_line1;
-            $order_dto->billing_address_line2 = $dto->shipping_address_line2;
-            $order_dto->billing_city = $dto->shipping_city;
-            $order_dto->billing_state = $dto->shipping_state;
-            $order_dto->billing_country = $dto->shipping_country;
-            $order_dto->billing_postal_code = $dto->shipping_postcode;
-            $order_dto->billing_phone = $dto->shipping_phone;
-            $order_dto->billing_email = $dto->shipping_email;
-            $order_dto->billing_company = $dto->shipping_company;
-        } else {
-            $order_dto->billing_first_name = $dto->billing_first_name;
-            $order_dto->billing_last_name = $dto->billing_last_name;
-            $order_dto->billing_address_line1 = $dto->billing_address_line1;
-            $order_dto->billing_address_line2 = $dto->billing_address_line2;
-            $order_dto->billing_city = $dto->billing_city;
-            $order_dto->billing_state = $dto->billing_state;
-            $order_dto->billing_country = $dto->billing_country;
-            $order_dto->billing_postal_code = $dto->billing_postcode;
-            $order_dto->billing_phone = $dto->billing_phone;
-            $order_dto->billing_email = $dto->billing_email;
-            $order_dto->billing_company = $dto->billing_company;
-        }
+        $order_dto->billing_first_name = $dto->billing_first_name;
+        $order_dto->billing_last_name = $dto->billing_last_name;
+        $order_dto->billing_address_line1 = $dto->billing_address_line1;
+        $order_dto->billing_address_line2 = $dto->billing_address_line2;
+        $order_dto->billing_city = $dto->billing_city;
+        $order_dto->billing_state = $dto->billing_state;
+        $order_dto->billing_country = $dto->billing_country;
+        $order_dto->billing_postal_code = $dto->billing_postcode;
+        $order_dto->billing_phone = $dto->billing_phone;
+        $order_dto->billing_email = $dto->billing_email;
+        $order_dto->billing_company = $dto->billing_company;
 
         $order_dto->customer_email = $dto->customer_email;
         $order_dto->customer_phone = $dto->customer_phone;

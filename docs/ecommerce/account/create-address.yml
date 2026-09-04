@@ -1,0 +1,265 @@
+info:
+  name: Create Address
+  type: http
+  seq: 7
+  tags:
+    - account
+
+http:
+  method: POST
+  url: "{{baseUrl}}/account/addresses"
+  body:
+    type: json
+    data: |-
+      {
+        "type": "home",
+        "first_name": "Sarah",
+        "last_name": "Johnson",
+        "email": "sarah.johnson@example.com",
+        "phone": "+1-555-9999",
+        "address_line1": "123 New St",
+        "address_line2": "",
+        "city": "Boston",
+        "state": "MA",
+        "postal_code": "02101",
+        "country": "US",
+        "is_default_shipping": true
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Success — type is home/office/others, not a purpose; is_default_shipping/is_default_billing are optional and both default to false
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "email": "sarah.johnson@example.com",
+            "phone": "+1-555-9999",
+            "address_line1": "123 New St",
+            "address_line2": "",
+            "city": "Boston",
+            "state": "MA",
+            "postal_code": "02101",
+            "country": "US",
+            "is_default_shipping": true
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 23,
+              "customer_id": 12,
+              "type": "home",
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "address_line1": "123 New St",
+              "address_line2": "",
+              "city": "Boston",
+              "state": "MA",
+              "country": "US",
+              "postal_code": "02101",
+              "email": "sarah.johnson@example.com",
+              "phone": "+1-555-9999",
+              "is_default_shipping": true,
+              "is_default_billing": false,
+              "created_at": "2026-09-04T08:03:53.000000Z",
+              "updated_at": "2026-09-04T08:03:53.000000Z"
+            },
+            "message": "Address created successfully.",
+            "success": true
+          }
+  - name: 201 Response (no email/phone)
+    description: Success — email and phone are optional
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "type": "office",
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "address_line1": "456 Billing Ave",
+            "address_line2": "",
+            "city": "Chicago",
+            "state": "IL",
+            "postal_code": "60601",
+            "country": "US",
+            "is_default_billing": true
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 24,
+              "customer_id": 12,
+              "type": "office",
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "address_line1": "456 Billing Ave",
+              "address_line2": "",
+              "city": "Chicago",
+              "state": "IL",
+              "country": "US",
+              "postal_code": "60601",
+              "email": null,
+              "phone": null,
+              "is_default_shipping": false,
+              "is_default_billing": true,
+              "created_at": "2026-09-04T08:04:00.000000Z",
+              "updated_at": "2026-09-04T08:04:00.000000Z"
+            },
+            "message": "Address created successfully.",
+            "success": true
+          }
+  - name: 422 Response (invalid type)
+    description: Failure — type must be home, office, or others (not billing/shipping)
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "type": "billing",
+            "first_name": "X",
+            "address_line1": "x",
+            "city": "x",
+            "state": "x",
+            "postal_code": "x",
+            "country": "x"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "type": [
+                "The type field must be in the list of \"home, office, others\"."
+              ]
+            },
+            "success": false
+          }
+  - name: 422 Response (missing required field)
+    description: Failure — city missing
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "X",
+            "address_line1": "x",
+            "state": "x",
+            "postal_code": "x",
+            "country": "x"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "city": [
+                "The city field is required.",
+                "The city field must be a string."
+              ]
+            },
+            "success": false
+          }
+  - name: 401 Response
+    description: Failure — not logged in
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "Sarah",
+            "address_line1": "123 New St",
+            "city": "Boston",
+            "state": "MA",
+            "postal_code": "02101",
+            "country": "US"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## Create Address
+
+  Creates a new address in the **currently authenticated** customer's address
+  book. If the logged-in WordPress user has no linked `Customer` record yet,
+  one is provisioned automatically (name/email sourced from the WordPress
+  profile, falling back to this address's fields) — this is the only address
+  endpoint that creates a `Customer` implicitly.
+
+  - `type` is required: `home`, `office`, or `others` — this is a *kind of
+    place*, not a purpose. It has nothing to do with billing/shipping.
+  - `first_name`, `address_line1`, `city`, `state`, `country`, `postal_code`
+    are required. `last_name`, `email`, `phone` are optional.
+  - `is_default_shipping` / `is_default_billing` are optional booleans,
+    **both default to `false`** — creating an address never makes it a
+    default unless you explicitly ask for that. Setting one to `true`
+    unsets it on every other address of this customer (at most one default
+    shipping and, independently, at most one default billing address).
+  - Requires a logged-in WordPress user (401 otherwise).

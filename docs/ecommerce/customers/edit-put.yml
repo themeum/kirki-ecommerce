@@ -36,7 +36,6 @@ http:
           "postal_code": "90001",
           "country": "US"
         },
-        "is_billing_same_as_shipping": false,
         "billing_address": {
           "first_name": "Mark Twin",
           "last_name": "Doe",
@@ -91,7 +90,6 @@ examples:
               "postal_code": "90001",
               "country": "US"
             },
-            "is_billing_same_as_shipping": false,
             "billing_address": {
               "first_name": "Mark Twin",
               "last_name": "Doe",
@@ -181,11 +179,12 @@ examples:
                 "country": "US",
                 "postal_code": "90001",
                 "phone": "+1 555-000-2000",
-                "type": "shipping",
+                "type": "home",
+                "is_default_shipping": true,
+                "is_default_billing": false,
                 "created_at": "2025-11-11 07:09:34",
                 "updated_at": "2025-11-14 06:52:46"
               },
-              "is_billing_same_as_shipping": false,
               "billing_address": {
                 "id": 1,
                 "customer_id": 1,
@@ -198,7 +197,9 @@ examples:
                 "country": "US",
                 "postal_code": "94103",
                 "phone": "+1 555-000-1000",
-                "type": "billing",
+                "type": "home",
+                "is_default_shipping": false,
+                "is_default_billing": true,
                 "created_at": "2025-11-11 07:09:34",
                 "updated_at": "2025-11-14 06:52:46"
               },
@@ -244,7 +245,6 @@ examples:
               "postal_code": "90001",
               "country": "US"
             },
-            "is_billing_same_as_shipping": false,
             "billing_address": {
               "first_name": "Mark Twin",
               "last_name": "Doe",

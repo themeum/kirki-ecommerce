@@ -1,0 +1,201 @@
+info:
+  name: Update Address
+  type: http
+  seq: 8
+  tags:
+    - account
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/account/addresses/23"
+  body:
+    type: json
+    data: |-
+      {
+        "type": "home",
+        "first_name": "Sarah",
+        "last_name": "Johnson",
+        "email": "sarah.johnson@example.com",
+        "phone": "+1-555-9999",
+        "address_line1": "123 New St",
+        "address_line2": "",
+        "city": "Los Angeles",
+        "state": "CA",
+        "postal_code": "90001",
+        "country": "US"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success — updates the address's own fields; default status is untouched, use Set Default Address for that
+    request:
+      url: "{{baseUrl}}/account/addresses/23"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "Sarah",
+            "last_name": "Johnson",
+            "email": "sarah.johnson@example.com",
+            "phone": "+1-555-9999",
+            "address_line1": "123 New St",
+            "address_line2": "",
+            "city": "Los Angeles",
+            "state": "CA",
+            "postal_code": "90001",
+            "country": "US"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 23,
+              "customer_id": 12,
+              "type": "home",
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "address_line1": "123 New St",
+              "address_line2": "",
+              "city": "Los Angeles",
+              "state": "CA",
+              "country": "US",
+              "postal_code": "90001",
+              "email": "sarah.johnson@example.com",
+              "phone": "+1-555-9999",
+              "is_default_shipping": true,
+              "is_default_billing": false,
+              "created_at": "2026-09-04T08:03:53.000000Z",
+              "updated_at": "2026-09-04T08:04:08.000000Z"
+            },
+            "message": "Address updated successfully.",
+            "success": true
+          }
+  - name: 422 Response (invalid type)
+    description: Failure
+    request:
+      url: "{{baseUrl}}/account/addresses/23"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "shipping",
+            "first_name": "Sarah",
+            "address_line1": "123 New St",
+            "city": "Los Angeles",
+            "state": "CA",
+            "postal_code": "90001",
+            "country": "US"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "type": [
+                "The type field must be in the list of \"home, office, others\"."
+              ]
+            },
+            "success": false
+          }
+  - name: 404 Response
+    description: Failure — id doesn't exist, or belongs to a different customer
+    request:
+      url: "{{baseUrl}}/account/addresses/999999"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "Sarah",
+            "address_line1": "123 New St",
+            "city": "Los Angeles",
+            "state": "CA",
+            "postal_code": "90001",
+            "country": "US"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Address not found.",
+            "success": false
+          }
+  - name: 401 Response
+    description: Failure — not logged in
+    request:
+      url: "{{baseUrl}}/account/addresses/23"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "type": "home",
+            "first_name": "Sarah",
+            "address_line1": "123 New St",
+            "city": "Los Angeles",
+            "state": "CA",
+            "postal_code": "90001",
+            "country": "US"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## Update Address
+
+  Updates an existing address's `type` and contact/location fields, scoped to
+  the **currently authenticated** customer. Same field requirements as
+  Create Address.
+
+  - Does **not** accept or change `is_default_shipping`/`is_default_billing`
+    — editing an address's details (e.g. its city) never has the side effect
+    of un-defaulting it. Changing default status is exclusively done through
+    `PATCH /account/addresses/{id}/set-default`.
+  - Requires a logged-in WordPress user (401 otherwise) and an id that
+    belongs to that customer (404 otherwise, whether the id doesn't exist or
+    belongs to someone else).

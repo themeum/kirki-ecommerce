@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
@@ -10,9 +11,40 @@ use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Throwable;
 
 class AddressService
 {
+    /**
+     * Return every address belonging to the given customer.
+     *
+     * @param int $customer_id
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     */
+    public function all_for_customer(int $customer_id)
+    {
+        return Address::where('customer_id', $customer_id)->order_by('id', 'desc')->get();
+    }
+
+    /**
+     * Find an address by ID, scoped to the given customer.
+     *
+     * @param int $id
+     * @param int $customer_id
+     * @return Address
+     * @throws NotFoundException
+     */
+    public function find_for_customer(int $id, int $customer_id)
+    {
+        $address = Address::where('id', $id)->where('customer_id', $customer_id)->first();
+
+        if (!$address) {
+            throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        return $address;
+    }
     /**
      * Return all addresses.
      *
@@ -68,20 +100,36 @@ class AddressService
     /**
      * Create a new address.
      *
+     * When the new address is marked as a default, every other address of
+     * the same customer has that default flag unset in the same transaction.
+     *
      * @param CreateAddressDTO $data
      * @return Address
+     * @throws Throwable
      */
     public function create(CreateAddressDTO $data)
     {
-        $address = Address::create($data->to_array());
+        DB::begin_transaction();
 
-        return $address;
+        try {
+            $address = Address::create($data->to_array());
+
+            $this->enforce_single_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
+
+            DB::commit();
+
+            return Address::find($address->id);
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
     }
 
     /**
-     * Updates an address.
+     * Updates an address's details.
      *
-     * If no slug is provided, it will be generated from the name.
+     * Does not touch is_default_shipping/is_default_billing - see set_default().
      *
      * @param UpdateAddressDTO $data
      * @throws NotFoundException
@@ -102,6 +150,74 @@ class AddressService
         }
 
         return Address::find($data->id);
+    }
+
+    /**
+     * Marks an address as the default address for one purpose (shipping or
+     * billing), unsetting that flag on every other address of the same
+     * customer in the same transaction. The other purpose's current default,
+     * if any, is left unchanged - call this again with the other purpose to
+     * set both.
+     *
+     * @param int $id
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
+     * @throws NotFoundException
+     * @throws Throwable
+     * @return Address
+     */
+    public function set_default(int $id, string $purpose)
+    {
+        $address = Address::find($id);
+
+        if (empty($address)) {
+            throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        }
+
+        DB::begin_transaction();
+
+        try {
+            $address->update(['is_default_' . $purpose => true]);
+
+            $this->enforce_single_default(
+                $address->customer_id,
+                $address->id,
+                $purpose === AddressPurpose::SHIPPING,
+                $purpose === AddressPurpose::BILLING
+            );
+
+            DB::commit();
+
+            return Address::find($id);
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Unsets is_default_shipping/is_default_billing on every address of the
+     * given customer other than $except_id, for each purpose being claimed.
+     *
+     * @param int $customer_id
+     * @param int $except_id
+     * @param bool $unset_shipping
+     * @param bool $unset_billing
+     * @return void
+     */
+    protected function enforce_single_default(int $customer_id, int $except_id, bool $unset_shipping, bool $unset_billing)
+    {
+        if ($unset_shipping) {
+            Address::where('customer_id', $customer_id)
+                ->where('id', '!=', $except_id)
+                ->update(['is_default_shipping' => false]);
+        }
+
+        if ($unset_billing) {
+            Address::where('customer_id', $customer_id)
+                ->where('id', '!=', $except_id)
+                ->update(['is_default_billing' => false]);
+        }
     }
 
     /**
