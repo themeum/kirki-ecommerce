@@ -40,7 +40,7 @@ $items = $cart['items'] ?? [];
                 <div>
                     <?php include_view('site.cart.parts.cart-item'); ?>
                 </div>
-                <div class="kecom-cart-items-expand-btn">
+                <div class="kecom-cart-items-expand-btn" x-show="cartData.items.length > 3">
                     <button class="kecom-btn kecom-btn-link" x-text="cartData.items.length - maxItems <= 0 ? '<?php echo esc_html__('Show less', 'kirki-ecommerce'); ?>' : '<?php echo esc_html__('Show more', 'kirki-ecommerce'); ?> (' + (cartData.items.length - maxItems) + ')'" @click="maxItems = cartData.items.length - maxItems <= 0 ? 3 : cartData.items.length"></button>
                 </div>
             </div>

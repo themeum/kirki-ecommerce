@@ -17,10 +17,11 @@ use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
+use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
-use Kirki\Ecommerce\App\Resources\Site\Cart\CartResource;
+use Kirki\Ecommerce\App\Resources\Site\Cart\CartResource as SiteCartResource;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -147,7 +148,7 @@ class SiteController
     {
         $cart = $cart_service->get_current_cart();
         $calculate_tax = false;
-        $cart_resource = CartResource::make($cart, $calculate_tax);
+        $cart_resource = SiteCartResource::make($cart, $calculate_tax);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
