@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useAppConfig } from '@/contexts/app-config-context';
 import type { VariantFormInput } from '@/features/inventory/schemas/forms/variant-form';
-import { BaseUnitDialog, type UnitPriceValue } from '@/features/products';
+import { BaseUnitPopover, type UnitPriceValue } from '@/features/products';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -88,7 +88,7 @@ const Price = () => {
                     <Text color="secondary" variant="small">
                       {__('Base price per unit', 'kirki-ecommerce')}
                     </Text>
-                    <BaseUnitDialog
+                    <BaseUnitPopover
                       data={variant as never}
                       currencySymbol={currencySymbol}
                       onChange={handleUnitPriceChange}
