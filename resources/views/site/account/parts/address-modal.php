@@ -32,7 +32,6 @@ use Kirki\Ecommerce\App\Supports\Icon;
 >
     <div
         class="kecom-modal-content kecom-modal-content-md kecom-address-modal-content"
-        @click.outside="closeModal"
     >
         <div class="kecom-modal-header">
             <h3 class="kecom-modal-header-title" x-text="isEditing ? '<?php esc_attr_e('Edit Address', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('Add New Address', 'kirki-ecommerce'); ?>'"></h3>
@@ -196,6 +195,21 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         @input="delete errors.phone"
                     />
                     <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
+                </div>
+
+                <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.email }">
+                    <label for="modal_address_email" class="kecom-field-label"><?php esc_html_e('Email', 'kirki-ecommerce'); ?></label>
+                    <input
+                        type="email"
+                        id="modal_address_email"
+                        name="email"
+                        class="kecom-input"
+                        :class="{ 'kecom-input-error': errors.email }"
+                        placeholder="<?php esc_attr_e('Email address', 'kirki-ecommerce'); ?>"
+                        x-model="formData.email"
+                        @input="delete errors.email"
+                    />
+                    <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
                 </div>
 
                 <div class="kecom-field">

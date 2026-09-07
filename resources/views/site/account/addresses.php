@@ -54,6 +54,9 @@ $pages = view_data('pages');
 
                     <!-- Add/Edit Address Modal -->
                     <?php include_view('site.account.parts.address-modal'); ?>
+
+                    <!-- Delete Address Confirmation Modal -->
+                    <?php include_view('site.account.parts.address-delete-modal'); ?>
                 </div>
             </main>
         </div>

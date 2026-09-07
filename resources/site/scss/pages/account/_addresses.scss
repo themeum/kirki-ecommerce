@@ -48,6 +48,21 @@
     gap: $spacing-6;
   }
 
+  .kecom-address-card-title-icon-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    span {
+      display: flex;
+    }
+
+    svg {
+      flex-shrink: 0;
+      color: $text-subdued;
+    }
+  }
+
   .kecom-address-card-label {
     @include typography(base, bold, $text-primary);
     margin: 0;
@@ -155,5 +170,76 @@
 
   .kecom-modal-footer {
     padding: $spacing-6 $spacing-9;
+  }
+}
+
+// Delete Confirmation Modal
+.kecom-address-delete-modal-content {
+  position: relative;
+  padding: 0;
+  overflow: visible;
+
+  .kecom-modal-header-close {
+    background-color: $background-fill-secondary;
+    border-radius: $radius-md;
+
+    position: absolute;
+    top: $spacing-8;
+    inset-inline-end: $spacing-8;
+
+    &:hover {
+      background-color: $background-fill-hover;
+    }
+  }
+
+  .kecom-address-delete-modal-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: $spacing-16 $spacing-10 $spacing-10;
+  }
+
+  .kecom-address-delete-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: $background-fill-critical-secondary;
+    color: $icon-critical;
+    flex-shrink: 0;
+    margin-bottom: $spacing-8;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .kecom-address-delete-modal-text {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+    margin-bottom: $spacing-10;
+  }
+
+  .kecom-address-delete-modal-title {
+    @include typography(lg, semibold, $text-primary);
+    line-height: 24px;
+    margin: 0;
+  }
+
+  .kecom-address-delete-modal-desc {
+    @include typography(base, regular, $text-secondary);
+    margin: 0;
+    max-width: 352px;
+  }
+
+  .kecom-address-delete-modal-actions {
+    display: flex;
+    gap: $spacing-6;
+    width: 100%;
   }
 }

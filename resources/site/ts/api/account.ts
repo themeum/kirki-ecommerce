@@ -88,10 +88,10 @@ export const accountApi = {
     });
   },
 
-  setDefaultAddress(id: number | string, type: 'shipping' | 'billing'): Promise<ApiResponse> {
+  setDefaultAddress(id: number | string, purpose: 'shipping' | 'billing'): Promise<ApiResponse> {
     return apiRequest<ApiResponse>(ENDPOINTS.account.addressSetDefault(id), {
-      method: 'PUT',
-      body: { type },
+      method: 'PATCH',
+      body: { purpose },
     });
   },
 

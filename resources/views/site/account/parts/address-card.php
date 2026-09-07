@@ -9,6 +9,8 @@
  * @since 1.0.0
  */
 
+use Kirki\Ecommerce\App\Supports\Icon;
+
 use function Kirki\Ecommerce\Framework\include_view;
 
 defined('ABSPATH') || exit;
@@ -17,7 +19,12 @@ defined('ABSPATH') || exit;
 <div class="kecom-card kecom-address-card" x-cloak>
     <div class="kecom-address-card-header">
         <div class="kecom-address-card-title-group">
-            <h3 class="kecom-address-card-label" x-text="getAddressLabel(address)"></h3>
+            <div class="kecom-address-card-title-icon-group">
+                <span x-show="address.type === 'home' || !address.type"><?php Icon::render('home'); ?></span>
+                <span x-show="address.type === 'work' || address.type === 'office'"><?php Icon::render('briefcase'); ?></span>
+                <span x-show="address.type === 'other' || address.type === 'others'"><?php Icon::render('map-pin'); ?></span>
+                <h3 class="kecom-address-card-label" x-text="getAddressLabel(address)"></h3>
+            </div>
             <div class="kecom-address-card-badges">
                 <span class="kecom-badge kecom-badge-info-light" x-show="address.is_default_billing">
                     <?php esc_html_e('Default Billing', 'kirki-ecommerce'); ?>
@@ -72,6 +79,8 @@ defined('ABSPATH') || exit;
             <div class="kecom-address-line" x-show="getFormattedAddressLines(address)" x-text="getFormattedAddressLines(address)"></div>
             <div class="kecom-address-city-zip" x-show="getCityStateZip(address)" x-text="getCityStateZip(address)"></div>
             <div class="kecom-address-country" x-show="getCountryName(address.country)" x-text="getCountryName(address.country)"></div>
+            <div class="kecom-address-phone" x-show="address.phone" x-text="address.phone"></div>
+            <div class="kecom-address-email" x-show="address.email" x-text="address.email"></div>
         </address>
     </div>
 </div>

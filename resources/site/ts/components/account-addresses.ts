@@ -56,7 +56,10 @@ export function accountAddresses() {
   } else if (rawAddresses && typeof rawAddresses === 'object') {
     // Legacy support for { shipping: {...}, billing: {...} }
     const items: AddressItem[] = [];
-    if (rawAddresses.shipping && (rawAddresses.shipping.address_line1 || rawAddresses.shipping.first_name)) {
+    if (
+      rawAddresses.shipping &&
+      (rawAddresses.shipping.address_line1 || rawAddresses.shipping.first_name)
+    ) {
       items.push({
         label: rawAddresses.shipping.label || __('Home', 'kirki-ecommerce'),
         is_default_shipping: true,
@@ -65,7 +68,10 @@ export function accountAddresses() {
         id: rawAddresses.shipping.id || 1,
       });
     }
-    if (rawAddresses.billing && (rawAddresses.billing.address_line1 || rawAddresses.billing.first_name)) {
+    if (
+      rawAddresses.billing &&
+      (rawAddresses.billing.address_line1 || rawAddresses.billing.first_name)
+    ) {
       items.push({
         label: rawAddresses.billing.label || __('Work', 'kirki-ecommerce'),
         is_default_shipping: false,
@@ -91,6 +97,8 @@ export function accountAddresses() {
     isEditing: false,
     editingId: null as number | string | null,
     activeMenuId: null as number | string | null,
+    deleteModalOpen: false,
+    pendingDeleteId: null as number | string | null,
     loading: false,
     errors: {} as Record<string, string>,
     formData: {
@@ -115,9 +123,7 @@ export function accountAddresses() {
       if (!this.formData.country) {
         return [];
       }
-      const country = this.countries.find(
-        (c: any) => (c.code || c.id) === this.formData.country,
-      );
+      const country = this.countries.find((c: any) => (c.code || c.id) === this.formData.country);
       return country?.states ?? [];
     },
 
@@ -125,9 +131,7 @@ export function accountAddresses() {
       if (!code) {
         return '';
       }
-      const country = this.countries.find(
-        (c: any) => (c.code || c.id) === code,
-      );
+      const country = this.countries.find((c: any) => (c.code || c.id) === code);
       return country ? country.name : code;
     },
 
@@ -135,9 +139,7 @@ export function accountAddresses() {
       if (!stateVal || !countryCode) {
         return String(stateVal || '');
       }
-      const country = this.countries.find(
-        (c: any) => (c.code || c.id) === countryCode,
-      );
+      const country = this.countries.find((c: any) => (c.code || c.id) === countryCode);
       if (!country?.states) {
         return String(stateVal);
       }
@@ -307,7 +309,7 @@ export function accountAddresses() {
       this.errors = {};
 
       const isOther = this.formData.type === 'other';
-      const label = isOther ? (this.formData.label.trim() || undefined) : undefined;
+      const label = isOther ? this.formData.label.trim() || undefined : undefined;
 
       // Backend API validates in:home,office,others
       let apiType = 'home';
@@ -365,7 +367,9 @@ export function accountAddresses() {
           }
 
           this.closeModal();
-          toastManager.success(res?.message || __('Address updated successfully.', 'kirki-ecommerce'));
+          toastManager.success(
+            res?.message || __('Address updated successfully.', 'kirki-ecommerce'),
+          );
         } else {
           const res = await accountApi.createAddress(payload);
           const newId = res?.data?.id ?? Date.now();
@@ -387,9 +391,11 @@ export function accountAddresses() {
             });
           }
 
-          this.addresses.push(newAddress);
+          this.addresses.unshift(newAddress);
           this.closeModal();
-          toastManager.success(res?.message || __('Address added successfully.', 'kirki-ecommerce'));
+          toastManager.success(
+            res?.message || __('Address added successfully.', 'kirki-ecommerce'),
+          );
         }
       } catch (err: any) {
         if (err?.errors && typeof err.errors === 'object') {
@@ -402,28 +408,39 @@ export function accountAddresses() {
           toastManager.error(err.message || __('Validation failed!', 'kirki-ecommerce'));
           return;
         }
-        const msg = err?.message || __('Failed to save address. Please try again.', 'kirki-ecommerce');
+        const msg =
+          err?.message || __('Failed to save address. Please try again.', 'kirki-ecommerce');
         toastManager.error(msg);
       } finally {
         this.loading = false;
       }
     },
 
-    async deleteAddress(id: number | string) {
+    deleteAddress(id: number | string) {
       this.closeMenu();
+      this.pendingDeleteId = id;
+      this.deleteModalOpen = true;
+    },
 
-      const confirmed = window.confirm(
-        __('Are you sure you want to delete this address?', 'kirki-ecommerce'),
-      );
-      if (!confirmed) {
+    cancelDelete() {
+      this.deleteModalOpen = false;
+      this.pendingDeleteId = null;
+    },
+
+    async confirmDelete() {
+      if (!this.pendingDeleteId) {
         return;
       }
+      const id = this.pendingDeleteId;
 
       this.loading = true;
       try {
         const res = await accountApi.deleteAddress(id);
         this.addresses = this.addresses.filter((a) => a.id !== id);
-        toastManager.success(res?.message || __('Address deleted successfully.', 'kirki-ecommerce'));
+        toastManager.success(
+          res?.message || __('Address deleted successfully.', 'kirki-ecommerce'),
+        );
+        this.cancelDelete();
       } catch (err: any) {
         toastManager.error(err?.message || __('Failed to delete address.', 'kirki-ecommerce'));
       } finally {
@@ -431,15 +448,15 @@ export function accountAddresses() {
       }
     },
 
-    async setDefault(id: number | string, type: 'shipping' | 'billing') {
+    async setDefault(id: number | string, purpose: 'shipping' | 'billing') {
       this.closeMenu();
 
       this.loading = true;
       try {
-        const res = await accountApi.setDefaultAddress(id, type);
+        const res = await accountApi.setDefaultAddress(id, purpose);
 
         this.addresses.forEach((a) => {
-          if (type === 'shipping') {
+          if (purpose === 'shipping') {
             a.is_default_shipping = a.id === id;
           } else {
             a.is_default_billing = a.id === id;
