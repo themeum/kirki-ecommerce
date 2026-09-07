@@ -1,23 +1,20 @@
 import Container from '@/components/ui/container';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
-import { ProductSettingsIcon } from '@/icons';
+import { SnowflakeIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
-const ProductsSettingsSkeleton = () => (
+const EssentialsSettingsSkeleton = () => (
   <Container size="sm">
     <SettingsPageSkeleton
-      cards={[3, 2]}
+      cards={[4, 4]}
       header={
-        <SettingsPageHeader
-          icon={<ProductSettingsIcon />}
-          title={__('Products', 'kirki-ecommerce')}
-        />
+        <SettingsPageHeader icon={<SnowflakeIcon />} title={__('Essentials', 'kirki-ecommerce')} />
       }
     />
   </Container>
 );
 
-ProductsSettingsSkeleton.displayName = 'ProductsSettingsSkeleton';
+EssentialsSettingsSkeleton.displayName = 'EssentialsSettingsSkeleton';
 
-export default ProductsSettingsSkeleton;
+export default EssentialsSettingsSkeleton;

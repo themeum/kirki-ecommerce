@@ -1,6 +1,7 @@
 import { type CSSObject } from '@emotion/react';
 import { ArrowLeft } from 'lucide-react';
 import { type ComponentProps, type CSSProperties, forwardRef, type ReactNode } from 'react';
+import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
 import Container from '@/components/ui/container';
@@ -9,7 +10,6 @@ import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import type { ContainerSize, HeadingType } from '@/types/components/common';
-import { useNavigate } from 'react-router';
 
 type PageHeadingProps = {
   type?: HeadingType;

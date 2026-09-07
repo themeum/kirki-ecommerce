@@ -14,12 +14,22 @@ import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import VatProcessField from '@/features/settings/tax/components/fields/vat-process-field';
 import { useInvalidateTaxSettings } from '@/features/settings/tax/hooks/use-invalidate-tax-settings';
-import { applyEuRegionUpdate, applyRegionRules, deriveEuRegion } from '@/features/settings/tax/lib/region-tax';
+import {
+  applyEuRegionUpdate,
+  applyRegionRules,
+  deriveEuRegion,
+} from '@/features/settings/tax/lib/region-tax';
 import type { TaxRate, TaxRegion, TaxRule } from '@/features/settings/tax/lib/utils';
 import TaxRules from '@/features/settings/tax/pages/tax-region/tax-rules/tax-rules';
 import { VatCollection } from '@/features/settings/tax/pages/tax-region/vat-collection/vat-collection';
-import { type TaxRegionEuFormInput, TaxRegionEuFormSchema } from '@/features/settings/tax/schemas/forms/tax-region-eu-form';
-import { type TaxSettingsFormPayload, TaxSettingsFormSchema } from '@/features/settings/tax/schemas/forms/tax-settings-form';
+import {
+  type TaxRegionEuFormInput,
+  TaxRegionEuFormSchema,
+} from '@/features/settings/tax/schemas/forms/tax-region-eu-form';
+import {
+  type TaxSettingsFormPayload,
+  TaxSettingsFormSchema,
+} from '@/features/settings/tax/schemas/forms/tax-settings-form';
 import TaxRegionSkeleton from '@/features/settings/tax/skeletons/tax-region-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -40,10 +50,7 @@ const EditRegionEU = () => {
   const [regions, setRegions] = useState<TaxRegion[]>([]);
 
   const { data: taxSettingsData, isLoading } = useSettingsQuery('tax');
-  const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation<'tax'>();
-
-  const loaded = !isLoading && Boolean(taxSettingsData);
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const form = useForm<TaxRegionEuFormInput>({
     resolver: zodResolver(TaxRegionEuFormSchema),
@@ -59,10 +66,7 @@ const EditRegionEU = () => {
     control: form.control,
     name: 'product_tax',
   });
-  const vatCollectionList = useMemo(
-    () => watchedProductTax ?? [],
-    [watchedProductTax],
-  );
+  const vatCollectionList = useMemo(() => watchedProductTax ?? [], [watchedProductTax]);
 
   const euRegion = useMemo(
     () => deriveEuRegion(regions, vatCollectionProcess, vatCollectionList),
@@ -109,10 +113,7 @@ const EditRegionEU = () => {
     await handleSaveData(updatedRules, from);
   };
 
-  const handleSaveData = async (
-    updatedDataObj?: TaxRegion[],
-    from = '',
-  ) => {
+  const handleSaveData = async (updatedDataObj?: TaxRegion[], from = '') => {
     const values = form.getValues();
     const taxRegions = updatedDataObj ?? buildUpdatedRegions(values);
     const currentTaxSettings = TaxSettingsFormSchema.parse(
@@ -156,8 +157,8 @@ const EditRegionEU = () => {
 
   return (
     <>
-      <Container size="sm">
-        {loaded ? (
+      {!isLoading ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
@@ -166,9 +167,11 @@ const EditRegionEU = () => {
                 onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
-              <Card cssOverride={cardStyles.formCard} >
+              <Card cssOverride={cardStyles.formCard}>
                 <CardContent>
-                  <Text weight="semibold">{__('How would you like to collect VAT?', 'kirki-ecommerce')}</Text>
+                  <Text weight="semibold">
+                    {__('How would you like to collect VAT?', 'kirki-ecommerce')}
+                  </Text>
                   <VatProcessField />
                 </CardContent>
               </Card>
@@ -178,10 +181,7 @@ const EditRegionEU = () => {
                 process={vatCollectionProcess || 'oss'}
                 vatCollectionList={vatCollectionList}
                 setVatCollectionList={(updater) => {
-                  const next =
-                    typeof updater === 'function'
-                      ? updater(vatCollectionList)
-                      : updater;
+                  const next = typeof updater === 'function' ? updater(vatCollectionList) : updater;
                   form.setValue('product_tax', next, { shouldDirty: true });
                 }}
                 updateVatCollection={updateEUVatCollection}
@@ -189,10 +189,10 @@ const EditRegionEU = () => {
               <TaxRules region={euRegion} updateTaxRules={updateTaxRules} />
             </Flex>
           </Form>
-        ) : (
-          <TaxRegionSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <TaxRegionSkeleton />
+      )}
     </>
   );
 };

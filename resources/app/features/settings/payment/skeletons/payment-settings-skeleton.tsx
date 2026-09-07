@@ -1,23 +1,20 @@
 import Container from '@/components/ui/container';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
-import { ProductSettingsIcon } from '@/icons';
+import { PaymentIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
-const ProductsSettingsSkeleton = () => (
+const PaymentSettingsSkeleton = () => (
   <Container size="sm">
     <SettingsPageSkeleton
-      cards={[3, 2]}
+      cards={[3, 3]}
       header={
-        <SettingsPageHeader
-          icon={<ProductSettingsIcon />}
-          title={__('Products', 'kirki-ecommerce')}
-        />
+        <SettingsPageHeader icon={<PaymentIcon />} title={__('Payments', 'kirki-ecommerce')} />
       }
     />
   </Container>
 );
 
-ProductsSettingsSkeleton.displayName = 'ProductsSettingsSkeleton';
+PaymentSettingsSkeleton.displayName = 'PaymentSettingsSkeleton';
 
-export default ProductsSettingsSkeleton;
+export default PaymentSettingsSkeleton;

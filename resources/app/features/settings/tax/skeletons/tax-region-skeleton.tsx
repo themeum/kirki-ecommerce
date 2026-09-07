@@ -1,3 +1,5 @@
+import Container from '@/components/ui/container';
+import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
 
 type TaxRegionSkeletonProps = {
@@ -5,7 +7,9 @@ type TaxRegionSkeletonProps = {
 };
 
 const TaxRegionSkeleton = ({ cards = [2, 3] }: TaxRegionSkeletonProps) => (
-  <SettingsPageSkeleton cards={cards} />
+  <Container size="sm">
+    <SettingsPageSkeleton cards={cards} header={<SettingsPageHeader title="" />} />
+  </Container>
 );
 
 TaxRegionSkeleton.displayName = 'TaxRegionSkeleton';

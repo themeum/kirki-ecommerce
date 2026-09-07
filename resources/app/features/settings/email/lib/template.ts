@@ -1,5 +1,7 @@
 import type { EmailSettingsFormPayload } from '@/features/settings/email/schemas/forms/email-settings-form';
 import type { EmailTemplateFormPayload } from '@/features/settings/email/schemas/forms/email-template-form';
+import { theme } from '@/theme';
+import { defineStyles } from '@/theme/mixins';
 
 const POSITION_MAP: Record<string, number> = {
   start: 0,
@@ -44,11 +46,29 @@ export const buildEmailTemplatePayload = (
   emailSettingsData: { default_template?: unknown },
   currentEmailSettings: Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails'>,
   payload: EmailTemplateFormPayload,
-): Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails'> & { default_template: Record<string, unknown> } => ({
+): Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails'> & {
+  default_template: Record<string, unknown>;
+} => ({
   admin_emails: currentEmailSettings.admin_emails,
   customer_emails: currentEmailSettings.customer_emails,
   default_template: {
     ...((emailSettingsData.default_template as Record<string, unknown>) ?? {}),
     ...payload,
+  },
+});
+
+export const emailTemplateStyles = defineStyles({
+  container: {
+    width: '100%',
+    padding: `${theme.spacing[3]} 103px`,
+  },
+  roundedCard: {
+    borderRadius: theme.radius.lg,
+  },
+  squareCard: {
+    borderRadius: theme.radius.none,
+  },
+  sendTextMail: {
+    ...theme.typography.small(),
   },
 });
