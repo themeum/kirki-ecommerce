@@ -180,7 +180,7 @@ class UpdateOrderAction
         $order_dto->shipping_city = $dto->shipping_city;
         $order_dto->shipping_state = $dto->shipping_state;
         $order_dto->shipping_country = $dto->shipping_country;
-        $order_dto->shipping_postal_code = $dto->shipping_postcode;
+        $order_dto->shipping_postal_code = $dto->shipping_postal_code;
         $order_dto->shipping_phone = $dto->shipping_phone;
         $order_dto->shipping_email = $dto->shipping_email;
         $order_dto->shipping_company = $dto->shipping_company;
@@ -192,7 +192,7 @@ class UpdateOrderAction
         $order_dto->billing_city = $dto->billing_city;
         $order_dto->billing_state = $dto->billing_state;
         $order_dto->billing_country = $dto->billing_country;
-        $order_dto->billing_postal_code = $dto->billing_postcode;
+        $order_dto->billing_postal_code = $dto->billing_postal_code;
         $order_dto->billing_phone = $dto->billing_phone;
         $order_dto->billing_email = $dto->billing_email;
         $order_dto->billing_company = $dto->billing_company;
@@ -216,7 +216,7 @@ class UpdateOrderAction
             'address_line2' => $dto->shipping_address_line2,
             'city' => $dto->shipping_city,
             'state' => $dto->shipping_state,
-            'postal_code' => $dto->shipping_postcode,
+            'postal_code' => $dto->shipping_postal_code,
             'country' => $dto->shipping_country,
         ];
         $context->coupon = $dto->coupon_code ?? null;
