@@ -257,13 +257,17 @@ Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);
 
 // Account api endpoints (self-service, logged-in customer only).
-Route::group(['middleware' => AuthMiddleware::class], function () {
-    Route::get('/account/orders', [AccountController::class, 'customer_orders']);
-    Route::get('/account/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
-    Route::put('/account/profile', [AccountController::class, 'update_profile']);
-    Route::put('/account/password-change', [AccountController::class, 'change_password']);
-    Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+Route::group([
+    'prefix' => 'account',
+    'middleware' => AuthMiddleware::class,
+], function () {
+    Route::get('/orders', [AccountController::class, 'customer_orders']);
+    Route::get('/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
+    Route::put('/profile', [AccountController::class, 'update_profile']);
+    Route::put('/password-change', [AccountController::class, 'change_password']);
+    Route::put('/addresses', [AccountController::class, 'update_addresses']);
 
-    //TODO: this should have rate limit. Currently framework has no rate limit option.
-    Route::post('/account/resend-verification-email', [AccountController::class, 'resend_verification_email']);
+    // Resend verification email.
+    Route::post('/resend-verification-email', [AccountController::class, 'resend_verification_email'])
+        ->throttle(1, 2);
 });
