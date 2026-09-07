@@ -266,7 +266,6 @@ Route::group([
     Route::get('/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
     Route::put('/profile', [AccountController::class, 'update_profile']);
     Route::put('/password-change', [AccountController::class, 'change_password']);
-    Route::put('/addresses', [AccountController::class, 'update_addresses']);
 
     Route::get('/addresses', [AddressController::class, 'index']);
     Route::get('/addresses/{id}', [AddressController::class, 'show']);
