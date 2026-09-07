@@ -32,8 +32,6 @@ class OrderCalculationeRequest extends Request
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
 
-            'is_billing_same_as_shipping' => 'nullable|boolean',
-
             'billing_first_name' => 'nullable|string',
             'billing_last_name' => 'nullable|string',
             'billing_address_line1' => 'nullable|string',
@@ -79,8 +77,6 @@ class OrderCalculationeRequest extends Request
             'shipping_phone' => Sanitizer::TEXT,
             'shipping_email' => Sanitizer::EMAIL,
             'shipping_company' => Sanitizer::TEXT,
-
-            'is_billing_same_as_shipping' => Sanitizer::BOOL,
 
             'billing_first_name' => Sanitizer::TEXT,
             'billing_last_name' => Sanitizer::TEXT,

@@ -1,0 +1,132 @@
+info:
+  name: List Addresses
+  type: http
+  seq: 5
+  tags:
+    - account
+
+http:
+  method: GET
+  url: "{{baseUrl}}/account/addresses"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success — every address belonging to the authenticated customer
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": [
+              {
+                "id": 24,
+                "customer_id": 12,
+                "type": "office",
+                "label": null,
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "456 Billing Ave",
+                "address_line2": "",
+                "city": "Chicago",
+                "state": "IL",
+                "country": "US",
+                "postal_code": "60601",
+                "email": null,
+                "phone": null,
+                "is_default_shipping": true,
+                "is_default_billing": true,
+                "created_at": "2026-09-04T08:04:00.000000Z",
+                "updated_at": "2026-09-04T08:04:08.000000Z"
+              },
+              {
+                "id": 23,
+                "customer_id": 12,
+                "type": "home",
+                "label": "Weekend Home",
+                "first_name": "Sarah",
+                "last_name": "Johnson",
+                "address_line1": "123 New St",
+                "address_line2": "",
+                "city": "Boston",
+                "state": "MA",
+                "country": "US",
+                "postal_code": "02101",
+                "email": "sarah.johnson@example.com",
+                "phone": "+1-555-9999",
+                "is_default_shipping": false,
+                "is_default_billing": false,
+                "created_at": "2026-09-04T08:03:53.000000Z",
+                "updated_at": "2026-09-04T08:03:53.000000Z"
+              }
+            ],
+            "message": "Addresses retrieved successfully.",
+            "success": true
+          }
+  - name: 200 Response (no addresses)
+    description: Success — customer has not saved any address yet
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": [],
+            "message": "Addresses retrieved successfully.",
+            "success": true
+          }
+  - name: 401 Response
+    description: Failure — not logged in
+    request:
+      url: "{{baseUrl}}/account/addresses"
+      method: GET
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## List Addresses
+
+  Returns every address belonging to the **currently authenticated** customer's
+  address book, newest first. No pagination — a shopper's address book is
+  expected to stay small.
+
+  - Requires a logged-in WordPress user (401 otherwise).
+  - If the user has no linked `Customer` record yet, this returns an empty
+    list rather than an error (nothing to provision on a read).
+  - Never returns another customer's addresses — identity always comes from
+    the authenticated session, never from client input.

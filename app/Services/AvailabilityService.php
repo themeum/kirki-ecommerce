@@ -110,6 +110,6 @@ class AvailabilityService
         }
 
         /* translators: 1: availability label, 2: variant count */
-        return sprintf(__('%1$s <span>across %2$d variants<span>', 'kirki-ecommerce'), $label, $variant_count);
+        return sprintf(__('%1$s <span>across %2$d variants</span>', 'kirki-ecommerce'), $label, $variant_count);
     }
 }

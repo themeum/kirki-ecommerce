@@ -51,6 +51,9 @@ use Kirki\Ecommerce\Database\Migrations\CreateSchedulerJobsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchedulerJobsStatusColumnToString;
 use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
+use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
+use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
+use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 
 return [
@@ -113,4 +116,9 @@ return [
     // Since v1.0.0-alpha.3
     AddLowStockThresholdToVariantsTable::class,
     AddPublishedAtAndTrashedAtToProductsTable::class,
+
+    // Since v1.0.0-alpha.4
+    AlterAddressesTableForAddressBook::class,
+    DropIsBillingSameAsShippingFromCustomersTable::class,
+    DropIsBillingSameAsShippingFromOrdersTable::class,
 ];

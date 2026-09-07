@@ -50,17 +50,20 @@ class CreateCustomerAction
                 throw new Exception(__('Customer could not be created.', 'kirki-ecommerce'));
             }
 
+            // Set both flags explicitly on each payload (not just the one being
+            // claimed) so this is safe even if the caller passed the same
+            // CreateAddressDTO instance for both parameters.
             $shipping_address_payload->customer_id = $customer->id;
-            $shipping_address_payload->type = AddressType::SHIPPING;
+            $shipping_address_payload->type = AddressType::HOME;
+            $shipping_address_payload->is_default_shipping = true;
+            $shipping_address_payload->is_default_billing = false;
 
             $this->create_address($shipping_address_payload);
 
-            if ($customer_payload->is_billing_same_as_shipping) {
-                $billing_address_payload = $shipping_address_payload;
-            }
-
             $billing_address_payload->customer_id = $customer->id;
-            $billing_address_payload->type = AddressType::BILLING;
+            $billing_address_payload->type = AddressType::HOME;
+            $billing_address_payload->is_default_shipping = false;
+            $billing_address_payload->is_default_billing = true;
 
             $this->create_address($billing_address_payload);
 
@@ -80,7 +83,7 @@ class CreateCustomerAction
     {
         if (!empty($customer->user_id)) {
             if (empty(get_userdata($customer->user_id))) {
-                throw new Exception(__('User could not be found.', 'kirki-ecommerce'));
+                throw new Exception(__('User could not be found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
             }
 
             return $customer->user_id;
@@ -98,7 +101,7 @@ class CreateCustomerAction
         $user_id = wp_insert_user($new_user);
 
         if (is_wp_error($user_id)) {
-            throw new Exception($user_id->get_error_message());
+            throw new Exception($user_id->get_error_message()); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return $user_id;
@@ -109,7 +112,7 @@ class CreateCustomerAction
         $is_created_billing_address = $this->address_service->create($address_payload);
 
         if (!$is_created_billing_address) {
-            throw new Exception(__('Customer address could not be created.', 'kirki-ecommerce'));
+            throw new Exception(__('Customer address could not be created.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         return true;

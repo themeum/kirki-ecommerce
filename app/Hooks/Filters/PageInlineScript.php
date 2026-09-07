@@ -84,7 +84,6 @@ class PageInlineScript extends BaseHook
 
         $config['countries']                   = $data->countries ?? Utils::get_countries();
         $config['customer_id']                 = $customer->id ?? 0;
-        $config['is_billing_same_as_shipping'] = (bool) ($customer->is_billing_same_as_shipping ?? false);
         $config['addresses']                   = [
             'billing'  => $this->format_address($billing_address),
             'shipping' => $this->format_address($shipping_address),

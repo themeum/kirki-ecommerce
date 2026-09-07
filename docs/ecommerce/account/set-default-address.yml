@@ -1,0 +1,214 @@
+info:
+  name: Set Default Address
+  type: http
+  seq: 10
+  tags:
+    - account
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/account/addresses/29/set-default"
+  body:
+    type: json
+    data: |-
+      {
+        "purpose": "shipping"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response (shipping)
+    description: Success — marks this address as default shipping; default billing (if any, on any address) is unaffected
+    request:
+      url: "{{baseUrl}}/account/addresses/29/set-default"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "purpose": "shipping"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 29,
+              "customer_id": 12,
+              "type": "office",
+              "label": null,
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "address_line1": "456 Billing Ave",
+              "address_line2": "",
+              "city": "Chicago",
+              "state": "IL",
+              "country": "US",
+              "postal_code": "60601",
+              "email": null,
+              "phone": null,
+              "is_default_shipping": true,
+              "is_default_billing": false,
+              "created_at": "2026-09-04T09:21:38.000000Z",
+              "updated_at": "2026-09-04T09:21:45.000000Z"
+            },
+            "message": "Default address updated successfully.",
+            "success": true
+          }
+  - name: 200 Response (billing, second call on the same address)
+    description: Success — to make one address the default for both purposes, call this endpoint twice, once per purpose
+    request:
+      url: "{{baseUrl}}/account/addresses/29/set-default"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "purpose": "billing"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 29,
+              "customer_id": 12,
+              "type": "office",
+              "label": null,
+              "first_name": "Sarah",
+              "last_name": "Johnson",
+              "address_line1": "456 Billing Ave",
+              "address_line2": "",
+              "city": "Chicago",
+              "state": "IL",
+              "country": "US",
+              "postal_code": "60601",
+              "email": null,
+              "phone": null,
+              "is_default_shipping": true,
+              "is_default_billing": true,
+              "created_at": "2026-09-04T09:21:38.000000Z",
+              "updated_at": "2026-09-04T09:21:45.000000Z"
+            },
+            "message": "Default address updated successfully.",
+            "success": true
+          }
+  - name: 422 Response (invalid purpose)
+    description: Failure — purpose must be shipping or billing
+    request:
+      url: "{{baseUrl}}/account/addresses/29/set-default"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "purpose": "home"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Validation failed!",
+            "errors": {
+              "purpose": [
+                "The purpose field must be in the list of \"shipping, billing\"."
+              ]
+            },
+            "success": false
+          }
+  - name: 404 Response
+    description: Failure — id doesn't exist, or belongs to a different customer
+    request:
+      url: "{{baseUrl}}/account/addresses/999999/set-default"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "purpose": "shipping"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Address not found.",
+            "success": false
+          }
+  - name: 401 Response
+    description: Failure — not logged in
+    request:
+      url: "{{baseUrl}}/account/addresses/29/set-default"
+      method: PATCH
+      body:
+        type: json
+        data: |-
+          {
+            "purpose": "shipping"
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## Set Default Address
+
+  Marks an address as the **currently authenticated** customer's default
+  address for one purpose, scoped by id.
+
+  - `purpose` is required: `shipping` or `billing`. Only one purpose per
+    call — to make an address the default for both, call this endpoint
+    twice (once with each purpose).
+  - Marking an address default for a purpose unsets that flag on every
+    other address of this customer — at most one default shipping address
+    and, independently, at most one default billing address at a time. A
+    single address can be both at once (via two calls).
+  - This endpoint only **sets** a new default — it doesn't clear a purpose
+    to "no default" (there's no way to submit "unset"). Deleting the
+    current default address is the only way to end up with no default for
+    that purpose.
+  - Requires a logged-in WordPress user (401 otherwise) and an id that
+    belongs to that customer (404 otherwise, whether the id doesn't exist or
+    belongs to someone else).

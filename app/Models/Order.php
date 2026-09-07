@@ -72,7 +72,6 @@ class Order extends Model
         'billing_phone',
         'billing_email',
         'billing_company',
-        'is_billing_same_as_shipping',
         'customer_first_name',
         'customer_last_name',
         'customer_email',
@@ -109,7 +108,6 @@ class Order extends Model
         'shipping_metadata' => 'json',
         'invoiced_tax_total' => 'integer',
         'base_tax_total' => 'integer',
-        'is_billing_same_as_shipping' => 'boolean'
     ];
 
     /**
