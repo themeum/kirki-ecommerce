@@ -14,7 +14,7 @@ type InventoryTableHeader = {
 
 export const allTableHeaders: InventoryTableHeader[] = [
   {
-    title: __('Variants', 'kirki-ecommerce'),
+    title: __('Product', 'kirki-ecommerce'),
     value: 'title',
     icon: <DragIcon />,
     isDefault: true,

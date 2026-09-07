@@ -14,6 +14,8 @@ export type AvailabilityStatus = z.infer<typeof AvailabilityStatusSchema>;
 
 export const VariantSchema = z.object({
   id: z.number().optional(),
+  product_id: z.number().nullish(),
+  preview_url: z.string().nullish(),
   name: z.string(),
   media: MediaRefSchema.nullish(),
   sku: z.string().nullable(),
@@ -73,7 +75,7 @@ export const InventoryVariantSchema = z.object({
   attribute_value_labels: z.array(z.string()).default([]),
   track_inventory: z.boolean(),
   available_quantity: z.number(),
-  committed_quantity: z.number(),
+  committed_quantity: z.number().nullish(),
   availability_status: z.union([AvailabilityStatusSchema, z.string()]).nullish(),
   availability_label: z.string().nullish(),
   product: z.object({

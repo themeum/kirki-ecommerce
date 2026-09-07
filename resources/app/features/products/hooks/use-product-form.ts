@@ -4,7 +4,6 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { useUnsavedNavigationGuard } from '@/features/products/components/product-form/use-unsaved-navigation-guard';
 import { resolveSaveFailure, resolveSaveSuccess, type SaveResult } from '@/features/products/lib/save-result';
 import { shouldShowSimpleVariantSections } from '@/features/products/lib/variant-sections';
 import {
@@ -13,6 +12,7 @@ import {
   type ProductFormPayload,
   ProductFormSchema,
 } from '@/features/products/schemas/forms/product-form';
+import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import type { ErrorResponse } from '@/libs/api';
 import { setUnsavedDataStatus } from '@/libs/unsaved-store';
 import { getDefaults } from '@/libs/zod';

@@ -34,12 +34,11 @@ const resolveAvailableCell = (variant: InventoryVariant): InventoryCell => {
 };
 
 /**
- * A committed count only means something for a variant whose stock is counted,
- * and only when something is actually committed. Every other case is a dash
- * rather than a `0` that reads as a real measurement.
+ * Zero is a real committed count and reads as one. Only an absent quantity —
+ * a variant the backend reported nothing for — falls back to a dash.
  */
 const resolveCommittedCell = (variant: InventoryVariant): InventoryCell => {
-  if (!variant.track_inventory || !variant.committed_quantity) {
+  if (variant.committed_quantity == null) {
     return { text: EMPTY_VALUE, color: 'primary' };
   }
 

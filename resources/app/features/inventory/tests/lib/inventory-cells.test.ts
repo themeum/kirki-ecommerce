@@ -89,16 +89,22 @@ describe('resolveCommittedCell', () => {
     expect(cell).toEqual({ text: '450', color: 'primary' });
   });
 
-  it('shows a dash when a tracked variant has nothing committed', () => {
+  it('shows a zero committed quantity as a real count rather than a dash', () => {
     const cell = resolveCommittedCell(buildVariant({ committed_quantity: 0 }));
 
-    expect(cell.text).toBe('--');
+    expect(cell).toEqual({ text: '0', color: 'primary' });
   });
 
-  it('shows a dash for an untracked variant even when a committed quantity exists', () => {
+  it('shows the committed quantity for an untracked variant', () => {
     const cell = resolveCommittedCell(
       buildVariant({ track_inventory: false, committed_quantity: 12 }),
     );
+
+    expect(cell.text).toBe('12');
+  });
+
+  it('shows a dash only when no committed quantity was reported', () => {
+    const cell = resolveCommittedCell(buildVariant({ committed_quantity: null }));
 
     expect(cell.text).toBe('--');
   });

@@ -13,6 +13,7 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import PageHeading from '@/components/ui/page-heading';
 import { Separator } from '@/components/ui/separator';
+import UnsavedToast from '@/components/unsaved-toast';
 import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
 import Inventory from '@/features/products/components/product-form/sections/inventory/inventory';
 import Price from '@/features/products/components/product-form/sections/price/price';
@@ -20,7 +21,6 @@ import RightPanel from '@/features/products/components/product-form/sections/rig
 import SEOSettings from '@/features/products/components/product-form/sections/seo-settings/seo-settings';
 import Shipping from '@/features/products/components/product-form/sections/shipping/shipping';
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
-import UnsavedToast from '@/features/products/components/product-form/unsaved-toast';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
 import { Product } from '@/features/products/schemas/catalog/product';
 import {
