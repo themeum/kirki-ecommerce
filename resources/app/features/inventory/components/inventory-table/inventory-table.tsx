@@ -5,13 +5,12 @@ import { useNavigate } from 'react-router';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import { RouteConfig } from '@/config/route-config';
-import { useInventoryForm } from '@/features/inventory';
 import { inventoryColumns } from '@/features/inventory/components/inventory-table/columns';
 import InventoryTableFilters from '@/features/inventory/components/inventory-table/inventory-table-filters';
 import { inventoryTableStyles } from '@/features/inventory/components/inventory-table/inventory-table-styles';
 import { allTableHeaders } from '@/features/inventory/lib/utils';
+import { useInventoryQuery } from '@/features/inventory/services/inventory';
 import { inventoryListOptions } from '@/features/inventory/types';
-import type { InventoryVariant } from '@/features/products';
 import { useDataTableParams } from '@/hooks';
 import { __ } from '@/wpi18n';
 
@@ -19,12 +18,10 @@ const inventoryBulkActions = [{ value: 'bulk-edit', title: __('Bulk Edit', 'kirk
 
 const InventoryTable = () => {
   const navigate = useNavigate();
-  const { data, loaded } = useInventoryForm();
-  const { pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
+  const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
     useDataTableParams(inventoryListOptions);
+  const { data, isFetching } = useInventoryQuery(params);
   const [selectedFields, setSelectedFields] = useState(allTableHeaders.map((item) => item.value));
-
-  const rows = useMemo<InventoryVariant[]>(() => Object.values(data?.results ?? {}), [data]);
 
   const columnVisibility = useMemo<VisibilityState>(
     () => Object.fromEntries(allTableHeaders.map((header) => [header.value, selectedFields.includes(header.value)])),
@@ -44,7 +41,7 @@ const InventoryTable = () => {
 
   return (
     <DataTable
-      data={rows}
+      data={data?.results ?? []}
       columns={inventoryColumns}
       pageCount={data?.last_page ?? 0}
       total={data?.total}
@@ -52,7 +49,7 @@ const InventoryTable = () => {
       onPaginationChange={onPaginationChange}
       sorting={sorting}
       onSortingChange={onSortingChange}
-      isLoading={!loaded}
+      isLoading={isFetching}
       enableRowSelection
       selectionResetKey={selectionResetKey}
       bulkActionOptions={inventoryBulkActions}

@@ -1,14 +1,18 @@
 import type { ColumnDef } from '@tanstack/react-table';
+import { Fragment } from 'react';
 
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
-import Input from '@/components/ui/input';
+import PriceText from '@/components/ui/price-text';
 import Text from '@/components/ui/text';
-import { useInventoryForm } from '@/features/inventory';
+import {
+  EMPTY_VALUE,
+  resolveAvailableCell,
+  resolveCommittedCell,
+} from '@/features/inventory/lib/inventory-cells';
 import type { InventoryVariant } from '@/features/products';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
-import { calculateProfit } from '@/utils/common';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const styles = defineStyles({
@@ -16,25 +20,26 @@ const styles = defineStyles({
     minWidth: '208px',
     padding: `7px ${theme.spacing[3]}`,
   },
-  inputCell: {
-    padding: theme.spacing[0],
-  },
-  profitCell: {
-    padding: theme.spacing[0],
-    pointerEvents: 'none',
-  },
-  tableInput: {
-    ...theme.typography.small(),
+  separator: {
+    color: theme.colors.text.disabled,
+    margin: `0 ${theme.spacing[1]}`,
   },
 });
 
 const InventoryTitleCell = ({ item }: { item: InventoryVariant }) => (
   <Flex gap={3} align="center">
-    <Image src={item?.product?.image} size="sm" />
+    <Image src={item.product.image} size="sm" />
     <Flex direction="column" gap={1}>
-      <Text variant="tiny">{item?.product?.name}</Text>
+      <Text variant="tiny">{item.product.name}</Text>
       <Text variant="tiny" color="muted">
-        {item?.name}
+        {item.attribute_value_labels.length === 0
+          ? EMPTY_VALUE
+          : item.attribute_value_labels.map((label, index) => (
+              <Fragment key={`${index}-${label}`}>
+                {index > 0 && <span css={scoped(styles.separator)}>|</span>}
+                {label}
+              </Fragment>
+            ))}
       </Text>
     </Flex>
   </Flex>
@@ -42,87 +47,41 @@ const InventoryTitleCell = ({ item }: { item: InventoryVariant }) => (
 
 InventoryTitleCell.displayName = 'InventoryTitleCell';
 
-const InventorySkuCell = ({ item }: { item: InventoryVariant }) => {
-  const { updateInventory } = useInventoryForm();
-
-  return (
-    <Input
-      value={item?.sku ?? undefined}
-      placeholder="--"
-      invisible
-      cssOverride={styles.tableInput}
-      onChange={(event) => updateInventory({ id: item.id, changes: { sku: event.target.value } })}
-    />
-  );
-};
-
-InventorySkuCell.displayName = 'InventorySkuCell';
-
-const InventoryPriceCell = ({ item }: { item: InventoryVariant }) => {
-  const { updateInventory } = useInventoryForm();
-
-  return (
-    <Input
-      value={item?.base_price ?? undefined}
-      placeholder="--"
-      invisible
-      cssOverride={styles.tableInput}
-      onChange={(event) =>
-        updateInventory({ id: item.id, changes: { base_price: event.target.value } })
-      }
-    />
-  );
-};
-
-InventoryPriceCell.displayName = 'InventoryPriceCell';
-
-const InventorySalePriceCell = ({ item }: { item: InventoryVariant }) => {
-  const { updateInventory } = useInventoryForm();
-
-  return (
-    <Input
-      value={item?.base_sale_price ?? undefined}
-      placeholder="--"
-      invisible
-      cssOverride={styles.tableInput}
-      onChange={(event) =>
-        updateInventory({ id: item.id, changes: { base_sale_price: event.target.value } })
-      }
-    />
-  );
-};
-
-InventorySalePriceCell.displayName = 'InventorySalePriceCell';
-
-const InventoryCostOfGoodsCell = ({ item }: { item: InventoryVariant }) => {
-  const { updateInventory } = useInventoryForm();
-
-  return (
-    <Input
-      value={item?.base_cost_of_goods ?? undefined}
-      placeholder="--"
-      invisible
-      cssOverride={styles.tableInput}
-      onChange={(event) =>
-        updateInventory({ id: item.id, changes: { base_cost_of_goods: event.target.value } })
-      }
-    />
-  );
-};
-
-InventoryCostOfGoodsCell.displayName = 'InventoryCostOfGoodsCell';
-
-const InventoryProfitCell = ({ item }: { item: InventoryVariant }) => (
-  <Input
-    value={calculateProfit('profit', item)}
-    placeholder="--"
-    readOnly
-    invisible
-    cssOverride={styles.tableInput}
+const InventoryPriceCell = ({ item }: { item: InventoryVariant }) => (
+  <PriceText
+    regularPrice={item.display_price_money_object}
+    salePrice={item.display_sale_price_money_object}
+    primaryTextProps={{ variant: 'tiny' }}
+    secondaryTextProps={{ variant: 'tiny', color: 'secondary' }}
+    justify="start"
   />
 );
 
-InventoryProfitCell.displayName = 'InventoryProfitCell';
+InventoryPriceCell.displayName = 'InventoryPriceCell';
+
+const InventoryAvailableCell = ({ item }: { item: InventoryVariant }) => {
+  const { text, color } = resolveAvailableCell(item);
+
+  return (
+    <Text variant="tiny" color={color}>
+      {text}
+    </Text>
+  );
+};
+
+InventoryAvailableCell.displayName = 'InventoryAvailableCell';
+
+const InventoryCommittedCell = ({ item }: { item: InventoryVariant }) => {
+  const { text, color } = resolveCommittedCell(item);
+
+  return (
+    <Text variant="tiny" color={color}>
+      {text}
+    </Text>
+  );
+};
+
+InventoryCommittedCell.displayName = 'InventoryCommittedCell';
 
 const inventoryColumns: ColumnDef<InventoryVariant>[] = [
   {
@@ -133,39 +92,28 @@ const inventoryColumns: ColumnDef<InventoryVariant>[] = [
     cell: ({ row }) => <InventoryTitleCell item={row.original} />,
   },
   {
-    id: 'sku',
-    header: __('SKU', 'kirki-ecommerce'),
-    enableSorting: false,
-    meta: { cssOverride: styles.inputCell },
-    cell: ({ row }) => <InventorySkuCell item={row.original} />,
-  },
-  {
-    id: 'base_price',
+    id: 'display_price',
     header: __('Price', 'kirki-ecommerce'),
     enableSorting: false,
-    meta: { cssOverride: styles.inputCell },
     cell: ({ row }) => <InventoryPriceCell item={row.original} />,
   },
   {
-    id: 'base_sale_price',
-    header: __('Sale Price', 'kirki-ecommerce'),
+    id: 'sku',
+    header: __('SKU', 'kirki-ecommerce'),
     enableSorting: false,
-    meta: { cssOverride: styles.inputCell },
-    cell: ({ row }) => <InventorySalePriceCell item={row.original} />,
+    cell: ({ row }) => <Text variant="tiny">{row.original.sku || EMPTY_VALUE}</Text>,
   },
   {
-    id: 'base_cost_of_goods',
-    header: __('Cost of Goods', 'kirki-ecommerce'),
+    id: 'available_quantity',
+    header: __('Available', 'kirki-ecommerce'),
     enableSorting: false,
-    meta: { cssOverride: styles.inputCell },
-    cell: ({ row }) => <InventoryCostOfGoodsCell item={row.original} />,
+    cell: ({ row }) => <InventoryAvailableCell item={row.original} />,
   },
   {
-    id: 'profit',
-    header: __('Profit', 'kirki-ecommerce'),
+    id: 'committed_quantity',
+    header: __('Committed', 'kirki-ecommerce'),
     enableSorting: false,
-    meta: { cssOverride: styles.profitCell },
-    cell: ({ row }) => <InventoryProfitCell item={row.original} />,
+    cell: ({ row }) => <InventoryCommittedCell item={row.original} />,
   },
 ];
 
