@@ -4,7 +4,8 @@ namespace Kirki\Ecommerce\App\Currency;
 
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
+
+use function Kirki\Ecommerce\Framework\throw_anyway;
 
 class CurrencyExchangeFactory
 {
@@ -48,13 +49,14 @@ class CurrencyExchangeFactory
             return $provider;
         }
 
-        ExceptionThrower::throw(new Exception(
+        throw_anyway(
             sprintf(
                 /* translators: %s: Currency provider ID */
                 __('Currency provider with ID %s not found.', 'kirki-ecommerce'),
                 $provider_id
-            )
-        ));
+            ),
+            Exception::class
+        );
     }
 
     /**

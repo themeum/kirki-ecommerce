@@ -12,7 +12,8 @@ use Kirki\Ecommerce\App\DTO\ProductSchema\CreateProductSchemaDTO;
 use Kirki\Ecommerce\App\DTO\ProductSchema\UpdateProductSchemaDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class ProductSchemaService
 {
@@ -49,9 +50,7 @@ class ProductSchemaService
     {
         $product_schema = ProductSchema::find($id);
 
-        if (!$product_schema) {
-            ExceptionThrower::throw(new NotFoundException(__('Product schema not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$product_schema, __('Product schema not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $product_schema;
     }
@@ -80,15 +79,11 @@ class ProductSchemaService
     {
         $product_schema = ProductSchema::find($data->id);
 
-        if (empty($product_schema)) {
-            ExceptionThrower::throw(new NotFoundException(__('Product schema could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($product_schema), __('Product schema could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_updated = (bool) $product_schema->update($data->to_array());
 
-        if (!$is_updated) {
-            ExceptionThrower::throw(new NotFoundException(__('Product schema could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_updated, __('Product schema could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return ProductSchema::find($data->id);
     }
@@ -104,9 +99,7 @@ class ProductSchemaService
     {
         $is_deleted = (bool) ProductSchema::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Product schema could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Product schema could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -122,9 +115,7 @@ class ProductSchemaService
     {
         $is_deleted = (bool) ProductSchema::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Product schemas could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Product schemas could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }

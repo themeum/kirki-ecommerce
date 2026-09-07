@@ -14,8 +14,8 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection as DataCollection;
 
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class CollectionService
@@ -53,9 +53,7 @@ class CollectionService
     {
         $collection = Collection::with_count('products')->find($id);
 
-        if (empty($collection)) {
-            ExceptionThrower::throw(new NotFoundException(__('Collection not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($collection), __('Collection not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $collection;
     }
@@ -90,9 +88,7 @@ class CollectionService
     {
         $collection = Collection::find($data->id);
 
-        if (empty($collection)) {
-            ExceptionThrower::throw(new NotFoundException(__('Collection could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($collection), __('Collection could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
         $data->slug = Collection::generate_unique_slug($data->slug, $data->id);
@@ -102,9 +98,7 @@ class CollectionService
 
         $updated = (bool) $collection->update($attributes);
 
-        if (!$updated) {
-            ExceptionThrower::throw(new Exception(__('Collection could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST));
-        }
+        throw_if(!$updated, __('Collection could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return Collection::with_count('products')->find($data->id);
     }
@@ -120,9 +114,7 @@ class CollectionService
     {
         $deleted = (bool) Collection::query()->where('id', $id)->delete();
 
-        if (!$deleted) {
-            ExceptionThrower::throw(new Exception(__('Collection could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST));
-        }
+        throw_if(!$deleted, __('Collection could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -138,9 +130,7 @@ class CollectionService
     {
         $deleted = (bool) Collection::where_in('id', $ids)->delete();
 
-        if (!$deleted) {
-            ExceptionThrower::throw(new Exception(__('Collections could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST));
-        }
+        throw_if(!$deleted, __('Collections could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }

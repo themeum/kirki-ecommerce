@@ -20,10 +20,10 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * Class OrderActivityController
@@ -50,9 +50,7 @@ class OrderActivityController
         $customer_id = customer()->get_customer_id();
         $order = $order_service->find_order($order_id);
 
-        if (!$order || empty($customer_id) || $order->customer_id !== $customer_id) {
-            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$order || empty($customer_id) || $order->customer_id !== $customer_id, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $params = ListFilterDTO::from_array($request->all());
 

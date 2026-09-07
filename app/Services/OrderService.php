@@ -20,10 +20,10 @@ use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class OrderService
@@ -174,9 +174,7 @@ class OrderService
     {
         $order = $this->find_order($id);
 
-        if (!$order) {
-            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
-        }
+        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $order;
     }
@@ -241,9 +239,7 @@ class OrderService
 
         $order = Order::find($id);
 
-        if (empty($order)) {
-            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($order), __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         $is_updated = (bool) $order->update([
             'order_status' => $target_status,
@@ -251,9 +247,7 @@ class OrderService
             'payment_status' => $target_state['payment_status'],
         ]);
 
-        if (!$is_updated) {
-            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
-        }
+        throw_if(!$is_updated, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $is_updated;
     }
@@ -302,9 +296,7 @@ class OrderService
     {
         $result = $this->delete_order($id);
 
-        if (!$result) {
-            ExceptionThrower::throw(new NotFoundException(__('Order not found.', 'kirki-ecommerce')));
-        }
+        throw_if(!$result, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $result;
     }
@@ -318,15 +310,11 @@ class OrderService
      */
     public function bulk_delete(array $ids)
     {
-        if (empty($ids)) {
-            ExceptionThrower::throw(new NotFoundException(__('No orders selected.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($ids), __('No orders selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Order::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Orders could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Orders could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }

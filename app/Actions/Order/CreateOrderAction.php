@@ -38,11 +38,11 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CreateOrderAction
@@ -103,9 +103,7 @@ class CreateOrderAction
 
         $context = $this->prepare_calculation_context_dto($dto);
 
-        if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            ExceptionThrower::throw(new Exception(__('Invalid shipping method', 'kirki-ecommerce')));
-        }
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), Exception::class);
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
         $create_order_dto = $this->prepare_create_order_dto($calculated_result, $dto, $context);
@@ -159,9 +157,7 @@ class CreateOrderAction
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
-        if (empty($cart) || empty($cart->items)) {
-            ExceptionThrower::throw(new Exception(__('Cart not found.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($cart) || empty($cart->items), __('Cart not found.', 'kirki-ecommerce'), Exception::class);
 
         $items = [];
 
@@ -172,9 +168,7 @@ class CreateOrderAction
             ];
         }
 
-        if (empty($items)) {
-            ExceptionThrower::throw(new Exception(__('Cart is empty.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($items), __('Cart is empty.', 'kirki-ecommerce'), Exception::class);
 
         $dto->items = $items;
         $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
@@ -353,22 +347,16 @@ class CreateOrderAction
         foreach ($dto->items as $item_data) {
             $variant = $this->variant_service->find($item_data['variant_id']);
 
-            if (!$variant) {
-                /* translators: %s: JSON-encoded item data */
-                ExceptionThrower::throw(new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))));
-            }
+            /* translators: %s: JSON-encoded item data */
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)), Exception::class);
 
-            if ($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity']) {
-                /* translators: %s: variant ID */
-                ExceptionThrower::throw(new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id)));
-            }
+            /* translators: %s: variant ID */
+            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), Exception::class);
 
             $product = $variant->product;
 
-            if (empty($product)) {
-                /* translators: %s: variant ID */
-                ExceptionThrower::throw(new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)));
-            }
+            /* translators: %s: variant ID */
+            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id), Exception::class);
 
             $product->load('categories');
 
@@ -488,10 +476,8 @@ class CreateOrderAction
         $variant = $this->variants_map[$calculated_item->variant_id];
         $product = $variant->product;
 
-        if (empty($product)) {
-            /* translators: %s: variant ID */
-            ExceptionThrower::throw(new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)));
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id), Exception::class);
 
         $product->load('media');
 

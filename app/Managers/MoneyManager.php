@@ -13,10 +13,10 @@ use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\settings;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
@@ -378,13 +378,9 @@ class MoneyManager
     {
         $method = Str::camel($method);
 
-        if (!method_exists(Money::class, $method)) {
-            ExceptionThrower::throw(new BadMethodCallException("Method {$method} does not exist on " . Money::class));
-        }
+        throw_if(!method_exists(Money::class, $method), "Method {$method} does not exist on " . Money::class, BadMethodCallException::class);
 
-        if (empty($parameters)) {
-            ExceptionThrower::throw(new InvalidArgumentException("Money {$method} method requires at least one parameter."));
-        }
+        throw_if(empty($parameters), "Money {$method} method requires at least one parameter.", InvalidArgumentException::class);
 
         if (empty($parameters[1])) {
             $parameters[1] = $this->get_base_currency();

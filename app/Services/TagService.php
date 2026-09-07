@@ -14,7 +14,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class TagService
@@ -52,9 +52,7 @@ class TagService
     {
         $tag = Tag::with_count('products')->find($id);
 
-        if (empty($tag)) {
-            ExceptionThrower::throw(new NotFoundException(__('Tag not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($tag), __('Tag not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $tag;
     }
@@ -92,9 +90,7 @@ class TagService
     {
         $tag = Tag::find($data->id);
 
-        if (empty($tag)) {
-            ExceptionThrower::throw(new NotFoundException(__('Tag could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($tag), __('Tag could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
         $data->slug = Tag::generate_unique_slug($data->slug, $data->id);
@@ -104,9 +100,7 @@ class TagService
 
         $is_updated = (bool) $tag->update($attributes);
 
-        if (!$is_updated) {
-            ExceptionThrower::throw(new Exception(__('Tag could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST));
-        }
+        throw_if(!$is_updated, __('Tag could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return $this->find($data->id);
     }
@@ -123,9 +117,7 @@ class TagService
     {
         $is_deleted = (bool) Tag::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new Exception(__('Tag could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST));
-        }
+        throw_if(!$is_deleted, __('Tag could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -141,9 +133,7 @@ class TagService
     {
         $is_deleted = (bool) Tag::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new Exception(__('Tags could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST));
-        }
+        throw_if(!$is_deleted, __('Tags could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }

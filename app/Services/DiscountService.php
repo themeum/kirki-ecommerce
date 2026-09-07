@@ -18,9 +18,9 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class DiscountService
@@ -78,15 +78,11 @@ class DiscountService
             throw new ValidationException(esc_html__('Coupon usage limit reached.', 'kirki-ecommerce'));
         }
 
-        if ($coupon->spend_condition_type === SpendConditionType::MIN_CART_AMOUNT && $coupon->spend_condition_value > $context->get_subtotal()) {
-            /* translators: %s: minimum spend amount */
-            ExceptionThrower::throw(new ValidationException(sprintf(esc_html__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value)));
-        }
+        /* translators: %s: minimum spend amount */
+        throw_if($coupon->spend_condition_type === SpendConditionType::MIN_CART_AMOUNT && $coupon->spend_condition_value > $context->get_subtotal(), sprintf(esc_html__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value), ValidationException::class);
 
-        if ($coupon->spend_condition_type === SpendConditionType::MIN_ITEMS && $coupon->spend_condition_value > $context->get_items_count()) {
-            /* translators: %s: minimum number of items */
-            ExceptionThrower::throw(new ValidationException(sprintf(esc_html__('Minimum %s items required.', 'kirki-ecommerce'), $coupon->spend_condition_value)));
-        }
+        /* translators: %s: minimum number of items */
+        throw_if($coupon->spend_condition_type === SpendConditionType::MIN_ITEMS && $coupon->spend_condition_value > $context->get_items_count(), sprintf(esc_html__('Minimum %s items required.', 'kirki-ecommerce'), $coupon->spend_condition_value), ValidationException::class);
 
         // Has customer limit
         if ($coupon->has_customer_limit && $coupon->customer_limit > 0) {

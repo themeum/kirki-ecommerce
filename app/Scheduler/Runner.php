@@ -8,9 +8,9 @@ use Kirki\Ecommerce\App\Scheduler\Constants\JobStatus;
 use Kirki\Ecommerce\App\Scheduler\DTO\JobDTO;
 use Kirki\Ecommerce\App\Scheduler\Repositories\QueueRepository;
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class Runner
@@ -91,13 +91,9 @@ class Runner
      */
     protected function validate($job)
     {
-        if (empty($job)) {
-            ExceptionThrower::throw(new Exception(__("Invalid job provided to resolve", 'kirki-ecommerce')));
-        }
+        throw_if(empty($job), __("Invalid job provided to resolve", 'kirki-ecommerce'), Exception::class);
 
-        if (empty($job->resolver)) {
-            ExceptionThrower::throw(new Exception(__("Missing resolver class", 'kirki-ecommerce')));
-        }
+        throw_if(empty($job->resolver), __("Missing resolver class", 'kirki-ecommerce'), Exception::class);
     }
 
     /**
@@ -142,15 +138,11 @@ class Runner
      */
     protected function make_resolver(string $resolver)
     {
-        if (!class_exists($resolver)) {
-            /* translators: %s: job resolver class name */
-            ExceptionThrower::throw(new Exception(sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver)));
-        }
+        /* translators: %s: job resolver class name */
+        throw_if(!class_exists($resolver), sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver), Exception::class);
 
-        if (!method_exists($resolver, 'handle')) {
-            /* translators: %s: job resolver class name */
-            ExceptionThrower::throw(new Exception(sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver)));
-        }
+        /* translators: %s: job resolver class name */
+        throw_if(!method_exists($resolver, 'handle'), sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver), Exception::class);
 
         return app()->make($resolver);
     }

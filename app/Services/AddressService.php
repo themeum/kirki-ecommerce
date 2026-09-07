@@ -10,7 +10,8 @@ use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class AddressService
 {
@@ -59,9 +60,7 @@ class AddressService
     {
         $address = Address::find($id);
 
-        if (!$address) {
-            ExceptionThrower::throw(new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$address, __('Address not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $address;
     }
@@ -92,15 +91,11 @@ class AddressService
     {
         $address = Address::find($data->id);
 
-        if (empty($address)) {
-            ExceptionThrower::throw(new NotFoundException(__('Address could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($address), __('Address could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_updated = $address->update($data->to_array());
 
-        if (!$is_updated) {
-            ExceptionThrower::throw(new NotFoundException(__('Address could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_updated, __('Address could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return Address::find($data->id);
     }
@@ -116,9 +111,7 @@ class AddressService
     {
         $is_deleted = Address::where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Address could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Address could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -134,9 +127,7 @@ class AddressService
     {
         $is_deleted = Address::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Addresses could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Addresses could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }

@@ -5,6 +5,8 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 /**
  * Reads the live index and foreign key inventory of the plugin's tables, and derives the
  * project-owned name every key is expected to carry.
@@ -161,9 +163,7 @@ class SchemaKeys
      */
     public static function expected_name($table, array $columns, $type)
     {
-        if (!isset(static::$type_prefixes[$type])) {
-            ExceptionThrower::throw(new Exception(sprintf('Unknown key type [%s].', $type)));
-        }
+        throw_if(!isset(static::$type_prefixes[$type]), sprintf('Unknown key type [%s].', $type), Exception::class);
 
         $name = sprintf(
             '%s_%s_%s',
@@ -176,15 +176,17 @@ class SchemaKeys
             return static::$name_overrides[$name];
         }
 
-        if (strlen($name) > static::MAX_KEY_NAME_LENGTH) {
-            ExceptionThrower::throw(new Exception(sprintf(
+        throw_if(
+            strlen($name) > static::MAX_KEY_NAME_LENGTH,
+            sprintf(
                 'Derived key name [%s] is %d characters, over the %d character limit. Add an override for it to %s::$name_overrides.',
                 $name,
                 strlen($name),
                 static::MAX_KEY_NAME_LENGTH,
                 static::class
-            )));
-        }
+            ),
+            Exception::class
+        );
 
         return $name;
     }

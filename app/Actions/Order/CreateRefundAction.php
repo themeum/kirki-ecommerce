@@ -18,7 +18,8 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CreateRefundAction
 {
@@ -38,15 +39,11 @@ class CreateRefundAction
     {
         $order = $this->order_service->find_order_or_fail($dto->order_id);
 
-        if ($order->payment_status !== PaymentStatus::PAID || !in_array($order->fulfillment_status, [FulfillmentStatus::DELIVERED, FulfillmentStatus::CANCELLED], true)) {
-            ExceptionThrower::throw(new ValidationException(__('Invalid order status for refund.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY));
-        }
+        throw_if($order->payment_status !== PaymentStatus::PAID || !in_array($order->fulfillment_status, [FulfillmentStatus::DELIVERED, FulfillmentStatus::CANCELLED], true), __('Invalid order status for refund.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $refundable_amount = $this->get_refundable_amount($order);
 
-        if ($dto->invoiced_amount > $refundable_amount) {
-            ExceptionThrower::throw(new ValidationException(__('Refund amount exceeds refundable amount.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY));
-        }
+        throw_if($dto->invoiced_amount > $refundable_amount, __('Refund amount exceeds refundable amount.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         DB::begin_transaction();
 

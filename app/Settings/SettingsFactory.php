@@ -10,9 +10,9 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\AppSettings;
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class SettingsFactory
 {
@@ -36,9 +36,7 @@ class SettingsFactory
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            if (empty($key_parts[1])) {
-                ExceptionThrower::throw(new Exception(__('Invalid settings key!', 'kirki-ecommerce')));
-            }
+            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'), Exception::class);
 
             if (empty($setting_instance)) {
                 return value($default);
@@ -63,13 +61,9 @@ class SettingsFactory
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            if (empty($key_parts[1])) {
-                ExceptionThrower::throw(new Exception(__('Invalid settings key!', 'kirki-ecommerce')));
-            }
+            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'), Exception::class);
 
-            if (empty($setting_instance)) {
-                ExceptionThrower::throw(new Exception(__('Invalid settings key!', 'kirki-ecommerce')));
-            }
+            throw_if(empty($setting_instance), __('Invalid settings key!', 'kirki-ecommerce'), Exception::class);
 
             $settings_array = $setting_instance->to_array();
 

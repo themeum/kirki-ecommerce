@@ -15,8 +15,8 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class CustomerService
@@ -54,9 +54,7 @@ class CustomerService
     {
         $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
-        if (empty($customer)) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($customer), __('Customer not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $customer;
     }
@@ -84,9 +82,7 @@ class CustomerService
      */
     public function create(CreateCustomerDTO $data)
     {
-        if (!empty($data->user_id) && $this->find_by_user_id($data->user_id)) {
-            ExceptionThrower::throw(new Exception(__('Customer already exists', 'kirki-ecommerce')));
-        }
+        throw_if(!empty($data->user_id) && $this->find_by_user_id($data->user_id), __('Customer already exists', 'kirki-ecommerce'), Exception::class);
 
         $data_array = $data->all();
 
@@ -109,18 +105,14 @@ class CustomerService
     {
         $customer = Customer::with('billing_address', 'shipping_address')->find($data->id);
 
-        if (empty($customer)) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
 
         $is_updated = (bool) $customer->update($data_array);
 
-        if (!$is_updated) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_updated, __('Customer could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!empty($data->user_id) && $this->find_by_user_id($customer->user_id)) {
             wp_update_user([
@@ -150,17 +142,13 @@ class CustomerService
     {
         $customer = $this->find($customer_id);
 
-        if (empty($customer)) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data['updated_by'] = user()->get_id();
 
         $is_updated = (bool) $customer->update($data);
 
-        if (!$is_updated) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_updated, __('Customer could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $this->find($customer_id);
     }
@@ -177,9 +165,7 @@ class CustomerService
     {
         $customer = Customer::find($customer_id);
 
-        if (empty($customer)) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $customer->update([
             'is_billing_same_as_shipping' => $value,
@@ -200,15 +186,11 @@ class CustomerService
     {
         $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
-        if (empty($customer)) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Customer::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Customer could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Customer could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!function_exists('wp_delete_user')) {
             require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -231,9 +213,7 @@ class CustomerService
         $user_ids = Customer::where_in('id', $ids)->get()->pluck('user_id')->all();
         $is_deleted = (bool) Customer::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            ExceptionThrower::throw(new NotFoundException(__('Customers could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$is_deleted, __('Customers could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!function_exists('wp_delete_user')) {
             require_once ABSPATH . 'wp-admin/includes/user.php';

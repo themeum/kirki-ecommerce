@@ -8,8 +8,8 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderActivity;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
@@ -69,7 +69,7 @@ class OrderActivityManager
             case OrderActivityType::ON_HOLD:
                 return $this->on_hold($order);
             default:
-                ExceptionThrower::throw(new \InvalidArgumentException("No order-state activity handler for type [{$activity_type}]."));
+                throw_anyway("No order-state activity handler for type [{$activity_type}].", \InvalidArgumentException::class);
         }
     }
 

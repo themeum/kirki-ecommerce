@@ -5,11 +5,11 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\DTO\Country\CountryFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\json_decoded_data;
 use function Kirki\Ecommerce\Framework\resource_path;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CountryService
 {
@@ -33,9 +33,7 @@ class CountryService
     {
         $country = $this->find_by_code($code);
 
-        if (!$country) {
-            ExceptionThrower::throw(new NotFoundException(__('Country not found.', 'kirki-ecommerce'), Response::NOT_FOUND));
-        }
+        throw_if(!$country, __('Country not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $country;
     }

@@ -8,8 +8,8 @@ use Kirki\Ecommerce\App\Currency\DTO\ExchangeRateDTO;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 use function Kirki\Ecommerce\Framework\resource_url;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class ExchangeRatesApiProvider implements CurrencyProvider
 {
@@ -78,28 +78,20 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        if (empty($api_key)) {
-            ExceptionThrower::throw(new Exception(__('Exchange Rates API access key is missing.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($api_key), __('Exchange Rates API access key is missing.', 'kirki-ecommerce'), Exception::class);
         $response = Http::get(static::API_URL . '/latest', [
             'access_key' => $api_key,
             'base' => $base_currency,
             'symbols' => implode(',', $symbols),
         ]);
 
-        if ($response->status() === Response::UNAUTHORIZED) {
-            ExceptionThrower::throw(new Exception(__('Invalid API key.', 'kirki-ecommerce')));
-        }
+        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'), Exception::class);
 
-        if (!$response->successful()) {
-            ExceptionThrower::throw(new Exception($response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce')));
-        }
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'), Exception::class);
 
         $data = $response->json();
 
-        if (empty($data['success']) || !$data['success']) {
-            ExceptionThrower::throw(new Exception($data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($data['success']) || !$data['success'], $data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce'), Exception::class);
 
         return ExchangeRateDTO::from_array([
             'provider_id' => $this->get_id(),

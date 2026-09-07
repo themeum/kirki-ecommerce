@@ -4,10 +4,11 @@ namespace Kirki\Ecommerce\App\Constants\Order;
 
 use Exception;
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 use function Kirki\Ecommerce\Framework\json_decoded_data;
 use function Kirki\Ecommerce\Framework\resource_path;
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 final class OrderStatus
 {
@@ -65,9 +66,7 @@ final class OrderStatus
     {
         $matrix = static::get_transition_matrix();
 
-        if (!isset($matrix[$order_status])) {
-            ExceptionThrower::throw(new Exception(__('Unknown order status.', 'kirki-ecommerce')));
-        }
+        throw_if(!isset($matrix[$order_status]), __('Unknown order status.', 'kirki-ecommerce'), Exception::class);
 
         return $matrix[$order_status];
     }
@@ -89,7 +88,7 @@ final class OrderStatus
             }
         }
 
-        ExceptionThrower::throw(new Exception(__('Cannot resolve order status.', 'kirki-ecommerce')));
+        throw_anyway(__('Cannot resolve order status.', 'kirki-ecommerce'), Exception::class);
     }
 
     /**

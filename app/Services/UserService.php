@@ -8,6 +8,9 @@ use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class UserService
 {
     /**
@@ -85,13 +88,9 @@ class UserService
     {
         $user = new User($user_id);
 
-        if (empty($user->get_id())) {
-            ExceptionThrower::throw(new Exception(__('User not found.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($user->get_id()), __('User not found.', 'kirki-ecommerce'), Exception::class);
 
-        if ($user->email_verified()) {
-            ExceptionThrower::throw(new Exception(__('Email address is already verified.', 'kirki-ecommerce')));
-        }
+        throw_if($user->email_verified(), __('Email address is already verified.', 'kirki-ecommerce'), Exception::class);
 
         // TODO: we need to add this in route level rate limit.
         $last_sent = $user->get_email_verification_sent_at();
@@ -99,7 +98,7 @@ class UserService
         if ($last_sent && (time() - $last_sent) < $cooldown_period) {
             $remaining = $cooldown_period - (time() - $last_sent);
             /* translators: %d: number of seconds to wait */
-            ExceptionThrower::throw(new Exception(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining)));
+            throw_anyway(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining), Exception::class);
         }
 
         $token = $user->generate_verification_token();
@@ -111,9 +110,7 @@ class UserService
 
         $sent = $this->email_service->send_verification_email($user, $verify_url);
 
-        if (!$sent) {
-            ExceptionThrower::throw(new Exception(__('Failed to send verification email. Please try again later.', 'kirki-ecommerce')));
-        }
+        throw_if(!$sent, __('Failed to send verification email. Please try again later.', 'kirki-ecommerce'), Exception::class);
 
         return true;
     }

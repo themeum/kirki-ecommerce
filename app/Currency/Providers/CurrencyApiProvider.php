@@ -9,8 +9,8 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 use function Kirki\Ecommerce\Framework\resource_url;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CurrencyApiProvider implements CurrencyProvider
 {
@@ -79,28 +79,20 @@ class CurrencyApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        if (empty($api_key)) {
-            ExceptionThrower::throw(new Exception(__('CurrencyApi API key is missing.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'), Exception::class);
 
         $response = Http::with_headers(['apikey' => $api_key])->get(static::API_URL . '/latest', [
             'base_currency' => $base_currency,
             'currencies' => strtoupper(implode(',', $symbols)),
         ]);
 
-        if ($response->status() === Response::UNAUTHORIZED) {
-            ExceptionThrower::throw(new Exception(__('Invalid API key.', 'kirki-ecommerce')));
-        }
+        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'), Exception::class);
 
-        if (!$response->successful()) {
-            ExceptionThrower::throw(new Exception($response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce')));
-        }
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'), Exception::class);
 
         $data = $response->json();
 
-        if (empty($data['data'])) {
-            ExceptionThrower::throw(new Exception($data['message'] ?? __('Unknown error from CurrencyApi.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($data['data']), $data['message'] ?? __('Unknown error from CurrencyApi.', 'kirki-ecommerce'), Exception::class);
 
         $rates = [];
 
@@ -132,15 +124,11 @@ class CurrencyApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        if (empty($api_key)) {
-            ExceptionThrower::throw(new Exception(__('CurrencyApi API key is missing.', 'kirki-ecommerce')));
-        }
+        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'), Exception::class);
 
         $response = Http::get(static::API_URL . '/status', ['api_key' => $api_key]);
 
-        if (!$response->successful()) {
-            ExceptionThrower::throw(new Exception($response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce')));
-        }
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce'), Exception::class);
 
         $data = $response->json();
 
