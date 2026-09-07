@@ -1,6 +1,9 @@
 import { assert, describe, expect, it } from 'vitest';
 
-import { OrderCalculationRequestSchema, OrderFormSchema } from '@/features/orders/schemas/forms/order-form';
+import {
+  OrderCalculationRequestSchema,
+  OrderFormSchema,
+} from '@/features/orders/schemas/forms/order-form';
 import { getDefaults } from '@/libs/zod';
 
 describe('OrderFormSchema', () => {
@@ -56,7 +59,7 @@ describe('OrderFormSchema', () => {
       shipping_address_line2: null,
       shipping_city: 'London',
       shipping_state: 'Greater London',
-      shipping_postcode: 'NW1 6XE',
+      shipping_postal_code: 'NW1 6XE',
       shipping_country: 'GB',
       shipping_phone: null,
       shipping_email: null,
@@ -68,7 +71,7 @@ describe('OrderFormSchema', () => {
       billing_address_line2: null,
       billing_city: 'London',
       billing_state: 'Greater London',
-      billing_postcode: 'NW1 6XE',
+      billing_postal_code: 'NW1 6XE',
       billing_country: 'GB',
       billing_phone: null,
       billing_email: null,
@@ -83,7 +86,7 @@ describe('OrderFormSchema', () => {
     const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: true });
 
     expect(result.billing_first_name).toBe('John');
-    expect(result.billing_postcode).toBe('NW1 6XE');
+    expect(result.billing_postal_code).toBe('NW1 6XE');
     expect(result.billing_company).toBeNull();
   });
 
@@ -93,10 +96,10 @@ describe('OrderFormSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('maps billing_postal_code to billing_postcode for a separate billing address', () => {
+  it('maps billing_postal_code to billing_postal_code for a separate billing address', () => {
     const result = OrderFormSchema.parse(separateBilling);
 
-    expect(result.billing_postcode).toBe('SW1A 2AA');
+    expect(result.billing_postal_code).toBe('SW1A 2AA');
     expect(result.billing_first_name).toBe('Jane');
     expect(result.billing_address_line2).toBe('Flat 2');
     expect(result.billing_company).toBe('Acme Ltd');
@@ -156,7 +159,9 @@ describe('OrderFormSchema', () => {
   });
 
   it('trims the coupon code and nulls a blank one', () => {
-    expect(OrderFormSchema.parse({ ...base, coupon_code: '  SAVE10  ' }).coupon_code).toBe('SAVE10');
+    expect(OrderFormSchema.parse({ ...base, coupon_code: '  SAVE10  ' }).coupon_code).toBe(
+      'SAVE10',
+    );
     expect(OrderFormSchema.parse({ ...base, coupon_code: '   ' }).coupon_code).toBeNull();
     expect(OrderFormSchema.parse({ ...base, coupon_code: null }).coupon_code).toBeNull();
   });
@@ -186,7 +191,10 @@ describe('OrderFormSchema', () => {
   });
 
   it('defaults is_manual to true and is_billing_same_as_shipping to false', () => {
-    const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: undefined });
+    const result = OrderFormSchema.parse({
+      ...separateBilling,
+      is_billing_same_as_shipping: undefined,
+    });
 
     expect(result.is_manual).toBe(true);
     expect(result.is_billing_same_as_shipping).toBe(false);
@@ -246,7 +254,7 @@ describe('OrderCalculationRequestSchema', () => {
       shipping_address_line2: null,
       shipping_city: null,
       shipping_state: null,
-      shipping_postcode: null,
+      shipping_postal_code: null,
       shipping_country: null,
       shipping_phone: null,
       shipping_email: null,
@@ -254,9 +262,13 @@ describe('OrderCalculationRequestSchema', () => {
   });
 
   it('accepts a half-filled form that OrderFormSchema would reject', () => {
-    expect(OrderFormSchema.safeParse({ items: [{ variant_id: 12, quantity: 2 }] }).success).toBe(false);
+    expect(OrderFormSchema.safeParse({ items: [{ variant_id: 12, quantity: 2 }] }).success).toBe(
+      false,
+    );
 
-    const result = OrderCalculationRequestSchema.parse({ items: [{ variant_id: 12, quantity: 2 }] });
+    const result = OrderCalculationRequestSchema.parse({
+      items: [{ variant_id: 12, quantity: 2 }],
+    });
 
     expect(result.customer_id).toBeNull();
     expect(result.shipping_method).toBeNull();
@@ -269,13 +281,13 @@ describe('OrderCalculationRequestSchema', () => {
     expect(result.shipping_address_line2).toBeNull();
   });
 
-  it('maps shipping_postal_code to shipping_postcode and trims the coupon code', () => {
+  it('maps shipping_postal_code to shipping_postal_code and trims the coupon code', () => {
     const result = OrderCalculationRequestSchema.parse({
       shipping_postal_code: 'NW1 6XE',
       coupon_code: '  SAVE10  ',
     });
 
-    expect(result.shipping_postcode).toBe('NW1 6XE');
+    expect(result.shipping_postal_code).toBe('NW1 6XE');
     expect(result.coupon_code).toBe('SAVE10');
   });
 
@@ -290,7 +302,7 @@ describe('OrderCalculationRequestSchema', () => {
     });
 
     expect(Object.keys(result)).not.toContain('billing_first_name');
-    expect(Object.keys(result)).not.toContain('billing_postcode');
+    expect(Object.keys(result)).not.toContain('billing_postal_code');
     expect(Object.keys(result)).not.toContain('shipping_company');
     expect(Object.keys(result)).not.toContain('admin_notes');
     expect(Object.keys(result)).not.toContain('is_billing_same_as_shipping');

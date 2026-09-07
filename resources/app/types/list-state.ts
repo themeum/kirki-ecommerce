@@ -1,4 +1,5 @@
 import { formatAtomDateTime } from '@/libs/date';
+import { isDefined } from '@/utils/object';
 
 type SortOrder = 'asc' | 'desc';
 
@@ -82,7 +83,7 @@ const parseDateString = (value: string | null): string | null => {
 };
 
 const serializeFilterValue = (value: unknown): string | null => {
-  if (value === null || value === undefined || value === '') {
+  if (!isDefined(value) || value === '') {
     return null;
   }
   if (Array.isArray(value)) {

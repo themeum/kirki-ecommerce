@@ -319,7 +319,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
           <CloudUpload />
           {btnText}
         </Button>
-        <Text color="secondary">{placeholder}</Text>
+        <Text variant="small" color="secondary">{placeholder}</Text>
       </Flex>
       {isUploading && (
         <div css={scopedMerge(styles.uploadOverlay)}>

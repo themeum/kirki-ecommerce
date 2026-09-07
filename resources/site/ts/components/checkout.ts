@@ -10,13 +10,13 @@
  */
 
 import { buildCartApi } from '../api/cart';
-
-const cartApi = buildCartApi({ skipTax: false });
 import { checkoutApi } from '../api/checkout';
 import { emit, EVENTS, type Events, listen } from '../events';
 import { toastManager } from '../services/toast/runtime';
 import type { CheckoutRequest, ShippingMethod } from '../types';
 import { config } from '../utils';
+
+const cartApi = buildCartApi({ skipTax: false });
 
 /** Subset of Alpine $data() returned for the form component */
 type AlpineFormData = {
@@ -446,7 +446,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           shipping_address_line2: shippingForm.values.address_line2 || '',
           shipping_city: shippingForm.values.city,
           shipping_state: shippingForm.values.state,
-          shipping_postcode: shippingForm.values.postal_code,
+          shipping_postal_code: shippingForm.values.postal_code,
           shipping_country: shippingForm.values.country,
           shipping_phone: shippingForm.values.phone,
           shipping_company: null,
@@ -458,7 +458,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
                 billing_address_line2: billingForm.values.address_line2 || '',
                 billing_city: billingForm.values.city,
                 billing_state: billingForm.values.state,
-                billing_postcode: billingForm.values.postal_code,
+                billing_postal_code: billingForm.values.postal_code,
                 billing_country: billingForm.values.country,
                 billing_phone: billingForm.values.phone,
                 billing_company: null,
