@@ -27,7 +27,7 @@ $items = $cart['items'] ?? [];
     <?php if (!empty($items)) : ?>
         <div class="kecom-cart-grid">
             <!-- Left Part -->
-            <div class="kecom-cart-items">
+            <div class="kecom-cart-items" x-data="{maxItems: 3}">
                 <div class="kecom-cart-items-header">
                     <div class="kecom-cart-items-header-title">
                         <h4 class="kecom-cart-items-header-title-heading"><?php _e('Your Cart', 'kirki-ecommerce'); ?></h4>
@@ -37,10 +37,14 @@ $items = $cart['items'] ?? [];
                         <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-cart-items-header-actions-link"><?php _e('Continue Shopping', 'kirki-ecommerce'); ?></a>
                     </div>
                 </div>
-                <?php foreach ($items as $item) : ?>
-                    <?php include_view('site.cart.parts.cart-item', ['item' => $item]); ?>
-                <?php endforeach; ?>
+                <div>
+                    <?php include_view('site.cart.parts.cart-item'); ?>
+                </div>
+                <div class="kecom-cart-items-expand-btn">
+                    <button class="kecom-btn kecom-btn-link" x-text="cartData.items.length - maxItems <= 0 ? '<?php echo esc_html__('Show less', 'kirki-ecommerce'); ?>' : '<?php echo esc_html__('Show more', 'kirki-ecommerce'); ?> (' + (cartData.items.length - maxItems) + ')'" @click="maxItems = cartData.items.length - maxItems <= 0 ? 3 : cartData.items.length"></button>
+                </div>
             </div>
+            
             <!-- Right Part -->
             <?php include_view('site.cart.parts.cart-summary'); ?>
         </div>

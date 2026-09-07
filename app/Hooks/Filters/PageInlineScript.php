@@ -139,15 +139,7 @@ class PageInlineScript extends BaseHook
                     'display' => $pricing['display_total_money_object']->display ?? Money::format_from_decimal(0),
                 ),
             ),
-            'items' => array_map(fn($item) => (object) array(
-                'id' => $item['id'],
-                'display_product_total_money_object' => (object) array(
-                    'display' => $item['display_product_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-                'display_total_money_object' => (object) array(
-                    'display' => $item['display_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-            ), $items),
+            'items' => $items,
         );
         $config['cart'] = $cart_config;
 

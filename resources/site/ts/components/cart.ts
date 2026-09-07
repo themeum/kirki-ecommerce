@@ -55,10 +55,6 @@ export function cart() {
         }
         this.cartData = Object.assign(this.cartData, result.data);
         document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: result.data }));
-        const item = document.getElementById(String(itemId));
-        if (item) {
-          item.remove();
-        }
         toastManager.success(__('Item removed from cart', 'kirki-ecommerce'));
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;

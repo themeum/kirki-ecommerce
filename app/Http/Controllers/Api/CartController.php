@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Concerns\HasCartToken;
 use Kirki\Ecommerce\App\Http\Requests\Cart\AddToCartRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\CartUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Cart\UpdateCartItemRequest;
-use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
@@ -20,6 +19,7 @@ use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
+use Kirki\Ecommerce\App\Resources\Site\Cart\CartResource;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
 use function Kirki\Ecommerce\Framework\response;

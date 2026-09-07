@@ -56,6 +56,15 @@
     }
   }
 
+  &-expand-btn {
+    @include flex(row, center, center);
+    padding-top: $spacing-16;
+    .kecom-btn.kecom-btn-link {
+      @include typography(base,semibold,$text-primary);
+      text-decoration: underline;
+    }
+  }
+
   .kecom-cart-item {
     @include flex(row, flex-start, flex-start);
     gap: $spacing-6;
