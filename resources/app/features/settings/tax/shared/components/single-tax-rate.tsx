@@ -51,8 +51,8 @@ const SingleTaxRate = <
           <InputGroupField
             name={name}
             type="number"
-            // min={0}
-            // max={100}
+            min={0}
+            max={100}
             placeholder="0"
             endContent={<InputGroupText>%</InputGroupText>}
             inputCssOverride={{ width: '120px' }}

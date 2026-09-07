@@ -135,9 +135,7 @@ export const AddStatePopup = (props: AddStatePopupProps) => {
                     checked={selectAll}
                     onCheckedChange={handleSelectAll}
                   />
-                  <Label htmlFor="add-state-select-all">
-                    {countryName || __('EU', 'kirki-ecommerce')}
-                  </Label>
+                  <Label htmlFor="add-state-select-all">{countryName}</Label>
                 </Flex>
 
                 {filteredCountries?.map((country, index) => {
@@ -188,7 +186,7 @@ const styles = defineStyles({
   cardContent: {
     height: '350px',
     overflowX: 'hidden',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     paddingTop: theme.spacing[3],
   },
   checkboxItemIndented: {

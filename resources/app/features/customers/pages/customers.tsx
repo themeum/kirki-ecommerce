@@ -73,6 +73,7 @@ Customers.displayName = 'Customers';
 
 export default Customers;
 
+// TODO: implement group management later
 // const styles = {
 //   svgClass: scoped(flexCenter()),
 // };

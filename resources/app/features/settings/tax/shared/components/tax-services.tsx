@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { useState } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -19,18 +18,13 @@ const TaxServices = () => {
   return (
     <div>
       <Card cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <Flex direction="column" gap={2}>
             <Flex align="center">
               <Flex direction="column" gap={2}>
-                <Text weight="semibold">
-                  {__('Tax Services', 'kirki-ecommerce')}
-                </Text>
+                <Text weight="semibold">{__('Tax Services', 'kirki-ecommerce')}</Text>
                 <Text color="secondary">
-                  {__(
-                    'Connect your preferred sales tax service to Kirki store',
-                    'kirki-ecommerce',
-                  )}
+                  {__('Connect your preferred sales tax service to Kirki store', 'kirki-ecommerce')}
                 </Text>
               </Flex>
             </Flex>
@@ -41,7 +35,11 @@ const TaxServices = () => {
               <Card
                 key={index}
                 data-box-card
-                cssOverride={mergeCss(cardStyles.innerCard, styles.boxCard, styles.boxCardBorderRadius)}
+                cssOverride={mergeCss(
+                  cardStyles.innerCard,
+                  styles.boxCard,
+                  styles.boxCardBorderRadius,
+                )}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
@@ -49,19 +47,25 @@ const TaxServices = () => {
                   <Flex gap={2} align="center" cssOverride={{ minHeight: '36px' }}>
                     <Flex gap={2} align="center">
                       <BoxClosedIcon />
-                      <Text variant="small" cssOverride={styles.mediumHeader}>Stripe Tax</Text>
+                      <Text variant="small" cssOverride={styles.mediumHeader}>
+                        Stripe Tax
+                      </Text>
                     </Flex>
                     {index === 1 ? (
                       <Badge variant="success">Active</Badge>
                     ) : (
-                      <Text variant="small" color="subdued" cssOverride={styles.mutedText}>{__(
-                        'Calculate and collect tax globally in your Kirki store',
-                        'kirki-ecommerce',
-                      )}</Text>
+                      <Text variant="small" color="subdued" cssOverride={styles.mutedText}>
+                        {__(
+                          'Calculate and collect tax globally in your Kirki store',
+                          'kirki-ecommerce',
+                        )}
+                      </Text>
                     )}
                     <ActionGroup
-                      cssOverride={mergeCss(styles.hoverVisible,
-                        hoveredIndex === index && styles.hoverVisibleActive)}
+                      cssOverride={mergeCss(
+                        styles.hoverVisible,
+                        hoveredIndex === index && styles.hoverVisibleActive,
+                      )}
                     >
                       <Button variant="secondary">
                         <PlusIcon />
@@ -97,12 +101,12 @@ const styles = defineStyles({
       borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.md} ${theme.radius.md}`,
     },
   },
-  hoverVisible: css({
+  hoverVisible: {
     visibility: 'hidden',
-  }),
-  hoverVisibleActive: css({
+  },
+  hoverVisibleActive: {
     visibility: 'visible',
-  }),
+  },
   mutedText: {
     color: theme.colors.text.subdued,
   },

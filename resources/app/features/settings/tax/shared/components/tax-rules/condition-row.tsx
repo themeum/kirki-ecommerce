@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -77,9 +76,7 @@ const ConditionRow = (props: ConditionRowProps) => {
       ? { country: destinationCountry, state: selectedCountries }
       : { country: selectedCountries };
 
-    setConditions((prev) =>
-      prev.map((item) => (item.id === row.id ? { ...item, value } : item)),
-    );
+    setConditions((prev) => prev.map((item) => (item.id === row.id ? { ...item, value } : item)));
     setShowStatesPopup(false);
   };
 
@@ -238,17 +235,17 @@ const styles = defineStyles({
       display: 'none',
     },
   },
-  conditionActions: css({
+  conditionActions: {
     opacity: 0,
     visibility: 'hidden',
     transition: 'opacity 0.2s ease',
     display: 'none',
     gap: theme.spacing[2],
     padding: theme.spacing[2],
-  }),
-  conditionActionsActive: css({
+  },
+  conditionActionsActive: {
     opacity: 1,
     visibility: 'visible',
     display: 'flex',
-  }),
+  },
 });
