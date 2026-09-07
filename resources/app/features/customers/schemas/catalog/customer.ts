@@ -63,7 +63,7 @@ export const CustomerSchema = z.object({
   phone: z.string().nullish(),
   photo: MediaRefSchema.nullish(),
   shipping_address: CustomerAddressSchema.nullish(),
-  is_billing_same_as_shipping: z.boolean().optional(),
+  is_billing_same_as_shipping: z.boolean().nullish(),
   billing_address: CustomerAddressSchema.nullish(),
   tags: z.array(z.string()).optional(),
   created_at: z.string().nullish(),
