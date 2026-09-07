@@ -47,48 +47,8 @@ export interface AddressFormData {
 export function accountAddresses() {
   const { __ } = window.wp.i18n;
 
-  // Normalize initial addresses from config
-  const rawAddresses = config?.addresses;
-  let initialAddresses: AddressItem[] = [];
-
-  if (Array.isArray(rawAddresses)) {
-    initialAddresses = rawAddresses;
-  } else if (rawAddresses && typeof rawAddresses === 'object') {
-    // Legacy support for { shipping: {...}, billing: {...} }
-    const items: AddressItem[] = [];
-    if (
-      rawAddresses.shipping &&
-      (rawAddresses.shipping.address_line1 || rawAddresses.shipping.first_name)
-    ) {
-      items.push({
-        label: rawAddresses.shipping.label || __('Home', 'kirki-ecommerce'),
-        is_default_shipping: true,
-        is_default_billing: false,
-        ...rawAddresses.shipping,
-        id: rawAddresses.shipping.id || 1,
-      });
-    }
-    if (
-      rawAddresses.billing &&
-      (rawAddresses.billing.address_line1 || rawAddresses.billing.first_name)
-    ) {
-      items.push({
-        label: rawAddresses.billing.label || __('Work', 'kirki-ecommerce'),
-        is_default_shipping: false,
-        is_default_billing: true,
-        ...rawAddresses.billing,
-        id: rawAddresses.billing.id || 2,
-      });
-    }
-    initialAddresses = items;
-  }
-
-  const countries =
-    (config?.countries as {
-      code: string;
-      name: string;
-      states?: { id: string | number; name: string }[];
-    }[]) ?? [];
+  const initialAddresses = config?.addresses;
+  const countries = config?.countries ?? [];
 
   return {
     addresses: initialAddresses,

@@ -17,7 +17,7 @@ export type KirkiEcommerceConfig = {
   customerId: any;
   is_billing_same_as_shipping: any;
   isBillingSameAsShipping: any;
-  addresses: Record<'billing' | 'shipping', AddressItem>;
+  addresses: AddressItem[];
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];
