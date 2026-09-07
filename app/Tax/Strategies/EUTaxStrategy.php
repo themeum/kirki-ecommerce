@@ -21,7 +21,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
             return new TaxResultDTO();
         }
 
-        return $this->calculate_tax('shipping_tax', [], $shipping_cost);
+        return $this->calculate_tax('shipping_tax', ['shipping_address' => $this->address], $shipping_cost);
     }
 
     public function calculate_tax(string $type, array $context_data, int $amount): TaxResultDTO
@@ -77,6 +77,10 @@ class EUTaxStrategy extends AbstractTaxStrategy
      */
     protected function get_rate(string $type): float
     {
+        // TODO: honour $this->settings['type'] === 'micro_business' — a micro
+        // business charges its home-country VAT rate, not the destination
+        // member-country rate resolved below. Currently 'oss' and 'micro_business'
+        // behave identically.
         $address_country = (string) ($this->address['country'] ?? '');
 
         if ($address_country === '') {

@@ -21,7 +21,7 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
             return new TaxResultDTO();
         }
 
-        return $this->calculate_tax('shipping_tax', [], $shipping_cost);
+        return $this->calculate_tax('shipping_tax', ['shipping_address' => $this->address], $shipping_cost);
     }
 
     public function calculate_tax(string $type, array $context_data, int $amount): TaxResultDTO

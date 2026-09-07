@@ -15,6 +15,8 @@ export type TaxRegionForm = z.infer<typeof TaxRegionSchema>;
 
 const TaxSettingsFormShape = z.object({
   is_tax_inclusive_price: z.boolean().default(false),
+  // TODO: is_enabled_taxed_price and is_shipping_tax_enabled are persisted but
+  // not yet consumed by the backend tax calculation — wire them or drop them.
   is_enabled_taxed_price: z.boolean().default(false),
   is_shipping_tax_enabled: z.boolean().default(false),
   tax_regions: z.array(TaxRegionSchema).default([]),

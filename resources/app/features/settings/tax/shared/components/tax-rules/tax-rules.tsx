@@ -19,9 +19,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import TaxRuleFormCard from '@/features/settings/tax/shared/components/tax-rules/tax-rule-form-card';
-import { getDestinationDisplayValue } from '@/features/settings/tax/shared/lib/tax-rules/helper';
+import {
+  getDestinationDisplayValue,
+  resolveConditionDisplayValue,
+} from '@/features/settings/tax/shared/lib/tax-rules/helper';
 import type { SelectOption, TaxRegionState, TaxRule } from '@/features/settings/tax/shared/lib/utils';
 import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
+import { useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -39,6 +43,13 @@ type TaxRulesProps = {
    */
   states: TaxRegionState[];
   destinationLabel?: string;
+  /**
+   * The country code a `destination_region` condition targets when the editor
+   * belongs to a single-country general region — its selected states become
+   * `{ country, state: [...] }`. Omitted on the EU page, where the selection is
+   * a set of member countries stored as `{ country: [...] }`.
+   */
+  destinationCountry?: string;
   updateTaxRules: (rulesList: TaxRule[]) => void;
   /**
    * Condition types the rule editor offers. Defaults to Tax Profile plus
@@ -52,11 +63,13 @@ const TaxRules = (props: TaxRulesProps) => {
     rules,
     states,
     destinationLabel,
+    destinationCountry,
     updateTaxRules,
     conditionOptions = taxRuleConditionOptions,
   } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
+  const { data: taxProfiles } = useTaxProfilesQuery();
 
   const handleDeleteRules = (_item: TaxRule, index: number) => {
     const initialRules = Array.isArray(rules) ? [...rules] : [];
@@ -87,6 +100,7 @@ const TaxRules = (props: TaxRulesProps) => {
                   from="add"
                   states={states}
                   destinationLabel={destinationLabel}
+                  destinationCountry={destinationCountry}
                   conditionOptions={conditionOptions}
                 />
               )}
@@ -97,6 +111,7 @@ const TaxRules = (props: TaxRulesProps) => {
                       key={index}
                       states={states}
                       destinationLabel={destinationLabel}
+                      destinationCountry={destinationCountry}
                       conditionOptions={conditionOptions}
                       rules={rules}
                       updateTaxRules={updateTaxRules}
@@ -139,21 +154,18 @@ const TaxRules = (props: TaxRulesProps) => {
                                       getDestinationDisplayValue(condition?.value),
                                       'kirki-ecommerce',
                                     )
-                                  : sprintf(
-                                      __('%s', 'kirki-ecommerce'),
-                                      condition?.value as string | number,
-                                    )}
+                                  : resolveConditionDisplayValue(condition, taxProfiles)}
                               </Text>
                             </RuleItemCondition>
                           ))}
                         </RuleItemConditions>
                         <RuleItemAction>
                           <Text variant="small" weight="medium">
-                            {item?.action?.type === 'set_tax_rate'
+                            {item?.action?.type === 'set_product_tax_rate'
                               ? `Then ${item?.action?.type}:`
                               : `Then ${item?.action?.type}`}
                           </Text>
-                          {item?.action?.type === 'set_tax_rate' && (
+                          {item?.action?.type === 'set_product_tax_rate' && (
                             <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>
                               {item?.action?.value as string}
                             </Text>

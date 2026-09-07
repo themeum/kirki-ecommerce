@@ -58,6 +58,6 @@ export const taxRuleConditionOptions: SelectOption[] = [
 export const taxProfileConditionOptions: SelectOption[] = [taxProfileConditionOption];
 
 export const taxRuleActionOptionsArray: SelectOption[] = [
-  { title: __('Set Tax Rate', 'kirki-ecommerce'), value: 'set_tax_rate' },
-  { title: __('Tax Exempt', 'kirki-ecommerce'), value: 'exempt' },
+  { title: __('Set Tax Rate', 'kirki-ecommerce'), value: 'set_product_tax_rate' },
+  { title: __('Tax Exempt', 'kirki-ecommerce'), value: 'set_product_tax_exempt' },
 ];

@@ -24,7 +24,7 @@ import type {
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
 import TaxRegionSkeleton from '@/features/settings/tax/shared/skeletons/tax-region-skeleton';
-import AddCitiesPopup from '@/features/settings/tax/strategies/general/components/add-cities-dialog';
+import AddStatesPopup from '@/features/settings/tax/strategies/general/components/add-states-dialog';
 import TaxStateRows from '@/features/settings/tax/strategies/general/components/tax-state-rows';
 import {
   addStatesToRegion,
@@ -49,7 +49,7 @@ const GeneralEditRegion = () => {
   const { code } = useParams();
   const navigate = useNavigate();
   const { loaded, regions, setRegions, isSaving, saveRegions } = useTaxRegionSettings();
-  const [selectedCities, setSelectedCities] = useState<TaxRegionState[]>([]);
+  const [selectedStates, setSelectedStates] = useState<TaxRegionState[]>([]);
   const [showPopup, setShowPopup] = useState(false);
 
   const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
@@ -111,15 +111,15 @@ const GeneralEditRegion = () => {
     setUnsavedDataStatus(isDirty);
   }, [isDirty]);
 
-  const handleAddCities = async () => {
+  const handleAddStates = async () => {
     if (!code) {
       return;
     }
 
-    const nextStates = addStatesToRegion(usedStates ?? [], selectedCities);
+    const nextStates = addStatesToRegion(usedStates ?? [], selectedStates);
     const firstNewId = isDefined(usedStates) ? nextStates[usedStates.length]?.id : null;
 
-    setSelectedCities([]);
+    setSelectedStates([]);
     setShowPopup(false);
 
     if (!firstNewId) {
@@ -189,7 +189,7 @@ const GeneralEditRegion = () => {
                 onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
               />
 
-              <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
+              <Card cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}>
                 <CardContent>
                   <HeaderActionsCard
                     header={__('State & Rates', 'kirki-ecommerce')}
@@ -239,6 +239,7 @@ const GeneralEditRegion = () => {
                   rules={centralTaxRules ?? []}
                   states={countryStates}
                   destinationLabel={country?.name ?? code}
+                  destinationCountry={code}
                   updateTaxRules={updateRegionRules}
                 />
               )}
@@ -249,15 +250,15 @@ const GeneralEditRegion = () => {
         )}
       </Container>
       {showPopup && (
-        <AddCitiesPopup
+        <AddStatesPopup
           openPopup={showPopup}
           setOpenPopup={setShowPopup}
           countryName={country?.name}
-          cityList={countryStates}
+          stateList={countryStates}
           disabledIds={usedStateIds}
-          selectedCities={selectedCities}
-          setSelectedCities={setSelectedCities}
-          onAdd={handleAddCities}
+          selectedStates={selectedStates}
+          setSelectedStates={setSelectedStates}
+          onAdd={handleAddStates}
         />
       )}
     </>
@@ -269,7 +270,7 @@ GeneralEditRegion.displayName = 'GeneralEditRegion';
 export default GeneralEditRegion;
 
 const styles = defineStyles({
-  citiesCard: {
+  statesCard: {
     gap: theme.spacing[4],
   },
 });

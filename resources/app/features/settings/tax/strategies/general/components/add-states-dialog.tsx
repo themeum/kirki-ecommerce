@@ -23,99 +23,89 @@ import Tooltip from '@/components/ui/tooltip';
 import { getSearchedValue } from '@/features/settings/lib/utils';
 import type { TaxRegionState } from '@/features/settings/tax/shared/lib/utils';
 import {
-  type AddCitiesPopupFormInput,
-  AddCitiesPopupFormSchema,
-} from '@/features/settings/tax/strategies/general/schemas/forms/add-cities-popup-form';
+  type AddStatesPopupFormInput,
+  AddStatesPopupFormSchema,
+} from '@/features/settings/tax/strategies/general/schemas/forms/add-states-popup-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-type AddCitiesPopupProps = {
+type AddStatesPopupProps = {
   openPopup: boolean;
   setOpenPopup: (open: boolean) => void;
   countryName?: string;
-  cityList?: TaxRegionState[];
-  /**
-   * States that already have a rate row. They stay listed — shown checked and
-   * disabled under an "Already in use" tooltip — rather than being filtered
-   * out, so the list reads the same on every visit.
-   */
+  stateList?: TaxRegionState[];
   disabledIds?: Set<string>;
-  selectedCities: TaxRegionState[];
-  setSelectedCities: Dispatch<SetStateAction<TaxRegionState[]>>;
+  selectedStates: TaxRegionState[];
+  setSelectedStates: Dispatch<SetStateAction<TaxRegionState[]>>;
   onAdd: () => void;
 };
 
-const AddCitiesPopup = (props: AddCitiesPopupProps) => {
+const AddStatesPopup = (props: AddStatesPopupProps) => {
   const {
     openPopup,
     setOpenPopup,
     countryName,
-    cityList,
+    stateList,
     disabledIds,
-    selectedCities,
-    setSelectedCities,
+    selectedStates,
+    setSelectedStates,
     onAdd,
   } = props;
 
   const [searchValue, setSearchValue] = useState('');
 
-  const form = useForm<AddCitiesPopupFormInput>({
-    resolver: zodResolver(AddCitiesPopupFormSchema),
+  const form = useForm<AddStatesPopupFormInput>({
+    resolver: zodResolver(AddStatesPopupFormSchema),
     defaultValues: {
-      selectedCities,
+      selectedStates,
     },
   });
 
-  const formSelectedCities = form.watch('selectedCities') as TaxRegionState[];
+  const formSelectedStates = form.watch('selectedStates') as TaxRegionState[];
 
   useEffect(() => {
     if (!openPopup) {
       return;
     }
 
-    form.reset({ selectedCities });
+    form.reset({ selectedStates });
     setSearchValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the form from the current selection only as the dialog opens; tracking selectedCities would reset the form while the user is picking cities
-  }, [openPopup]);
+  }, [form, openPopup, selectedStates]);
 
   const syncSelection = (next: TaxRegionState[]) => {
-    form.setValue('selectedCities', next, { shouldDirty: true });
-    setSelectedCities(next);
+    form.setValue('selectedStates', next, { shouldDirty: true });
+    setSelectedStates(next);
   };
 
-  const isDisabled = (city: TaxRegionState) => Boolean(disabledIds?.has(String(city.id)));
+  const isDisabled = (state: TaxRegionState) => Boolean(disabledIds?.has(String(state.id)));
 
-  /**
-   * Select-all and its partial state count only the states still available —
-   * the disabled ones can never be part of the selection.
-   */
-  const selectableCities = useMemo(
-    () => (cityList ?? []).filter((city) => !disabledIds?.has(String(city.id))),
-    [cityList, disabledIds],
+  const selectableStates = useMemo(
+    () => (stateList ?? []).filter((state) => !disabledIds?.has(String(state.id))),
+    [stateList, disabledIds],
   );
 
   const selectAll =
-    formSelectedCities.length > 0 && formSelectedCities.length === selectableCities.length;
+    formSelectedStates.length > 0 && formSelectedStates.length === selectableStates.length;
 
   const isPartialChecked =
-    formSelectedCities.length > 0 && formSelectedCities.length < selectableCities.length;
+    formSelectedStates.length > 0 && formSelectedStates.length < selectableStates.length;
 
-  const handleToggleCity = (city: TaxRegionState) => {
-    if (isDisabled(city)) {
+  const handleToggleState = (state: TaxRegionState) => {
+    if (isDisabled(state)) {
       return;
     }
 
-    const current = form.getValues('selectedCities') as TaxRegionState[];
-    const exists = current.some((c) => String(c.id) === String(city.id));
+    const current = form.getValues('selectedStates') as TaxRegionState[];
+    const exists = current.some((c) => String(c.id) === String(state.id));
     const next = exists
-      ? current.filter((c) => String(c.id) !== String(city.id))
-      : [...current, city];
+      ? current.filter((c) => String(c.id) !== String(state.id))
+      : [...current, state];
     syncSelection(next);
   };
 
-  const filteredCities = getSearchedValue(searchValue, cityList ?? []);
+  const filteredStates = getSearchedValue(searchValue, stateList ?? []);
 
   const handleSelectAll = () => {
     if (isPartialChecked) {
@@ -123,10 +113,10 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
       return;
     }
 
-    syncSelection(selectAll ? [] : [...selectableCities]);
+    syncSelection(selectAll ? [] : [...selectableStates]);
   };
 
-  const buttonState = formSelectedCities?.length <= 0;
+  const buttonState = formSelectedStates?.length <= 0;
 
   const handleSubmit = () => {
     onAdd();
@@ -144,14 +134,14 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>{__('Add cities', 'kirki-ecommerce')}</DialogTitle>
+          <DialogTitle>{__('Add states', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
             <Flex direction="column" gap={2}>
-              <Label htmlFor="add-cities-search">{__('Cities', 'kirki-ecommerce')}</Label>
+              <Label htmlFor="add-states-search">{__('States', 'kirki-ecommerce')}</Label>
               <Input
-                id="add-cities-search"
+                id="add-states-search"
                 type="search"
                 placeholder="Search"
                 onChange={(e) => setSearchValue(e.target.value)}
@@ -162,35 +152,35 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
               <CardContent cssOverride={mergeCss(cardStyles.tableContent, styles.cardContent)}>
                 <Flex gap={2} align="center">
                   <Checkbox
-                    id="add-cities-select-all"
+                    id="add-states-select-all"
                     checked={isPartialChecked ? 'indeterminate' : selectAll}
                     onCheckedChange={handleSelectAll}
                   />
-                  <Label htmlFor="add-cities-select-all">{countryName}</Label>
+                  <Label htmlFor="add-states-select-all">{countryName}</Label>
                 </Flex>
 
-                {filteredCities?.length > 0 ? (
-                  filteredCities.map((city) => {
-                    const disabled = isDisabled(city);
-                    const cityRowContent = (
+                {filteredStates?.length > 0 ? (
+                  filteredStates.map((state) => {
+                    const disabled = isDisabled(state);
+                    const stateRowContent = (
                       <>
                         <Checkbox
-                          id={`add-cities-city-${city.id}`}
+                          id={`add-states-state-${state.id}`}
                           disabled={disabled}
                           checked={
                             disabled ||
-                            formSelectedCities.some((item) => String(item.id) === String(city.id))
+                            formSelectedStates.some((item) => String(item.id) === String(state.id))
                           }
-                          onCheckedChange={() => handleToggleCity(city)}
+                          onCheckedChange={() => handleToggleState(state)}
                         />
-                        <Label htmlFor={`add-cities-city-${city.id}`}>
-                          {city.name ?? city.title}
+                        <Label htmlFor={`add-states-state-${state.id}`}>
+                          {state.name ?? state.title}
                         </Label>
                       </>
                     );
 
                     return (
-                      <div key={String(city.id)} css={scoped(styles.checkboxItemIndented)}>
+                      <div key={String(state.id)} css={scoped(styles.checkboxItemIndented)}>
                         {disabled ? (
                           <Tooltip
                             tip={__('Already in use', 'kirki-ecommerce')}
@@ -198,22 +188,22 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
                             cssOverride={styles.disabledRowTrigger}
                           >
                             <Flex gap={2} align="center">
-                              {cityRowContent}
+                              {stateRowContent}
                             </Flex>
                           </Tooltip>
                         ) : (
                           <Flex gap={2} align="center">
-                            {cityRowContent}
+                            {stateRowContent}
                           </Flex>
                         )}
                       </div>
                     );
                   })
                 ) : (
-                  <Card cssOverride={styles.emptyCitiesCard}>
+                  <Card cssOverride={styles.emptyStatesCard}>
                     <CardContent>
                       <Flex direction="column" gap={2} align="center">
-                        <Text weight="medium">{__('No cities available')}</Text>
+                        <Text weight="medium">{__('No states available')}</Text>
                       </Flex>
                     </CardContent>
                   </Card>
@@ -225,7 +215,7 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
             <Button
               variant="outline"
               onClick={() => {
-                setSelectedCities(selectedCities);
+                setSelectedStates(selectedStates);
                 setOpenPopup(false);
               }}
             >
@@ -245,9 +235,9 @@ const AddCitiesPopup = (props: AddCitiesPopupProps) => {
   );
 };
 
-AddCitiesPopup.displayName = 'AddCitiesPopup';
+AddStatesPopup.displayName = 'AddStatesPopup';
 
-export default AddCitiesPopup;
+export default AddStatesPopup;
 
 const styles = defineStyles({
   cardContent: {
@@ -265,7 +255,7 @@ const styles = defineStyles({
       borderRadius: theme.radius.sm,
     },
   },
-  emptyCitiesCard: {
+  emptyStatesCard: {
     padding: `${theme.spacing[9]} 0`,
   },
   disabledRowTrigger: {

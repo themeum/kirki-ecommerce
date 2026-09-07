@@ -47,4 +47,26 @@ trait BindsTaxDependencies
             'action' => ['type' => 'set_product_tax_rate', 'value' => $rate],
         ];
     }
+
+    /**
+     * A tax rule whose action fires when the shipping address falls in the given
+     * destination. The value mirrors what the settings UI stores: `{ country,
+     * state? }` with `country` a single code or an array of codes.
+     *
+     * @param array     $destination Destination condition value.
+     * @param string    $action_type Action to run (e.g. set_product_tax_rate).
+     * @param int|float $rate        Rate the action sets.
+     *
+     * @return array
+     */
+    protected function destination_region_rule(array $destination, string $action_type, $rate): array
+    {
+        return [
+            'relation' => 'AND',
+            'conditions' => [
+                ['type' => 'destination_region', 'operator' => '=', 'value' => $destination],
+            ],
+            'action' => ['type' => $action_type, 'value' => $rate],
+        ];
+    }
 }

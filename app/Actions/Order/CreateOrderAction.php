@@ -333,7 +333,7 @@ class CreateOrderAction
             'address_line2' => $dto->shipping_address_line2,
             'city' => $dto->shipping_city,
             'state' => $dto->shipping_state,
-            'postcode' => $dto->shipping_postcode,
+            'postal_code' => $dto->shipping_postcode,
             'country' => $dto->shipping_country,
         ];
         $context->coupon = $dto->coupon_code ?? null;

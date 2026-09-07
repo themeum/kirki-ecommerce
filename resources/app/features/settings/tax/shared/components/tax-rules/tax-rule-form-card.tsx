@@ -12,6 +12,7 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import ConditionRow from '@/features/settings/tax/shared/components/tax-rules/condition-row';
+import { resolveSelectedDestinations } from '@/features/settings/tax/shared/lib/tax-rules/helper';
 import type {
   SelectOption,
   TaxConditionRow,
@@ -39,6 +40,8 @@ type TaxRuleFormCardProps = {
   ruleIndex?: number;
   states: TaxRegionState[];
   destinationLabel?: string;
+  /** See `TaxRules` — the country a general-region destination condition targets. */
+  destinationCountry?: string;
   conditionOptions: SelectOption[];
 };
 
@@ -57,6 +60,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
     ruleIndex,
     states,
     destinationLabel,
+    destinationCountry,
     conditionOptions,
   } = props;
 
@@ -72,7 +76,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
           value: null,
         },
       ],
-      action_type: 'set_tax_rate',
+      action_type: 'set_product_tax_rate',
       action_value: '',
       selectedCountries: [],
     },
@@ -94,18 +98,16 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
           condition: c.type ?? 'tax_profile',
           value: c.value ?? null,
         })),
-        action_type: existingRule.action?.type || 'set_tax_rate',
+        action_type: existingRule.action?.type || 'set_product_tax_rate',
         action_value: (existingRule.action?.value as string | number) ?? '',
-        selectedCountries: Array.isArray(destinationCondition?.value)
-          ? (destinationCondition.value as (string | number)[])
-          : [],
+        selectedCountries: resolveSelectedDestinations(destinationCondition?.value),
       });
       return;
     }
 
     form.reset({
       conditions: [{ id: uuid(), condition: 'tax_profile', value: null }],
-      action_type: 'set_tax_rate',
+      action_type: 'set_product_tax_rate',
       action_value: '',
       selectedCountries: [],
     });
@@ -144,7 +146,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
       return (
         taxProfiles?.map((item) => ({
           title: item.name,
-          value: item.name,
+          value: String(item.id),
           id: item.id,
         })) ?? []
       );
@@ -185,6 +187,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
                   from={from}
                   states={states}
                   destinationLabel={destinationLabel}
+                  destinationCountry={destinationCountry}
                 />
               ))}
             </Flex>
@@ -192,10 +195,10 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
               <Text>{__('THEN', 'kirki-ecommerce')}</Text>
               <Grid columns={2}>
                 <SelectField name="action_type" options={actionOptions} />
-                {selectedAction === 'set_tax_rate' && (
+                {selectedAction === 'set_product_tax_rate' && (
                   <TextField
                     name="action_value"
-                    placeholder={__('e.g., $100', 'kirki-ecommerce')}
+                    placeholder={__('e.g., 8.5', 'kirki-ecommerce')}
                   />
                 )}
               </Grid>

@@ -73,6 +73,23 @@ class EUTaxStrategyTest extends TestCase
     }
 
     /**
+     * A destination rule can target a set of member countries.
+     *
+     * @return void
+     */
+    public function test_destination_region_rule_matches_a_member_country_set(): void
+    {
+        $region = $this->eu_region();
+        $region['rules'] = [
+            $this->destination_region_rule(['country' => ['AT', 'BE']], 'set_product_tax_rate', 5),
+        ];
+
+        $strategy = $this->make_strategy('AT', $region);
+
+        $this->assertSame(500, $strategy->calculate_product_tax($this->tax_context())->base_total);
+    }
+
+    /**
      * The EU region with two configured member countries.
      *
      * @return array

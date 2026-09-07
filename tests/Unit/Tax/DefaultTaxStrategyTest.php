@@ -119,6 +119,76 @@ class DefaultTaxStrategyTest extends TestCase
     }
 
     /**
+     * A destination rule matches the shipping address by country and state list.
+     *
+     * @return void
+     */
+    public function test_destination_region_rule_applies_in_country_wide_mode(): void
+    {
+        $region = $this->country_wide_region();
+        $region['rules'] = [
+            $this->destination_region_rule(['country' => 'BD', 'state' => ['771']], 'set_product_tax_rate', 9),
+        ];
+
+        $strategy = $this->make_strategy(['state' => '771'], $region);
+
+        $this->assertSame(900, $strategy->calculate_product_tax($this->tax_context())->base_total);
+    }
+
+    /**
+     * A shipping-tax rule changes the shipping tax and leaves product tax alone.
+     *
+     * @return void
+     */
+    public function test_shipping_tax_rule_changes_only_shipping_tax(): void
+    {
+        $region = $this->country_wide_region();
+        $region['rules'] = [
+            $this->destination_region_rule(['country' => 'BD'], 'set_shipping_tax_rate', 12),
+        ];
+
+        $strategy = $this->make_strategy(['state' => '771'], $region);
+
+        $this->assertSame(1200, $strategy->calculate_shipping_tax(10000)->base_total);
+        $this->assertSame(1500, $strategy->calculate_product_tax($this->tax_context())->base_total);
+    }
+
+    /**
+     * A product-tax rule leaves the shipping tax at the configured rate.
+     *
+     * @return void
+     */
+    public function test_product_tax_rule_does_not_change_shipping_tax(): void
+    {
+        $region = $this->country_wide_region();
+        $region['rules'] = [
+            $this->destination_region_rule(['country' => 'BD'], 'set_product_tax_rate', 9),
+        ];
+
+        $strategy = $this->make_strategy(['state' => '771'], $region);
+
+        $this->assertSame(500, $strategy->calculate_shipping_tax(10000)->base_total);
+    }
+
+    /**
+     * A country-wide general region.
+     *
+     * @return array
+     */
+    protected function country_wide_region(): array
+    {
+        return [
+            'code' => 'BD',
+            'is_enabled' => true,
+            'is_central_tax_enabled' => true,
+            'central_product_tax' => 15,
+            'central_shipping_tax' => 5,
+            'rules' => [],
+            'states' => [],
+        ];
+    }
+
+    /**
      * A general region with two configured states.
      *
      * @return array

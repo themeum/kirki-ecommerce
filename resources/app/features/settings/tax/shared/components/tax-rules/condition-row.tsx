@@ -45,6 +45,13 @@ type ConditionRowProps = {
   from?: string;
   states: TaxRegionState[];
   destinationLabel?: string;
+  /**
+   * When set, a `destination_region` condition stores
+   * `{ country: destinationCountry, state: [...] }` (a single-country general
+   * region). When absent, the selection is a set of countries stored as
+   * `{ country: [...] }` (the EU region).
+   */
+  destinationCountry?: string;
 };
 
 const ConditionRow = (props: ConditionRowProps) => {
@@ -59,21 +66,19 @@ const ConditionRow = (props: ConditionRowProps) => {
     setSelectedCountries,
     states,
     destinationLabel,
+    destinationCountry,
   } = props;
 
   const [showStatesPopup, setShowStatesPopup] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   const handleAddStates = () => {
+    const value = destinationCountry
+      ? { country: destinationCountry, state: selectedCountries }
+      : { country: selectedCountries };
+
     setConditions((prev) =>
-      prev.map((item) =>
-        item.id === row.id
-          ? {
-              ...item,
-              value: selectedCountries,
-            }
-          : item,
-      ),
+      prev.map((item) => (item.id === row.id ? { ...item, value } : item)),
     );
     setShowStatesPopup(false);
   };

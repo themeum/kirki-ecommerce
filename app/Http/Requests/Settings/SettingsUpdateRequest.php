@@ -435,6 +435,8 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => 'required|boolean',
                 'data.is_shipping_tax_enabled' => 'required|boolean',
+                // TODO: is_enabled_taxed_price is persisted but has no backend consumer yet
+                // (no read in the tax strategies or calculation); wire it or drop it.
                 'data.is_enabled_taxed_price' => 'required|boolean',
                 'data.tax_regions' => 'nullable|array',
                 'data.tax_regions.*.code' => 'required|string',
@@ -448,8 +450,8 @@ class SettingsUpdateRequest extends Request
                 'data.tax_regions.*.states' => 'nullable|array',
                 'data.tax_regions.*.states.*.id' => 'required|string',
                 'data.tax_regions.*.states.*.name' => 'nullable|string',
-                'data.tax_regions.*.states.*.product_tax_rate' => 'required|number',
-                'data.tax_regions.*.states.*.shipping_tax_rate' => 'required|number',
+                'data.tax_regions.*.states.*.product_tax_rate' => 'nullable|number',
+                'data.tax_regions.*.states.*.shipping_tax_rate' => 'nullable|number',
                 'data.tax_regions.*.countries' => 'nullable|array',
                 'data.tax_regions.*.countries.*.code' => 'required|string',
                 'data.tax_regions.*.countries.*.name' => 'nullable|string',
