@@ -21,7 +21,7 @@ import type {
 import { taxProfileConditionOptions } from '@/features/settings/tax/shared/lib/utils';
 import { PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { uuid } from '@/utils';
 import { toDisplayString } from '@/utils/string';
 import { __ } from '@/wpi18n';
@@ -69,7 +69,6 @@ const ConditionRow = (props: ConditionRowProps) => {
   } = props;
 
   const [showStatesPopup, setShowStatesPopup] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleAddStates = () => {
     const value = destinationCountry
@@ -113,11 +112,7 @@ const ConditionRow = (props: ConditionRowProps) => {
   }, [isConditionLocked, lockedConditionValue, row.condition, row.id, setConditions]);
 
   return (
-    <div
-      key={row.id}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div key={row.id} css={scoped(styles.row)}>
       {index > 0 ? (
         <Text>{__('AND IF', 'kirki-ecommerce')}</Text>
       ) : (
@@ -179,10 +174,8 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="outline"
             onClick={handleAddConditionRow}
-            cssOverride={mergeCss(
-              styles.conditionActions,
-              isHovered && styles.conditionActionsActive,
-            )}
+            cssOverride={styles.conditionActions}
+            data-tax-rule-condition-action
           >
             <PlusIcon />
           </Button>
@@ -192,10 +185,8 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            cssOverride={mergeCss(
-              styles.conditionActions,
-              isHovered && styles.conditionActionsActive,
-            )}
+            cssOverride={styles.conditionActions}
+            data-tax-rule-condition-action
           >
             <TrashIcon />
           </Button>
@@ -221,6 +212,13 @@ ConditionRow.displayName = 'ConditionRow';
 export default ConditionRow;
 
 const styles = defineStyles({
+  row: {
+    '&:hover [data-tax-rule-condition-action]': {
+      opacity: 1,
+      visibility: 'visible',
+      display: 'flex',
+    },
+  },
   conditionGrid: {
     marginTop: theme.spacing[2],
   },
@@ -242,10 +240,5 @@ const styles = defineStyles({
     display: 'none',
     gap: theme.spacing[2],
     padding: theme.spacing[2],
-  },
-  conditionActionsActive: {
-    opacity: 1,
-    visibility: 'visible',
-    display: 'flex',
   },
 });
