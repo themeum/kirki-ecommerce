@@ -16,7 +16,7 @@ use Kirki\Ecommerce\Framework\Validation\Validator;
 defined('ABSPATH') || exit;
 
 /**
- * Quickpay payment gateway.
+ * 2Checkout payment gateway.
  */
 class Twocheckout extends PaymentProvider
 {
@@ -25,8 +25,8 @@ class Twocheckout extends PaymentProvider
     public function __construct()
     {
         $this->id = 'twocheckout';
-        $this->title = __('Twocheckout', 'kirki-ecommerce-twocheckout');
-        $this->description = __('Twocheckout Payment Gateway', 'kirki-ecommerce-twocheckout');
+        $this->title = __('2checkout', 'kirki-ecommerce-twocheckout');
+        $this->description = __('2checkout Payment Gateway', 'kirki-ecommerce-twocheckout');
         $this->icon = $this->icon_url('twocheckout');
         $this->settings_key = 'twocheckout';
         $this->is_offline = false;
@@ -38,25 +38,25 @@ class Twocheckout extends PaymentProvider
         $this->set_admin_fields([
             [
                 'name' => 'merchant_code',
-                'label' => __('Merchant Code', 'kirki-ecommerce-twocheckout'),
+                'label' => __('Merchant Code', 'kirki-ecommerce-2checkout'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'secret_key',
-                'label' => __('Secret Key', 'kirki-ecommerce-twocheckout'),
+                'label' => __('Secret Key', 'kirki-ecommerce-2checkout'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'buy_link_secret_word',
-                'label' => __('Buy link secret word', 'kirki-ecommerce-twocheckout'),
+                'label' => __('Buy link secret word', 'kirki-ecommerce-2checkout'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-ecommerce-twocheckout'),
+                'label' => __('Sandbox Mode', 'kirki-ecommerce-2checkout'),
                 'type' => 'checkbox',
             ],
         ]);
@@ -72,22 +72,23 @@ class Twocheckout extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('2Checkout is not enabled.', 'kirki-ecommerce-twocheckout'));
+            throw new Exception(__('2Checkout is not enabled.', 'kirki-ecommerce-2checkout'));
         }
 
         try {
             $this->client = $this->get_client();
 
-            $builder = new QuickpayTransactionBuilder($order);
-            $payment_response = $this->client->create_payment($builder->create_payment_payload());
-
+            $builder = new TwocheckoutTransactionBuilder($order);
+            $payload = $builder->built_payment_payload();
+            $payload['signature'] = $this->client->generate_signature($payload);
+            $buy_link = TwocheckoutConstant::BUY_LINK_URL . http_build_query($payload);
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => '',//$payment_link['url'],
+                'value' => $buy_link,
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('2Checkout Payment Error: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage()));
+            throw new Exception(sprintf(__('2Checkout Payment Error: %s', 'kirki-ecommerce-2checkout'), $e->getMessage()));
         }
     }
 
@@ -167,26 +168,27 @@ class Twocheckout extends PaymentProvider
     }
 
     /**
-     * QuickPay API client.
+     * 2Checkout API client.
      *
-     * @return QuickpayClient
+     * @return TwocheckoutClient
      * @throws Exception If credentials are missing.
      */
-    protected function get_client(): QuickpayClient
+    protected function get_client(): TwocheckoutClient
     {
         if ($this->client) {
             return $this->client;
         }
 
-        $api_key = $this->settings['api_key'] ?? '';
-        $private_key = $this->settings['private_key'] ?? '';
+        $merchant_code = $this->settings['merchant_code'] ?? '';
+        $secret_key = $this->settings['secret_key'] ?? '';
+        $buy_link_secret_word = $this->settings['buy_link_secret_word'] ?? '';
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
-        if (empty($api_key) || empty($private_key)) {
-            throw new Exception(__('QuickPay credentials are missing.', 'kirki-ecommerce-quickpay'));
+        if (empty($merchant_code) || empty($secret_key) || empty($buy_link_secret_word)) {
+            throw new Exception(__('2Checkout credentials are missing.', 'kirki-ecommerce-2checkout'));
         }
 
-        return new QuickpayClient($api_key, $private_key, $sandbox);
+        return new TwocheckoutClient($merchant_code, $secret_key, $buy_link_secret_word, $sandbox);
     }
 
     /**

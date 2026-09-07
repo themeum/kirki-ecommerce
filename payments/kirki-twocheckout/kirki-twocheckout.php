@@ -26,7 +26,7 @@ add_action('plugins_loaded', 'kirki_twocheckout_register_payment_provider');
 register_activation_hook(__FILE__, 'kirki_twocheckout_register_payment_provider');
 
 /**
- * Register the QuickPay payment provider with kirki-ecommerce.
+ * Register the 2Checkout payment provider with kirki-ecommerce.
  *
  * @return void
  */
