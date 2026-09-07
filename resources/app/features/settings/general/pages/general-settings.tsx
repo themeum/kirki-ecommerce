@@ -88,24 +88,22 @@ const GeneralSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {!isLoading ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader icon={<HomeIcon />} title={__('General', 'kirki-ecommerce')} />
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<HomeIcon />} title={__('General', 'kirki-ecommerce')} />
 
-            <StoreContactDetails />
-            <StoreAddressDetails />
-            <SellingLocation />
-            <OrderId />
-            <InvoiceId />
-          </Flex>
-        </Form>
-      ) : (
-        <GeneralSettingsSkeleton />
-      )}
+          <StoreContactDetails />
+          <StoreAddressDetails />
+          <SellingLocation />
+          <OrderId />
+          <InvoiceId />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <GeneralSettingsSkeleton />
   );
 };
 

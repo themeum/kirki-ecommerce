@@ -144,54 +144,49 @@ const EmailSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {!isLoading ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
-            <Card cssOverride={styles.roundedCard}>
-              <CardContent>
-                <Flex justify="space-between" align="center">
-                  <Flex direction="column" gap={2} align="flex-start">
-                    <Flex gap={2} align="center">
-                      <BrushIcon />
-                      <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
-                    </Flex>
-                    <Text color="secondary">
-                      {__(
-                        'Configure logo, colors, sender email, and more for emails',
-                        'kirki-ecommerce',
-                      )}
-                    </Text>
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
+          <Card cssOverride={styles.roundedCard}>
+            <CardContent>
+              <Flex justify="space-between" align="center">
+                <Flex direction="column" gap={2} align="flex-start">
+                  <Flex gap={2} align="center">
+                    <BrushIcon />
+                    <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
                   </Flex>
-                  <Button
-                    variant="secondary"
-                    onClick={() => {
-                      void navigate(
-                        RouteConfig.Settings.get('EmailSettings')
-                          .get('EditEmailTemplate')
-                          .buildLink(),
-                      );
-                    }}
-                    disabled // @todo: will be implemented in the future
-                  >
-                    {__('Edit', 'kirki-ecommerce')}
-                  </Button>
+                  <Text color="secondary">
+                    {__(
+                      'Configure logo, colors, sender email, and more for emails',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
                 </Flex>
-              </CardContent>
-            </Card>
-            <CustomerEmail
-              handleToggleOrder={handleToggleOrder}
-              handleEditOrder={handleEditOrder}
-            />
-            <AdminEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
-          </Flex>
-        </Form>
-      ) : (
-        <EmailSettingsSkeleton />
-      )}
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    void navigate(
+                      RouteConfig.Settings.get('EmailSettings')
+                        .get('EditEmailTemplate')
+                        .buildLink(),
+                    );
+                  }}
+                  disabled // @todo: will be implemented in the future
+                >
+                  {__('Edit', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
+            </CardContent>
+          </Card>
+          <CustomerEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
+          <AdminEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <EmailSettingsSkeleton />
   );
 };
 

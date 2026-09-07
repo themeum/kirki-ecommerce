@@ -186,81 +186,78 @@ const GeneralEditRegion = () => {
   });
 
   return (
-    <div>
-      <>
+    <>
+      {!isLoading ? (
         <Container size="sm">
-          {!isLoading ? (
-            <Form {...form}>
-              <Flex direction="column" gap={4}>
-                <SettingsPageHeader
-                  title={selectedCountry?.name}
-                  icon={selectedCountry?.flag}
-                  onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
-                />
+          <Form {...form}>
+            <Flex direction="column" gap={4}>
+              <SettingsPageHeader
+                title={selectedCountry?.name}
+                icon={selectedCountry?.flag}
+                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
+              />
 
-                <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
-                  <CardContent>
-                    <HeaderActionsCard
-                      header={__('Cities', 'kirki-ecommerce')}
-                      subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
-                      buttonText={__('Add', 'kirki-ecommerce')}
-                      onAdd={() => setShowPopup(true)}
-                      hideButton={!!applySingleTax}
+              <Card cssOverride={mergeCss(cardStyles.formCard, styles.citiesCard)}>
+                <CardContent>
+                  <HeaderActionsCard
+                    header={__('Cities', 'kirki-ecommerce')}
+                    subHeader={__('Set tax rates for specific cities', 'kirki-ecommerce')}
+                    buttonText={__('Add', 'kirki-ecommerce')}
+                    onAdd={() => setShowPopup(true)}
+                    hideButton={!!applySingleTax}
+                  />
+                  <div css={scoped({ marginTop: theme.spacing[5] })}>
+                    <CheckboxField
+                      name="is_central_tax_enabled"
+                      label={__('Apply single tax rate for entire country', 'kirki-ecommerce')}
                     />
-                    <div css={scoped({ marginTop: theme.spacing[5] })}>
-                      <CheckboxField
-                        name="is_central_tax_enabled"
-                        label={__('Apply single tax rate for entire country', 'kirki-ecommerce')}
+                  </div>
+                  <div css={scoped({ marginTop: theme.spacing[5] })}>
+                    {applySingleTax ? (
+                      <SingleTaxRate
+                        centralTaxValue={centralTaxValue ?? 0}
+                        setCentralTaxValue={(value) =>
+                          form.setValue('central_product_tax', value, {
+                            shouldDirty: true,
+                          })
+                        }
                       />
-                    </div>
-                    <div css={scoped({ marginTop: theme.spacing[5] })}>
-                      {applySingleTax ? (
-                        <SingleTaxRate
-                          centralTaxValue={centralTaxValue ?? 0}
-                          setCentralTaxValue={(value) =>
-                            form.setValue('central_product_tax', value, {
-                              shouldDirty: true,
-                            })
-                          }
-                        />
-                      ) : (
-                        <TaxRateList
-                          taxRates={taxRates}
-                          applySingleTax={!!applySingleTax}
-                          setTaxRates={(updater) => {
-                            const next =
-                              typeof updater === 'function' ? updater(taxRates) : updater;
-                            form.setValue('product_tax', next, {
-                              shouldDirty: true,
-                            });
-                          }}
-                          handleSaveData={handleSaveFromRateList}
-                        />
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-                <TaxRules region={selectedCountry} updateTaxRules={updateTaxRules} />
-              </Flex>
-            </Form>
-          ) : (
-            <TaxRegionSkeleton />
-          )}
+                    ) : (
+                      <TaxRateList
+                        taxRates={taxRates}
+                        applySingleTax={!!applySingleTax}
+                        setTaxRates={(updater) => {
+                          const next = typeof updater === 'function' ? updater(taxRates) : updater;
+                          form.setValue('product_tax', next, {
+                            shouldDirty: true,
+                          });
+                        }}
+                        handleSaveData={handleSaveFromRateList}
+                      />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              <TaxRules region={selectedCountry} updateTaxRules={updateTaxRules} />
+            </Flex>
+          </Form>
         </Container>
-        {showPopup && (
-          <AddCitiesPopup
-            openPopup={showPopup}
-            setOpenPopup={setShowPopup}
-            taxRates={taxRates}
-            countryName={selectedCountry?.name}
-            cityList={selectedCountry?.states}
-            selectedCities={selectedCities}
-            setSelectedCities={setSelectedCities}
-            onAdd={handleAddCities}
-          />
-        )}
-      </>
-    </div>
+      ) : (
+        <TaxRegionSkeleton />
+      )}
+      {showPopup && (
+        <AddCitiesPopup
+          openPopup={showPopup}
+          setOpenPopup={setShowPopup}
+          taxRates={taxRates}
+          countryName={selectedCountry?.name}
+          cityList={selectedCountry?.states}
+          selectedCities={selectedCities}
+          setSelectedCities={setSelectedCities}
+          onAdd={handleAddCities}
+        />
+      )}
+    </>
   );
 };
 

@@ -120,43 +120,41 @@ const TaxSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {!isLoading ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
-            <Card cssOverride={cardStyles.formCard}>
-              <CardContent>
-                <Flex direction="column" gap={4}>
-                  <Flex direction="column" gap={2}>
-                    <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
-                      {__('How would you like to collect tax?', 'kirki-ecommerce')}
-                    </Text>
-                    <Text color="secondary">
-                      {__(
-                        'Configure how tax is displayed and how it appears on your product listings.',
-                        'kirki-ecommerce',
-                      )}
-                    </Text>
-                  </Flex>
-                  <Flex direction="column" gap={3}>
-                    <TaxCollectionField />
-                    {/* @TODO: will be handled in the future */}
-                    {/* eslint-disable-next-line no-constant-binary-expression -- kept in place until the feature is enabled */}
-                    {false && <TaxCollectionOptions />}
-                  </Flex>
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
+          <Card cssOverride={cardStyles.formCard}>
+            <CardContent>
+              <Flex direction="column" gap={4}>
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
+                    {__('How would you like to collect tax?', 'kirki-ecommerce')}
+                  </Text>
+                  <Text color="secondary">
+                    {__(
+                      'Configure how tax is displayed and how it appears on your product listings.',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
                 </Flex>
-              </CardContent>
-            </Card>
-            <TaxRegions handleSave={handleSaveFromRegions} />
-            <TaxProfile />
-          </Flex>
-        </Form>
-      ) : (
-        <TaxSettingsSkeleton />
-      )}
+                <Flex direction="column" gap={3}>
+                  <TaxCollectionField />
+                  {/* @TODO: will be handled in the future */}
+                  {/* eslint-disable-next-line no-constant-binary-expression -- kept in place until the feature is enabled */}
+                  {false && <TaxCollectionOptions />}
+                </Flex>
+              </Flex>
+            </CardContent>
+          </Card>
+          <TaxRegions handleSave={handleSaveFromRegions} />
+          <TaxProfile />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <TaxSettingsSkeleton />
   );
 };
 

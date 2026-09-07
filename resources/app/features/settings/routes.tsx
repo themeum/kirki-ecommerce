@@ -5,6 +5,7 @@ import { Navigate } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
 import CheckoutSettingsSkeleton from '@/features/settings/checkout/skeletons/checkout-settings-skeleton';
+import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import EssentialsSettingsSkeleton from '@/features/settings/essentials/skeletons/essentials-settings-skeleton';
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
@@ -120,7 +121,7 @@ const settingsRoutes: RouteObject[] = [
       },
       {
         path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
-        element: withSuspense(EditTemplate, <EmailSettingsSkeleton />),
+        element: withSuspense(EditTemplate, <EditTemplateSkeleton />),
       },
       {
         path: SettingsRoutes.get('EssentialsSettings').template,

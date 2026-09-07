@@ -72,38 +72,36 @@ const CheckoutSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {!isLoading ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />
-            <Card cssOverride={cardStyles.formCard}>
-              <CardContent>
-                <Flex align="center">
-                  <Flex direction="column" gap={2}>
-                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
-                    <Text variant="small" color="secondary">
-                      {__(
-                        'Let customers buy without logging in or creating an account.',
-                        'kirki-ecommerce',
-                      )}
-                    </Text>
-                  </Flex>
-                  <ActionGroup>
-                    <SwitchField name="is_allowed_guest_checkout" />
-                  </ActionGroup>
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />
+          <Card cssOverride={cardStyles.formCard}>
+            <CardContent>
+              <Flex align="center">
+                <Flex direction="column" gap={2}>
+                  <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">
+                    {__(
+                      'Let customers buy without logging in or creating an account.',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
                 </Flex>
-              </CardContent>
-            </Card>
-            <CheckoutConf />
-            <LegalInfo />
-          </Flex>
-        </Form>
-      ) : (
-        <CheckoutSettingsSkeleton />
-      )}
+                <ActionGroup>
+                  <SwitchField name="is_allowed_guest_checkout" />
+                </ActionGroup>
+              </Flex>
+            </CardContent>
+          </Card>
+          <CheckoutConf />
+          <LegalInfo />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <CheckoutSettingsSkeleton />
   );
 };
 

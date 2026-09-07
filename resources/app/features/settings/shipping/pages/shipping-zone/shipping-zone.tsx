@@ -115,8 +115,8 @@ const ShippingZonePage = () => {
 
   return (
     <>
-      <Container size="sm">
-        {!isLoading ? (
+      {!isLoading ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
@@ -145,10 +145,10 @@ const ShippingZonePage = () => {
               />
             </Flex>
           </Form>
-        ) : (
-          <ShippingZoneSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <ShippingZoneSkeleton />
+      )}
     </>
   );
 };

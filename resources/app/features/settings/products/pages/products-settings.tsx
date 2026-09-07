@@ -74,23 +74,21 @@ const ProductsSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {!isLoading ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<ProductSettingsIcon />}
-              title={__('Products', 'kirki-ecommerce')}
-            />
-            <StandardUnit />
-            <Review />
-          </Flex>
-        </Form>
-      ) : (
-        <ProductsSettingsSkeleton />
-      )}
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader
+            icon={<ProductSettingsIcon />}
+            title={__('Products', 'kirki-ecommerce')}
+          />
+          <StandardUnit />
+          <Review />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <ProductsSettingsSkeleton />
   );
 };
 

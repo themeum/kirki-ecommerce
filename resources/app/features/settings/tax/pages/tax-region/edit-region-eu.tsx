@@ -157,8 +157,8 @@ const EditRegionEU = () => {
 
   return (
     <>
-      <Container size="sm">
-        {!isLoading ? (
+      {!isLoading ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
@@ -189,10 +189,10 @@ const EditRegionEU = () => {
               <TaxRules region={euRegion} updateTaxRules={updateTaxRules} />
             </Flex>
           </Form>
-        ) : (
-          <TaxRegionSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <TaxRegionSkeleton />
+      )}
     </>
   );
 };

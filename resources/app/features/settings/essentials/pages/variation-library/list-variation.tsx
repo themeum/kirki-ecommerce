@@ -35,9 +35,9 @@ const ListVariation = () => {
   }, [selectedAttribute]);
 
   return (
-    <div>
-      <Container size="sm">
-        {!isLoading ? (
+    <>
+      {!isLoading ? (
+        <Container size="sm">
           <Flex direction="column" gap={4}>
             <SettingsPageHeader
               icon={<BoxIcon />}
@@ -78,17 +78,17 @@ const ListVariation = () => {
               />
             )}
           </Flex>
-        ) : (
-          <VariationDetailSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <VariationDetailSkeleton />
+      )}
       <VariationValuePopup
         isOpen={addVariantPopup}
         selectedItem={selectedAttribute}
         onClose={() => setAddVariantPopup(false)}
         type={selectedAttribute?.type}
       />
-    </div>
+    </>
   );
 };
 
