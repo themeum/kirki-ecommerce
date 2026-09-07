@@ -27,9 +27,7 @@ import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/s
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { __ } from '@/wpi18n';
 
-const mapSettingsToFormValues = (
-  settings: GeneralSettingsData,
-): GeneralSettingsFormInput => {
+const mapSettingsToFormValues = (settings: GeneralSettingsData): GeneralSettingsFormInput => {
   const storeAddress = settings.store_address;
 
   return pickFormValues(GeneralSettingsFormSchema, settings, {
@@ -37,8 +35,7 @@ const mapSettingsToFormValues = (
       address_line_1: storeAddress?.address_line_1 ?? '',
       address_line_2: storeAddress?.address_line_2 ?? '',
       city: storeAddress?.city ?? '',
-      state:
-        storeAddress?.state ?? storeAddress?.state ?? '',
+      state: storeAddress?.state ?? storeAddress?.state ?? '',
       postal_code: storeAddress?.postal_code ?? storeAddress?.postal_code ?? '',
       country: storeAddress?.country ?? '',
     },
@@ -47,8 +44,7 @@ const mapSettingsToFormValues = (
 
 const GeneralSettings = () => {
   const { data: generalSettingsData, isLoading } = useSettingsQuery('general');
-  const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation<'general'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'general'>();
 
   const form = useForm<GeneralSettingsFormInput, unknown, GeneralSettingsFormPayload>({
     resolver: zodResolver(GeneralSettingsFormSchema),
@@ -56,7 +52,6 @@ const GeneralSettings = () => {
   });
 
   const { isDirty } = form.formState;
-  const loaded = !isLoading && Boolean(generalSettingsData);
 
   useEffect(() => {
     if (!generalSettingsData || !Object.keys(generalSettingsData).length) {
@@ -93,27 +88,22 @@ const GeneralSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {loaded ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<HomeIcon />}
-              title={__('General', 'kirki-ecommerce')}
-            />
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<HomeIcon />} title={__('General', 'kirki-ecommerce')} />
 
-            <StoreContactDetails />
-            <StoreAddressDetails />
-            <SellingLocation />
-            <OrderId />
-            <InvoiceId />
-          </Flex>
-        </Form>
-      ) : (
-        <GeneralSettingsSkeleton />
-      )}
+          <StoreContactDetails />
+          <StoreAddressDetails />
+          <SellingLocation />
+          <OrderId />
+          <InvoiceId />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <GeneralSettingsSkeleton />
   );
 };
 
