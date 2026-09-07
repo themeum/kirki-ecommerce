@@ -60,7 +60,7 @@
     @include flex(row, center, center);
     padding-top: $spacing-16;
     .kecom-btn.kecom-btn-link {
-      @include typography(base,semibold,$text-primary);
+      @include typography(base,medium,$text-primary);
       text-decoration: underline;
     }
   }
