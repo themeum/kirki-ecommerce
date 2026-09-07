@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
-use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -35,7 +35,6 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
-use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -103,7 +102,7 @@ class CreateOrderAction
         $context = $this->prepare_calculation_context_dto($dto);
 
         if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce'));
+            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
@@ -127,7 +126,8 @@ class CreateOrderAction
                 $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
 
                 if (!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity)) {
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
+                    /* translators: %s: variant ID */
+                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
                 }
 
                 $this->order_service->create_order_item($order_item_dto);
@@ -158,7 +158,7 @@ class CreateOrderAction
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
         if (empty($cart) || empty($cart->items)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
+            throw new Exception(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $items = [];
@@ -171,7 +171,7 @@ class CreateOrderAction
         }
 
         if (empty($items)) {
-            throw new Exception(__('Cart is empty.', 'kirki-ecommerce'));
+            throw new Exception(__('Cart is empty.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $dto->items = $items;
@@ -199,39 +199,35 @@ class CreateOrderAction
         $customer = $dto->customer_id ? $this->customer_service->find($dto->customer_id) : null;
 
         if (!empty($customer) && !empty($customer->shipping_address) && !empty($customer->billing_address)) {
-            $this->update_address($dto, $customer, AddressType::SHIPPING);
-            $this->update_address($dto, $customer, AddressType::BILLING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
+            $this->update_address($dto, $customer, AddressPurpose::SHIPPING);
+            $this->update_address($dto, $customer, AddressPurpose::BILLING);
             return $customer->id;
         }
 
         if (!empty($customer) && empty($customer->shipping_address) && empty($customer->billing_address)) {
-            $this->create_address($dto, $customer, AddressType::BILLING);
-            $this->create_address($dto, $customer, AddressType::SHIPPING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
+            $this->create_address($dto, $customer, AddressPurpose::BILLING);
+            $this->create_address($dto, $customer, AddressPurpose::SHIPPING);
 
             return $customer->id;
         }
 
         if (!empty($customer) && !empty($customer->billing_address) && empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, AddressType::SHIPPING);
-            $this->update_address($dto, $customer, AddressType::BILLING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, false);
+            $this->create_address($dto, $customer, AddressPurpose::SHIPPING);
+            $this->update_address($dto, $customer, AddressPurpose::BILLING);
             return $customer->id;
         }
 
         if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, AddressType::BILLING);
-            $this->update_address($dto, $customer, AddressType::SHIPPING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, false);
+            $this->create_address($dto, $customer, AddressPurpose::BILLING);
+            $this->update_address($dto, $customer, AddressPurpose::SHIPPING);
             return $customer->id;
         }
 
         try {
             $customer = $this->create_customer_action->execute(
                 $this->prepare_checkout_customer_dto($dto),
-                $this->prepare_checkout_address_dto($dto, AddressType::SHIPPING),
-                $this->prepare_checkout_address_dto($dto, AddressType::BILLING)
+                $this->prepare_checkout_address_dto($dto, AddressPurpose::SHIPPING),
+                $this->prepare_checkout_address_dto($dto, AddressPurpose::BILLING)
             );
 
             return $customer->id;
@@ -246,19 +242,44 @@ class CreateOrderAction
         }
     }
 
-    protected function create_address(CreateOrderPayloadDTO $dto, $customer, $type)
+    /**
+     * Create a new default shipping/billing address for the customer from
+     * the checkout request's shipping/billing fields.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @param Customer $customer
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING -
+     * which request field prefix to read and which default flag to set.
+     * Unrelated to the Address's own type (home/office/others), which
+     * defaults to home here.
+     * @return void
+     */
+    protected function create_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
     {
-        $address_dto = $this->prepare_checkout_address_dto($dto, $type);
+        $address_dto = $this->prepare_checkout_address_dto($dto, $purpose);
         $address_dto->customer_id = $customer->id;
 
         $this->address_service->create($address_dto);
     }
 
-    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $type)
+    /**
+     * Update the customer's existing default shipping/billing address from
+     * the checkout request's shipping/billing fields, preserving the
+     * address's own type (home/office/others).
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @param Customer $customer
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
+     * @return void
+     */
+    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
     {
-        $address_dto = $this->prepare_checkout_address_dto($dto, $type, true);
+        $existing = $customer->{$purpose . '_address'};
+
+        $address_dto = $this->prepare_checkout_address_dto($dto, $purpose, true);
         $address_dto->customer_id = $customer->id;
-        $address_dto->id = $customer->{$type . '_address'}->id;
+        $address_dto->id = $existing->id;
+        $address_dto->type = $existing->type;
 
         $this->address_service->update($address_dto);
     }
@@ -273,7 +294,6 @@ class CreateOrderAction
         $customer_payload->last_name = !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name;
         $customer_payload->email = !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email;
         $customer_payload->phone = !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone;
-        $customer_payload->is_billing_same_as_shipping = (bool) $dto->is_billing_same_as_shipping;
 
         return $customer_payload;
     }
@@ -310,7 +330,11 @@ class CreateOrderAction
         $address_payload->postal_code = $dto->{"{$prefix}_postcode"};
         $address_payload->email = $dto->{"{$prefix}_email"};
         $address_payload->phone = $dto->{"{$prefix}_phone"};
-        $address_payload->type = $prefix;
+
+        if (!$is_update) {
+            $address_payload->type = AddressType::HOME;
+            $address_payload->{"is_default_{$prefix}"} = true;
+        }
 
         return $address_payload;
     }
@@ -352,17 +376,20 @@ class CreateOrderAction
             $variant = $this->variant_service->find($item_data['variant_id']);
 
             if (!$variant) {
-                throw new Exception("Variant not found for item: " . Arr::json_encode($item_data));
+                /* translators: %s: JSON-encoded item data */
+                throw new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
             }
 
             if ($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity']) {
-                throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
+                /* translators: %s: variant ID */
+                throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
             }
 
             $product = $variant->product;
 
             if (empty($product)) {
-                throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+                /* translators: %s: variant ID */
+                throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
             }
 
             $product->load('categories');
@@ -435,34 +462,17 @@ class CreateOrderAction
         $order_dto->shipping_email = $dto->shipping_email;
         $order_dto->shipping_company = $dto->shipping_company;
 
-        $is_billing_same_as_shipping = Sanitizer::apply_rule($dto->is_billing_same_as_shipping, Sanitizer::BOOL);
-        $order_dto->is_billing_same_as_shipping = $is_billing_same_as_shipping;
-
-        if ($is_billing_same_as_shipping) {
-            $order_dto->billing_first_name = $dto->shipping_first_name;
-            $order_dto->billing_last_name = $dto->shipping_last_name;
-            $order_dto->billing_address_line1 = $dto->shipping_address_line1;
-            $order_dto->billing_address_line2 = $dto->shipping_address_line2;
-            $order_dto->billing_city = $dto->shipping_city;
-            $order_dto->billing_state = $dto->shipping_state;
-            $order_dto->billing_country = $dto->shipping_country;
-            $order_dto->billing_postal_code = $dto->shipping_postcode;
-            $order_dto->billing_phone = $dto->shipping_phone;
-            $order_dto->billing_email = $dto->shipping_email;
-            $order_dto->billing_company = $dto->shipping_company;
-        } else {
-            $order_dto->billing_first_name = $dto->billing_first_name;
-            $order_dto->billing_last_name = $dto->billing_last_name;
-            $order_dto->billing_address_line1 = $dto->billing_address_line1;
-            $order_dto->billing_address_line2 = $dto->billing_address_line2;
-            $order_dto->billing_city = $dto->billing_city;
-            $order_dto->billing_state = $dto->billing_state;
-            $order_dto->billing_country = $dto->billing_country;
-            $order_dto->billing_postal_code = $dto->billing_postcode;
-            $order_dto->billing_phone = $dto->billing_phone;
-            $order_dto->billing_email = $dto->billing_email;
-            $order_dto->billing_company = $dto->billing_company;
-        }
+        $order_dto->billing_first_name = $dto->billing_first_name;
+        $order_dto->billing_last_name = $dto->billing_last_name;
+        $order_dto->billing_address_line1 = $dto->billing_address_line1;
+        $order_dto->billing_address_line2 = $dto->billing_address_line2;
+        $order_dto->billing_city = $dto->billing_city;
+        $order_dto->billing_state = $dto->billing_state;
+        $order_dto->billing_country = $dto->billing_country;
+        $order_dto->billing_postal_code = $dto->billing_postcode;
+        $order_dto->billing_phone = $dto->billing_phone;
+        $order_dto->billing_email = $dto->billing_email;
+        $order_dto->billing_company = $dto->billing_company;
 
         $customer_contact = $this->resolve_customer_contact_details($dto);
         $order_dto->customer_first_name = $customer_contact['first_name'];
@@ -484,7 +494,8 @@ class CreateOrderAction
         $product = $variant->product;
 
         if (empty($product)) {
-            throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+            /* translators: %s: variant ID */
+            throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
         $product->load('media');

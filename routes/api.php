@@ -29,6 +29,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\OrderController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\OrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\PageController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AccountController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AddressController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
@@ -262,7 +263,13 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::get('/account/orders/{id}/activities', [SiteOrderActivityController::class, 'get']);
     Route::put('/account/profile', [AccountController::class, 'update_profile']);
     Route::put('/account/password-change', [AccountController::class, 'change_password']);
-    Route::put('/account/addresses', [AccountController::class, 'update_addresses']);
+
+    Route::get('/account/addresses', [AddressController::class, 'index']);
+    Route::get('/account/addresses/{id}', [AddressController::class, 'show']);
+    Route::post('/account/addresses', [AddressController::class, 'store']);
+    Route::put('/account/addresses/{id}', [AddressController::class, 'update']);
+    Route::delete('/account/addresses/{id}', [AddressController::class, 'destroy']);
+    Route::patch('/account/addresses/{id}/set-default', [AddressController::class, 'set_default']);
 
     //TODO: this should have rate limit. Currently framework has no rate limit option.
     Route::post('/account/resend-verification-email', [AccountController::class, 'resend_verification_email']);

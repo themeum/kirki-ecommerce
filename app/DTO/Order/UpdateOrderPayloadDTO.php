@@ -57,9 +57,6 @@ class UpdateOrderPayloadDTO extends DTO
     /** @var string|null */
     public $shipping_company;
 
-    /** @var bool */
-    public $is_billing_same_as_shipping = false;
-
     /** @var string|null */
     public $billing_first_name;
 
