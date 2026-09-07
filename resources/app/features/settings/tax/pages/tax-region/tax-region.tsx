@@ -19,7 +19,7 @@ import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { __, _n, sprintf } from '@/wpi18n';
+import { __ } from '@/wpi18n';
 
 type SettingsOutletContext = {
   confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
@@ -185,27 +185,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
                             )}
                           </Flex>
                           <Text variant="small" color="secondary">
-                            {item.code === 'EU'
-                              ? sprintf(
-                                  /* translators: %s: number of country */
-                                  _n(
-                                    '%s country',
-                                    '%s countries',
-                                    item?.states?.length ?? 0,
-                                    'kirki-ecommerce',
-                                  ),
-                                  item?.states?.length ?? 0,
-                                )
-                              : sprintf(
-                                  /* translators: %s: number of states */
-                                  _n(
-                                    '%s state',
-                                    '%s states',
-                                    item?.states?.length ?? 0,
-                                    'kirki-ecommerce',
-                                  ),
-                                  item?.states?.length ?? 0,
-                                )}
+                            {`${item?.states?.length ?? 0} states`}
                           </Text>
                         </Flex>
                         <ActionGroup
@@ -278,6 +258,6 @@ const styles = defineStyles({
     color: theme.colors.text.subdued,
   },
   regionCard: {
-    padding: `${theme.spacing[1]} ${theme.spacing[4]}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
   },
 });
