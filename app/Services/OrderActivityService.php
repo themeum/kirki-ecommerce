@@ -68,6 +68,7 @@ class OrderActivityService
     {
         return $this->list_query( $order_id )
             ->where( 'activity_type', '!=', OrderActivityType::COMMENT_ADDED )
+            ->where( 'activity_type', '!=', OrderActivityType::PAYMENT_COMPLETED )
             ->get( ['activity_type','created_at'] );
     }
 
