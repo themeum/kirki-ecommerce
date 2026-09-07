@@ -8,7 +8,6 @@ import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/us
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { pageEnterKeyframes } from '@/theme/shell-styles';
 import { __ } from '@/wpi18n';
 
 type ConfirmActionParams = {
@@ -37,10 +36,7 @@ const SettingsLayout = () => {
   const isDirty = actions?.isDirty ?? false;
   const isSaving = actions?.isSaving ?? false;
 
-  const shouldBlock = useCallback(
-    () => isDirty && !isSaving,
-    [isDirty, isSaving],
-  );
+  const shouldBlock = useCallback(() => isDirty && !isSaving, [isDirty, isSaving]);
   const blocker = useBlocker(shouldBlock);
   const isBlocked = blocker.state === 'blocked';
 
@@ -50,12 +46,9 @@ const SettingsLayout = () => {
     }
   }, [isBlocked, isDirty, blocker]);
 
-  const registerActions = useCallback(
-    (next: RegisteredSettingsPageActions | null) => {
-      setActions(next);
-    },
-    [],
-  );
+  const registerActions = useCallback((next: RegisteredSettingsPageActions | null) => {
+    setActions(next);
+  }, []);
 
   const handleConfirmLeave = () => {
     if (blocker.state === 'blocked') {
@@ -146,6 +139,5 @@ const styles = defineStyles({
     // allowed to shrink the column narrower than the standard settings
     // content width.
     minWidth: '600px',
-    animation: `${pageEnterKeyframes} 0.45s ease-out both`,
   },
 });

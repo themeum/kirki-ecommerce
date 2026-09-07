@@ -23,7 +23,6 @@ import type {
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
-import TaxRegionSkeleton from '@/features/settings/tax/shared/skeletons/tax-region-skeleton';
 import AddStatesPopup from '@/features/settings/tax/strategies/general/components/add-states-dialog';
 import TaxStateRows from '@/features/settings/tax/strategies/general/components/tax-state-rows';
 import {
@@ -35,6 +34,7 @@ import {
   type TaxRegionGeneralFormPayload,
   TaxRegionGeneralFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-general-form';
+import GeneralTaxRegionSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -179,8 +179,8 @@ const GeneralEditRegion = () => {
 
   return (
     <>
-      <Container size="sm">
-        {loaded ? (
+      {loaded ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
@@ -245,10 +245,11 @@ const GeneralEditRegion = () => {
               )}
             </Flex>
           </Form>
-        ) : (
-          <TaxRegionSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <GeneralTaxRegionSkeleton />
+      )}
+
       {showPopup && (
         <AddStatesPopup
           openPopup={showPopup}

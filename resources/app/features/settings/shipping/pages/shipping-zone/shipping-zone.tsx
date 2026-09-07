@@ -38,9 +38,9 @@ const ShippingZonePage = () => {
   const [shippingZonesObj, setShippingZonesObj] = useState<ShippingZone[]>([]);
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
-  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'shipping'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } =
+    useUpdateSettingsMutation<'shipping'>();
 
-  const loaded = !isLoading && Boolean(shippingSettingsData);
   const zones = useMemo(
     () => (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [],
     [shippingSettingsData?.shipping_zones],
@@ -66,9 +66,7 @@ const ShippingZonePage = () => {
   const { isDirty } = form.formState;
 
   const shippingMethodList = useMemo(() => {
-    return shippingZonesObj.reduce<
-      Record<string | number, ShippingMethodData[]>
-    >((acc, zone) => {
+    return shippingZonesObj.reduce<Record<string | number, ShippingMethodData[]>>((acc, zone) => {
       acc[zone.id] = (zone.shipping_methods || []).map((method) => ({
         ...method,
         zoneId: zone.id,
@@ -128,8 +126,8 @@ const ShippingZonePage = () => {
 
   return (
     <>
-      <Container size="sm">
-        {loaded ? (
+      {!isLoading ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
@@ -155,21 +153,17 @@ const ShippingZonePage = () => {
 
               <ShippingMethod
                 shippingSettingsData={shippingSettingsData}
-                shippingMethodList={
-                  activeZone
-                    ? shippingMethodList[activeZone.id] || []
-                    : []
-                }
+                shippingMethodList={activeZone ? shippingMethodList[activeZone.id] || [] : []}
                 shippingZonesObj={shippingZonesObj}
                 setShippingZonesObj={setShippingZonesObj}
                 zoneId={zoneId}
               />
             </Flex>
           </Form>
-        ) : (
-          <ShippingZoneSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <ShippingZoneSkeleton />
+      )}
     </>
   );
 };

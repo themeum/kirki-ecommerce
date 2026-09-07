@@ -21,13 +21,13 @@ import type {
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
 import { taxProfileConditionOptions } from '@/features/settings/tax/shared/lib/utils';
-import TaxRegionSkeleton from '@/features/settings/tax/shared/skeletons/tax-region-skeleton';
 import { updateRegionState } from '@/features/settings/tax/strategies/general/lib/region-tax';
 import {
   type TaxRegionStateFormInput,
   type TaxRegionStateFormPayload,
   TaxRegionStateFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-state-form';
+import GeneralTaxRegionStateSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-state-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -139,53 +139,51 @@ const GeneralEditRegionState = () => {
     onDiscard: () => form.reset(),
   });
 
-  return (
+  return loaded && currentState ? (
     <Container size="sm">
-      {loaded && currentState ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader title={stateName} onBack={backToRegion} />
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader title={stateName} onBack={backToRegion} />
 
-            <Card cssOverride={mergeCss(cardStyles.formCard)}>
-              <CardContent>
-                <Flex direction="column" gap={2}>
-                  <SingleTaxRate<TaxRegionStateFormInput>
-                    name="product_tax_rate"
-                    label={__('Product Tax Rate', 'kirki-ecommerce')}
-                    icon={<Package size={16} />}
-                    description={__(
-                      'Define how taxes are calculated for products based on buyer location.',
-                      'kirki-ecommerce',
-                    )}
-                    cssOverride={{ padding: `${theme.spacing[2]} 0` }}
-                  />
-                  <SingleTaxRate<TaxRegionStateFormInput>
-                    name="shipping_tax_rate"
-                    label={__('Shipping Tax Rate', 'kirki-ecommerce')}
-                    icon={<Truck size={16} />}
-                    description={__(
-                      'Define how taxes are applied to shipping charges.',
-                      'kirki-ecommerce',
-                    )}
-                    cssOverride={{ padding: `${theme.spacing[2]} 0` }}
-                  />
-                </Flex>
-              </CardContent>
-            </Card>
+          <Card cssOverride={mergeCss(cardStyles.formCard)}>
+            <CardContent>
+              <Flex direction="column" gap={2}>
+                <SingleTaxRate<TaxRegionStateFormInput>
+                  name="product_tax_rate"
+                  label={__('Product Tax Rate', 'kirki-ecommerce')}
+                  icon={<Package size={16} />}
+                  description={__(
+                    'Define how taxes are calculated for products based on buyer location.',
+                    'kirki-ecommerce',
+                  )}
+                  cssOverride={{ padding: `${theme.spacing[2]} 0` }}
+                />
+                <SingleTaxRate<TaxRegionStateFormInput>
+                  name="shipping_tax_rate"
+                  label={__('Shipping Tax Rate', 'kirki-ecommerce')}
+                  icon={<Truck size={16} />}
+                  description={__(
+                    'Define how taxes are applied to shipping charges.',
+                    'kirki-ecommerce',
+                  )}
+                  cssOverride={{ padding: `${theme.spacing[2]} 0` }}
+                />
+              </Flex>
+            </CardContent>
+          </Card>
 
-            <TaxRules
-              rules={stateRules ?? []}
-              states={countryStates}
-              destinationLabel={country?.name ?? code}
-              updateTaxRules={updateStateRules}
-              conditionOptions={taxProfileConditionOptions}
-            />
-          </Flex>
-        </Form>
-      ) : (
-        <TaxRegionSkeleton />
-      )}
+          <TaxRules
+            rules={stateRules ?? []}
+            states={countryStates}
+            destinationLabel={country?.name ?? code}
+            updateTaxRules={updateStateRules}
+            conditionOptions={taxProfileConditionOptions}
+          />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <GeneralTaxRegionStateSkeleton />
   );
 };
 

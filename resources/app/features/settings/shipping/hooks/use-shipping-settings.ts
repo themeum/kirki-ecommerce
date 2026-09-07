@@ -73,8 +73,6 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   const { mutateAsync: updateSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'shipping'>();
 
-  const loaded = !isLoading && Boolean(shippingSettingsData);
-
   const form = useForm<ShippingSettingsFormInput, unknown, ShippingSettingsFormPayload>({
     resolver: zodResolver(ShippingSettingsFormSchema),
     defaultValues: getDefaults(ShippingSettingsFormSchema),
@@ -263,7 +261,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
 
   return {
     form,
-    loaded,
+    loaded: !isLoading,
     shippingZonesObj,
     countryList,
     usedRegions,

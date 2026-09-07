@@ -21,7 +21,6 @@ import type {
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
-import TaxRegionSkeleton from '@/features/settings/tax/shared/skeletons/tax-region-skeleton';
 import VatProcessField from '@/features/settings/tax/strategies/eu/components/fields/vat-process-field';
 import { VatCollection } from '@/features/settings/tax/strategies/eu/components/vat-collection';
 import { applyEuRegionUpdate } from '@/features/settings/tax/strategies/eu/lib/eu-region';
@@ -29,6 +28,7 @@ import {
   type TaxRegionEuFormInput,
   TaxRegionEuFormSchema,
 } from '@/features/settings/tax/strategies/eu/schemas/forms/tax-region-eu-form';
+import EUTaxRegionSkeleton from '@/features/settings/tax/strategies/eu/skeletons/eu-tax-region-skeleton';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -161,7 +161,7 @@ const EditRegionEU = () => {
             </Flex>
           </Form>
         ) : (
-          <TaxRegionSkeleton />
+          <EUTaxRegionSkeleton />
         )}
       </Container>
     </>
