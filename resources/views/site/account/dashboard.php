@@ -36,6 +36,13 @@ $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
 $register_since = $user ? date('M j, Y', strtotime($user->get()->user_registered)) : '';
 $email_verified = $user->email_verified();
+$verification_sent_at = $user->get_email_verification_sent_at();
+$cooldown_duration = MINUTE_IN_SECONDS * 2;
+$cooldown_remaining = 0;
+if ($verification_sent_at && (time() - $verification_sent_at) < $cooldown_duration) {
+    $cooldown_remaining = $cooldown_duration - (time() - $verification_sent_at);
+}
+$has_sent_verification = !empty($verification_sent_at);
 ?>
 
 <?php Template::get_header(); ?>
@@ -49,7 +56,7 @@ $email_verified = $user->email_verified();
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
-                <div class="kecom-account-dashboard" x-data="accountDashboard()">
+                <div class="kecom-account-dashboard" x-data="accountDashboard(<?php echo (int) $cooldown_remaining; ?>, <?php echo $has_sent_verification ? 'true' : 'false'; ?>)">
 
                     <?php if (session()->has('errors')) : ?>
                         <div class="kecom-alert kecom-alert-error kecom-mb-10">
@@ -68,18 +75,18 @@ $email_verified = $user->email_verified();
                     <?php endif; ?>
 
                     <?php if (!$email_verified) : ?>
-                    <div class="kecom-alert kecom-alert-info kecom-mb-10" x-show="!verificationSent">
+                    <div class="kecom-alert kecom-alert-info kecom-mb-10">
                         <?php Icon::render('information-fill', ['size' => 20]); ?>
-                        <p><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
-                        <button type="button" class="kecom-alert-action" @click="resendVerificationEmail()" :disabled="verificationLoading">
-                            <span x-show="!verificationLoading"><?php esc_html_e('Confirm Email', 'kirki-ecommerce'); ?></span>
-                            <span x-show="verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
+                        <p x-show="!verificationSent"><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
+                        <p x-show="verificationSent" x-cloak><?php esc_html_e('A confirmation link has been sent to your email address. Please check your inbox', 'kirki-ecommerce'); ?></p>
+
+                        <button type="button" class="kecom-alert-action" @click="resendVerificationEmail()" :disabled="verificationLoading || cooldownRemaining > 0" :style="cooldownRemaining > 0 ? 'text-decoration: none; cursor: default;' : ''">
+                            <span x-show="cooldownRemaining > 0" x-cloak x-text="`<?php esc_html_e('Resend after', 'kirki-ecommerce'); ?> ${cooldownRemaining} <?php esc_html_e('sec', 'kirki-ecommerce'); ?>`"></span>
+                            <span x-show="cooldownRemaining <= 0 && !verificationLoading" x-text="hasSentVerification ? '<?php echo esc_js(__('Resend', 'kirki-ecommerce')); ?>' : '<?php echo esc_js(__('Confirm Email', 'kirki-ecommerce')); ?>'">
+                                <?php echo $has_sent_verification ? esc_html__('Resend', 'kirki-ecommerce') : esc_html__('Confirm Email', 'kirki-ecommerce'); ?>
+                            </span>
+                            <span x-show="cooldownRemaining <= 0 && verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
                         </button>
-                    </div>
-                    <!-- success -->
-                    <div class="kecom-alert kecom-alert-success kecom-mb-10" x-show="verificationSent" x-cloak>
-                        <?php Icon::render('confirmation', ['size' => 20]); ?>
-                        <p><?php esc_html_e('A confirmation link has been sent to your email address. Please check your inbox', 'kirki-ecommerce'); ?></p>
                     </div>
                     <?php endif; ?>
 
