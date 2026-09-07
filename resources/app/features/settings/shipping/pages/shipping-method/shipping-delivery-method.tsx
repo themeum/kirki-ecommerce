@@ -23,6 +23,7 @@ import {
   type ShippingMethodFormPayload,
   ShippingMethodFormSchema,
 } from '@/features/settings/shipping/schemas/forms/shipping-method-form';
+import ShippingDeliveryMethodSkeleton from '@/features/settings/shipping/skeletons/shipping-delivery-method-skeleton';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -63,7 +64,7 @@ const ShippingDeliveryMethod = () => {
 
   const methodId = useMemo(() => methodIdParam || uuid(), [methodIdParam]);
 
-  const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
   const shippingZones = (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [];
 
   const editingMethod = shippingZones
@@ -154,7 +155,7 @@ const ShippingDeliveryMethod = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
       <Form {...form}>
         <Flex direction="column" gap={4}>
@@ -189,6 +190,8 @@ const ShippingDeliveryMethod = () => {
         </Flex>
       </Form>
     </Container>
+  ) : (
+    <ShippingDeliveryMethodSkeleton />
   );
 };
 

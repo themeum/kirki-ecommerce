@@ -1,5 +1,6 @@
-import { sprintf } from '@/wpi18n';
 import { toast } from 'sonner';
+
+import { sprintf } from '@/wpi18n';
 
 export const uuid = () => {
   // Generates a UUID v4 string

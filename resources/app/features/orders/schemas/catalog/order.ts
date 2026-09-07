@@ -155,7 +155,7 @@ export const OrderItemSchema = z.object({
     image: MediaRefSchema.nullish(),
   })),
   shipping_address: CustomerAddressSchema.nullish(),
-  is_billing_same_as_shipping: z.boolean(),
+  is_billing_same_as_shipping: z.boolean().nullish(),
   billing_address: CustomerAddressSchema.nullish(),
   payment_provider: z.string().nullable(),
   payment_status: PaymentStatusSchema,

@@ -27,8 +27,6 @@ const ProductsSettings = () => {
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'product'>();
 
-  const loaded = !isLoading && Boolean(productSettingsData);
-
   const form = useForm<ProductsSettingsFormInput, unknown, ProductsSettingsFormPayload>({
     resolver: zodResolver(ProductsSettingsFormSchema),
     defaultValues: getDefaults(ProductsSettingsFormSchema),
@@ -76,23 +74,21 @@ const ProductsSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {loaded ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<ProductSettingsIcon />}
-              title={__('Products', 'kirki-ecommerce')}
-            />
-            <StandardUnit />
-            <Review />
-          </Flex>
-        </Form>
-      ) : (
-        <ProductsSettingsSkeleton />
-      )}
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader
+            icon={<ProductSettingsIcon />}
+            title={__('Products', 'kirki-ecommerce')}
+          />
+          <StandardUnit />
+          <Review />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <ProductsSettingsSkeleton />
   );
 };
 
