@@ -5,13 +5,8 @@ import { __ } from '@/wpi18n';
 
 const CheckoutSettingsSkeleton = () => (
   <SettingsPageSkeleton
-    cards={[2]}
-    header={
-      <SettingsPageHeader
-        icon={<CartIcon />}
-        title={__('Checkout', 'kirki-ecommerce')}
-      />
-    }
+    cards={[1, 8, 2]}
+    header={<SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />}
   />
 );
 

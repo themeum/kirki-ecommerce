@@ -1,20 +1,20 @@
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
-import { TaxIcon } from '@/icons';
+import { PaymentIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
-const TaxSettingsSkeleton = () => (
+const PaymentSettingsSkeleton = () => (
   <SettingsPageSkeleton
-    cards={[2, 3, 2]}
+    cards={[3, 3]}
     header={
       <SettingsPageHeader
-        icon={<TaxIcon />}
-        title={__('Tax', 'kirki-ecommerce')}
+        icon={<PaymentIcon />}
+        title={__('Payments', 'kirki-ecommerce')}
       />
     }
   />
 );
 
-TaxSettingsSkeleton.displayName = 'TaxSettingsSkeleton';
+PaymentSettingsSkeleton.displayName = 'PaymentSettingsSkeleton';
 
-export default TaxSettingsSkeleton;
+export default PaymentSettingsSkeleton;

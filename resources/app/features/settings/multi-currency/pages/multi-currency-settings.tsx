@@ -39,21 +39,18 @@ const MultiCurrencySettings = () => {
   });
 
   const { isDirty } = form.formState;
-  const loaded = !isLoading && Boolean(currencySettingsData);
 
   useEffect(() => {
     if (!currencySettingsData || !Object.keys(currencySettingsData).length) {
       return;
     }
 
-    const apiConfigData =
-      (currencySettingsData.api_config as Record<string, unknown> | null) ?? {};
+    const apiConfigData = (currencySettingsData.api_config as Record<string, unknown> | null) ?? {};
 
     form.reset(
       pickFormValues(MultiCurrencySettingsFormSchema, currencySettingsData, {
         api_config: {
-          api_key:
-            typeof apiConfigData.api_key === 'string' ? apiConfigData.api_key : '',
+          api_key: typeof apiConfigData.api_key === 'string' ? apiConfigData.api_key : '',
           update_frequency:
             typeof apiConfigData.update_frequency === 'string'
               ? apiConfigData.update_frequency
@@ -94,37 +91,35 @@ const MultiCurrencySettings = () => {
 
   return (
     <Container size="sm">
-      {loaded ? (
+      {!isLoading ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<CurrencyIcon />}
-              title={__('Currency', 'kirki-ecommerce')}
-            />
+            <SettingsPageHeader icon={<CurrencyIcon />} title={__('Currency', 'kirki-ecommerce')} />
 
-            <Card cssOverride={cardStyles.innerCard} >
-              <CardContent>
+            <Card cssOverride={cardStyles.innerCard}>
+              <CardContent cssOverride={{ paddingBottom: theme.spacing[4] }}>
                 <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
                   <Flex direction="column" gap={2}>
                     <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                    <Text variant="small" color="secondary">{__(
-                      'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    <Text variant="small" color="secondary">
+                      {__(
+                        'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
                   </Flex>
                   <AvailableCurrencyList />
                   <ApiConfig />
                 </Flex>
               </CardContent>
             </Card>
-            <Card cssOverride={cardStyles.formCard} >
+            <Card cssOverride={cardStyles.formCard}>
               <CardContent>
                 <Flex direction="column" gap={2}>
                   <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
-                  <Text color="secondary">{__(
-                    'Set your preferences for how currency is displayed.',
-                    'kirki-ecommerce',
-                  )}</Text>
+                  <Text color="secondary">
+                    {__('Set your preferences for how currency is displayed.', 'kirki-ecommerce')}
+                  </Text>
                 </Flex>
                 <CurrencyFormatSettings />
               </CardContent>

@@ -5,13 +5,8 @@ import { __ } from '@/wpi18n';
 
 const EmailSettingsSkeleton = () => (
   <SettingsPageSkeleton
-    cards={[3, 4]}
-    header={
-      <SettingsPageHeader
-        icon={<AtSignIcon />}
-        title={__('Email', 'kirki-ecommerce')}
-      />
-    }
+    cards={[1, 3, 4]}
+    header={<SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />}
   />
 );
 

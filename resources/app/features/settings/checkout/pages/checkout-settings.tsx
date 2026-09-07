@@ -32,8 +32,6 @@ const CheckoutSettings = () => {
   const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'checkout'>();
 
-  const loaded = !isLoading && Boolean(checkoutSettingsData);
-
   const form = useForm<CheckoutSettingsFormInput, unknown, CheckoutSettingsFormPayload>({
     resolver: zodResolver(CheckoutSettingsFormSchema),
     defaultValues: getDefaults(CheckoutSettingsFormSchema),
@@ -76,7 +74,7 @@ const CheckoutSettings = () => {
 
   return (
     <Container size="sm">
-      {loaded ? (
+      {!isLoading ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
             <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />

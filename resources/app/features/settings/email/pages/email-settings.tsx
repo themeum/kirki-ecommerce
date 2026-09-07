@@ -10,7 +10,11 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import { buildTogglePayload, EMAIL_CONFIG, findEmailKeyByName } from '@/features/settings/email/lib/utils';
+import {
+  buildTogglePayload,
+  EMAIL_CONFIG,
+  findEmailKeyByName,
+} from '@/features/settings/email/lib/utils';
 import AdminEmail from '@/features/settings/email/pages/admin-email';
 import CustomerEmail from '@/features/settings/email/pages/customer-email';
 import {
@@ -35,15 +39,15 @@ import { __ } from '@/wpi18n';
 type EmailGroupData = {
   order_notifications?: Record<
     string,
-    { name?: string; is_enabled?: boolean;[key: string]: unknown }
+    { name?: string; is_enabled?: boolean; [key: string]: unknown }
   >;
   user_notifications?: Record<
     string,
-    { name?: string; is_enabled?: boolean;[key: string]: unknown }
+    { name?: string; is_enabled?: boolean; [key: string]: unknown }
   >;
   inventory_notifications?: Record<
     string,
-    { name?: string; is_enabled?: boolean;[key: string]: unknown }
+    { name?: string; is_enabled?: boolean; [key: string]: unknown }
   >;
 };
 
@@ -61,8 +65,6 @@ const EmailSettings = () => {
 
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'email'>();
-
-  const loaded = !isLoading && Boolean(emailSettingsData);
 
   const form = useForm<EmailSettingsFormInput, unknown, EmailSettingsFormPayload>({
     resolver: zodResolver(EmailSettingsFormSchema),
@@ -93,9 +95,7 @@ const EmailSettings = () => {
   };
 
   const handleToggleOrder = (item: EmailListItem) => {
-    const matchedConfigKey = Object.keys(EMAIL_CONFIG).find((k) =>
-      item.key.includes(k),
-    );
+    const matchedConfigKey = Object.keys(EMAIL_CONFIG).find((k) => item.key.includes(k));
 
     if (!matchedConfigKey) {
       return;
@@ -103,9 +103,7 @@ const EmailSettings = () => {
 
     const { root, group } = EMAIL_CONFIG[matchedConfigKey];
     const currentValues = form.getValues();
-    const rootData = (
-      currentValues as Record<string, EmailGroupData | undefined>
-    )?.[root];
+    const rootData = (currentValues as Record<string, EmailGroupData | undefined>)?.[root];
     const groupData = rootData?.[group as keyof EmailGroupData];
 
     if (!groupData) {
@@ -148,36 +146,32 @@ const EmailSettings = () => {
 
   return (
     <Container size="sm">
-      {loaded ? (
+      {!isLoading ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<AtSignIcon />}
-              title={__('Email', 'kirki-ecommerce')}
-            />
+            <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
             <Card cssOverride={styles.roundedCard}>
               <CardContent>
-
-                <Flex
-                  justify="space-between" align="center">
-                  <Flex
-                    direction="column"
-                    gap={2}
-                    align="flex-start">
+                <Flex justify="space-between" align="center">
+                  <Flex direction="column" gap={2} align="flex-start">
                     <Flex gap={2} align="center">
                       <BrushIcon />
                       <Text weight="semibold">{__('Default Template', 'kirki-ecommerce')}</Text>
                     </Flex>
-                    <Text color="secondary">{__(
-                      'Configure logo, colors, sender email, and more for emails',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    <Text color="secondary">
+                      {__(
+                        'Configure logo, colors, sender email, and more for emails',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
                   </Flex>
                   <Button
                     variant="secondary"
                     onClick={() => {
                       void navigate(
-                        RouteConfig.Settings.get('EmailSettings').get('EditEmailTemplate').buildLink(),
+                        RouteConfig.Settings.get('EmailSettings')
+                          .get('EditEmailTemplate')
+                          .buildLink(),
                       );
                     }}
                     disabled // @todo: will be implemented in the future
@@ -191,10 +185,7 @@ const EmailSettings = () => {
               handleToggleOrder={handleToggleOrder}
               handleEditOrder={handleEditOrder}
             />
-            <AdminEmail
-              handleToggleOrder={handleToggleOrder}
-              handleEditOrder={handleEditOrder}
-            />
+            <AdminEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
           </Flex>
         </Form>
       ) : (

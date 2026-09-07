@@ -23,6 +23,7 @@ import {
   type ShippingMethodFormPayload,
   ShippingMethodFormSchema,
 } from '@/features/settings/shipping/schemas/forms/shipping-method-form';
+import ShippingDeliveryMethodSkeleton from '@/features/settings/shipping/skeletons/shipping-delivery-method-skeleton';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -63,7 +64,7 @@ const ShippingDeliveryMethod = () => {
 
   const methodId = useMemo(() => methodIdParam || uuid(), [methodIdParam]);
 
-  const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
   const shippingZones = (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [];
 
   const editingMethod = shippingZones
@@ -156,38 +157,42 @@ const ShippingDeliveryMethod = () => {
 
   return (
     <Container size="sm">
-      <Form {...form}>
-        <Flex direction="column" gap={4}>
-          <SettingsPageHeader
-            title={methodTypeTitles[methodType] ?? ''}
-            onBack={() =>
-              navigate(
-                isDefined(zoneIdParam)
-                  ? ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: zoneIdParam })
-                  : ShippingRoutes.buildLink(),
-              )
-            }
-          />
-          <Card cssOverride={cardStyles.formCard}>
-            <CardContent>
-              <Flex direction="column" gap={4}>
-                <TextField
-                  name="name"
-                  label={__('Method Name', 'kirki-ecommerce')}
-                  placeholder={__('Standard Delivery', 'kirki-ecommerce')}
-                />
-                <SelectField
-                  name="type"
-                  label={__('Method Type', 'kirki-ecommerce')}
-                  options={methodTypeOptions}
-                />
-                {methodSettingsByType[methodType]}
-              </Flex>
-            </CardContent>
-          </Card>
-          {methodExists && <ShippingRules methodId={methodId} />}
-        </Flex>
-      </Form>
+      {!isLoading ? (
+        <Form {...form}>
+          <Flex direction="column" gap={4}>
+            <SettingsPageHeader
+              title={methodTypeTitles[methodType] ?? ''}
+              onBack={() =>
+                navigate(
+                  isDefined(zoneIdParam)
+                    ? ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: zoneIdParam })
+                    : ShippingRoutes.buildLink(),
+                )
+              }
+            />
+            <Card cssOverride={cardStyles.formCard}>
+              <CardContent>
+                <Flex direction="column" gap={4}>
+                  <TextField
+                    name="name"
+                    label={__('Method Name', 'kirki-ecommerce')}
+                    placeholder={__('Standard Delivery', 'kirki-ecommerce')}
+                  />
+                  <SelectField
+                    name="type"
+                    label={__('Method Type', 'kirki-ecommerce')}
+                    options={methodTypeOptions}
+                  />
+                  {methodSettingsByType[methodType]}
+                </Flex>
+              </CardContent>
+            </Card>
+            {methodExists && <ShippingRules methodId={methodId} />}
+          </Flex>
+        </Form>
+      ) : (
+        <ShippingDeliveryMethodSkeleton />
+      )}
     </Container>
   );
 };

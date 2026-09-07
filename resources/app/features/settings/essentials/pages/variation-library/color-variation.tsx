@@ -9,6 +9,7 @@ import type { Attribute, AttributeValue } from '@/features/products';
 import { useAttributeQuery } from '@/features/products';
 import VariationTable from '@/features/settings/essentials/pages/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/features/settings/essentials/pages/variation-library/variation-value-dialog';
+import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { ColorPaletteIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -20,7 +21,7 @@ type AttributeWithMeta = Attribute & { updated_at?: string };
 
 const ColorVariation = () => {
   const { id } = useParams();
-  const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
+  const { data: selectedItem, isLoading } = useAttributeQuery(Number(id), Boolean(id));
 
   const navigate = useNavigate();
 
@@ -35,42 +36,48 @@ const ColorVariation = () => {
   return (
     <div>
       <Container size="sm">
-        <Flex direction="column" gap={4}>
-          <SettingsPageHeader
-            icon={<ColorPaletteIcon />}
-            title={selectedItem?.name ?? __('Color', 'kirki-ecommerce')}
-            onBack={() => navigate('/settings/essentials')}
-            rightAction={
-              <div>
-                <Button
-                  variant="link"
-                  cssOverride={styles.addColorButton}
-                  onClick={() => setAddVariantPopup(true)}
-                >
-                  {__('Add color', 'kirki-ecommerce')}
-                </Button>
-              </div>
-            }
-          />
-          {!colorList?.length ? (
-            <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
-              <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
-                <Flex direction="column" gap={2} align="center">
-                  <ColorPaletteIcon />
-                  <span css={scoped(styles.mutedText)}>
-                    {__('No color added yet', 'kirki-ecommerce')}
-                  </span>
-                </Flex>
-              </CardContent>
-            </Card>
-          ) : (
-            <VariationTable
-              results={colorList}
-              updateDataList={setColorList}
-              selectedItem={selectedAttribute}
+        {!isLoading ? (
+          <Flex direction="column" gap={4}>
+            <SettingsPageHeader
+              icon={<ColorPaletteIcon />}
+              title={selectedItem?.name ?? __('Color', 'kirki-ecommerce')}
+              onBack={() => navigate('/settings/essentials')}
+              rightAction={
+                <div>
+                  <Button
+                    variant="link"
+                    cssOverride={styles.addColorButton}
+                    onClick={() => setAddVariantPopup(true)}
+                  >
+                    {__('Add color', 'kirki-ecommerce')}
+                  </Button>
+                </div>
+              }
             />
-          )}
-        </Flex>
+            {!colorList?.length ? (
+              <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+                <CardContent
+                  cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}
+                >
+                  <Flex direction="column" gap={2} align="center">
+                    <ColorPaletteIcon />
+                    <span css={scoped(styles.mutedText)}>
+                      {__('No color added yet', 'kirki-ecommerce')}
+                    </span>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ) : (
+              <VariationTable
+                results={colorList}
+                updateDataList={setColorList}
+                selectedItem={selectedAttribute}
+              />
+            )}
+          </Flex>
+        ) : (
+          <VariationDetailSkeleton title={__('Color', 'kirki-ecommerce')} />
+        )}
       </Container>
       <VariationValuePopup
         isOpen={addVariantPopup}

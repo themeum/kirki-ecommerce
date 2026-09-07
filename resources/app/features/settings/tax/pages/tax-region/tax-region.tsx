@@ -19,13 +19,10 @@ import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
 type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
+  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
 };
 
 type TaxRegionsProps = {
@@ -45,15 +42,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const { handleSave } = props;
   const { setValue, formState } = useFormContext<TaxSettingsFormInput>();
-  const taxRegions =
-    (useWatch<TaxSettingsFormInput>({ name: 'tax_regions' }) as TaxRegion[]) ||
-    [];
+  const taxRegions = (useWatch<TaxSettingsFormInput>({ name: 'tax_regions' }) as TaxRegion[]) || [];
 
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
-  const [selectedRegion, setSelectedRegion] = useState<SelectedTaxRegionDraft[]>(
-    [],
-  );
+  const [selectedRegion, setSelectedRegion] = useState<SelectedTaxRegionDraft[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const popupErrors = {
@@ -68,7 +61,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
         void navigate(RouteConfig.Settings.get('TaxSettings').get('EditRegionEU').buildLink());
       } else {
         void navigate(
-          RouteConfig.Settings.get('TaxSettings').get('EditTaxRegion').buildLink({ code: item.code }),
+          RouteConfig.Settings.get('TaxSettings')
+            .get('EditTaxRegion')
+            .buildLink({ code: item.code }),
         );
       }
       return;
@@ -99,11 +94,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
   };
 
   const handleToggleRegion = async (item: TaxRegion) => {
-    const updatedRegions = (Array.isArray(taxRegions) ? taxRegions : []).map(
-      (region) =>
-        region.code === item.code
-          ? { ...region, is_enabled: !region.is_enabled }
-          : region,
+    const updatedRegions = (Array.isArray(taxRegions) ? taxRegions : []).map((region) =>
+      region.code === item.code ? { ...region, is_enabled: !region.is_enabled } : region,
     );
 
     setValue('tax_regions', updatedRegions as TaxSettingsFormInput['tax_regions'], {
@@ -145,7 +137,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard} >
+      <Card cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
@@ -160,7 +152,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
           <div css={scoped({ marginTop: theme.spacing[5] })}>
             {!taxRegions.length ? (
               <Card cssOverride={cardStyles.innerDarkCard}>
-                <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
+                <CardContent
+                  cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}
+                >
                   <Flex direction="column" gap={2} align="center">
                     <LocationIcon />
                     <span css={scoped(styles.mutedText)}>
@@ -172,9 +166,8 @@ const TaxRegions = (props: TaxRegionsProps) => {
             ) : (
               <Flex direction="column" gap={3}>
                 {taxRegions.map((item, index) => (
-                  <Card cssOverride={mergeCss(cardStyles.innerCard, styles.regionCard)} key={index} >
+                  <Card cssOverride={mergeCss(cardStyles.innerCard, styles.regionCard)} key={index}>
                     <CardContent cssOverride={cardStyles.innerContent}>
-
                       <Flex gap={2} align="flex-start">
                         <span>{item?.flag}</span>
                         <Flex direction="column" gap={3}>
@@ -192,12 +185,34 @@ const TaxRegions = (props: TaxRegionsProps) => {
                             )}
                           </Flex>
                           <Text variant="small" color="secondary">
-                            {`${item?.states?.length ?? 0} states`}
+                            {item.code === 'EU'
+                              ? sprintf(
+                                  /* translators: %s: number of country */
+                                  _n(
+                                    '%s country',
+                                    '%s countries',
+                                    item?.states?.length ?? 0,
+                                    'kirki-ecommerce',
+                                  ),
+                                  item?.states?.length ?? 0,
+                                )
+                              : sprintf(
+                                  /* translators: %s: number of states */
+                                  _n(
+                                    '%s state',
+                                    '%s states',
+                                    item?.states?.length ?? 0,
+                                    'kirki-ecommerce',
+                                  ),
+                                  item?.states?.length ?? 0,
+                                )}
                           </Text>
                         </Flex>
                         <ActionGroup
-                          cssOverride={mergeCss(hoverVisibleCss,
-                            activeIndex === index && activeCardCss)}
+                          cssOverride={mergeCss(
+                            hoverVisibleCss,
+                            activeIndex === index && activeCardCss,
+                          )}
                         >
                           <Switch
                             checked={Boolean(item?.is_enabled)}
@@ -224,16 +239,12 @@ const TaxRegions = (props: TaxRegionsProps) => {
                                 setActiveIndex(null);
                               }
                             }}
-                            onOptionSelect={(action) =>
-                              handleEditAndDelete(String(action), item)
-                            }
+                            onOptionSelect={(action) => handleEditAndDelete(String(action), item)}
                           />
                         </ActionGroup>
                       </Flex>
                     </CardContent>
-
                   </Card>
-
                 ))}
               </Flex>
             )}
@@ -267,6 +278,6 @@ const styles = defineStyles({
     color: theme.colors.text.subdued,
   },
   regionCard: {
-    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    padding: `${theme.spacing[1]} ${theme.spacing[4]}`,
   },
 });

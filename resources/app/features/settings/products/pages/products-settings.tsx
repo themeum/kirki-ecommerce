@@ -27,8 +27,6 @@ const ProductsSettings = () => {
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'product'>();
 
-  const loaded = !isLoading && Boolean(productSettingsData);
-
   const form = useForm<ProductsSettingsFormInput, unknown, ProductsSettingsFormPayload>({
     resolver: zodResolver(ProductsSettingsFormSchema),
     defaultValues: getDefaults(ProductsSettingsFormSchema),
@@ -78,7 +76,7 @@ const ProductsSettings = () => {
 
   return (
     <Container size="sm">
-      {loaded ? (
+      {!isLoading ? (
         <Form {...form}>
           <Flex direction="column" gap={4}>
             <SettingsPageHeader

@@ -11,18 +11,19 @@ import type { Attribute, AttributeValue } from '@/features/products';
 import { useAttributeQuery } from '@/features/products';
 import VariationTable from '@/features/settings/essentials/pages/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/features/settings/essentials/pages/variation-library/variation-value-dialog';
+import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { BoxIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { __, sprintf } from '@/wpi18n';
+import { __ } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
 
 const ListVariation = () => {
   const { id } = useParams();
-  const { data: selectedItem } = useAttributeQuery(Number(id), Boolean(id));
+  const { data: selectedItem, isLoading } = useAttributeQuery(Number(id), Boolean(id));
   const navigate = useNavigate();
 
   const [attributeValueList, setAttributeValueList] = useState<AttributeValue[]>([]);
@@ -36,42 +37,50 @@ const ListVariation = () => {
   return (
     <div>
       <Container size="sm">
-        <Flex direction="column" gap={4}>
-          <SettingsPageHeader
-            icon={<BoxIcon />}
-            title={sprintf(__('%s', 'kirki-ecommerce'), selectedAttribute?.name ?? '')}
-            onBack={() => { void navigate(RouteConfig.Settings.get('EssentialsSettings').buildLink()); }}
-            rightAction={
-              <div>
-                <Button
-                  variant="link"
-                  cssOverride={styles.addValueButton}
-                  onClick={() => setAddVariantPopup(true)}
-                >
-                  {__('Add value', 'kirki-ecommerce')}
-                </Button>
-              </div>
-            }
-          />
-          {!attributeValueList?.length ? (
-            <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
-              <CardContent cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}>
-                <Flex direction="column" gap={2} align="center">
-                  <Box />
-                  <span css={scoped(styles.mutedText)}>
-                    {__('No value added yet', 'kirki-ecommerce')}
-                  </span>
-                </Flex>
-              </CardContent>
-            </Card>
-          ) : (
-            <VariationTable
-              results={attributeValueList}
-              updateDataList={setAttributeValueList}
-              selectedItem={selectedAttribute}
+        {!isLoading ? (
+          <Flex direction="column" gap={4}>
+            <SettingsPageHeader
+              icon={<BoxIcon />}
+              title={selectedAttribute?.name ?? ''}
+              onBack={() => {
+                void navigate(RouteConfig.Settings.get('EssentialsSettings').buildLink());
+              }}
+              rightAction={
+                <div>
+                  <Button
+                    variant="link"
+                    cssOverride={styles.addValueButton}
+                    onClick={() => setAddVariantPopup(true)}
+                  >
+                    {__('Add value', 'kirki-ecommerce')}
+                  </Button>
+                </div>
+              }
             />
-          )}
-        </Flex>
+            {!attributeValueList?.length ? (
+              <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+                <CardContent
+                  cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}
+                >
+                  <Flex direction="column" gap={2} align="center">
+                    <Box />
+                    <span css={scoped(styles.mutedText)}>
+                      {__('No value added yet', 'kirki-ecommerce')}
+                    </span>
+                  </Flex>
+                </CardContent>
+              </Card>
+            ) : (
+              <VariationTable
+                results={attributeValueList}
+                updateDataList={setAttributeValueList}
+                selectedItem={selectedAttribute}
+              />
+            )}
+          </Flex>
+        ) : (
+          <VariationDetailSkeleton />
+        )}
       </Container>
       <VariationValuePopup
         isOpen={addVariantPopup}
@@ -102,4 +111,3 @@ const styles = defineStyles({
     color: theme.colors.text.subdued,
   },
 });
-
