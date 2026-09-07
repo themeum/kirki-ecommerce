@@ -71,7 +71,6 @@ const emptyDefaultValue: RegionsDialogDefaultValue = {
   title: '',
 };
 
-const EU_REGION_CODE = 'EU';
 const emptyStateIds = new Set<string>();
 
 export const RegionsDialog = ({
@@ -81,7 +80,6 @@ export const RegionsDialog = ({
   defaultValue = emptyDefaultValue,
   dialogTitle = __('Add region', 'kirki-ecommerce'),
   from = '',
-  enableEuropeanRegion = false,
   disabledRegions,
   countryOnly = false,
   onDone,
@@ -90,32 +88,6 @@ export const RegionsDialog = ({
   const [searchValue, setSearchValue] = useState('');
   const [expandedCountries, setExpandedCountries] = useState<string[]>([]);
 
-  const displayCountries = useMemo<Country[]>(() => {
-    if (!enableEuropeanRegion) {
-      return countries;
-    }
-
-    const euMembers = countries.filter((country) => country.group === 'eu');
-
-    if (!euMembers.length) {
-      return countries;
-    }
-
-    const euRegion: Country = {
-      name: __('European Union', 'kirki-ecommerce'),
-      code: EU_REGION_CODE,
-      flag: '🇪🇺',
-      states: euMembers.map((member) => ({
-        id: member.name,
-        name: member.name,
-        code: member.code,
-        flag: member.flag,
-      })),
-    };
-
-    return [euRegion, ...countries.filter((country) => country.group !== 'eu')];
-  }, [countries, enableEuropeanRegion]);
-
   const disabledStateMap = useMemo(() => {
     const map = new Map<string, Set<string>>();
     (disabledRegions ?? []).forEach((region) => {
@@ -123,9 +95,6 @@ export const RegionsDialog = ({
     });
     return map;
   }, [disabledRegions]);
-
-  const isEuRegionRow = (countryCode: string) =>
-    enableEuropeanRegion && countryCode === EU_REGION_CODE;
 
   const getDisabledStateIds = (countryCode: string) =>
     disabledStateMap.get(countryCode) ?? emptyStateIds;
@@ -252,7 +221,7 @@ export const RegionsDialog = ({
       return;
     }
 
-    if (countryOnly || isEuRegionRow(country.code) || (country.states?.length ?? 0) === 0) {
+    if (countryOnly || (country.states?.length ?? 0) === 0) {
       handleSelectCountries(country);
       return;
     }
@@ -265,7 +234,7 @@ export const RegionsDialog = ({
   };
 
   const handleSelectStates = (stateId: string | number, country: Country) => {
-    if (isEuRegionRow(country.code) || isStateDisabled(country.code, stateId)) {
+    if (countryOnly || isStateDisabled(country.code, stateId)) {
       return;
     }
 
@@ -335,7 +304,7 @@ export const RegionsDialog = ({
     onOpenChange(false);
   };
 
-  const filteredCountries = getSearchedCountries(searchValue, displayCountries);
+  const filteredCountries = getSearchedCountries(searchValue, countries);
 
   const buttonState =
     (from === 'add' && !String(formTitle || '').trim()) || formCountries.length === 0;
@@ -393,7 +362,6 @@ export const RegionsDialog = ({
                       const regionInfo = formRegions.find(
                         (region) => region.country === country.code,
                       );
-                      const euRow = isEuRegionRow(country.code);
                       const countryDisabled = isCountryFullyDisabled(country);
                       const disabledStateIds = getDisabledStateIds(country.code);
                       const hasStates = !countryOnly && (country?.states?.length ?? 0) > 0;
@@ -415,7 +383,7 @@ export const RegionsDialog = ({
                                   ? regionInfo?.hasDeselectedState
                                     ? 'indeterminate'
                                     : true
-                                  : !euRow && regionInfo?.hasDeselectedState
+                                  : !countryOnly && regionInfo?.hasDeselectedState
                                     ? 'indeterminate'
                                     : formCountries.includes(country?.code)
                               }
@@ -473,7 +441,7 @@ export const RegionsDialog = ({
                                   <Flex gap={2} align="center">
                                     <Checkbox
                                       id={`regions-dialog-state-${country.code}-${state.id}`}
-                                      disabled={euRow || stateUsed}
+                                      disabled={countryOnly || stateUsed}
                                       checked={
                                         stateUsed ||
                                         formRegions

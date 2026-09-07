@@ -40,6 +40,8 @@ const activeCardCss = css({
   visibility: 'visible',
 });
 
+const EU_REGION_CODE = 'EU';
+
 const TaxRegions = (props: TaxRegionsProps) => {
   const navigate = useNavigate();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
@@ -51,7 +53,29 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const [showPopup, setShowPopup] = useState(false);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
-  const { data: countryList = [] } = useCountriesQuery({ limit: -1 });
+  const { data: countries = [] } = useCountriesQuery({ limit: -1 });
+
+  const countryList = useMemo<Country[]>(() => {
+    const euMembers = countries.filter((country) => country.group === 'eu');
+
+    if (!euMembers.length) {
+      return countries;
+    }
+
+    const euRegion: Country = {
+      name: __('European Union', 'kirki-ecommerce'),
+      code: EU_REGION_CODE,
+      flag: '🇪🇺',
+      states: euMembers.map((member) => ({
+        id: member.name,
+        name: member.name,
+        code: member.code,
+        flag: member.flag,
+      })),
+    };
+
+    return [euRegion, ...countries.filter((country) => country.group !== 'eu')];
+  }, [countries]);
 
   const disabledRegions = useMemo<Region[]>(
     () => taxRegions.map((region) => ({ country: region.code, states: [] })),
@@ -239,7 +263,6 @@ const TaxRegions = (props: TaxRegionsProps) => {
         open={showPopup}
         onOpenChange={setShowPopup}
         countries={countryList}
-        enableEuropeanRegion
         countryOnly
         disabledRegions={disabledRegions}
         from="edit"
