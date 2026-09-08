@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Actions\Account;
 
-use Exception;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Account\UpdateAddressPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
@@ -15,6 +14,8 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class UpdateAccountAddressesAction
 {
@@ -63,9 +64,7 @@ class UpdateAccountAddressesAction
                 $address_data = $customer->shipping_address->to_array();
             }
 
-            if ($data->type === AddressType::BILLING && $data->is_billing_same_as_shipping && empty($customer->shipping_address)) {
-                throw new Exception(__('Shipping address is not set.', 'kirki-ecommerce'));
-            }
+            throw_if($data->type === AddressType::BILLING && $data->is_billing_same_as_shipping && empty($customer->shipping_address), __('Shipping address is not set.', 'kirki-ecommerce'));
 
             $this->update_address($customer, $address_data, $data->type);
 

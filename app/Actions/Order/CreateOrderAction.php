@@ -33,7 +33,6 @@ use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Exception;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -125,10 +124,8 @@ class CreateOrderAction
             foreach ($dto->items as $item_data) {
                 $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
 
-                if (!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity)) {
-                    /* translators: %s: variant ID */
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
-                }
+                /* translators: %s: variant ID */
+                throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
 
                 $this->order_service->create_order_item($order_item_dto);
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);

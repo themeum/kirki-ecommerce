@@ -68,7 +68,7 @@ class UserService
         $result = wp_update_user(array_merge(['ID' => $user_id], $fields));
 
         if (is_wp_error($result)) {
-            throw new Exception(esc_html($result->get_error_message()));
+            throw_anyway($result->get_error_message());
         }
     }
 

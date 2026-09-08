@@ -193,10 +193,8 @@ class PayPal extends PaymentProvider
                     ],
                 ]);
 
-            if ($response->failed()) {
-                /* translators: %s: PayPal API error response */
-                throw new Exception(sprintf(__('Failed to create PayPal order: %s', 'kirki-ecommerce'), $response->body()));
-            }
+            /* translators: %s: PayPal API error response */
+            throw_if($response->failed(), sprintf(__('Failed to create PayPal order: %s', 'kirki-ecommerce'), $response->body()));
 
             $order_data = $response->json();
 
@@ -211,7 +209,7 @@ class PayPal extends PaymentProvider
                 }
             }
 
-            throw new Exception(__('PayPal approve link not found.', 'kirki-ecommerce'));
+            throw_anyway(__('PayPal approve link not found.', 'kirki-ecommerce'));
         } catch (Exception $e) {
             /* translators: %s: underlying error message */
             throw_anyway(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
@@ -232,9 +230,7 @@ class PayPal extends PaymentProvider
             $token = $this->get_access_token();
             $transaction_id = $order->payment_transaction_id;
 
-            if (empty($transaction_id)) {
-                throw new Exception(__('No payment transaction ID found for this order.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($transaction_id), __('No payment transaction ID found for this order.', 'kirki-ecommerce'));
 
             $currency = strtoupper($order->currency_code);
 
@@ -249,10 +245,8 @@ class PayPal extends PaymentProvider
                     'custom_id' => (string) $refund->id,
                 ]);
 
-            if ($response->failed()) {
-                /* translators: %s: PayPal API error response */
-                throw new Exception(sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $response->body()));
-            }
+            /* translators: %s: PayPal API error response */
+            throw_if($response->failed(), sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $response->body()));
 
             return true;
         } catch (Exception $e) {

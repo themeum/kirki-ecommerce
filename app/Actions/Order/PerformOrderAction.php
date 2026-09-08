@@ -13,6 +13,7 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 class PerformOrderAction
@@ -102,7 +103,7 @@ class PerformOrderAction
                 //     break;
 
                 default:
-                    throw new ValidationException(__('No action performed.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
+                    throw_anyway(__('No action performed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
             }
 
             DB::commit();
