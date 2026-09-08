@@ -38,25 +38,25 @@ class Twocheckout extends PaymentProvider
         $this->set_admin_fields([
             [
                 'name' => 'merchant_code',
-                'label' => __('Merchant Code', 'kirki-ecommerce-2checkout'),
+                'label' => __('Merchant Code', 'kirki-ecommerce-twocheckout'),
                 'type' => 'text',
                 'required' => true,
             ],
             [
                 'name' => 'secret_key',
-                'label' => __('Secret Key', 'kirki-ecommerce-2checkout'),
+                'label' => __('Secret Key', 'kirki-ecommerce-twocheckout'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'buy_link_secret_word',
-                'label' => __('Buy link secret word', 'kirki-ecommerce-2checkout'),
+                'label' => __('Buy link secret word', 'kirki-ecommerce-twocheckout'),
                 'type' => 'password',
                 'required' => true,
             ],
             [
                 'name' => 'sandbox',
-                'label' => __('Sandbox Mode', 'kirki-ecommerce-2checkout'),
+                'label' => __('Sandbox Mode', 'kirki-ecommerce-twocheckout'),
                 'type' => 'checkbox',
             ],
         ]);
@@ -72,7 +72,7 @@ class Twocheckout extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('2Checkout is not enabled.', 'kirki-ecommerce-2checkout'));
+            throw new Exception(__('2Checkout is not enabled.', 'kirki-ecommerce-twocheckout'));
         }
 
         try {
@@ -80,7 +80,14 @@ class Twocheckout extends PaymentProvider
 
             $builder = new TwocheckoutTransactionBuilder($order);
             $payload = $builder->built_payment_payload();
+            $payload['merchant'] = $this->settings['merchant_code'];
+
+            if ($this->client->is_sandbox()) {
+                $payload['test'] = 1;
+            }
+
             $payload['signature'] = $this->client->generate_signature($payload);
+
             $buy_link = TwocheckoutConstant::BUY_LINK_URL . http_build_query($payload);
 
             return PaymentActionDTO::from_array([
@@ -88,7 +95,7 @@ class Twocheckout extends PaymentProvider
                 'value' => $buy_link,
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('2Checkout Payment Error: %s', 'kirki-ecommerce-2checkout'), $e->getMessage()));
+            throw new Exception(sprintf(__('2Checkout Payment Error: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage()));
         }
     }
 

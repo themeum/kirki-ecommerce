@@ -50,38 +50,12 @@ class TwocheckoutClient
         return hash_equals($expected_checksum, $given_checksum);
     }
 
-    /**
-     * Create a QuickPay payment.
-     *
-     * @param array $payload The payment request payload.
-     * @return array The decoded JSON response, including the payment id.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment(array $payload): array
-    {
-        return $this->send(QuickpayConstant::POST_METHOD, QuickpayConstant::API_URL . 'payments', $payload);
-    }
-
-    /**
-     * Create a QuickPay payment link for an existing payment.
-     *
-     * @param array $payload The payment link request payload.
-     * @param int $payment_id The QuickPay payment ID to attach the link to.
-     * @return array The decoded JSON response, including the link url.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment_link(array $payload, int $payment_id): array
-    {
-        $url = QuickpayConstant::API_URL . "payments/{$payment_id}/link";
-
-        return $this->send(QuickpayConstant::PUT_METHOD, $url, $payload);
-    }
 
     /**
      * Send a request to the 2Checkout API and decode the JSON response.
      *
      */
-    protected function send(string $method, string $url, array $payload = [], array $header = []): array
+    protected function send(string $method, string $url, array $payload = [], array $headers = []): array
     {
         $request = Http::as_json();
 
@@ -115,19 +89,25 @@ class TwocheckoutClient
     public function generate_signature(array $payload)
     {
         $token = $this->generate_token();
-        return $this->send(TwocheckoutConstant::METHOD_POST, TwocheckoutConstant::SIGNATURE_GENERATE_URL, $payload, ['merchant-token' => $token]);
+        try {
+            $signature = $this->send(TwocheckoutConstant::METHOD_POST, TwocheckoutConstant::SIGNATURE_GENERATE_URL, $payload, ['merchant-token' => $token]);
+        } catch (\Throwable $th) {
+            throw new Exception(esc_html__('Error While Creating Signature: ', 'kirki-ecommerce-2checkout'), $th->getMessage());
+        }
+        return $signature['signature'];
     }
 
     protected function generate_token()
     {
         $header = array(
             'alg' => TwocheckoutConstant::ALGO,
-            'typ' => TwocheckoutConstant::TOKEN_TYPE,
+            'typ' => TwocheckoutConstant::TOKEN_TYPE
         );
 
         $claims = array(
             'sub' => $this->merchant_code,
             'iat' => time(),
+            'exp' => time() + TwocheckoutConstant::JWT_EXPIRE_TIME,
         );
 
         $encoded_string = $this->encode_string($header) . '.' . $this->encode_string($claims);

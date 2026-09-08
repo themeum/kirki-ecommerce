@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
 
 defined('ABSPATH') || exit;
@@ -35,7 +36,6 @@ class TwocheckoutTransactionBuilder
             'phone' => $this->order->billing_phone ?? '',
             'country' => $this->order->billing_country ?? '',
             'city' => $this->order->billing_city ?? '',
-            'state' => $this->order->billing_state ?? '',
             'address' => $this->order->billing_address_line1 ?? '',
             'address2' => $this->order->billing_address_line2 ?? '',
             'zip' => $this->order->billing_postal_code ?? '',
@@ -71,7 +71,7 @@ class TwocheckoutTransactionBuilder
         foreach ($this->order->items as $item) {
             $item_names[] = html_entity_decode($item->product_name);
             $item_quantities[] = $item->quantity;
-            $item_prices[] = $item->invoiced_total;
+            $item_prices[] = PaymentProvider::format_amount($item->invoiced_total, $this->order->currency_code);
             $item_references[] = $item->variant_id;
             $item_types[] = TwocheckoutConstant::TYPE_PRODUCT;
         }
@@ -79,14 +79,14 @@ class TwocheckoutTransactionBuilder
         if (!empty($this->order->invoiced_tax_total)) {
             $item_names[] = TwocheckoutConstant::TAX;
             $item_quantities[] = 1;
-            $item_prices[] = $this->order->invoiced_tax_total;
+            $item_prices[] = PaymentProvider::format_amount($this->order->invoiced_tax_total, $this->order->currency_code);
             $item_types[] = TwocheckoutConstant::TYPE_TAX;
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
             $item_names[] = TwocheckoutConstant::SHIPPING_CHARGE;
             $item_quantities[] = 1;
-            $item_prices[] = $this->order->invoiced_shipping_total;
+            $item_prices[] = PaymentProvider::format_amount($this->order->invoiced_shipping_total, $this->order->currency_code);
             $item_types[] = TwocheckoutConstant::TYPE_SHIPPING;
         }
 
