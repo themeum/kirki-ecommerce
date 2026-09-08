@@ -42,7 +42,7 @@ class ShopProductResource extends Resource
             return [];
         }
 
-        $has_variants = (bool) $variant->has_variants;
+        $has_variants = (bool) $this->has_variants;
         $variant_id   = intval($variant->id);
         $out_of_stock = $this->resolve_stock_status($variant_id);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);

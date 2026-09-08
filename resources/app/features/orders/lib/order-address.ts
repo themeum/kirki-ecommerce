@@ -16,7 +16,7 @@ export const toOrderFormAddresses = (order: OrderItem): Partial<OrderFormInput> 
     shipping_phone: shipping?.phone ?? '',
     shipping_email: shipping?.email ?? '',
 
-    is_billing_same_as_shipping: order.is_billing_same_as_shipping,
+    is_billing_same_as_shipping: order?.is_billing_same_as_shipping,
     billing_first_name: billing?.first_name ?? '',
     billing_last_name: billing?.last_name ?? '',
     billing_address_line1: billing?.address_line1 ?? '',

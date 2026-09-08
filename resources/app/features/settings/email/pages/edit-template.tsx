@@ -12,13 +12,16 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useEditTemplate } from '@/features/settings/email/hooks/use-edit-template';
-import { positionToTabIndex, tabIndexToPosition } from '@/features/settings/email/lib/template';
+import {
+  emailTemplateStyles,
+  positionToTabIndex,
+  tabIndexToPosition,
+} from '@/features/settings/email/lib/template';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const EditTemplate = () => {
@@ -27,8 +30,8 @@ const EditTemplate = () => {
 
   return (
     <>
-      <Container size="fullWidth" cssOverride={styles.container}>
-        {loaded ? (
+      {loaded ? (
+        <Container size="fullWidth" cssOverride={emailTemplateStyles.container}>
           <Form {...form}>
             <Flex direction="column" gap={4} cssOverride={{ width: '100%' }}>
               <SettingsPageHeader
@@ -38,21 +41,17 @@ const EditTemplate = () => {
               />
               <Flex gap={12} cssOverride={{ width: '100%' }}>
                 <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>
-                  <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
-                    <CardContent >
-
+                  <Card
+                    cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
+                  >
+                    <CardContent>
                       <Flex direction="column" gap={2}>
                         <Text weight="semibold">Logo</Text>
-                        <Text color="secondary">
-                          Update the logo & style your way
-                        </Text>
+                        <Text color="secondary">Update the logo & style your way</Text>
                       </Flex>
                       <MediaField
                         name="logo"
-                        placeholder={__(
-                          'Drag and drop, or upload images',
-                          'kirki-ecommerce',
-                        )}
+                        placeholder={__('Drag and drop, or upload images', 'kirki-ecommerce')}
                         description={__('Set store logo', 'kirki-ecommerce')}
                       />
                       <TextField
@@ -72,11 +71,7 @@ const EditTemplate = () => {
                           { value: '1', icon: <AlignCenterIcon /> },
                           {
                             value: '2',
-                            icon: (
-                              <AlignLeftIcon
-                                style={{ transform: 'scaleX(-1)' }}
-                              />
-                            ),
+                            icon: <AlignLeftIcon style={{ transform: 'scaleX(-1)' }} />,
                           },
                         ]}
                         toTabValue={(value) => positionToTabIndex(value as string)}
@@ -84,19 +79,15 @@ const EditTemplate = () => {
                       />
                     </CardContent>
                   </Card>
-                  <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
-                    <CardContent >
-
+                  <Card
+                    cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
+                  >
+                    <CardContent>
                       <Flex direction="column" gap={2}>
                         <Text weight="semibold">Colors</Text>
-                        <Text color="secondary">
-                          Style how the emails will look
-                        </Text>
+                        <Text color="secondary">Style how the emails will look</Text>
                       </Flex>
-                      <ColorPickerField
-                        name="colors.background"
-                        label="Background"
-                      />
+                      <ColorPickerField name="colors.background" label="Background" />
                       <ColorPickerField name="colors.text" label="Text" />
                       <ColorPickerField name="colors.link" label="Link" />
                       <ColorPickerField name="colors.label" label="Label" />
@@ -113,25 +104,24 @@ const EditTemplate = () => {
                 </Flex>
 
                 <Flex direction="column" gap={4} cssOverride={{ width: '56%' }}>
-                  <Flex
-                    align="center" justify="space-between">
+                  <Flex align="center" justify="space-between">
                     <Text weight="semibold">Template Preview</Text>
                     <Flex gap={2} align="center">
                       <SendIcon />
-                      <Text cssOverride={styles.sendTextMail}>Send Text Mail</Text>
+                      <Text cssOverride={emailTemplateStyles.sendTextMail}>Send Text Mail</Text>
                     </Flex>
                   </Flex>
-                  <Card cssOverride={styles.squareCard}>
+                  <Card cssOverride={emailTemplateStyles.squareCard}>
                     <CardContent />
                   </Card>
                 </Flex>
               </Flex>
             </Flex>
           </Form>
-        ) : (
-          <EditTemplateSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <EditTemplateSkeleton />
+      )}
     </>
   );
 };
@@ -139,19 +129,3 @@ const EditTemplate = () => {
 EditTemplate.displayName = 'EditTemplate';
 
 export default EditTemplate;
-
-const styles = defineStyles({
-  container: {
-    width: '100%',
-    padding: `${theme.spacing[3]} 103px`,
-  },
-  roundedCard: {
-    borderRadius: theme.radius.lg,
-  },
-  squareCard: {
-    borderRadius: theme.radius.none,
-  },
-  sendTextMail: {
-    ...theme.typography.small(),
-  },
-});

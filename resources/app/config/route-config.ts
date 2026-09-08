@@ -44,6 +44,7 @@ export const RouteConfig = {
     TaxSettings: defineRoute('/tax', {
       EditRegionEU: defineRoute('/region/eu'),
       EditTaxRegion: defineRoute('/region/:code'),
+      EditTaxRegionState: defineRoute('/region/:code/:state'),
     }),
     EmailSettings: defineRoute('/email', {
       EditEmailTemplate: defineRoute('/edit-template'),

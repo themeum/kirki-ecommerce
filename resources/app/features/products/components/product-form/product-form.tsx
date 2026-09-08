@@ -22,7 +22,7 @@ import Shipping from '@/features/products/components/product-form/sections/shipp
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
 import UnsavedToast from '@/features/products/components/product-form/unsaved-toast';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
-import { Product } from '@/features/products/schemas/catalog/product';
+import type { Product } from '@/features/products/schemas/catalog/product';
 import {
   type ProductFormInput,
   type ProductFormPayload,

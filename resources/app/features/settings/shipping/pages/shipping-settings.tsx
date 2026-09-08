@@ -32,6 +32,7 @@ const ShippingSettings = () => {
     loaded,
     shippingZonesObj,
     countryList,
+    usedRegions,
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,
@@ -46,16 +47,15 @@ const ShippingSettings = () => {
 
   return (
     <>
-      <Container size="sm">
-        {loaded ? (
+      {loaded ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
-              <SettingsPageHeader
-                icon={<TruckIcon />}
-                title={__('Shipping', 'kirki-ecommerce')}
-              />
+              <SettingsPageHeader icon={<TruckIcon />} title={__('Shipping', 'kirki-ecommerce')} />
               <Card cssOverride={cardStyles.formCard}>
-                <CardContent cssOverride={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[5] }}>
+                <CardContent
+                  cssOverride={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[5] }}
+                >
                   <HeaderActionsCard
                     header={__('Shipping Zones', 'kirki-ecommerce')}
                     subHeader={__(
@@ -68,17 +68,13 @@ const ShippingSettings = () => {
 
                   {!shippingZonesObj.length ? (
                     <Card cssOverride={cardStyles.innerDarkCard}>
-                      <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
-                        <Flex
-                          direction="column"
-                          gap={2}
-                          align="center">
+                      <CardContent
+                        cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}
+                      >
+                        <Flex direction="column" gap={2} align="center">
                           <LocationIcon />
                           <span css={scoped(styles.emptyStateText)}>
-                            {__(
-                              'Added shipping zones will appear here',
-                              'kirki-ecommerce',
-                            )}
+                            {__('Added shipping zones will appear here', 'kirki-ecommerce')}
                           </span>
                         </Flex>
                       </CardContent>
@@ -113,9 +109,7 @@ const ShippingSettings = () => {
                                   ).map((tag) => (
                                     <Badge variant="default" key={tag.id}>
                                       <Flex align="center" gap={1}>
-                                        <span css={scoped({ fontSize: 20 })}>
-                                          {tag.tagIcon}
-                                        </span>
+                                        <span css={scoped({ fontSize: 20 })}>{tag.tagIcon}</span>
                                         <Text variant="small" color="primary" weight="medium">
                                           {tag.title}
                                         </Text>
@@ -126,7 +120,6 @@ const ShippingSettings = () => {
                                         )}
                                       </Flex>
                                     </Badge>
-
                                   ))}
                                 </Flex>
                               </CardContent>
@@ -161,10 +154,10 @@ const ShippingSettings = () => {
               <ShippingBox />
             </Flex>
           </Form>
-        ) : (
-          <ShippingSettingsSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <ShippingSettingsSkeleton />
+      )}
       {showCreateZonePopup && (
         <RegionsDialog
           from="add"
@@ -172,6 +165,7 @@ const ShippingSettings = () => {
           open={showCreateZonePopup}
           onOpenChange={setShowCreateZonePopup}
           countries={countryList}
+          disabledRegions={usedRegions}
           onDone={handleCreateZone}
           errors={popupErrors}
         />

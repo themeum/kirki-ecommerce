@@ -4,7 +4,7 @@ import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch 
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import NumberInput from '@/components/ui/number-input';
-import { isDefined } from '@/utils/object';
+import { clampValue } from '@/utils/number';
 
 type NumberFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -43,18 +43,6 @@ const NumberField = <
   const currentValue = useWatch({ control, name });
   const fieldId = String(name);
 
-  const clampValue = (value: number) => {
-    if (isDefined(min) && value < min) {
-      return min;
-    }
-
-    if (isDefined(max) && value > max) {
-      return max;
-    }
-
-    return value;
-  };
-
   return (
     <Controller
       control={control}
@@ -91,7 +79,7 @@ const NumberField = <
                 return;
               }
 
-              const clampedValue = clampValue(enteredValue);
+              const clampedValue = clampValue(enteredValue, min, max);
 
               if (clampedValue !== enteredValue) {
                 field.onChange(clampedValue);

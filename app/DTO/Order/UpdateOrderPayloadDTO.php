@@ -43,7 +43,7 @@ class UpdateOrderPayloadDTO extends DTO
     public $shipping_state;
 
     /** @var string|null */
-    public $shipping_postcode;
+    public $shipping_postal_code;
 
     /** @var string|null */
     public $shipping_country;
@@ -76,7 +76,7 @@ class UpdateOrderPayloadDTO extends DTO
     public $billing_state;
 
     /** @var string|null */
-    public $billing_postcode;
+    public $billing_postal_code;
 
     /** @var string|null */
     public $billing_country;

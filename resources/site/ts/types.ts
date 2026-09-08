@@ -190,7 +190,7 @@ export type CheckoutRequest = {
   shipping_address_line2: string;
   shipping_city: string;
   shipping_state: string;
-  shipping_postcode: string;
+  shipping_postal_code: string;
   shipping_country: string;
   shipping_phone: string;
   shipping_email?: string;
@@ -201,7 +201,7 @@ export type CheckoutRequest = {
   billing_address_line2?: string;
   billing_city?: string;
   billing_state?: string;
-  billing_postcode?: string;
+  billing_postal_code?: string;
   billing_country?: string;
   billing_phone?: string;
   billing_email?: string;
