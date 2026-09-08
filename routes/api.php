@@ -213,6 +213,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 
     // Pages
     Route::get('/pages', [PageController::class, 'get']);
+    Route::post('/pages/fix', [PageController::class, 'run_fix']);
 
     // Online Payments
     Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);

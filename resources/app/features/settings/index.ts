@@ -1,3 +1,4 @@
+export type { AdvanceSettingsFormPayload } from './advanced/schemas/forms/page-settings';
 export type { CheckoutSettingsFormPayload } from './checkout/schemas/forms/checkout-settings-form';
 export type { EmailSettingsFormPayload } from './email/schemas/forms/email-settings-form';
 export { useSchemasQuery } from './essentials/services/schema';
