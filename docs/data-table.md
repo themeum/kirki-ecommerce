@@ -205,6 +205,66 @@ value** — six selected categories count as one, and a control left at `all`
 counts none. It excludes the search term and the date range, which have their own
 toolbar controls, so the trigger's ✕ does not wipe them.
 
+### `useFilterDraft`
+
+Do not hand-write that draft machinery. `useFilterDraft` owns all of it — the
+draft state, seeding on open, resetting on dismiss, resolving a control back to
+its empty value on apply, `appliedCount`, and clearing. A feature declares its
+empty draft and renders its controls; nothing else.
+
+```tsx
+const EMPTY_FILTERS = { category_ids: [], status: 'all', brand_id: undefined };
+
+const { draft, appliedCount, setDraftValue, handleOpen, handleClose, handleApply, handleClear } =
+  useFilterDraft<ProductListFilter, ProductFilterDraft>(productListOptions, EMPTY_FILTERS);
+```
+
+The empty draft is the contract: whatever value a control holds when it is
+"unset" (`'all'`, `[]`, `undefined`) goes in it, and the hook treats that value
+as not-applied everywhere — in the count, in what reaches the address, and in
+what a cleared filter resets to. Pass the same module-level `xListOptions`
+constant the table uses, so both read the same address.
+
+A control's own component takes `filterObject={draft}` and calls
+`setDraftValue(name, value)`. The product category, collection and brand controls
+are shared verbatim by the inventory list and the product-picker dialog — reuse
+them rather than writing a fourth copy.
+
+### What each list filters by
+
+| List | Controls |
+|---|---|
+| Products | Categories (multi), Status, Inventory, Collection, Brand |
+| Inventory | Categories (multi), Inventory, Collection, Brand |
+| Customers | Country, City |
+| Coupons | Status, Method, Type |
+| Orders | Status, Payment Status, Delivery Method |
+
+Three of these are worth knowing about before you touch them:
+
+**Orders' Status is a mapping, not a column.** `order_status` is the derived
+`(fulfillment_status, payment_status)` pair, so filtering it as a flat enum would
+offer three near-identical "shipped" options and let a merchant build
+guaranteed-empty combinations against the separate Payment Status control.
+Instead `Order::scope_apply_status_filter()` resolves each merchant-facing option
+to whichever column defines it — fulfilment for shipped/delivered/on-hold/
+cancelled/returned/placed/processing, payment for failed/refunded/refunding, and
+`order_status` for the two refund-cluster states. The mapping lives on the model
+so the labels and the conditions cannot drift apart across the API boundary.
+
+**The refund options may legitimately match nothing.** `refund requested` and
+`refund declined` are the only options resolved against `order_status`, and
+`OrderStatus::get_transition_matrix()` carries a TODO saying the refund cluster
+is not in the state matrix yet. An empty result there is the feature waiting on
+refunds, not a broken filter.
+
+**Customers filter on the default *shipping* address**, while the table's
+Location column is rendered from the *billing* address. A customer whose two
+differ can therefore be matched by a filter that disagrees with the column shown.
+The Country and City options come from `GET /customers/locations`, which returns
+only the countries and cities customers are actually in; City is scoped by the
+selected Country and resets when Country changes or clears.
+
 ---
 
 ## 7. Where this differs from TanStack defaults

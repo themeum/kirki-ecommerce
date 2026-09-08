@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
@@ -247,6 +248,199 @@ class VariantApiTest extends RestTestCase
             'sku' => ['sku'],
             'available' => ['available_quantity'],
             'committed' => ['committed_quantity'],
+        ];
+    }
+
+    /**
+     * Filtering variants by category narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_filters_by_category(): void
+    {
+        $category_id = $this->create_category();
+        $unique = 'VariantCatFilter-' . wp_generate_password(6, false);
+        $matching_sku = 'MATCH-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'categories' => [$category_id],
+            'variants' => [$this->variant_payload($matching_sku)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Other',
+            'variants' => [$this->variant_payload('OTHER-' . wp_generate_password(6, false))],
+        ]);
+
+        $response = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'category_ids' => [$category_id],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$matching_sku], array_column($payload['data']['results'], 'sku'));
+    }
+
+    /**
+     * Filtering variants by brand narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_filters_by_brand(): void
+    {
+        $brand_id = $this->create_brand();
+        $unique = 'VariantBrandFilter-' . wp_generate_password(6, false);
+        $matching_sku = 'MATCH-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'brand_id' => $brand_id,
+            'variants' => [$this->variant_payload($matching_sku)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Other',
+            'variants' => [$this->variant_payload('OTHER-' . wp_generate_password(6, false))],
+        ]);
+
+        $response = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'brand_id' => $brand_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$matching_sku], array_column($payload['data']['results'], 'sku'));
+    }
+
+    /**
+     * Filtering variants by collection narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_filters_by_collection(): void
+    {
+        $collection_id = $this->create_collection();
+        $unique = 'VariantCollectionFilter-' . wp_generate_password(6, false);
+        $matching_sku = 'MATCH-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'collections' => [$collection_id],
+            'variants' => [$this->variant_payload($matching_sku)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Other',
+            'variants' => [$this->variant_payload('OTHER-' . wp_generate_password(6, false))],
+        ]);
+
+        $response = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'collection_id' => $collection_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$matching_sku], array_column($payload['data']['results'], 'sku'));
+    }
+
+    /**
+     * Filtering variants by stock state lists only what can be sold.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_filters_by_inventory_type(): void
+    {
+        $unique = 'VariantStockFilter-' . wp_generate_password(6, false);
+        $in_stock_sku = 'INSTOCK-' . wp_generate_password(6, false);
+        $out_of_stock_sku = 'OUTSTOCK-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' InStock',
+            'variants' => [$this->variant_payload($in_stock_sku, 25, true)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' OutOfStock',
+            'variants' => [$this->variant_payload($out_of_stock_sku, 0, false)],
+        ]);
+
+        $in_stock = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'inventory_type' => InventoryType::IN_STOCK,
+        ]);
+        $this->assertEquals(
+            [$in_stock_sku],
+            array_column($this->assert_api_success($in_stock)['data']['results'], 'sku')
+        );
+
+        $out_of_stock = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'inventory_type' => InventoryType::OUT_OF_STOCK,
+        ]);
+        $this->assertEquals(
+            [$out_of_stock_sku],
+            array_column($this->assert_api_success($out_of_stock)['data']['results'], 'sku')
+        );
+    }
+
+    /**
+     * Combining a catalog filter with a stock filter narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_combines_collection_and_inventory_type(): void
+    {
+        $collection_id = $this->create_collection();
+        $unique = 'VariantComboFilter-' . wp_generate_password(6, false);
+        $matching_sku = 'MATCH-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Both',
+            'collections' => [$collection_id],
+            'variants' => [$this->variant_payload($matching_sku, 0, false)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' CollectionInStock',
+            'collections' => [$collection_id],
+            'variants' => [$this->variant_payload('STOCKED-' . wp_generate_password(6, false), 10, true)],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' OutOfStockNoCollection',
+            'variants' => [$this->variant_payload('LOOSE-' . wp_generate_password(6, false), 0, false)],
+        ]);
+
+        $response = $this->request('GET', 'variants', [
+            'search' => $unique,
+            'collection_id' => $collection_id,
+            'inventory_type' => InventoryType::OUT_OF_STOCK,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$matching_sku], array_column($payload['data']['results'], 'sku'));
+    }
+
+    /**
+     * Build a variant payload with a known SKU and stock state.
+     *
+     * @param string $sku      Variant SKU.
+     * @param int    $quantity Available quantity.
+     * @param bool   $in_stock Stock flag.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function variant_payload(string $sku, int $quantity = 100, bool $in_stock = true): array
+    {
+        return [
+            'base_price' => 19.99,
+            'sku' => $sku,
+            'available_quantity' => $quantity,
+            'in_stock' => $in_stock,
+            'is_default' => true,
+            'track_inventory' => true,
+            'attribute_values' => [],
         ];
     }
 }

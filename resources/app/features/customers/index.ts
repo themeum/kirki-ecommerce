@@ -9,4 +9,5 @@ export type { CustomerFormInput, CustomerFormPayload } from './schemas/forms/cus
 export { CustomerFormSchema } from './schemas/forms/customer-form';
 export { useCreateCustomerMutation, useCustomerQuery, useCustomersQuery } from './services/customer';
 export { customerKeys } from './services/query-keys';
+export type { CustomerListFilter } from './types';
 export { customerListOptions } from './types';
