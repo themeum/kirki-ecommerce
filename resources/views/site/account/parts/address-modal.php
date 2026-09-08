@@ -139,31 +139,20 @@ use Kirki\Ecommerce\App\Supports\Icon;
 
                     <div class="kecom-field" :class="{ 'kecom-field-error-state': errors.state }">
                         <label for="modal_address_state" class="kecom-field-label"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
-                        <template x-if="availableStates.length > 0">
-                            <select
-                                id="modal_address_state"
-                                name="state"
-                                class="kecom-select"
-                                :class="{ 'kecom-input-error': errors.state }"
-                                x-model="formData.state"
-                                @change="delete errors.state"
-                            >
-                                <option value=""><?php esc_html_e('Select State', 'kirki-ecommerce'); ?></option>
-                                <template x-for="state in availableStates" :key="state.id">
-                                    <option :value="state.id" x-text="state.name"></option>
-                                </template>
-                            </select>
-                        </template>
-                        <template x-if="availableStates.length === 0">
-                            <input
-                                type="text"
-                                id="modal_address_state_text"
-                                name="state"
-                                class="kecom-input"
-                                x-model="formData.state"
-                                placeholder="<?php esc_attr_e('State', 'kirki-ecommerce'); ?>"
-                            />
-                        </template>
+                        <select
+                            id="modal_address_state"
+                            name="state"
+                            class="kecom-select"
+                            :class="{ 'kecom-input-error': errors.state }"
+                            x-model="formData.state"
+                            :disabled="availableStates.length === 0"
+                            @change="delete errors.state"
+                        >
+                            <option value="" x-text="availableStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
+                            <template x-for="state in availableStates" :key="state.id">
+                                <option :value="state.id" x-text="state.name"></option>
+                            </template>
+                        </select>
                         <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
                     </div>
 
