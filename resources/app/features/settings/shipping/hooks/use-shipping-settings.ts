@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -25,12 +25,13 @@ import type {
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import type { RegionsDialogFormPayload } from '@/schemas/shared/region';
+import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors } from '@/types/pages/common';
 import { uuid } from '@/utils';
 import { normalizeErrors } from '@/utils/common';
+import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
@@ -44,6 +45,7 @@ type UseShippingSettingsResult = {
   loaded: boolean;
   shippingZonesObj: ShippingZone[];
   countryList: CountryWithStates[];
+  usedRegions: Region[];
   showCreateZonePopup: boolean;
   setShowCreateZonePopup: (open: boolean) => void;
   popupErrors: FormErrors;
@@ -77,8 +79,16 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   });
 
   const { isDirty } = form.formState;
-  const shippingZonesObj =
-    (useWatch({ control: form.control, name: 'shipping_zones' }) as ShippingZone[]) || [];
+  const watchedShippingZones = useWatch({ control: form.control, name: 'shipping_zones' });
+  const shippingZonesObj = useMemo(
+    () => (watchedShippingZones ?? []) as ShippingZone[],
+    [watchedShippingZones],
+  );
+
+  const usedRegions = useMemo(
+    () => mergeRegionsByCountry(shippingZonesObj.flatMap((zone) => zone.regions ?? [])),
+    [shippingZonesObj],
+  );
 
   useEffect(() => {
     if (!shippingSettingsData || !Object.keys(shippingSettingsData).length) {
@@ -254,6 +264,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     loaded: !isLoading,
     shippingZonesObj,
     countryList,
+    usedRegions,
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,

@@ -3,6 +3,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import type { MediaRef } from '@/schemas/shared/media';
 import { useSettingsQuery } from '@/services/settings';
+import { isDefined } from '@/utils/object';
 
 type SeoPreviewMode = 'search' | 'social' | 'schema';
 
@@ -22,12 +23,11 @@ const formatAmount = (
   symbol: string,
   code: string,
 ): string | null => {
-  if (amount === null || amount === undefined || amount === '') {
+  if (!isDefined(amount) || amount === '') {
     return null;
   }
 
-  const numericAmount =
-    typeof amount === 'string' ? Number.parseFloat(amount) : amount;
+  const numericAmount = typeof amount === 'string' ? Number.parseFloat(amount) : amount;
 
   if (Number.isNaN(numericAmount)) {
     return null;
@@ -63,16 +63,12 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const salePriceValue = useWatch({ control, name: 'variants.0.base_sale_price' });
 
   const storeLogo = generalSettings?.store_logo;
-  const storeLogoUrl =
-    storeLogo && typeof storeLogo === 'object' ? (storeLogo.url ?? null) : null;
+  const storeLogoUrl = storeLogo && typeof storeLogo === 'object' ? (storeLogo.url ?? null) : null;
   const storeName = generalSettings?.store_name ?? '';
   const siteUrl = window.kirki_ecommerce.site_url.replace(/\/$/, '');
   const breadcrumbUrl = `${siteUrl} › products › ${slug ?? ''}`;
 
-  const previewTitle =
-    mode === 'social'
-      ? ogTitle || title || ''
-      : seoTitle || title || '';
+  const previewTitle = mode === 'social' ? ogTitle || title || '' : seoTitle || title || '';
 
   const previewDescription =
     mode === 'social'
@@ -85,10 +81,7 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const regularPrice = formatAmount(price, currencySymbol, currencyCode);
   const salePrice = formatAmount(salePriceValue, currencySymbol, currencyCode);
 
-  const regularAmount =
-    price !== null && price !== undefined
-      ? Number.parseFloat(String(price))
-      : null;
+  const regularAmount = isDefined(price) ? Number.parseFloat(String(price)) : null;
   const saleAmount =
     salePriceValue !== null && salePriceValue !== undefined
       ? Number.parseFloat(String(salePriceValue))

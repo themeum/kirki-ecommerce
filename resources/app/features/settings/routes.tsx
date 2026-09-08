@@ -16,8 +16,8 @@ import ProductsSettingsSkeleton from '@/features/settings/products/skeletons/pro
 import ShippingDeliveryMethodSkeleton from '@/features/settings/shipping/skeletons/shipping-delivery-method-skeleton';
 import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
 import ShippingZoneSkeleton from '@/features/settings/shipping/skeletons/shipping-zone-skeleton';
-import TaxRegionSkeleton from '@/features/settings/tax/skeletons/tax-region-skeleton';
-import TaxSettingsSkeleton from '@/features/settings/tax/skeletons/tax-settings-skeleton';
+import { taxRoutes } from '@/features/settings/tax/routes';
+import TaxSettingsSkeleton from '@/features/settings/tax/shared/skeletons/tax-settings-skeleton';
 
 const SettingsLayout = lazy(() => import('@/features/settings/pages/settings-layout'));
 const GeneralSettings = lazy(() => import('@/features/settings/general/pages/general-settings'));
@@ -37,10 +37,6 @@ const MultiCurrencySettings = lazy(
 );
 const CheckoutSettings = lazy(() => import('@/features/settings/checkout/pages/checkout-settings'));
 const EditTemplate = lazy(() => import('@/features/settings/email/pages/edit-template'));
-const GeneralEditRegion = lazy(
-  () => import('@/features/settings/tax/pages/tax-region/general-edit-region'),
-);
-const EditRegionEU = lazy(() => import('@/features/settings/tax/pages/tax-region/edit-region-eu'));
 const EssentialsSettings = lazy(
   () => import('@/features/settings/essentials/pages/essential-settings'),
 );
@@ -103,14 +99,7 @@ const settingsRoutes: RouteObject[] = [
         path: SettingsRoutes.get('TaxSettings').template,
         element: withSuspense(TaxSettings, <TaxSettingsSkeleton />),
       },
-      {
-        path: SettingsRoutes.get('TaxSettings').get('EditRegionEU').template,
-        element: withSuspense(EditRegionEU, <TaxRegionSkeleton />),
-      },
-      {
-        path: SettingsRoutes.get('TaxSettings').get('EditTaxRegion').template,
-        element: withSuspense(GeneralEditRegion, <TaxRegionSkeleton />),
-      },
+      ...taxRoutes,
       {
         path: SettingsRoutes.get('EmailSettings').template,
         element: withSuspense(EmailSettings, <EmailSettingsSkeleton />),

@@ -19,7 +19,7 @@ import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schema
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
-import { TaxRegionSchema } from '@/features/settings/tax/schemas/catalog/tax';
+import { TaxRegionSchema } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 /**
