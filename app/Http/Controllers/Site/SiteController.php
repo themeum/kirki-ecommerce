@@ -22,6 +22,7 @@ use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
+use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
@@ -160,13 +161,15 @@ class SiteController
      * @param Request $request  request.
      * @param CartService $cart_service cart service.
      * @param OrderService $order_service order service.
+     * @param AddressService $address_service Address service.
      *
      * @return string Template path.
      */
     public function checkout_page(
         Request $request,
         CartService $cart_service,
-        OrderService $order_service
+        OrderService $order_service,
+        AddressService $address_service
     ) {
         $status = $request->get('order');
 
@@ -196,11 +199,14 @@ class SiteController
         }
 
         $customer = customer();
+        $customer_id      = $customer ? $customer->get_customer_id() : null;
+        $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
         $payment_gateways = Payment::get_available_providers();
         $cart = CartResource::make($cart);
 
         $data = [
             'customer'         => $customer,
+            'addresses'        => $addresses,
             'payment_gateways' => $payment_gateways,
             'countries'        => Utils::get_countries(),
             'cart'             => $cart,

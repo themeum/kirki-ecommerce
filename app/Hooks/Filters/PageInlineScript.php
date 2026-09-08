@@ -175,7 +175,9 @@ class PageInlineScript extends BaseHook
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
-            'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
+            'is_billing_same_as_shipping' => (bool) ($cart['is_billing_same_as_shipping'] ?? false),
+            'shipping_address'            => $cart['shipping_address'] ?? null,
+            'billing_address'             => $cart['billing_address'] ?? null,
             'pricing'                     => [
                 'discount_details'                   => $discount_details ? [
                     'code'                       => $discount_details['code'] ?? null,
@@ -199,6 +201,7 @@ class PageInlineScript extends BaseHook
 
         $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
+        $config['addresses'] = $this->format_address($data->addresses ?? []);
 
         if (is_user_logged_in()) {
             $current_user = wp_get_current_user();

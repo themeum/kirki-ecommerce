@@ -36,6 +36,8 @@ export type KirkiEcommerceConfig = {
     pricing: CartPricing;
     shipping_method: ShippingMethod | null;
     is_billing_same_as_shipping?: boolean;
+    shipping_address?: Record<string, any> | null;
+    billing_address?: Record<string, any> | null;
     available_shipping_methods?: ShippingMethod[];
   };
   currency?: string;
