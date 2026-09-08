@@ -407,6 +407,8 @@ class Utils
                 return 'kecom-badge-success-light';
             case PaymentStatus::UNPAID:
                 return 'kecom-badge-warning-light';
+            case PaymentStatus::FAILED:
+                return 'kecom-badge-error-light';
             default:
                 return 'kecom-badge-default';
         }

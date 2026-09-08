@@ -54,6 +54,7 @@
 
   .kecom-product-name {
     @include typography(base, medium, $text-primary);
+    @include text-clamp(1);
     text-decoration: none;
     outline: none;
     margin: 0;

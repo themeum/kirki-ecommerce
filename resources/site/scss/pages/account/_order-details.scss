@@ -77,11 +77,29 @@
 
 // Card 1: Order Status Timeline
 .kecom-order-status-card {
+  background-color: $background-surface;
+  border-radius: $radius-2xl;
+  max-height: 250px;
+  padding-right: $spacing-4;
+  padding-bottom: $spacing-9;
+  .kecom-card-title {
+    padding: $spacing-8 0 $spacing-8 $spacing-10;
+  }
+
   .kecom-order-stepper {
+    @include scrollbar(
+      $spacing-2,
+      $spacing-19,
+      $background-fill-tertiary,
+      $background-surface-secondary
+    );
+    max-height: 180px;
     display: flex;
     flex-direction: column;
     gap: $spacing-9;
-    margin-top: $spacing-9;
+    overflow: auto;
+    padding: 0 0 0 $spacing-10;
+    scrollbar-gutter: stable;
   }
 
   .kecom-order-step.kecom-order-step-active {
@@ -95,12 +113,23 @@
       }
     }
 
+    &.kecom-order-step-cancelled {
+      .kecom-order-step-indicator {
+        background-color: $icon-critical;
+
+        svg {
+          color: $icon-inverse;
+        }
+      }
+    }
+
     .kecom-order-step-indicator {
       background-color: $background-fill-secondary;
     }
 
     .kecom-order-step-dot {
       background-color: $icon-emphasis;
+      animation: pulse 1s infinite;
     }
 
     &:not(:last-of-type) {
@@ -149,10 +178,24 @@
     }
 
     &-dot {
-      width: 8px;
-      height: 8px;
+      width: 6.67px;
+      height: 6.67px;
       border-radius: $radius-full;
       background-color: $icon-secondary;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+      }
     }
 
     &-content {
@@ -177,7 +220,7 @@
   .kecom-order-info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: $spacing-10 $spacing-6;
+    gap: $spacing-10 $spacing-10;
 
     @include breakpoint-down(xs) {
       grid-template-columns: 1fr;
@@ -192,12 +235,15 @@
 
   .kecom-order-info-title {
     @include typography(base, semibold, $text-primary);
+    @include flex(row);
+    gap: $spacing-4;
     margin: 0;
   }
 
   .kecom-order-info-text {
     @include typography(base, normal, $text-primary);
     margin: 0;
+    white-space: nowrap;
   }
 
   .kecom-order-address-lines {
@@ -215,6 +261,10 @@
       }
     }
   }
+
+  @include breakpoint-up(md) {
+    max-height: 252px;
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -222,10 +272,57 @@
 // ----------------------------------------------------------------------------
 .kecom-order-details-col-right {
   .kecom-order-summary-card {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-10;
+    max-height: 522px;
+    @include flex(column, stretch, space-between);
     min-height: 100%;
+    background-color: $background-surface;
+    border-radius: $radius-2xl;
+    width: 100%;
+    padding: $spacing-4;
+  }
+
+  .kecom-product-list-wrapper {
+    max-height: 245px;
+    overflow: hidden;
+    scrollbar-gutter: stable both-edges;
+    padding-top: $spacing-2;
+    padding: $spacing-9 $spacing-10;
+  }
+
+  .kecom-expand-button,
+  .kecom-collapse-button {
+    @include flex-center();
+    @include typography(base, normal, $text-secondary);
+
+    button {
+      text-decoration: underline;
+      color: $text-secondary;
+      cursor: pointer;
+
+      &:hover {
+        color: $text-subdued;
+      }
+    }
+  }
+
+  .kecom-expand-button {
+    padding-top: $spacing-14;
+  }
+
+  .kecom-collapse-button {
+    margin-top: $spacing-11;
+  }
+
+  .kecom-product-list-wrapper.scrollable {
+    overflow: auto;
+    max-height: 330px;
+    margin: 0 -4px;
+    @include scrollbar(
+      $spacing-2,
+      $spacing-19,
+      $background-fill-tertiary,
+      $background-surface-secondary
+    );
   }
 
   // Pricing Breakdown
@@ -233,6 +330,15 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-4;
+    padding: $spacing-9 $spacing-10;
+    margin: 0 -8px;
+    flex: 1;
+    justify-content: flex-end;
+    min-height: 188px;
+  }
+
+  .kecom-order-pricing-breakdown.expanded {
+    box-shadow: 0 -5px 10px -11px rgba(0, 0, 0, 0.5);
   }
 
   .kecom-pricing-row {
