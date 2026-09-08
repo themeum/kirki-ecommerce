@@ -6,6 +6,7 @@ use Automatic_Upgrader_Skin;
 use Exception;
 use Plugin_Upgrader;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 class AddonPlugin
@@ -36,7 +37,9 @@ class AddonPlugin
 
         throw_if(empty($result), __('Plugin installation failed', 'kirki-ecommerce'));
 
-        throw_if(is_wp_error($result), $result->get_error_message());
+        if (is_wp_error($result)) {
+            throw_anyway($result->get_error_message());
+        }
 
         if (!$activate) {
             return true;
@@ -48,7 +51,9 @@ class AddonPlugin
 
         $activation_result = activate_plugin($plugin_path);
 
-        throw_if(is_wp_error($activation_result), $activation_result->get_error_message());
+        if (is_wp_error($activation_result)) {
+            throw_anyway($activation_result->get_error_message());
+        }
 
         return true;
     }

@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 class CreateCustomerAction
@@ -94,7 +95,9 @@ class CreateCustomerAction
 
         $user_id = wp_insert_user($new_user);
 
-        throw_if(is_wp_error($user_id), $user_id->get_error_message());
+        if (is_wp_error($user_id)) {
+            throw_anyway($user_id->get_error_message());
+        }
 
         return $user_id;
     }
