@@ -211,4 +211,42 @@ class VariantApiTest extends RestTestCase
         $response = $this->request('GET', 'variants');
         $this->assert_api_error($response, 401);
     }
+
+    /**
+     * Inventory rows can be sorted by every column the list presents, including
+     * the product title, which lives on the parent product.
+     *
+     * @dataProvider derived_variant_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_variants_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->request('POST', 'products', $this->product_payload(['title' => 'Inventory Sortable']));
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'variants', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_variant_sort_fields(): array
+    {
+        return [
+            'product title' => ['title'],
+            'sku' => ['sku'],
+            'available' => ['available_quantity'],
+            'committed' => ['committed_quantity'],
+        ];
+    }
 }

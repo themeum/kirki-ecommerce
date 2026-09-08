@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Tag;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -18,6 +19,26 @@ use function Kirki\Ecommerce\Framework\user;
 
 class TagService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'name' => 'name',
+            'slug' => 'slug',
+            'description' => 'description',
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+            'count' => 'products_count',
+        ];
+    }
+
     /**
      * Return paginated tags
      *
@@ -167,14 +188,11 @@ class TagService
      */
     protected function list_query(ListFilterDTO $filters)
     {
-        return Tag::with_count('products')
+        $query = Tag::with_count('products')
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['name', 'slug', 'description'], 'like', '%' . $search . '%');
-            })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
             });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

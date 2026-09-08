@@ -30,7 +30,6 @@ class CategoryController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'ordering', ['id', 'name', 'slug', 'parent_id', 'ordering', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);

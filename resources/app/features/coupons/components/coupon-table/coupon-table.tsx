@@ -5,7 +5,6 @@ import DataTable from '@/components/data-table';
 import type { CouponListFilter } from '@/features/coupons';
 import { couponListOptions } from '@/features/coupons';
 import { couponBulkActions, couponColumns } from '@/features/coupons/components/coupon-table/columns';
-import CouponTableFilterBar from '@/features/coupons/components/coupon-table/coupon-table-filter-bar';
 import CouponTableFilters from '@/features/coupons/components/coupon-table/coupon-table-filters';
 import { useBulkDeleteCouponsMutation, useCouponsQuery } from '@/features/coupons/services/coupon';
 import { useDataTableParams } from '@/hooks';
@@ -31,6 +30,7 @@ const CouponTable = () => {
 
   return (
     <DataTable
+      tableId="coupons"
       data={data?.results ?? []}
       columns={couponColumns}
       total={data?.total}
@@ -42,11 +42,10 @@ const CouponTable = () => {
       isLoading={isFetching}
       enableRowSelection
       selectionResetKey={selectionResetKey}
-      bulkActionOptions={couponBulkActions}
+      bulkActions={couponBulkActions}
       onBulkApply={handleBulkApply}
       columnPinning={{ right: ['actions'] }}
       toolbar={<CouponTableFilters />}
-      filterBar={<CouponTableFilterBar />}
     />
   );
 };

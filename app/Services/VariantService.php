@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\Variant\VariantListFilterDTO;
@@ -20,6 +22,30 @@ use function Kirki\Ecommerce\Framework\user;
 
 class VariantService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'product_id' => 'product_id',
+            'name' => 'name',
+            'sku' => 'sku',
+            'base_price' => 'base_price',
+            'base_sale_price' => 'base_sale_price',
+            'available_quantity' => 'available_quantity',
+            'committed_quantity' => 'committed_quantity',
+            'title' => function () {
+                return Product::where_raw('id = product_id')->limit(1)->select('title');
+            },
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Get all variants with product and media.
      *
@@ -351,11 +377,7 @@ class VariantService
 
         $query->filter_with_datetime_range($filters->from_date, $filters->to_date);
 
-        $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function ($query) use ($filters) {
-            return $query->order_by($filters->sort_by, $filters->sort_order);
-        }, function ($query) {
-            return $query->order_by('id', 'desc');
-        });
+        $this->apply_sorting($query, $filters);
 
         return $query;
     }

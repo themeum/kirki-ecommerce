@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -15,6 +16,22 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 class ProductSchemaService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'name' => 'name',
+            'is_default' => 'is_default',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated product schemas
      *
@@ -141,13 +158,10 @@ class ProductSchemaService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return ProductSchema::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = ProductSchema::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where('name', 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+        });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

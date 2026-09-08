@@ -11,6 +11,13 @@ type DataTableSelectionState = {
   selectedCount: number;
 };
 
+type DataTableBulkAction = {
+  value: string;
+  title: string;
+  destructive?: boolean;
+  icon?: ReactNode;
+};
+
 type DataTableRowEditAction = {
   label?: string;
   onClick: () => void;
@@ -33,6 +40,7 @@ type DataTableRowActionsConfig = {
 };
 
 export type {
+  DataTableBulkAction,
   DataTableItem,
   DataTableRowAction,
   DataTableRowActionsConfig,

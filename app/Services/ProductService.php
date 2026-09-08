@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\DTO\Product\ProductListFilterDTO;
 use Kirki\Ecommerce\App\Models\Product;
@@ -25,6 +26,27 @@ use function Kirki\Ecommerce\Framework\with_prefix;
 
 class ProductService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'status' => 'status',
+            'base_price' => function ($direction) {
+                return Variant::where_raw('pid = product_id')->order_by('base_price', $direction)->limit(1)->select('base_price');
+            },
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated products
      *
@@ -47,6 +69,7 @@ class ProductService
     public function paginate_with_variants(ProductListFilterDTO $filters)
     {
         $query = Product::query()->with(['attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'variants.product', 'media']);
+        $query->select_raw('*, id as pid');
 
         return $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
     }
@@ -350,6 +373,36 @@ class ProductService
         return $query;
     }
 
+    /**
+     * Order the list, honouring the storefront's price-sort vocabulary.
+     *
+     * The shop page sorts by lowest or highest variant price rather than by a
+     * product column, and fixes the direction itself, so those two values are
+     * resolved here rather than through the sortable column map.
+     *
+     * @param QueryBuilder $query
+     * @param ProductListFilterDTO $filters
+     * @return QueryBuilder
+     */
+    protected function apply_product_sorting(QueryBuilder $query, ProductListFilterDTO $filters)
+    {
+        $price_sorts = [
+            'low_to_high' => 'asc',
+            'high_to_low' => 'desc',
+        ];
+
+        if (is_string($filters->sort_by) && isset($price_sorts[$filters->sort_by])) {
+            $direction = $price_sorts[$filters->sort_by];
+
+            return $query->order_by(
+                Variant::where_raw('pid = product_id')->order_by('base_price', $direction)->limit(1)->select('base_price'),
+                $direction
+            );
+        }
+
+        return $this->apply_sorting($query, $filters);
+    }
+
     protected function apply_filters(QueryBuilder $query, ProductListFilterDTO $filters)
     {
         $query->when($filters->search, function (QueryBuilder $query, $search) {
@@ -404,21 +457,7 @@ class ProductService
 
         $query->filter_with_datetime_range($filters->from_date, $filters->to_date);
 
-        $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-            return $query->order_by($filters->sort_by, $filters->sort_order);
-        }, function (QueryBuilder $query) use ($filters) {
-            $sort_by = $filters->sort_by ?? null;
-
-            if ($sort_by === 'low_to_high') {
-                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'asc')->limit(1)->select('base_price'), 'asc');
-            }
-
-            if ($sort_by === 'high_to_low') {
-                return $query->order_by(Variant::where_raw('pid = product_id')->order_by('base_price', 'desc')->limit(1)->select('base_price'), 'desc');
-            }
-
-            return $query->order_by('id', 'desc');
-        });
+        $this->apply_product_sorting($query, $filters);
 
         return $query;
     }

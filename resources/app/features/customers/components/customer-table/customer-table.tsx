@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
@@ -16,7 +17,9 @@ import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const customerBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const customerBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const CustomerTable = () => {
   const navigate = useNavigate();
@@ -74,6 +77,7 @@ const CustomerTable = () => {
 
   return (
     <DataTable
+      tableId="customers"
       data={data?.results ?? []}
       columns={columns}
       total={data?.total}
@@ -85,7 +89,7 @@ const CustomerTable = () => {
       isLoading={isFetching}
       enableRowSelection
       selectionResetKey={selectionResetKey}
-      bulkActionOptions={customerBulkActions}
+      bulkActions={customerBulkActions}
       onBulkApply={handleBulkApply}
       columnPinning={{ right: ['actions'] }}
       onRowClick={handleRowClick}
