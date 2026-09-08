@@ -1,18 +1,9 @@
 import type { CSSObject } from '@emotion/react';
 import type { ReactNode } from 'react';
-import {
-  Controller,
-  type FieldPath,
-  type FieldValues,
-  useFormContext,
-} from 'react-hook-form';
+import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import {
   Select,
   SelectContent,
@@ -23,6 +14,7 @@ import {
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const weightUnitOptions = [
@@ -63,8 +55,7 @@ const WeightField = <
   const { data: productSettings } = useSettingsQuery('product');
   const fieldId = String(name);
   const unitFieldId = String(unitName);
-  const storeWeightUnit =
-    (productSettings?.weight_unit as string | undefined) || 'kg';
+  const storeWeightUnit = (productSettings?.weight_unit as string | undefined) || 'kg';
 
   return (
     <Controller
@@ -77,9 +68,7 @@ const WeightField = <
           render={({ field: unitField, fieldState: unitState }) => {
             const hasError = Boolean(weightState.error) || Boolean(unitState.error);
             const displayUnit =
-              unitField.value === null ||
-                unitField.value === undefined ||
-                unitField.value === ''
+              !isDefined(unitField.value) || unitField.value === ''
                 ? storeWeightUnit
                 : String(unitField.value);
 
@@ -106,10 +95,7 @@ const WeightField = <
             };
 
             return (
-              <Field
-                data-invalid={hasError || undefined}
-                cssOverride={cssOverride}
-              >
+              <Field data-invalid={hasError || undefined} cssOverride={cssOverride}>
                 {label && (
                   <FieldLabel htmlFor={fieldId} infoText={infoText}>
                     {label}
@@ -152,14 +138,8 @@ const WeightField = <
                     </Select>
                   </InputGroupAddon>
                 </InputGroup>
-                {description && (
-                  <FieldDescription>{description}</FieldDescription>
-                )}
-                {hasError && (
-                  <FieldError
-                    errors={[weightState.error, unitState.error]}
-                  />
-                )}
+                {description && <FieldDescription>{description}</FieldDescription>}
+                {hasError && <FieldError errors={[weightState.error, unitState.error]} />}
               </Field>
             );
           }}

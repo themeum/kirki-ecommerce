@@ -33,6 +33,4 @@ const ActivitySchema = z.object({
 
 type Activity = z.infer<typeof ActivitySchema>;
 
-export { ActivitySchema, ActivityTypeSchema };
-
-export type  { Activity, ActivityType };
+export { type Activity, ActivitySchema, type ActivityType, ActivityTypeSchema };
