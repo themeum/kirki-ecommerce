@@ -105,12 +105,12 @@ class PayPal extends PaymentProvider
      */
     protected function get_access_token()
     {
-        throw_if(!$this->enabled(), __('PayPal is not enabled.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$this->enabled(), __('PayPal is not enabled.', 'kirki-ecommerce'));
 
         $client_id = $this->settings['client_id'] ?? '';
         $client_secret = $this->settings['client_secret'] ?? '';
 
-        throw_if(empty($client_id) || empty($client_secret), __('PayPal Client ID or Secret is missing.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($client_id) || empty($client_secret), __('PayPal Client ID or Secret is missing.', 'kirki-ecommerce'));
 
         $response = Http::with_headers([
             'Authorization' => 'Basic ' . base64_encode($client_id . ':' . $client_secret),
@@ -122,7 +122,7 @@ class PayPal extends PaymentProvider
         );
 
         /* translators: %s: PayPal API error response */
-        throw_if($response->failed(), sprintf(__('Failed to authenticate with PayPal: %s', 'kirki-ecommerce'), $response->body()), Exception::class);
+        throw_if($response->failed(), sprintf(__('Failed to authenticate with PayPal: %s', 'kirki-ecommerce'), $response->body()));
 
         $data = $response->json();
 
@@ -214,7 +214,7 @@ class PayPal extends PaymentProvider
             throw new Exception(__('PayPal approve link not found.', 'kirki-ecommerce'));
         } catch (Exception $e) {
             /* translators: %s: underlying error message */
-            throw_anyway(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()), Exception::class);
+            throw_anyway(sprintf(__('PayPal Payment Error: %s', 'kirki-ecommerce'), $e->getMessage()));
         }
     }
 
@@ -257,7 +257,7 @@ class PayPal extends PaymentProvider
             return true;
         } catch (Exception $e) {
             /* translators: %s: underlying error message */
-            throw_anyway(sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $e->getMessage()), Exception::class);
+            throw_anyway(sprintf(__('PayPal Refund Error: %s', 'kirki-ecommerce'), $e->getMessage()));
         }
     }
 
@@ -277,7 +277,7 @@ class PayPal extends PaymentProvider
             ->post($this->get_base_url() . "/v2/checkout/orders/{$order_id}/capture");
 
         /* translators: %s: PayPal API error response */
-        throw_if($response->failed(), sprintf(__('Failed to capture PayPal order: %s', 'kirki-ecommerce'), $response->body()), Exception::class);
+        throw_if($response->failed(), sprintf(__('Failed to capture PayPal order: %s', 'kirki-ecommerce'), $response->body()));
 
         return $response->json();
     }

@@ -81,7 +81,7 @@ class CreateCustomerAction
     protected function create_user(CreateCustomerDTO $customer)
     {
         if (!empty($customer->user_id)) {
-            throw_if(empty(get_userdata($customer->user_id)), __('User could not be found.', 'kirki-ecommerce'), Exception::class);
+            throw_if(empty(get_userdata($customer->user_id)), __('User could not be found.', 'kirki-ecommerce'));
 
             return $customer->user_id;
         }
@@ -97,7 +97,7 @@ class CreateCustomerAction
 
         $user_id = wp_insert_user($new_user);
 
-        throw_if(is_wp_error($user_id), $user_id->get_error_message(), Exception::class);
+        throw_if(is_wp_error($user_id), $user_id->get_error_message());
 
         return $user_id;
     }
@@ -106,7 +106,7 @@ class CreateCustomerAction
     {
         $is_created_billing_address = $this->address_service->create($address_payload);
 
-        throw_if(!$is_created_billing_address, __('Customer address could not be created.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$is_created_billing_address, __('Customer address could not be created.', 'kirki-ecommerce'));
 
         return true;
     }

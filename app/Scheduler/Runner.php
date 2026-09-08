@@ -91,9 +91,9 @@ class Runner
      */
     protected function validate($job)
     {
-        throw_if(empty($job), __("Invalid job provided to resolve", 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($job), __("Invalid job provided to resolve", 'kirki-ecommerce'));
 
-        throw_if(empty($job->resolver), __("Missing resolver class", 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($job->resolver), __("Missing resolver class", 'kirki-ecommerce'));
     }
 
     /**
@@ -139,10 +139,10 @@ class Runner
     protected function make_resolver(string $resolver)
     {
         /* translators: %s: job resolver class name */
-        throw_if(!class_exists($resolver), sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver), Exception::class);
+        throw_if(!class_exists($resolver), sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver));
 
         /* translators: %s: job resolver class name */
-        throw_if(!method_exists($resolver, 'handle'), sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver), Exception::class);
+        throw_if(!method_exists($resolver, 'handle'), sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver));
 
         return app()->make($resolver);
     }

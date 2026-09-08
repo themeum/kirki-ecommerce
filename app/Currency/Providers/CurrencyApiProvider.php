@@ -79,20 +79,20 @@ class CurrencyApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'));
 
         $response = Http::with_headers(['apikey' => $api_key])->get(static::API_URL . '/latest', [
             'base_currency' => $base_currency,
             'currencies' => strtoupper(implode(',', $symbols)),
         ]);
 
-        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'), Exception::class);
+        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'));
 
-        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'));
 
         $data = $response->json();
 
-        throw_if(empty($data['data']), $data['message'] ?? __('Unknown error from CurrencyApi.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($data['data']), $data['message'] ?? __('Unknown error from CurrencyApi.', 'kirki-ecommerce'));
 
         $rates = [];
 
@@ -124,11 +124,11 @@ class CurrencyApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'));
 
         $response = Http::get(static::API_URL . '/status', ['api_key' => $api_key]);
 
-        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce'));
 
         $data = $response->json();
 

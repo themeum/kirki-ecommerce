@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Concerns;
 
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
-use Kirki\Ecommerce\App\Supports\ExceptionThrower;
 
 /**
  * Cross-field integrity checks for a product's variant matrix.
@@ -93,7 +92,7 @@ trait ValidatesVariantMatrix
         }
 
         if (!empty($errors)) {
-            ExceptionThrower::throw(ValidationException::with_errors($errors));
+            throw ValidationException::with_errors($errors); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
     }
 }

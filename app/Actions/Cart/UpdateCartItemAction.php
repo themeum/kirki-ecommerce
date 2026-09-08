@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
-use Exception;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\DTO\Cart\UpdateCartItemDTO;
 use Kirki\Ecommerce\App\Services\InventoryService;
@@ -32,10 +31,10 @@ class UpdateCartItemAction
 
         throw_if(empty($item), __('Cart item not found.', 'kirki-ecommerce'), NotFoundException::class);
 
-        throw_if(!$this->inventory_service->has_stock($item->variant_id, $dto->quantity), __('Not enough stock for this variant', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$this->inventory_service->has_stock($item->variant_id, $dto->quantity), __('Not enough stock for this variant', 'kirki-ecommerce'));
 
         /* translators: %s: variant ID */
-        throw_if(!$this->inventory_service->is_within_limit($item->variant_id, $dto->quantity), sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $item->variant_id), Exception::class);
+        throw_if(!$this->inventory_service->is_within_limit($item->variant_id, $dto->quantity), sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $item->variant_id));
 
         $this->cart_service->update_item_quantity($cart->id, $dto->item_id, $dto->quantity);
 

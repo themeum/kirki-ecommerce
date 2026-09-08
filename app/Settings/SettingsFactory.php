@@ -36,7 +36,7 @@ class SettingsFactory
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'), Exception::class);
+            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'));
 
             if (empty($setting_instance)) {
                 return value($default);
@@ -61,9 +61,9 @@ class SettingsFactory
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'), Exception::class);
+            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'));
 
-            throw_if(empty($setting_instance), __('Invalid settings key!', 'kirki-ecommerce'), Exception::class);
+            throw_if(empty($setting_instance), __('Invalid settings key!', 'kirki-ecommerce'));
 
             $settings_array = $setting_instance->to_array();
 

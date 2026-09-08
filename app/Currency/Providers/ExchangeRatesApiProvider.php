@@ -78,20 +78,20 @@ class ExchangeRatesApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        throw_if(empty($api_key), __('Exchange Rates API access key is missing.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($api_key), __('Exchange Rates API access key is missing.', 'kirki-ecommerce'));
         $response = Http::get(static::API_URL . '/latest', [
             'access_key' => $api_key,
             'base' => $base_currency,
             'symbols' => implode(',', $symbols),
         ]);
 
-        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'), Exception::class);
+        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'));
 
-        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'));
 
         $data = $response->json();
 
-        throw_if(empty($data['success']) || !$data['success'], $data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($data['success']) || !$data['success'], $data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce'));
 
         return ExchangeRateDTO::from_array([
             'provider_id' => $this->get_id(),

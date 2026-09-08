@@ -196,7 +196,7 @@ class CartService
     {
         $item = $this->find_item($item_id);
 
-        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
         throw_if($item->cart_id !== $cart_id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
@@ -228,11 +228,11 @@ class CartService
     {
         $cart = $this->get_cart($dto->user_id, $dto->token);
 
-        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'));
 
         $item = $this->find_item($dto->item_id);
 
-        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
         throw_if($item->cart_id !== $cart->id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 

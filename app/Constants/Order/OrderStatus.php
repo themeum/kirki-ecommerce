@@ -66,7 +66,7 @@ final class OrderStatus
     {
         $matrix = static::get_transition_matrix();
 
-        throw_if(!isset($matrix[$order_status]), __('Unknown order status.', 'kirki-ecommerce'), Exception::class);
+        throw_if(!isset($matrix[$order_status]), __('Unknown order status.', 'kirki-ecommerce'));
 
         return $matrix[$order_status];
     }
@@ -88,7 +88,7 @@ final class OrderStatus
             }
         }
 
-        throw_anyway(__('Cannot resolve order status.', 'kirki-ecommerce'), Exception::class);
+        throw_anyway(__('Cannot resolve order status.', 'kirki-ecommerce'));
     }
 
     /**

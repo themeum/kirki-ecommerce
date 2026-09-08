@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Decisions;
 use Kirki\Ecommerce\App\Decisions\Conditions\Condition;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\LogicalOperator;
-use Exception;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -94,12 +93,12 @@ class DecisionEngine
         }
 
         /* translators: %s: condition type */
-        throw_if(!class_exists($this->conditions[$type]), sprintf(__('Condition %s does not exist', 'kirki-ecommerce'), $type), Exception::class);
+        throw_if(!class_exists($this->conditions[$type]), sprintf(__('Condition %s does not exist', 'kirki-ecommerce'), $type));
 
         $condition_instance = new $this->conditions[$type]();
 
         /* translators: %s: condition type */
-        throw_if(!$condition_instance instanceof Condition, sprintf(__('Condition %s does not implement Condition interface', 'kirki-ecommerce'), $type), Exception::class);
+        throw_if(!$condition_instance instanceof Condition, sprintf(__('Condition %s does not implement Condition interface', 'kirki-ecommerce'), $type));
 
         return $condition_instance->evaluate(
             $this->context,

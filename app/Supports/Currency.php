@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
-use Exception;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -34,7 +33,7 @@ class Currency
             return $amount;
         }
 
-        throw_if($from->exchange_rate === 0, __('Exchange rate 0 is not allowed', 'kirki-ecommerce'), Exception::class);
+        throw_if($from->exchange_rate === 0, __('Exchange rate 0 is not allowed', 'kirki-ecommerce'));
 
         return ($amount / $from->exchange_rate) * $to->exchange_rate; //todo: need to check this later with major minor currency implementation
     }
@@ -49,9 +48,9 @@ class Currency
     {
         $to = static::resolve_currency($to_currency);
 
-        throw_if(!$to, __('Currency not found', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$to, __('Currency not found', 'kirki-ecommerce'));
 
-        throw_if($to->exchange_rate === 0, __('Exchange rate 0 is not allowed', 'kirki-ecommerce'), Exception::class);
+        throw_if($to->exchange_rate === 0, __('Exchange rate 0 is not allowed', 'kirki-ecommerce'));
 
         return $to->exchange_rate;
     }

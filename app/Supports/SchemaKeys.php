@@ -163,7 +163,7 @@ class SchemaKeys
      */
     public static function expected_name($table, array $columns, $type)
     {
-        throw_if(!isset(static::$type_prefixes[$type]), sprintf('Unknown key type [%s].', $type), Exception::class);
+        throw_if(!isset(static::$type_prefixes[$type]), sprintf('Unknown key type [%s].', $type));
 
         $name = sprintf(
             '%s_%s_%s',

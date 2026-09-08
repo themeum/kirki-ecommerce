@@ -82,7 +82,7 @@ class CustomerService
      */
     public function create(CreateCustomerDTO $data)
     {
-        throw_if(!empty($data->user_id) && $this->find_by_user_id($data->user_id), __('Customer already exists', 'kirki-ecommerce'), Exception::class);
+        throw_if(!empty($data->user_id) && $this->find_by_user_id($data->user_id), __('Customer already exists', 'kirki-ecommerce'));
 
         $data_array = $data->all();
 

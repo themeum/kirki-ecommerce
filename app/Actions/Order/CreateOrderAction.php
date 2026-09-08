@@ -103,7 +103,7 @@ class CreateOrderAction
 
         $context = $this->prepare_calculation_context_dto($dto);
 
-        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
         $create_order_dto = $this->prepare_create_order_dto($calculated_result, $dto, $context);
@@ -157,7 +157,7 @@ class CreateOrderAction
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
-        throw_if(empty($cart) || empty($cart->items), __('Cart not found.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($cart) || empty($cart->items), __('Cart not found.', 'kirki-ecommerce'));
 
         $items = [];
 
@@ -168,7 +168,7 @@ class CreateOrderAction
             ];
         }
 
-        throw_if(empty($items), __('Cart is empty.', 'kirki-ecommerce'), Exception::class);
+        throw_if(empty($items), __('Cart is empty.', 'kirki-ecommerce'));
 
         $dto->items = $items;
         $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
@@ -348,15 +348,15 @@ class CreateOrderAction
             $variant = $this->variant_service->find($item_data['variant_id']);
 
             /* translators: %s: JSON-encoded item data */
-            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)), Exception::class);
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
 
             /* translators: %s: variant ID */
-            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), Exception::class);
+            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
 
             $product = $variant->product;
 
             /* translators: %s: variant ID */
-            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id), Exception::class);
+            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
 
             $product->load('categories');
 
@@ -477,7 +477,7 @@ class CreateOrderAction
         $product = $variant->product;
 
         /* translators: %s: variant ID */
-        throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id), Exception::class);
+        throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
 
         $product->load('media');
 

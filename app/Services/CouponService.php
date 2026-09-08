@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Exception;
 use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -278,9 +277,9 @@ class CouponService
     {
         $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
-        throw_if($is_active && $coupon->is_active, __('The coupon is already activated', 'kirki-ecommerce'), Exception::class);
+        throw_if($is_active && $coupon->is_active, __('The coupon is already activated', 'kirki-ecommerce'));
 
-        throw_if(!$is_active && !$coupon->is_active, __('The coupon is already deactivated', 'kirki-ecommerce'), Exception::class);
+        throw_if(!$is_active && !$coupon->is_active, __('The coupon is already deactivated', 'kirki-ecommerce'));
 
         $coupon->is_active = $is_active ? 1 : 0;
         $coupon->save();
