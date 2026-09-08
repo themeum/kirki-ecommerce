@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 
 import DataTableFilterPopover from '@/components/data-table/data-table-filter-popover';
 import Flex from '@/components/ui/flex';
@@ -11,86 +11,51 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { OrderListFilter } from '@/features/orders';
-import { fulfillmentStatusOptions, orderListOptions, paymentStatusOptions } from '@/features/orders';
-import { useListParams } from '@/hooks';
+import { orderListOptions, orderStatusOptions, paymentStatusOptions } from '@/features/orders';
+import DeliveryMethodFilter from '@/features/orders/components/order-table/filter-popup/delivery-method-filter';
+import { useFilterDraft } from '@/hooks';
 import { __ } from '@/wpi18n';
 
-const emptyFilter: OrderListFilter = {
-  fulfillment_status: 'all',
-  payment_status: 'all',
+type OrderFilterDraft = {
+  status: string;
+  payment_status: string;
+  shipping_method: string;
 };
 
+const EMPTY_FILTERS: OrderFilterDraft = {
+  status: 'all',
+  payment_status: 'all',
+  shipping_method: 'all',
+};
+
+const fields = [
+  { name: 'status' as const, label: __('Status', 'kirki-ecommerce'), options: orderStatusOptions },
+  {
+    name: 'payment_status' as const,
+    label: __('Payment Status', 'kirki-ecommerce'),
+    options: paymentStatusOptions,
+  },
+];
+
 const FilterPopup = memo(() => {
-  const { params, setParams } = useListParams<OrderListFilter>(orderListOptions);
-  const [filterObject, setFilterObject] = useState<OrderListFilter>(emptyFilter);
-
-  const appliedCount = [params.fulfillment_status, params.payment_status].filter(Boolean).length;
-
-  const fields = [
-    {
-      name: 'fulfillment_status' as const,
-      label: __('Fulfillment Status', 'kirki-ecommerce'),
-      options: fulfillmentStatusOptions,
-    },
-    {
-      name: 'payment_status' as const,
-      label: __('Payment Status', 'kirki-ecommerce'),
-      options: paymentStatusOptions,
-    },
-  ];
-
-  const handleOpen = () => {
-    setFilterObject({
-      fulfillment_status: params.fulfillment_status || 'all',
-      payment_status: params.payment_status || 'all',
-    });
-  };
-
-  const handleOnFilterChange = (val: string, filterName: keyof OrderListFilter) => {
-    setFilterObject((prev) => ({
-      ...prev,
-      [filterName]: val,
-    }));
-  };
-
-  const resolveValue = (value: string | undefined) => {
-    if (!value || value === 'all') {
-      return undefined;
-    }
-
-    return value;
-  };
-
-  const handleApply = () => {
-    setParams({
-      fulfillment_status: resolveValue(filterObject.fulfillment_status),
-      payment_status: resolveValue(filterObject.payment_status),
-    });
-  };
-
-  const handleClear = () => {
-    setFilterObject(emptyFilter);
-    setParams({
-      fulfillment_status: undefined,
-      payment_status: undefined,
-    });
-  };
+  const { draft, appliedCount, setDraftValue, handleOpen, handleClose, handleApply, handleClear } =
+    useFilterDraft<OrderListFilter, OrderFilterDraft>(orderListOptions, EMPTY_FILTERS);
 
   return (
     <DataTableFilterPopover
       appliedCount={appliedCount}
       onOpen={handleOpen}
-      onClose={() => setFilterObject(emptyFilter)}
+      onClose={handleClose}
       onApply={handleApply}
       onClear={handleClear}
-      contentCssOverride={{ minHeight: '208px' }}
+      contentCssOverride={{ minHeight: '264px' }}
     >
       {fields.map((field) => (
         <Flex key={field.name} direction="column" gap={2}>
           <Label>{field.label}</Label>
           <Select
-            value={filterObject[field.name] || undefined}
-            onValueChange={(val) => handleOnFilterChange(val, field.name)}
+            value={draft[field.name] || undefined}
+            onValueChange={(val) => setDraftValue(field.name, val)}
           >
             <SelectTrigger>
               <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
@@ -105,6 +70,11 @@ const FilterPopup = memo(() => {
           </Select>
         </Flex>
       ))}
+
+      <DeliveryMethodFilter
+        filterObject={draft}
+        onChange={(val) => setDraftValue('shipping_method', val)}
+      />
     </DataTableFilterPopover>
   );
 });

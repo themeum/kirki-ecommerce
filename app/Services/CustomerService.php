@@ -297,6 +297,89 @@ class CustomerService
                 return $query->where_any(['first_name', 'last_name', 'email', 'phone'], 'like', '%' . $search . '%');
             });
 
+        $this->apply_location_filter($query, $filters);
+
         return $this->apply_sorting($query, $filters);
+    }
+
+    /**
+     * Narrow the list to customers whose default shipping address matches.
+     *
+     * A customer has many addresses, so location has to name one of them. The
+     * default shipping address is the one that decides where an order goes,
+     * which is what a merchant means by where a customer is.
+     *
+     * @param QueryBuilder $query
+     * @param ListFilterDTO $filters
+     *
+     * @return QueryBuilder
+     */
+    protected function apply_location_filter(QueryBuilder $query, ListFilterDTO $filters)
+    {
+        $country = $filters->country ?? null;
+        $city = $filters->city ?? null;
+
+        if (empty($country) && empty($city)) {
+            return $query;
+        }
+
+        return $query->where_has('shipping_address', function (QueryBuilder $address_query) use ($country, $city) {
+            $address_query->when($country, function (QueryBuilder $address_query) use ($country) {
+                return $address_query->where('country', $country);
+            });
+
+            return $address_query->when($city, function (QueryBuilder $address_query) use ($city) {
+                return $address_query->where('city', $city);
+            });
+        });
+    }
+
+    /**
+     * The distinct locations present on customers' default shipping addresses.
+     *
+     * The filter controls offer only locations a merchant actually has
+     * customers in, so the options come from the address rows themselves
+     * rather than from a global reference list.
+     *
+     * @param string|null $country Restrict the cities to this country.
+     *
+     * @return array{countries: string[], cities: string[]}
+     */
+    public function list_locations($country = null)
+    {
+        $addresses = Address::query()
+            ->where('is_default_shipping', true)
+            ->get()
+            ->all();
+
+        $countries = [];
+        $cities = [];
+
+        foreach ($addresses as $address) {
+            if (!empty($address->country)) {
+                $countries[$address->country] = true;
+            }
+
+            if (empty($address->city)) {
+                continue;
+            }
+
+            if (!empty($country) && $address->country !== $country) {
+                continue;
+            }
+
+            $cities[$address->city] = true;
+        }
+
+        $countries = array_keys($countries);
+        $cities = array_keys($cities);
+
+        sort($countries);
+        sort($cities);
+
+        return [
+            'countries' => $countries,
+            'cities' => $cities,
+        ];
     }
 }

@@ -1,7 +1,6 @@
-import { type ComponentProps, memo, useState } from 'react';
+import { memo } from 'react';
 
 import DataTableFilterPopover from '@/components/data-table/data-table-filter-popover';
-import type Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
 import {
@@ -18,83 +17,40 @@ import {
   methodOptions,
   statusOptions,
 } from '@/features/coupons';
-import { useListParams } from '@/hooks';
-import { noop } from '@/utils/function';
+import { useFilterDraft } from '@/hooks';
 import { __ } from '@/wpi18n';
 
-type FilterPopupProps = {
-  onChange?: () => void;
-  buttonProps?: ComponentProps<typeof Button>;
-  data?: unknown;
+type CouponFilterDraft = {
+  status: string;
+  method: string;
+  discount_type: string;
 };
 
-const EMPTY_FILTERS: CouponListFilter = {
+const EMPTY_FILTERS: CouponFilterDraft = {
   status: 'all',
-  discount_type: 'all',
   method: 'all',
+  discount_type: 'all',
 };
 
-const FilterPopup = memo(({ onChange: _onChange = noop, data: _data }: FilterPopupProps) => {
-  const { params, setParams } = useListParams<CouponListFilter>(couponListOptions);
-  const [filterObject, setFilterObject] = useState<CouponListFilter>(EMPTY_FILTERS);
+const fields = [
+  { name: 'status' as const, label: __('Status', 'kirki-ecommerce'), options: statusOptions },
+  { name: 'method' as const, label: __('Method', 'kirki-ecommerce'), options: methodOptions },
+  {
+    name: 'discount_type' as const,
+    label: __('Type', 'kirki-ecommerce'),
+    options: discountTypeOptions,
+  },
+];
 
-  const appliedCount = [params.status, params.discount_type, params.method].filter(Boolean).length;
-
-  const fields = [
-    { name: 'status' as const, label: __('Status', 'kirki-ecommerce'), options: statusOptions },
-    { name: 'method' as const, label: __('Method', 'kirki-ecommerce'), options: methodOptions },
-    {
-      name: 'discount_type' as const,
-      label: __('Type', 'kirki-ecommerce'),
-      options: discountTypeOptions,
-    },
-  ];
-
-  const handleOpen = () => {
-    setFilterObject({
-      status: params.status || 'all',
-      discount_type: params.discount_type || 'all',
-      method: params.method || 'all',
-    });
-  };
-
-  const handleOnFilterChange = (val: string, filterName: keyof CouponListFilter) => {
-    setFilterObject((prev) => ({
-      ...prev,
-      [filterName]: val,
-    }));
-  };
-
-  const resolveValue = (value: string | undefined) => {
-    if (!value || value === 'all') {
-      return undefined;
-    }
-
-    return value;
-  };
-
-  const handleApply = () => {
-    setParams({
-      status: resolveValue(filterObject.status),
-      discount_type: resolveValue(filterObject.discount_type),
-      method: resolveValue(filterObject.method),
-    });
-  };
-
-  const handleClear = () => {
-    setFilterObject(EMPTY_FILTERS);
-    setParams({
-      status: undefined,
-      discount_type: undefined,
-      method: undefined,
-    });
-  };
+const FilterPopup = memo(() => {
+  const { draft, appliedCount, setDraftValue, handleOpen, handleClose, handleApply, handleClear } =
+    useFilterDraft<CouponListFilter, CouponFilterDraft>(couponListOptions, EMPTY_FILTERS);
 
   return (
     <DataTableFilterPopover
       appliedCount={appliedCount}
       onOpen={handleOpen}
-      onClose={() => setFilterObject(EMPTY_FILTERS)}
+      onClose={handleClose}
       onApply={handleApply}
       onClear={handleClear}
       contentCssOverride={{ minHeight: '264px' }}
@@ -103,8 +59,8 @@ const FilterPopup = memo(({ onChange: _onChange = noop, data: _data }: FilterPop
         <Flex key={field.name} direction="column" gap={2}>
           <Label>{field.label}</Label>
           <Select
-            value={filterObject[field.name] || undefined}
-            onValueChange={(val) => handleOnFilterChange(val, field.name)}
+            value={draft[field.name] || undefined}
+            onValueChange={(val) => setDraftValue(field.name, val)}
           >
             <SelectTrigger>
               <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />

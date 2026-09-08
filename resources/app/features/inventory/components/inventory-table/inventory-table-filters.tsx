@@ -2,6 +2,7 @@ import ActionGroup from '@/components/ui/action-group';
 import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import FilterPopup from '@/features/inventory/components/inventory-table/filter-popup/filter-popup';
 import { inventoryListOptions } from '@/features/inventory/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
@@ -22,6 +23,8 @@ const InventoryTableFilters = () => {
           clearable
         />
       </div>
+
+      <FilterPopup />
 
       <ActionGroup>
         <DateRangePicker

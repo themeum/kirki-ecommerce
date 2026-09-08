@@ -12,6 +12,7 @@ import { customerColumns } from '@/features/customers/components/customer-table/
 import CustomerTableFilters from '@/features/customers/components/customer-table/customer-table-filters';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
 import { useBulkDeleteCustomersMutation, useCustomersQuery, useDeleteCustomerMutation } from '@/features/customers/services/customer';
+import type { CustomerListFilter } from '@/features/customers/types';
 import { customerListOptions } from '@/features/customers/types';
 import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
@@ -24,7 +25,7 @@ const customerBulkActions: DataTableBulkAction[] = [
 const CustomerTable = () => {
   const navigate = useNavigate();
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(customerListOptions);
+    useDataTableParams<CustomerListFilter>(customerListOptions);
 
   const { data, isFetching } = useCustomersQuery(params);
   const deleteMutation = useDeleteCustomerMutation();

@@ -26,6 +26,7 @@ use Kirki\Ecommerce\App\DTO\Order\PerformOrderActionDTO;
 use Kirki\Ecommerce\App\DTO\Refund\CreateRefundPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Refund\UpdateRefundPayloadDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderActionRequest;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderListRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -41,7 +42,7 @@ class OrderController
     {
         $this->service = $service;
     }
-    public function get(Request $request)
+    public function get(OrderListRequest $request)
     {
         $params = OrderListFilterDTO::from_array($request->all());
 

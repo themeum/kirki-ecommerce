@@ -387,13 +387,16 @@ class OrderService
             })
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
-                return $query->where('order_status', $filters->status);
+                return $query->apply_status_filter($filters->status);
             })
             ->when(!empty($filters->fulfillment_status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('fulfillment_status', $filters->fulfillment_status);
             })
             ->when(!empty($filters->payment_status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('payment_status', $filters->payment_status);
+            })
+            ->when(!empty($filters->shipping_method), function (QueryBuilder $query) use ($filters) {
+                return $query->where('shipping_method', $filters->shipping_method);
             });
 
         return $this->apply_sorting($query, $filters);

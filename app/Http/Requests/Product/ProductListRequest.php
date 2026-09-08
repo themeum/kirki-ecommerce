@@ -12,7 +12,8 @@ class ProductListRequest extends Request
     public function rules()
     {
         return [
-            'category_ids' => 'nullable|string',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'integer',
             'brand_id' => 'nullable|integer',
             'collection_id' => 'nullable|integer',
             'availability_status' => 'nullable|string|in:' . AvailabilityStatus::join(),
@@ -23,16 +24,12 @@ class ProductListRequest extends Request
     public function filters()
     {
         return [
-            'category_ids' => Sanitizer::TEXT,
+            'category_ids' => Sanitizer::ARRAY,
+            'category_ids.*' => Sanitizer::INT,
             'brand_id' => Sanitizer::INT,
             'collection_id' => Sanitizer::INT,
             'availability_status' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
         ];
-    }
-
-    protected function passed_validation()
-    {
-        $this->attributes['category_ids'] = !empty($this->attributes['category_ids']) ? explode(',', $this->attributes['category_ids']) : null;
     }
 }
