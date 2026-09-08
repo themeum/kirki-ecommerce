@@ -4,14 +4,17 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\DTO\Variant\VariantListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Variant\BulkUpdateVariantRequest;
+use Kirki\Ecommerce\App\Http\Requests\Variant\UpdateVariantRequest;
 use Kirki\Ecommerce\App\Http\Requests\Variant\VariantListRequest;
 use Kirki\Ecommerce\App\Resources\Variant\InventoryResource;
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
+use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\response;
 
 class VariantController
@@ -53,6 +56,41 @@ class VariantController
         return response()->json([
             'data' => VariantResource::collection($variants),
             'message' => __('Inventory retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    public function show(Request $request)
+    {
+        $variant = $this->service->find($request->int('id'));
+
+        return response()->json([
+            'data' => VariantResource::make($variant, $this->preview_url_for($variant)),
+            'message' => __('Variant retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    protected function preview_url_for($variant)
+    {
+        $slug = $variant->product->slug ?? null;
+
+        if (empty($slug)) {
+            return null;
+        }
+
+        return app()->make(ProductService::class)->get_preview_url($slug);
+    }
+
+    public function update(UpdateVariantRequest $request)
+    {
+        $data = $request->sanitized();
+
+        unset($data['id']);
+
+        $variant = $this->service->partial_update($request->int('id'), $data);
+
+        return response()->json([
+            'data' => VariantResource::make($variant),
+            'message' => __('Variant updated successfully.', 'kirki-ecommerce'),
         ]);
     }
 

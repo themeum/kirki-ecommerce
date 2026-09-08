@@ -8,7 +8,9 @@ export const RouteConfig = {
     EditProduct: defineRoute('/:id'),
   }),
   BulkVariants: defineRoute('/variants/bulk'),
-  Inventory: defineRoute('/inventory'),
+  Inventory: defineRoute('/inventory', {
+    EditInventory: defineRoute('/:id'),
+  }),
 
   Coupons: defineRoute('/coupons', {
     EditCoupon: defineRoute('/:id'),

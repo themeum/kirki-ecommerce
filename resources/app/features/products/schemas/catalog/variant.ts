@@ -3,8 +3,19 @@ import { z } from 'zod';
 import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
+export const AvailabilityStatusSchema = z.enum([
+  'in_stock',
+  'low_stock',
+  'out_of_stock',
+  'partially_stocked',
+]);
+
+export type AvailabilityStatus = z.infer<typeof AvailabilityStatusSchema>;
+
 export const VariantSchema = z.object({
   id: z.number().optional(),
+  product_id: z.number().nullish(),
+  preview_url: z.string().nullish(),
   name: z.string(),
   media: MediaRefSchema.nullish(),
   sku: z.string().nullable(),
@@ -56,21 +67,17 @@ export type ProductVariant = z.infer<typeof VariantSchema>;
 
 export const InventoryVariantSchema = z.object({
   id: z.number(),
-  name: z.string(),
   sku: z.string().nullable(),
-  base_price: MoneyAmountSchema,
-  base_price_money_object: MoneyObjectSchema,
   display_price: MoneyAmountSchema,
   display_price_money_object: MoneyObjectSchema,
-  base_sale_price: MoneyAmountSchema.nullable(),
-  base_sale_price_money_object: MoneyObjectSchema.nullable(),
-  display_sale_price: MoneyAmountSchema.nullish(),
+  display_sale_price: MoneyAmountSchema.nullable(),
   display_sale_price_money_object: MoneyObjectSchema.nullable(),
-  base_cost_of_goods: MoneyAmountSchema.nullable(),
-  base_cost_of_goods_money_object: MoneyObjectSchema.nullable(),
-  display_cost_of_goods: MoneyAmountSchema.nullish(),
-  display_cost_of_goods_money_object: MoneyObjectSchema.nullable(),
-  stock_quantity: z.number().nullish(),
+  attribute_value_labels: z.array(z.string()).default([]),
+  track_inventory: z.boolean(),
+  available_quantity: z.number(),
+  committed_quantity: z.number().nullish(),
+  availability_status: z.union([AvailabilityStatusSchema, z.string()]).nullish(),
+  availability_label: z.string().nullish(),
   product: z.object({
     id: z.number(),
     name: z.string(),
