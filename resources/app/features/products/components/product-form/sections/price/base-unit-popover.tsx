@@ -33,7 +33,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types/pages/common';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type BaseUnitPopoverProps = {
   errors?: FormErrors;
@@ -94,11 +94,7 @@ const BaseUnitPopover = ({
 
   const handleTotalUnitChange = (value: string) => {
     const nextBaseUnitOptions = getSpecifiedUnitList(value);
-    if (
-      !nextBaseUnitOptions.some(
-        (item) => item.value === form.getValues('base_unit'),
-      )
-    ) {
+    if (!nextBaseUnitOptions.some((item) => item.value === form.getValues('base_unit'))) {
       form.setValue('base_unit', value);
     }
 
@@ -140,7 +136,13 @@ const BaseUnitPopover = ({
   const btnText =
     savedBasePricePerUnit === null
       ? __('Add', 'kirki-ecommerce')
-      : `${currencySymbol}${savedBasePricePerUnit.toFixed(2)} / ${data?.base_unit_amount}${getUnitShortText(data?.base_unit)}`;
+      : sprintf(
+          '%s%s / %s%s',
+          currencySymbol,
+          savedBasePricePerUnit.toFixed(2),
+          data?.base_unit_amount ?? '',
+          data?.base_unit ?? '',
+        );
 
   const baseUnitOptions = getSpecifiedUnitList(unitData.total_unit);
 
@@ -153,7 +155,11 @@ const BaseUnitPopover = ({
           {...buttonProps}
         >
           {btnText}
-          <ChevronDown width={16} height={16} css={scoped({ color: theme.colors.icon.secondary })} />
+          <ChevronDown
+            width={16}
+            height={16}
+            css={scoped({ color: theme.colors.icon.secondary })}
+          />
         </Button>
       </PopoverTrigger>
       <PopoverContent

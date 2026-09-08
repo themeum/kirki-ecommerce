@@ -34,15 +34,15 @@ class UpdateVariantRequest extends Request
 
             'base_price' => 'number|min:0|nullable',
             'show_unit_price' => 'boolean|nullable',
-            'base_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'base_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
             'base_unit_amount' => 'number|min:0|nullable',
-            'total_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'total_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
             'total_unit_amount' => 'number|min:0|nullable',
             'base_sale_price' => 'number|min:0|nullable',
             'base_cost_of_goods' => 'number|min:0|nullable',
 
             'weight' => 'number|min:0|nullable',
-            'weight_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'weight_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
 
             'charge_taxes' => 'boolean|nullable',
             'allow_back_order' => 'boolean|nullable',

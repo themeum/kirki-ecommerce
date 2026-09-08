@@ -105,10 +105,7 @@ const Price = () => {
                 <CheckboxField
                   name="charge_taxes"
                   label={__('Charge tax on this product', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Apply tax to this product using a tax profile.',
-                    'kirki-ecommerce',
-                  )}
+                  infoText={__('Apply tax to this product using a tax profile.', 'kirki-ecommerce')}
                 />
                 {chargeTaxes && (
                   <CreatableSelectField
@@ -163,9 +160,7 @@ const Price = () => {
       <TaxProfilePopupView
         isOpen={openTaxProfilePopup}
         onClose={() => setOpenTaxProfilePopup(false)}
-        onSave={(value) =>
-          setValue('tax_profile_id', value as number, { shouldDirty: true })
-        }
+        onSave={(value) => setValue('tax_profile_id', value as number, { shouldDirty: true })}
       />
     </Card>
   );
@@ -194,7 +189,7 @@ const styles = defineStyles({
   },
   inputLeftSymbol: {
     ...flexCenter(),
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.primary,
     position: 'absolute',
     left: theme.spacing[3],
     top: '50%',
