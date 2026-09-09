@@ -72,7 +72,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) =>
         >
           {hasBack && (
             <Button
-              variant="link"
+              variant="ghost"
               size="icon"
               cssOverride={{
                 ...buttonCssOverride,
@@ -119,6 +119,7 @@ const styles = defineStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: theme.colors.background.solidSurfaceSecondary,
   },
   wrapperSticky: {
     top: '32px',
@@ -127,7 +128,7 @@ const styles = defineStyles({
     marginTop: theme.spacing[0],
     position: 'sticky',
     borderBottom: `1px solid ${theme.colors.border.default}`,
-    backgroundColor: theme.colors.background.surfaceTertiary,
+    backgroundColor: theme.colors.background.solidSurfaceSecondary,
     zIndex: theme.zIndex.sticky,
   },
   wrapperNoMargin: {

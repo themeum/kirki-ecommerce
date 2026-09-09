@@ -393,6 +393,10 @@ const theme = {
     sm: '0px 1px 2px 0px hsla(0, 0%, 0%, 0.05)',
     md: '0px 4px 6px -1px hsla(0, 0%, 0%, 0.1), 0px 2px 4px -2px hsla(0, 0%, 0%, 0.1)',
     lg: '0px 10px 15px -3px hsla(0, 0%, 0%, 0.1), 0px 4px 6px -4px hsla(0, 0%, 0%, 0.1)',
+    popover: `0px 0px 4px 0px rgba(0, 0, 0, 0.08),
+      0px 4px 12px 0px rgba(0, 0, 0, 0.08),
+      0px 2px 4px -2px rgba(0, 0, 0, 0.08),
+      0px 1.5px 0px 0px rgba(255, 255, 255, 0.08) inset`,
   },
   // WordPress's own chrome sits at #adminmenu(back) z-index 9990 and
   // #wpadminbar z-index 99999. Every layer here that renders position:fixed

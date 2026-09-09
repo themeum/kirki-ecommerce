@@ -14,14 +14,9 @@ const Products = () => {
     <>
       <PageHeading
         text={__('Products', 'kirki-ecommerce')}
+        sticky
         actions={
           <>
-            <Button variant="ghost" disabled>
-              {__('Import', 'kirki-ecommerce')}
-            </Button>
-            <Button variant="ghost" disabled>
-              {__('Export', 'kirki-ecommerce')}
-            </Button>
             <Button
               variant="primary"
               onClick={() => {
