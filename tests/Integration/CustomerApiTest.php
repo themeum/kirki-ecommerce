@@ -251,6 +251,46 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
+     * Customers can be sorted by every field the list presents, including the
+     * ones derived from relations rather than stored on the customer.
+     *
+     * @dataProvider derived_customer_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_customers_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->create_customer(['first_name' => 'Sortable']);
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'customers', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_customer_sort_fields(): array
+    {
+        return [
+            'orders count' => ['orders_count'],
+            'lifetime spend' => ['base_amount_spent'],
+            'last order date' => ['last_order_date'],
+            'location' => ['location'],
+            'first name' => ['first_name'],
+            'created at' => ['created_at'],
+        ];
+    }
+
+    /**
      * Create customer.
      * @param array $overrides Overrides.
      *

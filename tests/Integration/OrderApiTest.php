@@ -1122,6 +1122,46 @@ class OrderApiTest extends RestTestCase
      * @return array
      * @since 1.0.0
      */
+    /**
+     * Orders can be sorted by every column the list presents, including the
+     * line quantity and the status, whose request name differs from the column.
+     *
+     * @dataProvider derived_order_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_orders_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->create_order();
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'orders', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_order_sort_fields(): array
+    {
+        return [
+            'order number' => ['order_number'],
+            'quantity' => ['quantity'],
+            'invoiced total' => ['invoiced_total'],
+            'status' => ['status'],
+            'payment provider' => ['payment_provider'],
+            'created at' => ['created_at'],
+        ];
+    }
+
     protected function create_order(array $overrides = []): array
     {
         $response = $this->request('POST', 'orders', $this->order_payload($overrides));

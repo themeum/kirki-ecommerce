@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -17,6 +18,21 @@ use function Kirki\Ecommerce\Framework\throw_if;
 
 class TaxProfileService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'name' => 'name',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated tax profiles
      *
@@ -133,13 +149,10 @@ class TaxProfileService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return TaxProfile::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = TaxProfile::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where('name', 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+        });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

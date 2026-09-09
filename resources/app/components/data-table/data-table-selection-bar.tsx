@@ -1,7 +1,7 @@
 import type { CSSObject } from '@emotion/react';
 import { useState } from 'react';
 
-import type { DataTableSelectionState } from '@/components/data-table/types';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table/types';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import {
@@ -14,14 +14,13 @@ import {
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import type { SelectOption } from '@/types/components/common';
 import { __, sprintf } from '@/wpi18n';
 
 type DataTableSelectionBarProps = {
   selection: DataTableSelectionState;
   total: number;
   shownCount: number;
-  bulkActionOptions?: SelectOption[];
+  bulkActions?: DataTableBulkAction[];
   onBulkApply?: (action: string, selection: DataTableSelectionState) => void | Promise<void>;
   onSelectAllMatching: () => void;
   onClearSelection: () => void;
@@ -33,7 +32,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
     selection,
     total,
     shownCount,
-    bulkActionOptions,
+    bulkActions,
     onBulkApply,
     onSelectAllMatching,
     onClearSelection,
@@ -41,15 +40,39 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
   } = props;
   const { selectedCount, isAllMatchingSelected } = selection;
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [isApplying, setIsApplying] = useState(false);
 
-  const handleApply = async () => {
-    if (!onBulkApply || !selectedAction) {
+  const applyAction = async (action: string) => {
+    if (!onBulkApply) {
       return;
     }
 
-    await onBulkApply(selectedAction, selection);
-    onClearSelection();
+    setIsApplying(true);
+
+    try {
+      await onBulkApply(action, selection);
+      onClearSelection();
+    } catch {
+      /*
+       * The selection is kept so the action can be retried. Reporting is the
+       * caller's job — its mutation has already surfaced the failure — but the
+       * rejection is absorbed here so it does not escape unhandled.
+       */
+    } finally {
+      setIsApplying(false);
+    }
   };
+
+  const handleApply = () => {
+    if (!selectedAction) {
+      return;
+    }
+
+    void applyAction(selectedAction);
+  };
+
+  const singleAction = bulkActions?.length === 1 ? bulkActions[0] : null;
+  const hasActionChoice = !!bulkActions && bulkActions.length > 1;
 
   return (
     <Flex gap={5} cssOverride={mergeCss(styles.wrapper, cssOverride)}>
@@ -68,21 +91,36 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
           </Button>
         )}
       </Flex>
-      {bulkActionOptions && (
+      {singleAction && (
+        <Button
+          variant={singleAction.destructive ? 'destructive' : 'secondary'}
+          loading={isApplying}
+          onClick={() => void applyAction(singleAction.value)}
+        >
+          {singleAction.icon}
+          {singleAction.title}
+        </Button>
+      )}
+      {hasActionChoice && (
         <Flex gap={2} align="center">
           <Select onValueChange={setSelectedAction}>
             <SelectTrigger cssOverride={styles.selectTrigger}>
               <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
             </SelectTrigger>
             <SelectContent>
-              {bulkActionOptions.map((option) => (
-                <SelectItem key={option.value} value={String(option.value)}>
-                  {option.title}
+              {bulkActions.map((action) => (
+                <SelectItem key={action.value} value={action.value}>
+                  {action.title}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button variant="secondary" onClick={handleApply} disabled={!selectedAction}>
+          <Button
+            variant="secondary"
+            loading={isApplying}
+            onClick={handleApply}
+            disabled={!selectedAction}
+          >
             {__('Apply', 'kirki-ecommerce')}
           </Button>
         </Flex>

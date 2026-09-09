@@ -1,11 +1,7 @@
-import type { Dispatch, SetStateAction } from 'react';
-
-import DropdownButton from '@/components/dropdown-button';
 import ActionGroup from '@/components/ui/action-group';
 import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { allTableHeaders } from '@/features/inventory/lib/utils';
 import { inventoryListOptions } from '@/features/inventory/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
@@ -13,15 +9,7 @@ import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-type InventoryTableFiltersProps = {
-  selectedFields: string[];
-  setSelectedFields: Dispatch<SetStateAction<string[]>>;
-};
-
-const InventoryTableFilters = ({
-  selectedFields,
-  setSelectedFields,
-}: InventoryTableFiltersProps) => {
+const InventoryTableFilters = () => {
   const { params, setParam, handleDateFilter } = useDataTableParams(inventoryListOptions);
 
   return (
@@ -45,20 +33,6 @@ const InventoryTableFilters = ({
           clearable
           onChange={handleDateFilter}
           size="sm"
-        />
-        <DropdownButton
-          buttonProps={{
-            variant: 'outline',
-          }}
-          options={allTableHeaders}
-          value={selectedFields}
-          hasLeftIcon
-          checkboxField
-          multiple
-          dropdownStyle={{ minWidth: '288px' }}
-          onOptionSelect={(value) =>
-            setSelectedFields(value as string[])
-          }
         />
       </ActionGroup>
     </Flex>

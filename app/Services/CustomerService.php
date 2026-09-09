@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
+use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -21,6 +23,36 @@ use function Kirki\Ecommerce\Framework\user;
 
 class CustomerService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'user_id' => 'user_id',
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
+            'email' => 'email',
+            'phone' => 'phone',
+            'orders_count' => 'orders_count',
+            'base_amount_spent' => 'orders_sum_base_total',
+            'last_order_date' => 'orders_max_created_at',
+            'location' => function () {
+                return Address::where_raw('customer_id = cid')
+                    ->where('is_default_billing', true)
+                    ->limit(1)
+                    ->select_raw("concat_ws(', ', state, country)");
+            },
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated customers
      *
@@ -237,7 +269,8 @@ class CustomerService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return Customer::query()
+        $query = Customer::query()
+            ->select_raw('*, id as cid')
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->with_max('orders', 'created_at')
             ->with_count('orders')
@@ -245,11 +278,8 @@ class CustomerService
             ->with('billing_address')
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['first_name', 'last_name', 'email', 'phone'], 'like', '%' . $search . '%');
-            })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
             });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

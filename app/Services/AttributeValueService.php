@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -16,6 +17,23 @@ use function Kirki\Ecommerce\Framework\throw_if;
 
 class AttributeValueService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'attribute_id' => 'attribute_id',
+            'value' => 'value',
+            'color' => 'color',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return all attribute values
      *
@@ -25,14 +43,11 @@ class AttributeValueService
      */
     public function all(int $attribute_id, ListFilterDTO $filters)
     {
-        return AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters->search), function (QueryBuilder $query, $search) {
+        $query = AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters->search), function (QueryBuilder $query, $search) {
             return $query->where_any(['value', 'color'], 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            })->get();
+        });
+
+        return $this->apply_sorting($query, $filters)->get();
     }
 
     /**

@@ -34,7 +34,6 @@ class CouponController
     public function get(Request $request)
     {
         $params = CouponFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'code', 'start_datetime', 'end_datetime', 'usage_limit', 'is_active', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);

@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -21,6 +22,31 @@ use function Kirki\Ecommerce\Framework\user;
 
 class CouponService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'code' => 'code',
+            'method' => 'method',
+            'discount_type' => 'discount_type',
+            'current_usage_count' => 'current_usage_count',
+            'start_datetime' => 'start_datetime',
+            'end_datetime' => 'end_datetime',
+            'usage_limit' => 'usage_limit',
+            'is_active' => 'is_active',
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Relations required to render a single coupon through CouponResource.
      *
@@ -187,7 +213,7 @@ class CouponService
 
     protected function list_query(CouponFilterDTO $filters)
     {
-        return Coupon::query()
+        $query = Coupon::query()
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['title', 'code'], 'like', '%' . $search . '%');
             })
@@ -201,14 +227,11 @@ class CouponService
                 return $query->where('is_active', (int) $filters->is_active);
             })
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            })
             ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
                 return $query->apply_status_filter($filters->status);
             });
+
+        return $this->apply_sorting($query, $filters);
     }
 
     /**

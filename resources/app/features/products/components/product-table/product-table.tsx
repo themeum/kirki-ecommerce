@@ -5,7 +5,6 @@ import DataTable from '@/components/data-table';
 import type { ProductListFilter } from '@/features/products';
 import { productListOptions } from '@/features/products';
 import { productColumns } from '@/features/products/components/product-table/columns';
-import ProductTableFilterBar from '@/features/products/components/product-table/product-table-filter-bar';
 import ProductTableFilters from '@/features/products/components/product-table/product-table-filters';
 import { useBulkDeleteProductsMutation, useBulkRestoreProductsMutation, useBulkTrashProductsMutation, useProductsQuery } from '@/features/products/services/product';
 import { useDataTableParams } from '@/hooks';
@@ -50,13 +49,14 @@ const ProductTable = () => {
 
   const productBulkActions = useMemo(() => params.status === 'trashed' ? [
     { value: 'restore', title: __('Restore', 'kirki-ecommerce') },
-    { value: 'delete', title: __('Delete Permanently', 'kirki-ecommerce') },
+    { value: 'delete', title: __('Delete Permanently', 'kirki-ecommerce'), destructive: true },
   ] : [
-    { value: 'trash', title: __('Trash', 'kirki-ecommerce') },
+    { value: 'trash', title: __('Trash', 'kirki-ecommerce'), destructive: true },
   ], [params.status]);
 
   return (
     <DataTable
+      tableId="products"
       data={data?.results ?? []}
       total={data?.total}
       columns={productColumns}
@@ -68,10 +68,9 @@ const ProductTable = () => {
       isLoading={isFetching}
       enableRowSelection
       selectionResetKey={selectionResetKey}
-      bulkActionOptions={productBulkActions}
+      bulkActions={productBulkActions}
       onBulkApply={handleBulkApply}
       toolbar={<ProductTableFilters />}
-      filterBar={<ProductTableFilterBar />}
     />
   );
 };

@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -22,6 +23,26 @@ use function Kirki\Ecommerce\Framework\throw_if;
 
 class CurrencyService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'code' => 'code',
+            'name' => 'name',
+            'symbol' => 'symbol',
+            'exchange_rate' => 'exchange_rate',
+            'is_base' => 'is_base',
+            'is_active' => 'is_active',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Get base currency
      *
@@ -224,14 +245,11 @@ class CurrencyService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return Currency::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = Currency::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(['name', 'code', 'symbol'], 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+        });
+
+        return $this->apply_sorting($query, $filters);
     }
 
     protected function get_all_currencies()

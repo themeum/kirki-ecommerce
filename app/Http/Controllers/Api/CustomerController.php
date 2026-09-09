@@ -35,7 +35,6 @@ class CustomerController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);

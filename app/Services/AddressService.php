@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -18,6 +19,31 @@ use function Kirki\Ecommerce\Framework\throw_if;
 
 class AddressService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'customer_id' => 'customer_id',
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
+            'city' => 'city',
+            'state' => 'state',
+            'country' => 'country',
+            'postal_code' => 'postal_code',
+            'email' => 'email',
+            'phone' => 'phone',
+            'type' => 'type',
+            'label' => 'label',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return every address belonging to the given customer.
      *
@@ -55,7 +81,7 @@ class AddressService
      */
     public function all(ListFilterDTO $filters)
     {
-        return Address::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = Address::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(
                 [
                     'first_name',
@@ -72,13 +98,9 @@ class AddressService
                 'like',
                 '%' . $search . '%'
             );
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            })
-            ->get();
+        });
+
+        return $this->apply_sorting($query, $filters)->get();
     }
 
     /**

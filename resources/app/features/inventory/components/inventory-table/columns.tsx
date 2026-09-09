@@ -76,26 +76,26 @@ const inventoryColumns: ColumnDef<InventoryVariant>[] = [
   {
     id: 'title',
     header: __('Product', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { cssOverride: styles.productCell },
     cell: ({ row }) => <InventoryTitleCell item={row.original} />,
   },
   {
     id: 'sku',
     header: __('SKU', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <Text variant="tiny">{row.original.sku || EMPTY_VALUE}</Text>,
   },
   {
     id: 'available_quantity',
     header: __('Available', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <InventoryAvailableCell item={row.original} />,
   },
   {
     id: 'committed_quantity',
     header: __('Committed', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <InventoryCommittedCell item={row.original} />,
   },
 ];

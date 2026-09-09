@@ -423,6 +423,112 @@ class ProductApiTest extends RestTestCase
      * @return array
      * @since 1.0.0
      */
+    /**
+     * Products can be sorted by every column the list presents, including the
+     * price, which lives on the variants rather than the product.
+     *
+     * @dataProvider derived_product_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_products_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->request('POST', 'products', $this->product_payload(['title' => 'Sortable Product']));
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'products', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_product_sort_fields(): array
+    {
+        return [
+            'title' => ['title'],
+            'status' => ['status'],
+            'price' => ['base_price'],
+            'created at' => ['created_at'],
+        ];
+    }
+
+    /**
+     * Sorting by price orders products by their cheapest variant ascending and
+     * their dearest descending.
+     *
+     * @return void
+     */
+    public function test_list_products_sorts_by_price(): void
+    {
+        $cheap = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Cheap Sortable',
+            'variants' => [[
+                'base_price' => 5.00,
+                'sku' => 'CHEAP-' . wp_generate_password(6, false),
+                'available_quantity' => 10,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]));
+        $dear = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Dear Sortable',
+            'variants' => [[
+                'base_price' => 500.00,
+                'sku' => 'DEAR-' . wp_generate_password(6, false),
+                'available_quantity' => 10,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]));
+
+        $cheap_id = $this->assert_api_success($cheap, 201)['data']['id'];
+        $dear_id = $this->assert_api_success($dear, 201)['data']['id'];
+        $only = [$cheap_id, $dear_id];
+
+        $this->assertSame($only, $this->sorted_product_ids('base_price', 'asc', $only));
+        $this->assertSame(array_reverse($only), $this->sorted_product_ids('base_price', 'desc', $only));
+    }
+
+    /**
+     * Request the product list sorted, restricted to the given ids.
+     *
+     * @param string $sort_by Sort field.
+     * @param string $sort_order Sort direction.
+     * @param array $only Product ids to keep.
+     *
+     * @return array
+     */
+    protected function sorted_product_ids(string $sort_by, string $sort_order, array $only): array
+    {
+        $response = $this->request('GET', 'products', [
+            'sort_by' => $sort_by,
+            'sort_order' => $sort_order,
+            'limit' => 100,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $ids = [];
+
+        foreach ($payload['data']['results'] as $row) {
+            if (in_array($row['id'], $only, false)) {
+                $ids[] = $row['id'];
+            }
+        }
+
+        return $ids;
+    }
+
     protected function create_searchable_product(string $unique): array
     {
         return $this->create_product([

@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
@@ -16,7 +17,9 @@ import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const collectionBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const collectionBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const CollectionTable = () => {
   const navigate = useNavigate();
@@ -74,6 +77,7 @@ const CollectionTable = () => {
 
   return (
     <DataTable
+      tableId="collections"
       data={data?.results ?? []}
       columns={columns}
       total={data?.total}
@@ -85,7 +89,7 @@ const CollectionTable = () => {
       isLoading={isFetching}
       enableRowSelection
       selectionResetKey={selectionResetKey}
-      bulkActionOptions={collectionBulkActions}
+      bulkActions={collectionBulkActions}
       onBulkApply={handleBulkApply}
       columnPinning={{ right: ['actions'] }}
       fixed

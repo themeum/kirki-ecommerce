@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Collection;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Collection\CreateCollectionDTO;
@@ -20,6 +21,34 @@ use function Kirki\Ecommerce\Framework\user;
 
 class CollectionService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return string
+     */
+    protected function default_sort_by()
+    {
+        return 'ordering';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'title' => 'title',
+            'slug' => 'slug',
+            'ordering' => 'ordering',
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+            'count' => 'products_count',
+        ];
+    }
+
     /**
      * Return paginated collections.
      *
@@ -150,15 +179,12 @@ class CollectionService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return Collection::with_count('products')
+        $query = Collection::with_count('products')
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['title', 'slug', 'description'], 'like', '%' . $search . '%');
             })
-            ->filter_with_datetime_range($filters->from_date, $filters->to_date)
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+            ->filter_with_datetime_range($filters->from_date, $filters->to_date);
+
+        return $this->apply_sorting($query, $filters);
     }
 }
