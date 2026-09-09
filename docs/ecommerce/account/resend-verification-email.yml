@@ -19,3 +19,125 @@ settings:
   followRedirects: true
   maxRedirects: 5
   forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    request:
+      url: "{{baseUrl}}/account/resend-verification-email"
+      method: POST
+      body:
+        type: json
+        data: ""
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: server
+          value: nginx/1.26.1
+        - name: date
+          value: Wed, 09 Sep 2026 05:55:53 GMT
+        - name: content-type
+          value: application/json; charset=UTF-8
+        - name: transfer-encoding
+          value: chunked
+        - name: connection
+          value: keep-alive
+        - name: vary
+          value: Accept-Encoding
+        - name: x-powered-by
+          value: PHP/7.4.30
+        - name: x-robots-tag
+          value: noindex
+        - name: link
+          value: <http://kirki-dev.local/wp-json/>; rel="https://api.w.org/"
+        - name: access-control-expose-headers
+          value: X-WP-Total, X-WP-TotalPages, Link
+        - name: access-control-allow-headers
+          value: Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type
+        - name: x-content-type-options
+          value: nosniff
+        - name: x-frame-options
+          value: SAMEORIGIN
+        - name: x-xss-protection
+          value: 1; mode=block
+        - name: referrer-policy
+          value: no-referrer-when-downgrade
+        - name: x-ratelimit-limit
+          value: "1"
+        - name: x-ratelimit-remaining
+          value: "0"
+        - name: allow
+          value: POST
+        - name: expires
+          value: Wed, 11 Jan 1984 05:00:00 GMT
+        - name: cache-control
+          value: no-cache, must-revalidate, max-age=0, no-store, private
+      body:
+        type: json
+        data: |-
+          {
+            "data": true,
+            "message": "Verification email has been sent to your email address.",
+            "success": true
+          }
+  - name: 429 Response
+    request:
+      url: "{{baseUrl}}/account/resend-verification-email"
+      method: POST
+      body:
+        type: json
+        data: ""
+    response:
+      status: 429
+      statusText: Too Many Requests
+      headers:
+        - name: server
+          value: nginx/1.26.1
+        - name: date
+          value: Wed, 09 Sep 2026 05:56:27 GMT
+        - name: content-type
+          value: application/json; charset=UTF-8
+        - name: transfer-encoding
+          value: chunked
+        - name: connection
+          value: keep-alive
+        - name: x-powered-by
+          value: PHP/7.4.30
+        - name: x-robots-tag
+          value: noindex
+        - name: link
+          value: <http://kirki-dev.local/wp-json/>; rel="https://api.w.org/"
+        - name: x-content-type-options
+          value: nosniff
+        - name: access-control-expose-headers
+          value: X-WP-Total, X-WP-TotalPages, Link
+        - name: access-control-allow-headers
+          value: Authorization, X-WP-Nonce, Content-Disposition, Content-MD5, Content-Type
+        - name: retry-after
+          value: "86"
+        - name: x-ratelimit-limit
+          value: "1"
+        - name: x-ratelimit-remaining
+          value: "0"
+        - name: x-ratelimit-reset
+          value: "1788933473"
+        - name: expires
+          value: Wed, 11 Jan 1984 05:00:00 GMT
+        - name: cache-control
+          value: no-cache, must-revalidate, max-age=0, no-store, private
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_too_many_requests",
+            "message": "Too Many Requests.",
+            "data": {
+              "status": 429,
+              "headers": {
+                "Retry-After": "86",
+                "X-RateLimit-Limit": "1",
+                "X-RateLimit-Remaining": "0",
+                "X-RateLimit-Reset": "1788933473"
+              }
+            }
+          }
