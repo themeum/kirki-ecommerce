@@ -1,13 +1,13 @@
 info:
-  name: Delete Address
+  name: wishlist/{variant_id}
   type: http
-  seq: 10
+  seq: 3
   tags:
-    - account
+    - wishlist
 
 http:
   method: DELETE
-  url: "{{baseUrl}}/account/addresses/24"
+  url: "{{baseUrl}}/account/wishlist/1"
   auth: inherit
 
 settings:
@@ -19,9 +19,9 @@ settings:
 
 examples:
   - name: 200 Response
-    description: Success
+    description: Success - Item removed from wishlist
     request:
-      url: "{{baseUrl}}/account/addresses/24"
+      url: "{{baseUrl}}/wishlist/1"
       method: DELETE
     response:
       status: 200
@@ -34,13 +34,12 @@ examples:
         data: |-
           {
             "data": true,
-            "message": "Address deleted successfully.",
-            "success": true
+            "message": "Item removed from wishlist successfully."
           }
   - name: 404 Response
-    description: Failure — id doesn't exist, or belongs to a different customer
+    description: Failure - Wishlist item not found or does not belong to the authenticated user
     request:
-      url: "{{baseUrl}}/account/addresses/999999"
+      url: "{{baseUrl}}/wishlist/999999"
       method: DELETE
     response:
       status: 404
@@ -52,13 +51,12 @@ examples:
         type: json
         data: |-
           {
-            "message": "Address not found.",
-            "success": false
+            "message": "Wishlist not found."
           }
   - name: 401 Response
-    description: Failure — not logged in
+    description: Failure - Not logged in
     request:
-      url: "{{baseUrl}}/account/addresses/24"
+      url: "{{baseUrl}}/wishlist/1"
       method: DELETE
     response:
       status: 401
@@ -78,14 +76,9 @@ examples:
           }
 
 docs: |-
-  ## Delete Address
+  ## Delete Wishlist Item
 
-  Deletes an address, scoped to the **currently authenticated** customer.
+  Deletes an item from the wishlist by its wishlist entry ID.
 
-  - If the deleted address was a default shipping and/or billing address,
-    that purpose is simply left with **no default** — no other address is
-    automatically promoted. The next `set-default` call (or a new address)
-    is what re-establishes one.
-  - Requires a logged-in WordPress user (401 otherwise) and an id that
-    belongs to that customer (404 otherwise, whether the id doesn't exist or
-    belongs to someone else).
+  - Scoped to the currently authenticated user.
+  - Returns 404 if the record does not exist or belongs to another user.

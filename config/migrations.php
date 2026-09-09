@@ -55,6 +55,7 @@ use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
+use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
 
 return [
     CreateLanguagesTable::class,
@@ -95,6 +96,7 @@ return [
     CreateShippingBoxesTable::class,
     CreateTaxProfilesTable::class,
     CreateSchedulerJobsTable::class,
+    CreateWishlistTable::class,
 
     // Gives every key an explicit, project-owned name. Must stay after every Create* migration and
     // before every Alter* migration: at this point an upgraded database and a fresh install hold
