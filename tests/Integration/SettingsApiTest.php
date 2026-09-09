@@ -170,6 +170,35 @@ class SettingsApiTest extends RestTestCase
     }
 
     /**
+     * A slash or backslash in an order/invoice number prefix or suffix is
+     * rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_rejects_slashes_in_number_affixes(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'order_number' => [
+                'prefix' => 'ORD/',
+                'suffix' => '',
+            ],
+            'invoice_number' => [
+                'prefix' => '',
+                'suffix' => 'INV\\',
+                'sequence' => '000001',
+                'apply_year_prefix' => false,
+                'reset_sequence_every_year' => false,
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $errors = wp_json_encode($data['errors']);
+        $this->assertStringContainsString('order_number', $errors);
+        $this->assertStringContainsString('invoice_number', $errors);
+    }
+
+    /**
      * Base tax settings payload with a single tax region merged in.
      *
      * @param array $region The tax region to include.

@@ -66,12 +66,10 @@ const AdvancedSettings = () => {
                   {__('Run Fix', 'kirki-ecommerce')}
                 </Button>
               </Flex>
-              {hasPageError && (
-                <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>
-                  <Alert type="warning" text={<AlertMessage />} hasHighlight />
-                  <PageTable pages={pages} />
-                </Flex>
-              )}
+              <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>
+                {hasPageError && <Alert type="warning" text={<AlertMessage />} hasHighlight />}
+                <PageTable pages={pages} />
+              </Flex>
             </Flex>
           </CardContent>
         </Card>

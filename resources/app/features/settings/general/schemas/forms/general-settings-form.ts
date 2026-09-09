@@ -18,6 +18,14 @@ const StoreAddressFormShape = z.object({
   country: required(z.string().nullish().default(''), __('Country is required', 'kirki-ecommerce')),
 });
 
+const affix = () =>
+  z
+    .string()
+    .default('')
+    .refine((value) => !/[/\\]/.test(value), {
+      message: __('Slashes and backslashes are not allowed.', 'kirki-ecommerce'),
+    });
+
 const GeneralSettingsFormShape = z.object({
   store_name: z.string().nullish().default(''),
   store_email: z.string().nullish().default(''),
@@ -28,20 +36,20 @@ const GeneralSettingsFormShape = z.object({
   selling_countries: z.array(z.string()).default([]),
   order_number: z
     .object({
-      prefix: z.string().default(''),
-      suffix: z.string().default(''),
+      prefix: affix(),
+      suffix: affix(),
     })
     .nullish(),
   invoice_number: z
     .object({
-      prefix: z.string().default(''),
+      prefix: affix(),
       sequence: z
         .string()
         .default('000001')
         .refine((value) => !value || /^\d+$/.test(value), {
           message: __('Sequence must contain digits only.', 'kirki-ecommerce'),
         }),
-      suffix: z.string().default(''),
+      suffix: affix(),
       apply_year_prefix: z.boolean().default(false),
       reset_sequence_every_year: z.boolean().default(false),
     })

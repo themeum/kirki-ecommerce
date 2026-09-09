@@ -45,14 +45,14 @@ const OrderId = () => {
                   <TextField
                     name="order_number.prefix"
                     label={__('Prefix', 'kirki-ecommerce')}
-                    placeholder={__('#ORD-', 'kirki-ecommerce')}
+                    placeholder={__('Enter a prefix', 'kirki-ecommerce')}
                     description={__('Set order id prefix', 'kirki-ecommerce')}
                   />
 
                   <TextField
                     name="order_number.suffix"
                     label={__('Suffix', 'kirki-ecommerce')}
-                    placeholder={__('-KIRKI', 'kirki-ecommerce')}
+                    placeholder={__('Enter a suffix', 'kirki-ecommerce')}
                     description={__('Set order id suffix', 'kirki-ecommerce')}
                   />
                 </Grid>

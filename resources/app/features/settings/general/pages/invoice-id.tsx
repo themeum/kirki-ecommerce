@@ -59,7 +59,7 @@ const InvoiceId = () => {
                     <TextField
                       name="invoice_number.prefix"
                       label={__('Prefix', 'kirki-ecommerce')}
-                      placeholder={__('INV-', 'kirki-ecommerce')}
+                      placeholder={__('Enter a prefix', 'kirki-ecommerce')}
                       description={__('Set invoice id prefix', 'kirki-ecommerce')}
                     />
 
@@ -73,7 +73,7 @@ const InvoiceId = () => {
                     <TextField
                       name="invoice_number.suffix"
                       label={__('Suffix', 'kirki-ecommerce')}
-                      placeholder={__('-KIRKI', 'kirki-ecommerce')}
+                      placeholder={__('Enter a suffix', 'kirki-ecommerce')}
                       description={__('Set invoice id suffix', 'kirki-ecommerce')}
                     />
                   </Grid>
@@ -108,12 +108,6 @@ const InvoiceId = () => {
                       )}
                     />
                   )}
-
-                  {/* <SelectField
-                    name="invoice_number.counter_reset_schedule"
-                    label={__('Invoice Counter Reset Schedule', 'kirki-ecommerce')}
-                    options={invoiceResetScheduleOptions}
-                  /> */}
                 </Flex>
               </CardContent>
             </Card>
