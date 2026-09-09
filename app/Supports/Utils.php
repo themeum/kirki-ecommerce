@@ -39,7 +39,7 @@ class Utils
     {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This method IS the nonce check (wp_verify_nonce() below); it must read the raw request to extract the nonce value before verifying it. Sanitizer::apply_rule() is this project's own sanitization dispatcher (see phpcs-wporg.xml.dist's note on WordPress.Security.ValidatedSanitizedInput) - WPCS can't statically recognize a static method call as a sanitizer.
         $request_method = !$request_method ? Sanitizer::apply_rule(wp_unslash($_SERVER['REQUEST_METHOD'] ?? ''), Sanitizer::TEXT) : $request_method;
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- This method IS the nonce check (wp_verify_nonce() below); it must read the raw request to extract the nonce value before verifying it.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- This method IS the nonce check (wp_verify_nonce() below); it must read the raw request to extract the nonce value before verifying it.
         $data = strtolower($request_method) === 'post' ? $_POST : $_GET;
         $nonce_value = Sanitizer::apply_rule(wp_unslash(Arr::get($data, 'kecom_nonce', '')), Sanitizer::TEXT);
 

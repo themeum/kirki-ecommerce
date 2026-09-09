@@ -76,7 +76,7 @@ class EnqueueSiteScripts extends BaseHook
         $site_css_handler = 'kirki-ecommerce-site-styles';
 
         wp_enqueue_script($site_js_handler, Assets::get_url('js/site.js'), ['wp-i18n'], app()->version(), true);
-        wp_enqueue_style($site_css_handler, Assets::get_url('css/site.css'));
+        wp_enqueue_style($site_css_handler, Assets::get_url('css/site.css'), [], app()->version());
 
         wp_add_inline_script($site_js_handler, Assets::get_kirki_ecommerce_configs(), 'before');
 
