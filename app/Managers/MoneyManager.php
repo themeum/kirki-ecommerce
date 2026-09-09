@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
@@ -134,10 +135,8 @@ class MoneyManager
      */
     protected function get_requested_currency_code()
     {
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized 2 lines below via sanitize_text_field(), after the empty()/is_string() guard.
-        $cookie_value = isset($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) ? wp_unslash($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) : null;
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized 2 lines below via sanitize_text_field(), after the empty()/is_string() guard.
-        $header_value = isset($_SERVER[static::DISPLAY_CURRENCY_HEADER]) ? wp_unslash($_SERVER[static::DISPLAY_CURRENCY_HEADER]) : null;
+        $cookie_value = Superglobals::cookie(static::DISPLAY_CURRENCY_COOKIE);
+        $header_value = Superglobals::server(static::DISPLAY_CURRENCY_HEADER);
         $code = $cookie_value ?? $header_value;
 
         if (empty($code) || !is_string($code)) {

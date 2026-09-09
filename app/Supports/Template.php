@@ -14,7 +14,10 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
+
+use function Kirki\Ecommerce\Framework\request;
 
 /**
  * Class Template
@@ -133,7 +136,7 @@ class Template
         {
             $selected_category_ids = array_map(
                 'intval',
-                (array)($_GET['category_ids'] ?? [])
+                (array) request()->array('category_ids', [])
             );
 
             // Load categories
@@ -262,7 +265,7 @@ class Template
             {
                 $selected_values = array_map(
                     'intval',
-                    (array) ($_GET['attribute_value_ids'] ?? [])
+                    (array) request()->array('attribute_value_ids', [])
                 );
 
                 $attributes = Attribute::all();
@@ -341,15 +344,14 @@ class Template
                 }
 
                 $current_page = $paginator->get_current_page();
-                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitizer::apply_rule() is this project's own sanitization dispatcher; WPCS can't statically recognize a static method call as a sanitizer.
-                $request_uri  = Sanitizer::apply_rule(wp_unslash($_SERVER['REQUEST_URI'] ?? ''), Sanitizer::TEXT);
+                $request_uri  = Superglobals::server('REQUEST_URI', '', Sanitizer::TEXT);
                 $base_url     = $options['base_url'] ?? strtok($request_uri, '?');
                 $page_param   = $options['page_param'] ?? 'current_page';
                 $class        = $options['class'] ?? 'kecom-pagination';
                 $page_window = $options['page_window'] ?? 5;
 
                 $url = static function (int $page) use ($base_url, $page_param) {
-                    $params = $_GET;
+                    $params = Superglobals::query();
                     $params[$page_param] = $page;
 
                     return $base_url . '?' . http_build_query($params);

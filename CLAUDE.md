@@ -138,6 +138,23 @@ exceptions, and prefer `Kirki\Ecommerce\Framework\Sanitizer::apply_rule()`
 over calling WP sanitize functions directly to match this codebase's
 convention.
 
+Never read `$_GET`/`$_POST`/`$_SERVER`/`$_COOKIE`/`$_FILES` directly. Use:
+
+- `Kirki\Ecommerce\Framework\Http\Request` (via the `request()` helper) for
+  single-key reads in code that only ever runs inside a dispatched site or
+  REST request — it merges query, POST, and route params into one typed
+  accessor (`->int()`, `->text()`, `->array()`, `->cookie()`, ...), already
+  used in `CartService.php` and `resources/views/site/login.php`.
+- `Kirki\Ecommerce\Framework\Http\Superglobals` everywhere else: whole-array
+  reads where the exact source array matters (not `Request`'s merged
+  `all()`), method-scoped or otherwise security-sensitive reads (e.g. a
+  nonce check that must not blur `$_GET`/`$_POST`), and any code with no
+  guaranteed request lifecycle (wp-admin hooks, raw `wp_ajax_*` endpoints,
+  cross-cutting managers).
+
+Both unslash and sanitize via `Sanitizer` internally — never wrap their
+output in another `wp_unslash()`/`sanitize_*()` call.
+
 ### Classes and Files
 
 - Class names: **PascalCase** (`CartService`, `PaymentManager`)

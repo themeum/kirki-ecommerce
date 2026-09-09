@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\request;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $product = view_data();
@@ -38,7 +39,7 @@ $quantity = (int) $variant['available_quantity'] ?? 0;
 $additional_info = $product['additional_info'] ?? [];
 
 // Get variant ID from URL query param
-$selected_variant_id = isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : null;
+$selected_variant_id = request()->int('variant_id', null);
 
 // Prepare images for Alpine.js
 $images = [];
