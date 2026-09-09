@@ -164,7 +164,7 @@ export const TaxSettingsSchema = z
   .object({
     is_tax_inclusive_price: z.boolean().nullish(),
     is_shipping_tax_enabled: z.boolean().nullish(),
-    is_enabled_taxed_price: z.boolean().nullish(),
+    is_enabled_display_inclusive_taxed_price: z.boolean().nullish(),
     tax_regions: z.array(TaxRegionSchema).nullish(),
     tax_services: z.array(z.unknown()).nullish(),
     tax_ids: z.array(z.unknown()).nullish(),

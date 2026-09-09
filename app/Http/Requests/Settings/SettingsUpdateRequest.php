@@ -436,9 +436,9 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => 'required|boolean',
                 'data.is_shipping_tax_enabled' => 'required|boolean',
-                // TODO: is_enabled_taxed_price is persisted but has no backend consumer yet
+                // TODO: is_enabled_display_inclusive_taxed_price is persisted but has no backend consumer yet
                 // (no read in the tax strategies or calculation); wire it or drop it.
-                'data.is_enabled_taxed_price' => 'required|boolean',
+                'data.is_enabled_display_inclusive_taxed_price' => 'required|boolean',
                 'data.tax_regions' => 'nullable|array',
                 'data.tax_regions.*.code' => 'required|string',
                 'data.tax_regions.*.name' => 'nullable|string',
@@ -494,7 +494,7 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => Sanitizer::BOOL,
                 'data.is_shipping_tax_enabled' => Sanitizer::BOOL,
-                'data.is_enabled_taxed_price' => Sanitizer::BOOL,
+                'data.is_enabled_display_inclusive_taxed_price' => Sanitizer::BOOL,
                 'data.tax_regions' => Sanitizer::ARRAY,
                 'data.tax_regions.*.code' => Sanitizer::TEXT,
                 'data.tax_regions.*.name' => Sanitizer::TEXT,

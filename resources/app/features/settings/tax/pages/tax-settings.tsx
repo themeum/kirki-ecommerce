@@ -44,11 +44,11 @@ const TaxCollectionOptions = () => {
         <CheckboxField
           name="is_shipping_tax_enabled"
           label={__('Charge shipping tax', 'kirki-ecommerce')}
-          description={__('Set charge for shipping tax', 'kirki-ecommerce')}
+          infoText={__('Set charge for shipping tax', 'kirki-ecommerce')}
         />
       ) : (
         <CheckboxField
-          name="is_enabled_taxed_price"
+          name="is_enabled_display_inclusive_taxed_price"
           label={__('Display prices inclusive tax', 'kirki-ecommerce')}
           infoText={__('Tax value will be included inside the product price', 'kirki-ecommerce')}
         />
@@ -139,9 +139,7 @@ const TaxSettings = () => {
                 </Flex>
                 <Flex direction="column" gap={3}>
                   <TaxCollectionField />
-                  {/* @TODO: will be handled in the future */}
-                  {/* eslint-disable-next-line no-constant-binary-expression -- kept in place until the feature is enabled */}
-                  {false && <TaxCollectionOptions />}
+                  <TaxCollectionOptions />
                 </Flex>
               </Flex>
             </CardContent>

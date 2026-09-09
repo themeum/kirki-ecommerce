@@ -30,7 +30,7 @@ describe('TaxSettingsFormSchema', () => {
     ];
     const result = TaxSettingsFormSchema.parse({
       is_tax_inclusive_price: true,
-      is_enabled_taxed_price: false,
+      is_enabled_display_inclusive_taxed_price: false,
       is_shipping_tax_enabled: true,
       tax_regions: regions,
       tax_services: [],
@@ -39,7 +39,7 @@ describe('TaxSettingsFormSchema', () => {
 
     expect(result).toEqual({
       is_tax_inclusive_price: true,
-      is_enabled_taxed_price: false,
+      is_enabled_display_inclusive_taxed_price: true,
       is_shipping_tax_enabled: true,
       tax_regions: [{ ...regions[0], type: 'general' }, regions[1]],
       tax_services: [],
@@ -50,7 +50,7 @@ describe('TaxSettingsFormSchema', () => {
   it('defaults booleans to false and arrays to empty', () => {
     const result = TaxSettingsFormSchema.parse({});
     expect(result.is_tax_inclusive_price).toBe(false);
-    expect(result.is_enabled_taxed_price).toBe(false);
+    expect(result.is_enabled_display_inclusive_taxed_price).toBe(false);
     expect(result.is_shipping_tax_enabled).toBe(false);
     expect(result.tax_regions).toEqual([]);
     expect(result.tax_services).toEqual([]);

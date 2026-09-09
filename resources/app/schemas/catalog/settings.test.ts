@@ -176,7 +176,7 @@ describe('TaxSettingsSchema', () => {
     const result = TaxSettingsSchema.safeParse({
       is_tax_inclusive_price: true,
       is_shipping_tax_enabled: true,
-      is_enabled_taxed_price: false,
+      is_enabled_display_inclusive_taxed_price: false,
       tax_regions: [{ code: 'EU', name: 'European Union', type: 'oss' }],
       tax_services: [],
       tax_ids: [],
