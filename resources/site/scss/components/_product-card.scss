@@ -35,6 +35,27 @@
     z-index: 1;
   }
 
+  &-wishlist {
+    @include flex-center();
+    position: absolute;
+    top: $spacing-6;
+    right: $spacing-6;
+    z-index: 9999;
+    box-shadow: $shadow-sm;
+    width: $spacing-13;
+    height: $spacing-13;
+    background-color: $background-surface;
+    border-radius: $radius-full;
+    border: 0;
+    cursor: pointer;
+    &.active {
+      svg{
+        color: $icon-primary;
+        fill: $icon-primary;
+      }
+    }
+  }
+
   &-body {
     display: flex;
     flex-direction: column;

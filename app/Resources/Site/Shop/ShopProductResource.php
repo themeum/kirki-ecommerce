@@ -13,9 +13,11 @@ namespace Kirki\Ecommerce\App\Resources\Site\Shop;
 
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Resource;
 
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 
 /**
@@ -46,6 +48,8 @@ class ShopProductResource extends Resource
         $variant_id   = intval($variant->id);
         $out_of_stock = $this->resolve_stock_status($variant_id);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
+        $wishlist_item = app(WishlistService::class)->get_item(customer()->get_id(), $variant_id);
+        $has_wishlist = $wishlist_item ? true : false;
 
         return [
             'id'                      => $this->id,
@@ -62,6 +66,7 @@ class ShopProductResource extends Resource
             'has_variants'            => $has_variants,
             'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
+            'has_wishlist'            => $has_wishlist,
         ];
     }
 

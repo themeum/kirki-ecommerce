@@ -135,7 +135,7 @@ class WishlistController
     public function remove_item(Request $request)
     {
         $user_id = (int) user()->get_id();
-        $variant_id = $request->int('variant_id');
+        $variant_id = $request->int('id');
 
         $wishlist = Wishlist::where(['user_id' => $user_id, 'variant_id' => $variant_id])->first();
 

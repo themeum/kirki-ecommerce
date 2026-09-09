@@ -57,7 +57,7 @@ class WishlistResource extends Resource
             'slug' => $product ? $product->slug : '',
             'product_url' => $product ? Url::get_product_url($product->slug) : '',
             'image_url' => $image_url,
-            'base_price' => Money::prepare_amount_from_minor($variant->base_price),
+            'base_price' => $variant ? Money::prepare_amount_from_minor($variant->base_price) : 0,
             'display_price_money_object' => $variant ? Money::prepare_amount_object_from_minor($variant->base_price, null, $display_currency) : null,
             'in_sale' => $in_sale,
             'out_of_stock' => $out_of_stock

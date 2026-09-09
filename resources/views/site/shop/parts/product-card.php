@@ -34,15 +34,17 @@ $out_of_stock            = $product['out_of_stock'];
 $has_variants            = $product['has_variants'];
 $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
+$has_wishlist            = $product['has_wishlist'];
 ?>
 <div class="kecom-product-card">
-    <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
+    <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image" x-data="<?php printf('{ wishlisted: %s}', json_encode( $has_wishlist) ) ?>">
         <?php if (!empty($ribbon_text)) : ?>
             <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
         <?php endif; ?>
+        <span class="kecom-product-card-wishlist"  :class="{ 'active' : wishlisted }" @click.prevent="<?php printf('wishlistItem(%d,wishlisted);', $variant_id); ?>wishlisted = !wishlisted; "><?php Icon::render('heart'); ?></span>
     </a>
 
     <div class="kecom-product-card-body">

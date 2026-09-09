@@ -80,6 +80,19 @@ class WishlistService
     }
 
     /**
+     * Check if a variant is in the wishlist for the given user.
+     *
+     * @param int $user_id user id.
+     * @param int $variant_id variant id.
+     *
+     * @return Wishlist|null
+     */
+    public function get_item(int $user_id, int $variant_id)
+    {
+        return Wishlist::where('user_id', $user_id)->where('variant_id', $variant_id)->first();
+    }
+
+    /**
      * Add an item to the wishlist.
      *
      * @param int $user_id user id.
@@ -97,9 +110,7 @@ class WishlistService
             throw new NotFoundException(__('Variant not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
         }
 
-        $existing = Wishlist::where('user_id', $user_id)
-            ->where('variant_id', $variant_id)
-            ->first();
+        $existing = $this->get_item($user_id, $variant_id);
 
         if ($existing) {
             return $existing;
