@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
-use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -11,21 +10,27 @@ use Kirki\Ecommerce\App\Supports\Url;
 defined('ABSPATH') || exit;
 
 /**
- * Builds QuickPay request payloads and interprets transaction status.
- *
+ * Builds 2Checkout buy-link payment payloads.
  */
 class TwocheckoutTransactionBuilder
 {
     protected Order $order;
 
     /**
-     * @param Order $order The order to build QuickPay payloads for.
+     * @param Order $order The order to build the 2Checkout buy-link payload for.
      */
     public function __construct(Order $order)
     {
         $this->order = $order;
     }
 
+    /**
+     * Build the ConvertPlus buy-link parameters for the order.
+     *
+     * @return array The buy-link parameters, keyed by 2Checkout parameter name.
+     *
+     * @throws Exception If the order has no items.
+     */
     public function built_payment_payload()
     {
         $item_details = $this->get_line_items();
@@ -39,7 +44,7 @@ class TwocheckoutTransactionBuilder
             'address' => $this->order->billing_address_line1 ?? '',
             'address2' => $this->order->billing_address_line2 ?? '',
             'zip' => $this->order->billing_postal_code ?? '',
-            'ship-name' => $this->order->shipping_first_name  . ' ' . $this->order->shipping_last_name ?? '',
+            'ship-name' => trim(($this->order->shipping_first_name ?? '') . ' ' . ($this->order->shipping_last_name ?? '')),
             'ship-country' => $this->order->shipping_country ?? '',
             'ship-address' => $this->order->shipping_address_line1 ?? '',
             'ship-address2' => $this->order->shipping_address_line2 ?? '',
@@ -61,10 +66,17 @@ class TwocheckoutTransactionBuilder
         ];
     }
 
+    /**
+     * Collapse the order's line items into 2Checkout's delimited parameters.
+     *
+     * @return array{prod: string, qty: string, price: string, item-ext-ref: string, type: string}
+     *
+     * @throws Exception If the order has no items.
+     */
     protected function get_line_items()
     {
         if (empty($this->order->items)) {
-            throw new Exception(esc_html__('No Order Items Found.', 'kirki-ecommerce-2checkout'));
+            throw new Exception(__('No Order Items Found.', 'kirki-ecommerce-twocheckout'));
         }
 
         $item_names = $item_quantities = $item_prices = $item_references = $item_types = array();

@@ -23,6 +23,7 @@ defined('ABSPATH') || exit;
 class Twocheckout extends PaymentProvider
 {
     protected ?TwocheckoutClient $client = null;
+    protected ?Request $request = null;
 
     public function __construct()
     {
@@ -141,21 +142,27 @@ class Twocheckout extends PaymentProvider
         return array_merge($parent_settings, $data);
     }
 
-    public function webhook()
+    /**
+     * Handle a received 2Checkout IPN notification.
+     *
+     * @return WebhookResult
+     * @throws Exception If the notification is invalid or processing fails.
+     */
+    public function webhook(): WebhookResult
     {
-        $payload = Request::capture();
+        $this->request = Request::capture();
 
         http_response_code(200);
 
         try {
             $this->client = $this->get_client();
 
-            if (!$this->validate_ipn_response($payload)) {
+            if (!$this->validate_ipn_response()) {
                 return new WebhookResult(false, null, 'application/xml');
             }
-            $response_token = $this->client->generate_ipn_response($payload);
+            $read_receipt = $this->client->build_read_receipt($this->request);
 
-            $order_uuid = $payload->get('REFNOEXT', null, 'string');
+            $order_uuid = $this->request->get('REFNOEXT', null, 'string');
             if (!$order_uuid) {
                 throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-twocheckout'));
             }
@@ -166,14 +173,14 @@ class Twocheckout extends PaymentProvider
             }
 
             if ($order->payment_status === PaymentStatus::PAID) {
-                return new WebhookResult(true, $response_token, 'application/xml');
+                return new WebhookResult(true, $read_receipt, 'application/xml');
             }
 
-            $this->handle_transaction_response($order, $payload);
+            $this->handle_transaction_response($order);
 
-            return new WebhookResult(true, $response_token, 'application/xml');
+            return new WebhookResult(true, $read_receipt, 'application/xml');
         } catch (\Throwable $th) {
-            throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-quickpay'), $th->getMessage()));
+            throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));
         }
     }
 
@@ -195,31 +202,37 @@ class Twocheckout extends PaymentProvider
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
         if (empty($merchant_code) || empty($secret_key) || empty($buy_link_secret_word)) {
-            throw new Exception(__('2Checkout credentials are missing.', 'kirki-ecommerce-2checkout'));
+            throw new Exception(__('2Checkout credentials are missing.', 'kirki-ecommerce-twocheckout'));
         }
 
         return new TwocheckoutClient($merchant_code, $secret_key, $buy_link_secret_word, $sandbox);
     }
 
-
-    protected function handle_transaction_response(Order $order,  $payload): void
+    /**
+     * Apply the order status carried by the validated IPN notification to the local order.
+     *
+     * @param Order $order The local order.
+     * @return void
+     * @throws Exception If the order update fails.
+     */
+    protected function handle_transaction_response(Order $order): void
     {
-        $status = $this->get_status($payload->get('ORDERSTATUS', null, 'string'));
+        $status = $this->get_status($this->request->get('ORDERSTATUS', null, 'string'));
 
         DB::begin_transaction();
 
         try {
             switch ($status) {
                 case PaymentStatus::PAID:
-                    $this->record_transaction($order, $payload);
+                    $this->record_transaction($order);
                     OrderManager::mark_payment_as_paid($order->id);
-                    if (!empty($payload->get('IPN_COMMISSION', null, 'string'))) {
-                        OrderManager::set_payment_provider_fee($order->id, $payload->get('IPN_COMMISSION', null, 'string'));
+                    if (!empty($this->request->get('IPN_COMMISSION', null, 'string'))) {
+                        OrderManager::set_payment_provider_fee($order->id, $this->request->get('IPN_COMMISSION', null, 'string'));
                     }
                     break;
 
                 case PaymentStatus::FAILED:
-                    $this->record_transaction($order, $payload);
+                    $this->record_transaction($order);
                     OrderManager::mark_payment_as_failed($order->id);
                     break;
 
@@ -232,49 +245,67 @@ class Twocheckout extends PaymentProvider
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-quickpay'), $e->getMessage())
+                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage())
             );
         }
     }
 
-    protected function record_transaction(Order $order, $payload): void
+    /**
+     * Record 2Checkout's reference number and the raw IPN payload against the order.
+     *
+     * @param Order $order The local order.
+     * @return void
+     */
+    protected function record_transaction(Order $order): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->get('REFNOEXT', null, 'string'));
-        OrderManager::set_payment_metadata($order->id, wp_json_encode($payload->all()));
+        OrderManager::set_transaction_id($order->id, $this->request->get('REFNO', null, 'string'));
+        OrderManager::set_payment_metadata($order->id, wp_json_encode($this->request->all()));
     }
 
-
-    protected function validate_ipn_response($payload)
+    /**
+     * Verify the received IPN's signature against 2Checkout's length-prefixed HASH scheme.
+     *
+     * @return bool
+     * @throws Exception If validation fails unexpectedly.
+     */
+    protected function validate_ipn_response(): bool
     {
         try {
-            $result        = '';
-            $received_hash = $this->client->get_hash_algorithm($payload);
-            $ref_no = $payload->get('REFNO', null, 'string');
+            $received_signature = $this->client->get_received_signature($this->request);
+            $ref_no = $this->request->get('REFNO', null, 'string');
 
-            foreach ($payload->all() as $key => $value) {
-                if (! in_array($key, ['HASH', 'SIGNATURE_SHA2_256', 'SIGNATURE_SHA3_256'], true)) {
-                    $result .= is_array($value) ? $this->client->array_expand($value) : strlen(stripslashes($value)) . stripslashes($value);
+            if (empty($ref_no)) {
+                return false;
+            }
+
+            $result = '';
+            foreach ($this->request->all() as $key => $value) {
+                if (!in_array($key, ['HASH', 'SIGNATURE_SHA2_256', 'SIGNATURE_SHA3_256'], true)) {
+                    $result .= is_array($value) ? $this->client->encode_length_prefixed($value) : strlen(stripslashes($value)) . stripslashes($value);
                 }
             }
 
-            if (!empty($ref_no)) {
-                $calculated_hash = $this->client->generate_hash($result, $received_hash['algorithm']);
-                return $received_hash['hash_value'] === $calculated_hash;
-            }
+            $calculated_hash = $this->client->generate_hash($result, $received_signature['algorithm']);
 
-            return false;
+            return $received_signature['hash_value'] === $calculated_hash;
         } catch (Exception $error) {
-            /* translators: %s: error message */
-            throw new Exception(esc_html__(sprintf('Error While Validating IPN Response: %s', $error->getMessage()), 'kirki-ecommerce-twocheckout'));
+            throw new Exception(sprintf(__('Error while validating IPN response: %s', 'kirki-ecommerce-twocheckout'), $error->getMessage()));
         }
     }
 
+    /**
+     * Map a 2Checkout order status to an internal payment status.
+     *
+     * @param string $status The order status from the IPN payload.
+     *
+     * @return string One of the PaymentStatus constants.
+     */
     protected function get_status($status): string
     {
         $statuses = array(
-            'COMPLETE' => PaymentStatus::PAID,
-            'PENDING'  => PaymentStatus::UNPAID,
-            'CANCELED' => PaymentStatus::CANCELLED,
+            TwocheckoutConstant::ORDER_STATUS_COMPLETE => PaymentStatus::PAID,
+            TwocheckoutConstant::ORDER_STATUS_PENDING => PaymentStatus::UNPAID,
+            TwocheckoutConstant::ORDER_STATUS_CANCELED => PaymentStatus::CANCELLED,
         );
 
         return $statuses[$status] ?? PaymentStatus::UNPAID;

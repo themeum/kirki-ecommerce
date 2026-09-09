@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\Payments;
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 /**
- * Constants for the QuickPay Payments API integration.
+ * Constants for the 2Checkout (Verifone) API integration.
  */
 class TwocheckoutConstant
 {
@@ -24,4 +24,14 @@ class TwocheckoutConstant
     const SIGNATURE_GENERATE_URL = 'https://secure.2checkout.com/checkout/api/encrypt/generate/signature';
     const METHOD_POST = 'post';
     const METHOD_GET = 'get';
+
+    //IPN ORDERSTATUS values handled by this gateway.
+    const ORDER_STATUS_COMPLETE = 'COMPLETE';
+    const ORDER_STATUS_PENDING = 'PENDING';
+    const ORDER_STATUS_CANCELED = 'CANCELED';
+
+    // IPN signature algorithms.
+    const IPN_SIGNATURE_ALGORITHM_SHA3 = 'sha3-256';
+    const IPN_SIGNATURE_ALGORITHM_SHA2 = 'sha256';
+    const IPN_SIGNATURE_ALGORITHM_MD5 = 'md5';
 }
