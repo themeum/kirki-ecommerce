@@ -5,8 +5,8 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
+use Kirki\Ecommerce\App\Models\ShippingProfile;
 
-use Kirki\Ecommerce\App\Supports\Tax;
 use function Kirki\Ecommerce\App\decision_engine;
 
 class ShippingService
@@ -343,13 +343,18 @@ class ShippingService
         $shipping_profiles = [];
         $product_categories = [];
 
-        $context->items->each(function ($item) use (&$cart_weight, &$shipping_profiles, &$product_categories) {
+        $default_profile = ShippingProfile::where('is_default', true)->first();
+        $default_profile_id = $default_profile ? $default_profile->id : null;
+
+        $context->items->each(function ($item) use (&$cart_weight, &$shipping_profiles, &$product_categories, $default_profile_id) {
             if ($item->weight) {
                 $cart_weight += $item->weight * $item->quantity;
             }
 
-            if ($item->shipping_profile_id) {
-                $shipping_profiles[] = $item->shipping_profile_id;
+            $profile_id = $item->shipping_profile_id ? $item->shipping_profile_id : $default_profile_id;
+
+            if ($profile_id) {
+                $shipping_profiles[] = $profile_id;
             }
 
             if ($item->product_categories) {

@@ -4,7 +4,16 @@ import { TaxProfileFormSchema } from '@/features/settings/tax/shared/schemas/for
 
 describe('TaxProfileFormSchema', () => {
   it('produces the exact payload', () => {
-    expect(TaxProfileFormSchema.parse({ name: 'Books' })).toEqual({ name: 'Books' });
+    expect(TaxProfileFormSchema.parse({ name: 'Books' })).toEqual({
+      name: 'Books',
+      is_default: false,
+    });
+  });
+
+  it('passes is_default through', () => {
+    expect(
+      TaxProfileFormSchema.parse({ name: 'Books', is_default: true }),
+    ).toEqual({ name: 'Books', is_default: true });
   });
 
   it('rejects a blank required name', () => {

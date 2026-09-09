@@ -180,6 +180,71 @@ class TaxProfileApiTest extends RestTestCase
     }
 
     /**
+     * Resource exposes the is_default flag.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_tax_profile_resource_exposes_is_default(): void
+    {
+        $profile = $this->create_tax_profile(['name' => 'Flagged', 'is_default' => true]);
+        $this->tax_profile_id = $profile['id'];
+
+        $this->assertArrayHasKey('is_default', $profile);
+        $this->assertTrue($profile['is_default']);
+
+        $response = $this->request('GET', 'tax-profiles/' . $this->tax_profile_id);
+        $payload = $this->assert_api_success($response);
+        $this->assertTrue($payload['data']['is_default']);
+    }
+
+    /**
+     * Marking a profile default unsets the previously default profile.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_setting_default_unsets_previous_default(): void
+    {
+        $first = $this->create_tax_profile(['name' => 'First Default', 'is_default' => true]);
+        $second = $this->create_tax_profile(['name' => 'Second Default', 'is_default' => true]);
+        $this->tax_profile_id = $second['id'];
+
+        $first_check = $this->request('GET', 'tax-profiles/' . $first['id']);
+        $this->assertFalse($this->assert_api_success($first_check)['data']['is_default']);
+
+        $this->request('PUT', 'tax-profiles/' . $first['id'], [
+            'id' => $first['id'],
+            'name' => 'First Default',
+            'is_default' => true,
+        ]);
+
+        $second_check = $this->request('GET', 'tax-profiles/' . $second['id']);
+        $this->assertFalse($this->assert_api_success($second_check)['data']['is_default']);
+    }
+
+    /**
+     * Unsetting the default profile is allowed and leaves no default.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_default_can_be_unset(): void
+    {
+        $profile = $this->create_tax_profile(['name' => 'Toggle', 'is_default' => true]);
+        $this->tax_profile_id = $profile['id'];
+
+        $response = $this->request('PUT', 'tax-profiles/' . $profile['id'], [
+            'id' => $profile['id'],
+            'name' => 'Toggle',
+            'is_default' => false,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertFalse($payload['data']['is_default']);
+    }
+
+    /**
      * Create tax profile.
      * @param array $overrides Overrides.
      *

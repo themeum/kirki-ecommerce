@@ -72,6 +72,16 @@ class ShippingProfileService
     }
 
     /**
+     * Find the default shipping profile.
+     *
+     * @return ShippingProfile|null
+     */
+    public function find_default()
+    {
+        return ShippingProfile::where('is_default', true)->first() ?? null;
+    }
+
+    /**
      * Create a new shipping profile.
      *
      * @param CreateShippingProfileDTO $data
@@ -80,6 +90,10 @@ class ShippingProfileService
     public function create(CreateShippingProfileDTO $data)
     {
         $shipping_profile = ShippingProfile::create($data->to_array());
+
+        if ($shipping_profile->is_default) {
+            ShippingProfile::where('id', '!=', $shipping_profile->id)->update(['is_default' => false]);
+        }
 
         return $shipping_profile;
     }
@@ -96,6 +110,10 @@ class ShippingProfileService
         $shipping_profile = ShippingProfile::find($data->id);
 
         throw_if(empty($shipping_profile), __('Shipping profile could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if ($data->is_default) {
+            ShippingProfile::where('id', '!=', $data->id)->update(['is_default' => false]);
+        }
 
         $is_updated = (bool) $shipping_profile->update($data->to_array());
 

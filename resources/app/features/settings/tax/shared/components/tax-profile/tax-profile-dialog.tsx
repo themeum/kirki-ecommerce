@@ -2,9 +2,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
+import CheckboxField from '@/components/form/checkbox-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
-import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { TaxProfile } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import {
@@ -12,7 +23,10 @@ import {
   type TaxProfileFormPayload,
   TaxProfileFormSchema,
 } from '@/features/settings/tax/shared/schemas/forms/tax-profile-form';
-import { useCreateTaxProfileMutation, useUpdateTaxProfileMutation } from '@/features/settings/tax/shared/services/tax';
+import {
+  useCreateTaxProfileMutation,
+  useUpdateTaxProfileMutation,
+} from '@/features/settings/tax/shared/services/tax';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { noop } from '@/utils/function';
@@ -41,6 +55,7 @@ export const TaxProfilePopup = ({
     resolver: zodResolver(TaxProfileFormSchema),
     defaultValues: {
       name: '',
+      is_default: false,
     },
   });
 
@@ -53,11 +68,12 @@ export const TaxProfilePopup = ({
 
     form.reset({
       name: taxProfile?.name ?? '',
+      is_default: taxProfile?.is_default ?? false,
     });
   }, [isOpen, taxProfile, form]);
 
   const handleOnPopupClose = () => {
-    form.reset({ name: '' });
+    form.reset({ name: '', is_default: false });
     onClose();
   };
 
@@ -96,17 +112,21 @@ export const TaxProfilePopup = ({
       <DialogContent style={{ width: '400px' }}>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>
-            {__('Create tax profile', 'kirki-ecommerce')}
-          </DialogTitle>
+          <DialogTitle>{__('Create tax profile', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <DialogBody>
-            <TextField
-              name="name"
-              label={__('Title', 'kirki-ecommerce')}
-              placeholder={__('e.g. Books', 'kirki-ecommerce')}
-            />
+            <Flex direction="column" gap={4}>
+              <TextField
+                name="name"
+                label={__('Title', 'kirki-ecommerce')}
+                placeholder={__('e.g. Books', 'kirki-ecommerce')}
+              />
+              <CheckboxField
+                name="is_default"
+                label={__('Set as default profile', 'kirki-ecommerce')}
+              />
+            </Flex>
           </DialogBody>
           <DialogFooter>
             <DialogClose asChild>
@@ -120,9 +140,7 @@ export const TaxProfilePopup = ({
               loading={isSubmitting}
               disabled={!isSubmitting && nameValue === ''}
             >
-              {from === 'edit'
-                ? __('Update', 'kirki-ecommerce')
-                : __('Save', 'kirki-ecommerce')}
+              {from === 'edit' ? __('Update', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
             </Button>
           </DialogFooter>
         </Form>
