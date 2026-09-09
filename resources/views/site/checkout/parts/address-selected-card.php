@@ -24,11 +24,11 @@ $open_picker_function = $is_billing ? 'openBillingPicker' : 'openShippingPicker'
 <div class="kecom-checkout-address-block">
     <h2 class="kecom-section-title"><?php echo esc_html($title); ?></h2>
     <div class="kecom-checkout-address-card">
-        <div class="kecom-checkout-address-card-content" x-show="<?php echo $address_expression; ?>">
-            <div class="kecom-checkout-address-card-line" x-text="[(`${<?php echo $address_expression; ?>?.first_name || ''} ${<?php echo $address_expression; ?>?.last_name || ''}`).trim(), <?php echo $address_expression; ?>?.address_line1].filter(Boolean).join(', ')"></div>
-            <div class="kecom-checkout-address-card-line" x-text="[<?php echo $address_expression; ?>?.address_line2, getCityStateZip(<?php echo $address_expression; ?>), <?php echo $address_expression; ?>?.phone, <?php echo $address_expression; ?>?.email].filter(Boolean).join(', ')"></div>
+        <div class="kecom-checkout-address-card-content" x-show="<?php echo esc_attr($address_expression); ?>">
+            <div class="kecom-checkout-address-card-line" x-text="getFormattedAddressFirstLine(<?php echo esc_attr($address_expression); ?>)"></div>
+            <div class="kecom-checkout-address-card-line" x-text="getFormattedAddressSecondLine(<?php echo esc_attr($address_expression); ?>)"></div>
         </div>
-        <button type="button" class="kecom-btn kecom-btn-link kecom-btn-sm" @click.prevent="<?php echo $open_picker_function; ?>">
+        <button type="button" class="kecom-btn kecom-btn-link kecom-btn-sm" @click.prevent="<?php echo esc_attr($open_picker_function); ?>">
             <?php esc_html_e('Change', 'kirki-ecommerce'); ?>
         </button>
     </div>

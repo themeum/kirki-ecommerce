@@ -6,6 +6,7 @@
 import { type AccountAddressPayload, accountApi } from '../api/account';
 import { toastManager } from '../services/toast/runtime';
 import { config } from '../utils';
+import type { CheckoutAddress } from './checkout-address';
 
 export interface AddressItem {
   id: number | string;
@@ -77,7 +78,9 @@ export interface AddressModalHost {
   getFormattedAddressLines(address: AddressItem): string;
   getStateName(countryCode?: string, stateVal?: string | number): string;
   getCountryName(code?: string): string;
-  getCityStateZip(address: AddressItem): string;
+  getCityStateZip(address?: AddressItem | CheckoutAddress | null): string;
+  getFormattedAddressFirstLine(address?: AddressItem | CheckoutAddress | null): string;
+  getFormattedAddressSecondLine(address?: AddressItem | CheckoutAddress | null): string;
   openAddModal(): void;
   openEditModal(address: AddressItem): void;
   closeModal(): void;
@@ -191,13 +194,34 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       return country ? country.name : code;
     },
 
-    getCityStateZip(this: AddressModalHost, address: AddressItem): string {
+    getCityStateZip(this: AddressModalHost, address?: AddressItem | CheckoutAddress | null): string {
       if (!address) {
         return '';
       }
       const state = this.getStateName(address.country, address.state);
       const parts = [address.city, state].filter(Boolean).join(', ');
       return `${parts} ${address.postal_code || ''}`.trim();
+    },
+
+    getFormattedAddressFirstLine(address?: AddressItem | CheckoutAddress | null): string {
+      if (!address) {
+        return '';
+      }
+      const fullName = `${address.first_name || ''} ${address.last_name || ''}`.trim();
+      return [fullName, address.address_line1].filter(Boolean).join(', ');
+    },
+
+    getFormattedAddressSecondLine(
+      this: AddressModalHost,
+      address?: AddressItem | CheckoutAddress | null,
+    ): string {
+      if (!address) {
+        return '';
+      }
+      const cityStateZip = this.getCityStateZip(address);
+      return [address.address_line2, cityStateZip, address.phone, address.email]
+        .filter(Boolean)
+        .join(', ');
     },
 
     openAddModal(this: AddressModalHost) {

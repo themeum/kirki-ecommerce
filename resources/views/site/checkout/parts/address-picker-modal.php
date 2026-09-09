@@ -73,8 +73,8 @@ use Kirki\Ecommerce\App\Supports\Icon;
                                     <span class="kecom-checkout-address-picker-label" x-text="getAddressLabel(address)"></span>
                                 </div>
                                 <div class="kecom-checkout-address-picker-text">
-                                    <span x-text="`${address.first_name || ''} ${address.last_name || ''}${address.address_line1 ? ', ' + address.address_line1 : ''}${address.address_line2 ? ', ' + address.address_line2 : ''},`.trim()"></span>
-                                    <span x-text="[getCityStateZip(address), address.phone, address.email].filter(Boolean).join(', ')"></span>
+                                    <span x-text="getFormattedAddressFirstLine(address)"></span>
+                                    <span x-text="getFormattedAddressSecondLine(address)"></span>
                                 </div>
                             </div>
 
