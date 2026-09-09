@@ -17,12 +17,11 @@ use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Supports\Icon;
 
-use function Kirki\Ecommerce\App\customer;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
-$fallback_image_url = Assets::get_url('images/product-fallback.webp');
+$fallback_image_url = Url::get_product_fallback_image();
 $order = $data['order'];
 $customer = $order['customer'] ?? [];
 
