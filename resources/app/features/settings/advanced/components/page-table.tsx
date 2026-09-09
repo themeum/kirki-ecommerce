@@ -143,7 +143,7 @@ const PageTable = ({ pages }: PageTableProps) => {
                 defaultValue={String(row.original.pageId)}
                 onValueChange={(value) => handlePageChange(row.original.id, Number(value))}
               >
-                <SelectTrigger variant="secondary" cssOverride={styles.selectTrigger}>
+                <SelectTrigger cssOverride={styles.selectTrigger}>
                   <SelectValue>
                     <Text variant="tiny" cssOverride={styles.truncate}>
                       {isDefined(row.original.pageId)
