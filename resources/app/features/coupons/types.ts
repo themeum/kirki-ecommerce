@@ -36,7 +36,7 @@ const statusOptions: SuggestionOption[] = [
   { value: 'all', title: __('All', 'kirki-ecommerce') },
   { value: 'active', title: __('Active', 'kirki-ecommerce') },
   { value: 'scheduled', title: __('Scheduled', 'kirki-ecommerce') },
-  { value: 'inactive', title: __('Inactive', 'kirki-ecommerce') },
+  { value: 'inactive', title: __('Not Active', 'kirki-ecommerce') },
   { value: 'expired', title: __('Expired', 'kirki-ecommerce') },
 ];
 

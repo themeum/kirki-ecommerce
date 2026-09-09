@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
+use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -16,10 +18,41 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class CustomerService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'user_id' => 'user_id',
+            'first_name' => 'first_name',
+            'last_name' => 'last_name',
+            'email' => 'email',
+            'phone' => 'phone',
+            'orders_count' => 'orders_count',
+            'base_amount_spent' => 'orders_sum_base_total',
+            'last_order_date' => 'orders_max_created_at',
+            'location' => function () {
+                return Address::where_raw('customer_id = cid')
+                    ->where('is_default_billing', true)
+                    ->limit(1)
+                    ->select_raw("concat_ws(', ', state, country)");
+            },
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated customers
      *
@@ -53,9 +86,7 @@ class CustomerService
     {
         $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
-        if (empty($customer)) {
-            throw new NotFoundException(__('Customer not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($customer), __('Customer not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $customer;
     }
@@ -83,9 +114,7 @@ class CustomerService
      */
     public function create(CreateCustomerDTO $data)
     {
-        if (!empty($data->user_id) && $this->find_by_user_id($data->user_id)) {
-            throw new Exception(__('Customer already exists', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!empty($data->user_id) && $this->find_by_user_id($data->user_id), __('Customer already exists', 'kirki-ecommerce'));
 
         $data_array = $data->all();
 
@@ -108,18 +137,14 @@ class CustomerService
     {
         $customer = Customer::with('billing_address', 'shipping_address')->find($data->id);
 
-        if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data_array = $data->all();
         $data_array['updated_by'] = user()->get_id();
 
         $is_updated = (bool) $customer->update($data_array);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_updated, __('Customer could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!empty($data->user_id) && $this->find_by_user_id($customer->user_id)) {
             wp_update_user([
@@ -149,17 +174,13 @@ class CustomerService
     {
         $customer = $this->find($customer_id);
 
-        if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data['updated_by'] = user()->get_id();
 
         $is_updated = (bool) $customer->update($data);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Customer could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_updated, __('Customer could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $this->find($customer_id);
     }
@@ -175,15 +196,11 @@ class CustomerService
     {
         $customer = Customer::with('billing_address', 'shipping_address')->find($id);
 
-        if (empty($customer)) {
-            throw new NotFoundException(__('Customer could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Customer::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Customer could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_deleted, __('Customer could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!function_exists('wp_delete_user')) {
             require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -206,9 +223,7 @@ class CustomerService
         $user_ids = Customer::where_in('id', $ids)->get()->pluck('user_id')->all();
         $is_deleted = (bool) Customer::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Customers could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_deleted, __('Customers could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if (!function_exists('wp_delete_user')) {
             require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -254,7 +269,8 @@ class CustomerService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return Customer::query()
+        $query = Customer::query()
+            ->select_raw('*, id as cid')
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->with_max('orders', 'created_at')
             ->with_count('orders')
@@ -262,11 +278,91 @@ class CustomerService
             ->with('billing_address')
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['first_name', 'last_name', 'email', 'phone'], 'like', '%' . $search . '%');
-            })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
             });
+
+        $this->apply_location_filter($query, $filters);
+
+        return $this->apply_sorting($query, $filters);
+    }
+
+    /**
+     * Narrow the list to customers whose default shipping address matches.
+     *
+     * A customer has many addresses, so location has to name one of them. The
+     * default shipping address is the one that decides where an order goes,
+     * which is what a merchant means by where a customer is.
+     *
+     * @param QueryBuilder $query
+     * @param ListFilterDTO $filters
+     *
+     * @return QueryBuilder
+     */
+    protected function apply_location_filter(QueryBuilder $query, ListFilterDTO $filters)
+    {
+        $country = $filters->country ?? null;
+        $city = $filters->city ?? null;
+
+        if (empty($country) && empty($city)) {
+            return $query;
+        }
+
+        return $query->where_has('shipping_address', function (QueryBuilder $address_query) use ($country, $city) {
+            $address_query->when($country, function (QueryBuilder $address_query) use ($country) {
+                return $address_query->where('country', $country);
+            });
+
+            return $address_query->when($city, function (QueryBuilder $address_query) use ($city) {
+                return $address_query->where('city', $city);
+            });
+        });
+    }
+
+    /**
+     * The distinct locations present on customers' default shipping addresses.
+     *
+     * The filter controls offer only locations a merchant actually has
+     * customers in, so the options come from the address rows themselves
+     * rather than from a global reference list.
+     *
+     * @param string|null $country Restrict the cities to this country.
+     *
+     * @return array{countries: string[], cities: string[]}
+     */
+    public function list_locations($country = null)
+    {
+        $addresses = Address::query()
+            ->where('is_default_shipping', true)
+            ->get()
+            ->all();
+
+        $countries = [];
+        $cities = [];
+
+        foreach ($addresses as $address) {
+            if (!empty($address->country)) {
+                $countries[$address->country] = true;
+            }
+
+            if (empty($address->city)) {
+                continue;
+            }
+
+            if (!empty($country) && $address->country !== $country) {
+                continue;
+            }
+
+            $cities[$address->city] = true;
+        }
+
+        $countries = array_keys($countries);
+        $cities = array_keys($cities);
+
+        sort($countries);
+        sort($cities);
+
+        return [
+            'countries' => $countries,
+            'cities' => $cities,
+        ];
     }
 }

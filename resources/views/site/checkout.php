@@ -53,6 +53,12 @@ $available_shipping_methods = $cart["available_shipping_methods"] ?? [];
             </div>
         </div>
     </div>
+
+    <!-- Address Picker Modal -->
+    <?php include_view('site.checkout.parts.address-picker-modal'); ?>
+
+    <!-- Add/Edit Address Modal -->
+    <?php include_view('site.account.parts.address-modal'); ?>
 </div>
 
 <?php Template::get_footer(); ?>

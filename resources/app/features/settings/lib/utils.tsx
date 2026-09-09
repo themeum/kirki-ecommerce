@@ -1,4 +1,15 @@
-import { CircleDollarSign, CreditCard, Home, Mail, Package, Percent, Settings2, ShoppingCart, Snowflake, Truck } from 'lucide-react';
+import {
+  CircleDollarSign,
+  CreditCard,
+  Home,
+  Mail,
+  Package,
+  Percent,
+  ShoppingCart,
+  SlidersHorizontalIcon,
+  Snowflake,
+  Truck,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { RouteConfig } from '@/config/route-config';
@@ -96,7 +107,6 @@ export const getSearchedValue = <T extends SearchableItem>(
   });
 };
 
-
 const navIconProps = { size: 16, strokeWidth: 1.5, 'aria-hidden': true as const };
 
 export const storeManagementSettings: SettingsNavItem[] = [
@@ -143,10 +153,7 @@ export const businessOperationSettings: SettingsNavItem[] = [
     link: RouteConfig.Settings.get('EmailSettings').buildLink(),
     icon: <Mail {...navIconProps} />,
     header: __('Emails', 'kirki-ecommerce'),
-    subHeader: __(
-      'Order confirmations, receipts, and other customer emails',
-      'kirki-ecommerce',
-    ),
+    subHeader: __('Order confirmations, receipts, and other customer emails', 'kirki-ecommerce'),
   },
   {
     link: RouteConfig.Settings.get('CheckoutSettings').buildLink(),
@@ -159,7 +166,7 @@ export const businessOperationSettings: SettingsNavItem[] = [
 export const advancedSettings: SettingsNavItem[] = [
   {
     link: RouteConfig.Settings.get('AdvancedSettings').buildLink(),
-    icon: <Settings2 {...navIconProps} />,
+    icon: <SlidersHorizontalIcon {...navIconProps} />,
     header: __('Advanced', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },

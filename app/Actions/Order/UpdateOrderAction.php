@@ -20,11 +20,12 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class UpdateOrderAction
 {
@@ -57,9 +58,7 @@ class UpdateOrderAction
         $order = $this->order_service->find_order_or_fail($dto->id);
         $context = $this->prepare_calculation_context_dto($dto);
 
-        if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
 
@@ -106,10 +105,8 @@ class UpdateOrderAction
                     continue;
                 }
 
-                if ($diff > 0 && !$this->inventory_service->has_stock($variant_id, $diff)) {
-                    /* translators: %s: variant ID */
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-                }
+                /* translators: %s: variant ID */
+                throw_if($diff > 0 && !$this->inventory_service->has_stock($variant_id, $diff), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
 
                 if ($diff < 0) {
                     $this->inventory_service->release_reserved_stock($variant_id, abs($diff));
@@ -121,10 +118,8 @@ class UpdateOrderAction
 
                 $this->order_service->update_order_item($item_update_dto);
             } else {
-                if (!$this->inventory_service->has_stock($variant_id, $calculated_item->quantity)) {
-                    /* translators: %s: variant ID */
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id)); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-                }
+                /* translators: %s: variant ID */
+                throw_if(!$this->inventory_service->has_stock($variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
 
                 $item_create_dto = $this->prepare_order_item_dto($order->id, $calculated_item, $currency_code, $exchange_rate);
                 $this->order_service->create_order_item($item_create_dto);
@@ -234,10 +229,8 @@ class UpdateOrderAction
         foreach ($dto->items as $item_data) {
             $variant = $this->variant_service->find($item_data['variant_id']);
 
-            if (!$variant) {
-                /* translators: %s: JSON-encoded item data */
-                throw new Exception(sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data))); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-            }
+            /* translators: %s: JSON-encoded item data */
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
 
             $product = $variant->product->load('categories');
 

@@ -32,12 +32,6 @@ const Orders = () => {
         }
       />
       <Container>
-        {/* @todo: implement table info later */}
-        {/* <Card cssOverride={mergeCss(cardStyles.formCard, styles.tableInfoCard)}>
-          <CardContent>
-            <TableInfo />
-          </CardContent>
-        </Card> */}
         <OrderTable />
       </Container>
     </>
@@ -45,9 +39,3 @@ const Orders = () => {
 };
 
 export default Orders;
-
-// const styles = defineStyles({
-//   tableInfoCard: {
-//     marginBottom: theme.spacing[2],
-//   },
-// });

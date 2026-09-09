@@ -11,6 +11,6 @@ class AddActivityLog extends Listener
     public function handle(OrderShipped $event)
     {
         // do something
-        Log::debug('Activity Log: ' . print_r($event->order, true));
+        // Log::debug('Activity Log: ' . print_r($event->order, true));
     }
 }

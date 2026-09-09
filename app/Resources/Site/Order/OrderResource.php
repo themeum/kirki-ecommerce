@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource as BaseOrderResource;
 use Kirki\Ecommerce\App\Services\CountryService;
 
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 
 class OrderResource extends BaseOrderResource
@@ -23,6 +24,7 @@ class OrderResource extends BaseOrderResource
                 return $item->product_data;
             })->to_array(),
             'updated_at' => $this->updated_at,
+            'customer' => $this->customer_id ? customer(null,$this->customer_id)->get_customer() : [],
         ]);
     }
 

@@ -59,6 +59,18 @@ class Url
     }
 
     /**
+     * Get order tracking URL.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
+    public static function get_order_tracking_url(string $order_uuid)
+    {
+        return Route::site_url('order_tracking', ['uuid' => $order_uuid]);
+    }
+
+    /**
      * Get shop URL.
      *
      * @since 1.0.0

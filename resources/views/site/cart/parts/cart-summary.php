@@ -14,13 +14,13 @@ $checkout_url = Url::get_checkout_url();
 ?>
 
 <div class="kecom-cart-summary">
-    <h4 class="kecom-cart-summary-title"><?php _e('Cart Totals', 'kirki-ecommerce'); ?></h4>
+    <h4 class="kecom-cart-summary-title"><?php esc_html_e('Cart Totals', 'kirki-ecommerce'); ?></h4>
     <div class="kecom-cart-summary-item">
-        <span class="kecom-cart-summary-item-title"><?php _e('Subtotal', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-cart-summary-item-title"><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-item-value" x-text="cartData.pricing.display_subtotal_money_object.display"></span>
     </div>
     <div class="kecom-cart-summary-total">
-        <span class="kecom-cart-summary-total-title"><?php _e('Estimate Total', 'kirki-ecommerce'); ?></span>
+        <span class="kecom-cart-summary-total-title"><?php esc_html_e('Estimate Total', 'kirki-ecommerce'); ?></span>
         <span class="kecom-cart-summary-total-value" x-text="cartData.pricing.display_subtotal_money_object.display"></span>
     </div>
     <a
@@ -29,6 +29,6 @@ $checkout_url = Url::get_checkout_url();
         :class="{ 'kecom-btn-disabled': !cartData.items_count }"
         :aria-disabled="!cartData.items_count"
     >
-        <?php _e('Proceed to Checkout', 'kirki-ecommerce'); ?>
+        <?php esc_html_e('Proceed to Checkout', 'kirki-ecommerce'); ?>
     </a>
 </div>

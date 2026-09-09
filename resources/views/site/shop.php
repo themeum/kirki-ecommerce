@@ -13,6 +13,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
@@ -24,7 +25,7 @@ $current_sort_by = $data->filters['sort_by'] ?? '';
 $search = $data->filters['search'] ?? '';
 $current_page = $data->products->get_current_page();
 $last_page = $data->products->get_last_page();
-$has_filters = !empty($_GET);
+$has_filters = !empty(Superglobals::query());
 
 $sidebar_data = [
     'categories' => $data->categories ?? [],

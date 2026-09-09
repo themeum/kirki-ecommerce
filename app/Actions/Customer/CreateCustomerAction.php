@@ -9,8 +9,10 @@ use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CreateCustomerAction
 {
@@ -46,9 +48,7 @@ class CreateCustomerAction
 
             $customer = $this->customer_service->create($customer_payload);
 
-            if (empty($customer)) {
-                throw new Exception(__('Customer could not be created.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($customer), __('Customer could not be created.', 'kirki-ecommerce'));
 
             // Set both flags explicitly on each payload (not just the one being
             // claimed) so this is safe even if the caller passed the same
@@ -82,9 +82,7 @@ class CreateCustomerAction
     protected function create_user(CreateCustomerDTO $customer)
     {
         if (!empty($customer->user_id)) {
-            if (empty(get_userdata($customer->user_id))) {
-                throw new Exception(__('User could not be found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-            }
+            throw_if(empty(get_userdata($customer->user_id)), __('User could not be found.', 'kirki-ecommerce'));
 
             return $customer->user_id;
         }
@@ -101,7 +99,7 @@ class CreateCustomerAction
         $user_id = wp_insert_user($new_user);
 
         if (is_wp_error($user_id)) {
-            throw new Exception($user_id->get_error_message()); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+            throw_anyway($user_id->get_error_message());
         }
 
         return $user_id;
@@ -111,9 +109,7 @@ class CreateCustomerAction
     {
         $is_created_billing_address = $this->address_service->create($address_payload);
 
-        if (!$is_created_billing_address) {
-            throw new Exception(__('Customer address could not be created.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_created_billing_address, __('Customer address could not be created.', 'kirki-ecommerce'));
 
         return true;
     }

@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Constants\Pagination;
@@ -18,9 +19,30 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Exception;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CurrencyService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'code' => 'code',
+            'name' => 'name',
+            'symbol' => 'symbol',
+            'exchange_rate' => 'exchange_rate',
+            'is_base' => 'is_base',
+            'is_active' => 'is_active',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Get base currency
      *
@@ -41,9 +63,7 @@ class CurrencyService
     {
         $currency = Currency::where('code', $code)->first();
 
-        if (!$currency) {
-            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$currency, __('Currency not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         if ($currency->is_base) {
             return true;
@@ -97,9 +117,7 @@ class CurrencyService
     {
         $currency = Currency::find($id);
 
-        if (!$currency) {
-            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$currency, __('Currency not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $currency;
     }
@@ -115,9 +133,7 @@ class CurrencyService
     {
         $currency = Currency::where('code', $code)->first();
 
-        if (!$currency) {
-            throw new NotFoundException(__('Currency not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$currency, __('Currency not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $currency;
     }
@@ -168,13 +184,9 @@ class CurrencyService
     {
         $currency = Currency::find($data->id);
 
-        if (empty($currency)) {
-            throw new NotFoundException(__('Currency could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($currency), __('Currency could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        if ($currency->code !== $data->code && Currency::where('code', $data->code)->first()) {
-            throw new Exception(__('Currency code already exists.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if($currency->code !== $data->code && Currency::where('code', $data->code)->first(), __('Currency code already exists.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         $is_updated = (bool) $currency->update($data->to_array());
 
@@ -182,9 +194,7 @@ class CurrencyService
             CurrencyExchange::sync();
         }
 
-        if (!$is_updated) {
-            throw new Exception(__('Currency could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$is_updated, __('Currency could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return Currency::find($data->id);
     }
@@ -201,9 +211,7 @@ class CurrencyService
     {
         $is_deleted = (bool) Currency::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new Exception(__('Currency could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$is_deleted, __('Currency could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -219,9 +227,7 @@ class CurrencyService
     {
         $is_deleted = (bool) Currency::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new Exception(__('Currencies could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$is_deleted, __('Currencies could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -239,14 +245,11 @@ class CurrencyService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return Currency::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = Currency::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(['name', 'code', 'symbol'], 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+        });
+
+        return $this->apply_sorting($query, $filters);
     }
 
     protected function get_all_currencies()

@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
 use Kirki\Ecommerce\App\Constants\DecimalSeparator;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Constants\SellingLocationType;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
@@ -106,7 +107,7 @@ class SettingsUpdateRequest extends Request
                 $rules = $this->get_email_settings_rules();
                 break;
             case OptionKeys::ADVANCE_SETTINGS:
-                $rules = []; // @todo: implement later
+                $rules = $this->get_advance_settings_rules();
                 break;
             default:
                 break;
@@ -139,7 +140,7 @@ class SettingsUpdateRequest extends Request
             case OptionKeys::EMAIL_SETTINGS:
                 return $this->get_email_settings_filters();
             case OptionKeys::ADVANCE_SETTINGS:
-                return []; //@todo: implement later
+                return $this->get_advance_settings_filters();
             default:
                 return [];
         }
@@ -435,9 +436,9 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => 'required|boolean',
                 'data.is_shipping_tax_enabled' => 'required|boolean',
-                // TODO: is_enabled_taxed_price is persisted but has no backend consumer yet
+                // TODO: is_enabled_display_inclusive_taxed_price is persisted but has no backend consumer yet
                 // (no read in the tax strategies or calculation); wire it or drop it.
-                'data.is_enabled_taxed_price' => 'required|boolean',
+                'data.is_enabled_display_inclusive_taxed_price' => 'required|boolean',
                 'data.tax_regions' => 'nullable|array',
                 'data.tax_regions.*.code' => 'required|string',
                 'data.tax_regions.*.name' => 'nullable|string',
@@ -493,7 +494,7 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => Sanitizer::BOOL,
                 'data.is_shipping_tax_enabled' => Sanitizer::BOOL,
-                'data.is_enabled_taxed_price' => Sanitizer::BOOL,
+                'data.is_enabled_display_inclusive_taxed_price' => Sanitizer::BOOL,
                 'data.tax_regions' => Sanitizer::ARRAY,
                 'data.tax_regions.*.code' => Sanitizer::TEXT,
                 'data.tax_regions.*.name' => Sanitizer::TEXT,
@@ -567,8 +568,8 @@ class SettingsUpdateRequest extends Request
                 'string',
                 function ($value, $key, $data) {
                     if (!in_array($value, ThousandSeparator::get_constant_values())) {
-                        /* translators: %s: possible values */
-                        return sprintf(__('The value of %s must be one of the following: %s.', 'growfund'), $key, implode(',', ThousandSeparator::get_constant_values()));
+                        /* translators: %1$s: field name, %2$s: comma-separated list of allowed values */
+                        return sprintf(__('The value of %1$s must be one of the following: %2$s.', 'kirki-ecommerce'), $key, implode(',', ThousandSeparator::get_constant_values()));
                     }
 
                     return true;
@@ -579,8 +580,8 @@ class SettingsUpdateRequest extends Request
                 'string',
                 function ($value, $key, $data) {
                     if (!in_array($value, DecimalSeparator::get_constant_values())) {
-                        /* translators: %s: possible values */
-                        return sprintf(__('The value of %s must be one of the following: %s.', 'growfund'), $key, implode(',', DecimalSeparator::get_constant_values()));
+                        /* translators: %1$s: field name, %2$s: comma-separated list of allowed values */
+                        return sprintf(__('The value of %1$s must be one of the following: %2$s.', 'kirki-ecommerce'), $key, implode(',', DecimalSeparator::get_constant_values()));
                     }
 
                     return true;
@@ -595,11 +596,13 @@ class SettingsUpdateRequest extends Request
                 }
 
                 if ($value === null || $value === '') {
-                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key);
                 }
 
                 if (!is_string($value)) {
-                    return sprintf(__('The %s field must be a string.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field must be a string.', 'kirki-ecommerce'), $key);
                 }
 
                 return true;
@@ -612,11 +615,13 @@ class SettingsUpdateRequest extends Request
                 }
 
                 if ($value === null || (is_array($value) && empty($value))) {
-                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key);
                 }
 
                 if (!is_array($value)) {
-                    return sprintf(__('The %s field must be an array.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field must be an array.', 'kirki-ecommerce'), $key);
                 }
 
                 return true;
@@ -973,5 +978,41 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
             'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
         ];
+    }
+
+    /**
+     * Validation rules for the advanced settings page assignments.
+     *
+     * @return array
+     */
+    protected function get_advance_settings_rules()
+    {
+        $rules = [
+            'data.pages' => 'nullable|array',
+        ];
+
+        foreach (PageKeys::get_constant_values() as $page_key) {
+            $rules['data.pages.' . $page_key] = 'nullable|integer';
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Sanitizers for the advanced settings page assignments.
+     *
+     * @return array
+     */
+    protected function get_advance_settings_filters()
+    {
+        $filters = [
+            'data.pages' => Sanitizer::ARRAY,
+        ];
+
+        foreach (PageKeys::get_constant_values() as $page_key) {
+            $filters['data.pages.' . $page_key] = Sanitizer::INT;
+        }
+
+        return $filters;
     }
 }

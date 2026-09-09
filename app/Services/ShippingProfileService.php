@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -13,8 +14,25 @@ use Kirki\Ecommerce\App\DTO\ShippingProfile\UpdateShippingProfileDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class ShippingProfileService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'name' => 'name',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated shipping profiles
      *
@@ -48,9 +66,7 @@ class ShippingProfileService
     {
         $shipping_profile = ShippingProfile::find($id);
 
-        if (!$shipping_profile) {
-            throw new NotFoundException(__('Shipping profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$shipping_profile, __('Shipping profile not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $shipping_profile;
     }
@@ -79,15 +95,11 @@ class ShippingProfileService
     {
         $shipping_profile = ShippingProfile::find($data->id);
 
-        if (empty($shipping_profile)) {
-            throw new NotFoundException(__('Shipping profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($shipping_profile), __('Shipping profile could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_updated = (bool) $shipping_profile->update($data->to_array());
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Shipping profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_updated, __('Shipping profile could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return ShippingProfile::find($data->id);
     }
@@ -103,9 +115,7 @@ class ShippingProfileService
     {
         $is_deleted = (bool) ShippingProfile::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Shipping profile could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -121,9 +131,7 @@ class ShippingProfileService
     {
         $is_deleted = (bool) ShippingProfile::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Shipping profiles could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -141,13 +149,10 @@ class ShippingProfileService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return ShippingProfile::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = ShippingProfile::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where('name', 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+        });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

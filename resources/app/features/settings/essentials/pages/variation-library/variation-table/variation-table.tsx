@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useCallback, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
@@ -35,7 +36,9 @@ type VariationTableProps = {
   updateDataList: Dispatch<SetStateAction<AttributeValue[]>>;
 };
 
-const variationBulkActions = [{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }];
+const variationBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Delete', 'kirki-ecommerce'), destructive: true },
+];
 
 const VariationTable = ({
   results = [],
@@ -145,6 +148,8 @@ const VariationTable = ({
   return (
     <>
       <DataTable
+        tableId="variation-library"
+        enableColumnVisibility={false}
         data={filteredList}
         columns={columns}
         pageCount={1}
@@ -155,7 +160,7 @@ const VariationTable = ({
         hidePagination
         fixed
         enableRowSelection
-        bulkActionOptions={variationBulkActions}
+        bulkActions={variationBulkActions}
         onBulkApply={handleBulkApply}
         toolbar={(
           <VariantTableFilters

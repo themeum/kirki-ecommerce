@@ -123,6 +123,38 @@ Its conventions belong to the upstream package, not this project.
 
 Target PHP **7.4** (see `composer.json` `config.platform.php`). Follow PSR-4 file naming.
 
+### WordPress.org Plugin Directory Requirements
+
+This plugin targets wordpress.org submission. Apply the required-for-approval
+subset of WordPress coding standards (escaping, sanitization/unslashing,
+nonces, i18n, ABSPATH guards, WP-version compatibility, no global PHP state
+mutation) to every PHP change, in every session — not just when a task is
+explicitly about submission readiness. This is narrower than full
+`WordPress-Extra`/`WordPress-Docs` style compliance, which is out of scope.
+
+Enforced by `composer phpcs:wporg` (`phpcs-wporg.xml.dist`, also in CI) —
+run it, read its inline comments for the specifics and known false-positive
+exceptions, and prefer `Kirki\Ecommerce\Framework\Sanitizer::apply_rule()`
+over calling WP sanitize functions directly to match this codebase's
+convention.
+
+Never read `$_GET`/`$_POST`/`$_SERVER`/`$_COOKIE`/`$_FILES` directly. Use:
+
+- `Kirki\Ecommerce\Framework\Http\Request` (via the `request()` helper) for
+  single-key reads in code that only ever runs inside a dispatched site or
+  REST request — it merges query, POST, and route params into one typed
+  accessor (`->int()`, `->text()`, `->array()`, `->cookie()`, ...), already
+  used in `CartService.php` and `resources/views/site/login.php`.
+- `Kirki\Ecommerce\Framework\Http\Superglobals` everywhere else: whole-array
+  reads where the exact source array matters (not `Request`'s merged
+  `all()`), method-scoped or otherwise security-sensitive reads (e.g. a
+  nonce check that must not blur `$_GET`/`$_POST`), and any code with no
+  guaranteed request lifecycle (wp-admin hooks, raw `wp_ajax_*` endpoints,
+  cross-cutting managers).
+
+Both unslash and sanitize via `Sanitizer` internally — never wrap their
+output in another `wp_unslash()`/`sanitize_*()` call.
+
 ### Classes and Files
 
 - Class names: **PascalCase** (`CartService`, `PaymentManager`)
@@ -262,7 +294,7 @@ prefix; the repository layer resolves it to the correct typed column
 
 - Match existing project patterns when editing surrounding code
 - Prefer early returns for readability
-- Follow WordPress escaping, sanitization, and i18n conventions where applicable
+- Follow the WordPress.org Plugin Directory Requirements above for escaping, sanitization, nonces, and i18n
 
 ---
 

@@ -1,11 +1,9 @@
 import ActionGroup from '@/components/ui/action-group';
-import Button from '@/components/ui/button';
 import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { collectionListOptions } from '@/features/collections/types';
 import { useDataTableParams } from '@/hooks';
-import { ArrowDownUp } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
@@ -18,9 +16,6 @@ const CollectionTableFilters = () => {
     setParam('search', value);
   };
 
-  const handleSortChange = () => {
-    setParam('sort_order', params.sort_order === 'asc' ? 'desc' : 'asc');
-  };
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -42,13 +37,6 @@ const CollectionTableFilters = () => {
           onChange={handleDateFilter}
           size="sm"
         />
-        <Button
-          variant="outline"
-          aria-label={__('Sort', 'kirki-ecommerce')}
-          onClick={handleSortChange}
-        >
-          <ArrowDownUp />
-        </Button>
       </ActionGroup>
     </Flex>
   );

@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<ruleset name="kirki-ecommerce-wporg">
+    <description>
+        WordPress.org Plugin Directory required-standard checks: the subset of
+        WordPress/PHPCompatibility sniffs that map to Plugin Directory approval
+        requirements (security escaping/sanitization/nonces, i18n, global-scope
+        naming, restricted date functions, WP API alternatives, PHP
+        compatibility with the plugin's declared minimum PHP version). This is
+        deliberately narrower than WordPress-Extra/WordPress-Docs, which cover
+        style preferences unrelated to approval. Runs alongside, not instead
+        of, phpcs.xml.dist's PSR12 ruleset.
+    </description>
+
+    <arg name="basepath" value="."/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+    <arg name="cache" value=".phpcs-wporg-cache"/>
+    <arg name="colors"/>
+
+    <!--
+        Self-contained standard discovery: do not rely on the dealerdirect
+        installer plugin having already written vendor/squizlabs/php_codesniffer/CodeSniffer.conf
+        (observed to silently no-op in some environments) or on any global
+        phpcs config state.
+    -->
+    <config name="installed_paths" value="vendor/phpcompatibility/php-compatibility,vendor/phpcompatibility/phpcompatibility-paragonie,vendor/phpcompatibility/phpcompatibility-wp,vendor/phpcsstandards/phpcsextra,vendor/phpcsstandards/phpcsutils,vendor/wp-coding-standards/wpcs"/>
+
+    <!-- Show warnings in output, but don't fail the build on warnings alone -->
+    <config name="ignore_warnings_on_exit" value="1"/>
+
+    <file>app</file>
+    <file>bootstrap</file>
+    <file>config</file>
+    <file>database</file>
+    <file>resources/views</file>
+    <file>routes</file>
+    <file>kirki-ecommerce.php</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/vendor_prefixed/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>libraries/framework/*</exclude-pattern>
+    <exclude-pattern>payments/*</exclude-pattern>
+    <exclude-pattern>config/*.cache.php</exclude-pattern>
+
+    <!--
+        Escaping, safe-redirect, and menu-slug findings are the categories
+        Plugin Check treats as approval-blocking (ERROR) in this codebase's
+        own scan, so they stay at the sniffs' default severity.
+    -->
+    <rule ref="WordPress.Security.EscapeOutput"/>
+    <rule ref="WordPress.Security.SafeRedirect"/>
+    <rule ref="WordPress.Security.PluginMenuSlug"/>
+
+    <!--
+        Nonce verification and superglobal sanitization ERROR by default in
+        vanilla WPCS, but Plugin Check's own scan of this codebase classifies
+        them as WARNING (advisory, not approval-blocking) - see the "Deferred"
+        section of openspec/changes/wp-org-submission-readiness/design.md.
+        Kept visible here for future cleanup, demoted so they don't fail CI
+        for a category this change deliberately scoped out.
+    -->
+    <rule ref="WordPress.Security.NonceVerification">
+        <type>warning</type>
+    </rule>
+    <rule ref="WordPress.Security.ValidatedSanitizedInput">
+        <type>warning</type>
+    </rule>
+    <!--
+        Note: Kirki\Ecommerce\Framework\Sanitizer::apply_rule() (this
+        codebase's own sanitization dispatcher) can't be registered as a
+        recognized sanitizer here - WordPress.Security.ValidatedSanitizedInput
+        only recognizes global function calls (WordPress\Sniffs\Helpers\
+        ContextHelper::is_in_function_call() hard-excludes anything preceded
+        by `::`/`->`, by design, to avoid false-negatives from ambiguously
+        named methods on unrelated classes). Call sites using
+        Sanitizer::apply_rule() carry their own justified phpcs:ignore
+        instead of relying on ruleset config.
+    -->
+
+    <rule ref="WordPress.WP.I18n"/>
+    <rule ref="WordPress.WP.AlternativeFunctions"/>
+    <rule ref="WordPress.WP.EnqueuedResourceParameters"/>
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <type>warning</type>
+    </rule>
+    <rule ref="WordPress.DateTime.RestrictedFunctions"/>
+
+    <config name="minimum_supported_wp_version" value="5.9"/>
+    <rule ref="PHPCompatibilityWP"/>
+    <config name="testVersion" value="7.4-"/>
+</ruleset>

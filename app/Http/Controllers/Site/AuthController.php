@@ -61,10 +61,10 @@ class AuthController
     {
         if (! Utils::registration_enabled()) {
             wp_die(
-                __('Registration is disabled for now. Please contact the administrator for more information.', 'kirki-ecommerce'),
-                __('Registration Disabled', 'kirki-ecommerce'),
+                esc_html__('Registration is disabled for now. Please contact the administrator for more information.', 'kirki-ecommerce'),
+                esc_html__('Registration Disabled', 'kirki-ecommerce'),
                 [
-                    'response' => Response::FORBIDDEN,
+                    'response' => Response::FORBIDDEN, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTTP status code passed to wp_die()'s response argument, not rendered as content.
                 ]
             );
         }

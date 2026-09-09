@@ -1,18 +1,22 @@
+import { SlidersHorizontalIcon } from 'lucide-react';
+
+import Container from '@/components/ui/container';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
-import { AdvancedSettingsIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
 const AdvancedSettingsSkeleton = () => (
-  <SettingsPageSkeleton
-    cards={[2]}
-    header={
-      <SettingsPageHeader
-        icon={<AdvancedSettingsIcon />}
-        title={__('Advanced', 'kirki-ecommerce')}
-      />
-    }
-  />
+  <Container size="sm">
+    <SettingsPageSkeleton
+      cards={[6]}
+      header={
+        <SettingsPageHeader
+          icon={<SlidersHorizontalIcon />}
+          title={__('Advanced', 'kirki-ecommerce')}
+        />
+      }
+    />
+  </Container>
 );
 
 AdvancedSettingsSkeleton.displayName = 'AdvancedSettingsSkeleton';

@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { NEW_ITEM_ID } from '@/conf';
 import { endpoints } from '@/config/endpoints';
@@ -31,6 +32,25 @@ const createOrder = (data: OrderFormPayload) => {
   return apiClient
     .post(endpoints.ORDERS, data)
     .then((response) => unwrapResponse<OrderItem>(response));
+};
+
+const ShippingMethodOptionSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+});
+
+const getShippingMethods = () => {
+  return apiClient
+    .get(endpoints.SHIPPING_METHODS)
+    .then((response) => parseData(z.array(ShippingMethodOptionSchema), response));
+};
+
+const useShippingMethodsQuery = () => {
+  return useQuery({
+    queryKey: orderKeys.shippingMethods(),
+    queryFn: getShippingMethods,
+  });
 };
 
 const getOrders = (params: ListParams<OrderListFilter> = {}) => {
@@ -150,5 +170,6 @@ export {
   useOrderCalculationQuery,
   useOrderQuery,
   useOrdersQuery,
+  useShippingMethodsQuery,
   useUpdateOrderMutation,
 };
