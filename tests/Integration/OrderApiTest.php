@@ -9,6 +9,8 @@ use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
@@ -1202,6 +1204,46 @@ class OrderApiTest extends RestTestCase
      * @return array
      * @since 1.0.0
      */
+    /**
+     * Orders can be sorted by every column the list presents, including the
+     * line quantity and the status, whose request name differs from the column.
+     *
+     * @dataProvider derived_order_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_orders_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->create_order();
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'orders', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_order_sort_fields(): array
+    {
+        return [
+            'order number' => ['order_number'],
+            'quantity' => ['quantity'],
+            'invoiced total' => ['invoiced_total'],
+            'status' => ['status'],
+            'payment provider' => ['payment_provider'],
+            'created at' => ['created_at'],
+        ];
+    }
+
     protected function create_order(array $overrides = []): array
     {
         $response = $this->request('POST', 'orders', $this->order_payload($overrides));
@@ -1321,5 +1363,265 @@ class OrderApiTest extends RestTestCase
         ];
 
         return array_merge($payload, $overrides);
+    }
+
+    /**
+     * A fulfilment-derived status option lists orders whatever their payment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_fulfillment(): void
+    {
+        $shipped_paid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+        $shipped_unpaid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::UNPAID);
+        $delivered = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['status' => OrderListStatus::ORDER_SHIPPED]);
+
+        $this->assertContains($shipped_paid, $ids);
+        $this->assertContains($shipped_unpaid, $ids);
+        $this->assertNotContains($delivered, $ids);
+    }
+
+    /**
+     * Every fulfilment-derived status option maps to its own fulfilment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_maps_each_fulfillment_status_option(): void
+    {
+        $options = [
+            OrderListStatus::ORDER_PLACED => FulfillmentStatus::UNFULFILLED,
+            OrderListStatus::ORDER_PROCESSING => FulfillmentStatus::PROCESSING,
+            OrderListStatus::ORDER_ON_HOLD => FulfillmentStatus::ON_HOLD,
+            OrderListStatus::ORDER_DELIVERED => FulfillmentStatus::DELIVERED,
+            OrderListStatus::ORDER_RETURNED => FulfillmentStatus::RETURNED,
+            OrderListStatus::ORDER_CANCELLED => FulfillmentStatus::CANCELLED,
+        ];
+
+        $created = [];
+
+        foreach ($options as $option => $fulfillment_status) {
+            $created[$option] = $this->create_order_in_state($fulfillment_status, PaymentStatus::PAID);
+        }
+
+        foreach ($options as $option => $fulfillment_status) {
+            $ids = $this->listed_order_ids(['status' => $option]);
+
+            $this->assertContains($created[$option], $ids, 'Missing order for ' . $option);
+
+            foreach ($created as $other_option => $other_id) {
+                if ($other_option === $option) {
+                    continue;
+                }
+
+                $this->assertNotContains($other_id, $ids, 'Unexpected order in ' . $option);
+            }
+        }
+    }
+
+    /**
+     * A payment-derived status option resolves against the payment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_payment(): void
+    {
+        $failed = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::FAILED);
+        $refunding = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::REFUNDING);
+        $refunded = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::REFUNDED);
+        $paid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $failed_ids = $this->listed_order_ids(['status' => OrderListStatus::PAYMENT_FAILED]);
+        $this->assertContains($failed, $failed_ids);
+        $this->assertNotContains($paid, $failed_ids);
+
+        $refunding_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_IN_PROGRESS]);
+        $this->assertContains($refunding, $refunding_ids);
+        $this->assertNotContains($refunded, $refunding_ids);
+
+        $refunded_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUNDED]);
+        $this->assertContains($refunded, $refunded_ids);
+        $this->assertNotContains($refunding, $refunded_ids);
+    }
+
+    /**
+     * A lifecycle-only status option resolves against the order status.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_order_status(): void
+    {
+        $requested = $this->create_order_in_state(
+            FulfillmentStatus::DELIVERED,
+            PaymentStatus::PAID,
+            OrderStatus::REFUND_REQUESTED
+        );
+        $declined = $this->create_order_in_state(
+            FulfillmentStatus::DELIVERED,
+            PaymentStatus::PAID,
+            OrderStatus::REFUND_DECLINED
+        );
+
+        $requested_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_REQUESTED]);
+        $this->assertContains($requested, $requested_ids);
+        $this->assertNotContains($declined, $requested_ids);
+
+        $declined_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_DECLINED]);
+        $this->assertContains($declined, $declined_ids);
+        $this->assertNotContains($requested, $declined_ids);
+    }
+
+    /**
+     * Filtering by payment status narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_filters_by_payment_status(): void
+    {
+        $unpaid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::UNPAID);
+        $paid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['payment_status' => PaymentStatus::UNPAID]);
+
+        $this->assertContains($unpaid, $ids);
+        $this->assertNotContains($paid, $ids);
+    }
+
+    /**
+     * Combining a status option with a payment status narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_combines_status_and_payment_status(): void
+    {
+        $shipped_unpaid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::UNPAID);
+        $shipped_paid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+        $delivered_unpaid = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::UNPAID);
+
+        $ids = $this->listed_order_ids([
+            'status' => OrderListStatus::ORDER_SHIPPED,
+            'payment_status' => PaymentStatus::UNPAID,
+        ]);
+
+        $this->assertContains($shipped_unpaid, $ids);
+        $this->assertNotContains($shipped_paid, $ids);
+        $this->assertNotContains($delivered_unpaid, $ids);
+    }
+
+    /**
+     * Filtering by delivery method narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_filters_by_delivery_method(): void
+    {
+        $order = $this->create_order();
+        $other = $this->create_order();
+        Order::find($other['id'])->update(['shipping_method' => 'method-0002']);
+
+        $ids = $this->listed_order_ids(['shipping_method' => 'method-0001']);
+
+        $this->assertContains((int) $order['id'], $ids);
+        $this->assertNotContains((int) $other['id'], $ids);
+    }
+
+    /**
+     * The delivery method options are the enabled zone methods from settings.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_shipping_methods_endpoint_lists_enabled_zone_methods(): void
+    {
+        $response = $this->request('GET', 'shipping-methods');
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals(
+            [['id' => 'method-0001', 'name' => 'Standard Delivery', 'type' => 'flat_rate']],
+            $payload['data']
+        );
+    }
+
+    /**
+     * An unrecognised status is rejected rather than silently returning nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_rejects_unrecognised_status(): void
+    {
+        $response = $this->request('GET', 'orders', ['status' => 'not-a-status']);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A recognised status the order does not hold succeeds and omits it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_with_unmatched_status_succeeds_and_omits_the_order(): void
+    {
+        $shipped = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['status' => OrderListStatus::ORDER_RETURNED]);
+
+        $this->assertNotContains($shipped, $ids);
+    }
+
+    /**
+     * Create an order and force it into a known state.
+     *
+     * @param string      $fulfillment_status Fulfilment state to set.
+     * @param string      $payment_status     Payment state to set.
+     * @param string|null $order_status       Lifecycle state to set, when it matters.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_order_in_state(
+        string $fulfillment_status,
+        string $payment_status,
+        string $order_status = null
+    ): int {
+        $order = $this->create_order();
+
+        $attributes = [
+            'fulfillment_status' => $fulfillment_status,
+            'payment_status' => $payment_status,
+        ];
+
+        if (!is_null($order_status)) {
+            $attributes['order_status'] = $order_status;
+        }
+
+        Order::find($order['id'])->update($attributes);
+
+        return (int) $order['id'];
+    }
+
+    /**
+     * Request the order list and return the listed order identifiers.
+     *
+     * @param array $params Query parameters.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function listed_order_ids(array $params = []): array
+    {
+        $response = $this->request('GET', 'orders', array_merge(['limit' => 100], $params));
+        $payload = $this->assert_api_success($response);
+
+        return array_map('intval', array_column($payload['data']['results'], 'id'));
     }
 }

@@ -40,21 +40,21 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
   {
     id: 'order_number',
     header: __('Order', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { cssOverride: { width: '10%' } },
     cell: ({ row }) => <OrderCell item={row.original} />,
   },
   {
     id: 'quantity',
     header: __('Quantity', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { alignment: 'center' },
     cell: ({ row }) => <Text variant="small">{row.original.quantity}</Text>,
   },
   {
     id: 'invoiced_total',
     header: __('Price', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { alignment: 'center' },
     cell: ({ row }) => (
       <Text variant="small">{row.original.invoiced_total_money_object.display}</Text>
@@ -63,7 +63,7 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
   {
     id: 'status',
     header: __('Status', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { alignment: 'center' },
     cell: ({ row }) => {
       const fulfillmentBadge = getFulfillmentBadgeInfo(row.original.fulfillment_status);
@@ -83,7 +83,7 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
   {
     id: 'payment_provider',
     header: __('Payment', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { alignment: 'center' },
     cell: ({ row }) =>
       row.original.payment_provider ? (
@@ -95,7 +95,7 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
   {
     id: 'created_at',
     header: __('Date', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     meta: { alignment: 'center' },
     cell: ({ row }) =>
       row.original.created_at

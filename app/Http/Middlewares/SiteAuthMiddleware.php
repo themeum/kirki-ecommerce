@@ -50,7 +50,7 @@ class SiteAuthMiddleware implements Middleware
         }
 
         $login_url = Url::get_login_url();
-        wp_redirect($login_url);
+        wp_safe_redirect($login_url);
         exit;
     }
 }

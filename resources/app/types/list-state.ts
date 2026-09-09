@@ -41,6 +41,17 @@ const parseNumberArray = (value: string | null): number[] | undefined => {
   return items;
 };
 
+const parseNumber = (value: string | null): number | undefined => {
+  if (!value) {
+    return undefined;
+  }
+  const parsed = Number(value);
+  if (Number.isNaN(parsed)) {
+    return undefined;
+  }
+  return parsed;
+};
+
 const parseArray = (value: string | null): string[] | undefined => {
   if (!value) {
     return undefined;
@@ -103,6 +114,7 @@ export type { ListFilterConfig, ListFilterParser, ListParams, ListQueryParams, S
 export {
   parseArray,
   parseDateString,
+  parseNumber,
   parseNumberArray,
   parseStatus,
   parseString,

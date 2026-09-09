@@ -2,8 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class Order extends Model
 {
@@ -169,5 +174,61 @@ class Order extends Model
     public function activities()
     {
         return $this->has_many(OrderActivity::class, 'order_id');
+    }
+
+    /**
+     * Narrow the list to a merchant-facing order state.
+     *
+     * The states a merchant filters by cut across three columns. How far the
+     * order has progressed is fulfillment_status; anything about money is
+     * payment_status; and the refund states exist only as a composite
+     * order_status, since order_status is the (fulfillment, payment) pair and
+     * has no independent column of its own.
+     *
+     * @param QueryBuilder $query
+     * @param string       $status
+     *
+     * @return QueryBuilder
+     */
+    public function scope_apply_status_filter(QueryBuilder $query, $status)
+    {
+        if (empty($status)) {
+            return $query;
+        }
+
+        $fulfillment_states = [
+            OrderListStatus::ORDER_PLACED => FulfillmentStatus::UNFULFILLED,
+            OrderListStatus::ORDER_PROCESSING => FulfillmentStatus::PROCESSING,
+            OrderListStatus::ORDER_ON_HOLD => FulfillmentStatus::ON_HOLD,
+            OrderListStatus::ORDER_SHIPPED => FulfillmentStatus::SHIPPED,
+            OrderListStatus::ORDER_DELIVERED => FulfillmentStatus::DELIVERED,
+            OrderListStatus::ORDER_RETURNED => FulfillmentStatus::RETURNED,
+            OrderListStatus::ORDER_CANCELLED => FulfillmentStatus::CANCELLED,
+        ];
+
+        if (isset($fulfillment_states[$status])) {
+            return $query->where('fulfillment_status', $fulfillment_states[$status]);
+        }
+
+        $payment_states = [
+            OrderListStatus::PAYMENT_FAILED => PaymentStatus::FAILED,
+            OrderListStatus::REFUND_IN_PROGRESS => PaymentStatus::REFUNDING,
+            OrderListStatus::REFUNDED => PaymentStatus::REFUNDED,
+        ];
+
+        if (isset($payment_states[$status])) {
+            return $query->where('payment_status', $payment_states[$status]);
+        }
+
+        $lifecycle_states = [
+            OrderListStatus::REFUND_REQUESTED => OrderStatus::REFUND_REQUESTED,
+            OrderListStatus::REFUND_DECLINED => OrderStatus::REFUND_DECLINED,
+        ];
+
+        if (isset($lifecycle_states[$status])) {
+            return $query->where('order_status', $lifecycle_states[$status]);
+        }
+
+        return $query;
     }
 }

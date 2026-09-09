@@ -10,6 +10,8 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Throwable;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class DuplicateCouponAction
 {
     protected $coupon_service;
@@ -32,9 +34,7 @@ class DuplicateCouponAction
     {
         $coupon = Coupon::with(['categories', 'products', 'customers'])->find($id);
 
-        if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($coupon), __('Coupon could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data = CreateCouponDTO::from_array($coupon->to_array());
         $data->title = $data->title . ' - Copy';

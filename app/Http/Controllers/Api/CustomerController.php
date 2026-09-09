@@ -15,6 +15,8 @@ use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\App\DTO\Customer\CustomerListFilterDTO;
+use Kirki\Ecommerce\App\Http\Requests\Customer\CustomerListRequest;
 use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
@@ -32,10 +34,19 @@ class CustomerController
         $this->service = $service;
     }
 
-    public function get(Request $request)
+    public function locations(Request $request)
     {
-        $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $country = $request->get('country');
+
+        return response()->json([
+            'data' => $this->service->list_locations(empty($country) ? null : $country),
+            'message' => __('Customer locations retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    public function get(CustomerListRequest $request)
+    {
+        $params = CustomerListFilterDTO::from_array($request->all());
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);

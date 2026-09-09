@@ -8,6 +8,7 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 use Kirki\Ecommerce\Framework\Http\Response;
 use function Kirki\Ecommerce\Framework\response;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class WebhookController
 {
@@ -15,9 +16,7 @@ class WebhookController
     {
         $provider = Payment::get_provider($provider_id);
 
-        if (!$provider) {
-            throw new NotFoundException(__('Invalid payment gateway', 'kirki-ecommerce'));
-        }
+        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
 
         $result = $provider->webhook();
 

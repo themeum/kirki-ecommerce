@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
 use Kirki\Ecommerce\App\Hooks\Actions\EnqueueSiteScripts;
 use Kirki\Ecommerce\App\Hooks\Actions\MergeGuestOrder;

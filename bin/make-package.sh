@@ -11,6 +11,7 @@ STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
 
 REQUIRED_PATHS=(
   "kirki-ecommerce.php"
+  "readme.txt"
   "app"
   "bootstrap"
   "vendor"
@@ -24,6 +25,7 @@ OPTIONAL_PATHS=(
   "database"
   "payments"
   "routes"
+  "languages"
   "resources/data"
   "resources/images"
   "resources/assets"
@@ -108,6 +110,9 @@ for path in "${OPTIONAL_PATHS[@]}"; do
     copy_path "$path"
   fi
 done
+
+echo "==> Removing hidden files (not allowed by wordpress.org)"
+find "$STAGE_DIR" -name ".*" -type f -delete
 
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.

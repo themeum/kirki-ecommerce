@@ -15,8 +15,8 @@ class ListFilterDTO extends DTO
     /** @var int */
     public $limit = 10;
 
-    /** @var string */
-    public $sort_by = 'id';
+    /** @var string|null */
+    public $sort_by;
 
     /** @var string */
     public $sort_order = 'desc';

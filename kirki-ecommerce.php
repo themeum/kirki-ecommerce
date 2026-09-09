@@ -10,7 +10,7 @@
  * Text Domain:       kirki-ecommerce
  * Requires PHP:      7.4
  * Requires at least: 5.9
- * Tested up to:      6.9
+ * Tested up to:      7.1
  * License:           GPLv2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
@@ -79,9 +79,6 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
 define('KIRKI_ECOMMERCE_MODE', 'development');
 
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . '/vendor/autoload.php';
-
-// Set UTC as default timezone for the application
-date_default_timezone_set('UTC');
 
 // Register activation, deactivation, and uninstall hooks
 register_activation_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 'handle_activation']);
