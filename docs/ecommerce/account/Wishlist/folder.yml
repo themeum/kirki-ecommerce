@@ -1,7 +1,7 @@
 info:
   name: Wishlist
   type: folder
-  seq: 28
+  seq: 12
 
 request:
   auth: inherit

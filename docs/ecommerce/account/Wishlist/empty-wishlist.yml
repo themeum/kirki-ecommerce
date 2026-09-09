@@ -1,5 +1,5 @@
 info:
-  name: wishlist/{variant_id}
+  name: wishlist/empty
   type: http
   seq: 3
   tags:
@@ -7,7 +7,7 @@ info:
 
 http:
   method: DELETE
-  url: "{{baseUrl}}/wishlist/1"
+  url: "{{baseUrl}}/account/wishlist/empty"
   auth: inherit
 
 settings:
@@ -15,12 +15,13 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
 
 examples:
   - name: 200 Response
-    description: Success - Item removed from wishlist
+    description: Success - All wishlist items cleared for the user
     request:
-      url: "{{baseUrl}}/wishlist/1"
+      url: "{{baseUrl}}/wishlist/empty"
       method: DELETE
     response:
       status: 200
@@ -33,29 +34,12 @@ examples:
         data: |-
           {
             "data": true,
-            "message": "Item removed from wishlist successfully."
-          }
-  - name: 404 Response
-    description: Failure - Wishlist item not found or does not belong to the authenticated user
-    request:
-      url: "{{baseUrl}}/wishlist/999999"
-      method: DELETE
-    response:
-      status: 404
-      statusText: Not Found
-      headers:
-        - name: Content-Type
-          value: application/json
-      body:
-        type: json
-        data: |-
-          {
-            "message": "Wishlist not found."
+            "message": "Wishlist cleared successfully."
           }
   - name: 401 Response
     description: Failure - Not logged in
     request:
-      url: "{{baseUrl}}/wishlist/1"
+      url: "{{baseUrl}}/wishlist/empty"
       method: DELETE
     response:
       status: 401
@@ -75,9 +59,8 @@ examples:
           }
 
 docs: |-
-  ## Delete Wishlist Item
+  ## Empty Wishlist
 
-  Deletes an item from the wishlist by its wishlist entry ID.
+  Clears all wishlist items belonging to the currently authenticated user.
 
-  - Scoped to the currently authenticated user.
-  - Returns 404 if the record does not exist or belongs to another user.
+  - Scoped exclusively to the current user's records.

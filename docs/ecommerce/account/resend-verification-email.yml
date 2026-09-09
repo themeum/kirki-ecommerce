@@ -1,7 +1,7 @@
 info:
   name: resend-verification-email
   type: http
-  seq: 6
+  seq: 7
   tags:
     - account
 

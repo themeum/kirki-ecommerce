@@ -7,24 +7,20 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/wishlist?page=1&limit=10&sort_by=id&sort_order=desc"
+  url: "{{baseUrl}}/account/wishlist?page=1&limit=10&sort_by=id&sort_order=desc"
   params:
     - name: page
       value: "1"
       type: query
-      enabled: false
     - name: limit
       value: "10"
       type: query
-      enabled: false
     - name: sort_by
-      value: "id"
+      value: id
       type: query
-      enabled: false
     - name: sort_order
-      value: "desc"
+      value: desc
       type: query
-      enabled: false
   auth: inherit
 
 settings:

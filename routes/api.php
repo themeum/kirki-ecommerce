@@ -249,14 +249,6 @@ Route::get('/test-public', function (Request $request) {
 // Site api endpoints.
 Route::get('/shop/products', [SiteController::class, 'products']);
 
-// Wishlist api endpoints.
-Route::group(['middleware' => AuthMiddleware::class], function () {
-    Route::get('/wishlist', [WishlistController::class, 'get']);
-    Route::post('/wishlist', [WishlistController::class, 'add_item']);
-    Route::delete('/wishlist/{id}', [WishlistController::class, 'remove_item'])->where('id', '[\d]+');
-    Route::delete('/wishlist/empty', [WishlistController::class, 'empty_wishlist']);
-});
-
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);
 Route::post('/cart/items', [CartController::class, 'add_item']);
@@ -282,6 +274,11 @@ Route::group([
     Route::put('/addresses/{id}', [AddressController::class, 'update']);
     Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
     Route::patch('/addresses/{id}/set-default', [AddressController::class, 'set_default']);
+
+    Route::get('/wishlist', [WishlistController::class, 'get']);
+    Route::post('/wishlist', [WishlistController::class, 'add_item']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'remove_item'])->where('id', '[\d]+');
+    Route::delete('/wishlist/empty', [WishlistController::class, 'empty_wishlist']);
 
     // Resend verification email.
     Route::post('/resend-verification-email', [AccountController::class, 'resend_verification_email'])

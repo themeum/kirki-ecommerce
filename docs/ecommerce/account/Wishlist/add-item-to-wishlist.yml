@@ -1,18 +1,18 @@
 info:
   name: wishlist
   type: http
-  seq: 2
+  seq: 4
   tags:
     - wishlist
 
 http:
   method: POST
-  url: "{{baseUrl}}/wishlist"
+  url: "{{baseUrl}}/account/wishlist"
   body:
     type: json
     data: |-
       {
-        "variant_id": 5
+        "variant_id": 98095
       }
   auth: inherit
 

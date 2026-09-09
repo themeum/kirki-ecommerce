@@ -1,13 +1,13 @@
 info:
-  name: wishlist/empty
+  name: wishlist/{variant_id}
   type: http
-  seq: 4
+  seq: 3
   tags:
     - wishlist
 
 http:
   method: DELETE
-  url: "{{baseUrl}}/wishlist/empty"
+  url: "{{baseUrl}}/account/wishlist/1"
   auth: inherit
 
 settings:
@@ -19,9 +19,9 @@ settings:
 
 examples:
   - name: 200 Response
-    description: Success - All wishlist items cleared for the user
+    description: Success - Item removed from wishlist
     request:
-      url: "{{baseUrl}}/wishlist/empty"
+      url: "{{baseUrl}}/wishlist/1"
       method: DELETE
     response:
       status: 200
@@ -34,12 +34,29 @@ examples:
         data: |-
           {
             "data": true,
-            "message": "Wishlist cleared successfully."
+            "message": "Item removed from wishlist successfully."
+          }
+  - name: 404 Response
+    description: Failure - Wishlist item not found or does not belong to the authenticated user
+    request:
+      url: "{{baseUrl}}/wishlist/999999"
+      method: DELETE
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Wishlist not found."
           }
   - name: 401 Response
     description: Failure - Not logged in
     request:
-      url: "{{baseUrl}}/wishlist/empty"
+      url: "{{baseUrl}}/wishlist/1"
       method: DELETE
     response:
       status: 401
@@ -59,8 +76,9 @@ examples:
           }
 
 docs: |-
-  ## Empty Wishlist
+  ## Delete Wishlist Item
 
-  Clears all wishlist items belonging to the currently authenticated user.
+  Deletes an item from the wishlist by its wishlist entry ID.
 
-  - Scoped exclusively to the current user's records.
+  - Scoped to the currently authenticated user.
+  - Returns 404 if the record does not exist or belongs to another user.
