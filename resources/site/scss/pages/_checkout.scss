@@ -64,7 +64,7 @@
   .kecom-contact-header {
     @include flex-between();
     gap: $spacing-4;
-    margin-bottom: $spacing-8;
+    margin-bottom: $spacing-4;
 
     .kecom-section-title {
       margin-bottom: 0;
