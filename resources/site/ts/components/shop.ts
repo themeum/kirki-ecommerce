@@ -175,7 +175,6 @@ export function shop() {
     async wishlistItem(variantId: number, isWishlisted: boolean) {
       try {
         if (isWishlisted) {
-          console.log(variantId);
           const result = await wishlistApi.remove(variantId);
 
           if (result && result.success !== false && result.data) {
