@@ -4,6 +4,7 @@ import type { RouteObject } from 'react-router';
 import { Navigate } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
+import AdvancedSettingsSkeleton from '@/features/settings/advanced/skeletons/advanced-settings-skeleton';
 import CheckoutSettingsSkeleton from '@/features/settings/checkout/skeletons/checkout-settings-skeleton';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
@@ -126,7 +127,7 @@ const settingsRoutes: RouteObject[] = [
       },
       {
         path: SettingsRoutes.get('AdvancedSettings').template,
-        element: withSuspense(AdvancedSettings),
+        element: withSuspense(AdvancedSettings, <AdvancedSettingsSkeleton />),
       },
     ],
   },

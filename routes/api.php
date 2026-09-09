@@ -33,6 +33,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AddressController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\WishlistController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -215,6 +216,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 
     // Pages
     Route::get('/pages', [PageController::class, 'get']);
+    Route::post('/pages/fix', [PageController::class, 'run_fix']);
 
     // Online Payments
     Route::get('/online-payments/installable', [OnlinePaymentController::class, 'all']);
@@ -275,6 +277,11 @@ Route::group([
     Route::put('/addresses/{id}', [AddressController::class, 'update']);
     Route::delete('/addresses/{id}', [AddressController::class, 'destroy']);
     Route::patch('/addresses/{id}/set-default', [AddressController::class, 'set_default']);
+
+    Route::get('/wishlist', [WishlistController::class, 'get']);
+    Route::post('/wishlist', [WishlistController::class, 'add_item']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'remove_item'])->where('id', '[\d]+');
+    Route::delete('/wishlist/empty', [WishlistController::class, 'empty_wishlist']);
 
     // Resend verification email.
     Route::post('/resend-verification-email', [AccountController::class, 'resend_verification_email'])

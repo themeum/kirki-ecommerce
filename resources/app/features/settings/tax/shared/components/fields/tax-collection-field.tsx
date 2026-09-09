@@ -15,7 +15,7 @@ const options = [
   {
     title: __('Tax is already included in product price and shipping rate', 'kirki-ecommerce'),
     value: 'inclusive',
-    disabled: true,
+    disabled: false,
   },
 ];
 
