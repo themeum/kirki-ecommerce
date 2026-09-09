@@ -33,6 +33,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\Site\AddressController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\CheckoutController;
 use Kirki\Ecommerce\App\Http\Controllers\Site\OrderActivityController as SiteOrderActivityController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\Site\SiteController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\Site\WishlistController;
 use Kirki\Ecommerce\App\Models\Post;
 use Kirki\Ecommerce\App\Payment\WebhookController;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -247,6 +248,14 @@ Route::get('/test-public', function (Request $request) {
 
 // Site api endpoints.
 Route::get('/shop/products', [SiteController::class, 'products']);
+
+// Wishlist api endpoints.
+Route::group(['middleware' => AuthMiddleware::class], function () {
+    Route::get('/wishlist', [WishlistController::class, 'get']);
+    Route::post('/wishlist', [WishlistController::class, 'add_item']);
+    Route::delete('/wishlist/{id}', [WishlistController::class, 'remove_item'])->where('id', '[\d]+');
+    Route::delete('/wishlist/empty', [WishlistController::class, 'empty_wishlist']);
+});
 
 // Cart api endpoints for guest card.
 Route::get('/cart', [CartController::class, 'get']);

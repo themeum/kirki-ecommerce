@@ -1,0 +1,128 @@
+info:
+  name: wishlist
+  type: http
+  seq: 2
+  tags:
+    - wishlist
+
+http:
+  method: POST
+  url: "{{baseUrl}}/wishlist"
+  body:
+    type: json
+    data: |-
+      {
+        "variant_id": 5
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 201 Response
+    description: Success - Item added to wishlist
+    request:
+      url: "{{baseUrl}}/wishlist"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "variant_id": 5
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": 1,
+              "user_id": 2,
+              "variant_id": 5,
+              "product_id": 3,
+              "title": "Classic Cotton T-Shirt",
+              "name": "Classic Cotton T-Shirt",
+              "slug": "classic-cotton-t-shirt",
+              "product_url": "http://example.com/shop/classic-cotton-t-shirt",
+              "url": "http://example.com/shop/classic-cotton-t-shirt",
+              "image": "http://example.com/wp-content/uploads/2026/01/tshirt.jpg",
+              "image_url": "http://example.com/wp-content/uploads/2026/01/tshirt.jpg",
+              "price": 25,
+              "display_price": "$25.00",
+              "formatted_regular_price": "$30.00",
+              "in_sale": true,
+              "out_of_stock": false,
+              "created_at": "2026-09-08 10:00:00",
+              "updated_at": "2026-09-08 10:00:00"
+            },
+            "message": "Item added to wishlist successfully."
+          }
+  - name: 404 Response
+    description: Failure - Variant not found or product is not published
+    request:
+      url: "{{baseUrl}}/wishlist"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "variant_id": 999999
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Variant not found."
+          }
+  - name: 401 Response
+    description: Failure - Not logged in
+    request:
+      url: "{{baseUrl}}/wishlist"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "variant_id": 5
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## Add Item to Wishlist
+
+  Adds a product variant to the authenticated user's wishlist.
+
+  - Requires `variant_id` in request body.
+  - Verifies that the variant exists and its parent product is published.
+  - If the item is already on the user's wishlist, the existing entry is returned.
