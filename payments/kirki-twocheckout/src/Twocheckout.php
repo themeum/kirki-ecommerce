@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -265,7 +266,9 @@ class Twocheckout extends PaymentProvider
      */
     protected function verify_and_parse_notification()
     {
-        $raw_payload = file_get_contents('php://input');
+        $payload = Request::capture();
+        $payment_id = $payload->get('ORDERSTATUS', null, 'string');
+
         $this->client = $this->get_client();
 
         // Respond with a 200 status code to acknowledge the notification.
