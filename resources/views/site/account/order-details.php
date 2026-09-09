@@ -31,7 +31,7 @@ $pages = view_data('pages');
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
-                <?php include_view('site.account.orders.details', [ 'order' => view_data('order'), 'activities' => view_data('activities'), 'show_back_to_orders' => true, 'customer' => customer()]); ?>
+                <?php include_view('site.account.orders.details', [ 'order' => view_data('order'), 'activities' => view_data('activities'), 'show_back_to_orders' => true]); ?>
             </main>
         </div>
     </div>

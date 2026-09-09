@@ -24,12 +24,11 @@ use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 $fallback_image_url = Assets::get_url('images/product-fallback.webp');
 $order = $data['order'];
-$current_customer = $data['customer'] ?? null;
-$customer = isset($order['customer_id']) && $current_customer->get_customer_id() === $order['customer_id'] ? customer(null, $order['customer_id']) : null;
+$customer = $order['customer'] ?? [];
 
-$first_name = $customer ? ucfirst($customer->get_first_name()) : '';
-$last_name = $customer ? ucfirst($customer->get_last_name()) : '';
-$email = $customer ? $customer->get_email() : '';
+$first_name = ucfirst($customer['first_name'] ?? '');
+$last_name = ucfirst($customer['last_name'] ?? '');
+$email = $customer['email'] ?? '';
 
 $totals = $order['totals'] ?? [];
 $subtotal = $totals['invoiced_subtotal_money_object'] ?? null;
@@ -114,7 +113,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             <?php esc_html_e('Contact Information', 'kirki-ecommerce'); ?>
                         </h4>
                         <div class="kecom-order-info-content">
-                            <?php if (empty($customer) || empty($customer->get_email())) : ?>
+                            <?php if (!$customer['id']) : ?>
                                 <p class="kecom-order-info-text"><?php esc_html_e('N/A', 'kirki-ecommerce') ?></p>
                             <?php else : ?>
                                 <p class="kecom-order-info-text"><?php echo esc_html($first_name . ' ' . $last_name) ?></p>

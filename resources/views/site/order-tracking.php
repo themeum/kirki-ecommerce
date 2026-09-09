@@ -37,7 +37,7 @@ use function Kirki\Ecommerce\Framework\view_data;
                 include_view('site.account.orders.empty');
                 ?>
             <?php else : ?>
-                <?php include_view('site.account.orders.details', [ 'order' => view_data('order'), 'activities' => view_data('activities'), 'customer' => customer()]); ?>
+                <?php include_view('site.account.orders.details', [ 'order' => view_data('order'), 'activities' => view_data('activities')]); ?>
             <?php endif; ?>
         </main>
     </div>
