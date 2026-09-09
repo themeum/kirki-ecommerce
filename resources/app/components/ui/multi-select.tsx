@@ -281,9 +281,8 @@ const styles = defineStyles({
     display: 'contents',
   },
   content: {
-    width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
-    maxWidth: 'var(--radix-popover-trigger-width)',
+    maxWidth: 'none',
     padding: 0,
     overflow: 'hidden',
   },

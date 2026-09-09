@@ -4,14 +4,15 @@ import { endpoints } from '@/config/endpoints';
 import { bulkEditKeys } from '@/features/bulk-edit';
 import { inventoryKeys } from '@/features/inventory';
 import type { VariantFormPayload } from '@/features/inventory/schemas/forms/variant-form';
+import type { InventoryListFilter } from '@/features/inventory/types';
 import { InventoryVariantSchema, productKeys, VariantSchema } from '@/features/products';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
 import { parseData, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
-import type { ListQueryParams } from '@/types/list-state';
+import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
-const getInventory = (params: ListQueryParams = {}) => {
+const getInventory = (params: ListParams<InventoryListFilter> = {}) => {
   return apiClient
     .get(endpoints.VARIANTS, { params })
     .then((response) =>
@@ -31,7 +32,7 @@ const updateVariant = ({ id, data }: { id: number; data: VariantFormPayload }) =
     .then((response) => parseResponse(VariantSchema, response));
 };
 
-const useInventoryQuery = (params: ListQueryParams = {}) => {
+const useInventoryQuery = (params: ListParams<InventoryListFilter> = {}) => {
   return useQuery({
     queryKey: inventoryKeys.list(params),
     queryFn: () => getInventory(params),

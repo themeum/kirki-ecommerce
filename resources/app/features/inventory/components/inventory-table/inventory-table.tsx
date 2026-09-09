@@ -8,6 +8,7 @@ import { RouteConfig } from '@/config/route-config';
 import { inventoryColumns } from '@/features/inventory/components/inventory-table/columns';
 import InventoryTableFilters from '@/features/inventory/components/inventory-table/inventory-table-filters';
 import { useInventoryQuery } from '@/features/inventory/services/inventory';
+import type { InventoryListFilter } from '@/features/inventory/types';
 import { inventoryListOptions } from '@/features/inventory/types';
 import type { InventoryVariant } from '@/features/products';
 import { useDataTableParams } from '@/hooks';
@@ -20,7 +21,7 @@ const inventoryBulkActions: DataTableBulkAction[] = [
 const InventoryTable = () => {
   const navigate = useNavigate();
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(inventoryListOptions);
+    useDataTableParams<InventoryListFilter>(inventoryListOptions);
   const { data, isFetching } = useInventoryQuery(params);
 
   const handleBulkApply = useCallback(

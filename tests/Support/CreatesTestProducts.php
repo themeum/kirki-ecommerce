@@ -55,6 +55,76 @@ trait CreatesTestProducts
     }
 
     /**
+     * Create a category via the API and return its identifier.
+     *
+     * @param string|null $name Category name.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_category(string $name = null): int
+    {
+        $suffix = wp_generate_password(6, false);
+        $response = $this->request('POST', 'categories', [
+            'name' => $name ?? 'Filter Category ' . $suffix,
+            'slug' => 'filter-category-' . strtolower($suffix),
+        ]);
+
+        return (int) $this->assert_api_success($response, 201)['data']['id'];
+    }
+
+    /**
+     * Create a collection via the API and return its identifier.
+     *
+     * @param string|null $name Collection name.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_collection(string $name = null): int
+    {
+        $suffix = wp_generate_password(6, false);
+        $response = $this->request('POST', 'collections', [
+            'title' => $name ?? 'Filter Collection ' . $suffix,
+            'slug' => 'filter-collection-' . strtolower($suffix),
+        ]);
+
+        return (int) $this->assert_api_success($response, 201)['data']['id'];
+    }
+
+    /**
+     * Create a brand via the API and return its identifier.
+     *
+     * @param string|null $name Brand name.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_brand(string $name = null): int
+    {
+        $suffix = wp_generate_password(6, false);
+        $response = $this->request('POST', 'brands', [
+            'name' => $name ?? 'Filter Brand ' . $suffix,
+            'slug' => 'filter-brand-' . strtolower($suffix),
+        ]);
+
+        return (int) $this->assert_api_success($response, 201)['data']['id'];
+    }
+
+    /**
+     * Collect the product titles from a list response payload.
+     *
+     * @param array $payload API response payload.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function listed_titles(array $payload): array
+    {
+        return array_column($payload['data']['results'], 'title');
+    }
+
+    /**
      * Return the first variant identifier from a product payload.
      *
      * @param array $product Product response data.

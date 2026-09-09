@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
+use Kirki\Ecommerce\App\Http\Requests\Coupon\CouponListRequest;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
@@ -31,7 +32,7 @@ class CouponController
         $this->service = $service;
     }
 
-    public function get(Request $request)
+    public function get(CouponListRequest $request)
     {
         $params = CouponFilterDTO::from_array($request->all());
 

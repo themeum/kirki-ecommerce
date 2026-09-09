@@ -23,6 +23,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\TestController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\CountryController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TaxProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingBoxController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingMethodController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SettingsController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductSchemaController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
@@ -108,6 +109,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/attributes/{attribute_id}/values/bulk', [AttributeValueController::class, 'bulk_actions']);
 
     // Customers
+    Route::get('/customers/locations', [CustomerController::class, 'locations']);
     Route::get('/customers', [CustomerController::class, 'get']);
     Route::get('/customers/{id}', [CustomerController::class, 'show']);
     Route::post('/customers', [CustomerController::class, 'create']);
@@ -168,6 +170,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/tax-profiles/bulk', [TaxProfileController::class, 'bulk_actions']);
 
     // Shipping Boxes
+    Route::get('/shipping-methods', [ShippingMethodController::class, 'get']);
     Route::get('/shipping-boxes', [ShippingBoxController::class, 'get']);
     Route::get('/shipping-boxes/{id}', [ShippingBoxController::class, 'show']);
     Route::post('/shipping-boxes', [ShippingBoxController::class, 'create']);

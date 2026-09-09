@@ -81,12 +81,14 @@ const SelectContent = forwardRef<
       <SelectPrimitive.Content
         ref={ref}
         position={position}
-        css={scopedMerge(styles.content, isPopper && styles.contentPopper, cssOverride)}
+        css={scopedMerge(
+          styles.content,
+          isPopper ? styles.contentPopper : styles.contentItemAligned,
+          cssOverride,
+        )}
         {...rest}
       >
-        <SelectPrimitive.Viewport
-          css={scopedMerge(styles.viewport, isPopper && styles.viewportPopper)}
-        >
+        <SelectPrimitive.Viewport css={scoped(styles.viewport)}>
           {children}
         </SelectPrimitive.Viewport>
       </SelectPrimitive.Content>
@@ -177,6 +179,23 @@ export {
   Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue,
 };
 
+/**
+ * Radix's `item-aligned` positioning lines the option text up with the trigger's
+ * value text, not the panel's edge up with the trigger's edge. Our option rows
+ * carry a check gutter the trigger does not, so the panel lands
+ * `ITEM_ALIGNED_OFFSET` too far left and Radix widens its wrapper by the same
+ * amount. Pushing the content back right by that offset lands both the panel's
+ * left edge and its width on the trigger.
+ *
+ * This holds only while the trigger keeps a 1px border and `spacing[3]` side
+ * padding, `<SelectValue>` stays the trigger's first child, and the content keeps
+ * a 1px border with `spacing[1]` of viewport side padding.
+ */
+const ITEM_PADDING_LEFT = `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`;
+const TRIGGER_VALUE_INSET = `calc(1px + ${theme.spacing[3]})`;
+const ITEM_TEXT_INSET = `calc(1px + ${theme.spacing[1]} + ${ITEM_PADDING_LEFT})`;
+const ITEM_ALIGNED_OFFSET = `calc(${ITEM_TEXT_INSET} - ${TRIGGER_VALUE_INSET})`;
+
 const styles = defineStyles({
   trigger: {
     width: '100%',
@@ -207,7 +226,7 @@ const styles = defineStyles({
     default: {},
     secondary: {
       backgroundColor: theme.colors.background.fillSecondary,
-      border: 'none',
+      border: '1px solid transparent',
       ...theme.typography.small(),
       borderRadius: theme.radius.md,
     },
@@ -255,16 +274,16 @@ const styles = defineStyles({
       outline: 'none',
     },
   },
+  contentItemAligned: {
+    marginLeft: ITEM_ALIGNED_OFFSET,
+  },
   contentPopper: {
     maxHeight: 'var(--radix-select-content-available-height)',
+    minWidth: 'var(--radix-select-trigger-width)',
   },
   viewport: {
     width: '100%',
     padding: `0 ${theme.spacing[1]}`,
-  },
-  viewportPopper: {
-    width: '100%',
-    minWidth: 'var(--radix-select-trigger-width)',
   },
   label: {
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
@@ -283,7 +302,7 @@ const styles = defineStyles({
   },
   item: {
     padding: `${theme.spacing[2]} ${theme.spacing[2]}`,
-    paddingLeft: `calc(${theme.spacing[2]} + ${theme.spacing[4]} + ${theme.spacing[2]})`,
+    paddingLeft: ITEM_PADDING_LEFT,
     ...itemCenter(),
     justifyContent: 'flex-start',
     columnGap: theme.spacing[2],

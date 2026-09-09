@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
@@ -902,5 +903,231 @@ class ProductApiTest extends RestTestCase
         $this->assertCount(1, $duplicated['variants']);
         $this->assertNull($duplicated['variants'][0]['sku']);
         $this->assertEquals([], $duplicated['variants'][0]['attribute_values']);
+    }
+
+    /**
+     * Filtering by a single category narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_category(): void
+    {
+        $category_id = $this->create_category();
+        $unique = 'CatFilter-' . wp_generate_password(6, false);
+
+        $matching = $this->create_product([
+            'title' => $unique . ' Matching',
+            'categories' => [$category_id],
+        ]);
+        $this->create_product(['title' => $unique . ' Other']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'category_ids' => [$category_id],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Matching'], $this->listed_titles($payload));
+
+        $this->product_id = $matching['id'];
+    }
+
+    /**
+     * Filtering by several categories lists products in any of them.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_several_categories(): void
+    {
+        $first_category = $this->create_category();
+        $second_category = $this->create_category();
+        $unique = 'MultiCatFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' First',
+            'categories' => [$first_category],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Second',
+            'categories' => [$second_category],
+        ]);
+        $this->create_product(['title' => $unique . ' Neither']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'category_ids' => [$first_category, $second_category],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEqualsCanonicalizing(
+            [$unique . ' First', $unique . ' Second'],
+            $this->listed_titles($payload)
+        );
+    }
+
+    /**
+     * Filtering by collection narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_collection(): void
+    {
+        $collection_id = $this->create_collection();
+        $unique = 'CollectionFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'collections' => [$collection_id],
+        ]);
+        $this->create_product(['title' => $unique . ' Other']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'collection_id' => $collection_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Matching'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Filtering by brand narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_brand(): void
+    {
+        $brand_id = $this->create_brand();
+        $unique = 'BrandFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'brand_id' => $brand_id,
+        ]);
+        $this->create_product(['title' => $unique . ' Other']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'brand_id' => $brand_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Matching'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Combining a category filter with a brand filter narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_combines_category_and_brand_filters(): void
+    {
+        $category_id = $this->create_category();
+        $brand_id = $this->create_brand();
+        $unique = 'ComboFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Both',
+            'categories' => [$category_id],
+            'brand_id' => $brand_id,
+        ]);
+        $this->create_product([
+            'title' => $unique . ' CategoryOnly',
+            'categories' => [$category_id],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' BrandOnly',
+            'brand_id' => $brand_id,
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'category_ids' => [$category_id],
+            'brand_id' => $brand_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Both'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Filtering by draft status lists only drafts.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_draft_status(): void
+    {
+        $unique = 'DraftFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Draft',
+            'status' => ProductStatus::DRAFT,
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Published',
+            'status' => ProductStatus::PUBLISHED,
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'status' => ProductStatus::DRAFT,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Draft'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Filtering by out of stock lists only products with nothing to sell.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_out_of_stock_availability(): void
+    {
+        $unique = 'StockFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' InStock',
+            'variants' => [
+                [
+                    'base_price' => 10.0,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 25,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'track_inventory' => true,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' OutOfStock',
+            'variants' => [
+                [
+                    'base_price' => 10.0,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 0,
+                    'in_stock' => false,
+                    'is_default' => true,
+                    'track_inventory' => true,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'availability_status' => AvailabilityStatus::OUT_OF_STOCK,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' OutOfStock'], $this->listed_titles($payload));
     }
 }

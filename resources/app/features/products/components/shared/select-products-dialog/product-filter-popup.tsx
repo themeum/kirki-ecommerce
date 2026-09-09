@@ -19,8 +19,8 @@ type ProductFilterValue = {
   category_ids: number[];
   status: string;
   availability_status: string;
-  collection_ids: number | undefined;
-  brand_ids: number | undefined;
+  collection_id: number | undefined;
+  brand_id: number | undefined;
 };
 
 type ProductFilterPopupProps = {
@@ -33,8 +33,8 @@ const emptyFilter: ProductFilterValue = {
   category_ids: [],
   status: 'all',
   availability_status: 'all',
-  collection_ids: undefined,
-  brand_ids: undefined,
+  collection_id: undefined,
+  brand_id: undefined,
 };
 
 const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopupProps) => {
@@ -44,15 +44,15 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
   const filterCount = [
     value.category_ids?.length,
     value.availability_status,
-    value.collection_ids,
-    value.brand_ids,
+    value.collection_id,
+    value.brand_id,
   ].filter(Boolean).length;
 
   const hasFilter = Boolean(
     filterObject.category_ids.length ||
     filterObject.availability_status ||
-    filterObject.collection_ids ||
-    filterObject.brand_ids,
+    filterObject.collection_id ||
+    filterObject.brand_id,
   );
 
   useEffect(() => {
@@ -63,8 +63,8 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
       category_ids: value.category_ids || [],
       status: value.status || 'all',
       availability_status: value.availability_status || 'all',
-      collection_ids: value.collection_ids,
-      brand_ids: value.brand_ids,
+      collection_id: value.collection_id,
+      brand_id: value.brand_id,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the draft filters from `value` only as the popup opens; tracking value.* would overwrite the user edits as they change each control
   }, [openPopup]);
@@ -151,11 +151,11 @@ const ProductFilterPopup = memo(({ value, onApply, children }: ProductFilterPopu
           />
           <CollectionFilter
             filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'collection_ids')}
+            onChange={(val) => handleOnFilterChange(val, 'collection_id')}
           />
           <BrandFilter
             filterObject={filterObject}
-            onChange={(val) => handleOnFilterChange(val, 'brand_ids')}
+            onChange={(val) => handleOnFilterChange(val, 'brand_id')}
           />
         </Flex>
 

@@ -2,6 +2,8 @@ import ActionGroup from '@/components/ui/action-group';
 import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
+import FilterPopup from '@/features/customers/components/customer-table/filter-popup/filter-popup';
+import type { CustomerListFilter } from '@/features/customers/types';
 import { customerListOptions } from '@/features/customers/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
@@ -10,7 +12,8 @@ import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const CustomerTableFilters = () => {
-  const { params, setParam, handleDateFilter } = useDataTableParams(customerListOptions);
+  const { params, setParam, handleDateFilter } =
+    useDataTableParams<CustomerListFilter>(customerListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
@@ -26,6 +29,8 @@ const CustomerTableFilters = () => {
           clearable
         />
       </div>
+      <FilterPopup />
+
       <ActionGroup>
         <DateRangePicker
           value={{
