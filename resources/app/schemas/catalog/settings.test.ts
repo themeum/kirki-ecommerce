@@ -176,7 +176,7 @@ describe('TaxSettingsSchema', () => {
     const result = TaxSettingsSchema.safeParse({
       is_tax_inclusive_price: true,
       is_shipping_tax_enabled: true,
-      is_enabled_taxed_price: false,
+      is_enabled_display_inclusive_taxed_price: false,
       tax_regions: [{ code: 'EU', name: 'European Union', type: 'oss' }],
       tax_services: [],
       tax_ids: [],
@@ -231,8 +231,21 @@ describe('PaymentSettingsSchema', () => {
   it('accepts the documented response, including offline payments with no id (settings/payment.yml)', () => {
     const result = PaymentSettingsSchema.safeParse({
       offline_payments: [
-        { is_enabled: true, is_offline: true, name: 'Cash on Delivery', icon: 'cash', instructions: 'Cash on Delivery' },
-        { is_enabled: true, is_offline: true, name: 'Cash on Delivery', icon: 'cash', instructions: 'Cash on Delivery', config: [] },
+        {
+          is_enabled: true,
+          is_offline: true,
+          name: 'Cash on Delivery',
+          icon: 'cash',
+          instructions: 'Cash on Delivery',
+        },
+        {
+          is_enabled: true,
+          is_offline: true,
+          name: 'Cash on Delivery',
+          icon: 'cash',
+          instructions: 'Cash on Delivery',
+          config: [],
+        },
       ],
     });
     expect(result.success).toBe(true);
@@ -247,7 +260,17 @@ describe('PaymentSettingsSchema', () => {
 describe('SettingsSchemaMap', () => {
   it('has exactly the eight sections with a real endpoint and caller', () => {
     expect(Object.keys(SettingsSchemaMap).sort()).toEqual(
-      ['checkout', 'currency', 'email', 'general', 'payment', 'product', 'shipping', 'tax'].sort(),
+      [
+        'checkout',
+        'currency',
+        'email',
+        'general',
+        'payment',
+        'product',
+        'shipping',
+        'tax',
+        'advance',
+      ].sort(),
     );
   });
 });

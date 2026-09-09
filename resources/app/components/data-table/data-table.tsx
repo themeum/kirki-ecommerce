@@ -249,7 +249,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
               cssOverride={styles.toolbar}
             />
           ) : (
-            <div css={scoped(styles.toolbar)}>{toolbar}</div>
+            Boolean(toolbar) && <div css={scoped(styles.toolbar)}>{toolbar}</div>
           )}
           {filterBar}
           <Table

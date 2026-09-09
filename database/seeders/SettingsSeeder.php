@@ -269,7 +269,7 @@ class SettingsSeeder extends Seeder
         return [
             "key" => "tax",
             "data" => [
-                "is_enabled_taxed_price" => false,
+                "is_enabled_display_inclusive_taxed_price" => false,
                 "is_tax_inclusive_price" => false,
                 "is_shipping_tax_enabled" => false,
                 "tax_regions" => [

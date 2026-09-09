@@ -69,7 +69,7 @@ type ButtonState = 'loading' | 'disabled' | 'active' | 'hover' | '';
 type InputState = 'muted' | 'disabled' | 'active' | '';
 type SelectState = 'disabled' | 'active' | '';
 
-type AlertType = 'success' | 'fail' | 'pending';
+type AlertType = 'primary' | 'success' | 'fail' | 'pending' | 'warning';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
 type TableDensity = 'default' | 'compact' | 'wide';

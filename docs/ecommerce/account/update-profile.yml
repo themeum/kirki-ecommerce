@@ -1,7 +1,7 @@
 info:
   name: Update Profile
   type: http
-  seq: 1
+  seq: 2
   tags:
     - account
 
@@ -22,6 +22,7 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
 
 examples:
   - name: 200 Response
