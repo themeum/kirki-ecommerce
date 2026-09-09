@@ -113,7 +113,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             <?php esc_html_e('Contact Information', 'kirki-ecommerce'); ?>
                         </h4>
                         <div class="kecom-order-info-content">
-                            <?php if (!$customer['id']) : ?>
+                            <?php if (empty( $customer ) || !$customer['id']) : ?>
                                 <p class="kecom-order-info-text"><?php esc_html_e('N/A', 'kirki-ecommerce') ?></p>
                             <?php else : ?>
                                 <p class="kecom-order-info-text"><?php echo esc_html($first_name . ' ' . $last_name) ?></p>
@@ -236,9 +236,11 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php esc_html_e('Show Less', 'kirki-ecommerce'); ?></button>
                     </div>
                 </div>
-                <div class="kecom-expand-button" x-show="!expanded" x-cloak>
-                    <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php printf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3); ?>'"></button>
-                </div>
+                <?php if (count($items) > 3) : ?>
+                    <div class="kecom-expand-button" x-show="!expanded" x-cloak>
+                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php printf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3); ?>'"></button>
+                    </div>
+                <?php endif; ?>
                 <!-- Summary Totals Breakdown -->
                 <div class="kecom-order-pricing-breakdown" :class="expanded && !isAtBottom ? 'expanded' : ''">
                     <div class="kecom-pricing-row">

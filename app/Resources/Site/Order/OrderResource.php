@@ -24,7 +24,7 @@ class OrderResource extends BaseOrderResource
                 return $item->product_data;
             })->to_array(),
             'updated_at' => $this->updated_at,
-            'customer' => customer(null,$this->customer_id)->get_data(),
+            'customer' => $this->customer_id ? customer(null,$this->customer_id)->get_customer() : [],
         ]);
     }
 
