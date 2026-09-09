@@ -24,6 +24,8 @@ class TwocheckoutConstant
     const SIGNATURE_GENERATE_URL = 'https://secure.2checkout.com/checkout/api/encrypt/generate/signature';
     const METHOD_POST = 'post';
     const METHOD_GET = 'get';
+    const DISCOUNT = 'Discount';
+    const TYPE_COUPON = 'COUPON';
 
     //IPN ORDERSTATUS values handled by this gateway.
     const ORDER_STATUS_COMPLETE = 'COMPLETE';

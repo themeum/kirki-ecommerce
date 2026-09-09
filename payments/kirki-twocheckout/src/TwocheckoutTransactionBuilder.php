@@ -37,7 +37,7 @@ class TwocheckoutTransactionBuilder
         $expiration_time = absint(time() + TwocheckoutConstant::JWT_EXPIRE_TIME);
 
         return [
-            'email' => $this->order->billing_email ?? '',
+            'email' => $this->order->billing_email ?? $this->order->customer_email ?? '',
             'phone' => $this->order->billing_phone ?? '',
             'country' => $this->order->billing_country ?? '',
             'city' => $this->order->billing_city ?? '',
@@ -84,7 +84,7 @@ class TwocheckoutTransactionBuilder
         foreach ($this->order->items as $item) {
             $item_names[] = html_entity_decode($item->product_name);
             $item_quantities[] = $item->quantity;
-            $item_prices[] = PaymentProvider::format_amount($item->invoiced_total, $this->order->currency_code);
+            $item_prices[] = PaymentProvider::format_amount($item->invoiced_price, $this->order->currency_code);
             $item_references[] = $item->variant_id;
             $item_types[] = TwocheckoutConstant::TYPE_PRODUCT;
         }
@@ -101,6 +101,14 @@ class TwocheckoutTransactionBuilder
             $item_quantities[] = 1;
             $item_prices[] = PaymentProvider::format_amount($this->order->invoiced_shipping_total, $this->order->currency_code);
             $item_types[] = TwocheckoutConstant::TYPE_SHIPPING;
+        }
+
+        if (!empty($this->order->invoiced_discount_total)) {
+            $item_names[]      = TwocheckoutConstant::DISCOUNT;
+            $item_quantities[] = 1;
+            $item_prices[]     = PaymentProvider::format_amount($this->order->invoiced_discount_total, $this->order->currency_code);
+            $item_references[] = '';
+            $item_types[]      = TwocheckoutConstant::TYPE_COUPON;
         }
 
         return [
