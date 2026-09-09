@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class UpdateCartAction
 {
     protected $cart_service;
@@ -24,9 +26,7 @@ class UpdateCartAction
     {
         $cart = $this->cart_service->get_cart($user_id, $cart_token);
 
-        if (empty($cart)) {
-            throw new NotFoundException(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         $cart = $this->cart_service->partial_update($cart->id, $data);
         $context = CalculationContextDTO::from_cart($cart);

@@ -111,6 +111,9 @@ for path in "${OPTIONAL_PATHS[@]}"; do
   fi
 done
 
+echo "==> Removing hidden files (not allowed by wordpress.org)"
+find "$STAGE_DIR" -name ".*" -type f -delete
+
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.
 # rm -f "$STAGE_DIR/config/listeners.cache.php" "$STAGE_DIR/config/policies.cache.php"

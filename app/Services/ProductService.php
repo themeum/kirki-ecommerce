@@ -20,6 +20,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\with_prefix;
 
@@ -75,9 +76,7 @@ class ProductService
     {
         $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($id);
 
-        if (empty($product)) {
-            throw new NotFoundException(__('Product not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($product), __('Product not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $product;
     }
@@ -139,9 +138,7 @@ class ProductService
     {
         $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($data->id);
 
-        if (empty($product)) {
-            throw new NotFoundException(__('Product could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($product), __('Product could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data->slug = empty($data->slug) ? $data->title : $data->slug;
         $data->slug = Product::generate_unique_slug($data->slug, $data->id);
@@ -164,9 +161,7 @@ class ProductService
 
         $is_updated = (bool) $product->update($data_array);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Product could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_updated, __('Product could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $attributes = array_map(function ($attribute) {
             return $attribute['id'];
@@ -199,9 +194,7 @@ class ProductService
     {
         $is_deleted = (bool) Product::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Product could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_deleted, __('Product could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -215,18 +208,14 @@ class ProductService
      */
     public function bulk_delete(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($ids), __('No products selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Product::query()
             ->where_in('id', $ids)
             ->where('status', ProductStatus::TRASHED)
             ->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Products could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_deleted, __('Products could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -256,9 +245,7 @@ class ProductService
      */
     public function bulk_trash(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($ids), __('No products selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_trashed = (bool) Product::query()->where_in('id', $ids)->update([
             'status' => ProductStatus::TRASHED,
@@ -267,9 +254,7 @@ class ProductService
             'updated_by' => user()->get_id(),
         ]);
 
-        if (!$is_trashed) {
-            throw new NotFoundException(__('Products could not be trashed.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_trashed, __('Products could not be trashed.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -301,9 +286,7 @@ class ProductService
      */
     public function bulk_restore(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No products selected.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($ids), __('No products selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_trashed = (bool) Product::query()->where_in('id', $ids)
             ->where('status', ProductStatus::TRASHED)
@@ -314,9 +297,7 @@ class ProductService
                 'updated_by' => user()->get_id(),
             ]);
 
-        if (!$is_trashed) {
-            throw new NotFoundException(__('Products could not be restored.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_trashed, __('Products could not be restored.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }

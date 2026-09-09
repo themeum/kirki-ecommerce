@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Models\OrderActivity;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
@@ -68,7 +69,7 @@ class OrderActivityManager
             case OrderActivityType::ON_HOLD:
                 return $this->on_hold($order);
             default:
-                throw new \InvalidArgumentException("No order-state activity handler for type [{$activity_type}]."); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
+                throw_anyway("No order-state activity handler for type [{$activity_type}].", \InvalidArgumentException::class);
         }
     }
 

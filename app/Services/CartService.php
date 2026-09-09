@@ -21,6 +21,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\request;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -195,13 +196,9 @@ class CartService
     {
         $item = $this->find_item($item_id);
 
-        if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
-        if ($item->cart_id !== $cart_id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if($item->cart_id !== $cart_id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
         return $this->update_item($item_id, ['quantity' => $quantity]);
     }
@@ -231,19 +228,13 @@ class CartService
     {
         $cart = $this->get_cart($dto->user_id, $dto->token);
 
-        if (empty($cart)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'));
 
         $item = $this->find_item($dto->item_id);
 
-        if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
-        if ($item->cart_id !== $cart->id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if($item->cart_id !== $cart->id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
         $is_last_item = $cart->items->count() === 1;
 
@@ -356,9 +347,7 @@ class CartService
 
     protected function assert_single_owner_identity(array $data): void
     {
-        if (!empty($data['user_id']) && !empty($data['cart_token'])) {
-            throw new ValidationException(__('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!empty($data['user_id']) && !empty($data['cart_token']), __('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 
     protected function create_cart_cookie(string $token): void

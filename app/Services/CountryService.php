@@ -9,6 +9,7 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\json_decoded_data;
 use function Kirki\Ecommerce\Framework\resource_path;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CountryService
 {
@@ -32,9 +33,7 @@ class CountryService
     {
         $country = $this->find_by_code($code);
 
-        if (!$country) {
-            throw new NotFoundException(__('Country not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$country, __('Country not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $country;
     }

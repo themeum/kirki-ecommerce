@@ -7,6 +7,8 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class InventoryService
 {
     /**
@@ -84,10 +86,8 @@ class InventoryService
     {
         $variant = $this->variant_service->find_or_null($variant_id);
 
-        if (empty($variant)) {
-            /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($variant), sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), NotFoundException::class, Response::NOT_FOUND);
 
         return $this->variant_service->increment($variant_id, 'available_quantity', $quantity);
     }
@@ -105,14 +105,10 @@ class InventoryService
     {
         $variant = $this->variant_service->find_or_null($variant_id);
 
-        if (empty($variant)) {
-            /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($variant), sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), NotFoundException::class, Response::NOT_FOUND);
 
-        if ($variant->track_inventory && !$variant->allow_back_order && $variant->available_quantity < $quantity) {
-            throw new ValidationException(__('Insufficient stock.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if($variant->track_inventory && !$variant->allow_back_order && $variant->available_quantity < $quantity, __('Insufficient stock.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         return $this->variant_service->decrement($variant_id, 'available_quantity', $quantity);
     }
@@ -130,18 +126,14 @@ class InventoryService
     {
         $variant = $this->variant_service->find_or_null($variant_id);
 
-        if (empty($variant)) {
-            /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($variant), sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), NotFoundException::class, Response::NOT_FOUND);
 
         if (!$variant->track_inventory) {
             return true;
         }
 
-        if (!$variant->allow_back_order && $variant->available_quantity < $quantity) {
-            throw new ValidationException(__('Insufficient stock to reserve.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$variant->allow_back_order && $variant->available_quantity < $quantity, __('Insufficient stock to reserve.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         return $this->variant_service->increment($variant_id, 'committed_quantity', $quantity) && $this->variant_service->decrement($variant_id, 'available_quantity', $quantity);
     }
@@ -158,10 +150,8 @@ class InventoryService
     {
         $variant = $this->variant_service->find_or_null($variant_id);
 
-        if (empty($variant)) {
-            /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($variant), sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), NotFoundException::class, Response::NOT_FOUND);
 
         if (!$variant->track_inventory) {
             return true;
@@ -185,10 +175,8 @@ class InventoryService
     {
         $variant = $this->variant_service->find_or_null($variant_id);
 
-        if (empty($variant)) {
-            /* translators: %s: variant ID */
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($variant), sprintf(__('Variant with id %s could not be found.', 'kirki-ecommerce'), $variant_id), NotFoundException::class, Response::NOT_FOUND);
 
         if (!$variant->track_inventory) {
             return true;

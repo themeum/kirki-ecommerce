@@ -13,6 +13,9 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class PerformOrderAction
 {
     protected $order_service;
@@ -100,7 +103,7 @@ class PerformOrderAction
                 //     break;
 
                 default:
-                    throw new ValidationException(__('No action performed.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
+                    throw_anyway(__('No action performed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
             }
 
             DB::commit();
@@ -125,15 +128,11 @@ class PerformOrderAction
     {
         // @todo: refund-cluster order statuses are not part of OrderStatus::get_transition_matrix()
         // yet, so every action is blocked until the refund state machine is defined.
-        if ($order->is_refund_initiated) {
-            throw new ValidationException(__('This action is not available while a refund is in progress.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if($order->is_refund_initiated, __('This action is not available while a refund is in progress.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $state = OrderStatus::get_state($order->order_status);
         $allowed_actions = array_merge($state['fulfillment_actions'], $state['payment_actions'], $state['order_actions']);
 
-        if (!in_array($action, $allowed_actions, true)) {
-            throw new ValidationException(__('This action is not available for the order\'s current status.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!in_array($action, $allowed_actions, true), __('This action is not available for the order\'s current status.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 }

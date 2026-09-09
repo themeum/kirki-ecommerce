@@ -15,6 +15,7 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
@@ -37,11 +38,9 @@ class Utils
      */
     public static function is_nonce_verified($request_method = null): bool
     {
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This method IS the nonce check (wp_verify_nonce() below); it must read the raw request to extract the nonce value before verifying it. Sanitizer::apply_rule() is this project's own sanitization dispatcher (see phpcs-wporg.xml.dist's note on WordPress.Security.ValidatedSanitizedInput) - WPCS can't statically recognize a static method call as a sanitizer.
-        $request_method = !$request_method ? Sanitizer::apply_rule(wp_unslash($_SERVER['REQUEST_METHOD'] ?? ''), Sanitizer::TEXT) : $request_method;
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- This method IS the nonce check (wp_verify_nonce() below); it must read the raw request to extract the nonce value before verifying it.
-        $data = strtolower($request_method) === 'post' ? $_POST : $_GET;
-        $nonce_value = Sanitizer::apply_rule(wp_unslash(Arr::get($data, 'kecom_nonce', '')), Sanitizer::TEXT);
+        $request_method = !$request_method ? Superglobals::server('REQUEST_METHOD', '', Sanitizer::TEXT) : $request_method;
+        $data = strtolower($request_method) === 'post' ? Superglobals::post() : Superglobals::query();
+        $nonce_value = Sanitizer::apply_rule(Arr::get($data, 'kecom_nonce', ''), Sanitizer::TEXT);
 
         return wp_verify_nonce($nonce_value, 'kirki_ecommerce_nonce') !== false;
     }
@@ -322,8 +321,7 @@ class Utils
         $account_path = rtrim(wp_parse_url($account_url, PHP_URL_PATH), '/');
 
         // Current request path, stripped of query string.
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitizer::apply_rule() is this project's own sanitization dispatcher; WPCS can't statically recognize a static method call as a sanitizer.
-        $request_uri = Sanitizer::apply_rule(wp_unslash($_SERVER['REQUEST_URI'] ?? ''), Sanitizer::TEXT);
+        $request_uri = Superglobals::server('REQUEST_URI', '', Sanitizer::TEXT);
         $current_path = rtrim(strtok($request_uri, '?'), '/');
 
         // No sub-path given: match the account root or any page beneath it.

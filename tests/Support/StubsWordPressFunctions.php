@@ -67,6 +67,16 @@ if (!function_exists('wp_parse_url')) {
     }
 }
 
+if (!function_exists('sanitize_text_field')) {
+    function sanitize_text_field($str)
+    {
+        $filtered = strip_tags((string) $str);
+        $filtered = preg_replace('/[\r\n\t ]+/', ' ', $filtered);
+
+        return trim($filtered);
+    }
+}
+
 if (!function_exists('sanitize_title')) {
     function sanitize_title($title, $fallback_title = '', $context = 'save')
     {

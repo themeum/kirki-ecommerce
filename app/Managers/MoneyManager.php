@@ -10,12 +10,14 @@ use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\settings;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
@@ -133,10 +135,8 @@ class MoneyManager
      */
     protected function get_requested_currency_code()
     {
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized 2 lines below via sanitize_text_field(), after the empty()/is_string() guard.
-        $cookie_value = isset($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) ? wp_unslash($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) : null;
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized 2 lines below via sanitize_text_field(), after the empty()/is_string() guard.
-        $header_value = isset($_SERVER[static::DISPLAY_CURRENCY_HEADER]) ? wp_unslash($_SERVER[static::DISPLAY_CURRENCY_HEADER]) : null;
+        $cookie_value = Superglobals::cookie(static::DISPLAY_CURRENCY_COOKIE);
+        $header_value = Superglobals::server(static::DISPLAY_CURRENCY_HEADER);
         $code = $cookie_value ?? $header_value;
 
         if (empty($code) || !is_string($code)) {
@@ -377,13 +377,9 @@ class MoneyManager
     {
         $method = Str::camel($method);
 
-        if (!method_exists(Money::class, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist on " . Money::class); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!method_exists(Money::class, $method), "Method {$method} does not exist on " . Money::class, BadMethodCallException::class);
 
-        if (empty($parameters)) {
-            throw new InvalidArgumentException("Money {$method} method requires at least one parameter."); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($parameters), "Money {$method} method requires at least one parameter.", InvalidArgumentException::class);
 
         if (empty($parameters[1])) {
             $parameters[1] = $this->get_base_currency();

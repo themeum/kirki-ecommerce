@@ -12,6 +12,7 @@ use Kirki\Ecommerce\App\AppSettings;
 use Exception;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class SettingsFactory
 {
@@ -35,9 +36,7 @@ class SettingsFactory
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            if (empty($key_parts[1])) {
-                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-            }
+            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'));
 
             if (empty($setting_instance)) {
                 return value($default);
@@ -62,13 +61,9 @@ class SettingsFactory
             $key_parts = explode('.', $key, 2);
             $setting_instance = $this->get_settings_instance($key_parts[0]);
 
-            if (empty($key_parts[1])) {
-                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-            }
+            throw_if(empty($key_parts[1]), __('Invalid settings key!', 'kirki-ecommerce'));
 
-            if (empty($setting_instance)) {
-                throw new Exception(__('Invalid settings key!', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-            }
+            throw_if(empty($setting_instance), __('Invalid settings key!', 'kirki-ecommerce'));
 
             $settings_array = $setting_instance->to_array();
 

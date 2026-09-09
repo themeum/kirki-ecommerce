@@ -14,6 +14,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class BrandService
@@ -51,9 +52,7 @@ class BrandService
     {
         $brand = Brand::with_count('products')->find($id);
 
-        if (!$brand) {
-            throw new NotFoundException(__('Brand not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$brand, __('Brand not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $brand;
     }
@@ -94,9 +93,7 @@ class BrandService
     {
         $brand = Brand::find($data->id);
 
-        if (empty($brand)) {
-            throw new NotFoundException(__('Brand could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($brand), __('Brand could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
         $data->slug = Brand::generate_unique_slug($data->slug, $data->id);
@@ -106,9 +103,7 @@ class BrandService
 
         $is_updated = (bool) $brand->update($attributes);
 
-        if (!$is_updated) {
-            throw new Exception(__('Brand could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_updated, __('Brand could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return Brand::with_count('products')->find($data->id);
     }
@@ -125,9 +120,7 @@ class BrandService
     {
         $is_deleted = (bool) Brand::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new Exception(__('Brand could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_deleted, __('Brand could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -143,9 +136,7 @@ class BrandService
     {
         $is_deleted = Brand::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new Exception(__('Brands could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$is_deleted, __('Brands could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }

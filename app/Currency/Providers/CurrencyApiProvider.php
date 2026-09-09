@@ -10,6 +10,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Exception;
 use function Kirki\Ecommerce\Framework\resource_url;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CurrencyApiProvider implements CurrencyProvider
 {
@@ -78,28 +79,20 @@ class CurrencyApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        if (empty($api_key)) {
-            throw new Exception(__('CurrencyApi API key is missing.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'));
 
         $response = Http::with_headers(['apikey' => $api_key])->get(static::API_URL . '/latest', [
             'base_currency' => $base_currency,
             'currencies' => strtoupper(implode(',', $symbols)),
         ]);
 
-        if ($response->status() === Response::UNAUTHORIZED) {
-            throw new Exception(__('Invalid API key.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'));
 
-        if (!$response->successful()) {
-            throw new Exception($response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve exchange rates.', 'kirki-ecommerce'));
 
         $data = $response->json();
 
-        if (empty($data['data'])) {
-            throw new Exception($data['message'] ?? __('Unknown error from CurrencyApi.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($data['data']), $data['message'] ?? __('Unknown error from CurrencyApi.', 'kirki-ecommerce'));
 
         $rates = [];
 
@@ -131,15 +124,11 @@ class CurrencyApiProvider implements CurrencyProvider
     {
         $api_key = $this->config['api_key'] ?? '';
 
-        if (empty($api_key)) {
-            throw new Exception(__('CurrencyApi API key is missing.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'));
 
         $response = Http::get(static::API_URL . '/status', ['api_key' => $api_key]);
 
-        if (!$response->successful()) {
-            throw new Exception($response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
-        }
+        throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce'));
 
         $data = $response->json();
 
