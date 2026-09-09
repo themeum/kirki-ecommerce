@@ -4,6 +4,21 @@
 @use '../../tokens' as *;
 @use '../../mixins' as *;
 
+.kecom-order-tracking-page{
+  max-width: 1464px;
+  margin: 0 auto;
+  @include flex-center();
+}
+
+.kecom-tracking-content {
+  width: 100%;
+  max-width: 832px;
+  min-width: 0;
+  padding-inline: 12px;
+  padding-top: $spacing-15;
+  padding-bottom: $spacing-15;
+}
+
 .kecom-order-details-page {
   display: flex;
   flex-direction: column;
