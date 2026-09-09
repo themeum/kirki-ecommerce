@@ -81,7 +81,7 @@ const OrderDetails = () => {
           <Card cssOverride={{ marginTop: theme.spacing[12] }}>
             <CardContent>
               <Flex justify="center" align="center" cssOverride={{ minHeight: 200 }}>
-                <Text color="secondary" variant="lead">
+                <Text color="secondary" variant="heading4" weight="normal">
                   {__('Order not found.', 'kirki-ecommerce')}
                 </Text>
               </Flex>

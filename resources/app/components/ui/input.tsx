@@ -35,7 +35,7 @@ const styles = defineStyles({
     minHeight: '36px',
     width: '100%',
     backgroundColor: theme.colors.background.fill,
-    border: `1px solid ${theme.colors.border.default}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     color: theme.colors.text.primary,
