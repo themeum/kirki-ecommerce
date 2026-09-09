@@ -33,15 +33,14 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
-use function Kirki\Ecommerce\Framework\view_data;
 
-$placement     = view_data('placement', 'bottom-end');
-$trigger_icon  = view_data('trigger_icon', 'dots-vertical');
-$trigger_text  = view_data('trigger_text', null);
-$trigger_label = view_data('trigger_label', __('Options', 'kirki-ecommerce'));
-$trigger_class = view_data('trigger_class', 'kecom-btn kecom-btn-ghost kecom-btn-icon kecom-btn-sm');
-$items         = view_data('items', []);
-$slot          = view_data('slot', '');
+$placement     = $data['placement'] ?? 'bottom-end';
+$trigger_icon  = $data['trigger_icon'] ?? 'dots-vertical';
+$trigger_text  = $data['trigger_text'] ?? null;
+$trigger_label = $data['trigger_label'] ?? __('Options', 'kirki-ecommerce');
+$trigger_class = $data['trigger_class'] ?? 'kecom-btn kecom-btn-ghost kecom-btn-icon kecom-btn-sm';
+$items         = $data['items'] ?? [];
+$slot          = $data['slot'] ?? '';
 ?>
 
 <div
