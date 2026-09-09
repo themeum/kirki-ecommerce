@@ -89,7 +89,7 @@ class SettingsApiTest extends RestTestCase
             'data' => [
                 'is_tax_inclusive_price' => false,
                 'is_shipping_tax_enabled' => true,
-                'is_enabled_taxed_price' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
                 'tax_regions' => [$region],
                 'tax_services' => [],
                 'tax_ids' => [],

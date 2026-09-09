@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
-class OrderCalculationeRequest extends Request
+class OrderCalculationRequest extends Request
 {
     public function rules()
     {
