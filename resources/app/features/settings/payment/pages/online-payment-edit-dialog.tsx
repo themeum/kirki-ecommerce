@@ -8,7 +8,7 @@ import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, Dial
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import { DynamicOnlinePaymentFields } from '@/features/settings/payment/components/utils';
+import { DynamicOnlinePaymentFields } from '@/features/settings/payment/components/dynamic-online-payment-field';
 import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/payment';
 import { onlinePaymentEditDefaultValues, type OnlinePaymentEditFormInput, type OnlinePaymentEditFormPayload, OnlinePaymentEditFormSchema } from '@/features/settings/payment/schemas/forms/online-payment-form';
 import { useUpdateOnlinePaymentMutation } from '@/features/settings/payment/services/payment';

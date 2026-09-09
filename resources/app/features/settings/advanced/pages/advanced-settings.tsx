@@ -67,7 +67,7 @@ const AdvancedSettings = () => {
                 </Button>
               </Flex>
               <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>
-                <Alert type="warning" text={<AlertMessage />} hasHighlight />
+                {hasPageError && <Alert type="warning" text={<AlertMessage />} hasHighlight />}
                 <PageTable pages={pages} />
               </Flex>
             </Flex>
