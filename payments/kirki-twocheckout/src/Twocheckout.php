@@ -75,7 +75,7 @@ class Twocheckout extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('2Checkout is not enabled.', 'kirki-ecommerce-twocheckout'));
+            throw new Exception(esc_html__('2Checkout is not enabled.', 'kirki-ecommerce-twocheckout'));
         }
 
         try {
@@ -98,7 +98,8 @@ class Twocheckout extends PaymentProvider
                 'value' => $buy_link,
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('2Checkout Payment Error: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage()));
+            /* translators: %s: error message */
+            throw new Exception(sprintf(esc_html__('2Checkout Payment Error: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage()));
         }
     }
 
@@ -169,12 +170,12 @@ class Twocheckout extends PaymentProvider
 
             $order_uuid = $this->request->get('REFNOEXT', null, 'string');
             if (!$order_uuid) {
-                throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-twocheckout'));
+                throw new Exception(esc_html__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-twocheckout'));
             }
 
             $order = OrderManager::find_by_uuid($order_uuid);
             if (!$order) {
-                throw new Exception(__('Webhook error: Order Not Found.', 'kirki-ecommerce-twocheckout'));
+                throw new Exception(esc_html__('Webhook error: Order Not Found.', 'kirki-ecommerce-twocheckout'));
             }
 
             if ($order->payment_status === PaymentStatus::PAID) {
@@ -185,7 +186,8 @@ class Twocheckout extends PaymentProvider
 
             return new WebhookResult(true, $read_receipt, 'application/xml');
         } catch (\Throwable $th) {
-            throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));
+            /* translators: %s: error message */
+            throw new Exception(sprintf(esc_html__('Webhook error: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));
         }
     }
 
@@ -207,7 +209,7 @@ class Twocheckout extends PaymentProvider
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
         if (empty($merchant_code) || empty($secret_key) || empty($buy_link_secret_word)) {
-            throw new Exception(__('2Checkout credentials are missing.', 'kirki-ecommerce-twocheckout'));
+            throw new Exception(esc_html__('2Checkout credentials are missing.', 'kirki-ecommerce-twocheckout'));
         }
 
         return new TwocheckoutClient($merchant_code, $secret_key, $buy_link_secret_word, $sandbox);
@@ -250,7 +252,8 @@ class Twocheckout extends PaymentProvider
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage())
+                /* translators: %s: error message */
+                sprintf(esc_html__('Failed to update order data: %s', 'kirki-ecommerce-twocheckout'), $e->getMessage())
             );
         }
     }
@@ -294,7 +297,8 @@ class Twocheckout extends PaymentProvider
 
             return $received_signature['hash_value'] === $calculated_hash;
         } catch (Exception $error) {
-            throw new Exception(sprintf(__('Error while validating IPN response: %s', 'kirki-ecommerce-twocheckout'), $error->getMessage()));
+            /* translators: %s: error message */
+            throw new Exception(sprintf(esc_html__('Error while validating IPN response: %s', 'kirki-ecommerce-twocheckout'), $error->getMessage()));
         }
     }
 

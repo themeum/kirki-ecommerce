@@ -76,7 +76,7 @@ class TwocheckoutTransactionBuilder
     protected function get_line_items()
     {
         if (empty($this->order->items)) {
-            throw new Exception(__('No Order Items Found.', 'kirki-ecommerce-twocheckout'));
+            throw new Exception(esc_html__('No Order Items Found.', 'kirki-ecommerce-twocheckout'));
         }
 
         $item_names = $item_quantities = $item_prices = $item_references = $item_types = array();

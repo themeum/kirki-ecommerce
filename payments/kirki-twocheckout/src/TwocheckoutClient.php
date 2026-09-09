@@ -81,7 +81,8 @@ class TwocheckoutClient
         try {
             $signature = $this->send(TwocheckoutConstant::METHOD_POST, TwocheckoutConstant::SIGNATURE_GENERATE_URL, $payload, ['merchant-token' => $token]);
         } catch (\Throwable $th) {
-            throw new Exception(sprintf(__('Error while creating signature: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));
+            /* translators: %s: error message */
+            throw new Exception(sprintf(esc_html__('Error while creating signature: %s', 'kirki-ecommerce-twocheckout'), $th->getMessage()));
         }
         return $signature['signature'];
     }
@@ -132,7 +133,7 @@ class TwocheckoutClient
     protected function encode_string($data)
     {
         if (empty($data)) {
-            throw new Exception(__('Invalid data.', 'kirki-ecommerce-twocheckout'));
+            throw new Exception(esc_html__('Invalid data.', 'kirki-ecommerce-twocheckout'));
         }
 
         return $this->base64_url_encode(wp_json_encode($data));
@@ -150,7 +151,7 @@ class TwocheckoutClient
     protected function base64_url_encode($data)
     {
         if (empty($data)) {
-            throw new Exception(__('Invalid data.', 'kirki-ecommerce-twocheckout'));
+            throw new Exception(esc_html__('Invalid data.', 'kirki-ecommerce-twocheckout'));
         }
 
         $base64 = base64_encode($data);
@@ -197,7 +198,8 @@ class TwocheckoutClient
 
             return $this->format_read_receipt($signature_data['algorithm'], $ipn_fields['DATE'], $signature);
         } catch (Exception $error) {
-            throw new Exception(sprintf(__('Error building read receipt: %s', 'kirki-ecommerce-twocheckout'), $error->getMessage()));
+            /* translators: %s: error message */
+            throw new Exception(sprintf(esc_html__('Error building read receipt: %s', 'kirki-ecommerce-twocheckout'), $error->getMessage()));
         }
     }
 
