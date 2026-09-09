@@ -450,3 +450,8 @@ behaviour is worse than no doc.
 
 Don't commit or push unless I ask. When I do ask commit the changes with a inferred
 commit message that is good enough for PR title and description and also push on behalf of me.
+
+## 8. Grilling behavior
+
+When using the /grill-me skill ask me questions one by one and use the graphical interface
+so that I can select my answer graphically.

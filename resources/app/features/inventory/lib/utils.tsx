@@ -14,8 +14,14 @@ type InventoryTableHeader = {
 
 export const allTableHeaders: InventoryTableHeader[] = [
   {
-    title: __('Variants', 'kirki-ecommerce'),
+    title: __('Product', 'kirki-ecommerce'),
     value: 'title',
+    icon: <DragIcon />,
+    isDefault: true,
+  },
+  {
+    title: __('Price', 'kirki-ecommerce'),
+    value: 'display_price',
     icon: <DragIcon />,
     isDefault: true,
   },
@@ -26,25 +32,16 @@ export const allTableHeaders: InventoryTableHeader[] = [
     isDefault: true,
   },
   {
-    title: __('Price', 'kirki-ecommerce'),
-    value: 'base_price',
+    title: __('Available', 'kirki-ecommerce'),
+    value: 'available_quantity',
     icon: <DragIcon />,
     isDefault: true,
   },
   {
-    title: __('Sale Price', 'kirki-ecommerce'),
-    value: 'base_sale_price',
+    title: __('Committed', 'kirki-ecommerce'),
+    value: 'committed_quantity',
     icon: <DragIcon />,
-  },
-  {
-    title: __('Cost of Goods', 'kirki-ecommerce'),
-    value: 'base_cost_of_goods',
-    icon: <DragIcon />,
-  },
-  {
-    title: __('Profit', 'kirki-ecommerce'),
-    value: 'profit',
-    icon: <DragIcon />,
+    isDefault: true,
   },
 ];
 

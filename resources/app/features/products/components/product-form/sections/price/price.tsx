@@ -12,7 +12,7 @@ import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import type { UnitPriceValue } from '@/features/products';
-import BaseUnitPopup from '@/features/products/components/product-form/sections/price/base-unit-dialog';
+import BaseUnitPopover from '@/features/products/components/product-form/sections/price/base-unit-popover';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
 import { theme } from '@/theme';
@@ -100,7 +100,7 @@ const Price = () => {
                     <Text color="secondary" variant="small">
                       {__('Base price per unit', 'kirki-ecommerce')}
                     </Text>
-                    <BaseUnitPopup
+                    <BaseUnitPopover
                       data={variant as never}
                       currencySymbol={currencySymbol}
                       onChange={handleUnitPriceChange}

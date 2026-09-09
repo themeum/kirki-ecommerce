@@ -14,6 +14,19 @@ use function Kirki\Ecommerce\Framework\collection;
 class VariantResource extends Resource
 {
     /**
+     * Public preview URL of the variant's product, when one is available.
+     *
+     * @var ?string
+     */
+    protected $preview_url;
+
+    public function __construct($variant, ?string $preview_url = null)
+    {
+        $this->preview_url = $preview_url;
+        parent::__construct($variant);
+    }
+
+    /**
      * Convert the product resource to an array.
      *
      * @return array The product data as an associative array.
@@ -31,6 +44,8 @@ class VariantResource extends Resource
 
         return [
             'id' => $this->id,
+            'product_id' => $this->product_id,
+            'preview_url' => $this->preview_url,
             'name' => $this->product->title,
             'media' => MediaAttachment::make($this->media ?: ($this->product->media ?? collection())->first()),
             'sku' => $this->sku,
