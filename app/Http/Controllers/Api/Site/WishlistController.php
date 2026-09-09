@@ -11,12 +11,15 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Models\Wishlist;
 use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 
@@ -46,7 +49,7 @@ class WishlistController
     }
 
     /**
-     * Get all wishlist items for the authenticated user.
+     * Get paginated wishlist items for the authenticated user.
      *
      * @param Request $request Request.
      *
@@ -55,10 +58,21 @@ class WishlistController
     public function get(Request $request)
     {
         $user_id = (int) user()->get_id();
-        $items = $this->wishlist_service->get_for_user($user_id);
+        $params  = ListFilterDTO::from_array($request->all());
+
+        if ((int) $params->limit === Pagination::ALL) {
+            $data = $this->wishlist_service->all($user_id, $params);
+
+            return response()->json([
+                'data'    => WishlistResource::paginated(new Paginator($data, $data->count(), $data->count(), 1)),
+                'message' => __('Wishlist retrieved successfully.', 'kirki-ecommerce'),
+            ]);
+        }
+
+        $data = $this->wishlist_service->paginated($user_id, $params);
 
         return response()->json([
-            'data'    => WishlistResource::collection($items),
+            'data'    => WishlistResource::paginated($data),
             'message' => __('Wishlist retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -102,7 +116,6 @@ class WishlistController
                 'message' => __('Variant not found.', 'kirki-ecommerce'),
             ], Response::NOT_FOUND);
         }
-
 
         $wishlist = $this->wishlist_service->add_item($user_id, $variant_id);
 
