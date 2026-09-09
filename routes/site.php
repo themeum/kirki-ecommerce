@@ -38,7 +38,7 @@ Route::site(function () {
     Route::get("{$shop_page_slug}/{slug}", [SiteController::class, 'shop_single_page'])
         ->name('shop.single');
 
-    Route::get("/kecom-order/{uuid}", [SiteController::class, 'order_tracking_page'])
+    Route::get("/kirki-ecommerce-order/{uuid}", [SiteController::class, 'order_tracking_page'])
         ->name('order_tracking');
 
     Route::get($cart_page_id, [SiteController::class, 'cart_page'])

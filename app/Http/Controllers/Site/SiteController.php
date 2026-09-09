@@ -34,8 +34,6 @@ use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
-use function Kirki\Ecommerce\Framework\redirect;
-use function Kirki\Ecommerce\Framework\session;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -256,7 +254,6 @@ class SiteController
     public function order_tracking_page(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
     {
         $order_uuid = $request->string('uuid', '');
-        $customer = customer();
 
         if (empty($order_uuid)) {
             return view('site.order-tracking', ['errors' => [__('Invalid order ID or order not found', 'kirki-ecommerce')]])->layout(false);
