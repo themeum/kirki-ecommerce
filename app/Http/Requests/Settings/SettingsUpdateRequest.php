@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
 use Kirki\Ecommerce\App\Constants\DecimalSeparator;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Constants\SellingLocationType;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
@@ -106,7 +107,7 @@ class SettingsUpdateRequest extends Request
                 $rules = $this->get_email_settings_rules();
                 break;
             case OptionKeys::ADVANCE_SETTINGS:
-                $rules = []; // @todo: implement later
+                $rules = $this->get_advance_settings_rules();
                 break;
             default:
                 break;
@@ -139,7 +140,7 @@ class SettingsUpdateRequest extends Request
             case OptionKeys::EMAIL_SETTINGS:
                 return $this->get_email_settings_filters();
             case OptionKeys::ADVANCE_SETTINGS:
-                return []; //@todo: implement later
+                return $this->get_advance_settings_filters();
             default:
                 return [];
         }
@@ -973,5 +974,41 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
             'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
         ];
+    }
+
+    /**
+     * Validation rules for the advanced settings page assignments.
+     *
+     * @return array
+     */
+    protected function get_advance_settings_rules()
+    {
+        $rules = [
+            'data.pages' => 'nullable|array',
+        ];
+
+        foreach (PageKeys::get_constant_values() as $page_key) {
+            $rules['data.pages.' . $page_key] = 'nullable|integer';
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Sanitizers for the advanced settings page assignments.
+     *
+     * @return array
+     */
+    protected function get_advance_settings_filters()
+    {
+        $filters = [
+            'data.pages' => Sanitizer::ARRAY,
+        ];
+
+        foreach (PageKeys::get_constant_values() as $page_key) {
+            $filters['data.pages.' . $page_key] = Sanitizer::INT;
+        }
+
+        return $filters;
     }
 }

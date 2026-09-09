@@ -291,4 +291,65 @@ class SettingsApiTest extends RestTestCase
         $this->assertSame('AT', $region['countries'][0]['code']);
         $this->assertSame(20.0, (float) $region['countries'][0]['rate']);
     }
+
+    /**
+     * Advanced settings persist the page-key to page-id assignments and the
+     * resource echoes them back as a resolved list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_advance_settings_persists_page_assignments(): void
+    {
+        $shop_page_id = static::factory()->post->create([
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'post_title' => 'Storefront',
+        ]);
+        $cart_page_id = static::factory()->post->create([
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'post_title' => 'Basket',
+        ]);
+
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::ADVANCE_SETTINGS,
+            'data' => [
+                'pages' => [
+                    'shop' => $shop_page_id,
+                    'cart' => $cart_page_id,
+                ],
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $pages = array_column($payload['data']['pages'], null, 'key');
+
+        $this->assertSame($shop_page_id, $pages['shop']['id']);
+        $this->assertSame('active', $pages['shop']['status']);
+        $this->assertSame($cart_page_id, $pages['cart']['id']);
+        $this->assertNull($pages['checkout']['id']);
+        $this->assertSame('not-found', $pages['checkout']['status']);
+    }
+
+    /**
+     * A non-integer page assignment is rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_advance_settings_non_integer_page_returns_422(): void
+    {
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::ADVANCE_SETTINGS,
+            'data' => [
+                'pages' => [
+                    'shop' => 'not-a-page',
+                ],
+            ],
+        ]);
+
+        $data = $this->assert_validation_error($response);
+        $this->assertStringContainsString('pages', wp_json_encode($data['errors']));
+    }
 }

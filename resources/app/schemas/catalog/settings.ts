@@ -216,6 +216,26 @@ export const PaymentSettingsSchema = z
 
 export type PaymentSettings = z.infer<typeof PaymentSettingsSchema>;
 
+export const AdvanceSettingsPageSchema = z.object({
+  id: z.number().nullish(),
+  key: z.enum(['shop', 'cart', 'checkout', 'account', 'login', 'register']),
+  name: z.string(),
+  title: z.string(),
+  slug: z.string().nullish(),
+  url: z.string().nullish(),
+  status: z.enum(['active', 'inactive', 'not-found']),
+});
+
+export type AdvanceSettingsPage = z.infer<typeof AdvanceSettingsPageSchema>;
+
+export const AdvanceSettingsSchema = z
+  .object({
+    pages: z.array(AdvanceSettingsPageSchema).nullish(),
+  })
+  .passthrough();
+
+export type AdvanceSettings = z.infer<typeof AdvanceSettingsSchema>;
+
 /**
  * `orders` and `default` are deliberately absent: neither has a documented
  * endpoint or a frontend caller (`docs/ecommerce/settings/` has no
@@ -231,6 +251,7 @@ export const SettingsSchemaMap = {
   tax: TaxSettingsSchema,
   currency: CurrencySettingsSchema,
   payment: PaymentSettingsSchema,
+  advance: AdvanceSettingsSchema,
 } as const;
 
 export type SettingsSectionKey = keyof typeof SettingsSchemaMap;
