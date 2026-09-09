@@ -74,7 +74,7 @@ export type ShippingOrderFields = Pick<
   | 'shipping_address_line2'
   | 'shipping_city'
   | 'shipping_state'
-  | 'shipping_postcode'
+  | 'shipping_postal_code'
   | 'shipping_country'
   | 'shipping_phone'
   | 'shipping_company'
@@ -88,7 +88,7 @@ export type BillingOrderFields = Pick<
   | 'billing_address_line2'
   | 'billing_city'
   | 'billing_state'
-  | 'billing_postcode'
+  | 'billing_postal_code'
   | 'billing_country'
   | 'billing_phone'
   | 'billing_company'
@@ -102,7 +102,7 @@ export function toShippingOrderFields(address: CheckoutAddress): ShippingOrderFi
     shipping_address_line2: address.address_line2 || '',
     shipping_city: address.city || '',
     shipping_state: String(address.state || ''),
-    shipping_postcode: address.postal_code || '',
+    shipping_postal_code: address.postal_code || '',
     shipping_country: address.country || '',
     shipping_phone: address.phone || '',
     shipping_company: address.company || null,
@@ -117,7 +117,7 @@ export function toBillingOrderFields(address: CheckoutAddress): BillingOrderFiel
     billing_address_line2: address.address_line2 || '',
     billing_city: address.city || '',
     billing_state: String(address.state || ''),
-    billing_postcode: address.postal_code || '',
+    billing_postal_code: address.postal_code || '',
     billing_country: address.country || '',
     billing_phone: address.phone || '',
     billing_company: address.company || null,
