@@ -24,7 +24,8 @@ use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 $fallback_image_url = Assets::get_url('images/product-fallback.webp');
 $order = $data['order'];
-$customer = isset($order['customer_id']) && customer()->get_customer_id() === $order['customer_id'] ? customer(null, $order['customer_id']) : null;
+$current_customer = $data['customer'] ?? null;
+$customer = isset($order['customer_id']) && $current_customer->get_customer_id() === $order['customer_id'] ? customer(null, $order['customer_id']) : null;
 
 $first_name = $customer ? ucfirst($customer->get_first_name()) : '';
 $last_name = $customer ? ucfirst($customer->get_last_name()) : '';
