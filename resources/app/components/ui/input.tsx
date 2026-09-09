@@ -4,24 +4,14 @@ import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
-type InputProps = Omit<
-  ComponentPropsWithoutRef<'input'>,
-  'className' | 'css'
-> & {
+type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'className' | 'css'> & {
   error?: boolean;
   invisible?: boolean;
   cssOverride?: CSSObject;
 };
 
 const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-  const {
-    cssOverride,
-    error,
-    invisible,
-    type = 'text',
-    value,
-    ...rest
-  } = props;
+  const { cssOverride, error, invisible, type = 'text', value, ...rest } = props;
 
   return (
     <input
@@ -88,10 +78,10 @@ const styles = defineStyles({
       WebkitAppearance: 'none',
       appearance: 'none',
       '&::-webkit-search-cancel-button, &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration':
-      {
-        display: 'none',
-        WebkitAppearance: 'none',
-      },
+        {
+          display: 'none',
+          WebkitAppearance: 'none',
+        },
     },
   },
   invisible: {
