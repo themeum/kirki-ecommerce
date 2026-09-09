@@ -212,7 +212,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                     <?php if (!empty($image) && isset($image['url'])) : ?>
                                         <img src="<?php echo esc_url($image['url']); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
                                     <?php else : ?>
-                                        <img src="<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
+                                        <img src="<?php echo esc_url($fallback_image_url); ?>" alt="<?php echo esc_attr($item['product_name']); ?>" class="kecom-product-image">
                                     <?php endif; ?>
                                     <span class="kecom-product-qty-badge"><?php echo esc_html($item['quantity'] ?? 0); ?></span>
                                 </div>
