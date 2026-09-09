@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Providers\AppServiceProvider;
 use Kirki\Ecommerce\App\Providers\DecisionServiceProvider;
 use Kirki\Ecommerce\App\Providers\ShippingServiceProvider;

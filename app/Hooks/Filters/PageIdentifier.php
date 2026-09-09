@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
@@ -36,7 +37,7 @@ class PageIdentifier extends BaseHook
     public function handle(...$args)
     {
         $post_states = $args[0];
-        if (!is_admin() || ! isset($_GET['post_type'])) {
+        if (!is_admin() || Superglobals::query('post_type') === null) {
             return $args[0];
         }
 

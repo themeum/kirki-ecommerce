@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Database\Seeders\OnBoarding\OnBoardingSeeder;
 

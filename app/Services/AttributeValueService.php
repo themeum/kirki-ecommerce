@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -12,8 +13,27 @@ use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class AttributeValueService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'attribute_id' => 'attribute_id',
+            'value' => 'value',
+            'color' => 'color',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return all attribute values
      *
@@ -23,14 +43,11 @@ class AttributeValueService
      */
     public function all(int $attribute_id, ListFilterDTO $filters)
     {
-        return AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters->search), function (QueryBuilder $query, $search) {
+        $query = AttributeValue::where('attribute_id', $attribute_id)->when(!empty($filters->search), function (QueryBuilder $query, $search) {
             return $query->where_any(['value', 'color'], 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            })->get();
+        });
+
+        return $this->apply_sorting($query, $filters)->get();
     }
 
     /**
@@ -56,9 +73,7 @@ class AttributeValueService
     {
         $attribute_value = AttributeValue::find($id);
 
-        if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($attribute_value), __('Attribute value not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $attribute_value;
     }
@@ -96,15 +111,11 @@ class AttributeValueService
     {
         $attribute_value = AttributeValue::find($data->id);
 
-        if (empty($attribute_value)) {
-            throw new NotFoundException(__('Attribute value could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($attribute_value), __('Attribute value could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_updated = (bool) $attribute_value->update($data->to_array());
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Attribute value could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_updated, __('Attribute value could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return AttributeValue::find($data->id);
     }
@@ -120,9 +131,7 @@ class AttributeValueService
     {
         $is_deleted = (bool) AttributeValue::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Attribute value could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Attribute value could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -138,9 +147,7 @@ class AttributeValueService
     {
         $is_deleted = (bool) AttributeValue::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Attributes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Attributes could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }

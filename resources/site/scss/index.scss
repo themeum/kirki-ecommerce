@@ -55,7 +55,7 @@ hr {
   margin: 0;
   padding: 0;
 
-  &:has(.kecom-account-page) {
+  &:has(.kecom-account-page,.kecom-order-tracking-page) {
     background-color: $background-surface-secondary;
   }
 }

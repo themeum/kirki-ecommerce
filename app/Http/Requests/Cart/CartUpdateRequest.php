@@ -20,6 +20,7 @@ class CartUpdateRequest extends Request
     {
         return [
             'shipping_address' => 'array|nullable',
+            'shipping_address.id' => 'numeric|string|nullable',
             'shipping_address.first_name' => 'string|nullable',
             'shipping_address.last_name' => 'string|nullable',
             'shipping_address.email' => 'email|nullable',
@@ -35,6 +36,7 @@ class CartUpdateRequest extends Request
             'is_billing_same_as_shipping' => 'boolean|nullable',
 
             'billing_address' => 'array|nullable',
+            'billing_address.id' => 'numeric|string|nullable',
             'billing_address.first_name' => 'string|nullable',
             'billing_address.last_name' => 'string|nullable',
             'billing_address.email' => 'email|nullable',

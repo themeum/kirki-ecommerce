@@ -62,7 +62,7 @@ const productColumns: ColumnDef<ProductListItem>[] = [
   {
     id: 'title',
     header: __('Product', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <ProductTitleCell item={row.original} />,
   },
   {
@@ -118,13 +118,13 @@ const productColumns: ColumnDef<ProductListItem>[] = [
   {
     id: 'base_price',
     header: __('Price', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => displayMoney('base_price', row.original),
   },
   {
     id: 'status',
     header: __('Status', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => (
       <Text variant="tiny" color={getStatusColor(row.original.status)}>
         {isDefined(STATUS_MAP[row.original.status]) ? STATUS_MAP[row.original.status] : '--'}
@@ -134,7 +134,7 @@ const productColumns: ColumnDef<ProductListItem>[] = [
   {
     id: 'created_at',
     header: __('Date', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) =>
       isDefined(row.original.created_at)
         ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE)

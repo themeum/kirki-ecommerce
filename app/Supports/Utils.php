@@ -16,7 +16,9 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
@@ -37,9 +39,9 @@ class Utils
      */
     public static function is_nonce_verified($request_method = null): bool
     {
-        $request_method = !$request_method ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : $request_method;
-        $data = strtolower($request_method) === 'post' ? $_POST : $_GET;
-        $nonce_value = sanitize_text_field(Arr::get($data, 'kecom_nonce'));
+        $request_method = !$request_method ? Superglobals::server('REQUEST_METHOD', '', Sanitizer::TEXT) : $request_method;
+        $data = strtolower($request_method) === 'post' ? Superglobals::post() : Superglobals::query();
+        $nonce_value = Sanitizer::apply_rule(Arr::get($data, 'kecom_nonce', ''), Sanitizer::TEXT);
 
         return wp_verify_nonce($nonce_value, 'kirki_ecommerce_nonce') !== false;
     }
@@ -218,6 +220,7 @@ class Utils
                 }
             }
         } catch (\Exception $e) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine error path, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log('Error generating site pages: ' . $e->getMessage());
         }
     }
@@ -294,10 +297,11 @@ class Utils
 
         // Resolve the account page base path (e.g. "/account" or "/shop/account").
         $account_url  = get_permalink($account_page_id);
-        $account_path = rtrim(parse_url($account_url, PHP_URL_PATH), '/');
+        $account_path = rtrim(wp_parse_url($account_url, PHP_URL_PATH), '/');
 
         // Current request path, stripped of query string.
-        $current_path = rtrim(strtok($_SERVER['REQUEST_URI'] ?? '', '?'), '/');
+        $request_uri = Superglobals::server('REQUEST_URI', '', Sanitizer::TEXT);
+        $current_path = rtrim(strtok($request_uri, '?'), '/');
 
         // No sub-path given: match the account root or any page beneath it.
         if ($sub_path === null) {

@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -14,10 +15,40 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use Exception;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class CategoryService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return string
+     */
+    protected function default_sort_by()
+    {
+        return 'ordering';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'name' => 'name',
+            'slug' => 'slug',
+            'parent_id' => 'parent_id',
+            'ordering' => 'ordering',
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+            'count' => 'products_count',
+        ];
+    }
+
     /**
      * Return paginated categories.
      *
@@ -51,9 +82,7 @@ class CategoryService
     {
         $category = Category::with_count('products')->find($id);
 
-        if (empty($category)) {
-            throw new NotFoundException(__('Category not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($category), __('Category not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $category;
     }
@@ -105,9 +134,7 @@ class CategoryService
     {
         $category = Category::find($data->id);
 
-        if (empty($category)) {
-            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($category), __('Category could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $data->slug = empty($data->slug) ? $data->name : $data->slug;
 
@@ -126,9 +153,7 @@ class CategoryService
 
         $is_updated = (bool) $category->update($attributes);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Category could not be updated.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$is_updated, __('Category could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::BAD_REQUEST);
 
         return Category::with_count('products')->find($data->id);
     }
@@ -144,19 +169,13 @@ class CategoryService
     {
         $category = Category::find($id);
 
-        if (empty($category)) {
-            throw new NotFoundException(__('Category could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($category), __('Category could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        if ($category->is_deletable === false) {
-            throw new Exception(__('Category is not deletable.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if($category->is_deletable === false, __('Category is not deletable.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         $is_deleted = (bool) Category::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new Exception(__('Category could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$is_deleted, __('Category could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -172,9 +191,7 @@ class CategoryService
     {
         $is_deleted = (bool) Category::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new Exception(__('Categories could not be deleted.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$is_deleted, __('Categories could not be deleted.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
         return true;
     }
@@ -194,14 +211,11 @@ class CategoryService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return Category::with_count('products')
+        $query = Category::with_count('products')
             ->when($filters->search, function (QueryBuilder $query, $search) {
                 return $query->where_any(['name', 'slug', 'description'], 'like', '%' . $search . '%');
-            })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
             });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

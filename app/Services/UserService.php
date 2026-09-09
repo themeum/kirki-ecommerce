@@ -7,6 +7,9 @@ use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class UserService
 {
     /**
@@ -44,7 +47,7 @@ class UserService
 
         if (empty($user) || !wp_check_password($current_password, $user->user_pass, $user_id)) {
             throw ValidationException::with_errors([
-                'current_password' => [__('Current password is incorrect.', 'kirki-ecommerce')],
+                'current_password' => [__('Current password is incorrect.', 'kirki-ecommerce')], // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
             ]);
         }
 
@@ -65,7 +68,7 @@ class UserService
         $result = wp_update_user(array_merge(['ID' => $user_id], $fields));
 
         if (is_wp_error($result)) {
-            throw new Exception(esc_html($result->get_error_message()));
+            throw_anyway($result->get_error_message());
         }
     }
 
@@ -84,13 +87,9 @@ class UserService
     {
         $user = new User($user_id);
 
-        if (empty($user->get_id())) {
-            throw new Exception(__('User not found.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($user->get_id()), __('User not found.', 'kirki-ecommerce'));
 
-        if ($user->email_verified()) {
-            throw new Exception(__('Email address is already verified.', 'kirki-ecommerce'));
-        }
+        throw_if($user->email_verified(), __('Email address is already verified.', 'kirki-ecommerce'));
 
         /*
          * This cooldown provides an additional layer of protection against abuse,
@@ -101,7 +100,8 @@ class UserService
         $cooldown_period = MINUTE_IN_SECONDS * 2;
         if ($last_sent && (time() - $last_sent) < $cooldown_period) {
             $remaining = $cooldown_period - (time() - $last_sent);
-            throw new Exception(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining));
+            /* translators: %d: number of seconds to wait */
+            throw_anyway(sprintf(__('Please wait %d seconds before requesting another verification email.', 'kirki-ecommerce'), $remaining));
         }
 
         $token = $user->generate_verification_token();
@@ -113,9 +113,7 @@ class UserService
 
         $sent = $this->email_service->send_verification_email($user, $verify_url);
 
-        if (!$sent) {
-            throw new Exception(__('Failed to send verification email. Please try again later.', 'kirki-ecommerce'));
-        }
+        throw_if(!$sent, __('Failed to send verification email. Please try again later.', 'kirki-ecommerce'));
 
         return true;
     }

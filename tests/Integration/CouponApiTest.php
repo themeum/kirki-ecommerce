@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
+use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
@@ -470,5 +471,166 @@ class CouponApiTest extends RestTestCase
         ];
 
         return array_merge($payload, $overrides);
+    }
+
+    /**
+     * Filtering coupons by each derived status state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_filters_by_derived_status(): void
+    {
+        $active = $this->create_coupon([
+            'title' => 'Active Coupon',
+            'start_datetime' => '2020-01-01T00:00:00+00:00',
+            'has_end_datetime' => false,
+            'is_active' => true,
+        ]);
+        $scheduled = $this->create_coupon([
+            'title' => 'Scheduled Coupon',
+            'start_datetime' => '2099-01-01T00:00:00+00:00',
+            'has_end_datetime' => false,
+            'is_active' => true,
+        ]);
+        $expired = $this->create_coupon([
+            'title' => 'Expired Coupon',
+            'start_datetime' => '2020-01-01T00:00:00+00:00',
+            'has_end_datetime' => true,
+            'end_datetime' => '2020-06-01T00:00:00+00:00',
+            'is_active' => true,
+        ]);
+        $inactive = $this->create_coupon([
+            'title' => 'Inactive Coupon',
+            'start_datetime' => '2020-01-01T00:00:00+00:00',
+            'has_end_datetime' => false,
+            'is_active' => false,
+        ]);
+
+        $this->assert_status_filter_lists(CouponStatus::ACTIVE, $active['id'], [$scheduled['id'], $expired['id'], $inactive['id']]);
+        $this->assert_status_filter_lists(CouponStatus::SCHEDULED, $scheduled['id'], [$active['id'], $expired['id'], $inactive['id']]);
+        $this->assert_status_filter_lists(CouponStatus::EXPIRED, $expired['id'], [$active['id'], $scheduled['id'], $inactive['id']]);
+        $this->assert_status_filter_lists(CouponStatus::INACTIVE, $inactive['id'], [$active['id'], $scheduled['id'], $expired['id']]);
+    }
+
+    /**
+     * Filtering coupons by method narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_filters_by_method(): void
+    {
+        $code = $this->create_coupon(['title' => 'Code Coupon', 'method' => CouponMethod::CODE]);
+        $automatic = $this->create_coupon([
+            'title' => 'Automatic Coupon',
+            'method' => CouponMethod::AUTOMATIC,
+        ]);
+
+        $response = $this->request('GET', 'coupons', ['method' => CouponMethod::AUTOMATIC, 'limit' => 100]);
+        $ids = array_column($this->assert_api_success($response)['data']['results'], 'id');
+
+        $this->assertContains($automatic['id'], $ids);
+        $this->assertNotContains($code['id'], $ids);
+    }
+
+    /**
+     * Filtering coupons by discount type narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_filters_by_discount_type(): void
+    {
+        $amount_off = $this->create_coupon([
+            'title' => 'Amount Off Coupon',
+            'discount_type' => DiscountType::AMOUNT_OFF,
+        ]);
+        $free_shipping = $this->create_coupon([
+            'title' => 'Free Shipping Coupon',
+            'discount_type' => DiscountType::FREE_SHIPPING,
+        ]);
+
+        $response = $this->request('GET', 'coupons', [
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'limit' => 100,
+        ]);
+        $ids = array_column($this->assert_api_success($response)['data']['results'], 'id');
+
+        $this->assertContains($free_shipping['id'], $ids);
+        $this->assertNotContains($amount_off['id'], $ids);
+    }
+
+    /**
+     * An unrecognised status is rejected rather than silently returning nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_rejects_unrecognised_status(): void
+    {
+        $response = $this->request('GET', 'coupons', ['status' => 'not-a-status']);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An unrecognised discount type is rejected.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_rejects_unrecognised_discount_type(): void
+    {
+        $response = $this->request('GET', 'coupons', ['discount_type' => 'not-a-type']);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A recognised status the coupon does not hold succeeds and omits it.
+     *
+     * Contrast with an unrecognised status, which is rejected outright: a
+     * supported value that simply matches nothing is a successful empty
+     * result, not an error.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_coupons_with_unmatched_status_succeeds_and_omits_the_coupon(): void
+    {
+        $active = $this->create_coupon([
+            'title' => 'Only Active Coupon',
+            'start_datetime' => '2020-01-01T00:00:00+00:00',
+            'has_end_datetime' => false,
+            'is_active' => true,
+        ]);
+
+        $response = $this->request('GET', 'coupons', ['status' => CouponStatus::SCHEDULED, 'limit' => 100]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertNotContains($active['id'], array_column($payload['data']['results'], 'id'));
+    }
+
+    /**
+     * Assert a status filter lists the expected coupon and excludes the others.
+     *
+     * @param string $status      Status filter value.
+     * @param int    $expected_id Coupon expected in the list.
+     * @param array  $excluded    Coupon ids expected to be absent.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function assert_status_filter_lists(string $status, int $expected_id, array $excluded): void
+    {
+        $response = $this->request('GET', 'coupons', ['status' => $status, 'limit' => 100]);
+        $ids = array_column($this->assert_api_success($response)['data']['results'], 'id');
+
+        $this->assertContains($expected_id, $ids, 'Expected coupon missing from the ' . $status . ' list.');
+
+        foreach ($excluded as $excluded_id) {
+            $this->assertNotContains($excluded_id, $ids, 'Unexpected coupon in the ' . $status . ' list.');
+        }
     }
 }

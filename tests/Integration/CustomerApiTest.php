@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
@@ -251,6 +252,46 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
+     * Customers can be sorted by every field the list presents, including the
+     * ones derived from relations rather than stored on the customer.
+     *
+     * @dataProvider derived_customer_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_customers_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->create_customer(['first_name' => 'Sortable']);
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'customers', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_customer_sort_fields(): array
+    {
+        return [
+            'orders count' => ['orders_count'],
+            'lifetime spend' => ['base_amount_spent'],
+            'last order date' => ['last_order_date'],
+            'location' => ['location'],
+            'first name' => ['first_name'],
+            'created at' => ['created_at'],
+        ];
+    }
+
+    /**
      * Create customer.
      * @param array $overrides Overrides.
      *
@@ -320,5 +361,172 @@ class CustomerApiTest extends RestTestCase
         }
 
         return array_replace_recursive($payload, $overrides);
+    }
+
+    /**
+     * Filtering customers by country narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_customers_filters_by_country(): void
+    {
+        $us = $this->create_customer_in('US', 'New York');
+        $ca = $this->create_customer_in('CA', 'Toronto');
+
+        $ids = $this->listed_customer_ids(['country' => 'US']);
+
+        $this->assertContains($us, $ids);
+        $this->assertNotContains($ca, $ids);
+    }
+
+    /**
+     * Filtering customers by city narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_customers_filters_by_city(): void
+    {
+        $new_york = $this->create_customer_in('US', 'New York');
+        $boston = $this->create_customer_in('US', 'Boston');
+
+        $ids = $this->listed_customer_ids(['city' => 'Boston']);
+
+        $this->assertContains($boston, $ids);
+        $this->assertNotContains($new_york, $ids);
+    }
+
+    /**
+     * Filtering by country and city together narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_customers_filters_by_country_and_city_together(): void
+    {
+        $us_boston = $this->create_customer_in('US', 'Boston');
+        $ca_boston = $this->create_customer_in('CA', 'Boston');
+        $us_new_york = $this->create_customer_in('US', 'New York');
+
+        $ids = $this->listed_customer_ids(['country' => 'US', 'city' => 'Boston']);
+
+        $this->assertContains($us_boston, $ids);
+        $this->assertNotContains($ca_boston, $ids);
+        $this->assertNotContains($us_new_york, $ids);
+    }
+
+    /**
+     * A customer without a default shipping address drops out while a location filter is in force.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_customers_excludes_customers_without_a_shipping_address(): void
+    {
+        $located = $this->create_customer_in('US', 'New York');
+        $unlocated = $this->create_customer_without_addresses();
+
+        $unfiltered = $this->listed_customer_ids();
+        $this->assertContains($unlocated, $unfiltered);
+
+        $filtered = $this->listed_customer_ids(['country' => 'US']);
+        $this->assertContains($located, $filtered);
+        $this->assertNotContains($unlocated, $filtered);
+    }
+
+    /**
+     * The locations endpoint offers only locations customers are actually in.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_customer_locations_lists_only_present_values(): void
+    {
+        $this->create_customer_in('US', 'New York');
+        $this->create_customer_in('CA', 'Toronto');
+
+        $response = $this->request('GET', 'customers/locations');
+        $payload = $this->assert_api_success($response);
+
+        $this->assertContains('US', $payload['data']['countries']);
+        $this->assertContains('CA', $payload['data']['countries']);
+        $this->assertNotContains('DE', $payload['data']['countries']);
+        $this->assertContains('New York', $payload['data']['cities']);
+        $this->assertContains('Toronto', $payload['data']['cities']);
+    }
+
+    /**
+     * The locations endpoint scopes the cities to the given country.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_customer_locations_scopes_cities_by_country(): void
+    {
+        $this->create_customer_in('US', 'New York');
+        $this->create_customer_in('CA', 'Toronto');
+
+        $response = $this->request('GET', 'customers/locations', ['country' => 'CA']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertContains('Toronto', $payload['data']['cities']);
+        $this->assertNotContains('New York', $payload['data']['cities']);
+    }
+
+    /**
+     * Create a customer whose default shipping address is in a known place.
+     *
+     * @param string $country Shipping country.
+     * @param string $city    Shipping city.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_customer_in(string $country, string $city): int
+    {
+        $payload = $this->customer_payload();
+        $payload['shipping_address']['country'] = $country;
+        $payload['shipping_address']['city'] = $city;
+
+        $customer = $this->create_customer($payload);
+
+        return (int) $customer['id'];
+    }
+
+    /**
+     * Create a customer and then remove its addresses.
+     *
+     * Creating a customer through the API always writes a default shipping
+     * address, so the only way to reach the no-address case is to delete the
+     * rows afterwards - which is exactly what happens in the wild when a
+     * merchant removes a customer's address.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_customer_without_addresses(): int
+    {
+        $customer = $this->create_customer();
+
+        Address::query()->where('customer_id', $customer['id'])->delete();
+
+        return (int) $customer['id'];
+    }
+
+    /**
+     * Request the customer list and return the listed identifiers.
+     *
+     * @param array $params Query parameters.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function listed_customer_ids(array $params = []): array
+    {
+        $response = $this->request('GET', 'customers', array_merge(['limit' => 100], $params));
+        $payload = $this->assert_api_success($response);
+
+        return array_map('intval', array_column($payload['data']['results'], 'id'));
     }
 }

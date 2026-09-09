@@ -9,8 +9,9 @@ use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\UpdateVariantDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class UpdateProductAction
 {
@@ -44,9 +45,7 @@ class UpdateProductAction
             $product_payload->has_variants = count($product_payload->attributes) > 0;
             $product = $this->product_service->update($product_payload);
 
-            if (empty($product)) {
-                throw new Exception(__('Product could not be updated.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($product), __('Product could not be updated.', 'kirki-ecommerce'));
 
             $current_variant_ids = $product->variants->pluck('id')->all();
             $ids_to_delete = array_diff($current_variant_ids, array_filter(array_map(function ($variant) {
@@ -66,9 +65,7 @@ class UpdateProductAction
                     $variant_model = $this->variant_service->create(CreateVariantDTO::from_array($variant->all()));
                 }
 
-                if (empty($variant_model)) {
-                    throw new Exception(__('Product variant could not be updated.', 'kirki-ecommerce'));
-                }
+                throw_if(empty($variant_model), __('Product variant could not be updated.', 'kirki-ecommerce'));
             }
 
             DB::commit();

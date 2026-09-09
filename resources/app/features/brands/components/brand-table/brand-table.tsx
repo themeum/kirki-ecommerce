@@ -2,6 +2,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
@@ -15,7 +16,9 @@ import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const brandBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const brandBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const BrandTable = () => {
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
@@ -65,6 +68,7 @@ const BrandTable = () => {
   return (
     <>
       <DataTable
+        tableId="brands"
         data={data?.results ?? []}
         columns={columns}
         total={data?.total}
@@ -76,7 +80,7 @@ const BrandTable = () => {
         isLoading={isFetching}
         enableRowSelection
         selectionResetKey={selectionResetKey}
-        bulkActionOptions={brandBulkActions}
+        bulkActions={brandBulkActions}
         onBulkApply={handleBulkApply}
         columnPinning={{ right: ['actions'] }}
         density="compact"
