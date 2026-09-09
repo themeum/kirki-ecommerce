@@ -38,7 +38,6 @@ class CategoryService
             'id' => 'id',
             'name' => 'name',
             'slug' => 'slug',
-            'description' => 'description',
             'parent_id' => 'parent_id',
             'ordering' => 'ordering',
             'created_by' => 'created_by',

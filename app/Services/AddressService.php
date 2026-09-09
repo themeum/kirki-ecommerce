@@ -29,8 +29,6 @@ class AddressService
             'customer_id' => 'customer_id',
             'first_name' => 'first_name',
             'last_name' => 'last_name',
-            'address_line1' => 'address_line1',
-            'address_line2' => 'address_line2',
             'city' => 'city',
             'state' => 'state',
             'country' => 'country',
