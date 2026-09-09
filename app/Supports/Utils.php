@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
@@ -54,7 +55,7 @@ class Utils
      */
     public static function get_shop_page_id()
     {
-        return Settings::get('advance.pages.shop', 0);
+        return Settings::get('advance.pages.' . PageKeys::SHOP, 0);
     }
 
     /**
@@ -66,14 +67,11 @@ class Utils
      */
     public static function get_site_pages()
     {
-        $pages = [
-            'advance.pages.shop' => __('Shop', 'kirki-ecommerce'),
-            'advance.pages.cart' => __('Cart', 'kirki-ecommerce'),
-            'advance.pages.checkout' => __('Checkout', 'kirki-ecommerce'),
-            'advance.pages.account' => __('Account', 'kirki-ecommerce'),
-            'advance.pages.login' => __('Login', 'kirki-ecommerce'),
-            'advance.pages.register' => __('Register', 'kirki-ecommerce'),
-        ];
+        $pages = [];
+
+        foreach (PageKeys::get_list() as $key => $name) {
+            $pages['advance.pages.' . $key] = $name;
+        }
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
 
@@ -214,6 +212,11 @@ class Utils
 
                     $page_id = wp_insert_post($new_page);
                     Settings::update($settings_key, $page_id);
+                } else {
+                    wp_update_post([
+                        'ID' => $page_id,
+                        'post_status'  => 'publish',
+                    ]);
                 }
             }
         } catch (\Exception $e) {
@@ -255,7 +258,7 @@ class Utils
      */
     public static function get_cart_page_id()
     {
-        return Settings::get('advance.pages.cart', 0);
+        return Settings::get('advance.pages.' . PageKeys::CART, 0);
     }
 
     /**
@@ -267,7 +270,7 @@ class Utils
      */
     public static function get_checkout_page_id()
     {
-        return Settings::get('advance.pages.checkout', 0);
+        return Settings::get('advance.pages.' . PageKeys::CHECKOUT, 0);
     }
 
     /**
@@ -286,7 +289,7 @@ class Utils
      */
     public static function get_account_page_id()
     {
-        return Settings::get('advance.pages.account', 0);
+        return Settings::get('advance.pages.' . PageKeys::ACCOUNT, 0);
     }
 
     /**
@@ -411,6 +414,8 @@ class Utils
                 return 'kecom-badge-success-light';
             case PaymentStatus::UNPAID:
                 return 'kecom-badge-warning-light';
+            case PaymentStatus::FAILED:
+                return 'kecom-badge-error-light';
             default:
                 return 'kecom-badge-default';
         }
@@ -427,5 +432,28 @@ class Utils
     {
         //TODO: default will be false.
         return Settings::get('checkout.is_allowed_guest_checkout', true);
+    }
+
+    /**
+     * Get page url by page key.
+     * 
+     * @param string $page_key page key.
+     * 
+     * @return string|null page url.
+     */
+    public static function get_page_url_by_key(string $page_key)
+    {
+        switch ($page_key) {
+            case PageKeys::SHOP:
+                return Url::get_shop_url();
+            case PageKeys::CART:
+                return Url::get_cart_url();
+            case PageKeys::CHECKOUT:
+                return Url::get_checkout_url();
+            case PageKeys::ACCOUNT:
+                return Url::get_account_url();
+            default:
+                return null;
+        }
     }
 }

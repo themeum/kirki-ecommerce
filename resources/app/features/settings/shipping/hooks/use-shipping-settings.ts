@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -7,31 +7,37 @@ import { useNavigate, useOutletContext } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
-import { getShippingMethodData as getZoneShippingMethods, removeZone, toggleMethod } from '@/features/settings/shipping/lib/shipping-zone-operations';
+import {
+  getShippingMethodData as getZoneShippingMethods,
+  removeZone,
+  toggleMethod,
+} from '@/features/settings/shipping/lib/shipping-zone-operations';
 import {
   type ShippingSettingsFormInput,
   type ShippingSettingsFormPayload,
   ShippingSettingsFormSchema,
 } from '@/features/settings/shipping/schemas/forms/shipping-settings-form';
-import type { CountryWithStates, ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import type {
+  CountryWithStates,
+  ShippingMethodData,
+  ShippingZone,
+} from '@/features/settings/shipping/types';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import type { RegionsDialogFormPayload } from '@/schemas/shared/region';
+import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import type { FormErrors } from '@/types/pages/common';
 import { uuid } from '@/utils';
 import { normalizeErrors } from '@/utils/common';
+import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
+  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
 };
 
 type UseShippingSettingsResult = {
@@ -39,6 +45,7 @@ type UseShippingSettingsResult = {
   loaded: boolean;
   shippingZonesObj: ShippingZone[];
   countryList: CountryWithStates[];
+  usedRegions: Region[];
   showCreateZonePopup: boolean;
   setShowCreateZonePopup: (open: boolean) => void;
   popupErrors: FormErrors;
@@ -66,15 +73,22 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   const { mutateAsync: updateSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'shipping'>();
 
-  const loaded = !isLoading && Boolean(shippingSettingsData);
-
   const form = useForm<ShippingSettingsFormInput, unknown, ShippingSettingsFormPayload>({
     resolver: zodResolver(ShippingSettingsFormSchema),
     defaultValues: getDefaults(ShippingSettingsFormSchema),
   });
 
   const { isDirty } = form.formState;
-  const shippingZonesObj = (useWatch({ control: form.control, name: 'shipping_zones' }) as ShippingZone[]) || [];
+  const watchedShippingZones = useWatch({ control: form.control, name: 'shipping_zones' });
+  const shippingZonesObj = useMemo(
+    () => (watchedShippingZones ?? []) as ShippingZone[],
+    [watchedShippingZones],
+  );
+
+  const usedRegions = useMemo(
+    () => mergeRegionsByCountry(shippingZonesObj.flatMap((zone) => zone.regions ?? [])),
+    [shippingZonesObj],
+  );
 
   useEffect(() => {
     if (!shippingSettingsData || !Object.keys(shippingSettingsData).length) {
@@ -94,13 +108,9 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   ) => {
     const current = (form.getValues('shipping_zones') as ShippingZone[]) || [];
     const next = typeof updater === 'function' ? updater(current) : updater;
-    form.setValue(
-      'shipping_zones',
-      next as ShippingSettingsFormInput['shipping_zones'],
-      {
-        shouldDirty: options?.shouldDirty ?? false,
-      },
-    );
+    form.setValue('shipping_zones', next as ShippingSettingsFormInput['shipping_zones'], {
+      shouldDirty: options?.shouldDirty ?? false,
+    });
   };
 
   const handleDeleteItem = async (item: ShippingZone) => {
@@ -154,9 +164,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
           }
           return {
             ...zone,
-            shipping_methods: (zone.shipping_methods || []).filter(
-              (item) => item.id !== method.id,
-            ),
+            shipping_methods: (zone.shipping_methods || []).filter((item) => item.id !== method.id),
           };
         });
         setShippingZonesObj(updatedZones, { shouldDirty: false });
@@ -193,9 +201,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
           return prev;
         }
         const newValue = !item.is_enabled;
-        return prev.map((zone) =>
-          zone.id === item.id ? { ...zone, is_enabled: newValue } : zone,
-        );
+        return prev.map((zone) => (zone.id === item.id ? { ...zone, is_enabled: newValue } : zone));
       },
       { shouldDirty: true },
     );
@@ -220,13 +226,13 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
         data: { shipping_zones: updatedZones },
       });
       setShowCreateZonePopup(false);
-      void navigate(ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }));
+      void navigate(
+        ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: newZoneIdRef.current }),
+      );
       newZoneIdRef.current = uuid();
     } catch (error) {
       const errObj = error as ErrorResponse;
-      setPopupErrors(
-        normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors,
-      );
+      setPopupErrors(normalizeErrors(getErrorsObject(errObj.errors)) as FormErrors);
     }
   };
 
@@ -255,9 +261,10 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
 
   return {
     form,
-    loaded,
+    loaded: !isLoading,
     shippingZonesObj,
     countryList,
+    usedRegions,
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,

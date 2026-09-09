@@ -32,6 +32,7 @@ export const endpoints = {
     `/attributes/${attributeId}/values/${valueId}`,
   ATTRIBUTE_VALUES_BULK: (attributeId: string | number) => `/attributes/${attributeId}/values/bulk`,
 
+  VARIANT: (id: string | number) => `/variants/${id}`,
   VARIANTS: '/variants',
   VARIANTS_BULK: '/variants/bulk',
   VARIANTS_BULK_BY_IDS: (ids: string | (string | number)[]) =>
@@ -54,6 +55,7 @@ export const endpoints = {
   COUPONS_BULK: '/coupons/bulk',
 
   PAGES: '/pages',
+  PAGES_FIX: '/pages/fix',
 
   SETTINGS: '/settings',
   SETTINGS_SECTION: (key: string) => `/settings/${key}`,
@@ -80,5 +82,6 @@ export const endpoints = {
   ORDERS: '/orders',
   CALCULATE_ORDER: '/calculate/order',
   ORDER_ACTIVITIES: (orderId: string | number) => `/orders/${orderId}/activities`,
-  ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) => `/orders/${orderId}/activities/${activityId}`,
+  ORDER_ACTIVITY: (orderId: string | number, activityId: string | number) =>
+    `/orders/${orderId}/activities/${activityId}`,
 } as const;

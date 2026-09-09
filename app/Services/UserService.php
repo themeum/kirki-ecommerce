@@ -91,7 +91,11 @@ class UserService
 
         throw_if($user->email_verified(), __('Email address is already verified.', 'kirki-ecommerce'));
 
-        // TODO: we need to add this in route level rate limit.
+        /*
+         * This cooldown provides an additional layer of protection against abuse,
+         * in case the route-level rate limit is bypassed or the service is invoked
+         * directly by a CLI command, cron job, or other non-HTTP entry point.
+         */
         $last_sent = $user->get_email_verification_sent_at();
         $cooldown_period = MINUTE_IN_SECONDS * 2;
         if ($last_sent && (time() - $last_sent) < $cooldown_period) {

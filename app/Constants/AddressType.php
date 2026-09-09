@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Constants;
 
 class AddressType
 {
-    const BILLING = 'billing';
-    const SHIPPING = 'shipping';
+    const HOME = 'home';
+    const OFFICE = 'office';
+    const OTHERS = 'others';
 }

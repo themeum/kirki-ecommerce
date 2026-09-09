@@ -1,3 +1,4 @@
+export type { AdvanceSettingsFormPayload } from './advanced/schemas/forms/page-settings';
 export type { CheckoutSettingsFormPayload } from './checkout/schemas/forms/checkout-settings-form';
 export type { EmailSettingsFormPayload } from './email/schemas/forms/email-settings-form';
 export { useSchemasQuery } from './essentials/services/schema';
@@ -10,6 +11,6 @@ export { default as ShippingBoxField } from './shipping/components/fields/shippi
 export { CreateProfilePopup } from './shipping/pages/shipping-profile/create-profile-dialog';
 export type { ShippingSettingsFormPayload } from './shipping/schemas/forms/shipping-settings-form';
 export { useShippingBoxesQuery, useShippingProfilesQuery } from './shipping/services/shipping';
-export { TaxProfilePopup } from './tax/pages/tax-profile/tax-profile-dialog';
-export type { TaxSettingsFormPayload } from './tax/schemas/forms/tax-settings-form';
-export { useTaxProfilesQuery } from './tax/services/tax';
+export { TaxProfilePopup } from './tax/shared/components/tax-profile/tax-profile-dialog';
+export type { TaxSettingsFormPayload } from './tax/shared/schemas/forms/tax-settings-form';
+export { useTaxProfilesQuery } from './tax/shared/services/tax';

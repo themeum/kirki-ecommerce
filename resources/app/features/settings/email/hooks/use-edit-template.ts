@@ -3,7 +3,10 @@ import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 
-import { buildEmailTemplatePayload, resolveTemplateFormOverrides } from '@/features/settings/email/lib/template';
+import {
+  buildEmailTemplatePayload,
+  resolveTemplateFormOverrides,
+} from '@/features/settings/email/lib/template';
 import { EmailSettingsFormSchema } from '@/features/settings/email/schemas/forms/email-settings-form';
 import {
   type EmailTemplateFormInput,
@@ -27,10 +30,7 @@ export const useEditTemplate = (): UseEditTemplateResult => {
   const { data: emailSettingsData, isLoading } = useSettingsQuery('email');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'email'>();
 
-  const loaded = !isLoading && Boolean(emailSettingsData);
-  const defaultEmail = emailSettingsData?.default_template as
-    | Record<string, unknown>
-    | undefined;
+  const defaultEmail = emailSettingsData?.default_template as Record<string, unknown> | undefined;
 
   const form = useForm<EmailTemplateFormInput, unknown, EmailTemplateFormPayload>({
     resolver: zodResolver(EmailTemplateFormSchema),
@@ -50,7 +50,11 @@ export const useEditTemplate = (): UseEditTemplateResult => {
     }
 
     form.reset(
-      pickFormValues(EmailTemplateFormSchema, defaultEmail, resolveTemplateFormOverrides(defaultEmail)),
+      pickFormValues(
+        EmailTemplateFormSchema,
+        defaultEmail,
+        resolveTemplateFormOverrides(defaultEmail),
+      ),
     );
   }, [defaultEmail, form]);
 
@@ -87,5 +91,5 @@ export const useEditTemplate = (): UseEditTemplateResult => {
     onDiscard: handleDiscard,
   });
 
-  return { form, loaded, heightValue };
+  return { form, loaded: !isLoading, heightValue };
 };

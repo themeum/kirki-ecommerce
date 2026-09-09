@@ -19,12 +19,15 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -237,5 +240,36 @@ class SiteController
     public function design_system_page(Request $request)
     {
         return view('site.design-system');
+    }
+
+    /**
+     * Order tracking page
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request  request.
+     *
+     * @return string Template path.
+     */
+    public function order_tracking_page(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
+    {
+        $order_uuid = $request->string('uuid', '');
+
+        if (empty($order_uuid)) {
+            return view('site.order-tracking', ['errors' => [__('Invalid order ID or order not found', 'kirki-ecommerce')]])->layout(false);
+        }
+
+        $order = $order_service->find_order_by_uuid($order_uuid);
+        if (! $order) {
+            return view('site.order-tracking', ['errors' => [__('Invalid order ID or order not found', 'kirki-ecommerce')]])->layout(false);
+        }
+
+        $order_resource = SiteOrderResource::make($order);
+
+        $activities = $order_activity_service->get_order_activity($order->id);
+
+        $activities_resource = OrderActivityResource::collection($activities);
+
+        return view('site.order-tracking', ['order' => $order_resource, 'activities' => $activities_resource])->layout(false);
     }
 }

@@ -154,28 +154,6 @@ class CustomerService
     }
 
     /**
-     * Set whether a customer's billing address should mirror their shipping address.
-     *
-     * @param int $customer_id
-     * @param bool $value
-     * @throws NotFoundException
-     * @return Customer
-     */
-    public function set_billing_same_as_shipping(int $customer_id, bool $value)
-    {
-        $customer = Customer::find($customer_id);
-
-        throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
-
-        $customer->update([
-            'is_billing_same_as_shipping' => $value,
-            'updated_by' => user()->get_id(),
-        ]);
-
-        return $customer;
-    }
-
-    /**
      * Deletes a customer by ID.
      *
      * @param int $id The ID of the customer to delete.

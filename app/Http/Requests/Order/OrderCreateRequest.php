@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+
 use function Kirki\Ecommerce\App\customer;
 
 class OrderCreateRequest extends Request
@@ -25,7 +26,7 @@ class OrderCreateRequest extends Request
     {
         $customer = customer(null, $this->input('customer_id') ?? null);
         $shipping = $customer->get_shipping_address();
-        $is_billing_same_as_shipping = $this->input('is_billing_same_as_shipping') ?? $customer->get_customer()->is_billing_same_as_shipping ?? false;
+        $billing = $customer->get_billing_address();
 
         $shipping_address = [
             'shipping_first_name' => $this->input('shipping_first_name') ?? $shipping->first_name ?? null,
@@ -34,47 +35,29 @@ class OrderCreateRequest extends Request
             'shipping_address_line2' => $this->input('shipping_address_line2') ?? $shipping->address_line2 ?? null,
             'shipping_city' => $this->input('shipping_city') ?? $shipping->city ?? null,
             'shipping_state' => $this->input('shipping_state') ?? $shipping->state ?? null,
-            'shipping_postcode' => $this->input('shipping_postcode') ?? $shipping->postal_code ?? null,
+            'shipping_postal_code' => $this->input('shipping_postal_code') ?? $shipping->postal_code ?? null,
             'shipping_country' => $this->input('shipping_country') ?? $shipping->country ?? null,
             'shipping_phone' => $this->input('shipping_phone') ?? $shipping->phone ?? null,
             'shipping_email' => $this->input('shipping_email') ?? $shipping->email ?? null,
         ];
 
-        if ($is_billing_same_as_shipping) {
-            $billing_address = [
-                'billing_first_name' => $shipping_address['shipping_first_name'],
-                'billing_last_name' => $shipping_address['shipping_last_name'],
-                'billing_address_line1' => $shipping_address['shipping_address_line1'],
-                'billing_address_line2' => $shipping_address['shipping_address_line2'],
-                'billing_city' => $shipping_address['shipping_city'],
-                'billing_state' => $shipping_address['shipping_state'],
-                'billing_postcode' => $shipping_address['shipping_postcode'],
-                'billing_country' => $shipping_address['shipping_country'],
-                'billing_phone' => $shipping_address['shipping_phone'],
-                'billing_email' => $shipping_address['shipping_email'],
-            ];
-        } else {
-            $billing = $customer->get_billing_address();
-
-            $billing_address = [
-                'billing_first_name' => $this->input('billing_first_name') ?? $billing->first_name ?? null,
-                'billing_last_name' => $this->input('billing_last_name') ?? $billing->last_name ?? null,
-                'billing_address_line1' => $this->input('billing_address_line1') ?? $billing->address_line1 ?? null,
-                'billing_address_line2' => $this->input('billing_address_line2') ?? $billing->address_line2 ?? null,
-                'billing_city' => $this->input('billing_city') ?? $billing->city ?? null,
-                'billing_state' => $this->input('billing_state') ?? $billing->state ?? null,
-                'billing_postcode' => $this->input('billing_postcode') ?? $billing->postal_code ?? null,
-                'billing_country' => $this->input('billing_country') ?? $billing->country ?? null,
-                'billing_phone' => $this->input('billing_phone') ?? $billing->phone ?? null,
-                'billing_email' => $this->input('billing_email') ?? $billing->email ?? null,
-            ];
-        }
+        $billing_address = [
+            'billing_first_name' => $this->input('billing_first_name') ?? $billing->first_name ?? null,
+            'billing_last_name' => $this->input('billing_last_name') ?? $billing->last_name ?? null,
+            'billing_address_line1' => $this->input('billing_address_line1') ?? $billing->address_line1 ?? null,
+            'billing_address_line2' => $this->input('billing_address_line2') ?? $billing->address_line2 ?? null,
+            'billing_city' => $this->input('billing_city') ?? $billing->city ?? null,
+            'billing_state' => $this->input('billing_state') ?? $billing->state ?? null,
+            'billing_postal_code' => $this->input('billing_postal_code') ?? $billing->postal_code ?? null,
+            'billing_country' => $this->input('billing_country') ?? $billing->country ?? null,
+            'billing_phone' => $this->input('billing_phone') ?? $billing->phone ?? null,
+            'billing_email' => $this->input('billing_email') ?? $billing->email ?? null,
+        ];
 
         $this->merge($shipping_address);
         $this->merge($billing_address);
         $this->merge([
             'customer_id' => $customer->get_customer_id() ?? 0,
-            'is_billing_same_as_shipping' => $is_billing_same_as_shipping,
             'is_manual' => $this->input('is_manual') ?? false,
             'is_guest' => !$customer->is_logged_in()
         ]);
@@ -99,13 +82,11 @@ class OrderCreateRequest extends Request
             'shipping_address_line2' => 'nullable|string',
             'shipping_city' => 'required|string',
             'shipping_state' => 'required|string',
-            'shipping_postcode' => 'required|string',
+            'shipping_postal_code' => 'required|string',
             'shipping_country' => 'required|string',
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
             'shipping_company' => 'nullable|string',
-
-            'is_billing_same_as_shipping' => 'required|boolean',
 
             'billing_first_name' => 'required|string',
             'billing_last_name' => 'required|string',
@@ -113,7 +94,7 @@ class OrderCreateRequest extends Request
             'billing_address_line2' => 'nullable|string',
             'billing_city' => 'required|string',
             'billing_state' => 'required|string',
-            'billing_postcode' => 'required|string',
+            'billing_postal_code' => 'required|string',
             'billing_country' => 'required|string',
             'billing_phone' => 'nullable|string',
             'billing_email' => 'nullable|email',
@@ -146,13 +127,11 @@ class OrderCreateRequest extends Request
             'shipping_address_line2' => Sanitizer::TEXT,
             'shipping_city' => Sanitizer::TEXT,
             'shipping_state' => Sanitizer::TEXT,
-            'shipping_postcode' => Sanitizer::TEXT,
+            'shipping_postal_code' => Sanitizer::TEXT,
             'shipping_country' => Sanitizer::TEXT,
             'shipping_phone' => Sanitizer::TEXT,
             'shipping_email' => Sanitizer::EMAIL,
             'shipping_company' => Sanitizer::TEXT,
-
-            'is_billing_same_as_shipping' => Sanitizer::BOOL,
 
             'billing_first_name' => Sanitizer::TEXT,
             'billing_last_name' => Sanitizer::TEXT,
@@ -160,7 +139,7 @@ class OrderCreateRequest extends Request
             'billing_address_line2' => Sanitizer::TEXT,
             'billing_city' => Sanitizer::TEXT,
             'billing_state' => Sanitizer::TEXT,
-            'billing_postcode' => Sanitizer::TEXT,
+            'billing_postal_code' => Sanitizer::TEXT,
             'billing_country' => Sanitizer::TEXT,
             'billing_phone' => Sanitizer::TEXT,
             'billing_email' => Sanitizer::EMAIL,

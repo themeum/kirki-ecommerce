@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Providers\SettingsServiceProvider;
 use Kirki\Ecommerce\App\Providers\PaymentServiceProvider;
 use Kirki\Ecommerce\App\Providers\CurrencyServiceProvider;
 use Kirki\Ecommerce\App\Providers\OrderActivityServiceProvider;
+use Kirki\Ecommerce\App\Providers\RateLimiterServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -20,4 +21,5 @@ return [
     PaymentServiceProvider::class,
     CurrencyServiceProvider::class,
     OrderActivityServiceProvider::class,
+    RateLimiterServiceProvider::class,
 ];

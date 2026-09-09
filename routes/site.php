@@ -19,6 +19,8 @@ use Kirki\Ecommerce\App\Http\Middlewares\SiteAuthMiddleware;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 
+use function Kirki\Ecommerce\Framework\app;
+
 Route::set_site_namespace('kirki_ecommerce');
 Route::set_routing_method(Route::ROUTING_PARSE_REQUEST);
 
@@ -35,6 +37,9 @@ Route::site(function () {
 
     Route::get("{$shop_page_slug}/{slug}", [SiteController::class, 'shop_single_page'])
         ->name('shop.single');
+
+    Route::get("/kirki-ecommerce-order/{uuid}", [SiteController::class, 'order_tracking_page'])
+        ->name('order_tracking');
 
     Route::get($cart_page_id, [SiteController::class, 'cart_page'])
         ->name('cart')
@@ -71,6 +76,10 @@ Route::site(function () {
         Route::post($register_page_slug, [AuthController::class, 'handle_registration'])
             ->template_redirect()
             ->name('register');
+    }
+
+    if (app()->is_dev_mode()) {
+        Route::get('design-system', [SiteController::class, 'design_system_page']);
     }
 });
 
