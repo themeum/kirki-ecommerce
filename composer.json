@@ -3,15 +3,15 @@
   "type": "project",
   "autoload": {
     "psr-4": {
-      "Kirki\\Ecommerce\\Framework\\": "libraries/framework/",
+      "Kirki\\Ecommerce\\Framework\\": "vendor/libraries/framework/src/",
       "Kirki\\Ecommerce\\App\\": "app/",
       "Kirki\\Ecommerce\\Database\\Migrations\\": "database/migrations/",
       "Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"
     },
     "files": [
       "bootstrap/abspath.php",
-      "libraries/framework/helpers.php",
-      "libraries/framework/Polyfill/Polyfill.php",
+      "vendor/libraries/framework/src/helpers.php",
+      "vendor/libraries/framework/src/Polyfill/Polyfill.php",
       "app/helpers.php"
     ]
   },
@@ -63,11 +63,10 @@
   "scripts": {
     "scope": [
       "@putenv XDEBUG_MODE=off",
-      "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.config.php --output-dir=./libraries/framework --force",
-      "@remove-framework-from-vendor"
-    ],
-    "remove-framework-from-vendor": [
-      "rm -rf vendor/themeum/",
+      "@php bin/scope-framework.php --relocate",
+      "@composer dump-autoload",
+      "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.config.php --output-dir=./vendor/.scoper-staging --force",
+      "@php bin/scope-framework.php",
       "@composer dump-autoload"
     ],
     "post-install-cmd": [

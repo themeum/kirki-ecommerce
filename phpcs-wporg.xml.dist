@@ -39,7 +39,6 @@
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/vendor_prefixed/*</exclude-pattern>
     <exclude-pattern>*/node_modules/*</exclude-pattern>
-    <exclude-pattern>libraries/framework/*</exclude-pattern>
     <exclude-pattern>payments/*</exclude-pattern>
     <exclude-pattern>config/*.cache.php</exclude-pattern>
 
