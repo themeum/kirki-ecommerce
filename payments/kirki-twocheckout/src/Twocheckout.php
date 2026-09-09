@@ -145,6 +145,11 @@ class Twocheckout extends PaymentProvider
     /**
      * Handle a received 2Checkout IPN notification.
      *
+     * Returns a WebhookResult rather than a boolean because 2Checkout requires
+     * a signed read receipt in the response body to acknowledge delivery.
+     *
+     * @link https://docs.2checkout.com/2checkout-apis/2checkout-apis/webhooks/instant-payment-notification-ipn/ipn-read-receipt-response-for-2checkout
+     *
      * @return WebhookResult
      * @throws Exception If the notification is invalid or processing fails.
      */
