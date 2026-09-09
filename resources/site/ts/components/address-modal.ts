@@ -65,6 +65,7 @@ export interface AddressModalHost {
   formData: AddressFormData;
   countries: CountryItem[];
   availableStates: CountryState[];
+  hasAddresses(): boolean;
   addresses?: AddressItem[];
   savedAddresses?: AddressItem[];
   activeMenuId?: number | string | null;
@@ -73,10 +74,10 @@ export interface AddressModalHost {
   tempSelectedAddressId?: number | string | null;
   getAvailableStates(): CountryState[];
   getAddressLabel(address: AddressItem): string;
-  getFormattedAddressLines(addr: AddressItem): string;
+  getFormattedAddressLines(address: AddressItem): string;
   getStateName(countryCode?: string, stateVal?: string | number): string;
   getCountryName(code?: string): string;
-  getCityStateZip(addr: AddressItem): string;
+  getCityStateZip(address: AddressItem): string;
   openAddModal(): void;
   openEditModal(address: AddressItem): void;
   closeModal(): void;
@@ -135,6 +136,12 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       return (this as AddressModalHost).getAvailableStates();
     },
 
+    hasAddresses(this: AddressModalHost): boolean {
+      const addressHost = this as AddressModalHost;
+      const addressList = addressHost.addresses ?? addressHost.savedAddresses ?? [];
+      return addressList.length > 0;
+    },
+
     getAddressLabel(address: AddressItem): string {
       const type = (address?.type || '').toLowerCase();
       if (type === 'home') {
@@ -149,11 +156,11 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       return address?.label?.trim() || __('Address', 'kirki-ecommerce');
     },
 
-    getFormattedAddressLines(addr: AddressItem): string {
-      if (!addr) {
+    getFormattedAddressLines(address: AddressItem): string {
+      if (!address) {
         return '';
       }
-      return [addr.address_line1, addr.address_line2].filter(Boolean).join(', ');
+      return [address.address_line1, address.address_line2].filter(Boolean).join(', ');
     },
 
     getStateName(this: AddressModalHost, countryCode?: string, stateVal?: string | number): string {
@@ -184,13 +191,13 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       return country ? country.name : code;
     },
 
-    getCityStateZip(this: AddressModalHost, addr: AddressItem): string {
-      if (!addr) {
+    getCityStateZip(this: AddressModalHost, address: AddressItem): string {
+      if (!address) {
         return '';
       }
-      const state = this.getStateName(addr.country, addr.state);
-      const parts = [addr.city, state].filter(Boolean).join(', ');
-      return `${parts} ${addr.postal_code || ''}`.trim();
+      const state = this.getStateName(address.country, address.state);
+      const parts = [address.city, state].filter(Boolean).join(', ');
+      return `${parts} ${address.postal_code || ''}`.trim();
     },
 
     openAddModal(this: AddressModalHost) {

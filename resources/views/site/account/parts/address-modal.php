@@ -252,7 +252,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                     />
                 </div>
 
-                <div class="kecom-address-modal-defaults">
+                <div class="kecom-address-modal-defaults" x-show="hasAddresses()" x-cloak>
                     <label class="kecom-checkbox">
                         <input
                             type="checkbox"

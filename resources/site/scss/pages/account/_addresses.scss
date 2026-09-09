@@ -139,7 +139,7 @@
   .kecom-form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: $spacing-4;
+    gap: $spacing-6;
 
     @include breakpoint-down(sm) {
       grid-template-columns: 1fr;
