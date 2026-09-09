@@ -20,7 +20,7 @@ class AddressUpdateRequest extends Request
             'address_line1' => 'required|string',
             'address_line2' => 'nullable|string',
             'city' => 'required|string',
-            'state' => 'required|string',
+            'state' => 'nullable|string',
             'postal_code' => 'required|string',
             'country' => 'required|string',
             'label' => 'nullable|string',
