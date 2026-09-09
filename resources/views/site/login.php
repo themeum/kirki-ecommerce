@@ -63,10 +63,10 @@ use function Kirki\Ecommerce\Framework\session;
             <input type="hidden" name="redirect" value="<?php echo esc_url(request('redirect', '')); ?>">
             <div class="kecom-field" :class="errors.email ? 'kecom-field-error-state' : ''">
                 <label class="kecom-field-label" for="kecom-email"><?php esc_html_e('Email', 'kirki-ecommerce'); ?></label>
-                <input class="kecom-input" type="email" id="kecom-email" autocomplete="email" autofocus name="email" x-bind="<?php printf("register('email', {
+                <input class="kecom-input" type="email" id="kecom-email" autocomplete="email" autofocus name="email" x-bind="<?php echo esc_attr(sprintf("register('email', {
                     required: '%s',
                     email: true
-                })", __('Email is required', 'kirki-ecommerce')) ?>" placeholder="<?php esc_html_e('name@example.com', 'kirki-ecommerce'); ?>">
+                })", __('Email is required', 'kirki-ecommerce'))); ?>" placeholder="<?php esc_html_e('name@example.com', 'kirki-ecommerce'); ?>">
                 <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
             </div>
             <div class="kecom-field" :class="errors.password ? 'kecom-field-error-state' : ''">
@@ -75,9 +75,9 @@ use function Kirki\Ecommerce\Framework\session;
                     <a class="kecom-forgot-password-label" tabindex="-1" href="<?php echo esc_url(wp_lostpassword_url(Url::get_login_url())); ?>"><?php esc_html_e('Forgot password?', 'kirki-ecommerce'); ?></a>
                 </div>
                 <div class="kecom-password-input" x-data="{ showPassword: false }">
-                    <input class="kecom-input" :type="showPassword ? 'text' : 'password'" id="kecom-password" name="password" x-bind="<?php printf("register('password', {
+                    <input class="kecom-input" :type="showPassword ? 'text' : 'password'" id="kecom-password" name="password" x-bind="<?php echo esc_attr(sprintf("register('password', {
                     required: '%s',
-                })", __('Password is required', 'kirki-ecommerce')) ?>" placeholder="<?php esc_html_e('Type your password', 'kirki-ecommerce'); ?>" autocomplete="password">
+                })", __('Password is required', 'kirki-ecommerce'))); ?>" placeholder="<?php esc_html_e('Type your password', 'kirki-ecommerce'); ?>" autocomplete="password">
                     <template x-if="showPassword">
                         <span class="kecom-password-input-show" @click="showPassword = false"><?php Icon::render('eye'); ?></span>
                     </template>

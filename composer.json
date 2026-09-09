@@ -42,6 +42,9 @@
     },
     "preferred-install": {
       "themeum/framework": "source"
+    },
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   },
   "require-dev": {
@@ -51,7 +54,9 @@
     "php-stubs/wp-cli-stubs": "^2.12",
     "fakerphp/faker": "^1.24",
     "humbug/php-scoper": "^0.17",
-    "symfony/var-dumper": "^5.4"
+    "symfony/var-dumper": "^5.4",
+    "wp-coding-standards/wpcs": "^3.4",
+    "phpcompatibility/phpcompatibility-wp": "^2.1"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -71,6 +76,7 @@
     "post-update-cmd": [
       "@php -r \"if (in_array('--dev', $_SERVER['argv']) || !in_array('--no-dev', $_SERVER['argv'])) { echo shell_exec('composer scope'); }\""
     ],
+    "phpcs:wporg": "phpcs --standard=phpcs-wporg.xml.dist",
     "test": "bash bin/phpunit --testdox",
     "test:unit": "bash bin/phpunit --testsuite Unit --testdox",
     "test:integration": "bash bin/phpunit --testsuite Integration --testdox",

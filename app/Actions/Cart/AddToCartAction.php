@@ -7,7 +7,8 @@ use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;
-use Exception;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class AddToCartAction
 {
@@ -29,9 +30,7 @@ class AddToCartAction
     {
         $variant = $this->variant_service->find($dto->variant_id);
 
-        if (!$variant) {
-            throw new Exception(__('Variant not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'));
 
         $dto->product_id = $variant->product_id;
 
@@ -39,13 +38,10 @@ class AddToCartAction
         $existing_item = $cart ? $this->cart_service->find_item_in_cart($cart->id, $dto->variant_id) : null;
         $resulting_quantity = $existing_item ? $existing_item->quantity + $dto->quantity : $dto->quantity;
 
-        if (!$this->inventory_service->has_stock($dto->variant_id, $resulting_quantity)) {
-            throw new Exception(__('Not enough stock for this variant', 'kirki-ecommerce'));
-        }
+        throw_if(!$this->inventory_service->has_stock($dto->variant_id, $resulting_quantity), __('Not enough stock for this variant', 'kirki-ecommerce'));
 
-        if (!$this->inventory_service->is_within_limit($dto->variant_id, $resulting_quantity)) {
-            throw new Exception(sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $variant->max_per_order));
-        }
+        /* translators: %d: maximum allowed quantity per order */
+        throw_if(!$this->inventory_service->is_within_limit($dto->variant_id, $resulting_quantity), sprintf(__('You can not add more than %d units of this item to cart', 'kirki-ecommerce'), $variant->max_per_order));
 
         $cart = $cart ?: $this->cart_service->get_or_create_cart($dto->user_id, $dto->token);
 

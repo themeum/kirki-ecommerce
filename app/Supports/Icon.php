@@ -96,7 +96,7 @@ class Icon
      */
     public static function render(string $name, array $options = []): void
     {
-        echo static::get($name, $options);
+        echo static::get($name, $options); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG markup loaded from a bundled plugin asset file (assets/icons/*.svg), not user input; HTML-escaping would corrupt the markup.
     }
 
     /**

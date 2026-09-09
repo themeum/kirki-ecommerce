@@ -13,7 +13,6 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Template;
 
-use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\view_data;
 
@@ -31,7 +30,7 @@ $pages = view_data('pages');
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
-                <?php include_view('site.account.orders.details', [ 'order' => view_data('order'), 'activities' => view_data('activities'), 'show_back_to_orders' => true]); ?>
+                <?php include_view('site.account.orders.details', ['order' => view_data('order'), 'activities' => view_data('activities'), 'show_back_to_orders' => true]); ?>
             </main>
         </div>
     </div>

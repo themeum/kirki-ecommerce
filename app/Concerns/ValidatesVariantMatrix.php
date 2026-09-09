@@ -92,7 +92,7 @@ trait ValidatesVariantMatrix
         }
 
         if (!empty($errors)) {
-            throw ValidationException::with_errors($errors);
+            throw ValidationException::with_errors($errors); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
     }
 }

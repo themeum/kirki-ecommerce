@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Tax\Strategies\DefaultTaxStrategy;
 use Kirki\Ecommerce\App\Tax\Strategies\EUTaxStrategy;
 

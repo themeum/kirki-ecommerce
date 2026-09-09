@@ -82,7 +82,8 @@ class OrderListResource extends Resource
             case FulfillmentStatus::SHIPPED:
                 return __('Shipped', 'kirki-ecommerce');
             case FulfillmentStatus::DELIVERED:
-                return sprintf(__('Delivered on %s', 'kirki-ecommerce'), date('M d, Y', strtotime($this->delivered_at)));
+                /* translators: %s: delivery date */
+                return sprintf(__('Delivered on %s', 'kirki-ecommerce'), gmdate('M d, Y', strtotime($this->delivered_at)));
             case FulfillmentStatus::ON_HOLD:
                 return __('On hold', 'kirki-ecommerce');
             case FulfillmentStatus::CANCELLED:
