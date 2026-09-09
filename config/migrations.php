@@ -56,6 +56,7 @@ use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomers
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
+use Kirki\Ecommerce\Database\Migrations\AddInvoiceNumberToOrdersTable;
 
 return [
     CreateLanguagesTable::class,
@@ -123,4 +124,5 @@ return [
     AlterAddressesTableForAddressBook::class,
     DropIsBillingSameAsShippingFromCustomersTable::class,
     DropIsBillingSameAsShippingFromOrdersTable::class,
+    AddInvoiceNumberToOrdersTable::class,
 ];

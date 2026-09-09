@@ -416,7 +416,6 @@ class CreateOrderAction
         $target_currency_code = $dto->currency_code;
         $order_dto = new CreateOrderDTO();
         $order_dto->uuid = uuid();
-        $order_dto->order_number = 'ORD-' . strtoupper(uniqid()); // TODO: get from settings
         $order_dto->customer_id = $context->customer_id ?: null;
         $order_dto->fulfillment_status = FulfillmentStatus::UNFULFILLED;
         $order_dto->order_status = OrderStatus::PENDING;

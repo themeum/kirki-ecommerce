@@ -26,6 +26,7 @@ use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -90,6 +91,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertArrayHasKey('id', $payload['data']);
         $this->assertNotEmpty($payload['data']['order_number']);
+        $this->assertNotEmpty($payload['data']['invoice_number']);
         $this->assertEquals('PayPal', $payload['data']['payment_provider_name']);
         $this->assertNotEmpty($payload['data']['payment_provider_icon']);
         $this->assertFalse($payload['data']['payment_provider_is_offline']);
@@ -97,6 +99,84 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
 
         $this->order_id = $payload['data']['id'];
+    }
+
+    /**
+     * Order number and invoice number apply the configured prefix/suffix.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_order_number_and_invoice_number_apply_settings_prefix_suffix(): void
+    {
+        Settings::update('general.order_number', [
+            'prefix' => 'ORD-',
+            'suffix' => '-X',
+        ]);
+        Settings::update('general.invoice_number', [
+            'prefix' => 'INV-',
+            'suffix' => '-Y',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $order = $this->create_order();
+
+        $this->assertSame(
+            'ORD-' . str_pad((string) $order['id'], 6, '0', STR_PAD_LEFT) . '-X',
+            $order['order_number']
+        );
+        $this->assertMatchesRegularExpression('/^INV-\d{6}-Y$/', $order['invoice_number']);
+    }
+
+    /**
+     * Invoice number increments sequentially across orders.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_invoice_number_increments_sequentially_across_orders(): void
+    {
+        Settings::update('general.invoice_number', [
+            'prefix' => '',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $first_order = $this->create_order();
+        $second_order = $this->create_order();
+
+        $this->assertSame(
+            (int) $first_order['invoice_number'] + 1,
+            (int) $second_order['invoice_number']
+        );
+    }
+
+    /**
+     * Invoice number applies the year prefix when enabled.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_invoice_number_applies_year_prefix_when_enabled(): void
+    {
+        Settings::update('general.invoice_number', [
+            'prefix' => 'INV-',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => true,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $order = $this->create_order();
+
+        $this->assertMatchesRegularExpression(
+            '/^INV-' . date('y') . '-\d{6}$/',
+            $order['invoice_number']
+        );
     }
 
     /**

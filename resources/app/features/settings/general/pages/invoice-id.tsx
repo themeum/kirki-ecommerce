@@ -1,61 +1,53 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import SelectField from '@/components/form/select-field';
+import CheckboxField from '@/components/form/checkbox-field';
 import TextField from '@/components/form/text-field';
-import ActionGroup from '@/components/ui/action-group';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Text from '@/components/ui/text';
 import type { GeneralSettingsFormInput } from '@/features/settings/general/schemas/forms/general-settings-form';
-import { ReplaceIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
-
-const invoiceResetScheduleOptions = [
-  {
-    label: __('No Schedule', 'kirki-ecommerce'),
-    value: 'none',
-  },
-];
+import { __, sprintf } from '@/wpi18n';
 
 const InvoiceId = () => {
-  const { setValue } = useFormContext<GeneralSettingsFormInput>();
-  const invoiceIdPrefix = useWatch<GeneralSettingsFormInput, 'invoice_id_prefix'>({
-    name: 'invoice_id_prefix',
+  const { control } = useFormContext<GeneralSettingsFormInput>();
+  const invoiceIdPrefix = useWatch({
+    control,
+    name: 'invoice_number.prefix',
   });
-  const invoiceIdSequence = useWatch<GeneralSettingsFormInput, 'invoice_id_sequence'>({
-    name: 'invoice_id_sequence',
+  const invoiceIdSequence = useWatch({
+    control,
+    name: 'invoice_number.sequence',
   });
-  const invoiceIdSuffix = useWatch<GeneralSettingsFormInput, 'invoice_id_suffix'>({
-    name: 'invoice_id_suffix',
+  const invoiceIdSuffix = useWatch({
+    control,
+    name: 'invoice_number.suffix',
   });
 
-  const invoiceID = `${invoiceIdPrefix || ''}${invoiceIdSequence || ''} ${invoiceIdSuffix || ''
-    }`;
+  const applyYearPrefix = useWatch({
+    control,
+    name: 'invoice_number.apply_year_prefix',
+  });
 
-  const handleResetIDField = () => {
-    setValue('invoice_id_prefix', '', { shouldDirty: true });
-    setValue('invoice_id_sequence', '', { shouldDirty: true });
-    setValue('invoice_id_suffix', '', { shouldDirty: true });
-  };
+  const invoiceID = sprintf(
+    '%s%s%s%s',
+    invoiceIdPrefix || '',
+    applyYearPrefix ? '26-' : '',
+    invoiceIdSequence || '000001',
+    invoiceIdSuffix || '',
+  );
 
   return (
     <div>
       <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
-          <CardTitle>{__('Invoice ID', 'kirki-ecommerce')} <Badge>Work in progress</Badge></CardTitle>
+          <CardTitle>{__('Invoice ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
-            {__(
-              'Customize your invoice ID structure and auto-numbering',
-              'kirki-ecommerce',
-            )}
+            {__('Customize your invoice ID structure and auto-numbering', 'kirki-ecommerce')}
           </CardDescription>
         </CardHeader>
         <CardContent cssOverride={cardStyles.largeContent}>
@@ -65,38 +57,37 @@ const InvoiceId = () => {
                 <Flex direction="column" gap={4}>
                   <Grid columns={3}>
                     <TextField
-                      name="invoice_id_prefix"
+                      name="invoice_number.prefix"
                       label={__('Prefix', 'kirki-ecommerce')}
-                      placeholder={__('INV-26-', 'kirki-ecommerce')}
+                      placeholder={__('INV-', 'kirki-ecommerce')}
                       description={__('Set invoice id prefix', 'kirki-ecommerce')}
                     />
 
                     <TextField
-                      name="invoice_id_sequence"
+                      name="invoice_number.sequence"
                       label={__('Sequence', 'kirki-ecommerce')}
                       placeholder={__('000001', 'kirki-ecommerce')}
-                      description={__(
-                        'Set invoice id sequence',
-                        'kirki-ecommerce',
-                      )}
+                      description={__('Set invoice id sequence', 'kirki-ecommerce')}
                     />
 
                     <TextField
-                      name="invoice_id_suffix"
+                      name="invoice_number.suffix"
                       label={__('Suffix', 'kirki-ecommerce')}
-                      placeholder={__('KIRKI', 'kirki-ecommerce')}
+                      placeholder={__('-KIRKI', 'kirki-ecommerce')}
                       description={__('Set invoice id suffix', 'kirki-ecommerce')}
                     />
                   </Grid>
+
+                  <CheckboxField
+                    name="invoice_number.apply_year_prefix"
+                    label={__('Apply year prefix', 'kirki-ecommerce')}
+                  />
 
                   <Card cssOverride={mergeCss(cardStyles.innerDarkCard, styles.previewCard)}>
                     <CardContent cssOverride={styles.previewCardContent}>
                       <Flex direction="column" gap={2}>
                         <Label htmlFor="invoice-id-preview">
-                          {__(
-                            'Next invoice IDs will look like:',
-                            'kirki-ecommerce',
-                          )}
+                          {__('Invoice IDs will look like:', 'kirki-ecommerce')}
                         </Label>
                         <Input
                           id="invoice-id-preview"
@@ -108,42 +99,46 @@ const InvoiceId = () => {
                     </CardContent>
                   </Card>
 
-                  <SelectField
-                    name="invoice_counter_reset_schedule"
-                    label={__(
-                      'Invoice Counter Reset Schedule',
-                      'kirki-ecommerce',
-                    )}
+                  {applyYearPrefix && (
+                    <CheckboxField
+                      name="invoice_number.reset_sequence_every_year"
+                      label={__(
+                        'Apply invoice sequence reset every year (January 1)',
+                        'kirki-ecommerce',
+                      )}
+                    />
+                  )}
+
+                  {/* <SelectField
+                    name="invoice_number.counter_reset_schedule"
+                    label={__('Invoice Counter Reset Schedule', 'kirki-ecommerce')}
                     options={invoiceResetScheduleOptions}
-                  />
+                  /> */}
                 </Flex>
               </CardContent>
             </Card>
-            <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
-              <CardContent >
+            {/* @todo: will implement later */}
+            {/* <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
+              <CardContent>
                 <Flex direction="column" gap={3}>
                   <Flex align="center">
-                    <Flex gap={1}>
-                      <Text weight="medium">{__('Reset Invoice ID', 'kirki-ecommerce')}</Text>
-                      <Badge>Work in progress</Badge>
-                    </Flex>
+                    <Text weight="medium">{__('Reset Invoice ID', 'kirki-ecommerce')}</Text>
                     <ActionGroup>
-                      <Button
-                        variant="secondary"
-                        onClick={handleResetIDField}
-                      >
+                      <Button variant="secondary" onClick={handleResetIDField}>
                         <ReplaceIcon />
                         {__('Reset Now', 'kirki-ecommerce')}
                       </Button>
                     </ActionGroup>
                   </Flex>
-                  <Text color="secondary">{__(
-                    'Reset the Invoice ID to your base ID for new fiscal years, system migration, or legal compliance.',
-                    'kirki-ecommerce',
-                  )}</Text>
+                  <Text color="secondary">
+                    {__(
+                      'Reset the Invoice ID to your base ID for new fiscal years, system migration, or legal compliance.',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
                 </Flex>
               </CardContent>
-            </Card>
+            </Card> */}
           </Flex>
         </CardContent>
       </Card>
