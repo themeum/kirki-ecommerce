@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
+use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\UserService;
@@ -177,18 +178,22 @@ class AccountController
      * @since 1.0.0
      *
      * @param Request $request Request.
+     * @param AddressService $address_service Address service.
      *
      * @return Response response.
      */
-    public function addresses(Request $request)
+    public function addresses(Request $request, AddressService $address_service)
     {
-        $customer = customer();
-        $billing_address = $customer ? $customer->get_billing_address() : null;
+        $customer         = customer();
+        $customer_id      = $customer ? $customer->get_customer_id() : null;
+        $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
+        $billing_address  = $customer ? $customer->get_billing_address() : null;
         $shipping_address = $customer ? $customer->get_shipping_address() : null;
-        $countries = Utils::get_countries();
+        $countries        = Utils::get_countries();
 
         $data = [
             'customer'         => $customer,
+            'addresses'        => $addresses,
             'billing_address'  => $billing_address,
             'shipping_address' => $shipping_address,
             'countries'        => $countries,

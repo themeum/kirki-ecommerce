@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
 use Kirki\Ecommerce\App\Constants\DecimalSeparator;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Constants\SellingLocationType;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\Constants\ThousandSeparator;
@@ -106,7 +107,7 @@ class SettingsUpdateRequest extends Request
                 $rules = $this->get_email_settings_rules();
                 break;
             case OptionKeys::ADVANCE_SETTINGS:
-                $rules = []; // @todo: implement later
+                $rules = $this->get_advance_settings_rules();
                 break;
             default:
                 break;
@@ -139,10 +140,23 @@ class SettingsUpdateRequest extends Request
             case OptionKeys::EMAIL_SETTINGS:
                 return $this->get_email_settings_filters();
             case OptionKeys::ADVANCE_SETTINGS:
-                return []; //@todo: implement later
+                return $this->get_advance_settings_filters();
             default:
                 return [];
         }
+    }
+
+    protected function messages()
+    {
+        $no_slashes_message = __('Slashes and backslashes are not allowed.', 'kirki-ecommerce');
+
+        return [
+            'data.invoice_number.sequence.regex' =>  __('The sequence field must contain digits only.', 'kirki-ecommerce'),
+            'data.order_number.prefix.regex' => $no_slashes_message,
+            'data.order_number.suffix.regex' => $no_slashes_message,
+            'data.invoice_number.prefix.regex' => $no_slashes_message,
+            'data.invoice_number.suffix.regex' => $no_slashes_message,
+        ];
     }
 
     protected function get_general_settings_rules()
@@ -161,12 +175,15 @@ class SettingsUpdateRequest extends Request
             'data.store_address.country' => 'required|string',
             'data.selling_location_type' => 'required|string|in:' . implode(',', SellingLocationType::get_constant_values()),
             'data.selling_countries' => 'nullable|array',
-            'data.order_id_prefix' => 'nullable|string',
-            'data.order_id_suffix' => 'nullable|string',
-            'data.invoice_id_prefix' => 'nullable|string',
-            'data.invoice_id_sequence' => 'nullable|string',
-            'data.invoice_id_suffix' => 'nullable|string',
-            'data.invoice_counter_reset_schedule' => 'nullable|string',
+            'data.order_number' => 'nullable|array',
+            'data.order_number.prefix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.order_number.suffix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.invoice_number' => 'nullable|array',
+            'data.invoice_number.prefix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.invoice_number.suffix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.invoice_number.sequence' => 'required|string|regex:/^\d+$/',
+            'data.invoice_number.apply_year_prefix' => 'boolean',
+            'data.invoice_number.reset_sequence_every_year' => 'boolean',
         ];
     }
 
@@ -186,12 +203,15 @@ class SettingsUpdateRequest extends Request
             'data.store_address.country' => Sanitizer::TEXT,
             'data.selling_location_type' => Sanitizer::TEXT,
             'data.selling_countries' => Sanitizer::ARRAY,
-            'data.order_id_prefix' => Sanitizer::TEXT,
-            'data.order_id_suffix' => Sanitizer::TEXT,
-            'data.invoice_id_prefix' => Sanitizer::TEXT,
-            'data.invoice_id_sequence' => Sanitizer::TEXT,
-            'data.invoice_id_suffix' => Sanitizer::TEXT,
-            'data.invoice_counter_reset_schedule' => Sanitizer::TEXT,
+            'data.order_number' => Sanitizer::ARRAY,
+            'data.order_number.prefix' => Sanitizer::TEXT,
+            'data.order_number.suffix' => Sanitizer::TEXT,
+            'data.invoice_number' => Sanitizer::ARRAY,
+            'data.invoice_number.prefix' => Sanitizer::TEXT,
+            'data.invoice_number.suffix' => Sanitizer::TEXT,
+            'data.invoice_number.sequence' => Sanitizer::TEXT,
+            'data.invoice_number.apply_year_prefix' => Sanitizer::BOOL,
+            'data.invoice_number.reset_sequence_every_year' => Sanitizer::BOOL,
         ];
     }
 
@@ -435,9 +455,9 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => 'required|boolean',
                 'data.is_shipping_tax_enabled' => 'required|boolean',
-                // TODO: is_enabled_taxed_price is persisted but has no backend consumer yet
+                // TODO: is_enabled_display_inclusive_taxed_price is persisted but has no backend consumer yet
                 // (no read in the tax strategies or calculation); wire it or drop it.
-                'data.is_enabled_taxed_price' => 'required|boolean',
+                'data.is_enabled_display_inclusive_taxed_price' => 'required|boolean',
                 'data.tax_regions' => 'nullable|array',
                 'data.tax_regions.*.code' => 'required|string',
                 'data.tax_regions.*.name' => 'nullable|string',
@@ -493,7 +513,7 @@ class SettingsUpdateRequest extends Request
             [
                 'data.is_tax_inclusive_price' => Sanitizer::BOOL,
                 'data.is_shipping_tax_enabled' => Sanitizer::BOOL,
-                'data.is_enabled_taxed_price' => Sanitizer::BOOL,
+                'data.is_enabled_display_inclusive_taxed_price' => Sanitizer::BOOL,
                 'data.tax_regions' => Sanitizer::ARRAY,
                 'data.tax_regions.*.code' => Sanitizer::TEXT,
                 'data.tax_regions.*.name' => Sanitizer::TEXT,
@@ -567,8 +587,8 @@ class SettingsUpdateRequest extends Request
                 'string',
                 function ($value, $key, $data) {
                     if (!in_array($value, ThousandSeparator::get_constant_values())) {
-                        /* translators: %s: possible values */
-                        return sprintf(__('The value of %s must be one of the following: %s.', 'growfund'), $key, implode(',', ThousandSeparator::get_constant_values()));
+                        /* translators: %1$s: field name, %2$s: comma-separated list of allowed values */
+                        return sprintf(__('The value of %1$s must be one of the following: %2$s.', 'kirki-ecommerce'), $key, implode(',', ThousandSeparator::get_constant_values()));
                     }
 
                     return true;
@@ -579,8 +599,8 @@ class SettingsUpdateRequest extends Request
                 'string',
                 function ($value, $key, $data) {
                     if (!in_array($value, DecimalSeparator::get_constant_values())) {
-                        /* translators: %s: possible values */
-                        return sprintf(__('The value of %s must be one of the following: %s.', 'growfund'), $key, implode(',', DecimalSeparator::get_constant_values()));
+                        /* translators: %1$s: field name, %2$s: comma-separated list of allowed values */
+                        return sprintf(__('The value of %1$s must be one of the following: %2$s.', 'kirki-ecommerce'), $key, implode(',', DecimalSeparator::get_constant_values()));
                     }
 
                     return true;
@@ -595,11 +615,13 @@ class SettingsUpdateRequest extends Request
                 }
 
                 if ($value === null || $value === '') {
-                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key);
                 }
 
                 if (!is_string($value)) {
-                    return sprintf(__('The %s field must be a string.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field must be a string.', 'kirki-ecommerce'), $key);
                 }
 
                 return true;
@@ -612,11 +634,13 @@ class SettingsUpdateRequest extends Request
                 }
 
                 if ($value === null || (is_array($value) && empty($value))) {
-                    return sprintf(__('The %s field is required.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key);
                 }
 
                 if (!is_array($value)) {
-                    return sprintf(__('The %s field must be an array.', 'growfund'), $key);
+                    /* translators: %s: field name */
+                    return sprintf(__('The %s field must be an array.', 'kirki-ecommerce'), $key);
                 }
 
                 return true;
@@ -973,5 +997,41 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
             'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
         ];
+    }
+
+    /**
+     * Validation rules for the advanced settings page assignments.
+     *
+     * @return array
+     */
+    protected function get_advance_settings_rules()
+    {
+        $rules = [
+            'data.pages' => 'nullable|array',
+        ];
+
+        foreach (PageKeys::get_constant_values() as $page_key) {
+            $rules['data.pages.' . $page_key] = 'nullable|integer';
+        }
+
+        return $rules;
+    }
+
+    /**
+     * Sanitizers for the advanced settings page assignments.
+     *
+     * @return array
+     */
+    protected function get_advance_settings_filters()
+    {
+        $filters = [
+            'data.pages' => Sanitizer::ARRAY,
+        ];
+
+        foreach (PageKeys::get_constant_values() as $page_key) {
+            $filters['data.pages.' . $page_key] = Sanitizer::INT;
+        }
+
+        return $filters;
     }
 }

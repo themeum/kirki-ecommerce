@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Supports\Utils;
@@ -77,41 +78,14 @@ class PageInlineScript extends BaseHook
      */
     protected function set_addresses_page_data($view_data, $config)
     {
-        $data             = (object) $view_data;
-        $customer         = $data->customer->get_customer() ?? null;
-        $billing_address  = $data->billing_address ?? [];
-        $shipping_address = $data->shipping_address ?? [];
+        $data     = (object) $view_data;
+        $customer = $data->customer->get_customer() ?? null;
 
-        $config['countries']                   = $data->countries ?? Utils::get_countries();
-        $config['customer_id']                 = $customer->id ?? 0;
-        $config['addresses']                   = [
-            'billing'  => $this->format_address($billing_address),
-            'shipping' => $this->format_address($shipping_address),
-        ];
+        $config['countries']   = $data->countries ?? Utils::get_countries();
+        $config['customer_id'] = $customer->id ?? 0;
+        $config['addresses']   = AddressResource::collection($data->addresses ?? []);
 
         return $config;
-    }
-
-    /**
-     * Format address model or data to an array.
-     *
-     * @since 1.0.0
-     *
-     * @param mixed $address Address model or array.
-     *
-     * @return array
-     */
-    protected function format_address($address): array
-    {
-        if (empty($address)) {
-            return [];
-        }
-
-        if (is_object($address) && method_exists($address, 'to_array')) {
-            return $address->to_array();
-        }
-
-        return (array) $address;
     }
 
     /**
@@ -174,7 +148,9 @@ class PageInlineScript extends BaseHook
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
-            'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
+            'is_billing_same_as_shipping' => (bool) ($cart['is_billing_same_as_shipping'] ?? false),
+            'shipping_address'            => $cart['shipping_address'] ?? null,
+            'billing_address'             => $cart['billing_address'] ?? null,
             'pricing'                     => [
                 'discount_details'                   => $discount_details ? [
                     'code'                       => $discount_details['code'] ?? null,
@@ -198,6 +174,7 @@ class PageInlineScript extends BaseHook
 
         $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
+        $config['addresses'] = AddressResource::collection($data->addresses ?? []);
 
         if (is_user_logged_in()) {
             $current_user = wp_get_current_user();

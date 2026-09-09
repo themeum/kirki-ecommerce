@@ -8,7 +8,6 @@ import { Form } from '@/components/ui/form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { Review } from '@/features/settings/products/pages/review';
 import { StandardUnit } from '@/features/settings/products/pages/standard-unit';
 import {
   type ProductsSettingsFormInput,
@@ -83,7 +82,8 @@ const ProductsSettings = () => {
             title={__('Products', 'kirki-ecommerce')}
           />
           <StandardUnit />
-          <Review />
+          {/* @todo: will implement later */}
+          {/* <Review /> */}
         </Flex>
       </Form>
     </Container>

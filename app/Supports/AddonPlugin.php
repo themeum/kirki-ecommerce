@@ -6,6 +6,9 @@ use Automatic_Upgrader_Skin;
 use Exception;
 use Plugin_Upgrader;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class AddonPlugin
 {
     /**
@@ -21,9 +24,7 @@ class AddonPlugin
      */
     public static function install(string $url, bool $activate = true)
     {
-        if (empty($url)) {
-            throw new Exception(__('No ZIP URL provided', 'kirki-ecommerce'));
-        }
+        throw_if(empty($url), __('No ZIP URL provided', 'kirki-ecommerce'));
 
         include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
         include_once ABSPATH . 'wp-admin/includes/file.php';
@@ -34,12 +35,10 @@ class AddonPlugin
 
         $result = $upgrader->install($url, ['overwrite_package' => true]);
 
-        if (empty($result)) {
-            throw new Exception(__('Plugin installation failed', 'kirki-ecommerce'));
-        }
+        throw_if(empty($result), __('Plugin installation failed', 'kirki-ecommerce'));
 
         if (is_wp_error($result)) {
-            throw new Exception($result->get_error_message());
+            throw_anyway($result->get_error_message());
         }
 
         if (!$activate) {
@@ -48,14 +47,12 @@ class AddonPlugin
 
         $plugin_path = $upgrader->plugin_info();
 
-        if (!$plugin_path) {
-            throw new Exception(__('Could not determine plugin path.', 'kirki-ecommerce'));
-        }
+        throw_if(!$plugin_path, __('Could not determine plugin path.', 'kirki-ecommerce'));
 
         $activation_result = activate_plugin($plugin_path);
 
         if (is_wp_error($activation_result)) {
-            throw new Exception($activation_result->get_error_message());
+            throw_anyway($activation_result->get_error_message());
         }
 
         return true;

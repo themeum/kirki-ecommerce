@@ -15,31 +15,26 @@ type AlertProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
 };
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>((props, ref) => {
-  const {
-    cssOverride,
-    type,
-    icon,
-    text,
-    hasHighlight = false,
-    ...rest
-  } = props;
+  const { cssOverride, type = 'primary', icon, text, hasHighlight = false, ...rest } = props;
 
   return (
     <div
       ref={ref}
       role="alert"
       data-type={type}
-      css={scopedMerge(styles.root, cssOverride)}
+      css={scopedMerge(styles.root, styles.variants[type], cssOverride)}
       {...rest}
     >
-      {hasHighlight && <div css={scoped(styles.highlight)} aria-hidden="true" />}
+      {hasHighlight && (
+        <div css={scoped(styles.highlight)} data-alert-highlight aria-hidden="true" />
+      )}
       <Flex gap={2} align="flex-start">
         {icon && (
           <span css={scoped(styles.icon)} aria-hidden="true">
             {icon}
           </span>
         )}
-        <span css={scoped(styles.text)}>{text}</span>
+        <span>{text}</span>
       </Flex>
     </div>
   );
@@ -49,25 +44,54 @@ Alert.displayName = 'Alert';
 
 export default Alert;
 
+const alertVariantStyles = defineStyles({
+  primary: {
+    backgroundColor: theme.colors.background.fillSecondary,
+    '& [data-alert-highlight]': {
+      backgroundColor: theme.colors.background.fillBrand,
+    },
+  },
+  success: {
+    backgroundColor: theme.colors.background.fillSuccessSecondary,
+    '& [data-alert-highlight]': {
+      backgroundColor: theme.colors.background.fillSuccess,
+    },
+  },
+  fail: {
+    backgroundColor: theme.colors.background.fillCriticalSecondary,
+    '& [data-alert-highlight]': {
+      backgroundColor: theme.colors.background.fillCritical,
+    },
+  },
+  pending: {
+    backgroundColor: theme.colors.background.fillCautionSecondary,
+    '& [data-alert-highlight]': {
+      backgroundColor: theme.colors.background.fillCaution,
+    },
+  },
+  warning: {
+    backgroundColor: theme.colors.background.fillWarningSecondary,
+    '& [data-alert-highlight]': {
+      backgroundColor: '#FFC207',
+    },
+  },
+});
+
 const styles = defineStyles({
   root: {
     width: '100%',
     padding: `${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[5]}`,
     borderRadius: `${theme.radius.sm} ${theme.radius.xl} ${theme.radius.xl} ${theme.radius.sm}`,
-    backgroundColor: theme.colors.background.fillSecondary,
     position: 'relative',
     overflow: 'hidden',
   },
+  variants: alertVariantStyles,
   highlight: {
-    backgroundColor: theme.colors.background.fillBrand,
     height: '100%',
     width: '4px',
     position: 'absolute',
     left: 0,
     top: 0,
-  },
-  text: {
-    maxWidth: '85%',
   },
   icon: {
     flexShrink: 0,

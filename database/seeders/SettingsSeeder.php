@@ -27,6 +27,8 @@ class SettingsSeeder extends Seeder
             Option::set($data['key'], $data['data']);
         }
 
+        Option::set(OptionKeys::LAST_INVOICE_NUMBER, 0);
+
         Log::info('SettingsSeeder run successfully');
     }
 
@@ -49,12 +51,8 @@ class SettingsSeeder extends Seeder
                 ],
                 "selling_location_type" => "all-countries",
                 "selling_countries" => [],
-                "order_id_prefix" => null,
-                "order_id_suffix" => null,
-                "invoice_id_prefix" => null,
-                "invoice_id_sequence" => null,
-                "invoice_id_suffix" => null,
-                "invoice_counter_reset_schedule" => null
+                "order_number" => null,
+                "invoice_number" => null,
             ]
         ];
     }
@@ -269,7 +267,7 @@ class SettingsSeeder extends Seeder
         return [
             "key" => "tax",
             "data" => [
-                "is_enabled_taxed_price" => false,
+                "is_enabled_display_inclusive_taxed_price" => false,
                 "is_tax_inclusive_price" => false,
                 "is_shipping_tax_enabled" => false,
                 "tax_regions" => [

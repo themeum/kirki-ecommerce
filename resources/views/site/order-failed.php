@@ -34,15 +34,15 @@ if (empty($order)) {
                     <path stroke="#d40000" stroke-linecap="round" stroke-width="3.285" d="m47.5 32.5-15 15m15-.001-15-15"/>
                 </svg>
             </div>
-            <h3 class="kecom-order-failed-title"><?php _e('Payment Failed', 'kirki-ecommerce'); ?></h3>
-            <p class="kecom-order-failed-subtitle"><?php _e('Your payment could not be processed. Please try again or use a different payment method.', 'kirki-ecommerce'); ?></p>
+            <h3 class="kecom-order-failed-title"><?php esc_html_e('Payment Failed', 'kirki-ecommerce'); ?></h3>
+            <p class="kecom-order-failed-subtitle"><?php esc_html_e('Your payment could not be processed. Please try again or use a different payment method.', 'kirki-ecommerce'); ?></p>
         </div>
         <div class="kecom-order-failed-actions">
             <a href="<?php echo esc_url(Url::get_checkout_url()); ?>" class="kecom-btn kecom-btn-destructive kecom-btn-lg kecom-btn-block">
-                <?php _e('Try Again', 'kirki-ecommerce'); ?>
+                <?php esc_html_e('Try Again', 'kirki-ecommerce'); ?>
             </a>
             <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-btn kecom-btn-ghost kecom-btn-lg kecom-btn-block">
-                <?php _e('Continue Shopping', 'kirki-ecommerce'); ?>
+                <?php esc_html_e('Continue Shopping', 'kirki-ecommerce'); ?>
             </a>
         </div>
     </div>

@@ -1,43 +1,35 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
-import ActionGroup from '@/components/ui/action-group';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
-import Text from '@/components/ui/text';
 import type { GeneralSettingsFormInput } from '@/features/settings/general/schemas/forms/general-settings-form';
-import { ReplaceIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 const OrderId = () => {
-  const { setValue } = useFormContext<GeneralSettingsFormInput>();
-  const orderIdPrefix = useWatch<GeneralSettingsFormInput, 'order_id_prefix'>({
-    name: 'order_id_prefix',
+  const { control } = useFormContext<GeneralSettingsFormInput>();
+  const orderIdPrefix = useWatch({
+    control,
+    name: 'order_number.prefix',
   });
-  const orderIdSuffix = useWatch<GeneralSettingsFormInput, 'order_id_suffix'>({
-    name: 'order_id_suffix',
+  const orderIdSuffix = useWatch({
+    control,
+    name: 'order_number.suffix',
   });
 
-  const orderID = `${orderIdPrefix || ''}${orderIdSuffix || ''}`;
-
-  const handleResetIDField = () => {
-    setValue('order_id_prefix', '', { shouldDirty: true });
-    setValue('order_id_suffix', '', { shouldDirty: true });
-  };
+  const orderID = sprintf('%s000001%s', orderIdPrefix || '', orderIdSuffix || '');
 
   return (
     <div>
       <Card cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
-          <CardTitle>{__('Order ID', 'kirki-ecommerce')} <Badge>Work in progress</Badge></CardTitle>
+          <CardTitle>{__('Order ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
               'Shown on the order page, customer pages, and customer order notifications to identify order',
@@ -51,16 +43,16 @@ const OrderId = () => {
               <Flex direction="column" gap={4}>
                 <Grid>
                   <TextField
-                    name="order_id_prefix"
+                    name="order_number.prefix"
                     label={__('Prefix', 'kirki-ecommerce')}
-                    placeholder={__('#ORD-', 'kirki-ecommerce')}
+                    placeholder={__('Enter a prefix', 'kirki-ecommerce')}
                     description={__('Set order id prefix', 'kirki-ecommerce')}
                   />
 
                   <TextField
-                    name="order_id_suffix"
+                    name="order_number.suffix"
                     label={__('Suffix', 'kirki-ecommerce')}
-                    placeholder={__('', 'kirki-ecommerce')}
+                    placeholder={__('Enter a suffix', 'kirki-ecommerce')}
                     description={__('Set order id suffix', 'kirki-ecommerce')}
                   />
                 </Grid>
@@ -69,7 +61,7 @@ const OrderId = () => {
                   <CardContent cssOverride={styles.previewCardContent}>
                     <Flex direction="column" gap={2}>
                       <Label htmlFor="order-id-preview">
-                        {__('Next order IDs will look like:', 'kirki-ecommerce')}
+                        {__('Order IDs will look like:', 'kirki-ecommerce')}
                       </Label>
                       <Input
                         id="order-id-preview"
@@ -81,28 +73,28 @@ const OrderId = () => {
                   </CardContent>
                 </Card>
 
-                <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
-                  <CardContent >
+                {/* @todo: will implement later */}
+                {/* <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
+                  <CardContent>
                     <Flex direction="column" gap={3}>
                       <Flex align="center">
                         <Text weight="medium">{__('Reset Order ID', 'kirki-ecommerce')}</Text>
                         <ActionGroup>
-                          <Button
-                            variant="secondary"
-                            onClick={handleResetIDField}
-                          >
+                          <Button variant="secondary" onClick={handleResetIDField}>
                             <ReplaceIcon />
                             {__('Reset Now', 'kirki-ecommerce')}
                           </Button>
                         </ActionGroup>
                       </Flex>
-                      <Text color="secondary">{__(
-                        'Reset the order ID to your base ID for new fiscal years, system migration, or legal compliance.',
-                        'kirki-ecommerce',
-                      )}</Text>
+                      <Text color="secondary">
+                        {__(
+                          'Reset the order ID to your base ID for new fiscal years, system migration, or legal compliance.',
+                          'kirki-ecommerce',
+                        )}
+                      </Text>
                     </Flex>
                   </CardContent>
-                </Card>
+                </Card> */}
               </Flex>
             </CardContent>
           </Card>

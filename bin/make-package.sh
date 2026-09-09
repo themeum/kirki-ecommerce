@@ -11,10 +11,10 @@ STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
 
 REQUIRED_PATHS=(
   "kirki-ecommerce.php"
+  "readme.txt"
   "app"
   "bootstrap"
   "vendor"
-  "libraries"
   "assets"
   "resources/views"
 )
@@ -24,6 +24,7 @@ OPTIONAL_PATHS=(
   "database"
   "payments"
   "routes"
+  "languages"
   "resources/data"
   "resources/images"
   "resources/assets"
@@ -77,13 +78,17 @@ echo "==> Installing PHP dependencies"
 run_composer "$ROOT_DIR"
 composer install --no-dev --optimize-autoloader --no-scripts
 
-# The --no-dev install restores vendor/themeum, but the plugin only ever uses the
-# php-scoper output in libraries/framework. Composer skips packages whose install
-# path is missing, so dumping the autoloader after the removal drops the stale
-# Framework\ psr-4 map and the src/helpers.php + src/Polyfill/Polyfill.php file
-# includes that would otherwise fatal at runtime.
-echo "==> Removing unscoped framework package"
-rm -rf "$ROOT_DIR/vendor/themeum"
+# The scoped framework lives at vendor/libraries/framework, but the --no-dev
+# install above undoes two things `composer scope` did. It re-clones an
+# unscoped copy at vendor/themeum/framework - Composer tests for an installed
+# package at the path derived from its name, not at the install-path recorded
+# in installed.json - and it regenerates installed.json from the lock,
+# restoring the unprefixed Framework\ psr-4 map. Left alone, the build ships a
+# second unscoped framework and registers it in the autoloader, where its
+# Framework\ mapping can shadow a genuine Framework\ class belonging to
+# another plugin on the same site. --restore undoes both, before the final dump.
+echo "==> Restoring scoped framework layout"
+php "$ROOT_DIR/bin/scope-framework.php" --restore
 composer dump-autoload --no-dev --optimize
 
 echo "==> Installing payment gateway dependencies"
@@ -108,6 +113,9 @@ for path in "${OPTIONAL_PATHS[@]}"; do
     copy_path "$path"
   fi
 done
+
+echo "==> Removing hidden files (not allowed by wordpress.org)"
+find "$STAGE_DIR" -name ".*" -type f -delete
 
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.

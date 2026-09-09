@@ -15,10 +15,7 @@ type CategoriesFilterProps = {
   onChange?: (val: number[]) => void;
 };
 
-const CategoriesFilter = ({
-  filterObject,
-  onChange = noop,
-}: CategoriesFilterProps) => {
+const CategoriesFilter = ({ filterObject, onChange = noop }: CategoriesFilterProps) => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
 
   const options: MultiSelectOption[] = useMemo(
@@ -31,9 +28,7 @@ const CategoriesFilter = ({
   );
 
   const selectedIds = filterObject?.category_ids ?? [];
-  const selected = options.filter((option) =>
-    selectedIds.includes(Number(option.value)),
-  );
+  const selected = options.filter((option) => selectedIds.includes(Number(option.value)));
 
   return (
     <Field>

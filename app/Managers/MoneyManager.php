@@ -10,12 +10,14 @@ use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\settings;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
@@ -133,8 +135,9 @@ class MoneyManager
      */
     protected function get_requested_currency_code()
     {
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase
-        $code = $_COOKIE[static::DISPLAY_CURRENCY_COOKIE] ?? $_SERVER[static::DISPLAY_CURRENCY_HEADER] ?? null;
+        $cookie_value = Superglobals::cookie(static::DISPLAY_CURRENCY_COOKIE);
+        $header_value = Superglobals::server(static::DISPLAY_CURRENCY_HEADER);
+        $code = $cookie_value ?? $header_value;
 
         if (empty($code) || !is_string($code)) {
             return null;
@@ -374,13 +377,9 @@ class MoneyManager
     {
         $method = Str::camel($method);
 
-        if (!method_exists(Money::class, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist on " . Money::class);
-        }
+        throw_if(!method_exists(Money::class, $method), "Method {$method} does not exist on " . Money::class, BadMethodCallException::class);
 
-        if (empty($parameters)) {
-            throw new InvalidArgumentException("Money {$method} method requires at least one parameter.");
-        }
+        throw_if(empty($parameters), "Money {$method} method requires at least one parameter.", InvalidArgumentException::class);
 
         if (empty($parameters[1])) {
             $parameters[1] = $this->get_base_currency();

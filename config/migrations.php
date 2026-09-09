@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Database\Migrations\CreateAddressesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterAddressesTypeColumnToString;
 use Kirki\Ecommerce\Database\Migrations\CreateLanguagesTable;
@@ -55,6 +57,8 @@ use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
+use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
+use Kirki\Ecommerce\Database\Migrations\AddInvoiceNumberToOrdersTable;
 
 return [
     CreateLanguagesTable::class,
@@ -95,6 +99,7 @@ return [
     CreateShippingBoxesTable::class,
     CreateTaxProfilesTable::class,
     CreateSchedulerJobsTable::class,
+    CreateWishlistTable::class,
 
     // Gives every key an explicit, project-owned name. Must stay after every Create* migration and
     // before every Alter* migration: at this point an upgraded database and a fresh install hold
@@ -121,4 +126,5 @@ return [
     AlterAddressesTableForAddressBook::class,
     DropIsBillingSameAsShippingFromCustomersTable::class,
     DropIsBillingSameAsShippingFromOrdersTable::class,
+    AddInvoiceNumberToOrdersTable::class,
 ];

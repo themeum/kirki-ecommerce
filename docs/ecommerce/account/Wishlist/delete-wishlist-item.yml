@@ -1,0 +1,84 @@
+info:
+  name: wishlist/{variant_id}
+  type: http
+  seq: 3
+  tags:
+    - wishlist
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/account/wishlist/1"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success - Item removed from wishlist
+    request:
+      url: "{{baseUrl}}/wishlist/1"
+      method: DELETE
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": true,
+            "message": "Item removed from wishlist successfully."
+          }
+  - name: 404 Response
+    description: Failure - Wishlist item not found or does not belong to the authenticated user
+    request:
+      url: "{{baseUrl}}/wishlist/999999"
+      method: DELETE
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Wishlist not found."
+          }
+  - name: 401 Response
+    description: Failure - Not logged in
+    request:
+      url: "{{baseUrl}}/wishlist/1"
+      method: DELETE
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## Delete Wishlist Item
+
+  Deletes an item from the wishlist by its wishlist entry ID.
+
+  - Scoped to the currently authenticated user.
+  - Returns 404 if the record does not exist or belongs to another user.

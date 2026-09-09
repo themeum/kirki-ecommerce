@@ -1,7 +1,7 @@
 info:
   name: Set Default Address
   type: http
-  seq: 10
+  seq: 11
   tags:
     - account
 
@@ -21,6 +21,7 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
 
 examples:
   - name: 200 Response (shipping)
