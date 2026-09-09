@@ -14,7 +14,7 @@ import Text from '@/components/ui/text';
 import { CloseIcon, ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { __, sprintf } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
 type DataTableFilterPopoverProps = {
   appliedCount: number;
@@ -64,7 +64,7 @@ const DataTableFilterPopover = (props: DataTableFilterPopoverProps) => {
             {hasFilters
               ? sprintf(
                   /* translators: %d: number of filters currently applied */
-                  __('%d Filters', 'kirki-ecommerce'),
+                  _n('%d Filter', '%d Filters', appliedCount, 'kirki-ecommerce'),
                   appliedCount,
                 )
               : __('Filter', 'kirki-ecommerce')}
@@ -97,12 +97,23 @@ const DataTableFilterPopover = (props: DataTableFilterPopoverProps) => {
           {children}
         </Flex>
 
-        <Flex cssOverride={styles.footer}>
-          <ActionGroup>
-            <Button variant="primary" onClick={handleApply}>
-              {__('Apply Filter', 'kirki-ecommerce')}
+        <Flex cssOverride={styles.footer} justify="space-between">
+          {hasFilters && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                onClear();
+                setIsOpen(false);
+              }}
+              size="sm"
+              cssOverride={{ color: theme.colors.text.critical }}
+            >
+              {__('Clear all', 'kirki-ecommerce')}
             </Button>
-          </ActionGroup>
+          )}
+          <Button variant="primary" onClick={handleApply} size="sm">
+            {__('Apply Filter', 'kirki-ecommerce')}
+          </Button>
         </Flex>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -116,8 +127,12 @@ export type { DataTableFilterPopoverProps };
 
 const styles = defineStyles({
   triggerGrouped: {
+    color: theme.colors.text.emphasis,
     borderRight: 'none',
     borderRadius: `${theme.radius.md} ${theme.radius.none} ${theme.radius.none} ${theme.radius.md}`,
+    '&:hover': {
+      color: theme.colors.text.emphasis,
+    },
   },
   clearButton: {
     color: theme.colors.text.emphasis,
@@ -142,7 +157,8 @@ const styles = defineStyles({
     color: theme.colors.text.primary,
   },
   footer: {
-    padding: `${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[3]} ${theme.spacing[3]}`,
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+    paddingTop: theme.spacing[3],
     borderTop: `1px solid ${theme.colors.border.default}`,
     bottom: '-4px',
     position: 'sticky',
