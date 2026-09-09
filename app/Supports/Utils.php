@@ -223,30 +223,6 @@ class Utils
     }
 
     /**
-     * Get login page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The login page id.
-     */
-    public static function get_login_page_id()
-    {
-        return Settings::get('advance.pages.login', 0);
-    }
-
-    /**
-     * Get registration page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The registration page id.
-     */
-    public static function get_registration_page_id()
-    {
-        return Settings::get('advance.pages.register', 0);
-    }
-
-    /**
      * Get cart page id.
      *
      * @since 1.0.0
@@ -426,15 +402,14 @@ class Utils
      */
     public static function guest_checkout_enabled()
     {
-        //TODO: default will be false.
-        return Settings::get('checkout.is_allowed_guest_checkout', true);
+        return Settings::get('checkout.is_allowed_guest_checkout', false);
     }
 
     /**
      * Get page url by page key.
-     * 
+     *
      * @param string $page_key page key.
-     * 
+     *
      * @return string|null page url.
      */
     public static function get_page_url_by_key(string $page_key)
