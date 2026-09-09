@@ -150,6 +150,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
     Route::put('/variants/bulk', [VariantController::class, 'bulk_update']);
     Route::get('/variants', [VariantController::class, 'get']);
+    Route::get('/variants/{id}', [VariantController::class, 'show'])->where('id', '[\d]+');
+    Route::put('/variants/{id}', [VariantController::class, 'update'])->where('id', '[\d]+');
 
     // Countries
     Route::get('/countries', [CountryController::class, 'get']);

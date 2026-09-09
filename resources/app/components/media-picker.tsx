@@ -1,5 +1,5 @@
 import { type CSSObject } from '@emotion/react';
-import { ImagePlus, Replace, Trash2 } from 'lucide-react';
+import { ImagePlus, RefreshCcw, Trash2 } from 'lucide-react';
 import { type DragEvent, forwardRef, useRef, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -275,7 +275,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
               disabled={isBusy}
               onClick={openBrowse}
             >
-              <Replace size={16} aria-hidden="true" />
+              <RefreshCcw size={16} aria-hidden="true" />
             </Button>
             <Button
               variant="ghost"

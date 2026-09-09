@@ -14,7 +14,7 @@ import {
 import Tooltip from '@/components/ui/tooltip';
 import { useCellSelection } from '@/features/bulk-edit/contexts/cell-selection-context';
 import type { BulkEditFormValues, BulkEditProfileOption } from '@/features/bulk-edit/types';
-import { BaseUnitDialog } from '@/features/products';
+import { BaseUnitPopover } from '@/features/products';
 import type { BaseUnitFormPayload } from '@/features/products/schemas/forms/base-unit-form';
 import { ShippingBoxField } from '@/features/settings';
 import type { MediaRef } from '@/schemas/shared/media';
@@ -305,7 +305,7 @@ const UnitPriceControl = ({ rowIndex, active }: { rowIndex: number; active: bool
 
   return (
     <div css={controlWrapperStyle(active)}>
-      <BaseUnitDialog
+      <BaseUnitPopover
         data={variant}
         currencySymbol={variant?.base_price_money_object?.currency?.symbol || '$'}
         buttonProps={{

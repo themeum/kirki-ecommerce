@@ -32,6 +32,7 @@ export const endpoints = {
     `/attributes/${attributeId}/values/${valueId}`,
   ATTRIBUTE_VALUES_BULK: (attributeId: string | number) => `/attributes/${attributeId}/values/bulk`,
 
+  VARIANT: (id: string | number) => `/variants/${id}`,
   VARIANTS: '/variants',
   VARIANTS_BULK: '/variants/bulk',
   VARIANTS_BULK_BY_IDS: (ids: string | (string | number)[]) =>
