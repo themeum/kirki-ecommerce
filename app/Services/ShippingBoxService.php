@@ -14,6 +14,8 @@ use Kirki\Ecommerce\App\DTO\ShippingBox\UpdateShippingBoxDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class ShippingBoxService
 {
     use HasSortableColumns;
@@ -68,9 +70,7 @@ class ShippingBoxService
     {
         $shipping_box = ShippingBox::find($id);
 
-        if (!$shipping_box) {
-            throw new NotFoundException(__('Shipping box not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$shipping_box, __('Shipping box not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $shipping_box;
     }
@@ -117,9 +117,7 @@ class ShippingBoxService
     {
         $shipping_box = ShippingBox::find($data->id);
 
-        if (empty($shipping_box)) {
-            throw new NotFoundException(__('Shipping box could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($shipping_box), __('Shipping box could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $current_default = $this->find_default();
 
@@ -127,15 +125,11 @@ class ShippingBoxService
             $current_default->update(['is_default' => false]);
         }
 
-        if (!$data->is_default && $current_default && $current_default->id === $data->id) {
-            throw new NotFoundException(__('At least one default shipping box is required.', 'kirki-ecommerce'), Response::BAD_REQUEST);
-        }
+        throw_if(!$data->is_default && $current_default && $current_default->id === $data->id, __('At least one default shipping box is required.', 'kirki-ecommerce'), NotFoundException::class, Response::BAD_REQUEST);
 
         $is_updated = (bool) $shipping_box->update($data->to_array());
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Shipping box could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_updated, __('Shipping box could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return ShippingBox::find($data->id);
     }
@@ -151,9 +145,7 @@ class ShippingBoxService
     {
         $is_deleted = (bool) ShippingBox::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping box could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Shipping box could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -169,9 +161,7 @@ class ShippingBoxService
     {
         $is_deleted = (bool) ShippingBox::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Shipping boxes could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Shipping boxes could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }

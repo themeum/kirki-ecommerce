@@ -18,6 +18,8 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class VariantService
@@ -90,9 +92,7 @@ class VariantService
     {
         $variant = $this->find_or_null($id);
 
-        if (empty($variant)) {
-            throw new NotFoundException(__('Variant not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($variant), __('Variant not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $variant;
     }
@@ -147,9 +147,8 @@ class VariantService
 
         $variant->attribute_values()->sync($data->attribute_values);
 
-        if (!$variant) {
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be updated.', 'kirki-ecommerce'), $data->id), Response::NOT_FOUND);
-        }
+        /* translators: %s: variant ID */
+        throw_if(!$variant, sprintf(__('Variant with id %s could not be updated.', 'kirki-ecommerce'), $data->id), NotFoundException::class, Response::NOT_FOUND);
 
         return $variant;
     }
@@ -172,30 +171,27 @@ class VariantService
      */
     public function bulk_update(array $variants)
     {
-        if (empty($variants)) {
-            throw new NotFoundException(__('No variants selected.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($variants), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class);
 
         DB::begin_transaction();
 
         $updated_variants = [];
 
         foreach ($variants as $variant) {
-            if (empty($variant['id'])) {
-                throw new NotFoundException(__('Variant id is required.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($variant['id']), __('Variant id is required.', 'kirki-ecommerce'), NotFoundException::class);
 
             $updated_variant = $this->update_variant($variant['id'], $variant);
 
             if (!$updated_variant) {
                 DB::roll_back();
 
-                throw new NotFoundException(
+                throw_anyway(
                     sprintf(
                         /* translators: %s: variant id */
                         __('Variant with id %s could not be updated.', 'kirki-ecommerce'),
                         $variant['id']
-                    )
+                    ),
+                    NotFoundException::class
                 );
             }
 
@@ -244,9 +240,8 @@ class VariantService
     {
         $is_deleted = (bool) Variant::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), Response::NOT_FOUND);
-        }
+        /* translators: %s: variant ID */
+        throw_if(!$is_deleted, sprintf(__('Variant with id %s could not be deleted.', 'kirki-ecommerce'), $id), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -260,15 +255,11 @@ class VariantService
      */
     public function bulk_delete(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No variants selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($ids), __('No variants selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Variant::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Variants could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Variants could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -294,9 +285,7 @@ class VariantService
     {
         $variant = Variant::find($id);
 
-        if (empty($variant)) {
-            throw new NotFoundException(__('Variant not found!', 'kirki-ecommerce'));
-        }
+        throw_if(empty($variant), __('Variant not found!', 'kirki-ecommerce'), NotFoundException::class);
 
         return $variant->update($data) ? $variant->load('product.media', 'attribute_values') : false;
     }

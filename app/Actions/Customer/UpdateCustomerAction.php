@@ -8,8 +8,9 @@ use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class UpdateCustomerAction
 {
@@ -43,9 +44,7 @@ class UpdateCustomerAction
         try {
             $customer = $this->customer_service->update($customer_payload);
 
-            if (empty($customer)) {
-                throw new Exception(__('Customer could not be updated.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($customer), __('Customer could not be updated.', 'kirki-ecommerce'));
 
             $shipping_address_payload->customer_id = $customer->id;
             $shipping_address_payload->id = $customer->shipping_address->id;

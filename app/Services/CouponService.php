@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Exception;
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\DateTimeFormats;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
@@ -18,6 +17,7 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class CouponService
@@ -95,9 +95,7 @@ class CouponService
     {
         $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
-        if (!$coupon) {
-            throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$coupon, __('Coupon not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $coupon;
     }
@@ -113,9 +111,7 @@ class CouponService
     {
         $coupon = Coupon::with(['categories', 'products.categories', 'customers'])->where('code', $code)->first();
 
-        if (!$coupon) {
-            throw new NotFoundException(__('Coupon not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$coupon, __('Coupon not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $coupon;
     }
@@ -152,9 +148,7 @@ class CouponService
     {
         $coupon = Coupon::find($data->id);
 
-        if (empty($coupon)) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($coupon), __('Coupon could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $attributes = $data->except(['id', 'discount_amount', 'category_ids', 'product_ids', 'customer_ids', 'exclude_customer_ids', 'reward_product_ids']);
         $attributes['updated_by'] = user()->get_id();
@@ -167,9 +161,7 @@ class CouponService
 
         $is_updated = (bool) $coupon->update($attributes);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Coupon could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_updated, __('Coupon could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $is_updated;
     }
@@ -185,9 +177,7 @@ class CouponService
     {
         $is_deleted = (bool) Coupon::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Coupon could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Coupon could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -201,15 +191,11 @@ class CouponService
      */
     public function bulk_delete(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No coupons selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($ids), __('No coupons selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Coupon::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Coupons could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Coupons could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -314,13 +300,9 @@ class CouponService
     {
         $coupon = Coupon::with(static::DETAIL_RELATIONS)->find($id);
 
-        if ($is_active && $coupon->is_active) {
-            throw new Exception(__('The coupon is already activated', 'kirki-ecommerce'));
-        }
+        throw_if($is_active && $coupon->is_active, __('The coupon is already activated', 'kirki-ecommerce'));
 
-        if (!$is_active && !$coupon->is_active) {
-            throw new Exception(__('The coupon is already deactivated', 'kirki-ecommerce'));
-        }
+        throw_if(!$is_active && !$coupon->is_active, __('The coupon is already deactivated', 'kirki-ecommerce'));
 
         $coupon->is_active = $is_active ? 1 : 0;
         $coupon->save();

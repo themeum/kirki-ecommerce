@@ -14,6 +14,8 @@ use Kirki\Ecommerce\App\DTO\TaxProfile\UpdateTaxProfileDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class TaxProfileService
 {
     use HasSortableColumns;
@@ -64,9 +66,7 @@ class TaxProfileService
     {
         $tax_profile = TaxProfile::find($id);
 
-        if (!$tax_profile) {
-            throw new NotFoundException(__('Tax profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$tax_profile, __('Tax profile not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $tax_profile;
     }
@@ -95,15 +95,11 @@ class TaxProfileService
     {
         $tax_profile = TaxProfile::find($data->id);
 
-        if (empty($tax_profile)) {
-            throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($tax_profile), __('Tax profile could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_updated = (bool) $tax_profile->update($data->to_array());
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Tax profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_updated, __('Tax profile could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return TaxProfile::find($data->id);
     }
@@ -119,9 +115,7 @@ class TaxProfileService
     {
         $is_deleted = (bool) TaxProfile::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Tax profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Tax profile could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -137,9 +131,7 @@ class TaxProfileService
     {
         $is_deleted = (bool) TaxProfile::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Tax profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Tax profiles could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
