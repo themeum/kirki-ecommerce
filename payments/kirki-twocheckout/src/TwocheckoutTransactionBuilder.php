@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -32,7 +33,6 @@ class TwocheckoutTransactionBuilder
 
         return [
             'email' => $this->order->billing_email ?? '',
-            // 'name' => $this->order->billing_first_name  . ' ' . $this->order->billing_last_name ?? '',
             'phone' => $this->order->billing_phone ?? '',
             'country' => $this->order->billing_country ?? '',
             'city' => $this->order->billing_city ?? '',
@@ -58,7 +58,6 @@ class TwocheckoutTransactionBuilder
             'back-url' => Url::get_checkout_failed_url($this->order->uuid),
             'order-ext-ref' => $this->order->uuid,
             'customer-ext-ref' => $this->order->customer_id ?? $this->order->billing_email ?? '',
-            'recurrence' => 0,
         ];
     }
 

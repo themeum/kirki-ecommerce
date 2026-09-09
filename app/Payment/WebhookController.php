@@ -21,6 +21,16 @@ class WebhookController
 
         $result = $provider->webhook();
 
+        if ($result instanceof WebhookResult) {
+            add_filter('rest_pre_serve_request', function () use ($result) {
+                header('Content-Type: ' . $result->content_type() . '; charset=UTF-8');
+                echo $result->raw_body();
+                return true;
+            });
+
+            $result = $result->success();
+        }
+
         return response()->json([
             'success' => $result,
             'message' => $result ? __('Webhook handled successfully', 'kirki-ecommerce') : __('Webhook handling failed', 'kirki-ecommerce'),

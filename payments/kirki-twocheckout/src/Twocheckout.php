@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\App\Payment\WebhookResult;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -140,36 +141,37 @@ class Twocheckout extends PaymentProvider
         return array_merge($parent_settings, $data);
     }
 
-    /**
-     * Handle a 2Checkout webhook notification.
-     *
-     * @return bool True if the notification was processed, false if ignored.
-     * @throws Exception If the payload is missing, invalid, or the API lookup fails.
-     */
     public function webhook()
     {
-        $payload = $this->verify_and_parse_notification();
+        $payload = Request::capture();
 
         http_response_code(200);
 
         try {
-            $order_uuid = $payload->variables->order_uuid ?? '';
+            $this->client = $this->get_client();
+
+            if (!$this->validate_ipn_response($payload)) {
+                return new WebhookResult(false, null, 'application/xml');
+            }
+            $response_token = $this->client->generate_ipn_response($payload);
+
+            $order_uuid = $payload->get('REFNOEXT', null, 'string');
             if (!$order_uuid) {
-                throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-quickpay'));
+                throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-twocheckout'));
             }
 
             $order = OrderManager::find_by_uuid($order_uuid);
             if (!$order) {
-                throw new Exception(__('Webhook error: Order Not Found.', 'kirki-ecommerce-quickpay'));
+                throw new Exception(__('Webhook error: Order Not Found.', 'kirki-ecommerce-twocheckout'));
             }
 
             if ($order->payment_status === PaymentStatus::PAID) {
-                return false;
+                return new WebhookResult(true, $response_token, 'application/xml');
             }
 
             $this->handle_transaction_response($order, $payload);
 
-            return true;
+            return new WebhookResult(true, $response_token, 'application/xml');
         } catch (\Throwable $th) {
             throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-quickpay'), $th->getMessage()));
         }
@@ -199,27 +201,10 @@ class Twocheckout extends PaymentProvider
         return new TwocheckoutClient($merchant_code, $secret_key, $buy_link_secret_word, $sandbox);
     }
 
-    /**
-     * Apply an order's status, from QuickPay's Order Management API, to the local order.
-     *
-     * @param Order $order The local order.
-     * @param object $payload The payment data returned by QuickPay.
-     * @return void
-     * @throws Exception If the order update fails.
-     */
-    protected function handle_transaction_response(Order $order, object $payload): void
+
+    protected function handle_transaction_response(Order $order,  $payload): void
     {
-        if (empty($payload->operations)) {
-            throw new Exception(__('QuickPay payload data not found.', 'kirki-ecommerce-quickpay'));
-        }
-
-        $operation = end($payload->operations);
-
-        if (QuickpayConstant::PAYMENT_CAPTURE !== $operation->type) {
-            return;
-        }
-
-        $status = $this->get_status($operation);
+        $status = $this->get_status($payload->get('ORDERSTATUS', null, 'string'));
 
         DB::begin_transaction();
 
@@ -228,8 +213,8 @@ class Twocheckout extends PaymentProvider
                 case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
-                    if (!empty($payload->fee)) {
-                        OrderManager::set_payment_provider_fee($order->id, $payload->fee);
+                    if (!empty($payload->get('IPN_COMMISSION', null, 'string'))) {
+                        OrderManager::set_payment_provider_fee($order->id, $payload->get('IPN_COMMISSION', null, 'string'));
                     }
                     break;
 
@@ -252,32 +237,46 @@ class Twocheckout extends PaymentProvider
         }
     }
 
-    protected function record_transaction(Order $order, object $payload): void
+    protected function record_transaction(Order $order, $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->id);
-        OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
+        OrderManager::set_transaction_id($order->id, $payload->get('REFNOEXT', null, 'string'));
+        OrderManager::set_payment_metadata($order->id, wp_json_encode($payload->all()));
     }
 
-    /**
-     * Read the raw webhook payload, verify its checksum, and decode it.
-     *
-     * @return object
-     * @throws Exception If the payload is missing or its checksum is invalid.
-     */
-    protected function verify_and_parse_notification()
+
+    protected function validate_ipn_response($payload)
     {
-        $payload = Request::capture();
-        $payment_id = $payload->get('ORDERSTATUS', null, 'string');
+        try {
+            $result        = '';
+            $received_hash = $this->client->get_hash_algorithm($payload);
+            $ref_no = $payload->get('REFNO', null, 'string');
 
-        $this->client = $this->get_client();
+            foreach ($payload->all() as $key => $value) {
+                if (! in_array($key, ['HASH', 'SIGNATURE_SHA2_256', 'SIGNATURE_SHA3_256'], true)) {
+                    $result .= is_array($value) ? $this->client->array_expand($value) : strlen(stripslashes($value)) . stripslashes($value);
+                }
+            }
 
-        // Respond with a 200 status code to acknowledge the notification.
-        http_response_code(200);
+            if (!empty($ref_no)) {
+                $calculated_hash = $this->client->generate_hash($result, $received_hash['algorithm']);
+                return $received_hash['hash_value'] === $calculated_hash;
+            }
 
-        if (empty($raw_payload) || ! $this->client->is_verified($raw_payload)) {
-            throw new Exception(__('Invalid Payload From QuickPay.', 'kirki-ecommerce-quickpay'));
+            return false;
+        } catch (Exception $error) {
+            /* translators: %s: error message */
+            throw new Exception(esc_html__(sprintf('Error While Validating IPN Response: %s', $error->getMessage()), 'kirki-ecommerce-twocheckout'));
         }
+    }
 
-        return json_decode($raw_payload);
+    protected function get_status($status): string
+    {
+        $statuses = array(
+            'COMPLETE' => PaymentStatus::PAID,
+            'PENDING'  => PaymentStatus::UNPAID,
+            'CANCELED' => PaymentStatus::CANCELLED,
+        );
+
+        return $statuses[$status] ?? PaymentStatus::UNPAID;
     }
 }

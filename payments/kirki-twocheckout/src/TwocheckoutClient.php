@@ -142,4 +142,105 @@ class TwocheckoutClient
         $base64 = base64_encode($data);
         return str_replace(array('+', '/', '='), array('-', '_', ''), $base64);
     }
+
+    public function generate_hash($data, $algorithm): string
+    {
+        if (in_array($algorithm, ['sha3-256', 'sha256'], true)) {
+            return hash_hmac($algorithm, $data, $this->secret_key);
+        }
+
+        // byte length for hash.
+        $byte_length = 64;
+
+        if (strlen($this->secret_key) > $byte_length) {
+            $key = pack('H*', hash($algorithm, $this->secret_key));
+        }
+
+        $key    = str_pad($this->secret_key, $byte_length, chr(0x00));
+        $ipad   = str_pad('', $byte_length, chr(0x36));
+        $opad   = str_pad('', $byte_length, chr(0x5c));
+        $k_ipad = $key ^ $ipad;
+        $k_opad = $key ^ $opad;
+
+        return hash($algorithm, $k_opad . pack('H*', hash($algorithm, $k_ipad . $data)));
+    }
+
+    public function generate_ipn_response($payload)
+    {
+        try {
+            $result_response     = '';
+            $ipn_params_response = array();
+
+            $ipn_params_response['IPN_PID'][0]   = $payload->get('IPN_PID', null, 'string')[0];
+            $ipn_params_response['IPN_PNAME'][0] = $payload->get('IPN_PNAME', null, 'string')[0];
+            $ipn_params_response['IPN_DATE']     = $payload->get('IPN_DATE', null, 'string');
+            $ipn_params_response['DATE']         = date('YmdHis');
+
+            foreach ($ipn_params_response as $value) {
+                $result_response .= $this->array_expand((array) $value);
+            }
+
+            $algorithm = $this->get_hash_algorithm($payload);
+            $signature = $this->generate_hash($result_response, $algorithm['algorithm']);
+
+            return $this->format_response($algorithm['algorithm'], $ipn_params_response['DATE'], $signature);
+        } catch (Exception $error) {
+            /* translators: %s: error message */
+            throw new Exception(sprintf('Exception Generating IPN Response: %s', $error->getMessage()));
+        }
+    }
+
+    public function array_expand($items): string
+    {
+        $expanded_string = '';
+
+        foreach ($items as $item_value) {
+            $item_length      = strlen(stripslashes($item_value));
+            $expanded_string .= $item_length . stripslashes($item_value);
+        }
+
+        return $expanded_string;
+    }
+
+    public function get_hash_algorithm($payload)
+    {
+        $sha3 = $payload->get('SIGNATURE_SHA3_256', null, 'string');
+        $sha2 = $payload->get('SIGNATURE_SHA2_256', null, 'string');
+
+        if (!empty($sha3)) {
+            return [
+                'hash_value' => $sha3,
+                'algorithm' => 'sha3-256',
+            ];
+        } elseif (!empty($sha2)) {
+            return [
+                'hash_value' => $sha2,
+                'algorithm'  => 'sha256',
+            ];
+        }
+
+        return [
+            'hash_value' => $payload->get('HASH', null, 'string'),
+            'algorithm'  => 'md5',
+        ];
+    }
+
+    protected function format_response($algorithm, $date, $signature): string
+    {
+
+        if ('md5' === $algorithm) {
+            return sprintf(
+                '<EPAYMENT>%s|%s</EPAYMENT>',
+                $date,
+                $signature
+            );
+        }
+
+        return sprintf(
+            '<sig algo="%s" date="%s">%s</sig>',
+            $algorithm,
+            $date,
+            $signature
+        );
+    }
 }
