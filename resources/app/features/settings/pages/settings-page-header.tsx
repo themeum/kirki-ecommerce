@@ -2,11 +2,9 @@ import { ArrowLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
@@ -14,33 +12,31 @@ type SettingsPageHeaderProps = {
   icon?: ReactNode;
   title?: string;
   onBack?: () => void;
-  rightAction?: ReactNode;
 };
 
 const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
-  const { icon, title, onBack, rightAction } = props;
+  const { icon, title, onBack } = props;
 
   return (
-    <Flex align="center" justify="center" gap={2}>
+    <Flex align="center" justify="flex-start" gap={2} cssOverride={styles.wrapper}>
       {onBack && (
         <>
           <Button
-            variant="ghost"
+            variant="tertiary"
+            size="icon-sm"
             aria-label={__('Back', 'kirki-ecommerce')}
             onClick={onBack}
-            cssOverride={styles.backButton}
           >
             <ArrowLeft css={scoped({ minWidth: 16, minHeight: 16 })} />
           </Button>
         </>
       )}
-      <Card cssOverride={cardStyles.navbarCard}>
-        <Flex gap={2} align="center">
-          {icon}
-          <Text variant="heading6" weight="semibold">{title}</Text>
-        </Flex>
-        {rightAction}
-      </Card>
+      <Flex gap={2} align="center">
+        {icon}
+        <Text variant="heading6" weight="semibold">
+          {title}
+        </Text>
+      </Flex>
     </Flex>
   );
 };
@@ -50,6 +46,9 @@ SettingsPageHeader.displayName = 'SettingsPageHeader';
 export default SettingsPageHeader;
 
 const styles = defineStyles({
+  wrapper: {
+    width: '100%',
+  },
   backButton: {
     height: '36px',
     width: '36px',

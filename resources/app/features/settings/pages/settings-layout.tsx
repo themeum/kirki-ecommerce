@@ -2,19 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useBlocker, useLocation, useOutletContext } from 'react-router';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
-import Button from '@/components/ui/button';
-import {
-  Page,
-  PAGE_HEADING_HEIGHT,
-  PAGE_HEADING_STICKY_TOP,
-  PageContent,
-  PageHeading,
-} from '@/components/ui/page';
+import { Page, PAGE_HEADING_STICKY_TOP, PageContent } from '@/components/ui/page';
 import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+
+const SIDEBAR_WIDTH = '230px';
+const CONTENT_PANE_WIDTH = '600px';
 
 type ConfirmActionParams = {
   action?: () => void;
@@ -73,7 +68,7 @@ const SettingsLayout = () => {
       {isBlocked && (
         <ConfirmationDialog onConfirm={handleConfirmLeave} onCancel={handleCancelLeave} />
       )}
-      <PageHeading
+      {/* <PageHeading
         text={__('Settings', 'kirki-ecommerce')}
         containerSize="lg"
         actions={
@@ -97,7 +92,7 @@ const SettingsLayout = () => {
             </>
           )
         }
-      />
+      /> */}
       <PageContent>
         <div css={scoped(styles.centerRow)}>
           <div css={scoped(styles.row)}>
@@ -130,17 +125,15 @@ const styles = defineStyles({
     gap: theme.spacing[6],
   },
   sidebar: {
-    width: '276px',
+    width: SIDEBAR_WIDTH,
     flexShrink: 0,
     position: 'sticky',
-    top: `calc(${PAGE_HEADING_STICKY_TOP} + ${PAGE_HEADING_HEIGHT})`,
+    top: `calc(${PAGE_HEADING_STICKY_TOP} + ${theme.spacing[4]})`,
     alignSelf: 'flex-start',
   },
   contentPane: {
-    // Floor, not a cap: a page's own Container can still grow past this
-    // (email-settings/edit-template.tsx does), but sparse content must not be
-    // allowed to shrink the column narrower than the standard settings
-    // content width.
-    minWidth: '600px',
+    minWidth: CONTENT_PANE_WIDTH,
+    maxWidth: CONTENT_PANE_WIDTH,
+    marginTop: theme.spacing[1],
   },
 });

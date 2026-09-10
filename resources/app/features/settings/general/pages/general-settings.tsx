@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import InvoiceId from '@/features/settings/general/pages/invoice-id';
@@ -19,13 +18,14 @@ import GeneralSettingsSkeleton from '@/features/settings/general/skeletons/gener
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { HomeIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/settings';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { Home } from 'lucide-react';
 
 const mapSettingsToFormValues = (settings: GeneralSettingsData): GeneralSettingsFormInput => {
   const storeAddress = settings.store_address;
@@ -89,11 +89,10 @@ const GeneralSettings = () => {
   });
 
   return !isLoading ? (
-    <Container size="sm">
+    <div css={scoped({ width: '100%' })}>
       <Form {...form}>
         <Flex direction="column" gap={4}>
-          <SettingsPageHeader icon={<HomeIcon />} title={__('General', 'kirki-ecommerce')} />
-
+          <SettingsPageHeader icon={<Home size={16} />} title={__('General', 'kirki-ecommerce')} />
           <StoreContactDetails />
           <StoreAddressDetails />
           <SellingLocation />
@@ -101,7 +100,7 @@ const GeneralSettings = () => {
           <InvoiceId />
         </Flex>
       </Form>
-    </Container>
+    </div>
   ) : (
     <GeneralSettingsSkeleton />
   );

@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
@@ -20,6 +19,7 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ProductsSettings = () => {
@@ -74,7 +74,7 @@ const ProductsSettings = () => {
   });
 
   return !isLoading ? (
-    <Container size="sm">
+    <div css={scoped({ width: '100%' })}>
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader
@@ -86,7 +86,7 @@ const ProductsSettings = () => {
           {/* <Review /> */}
         </Flex>
       </Form>
-    </Container>
+    </div>
   ) : (
     <ProductsSettingsSkeleton />
   );
