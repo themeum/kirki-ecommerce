@@ -314,6 +314,7 @@ const styles = defineStyles({
     position: 'relative',
     outline: 'none',
     ...theme.typography.small(),
+    maxHeight: '32px',
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,
     },

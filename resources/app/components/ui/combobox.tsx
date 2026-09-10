@@ -2,11 +2,18 @@ import { type CSSObject } from '@emotion/react';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
 import { type ReactNode, useId, useRef, useState } from 'react';
 
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -72,16 +79,13 @@ const Combobox = ({
       ? [value]
       : [];
 
-  const selectedOptions = options.filter((option) =>
-    selectedValues.includes(option.value),
-  );
+  const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
 
   const trimmedSearch = search.trim();
   const hasExactMatch = options.some(
     (option) => option.label.toLowerCase() === trimmedSearch.toLowerCase(),
   );
-  const showCreatable =
-    creatable && trimmedSearch.length > 0 && !hasExactMatch;
+  const showCreatable = creatable && trimmedSearch.length > 0 && !hasExactMatch;
 
   const handleSelect = (optionValue: string) => {
     if (multiple) {
@@ -217,9 +221,7 @@ const Combobox = ({
                     value={option.label}
                     onSelect={() => handleSelect(option.value)}
                   >
-                    <span
-                      css={scopedMerge(styles.itemCheck,                         !isSelected && styles.itemCheckEmpty)}
-                    >
+                    <span css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}>
                       {isSelected && <Check size={14} />}
                     </span>
                     {option.label}
@@ -242,8 +244,9 @@ export type { ComboboxOption, ComboboxProps };
 const styles = defineStyles({
   trigger: {
     width: '100%',
-    minHeight: '36px',
-    border: `1px solid ${theme.colors.border.default}`,
+    minHeight: '32px',
+    maxHeight: '32px',
+    border: `1px solid ${theme.colors.border.secondary}`,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
@@ -253,8 +256,8 @@ const styles = defineStyles({
     cursor: 'pointer',
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
-      borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme),
+      borderColor: theme.colors.background.fillBrand,
+      // ...uiFocusRing(theme),
     },
     '&:disabled': {
       backgroundColor: theme.colors.background.surfaceAlt,
@@ -265,11 +268,11 @@ const styles = defineStyles({
     },
   },
   triggerError: {
-    border: `1px solid ${theme.colors.border.critical}`,
+    border: `1px solid ${theme.colors.background.fillCritical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
-      borderColor: theme.colors.border.critical,
-      ...uiFocusRing(theme, theme.colors.border.critical),
+      borderColor: theme.colors.background.fillCritical,
+      // ...uiFocusRing(theme, theme.colors.background.fillCriticalSecondary),
     },
   },
   value: {

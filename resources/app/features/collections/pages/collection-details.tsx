@@ -81,9 +81,12 @@ const CollectionDetails = () => {
         });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }), {
-          replace: true,
-        });
+        void navigate(
+          RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }),
+          {
+            replace: true,
+          },
+        );
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -238,6 +241,5 @@ const styles = defineStyles({
   },
   seoSeparator: {
     margin: `auto -${theme.spacing[4]}`,
-    backgroundColor: theme.colors.background.surfaceSubdued,
   },
 });
