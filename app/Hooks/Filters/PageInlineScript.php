@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -247,6 +248,7 @@ class PageInlineScript extends BaseHook
             $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
             $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
             $image               = $variant['media']['url'] ?? null;
+            $is_wishlisted       = app(WishlistService::class)->is_wishlisted($variant_id);
 
             $variant_attrs = [];
             foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
@@ -268,6 +270,7 @@ class PageInlineScript extends BaseHook
                 'has_limit_per_order' => $has_limit_per_order,
                 'max_per_order'       => $max_per_order,
                 'image'               => $image,
+                'is_wishlisted'       => $is_wishlisted,
             ];
         }
 

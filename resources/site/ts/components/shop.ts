@@ -170,29 +170,6 @@ export function shop() {
       } finally {
         this.isLoading = false;
       }
-    },
-
-    async wishlistItem(variantId: number, isWishlisted: boolean) {
-      try {
-        if (isWishlisted) {
-          const result = await wishlistApi.remove(variantId);
-
-          if (result && result.success !== false && result.data) {
-            toastManager.success(__('Item removed from wishlist successfully.', 'kirki-ecommerce'));
-          } else {
-            throw new Error(result?.message || __('Failed to remove item from wishlist. Please try again.', 'kirki-ecommerce'));
-          }
-        } else {
-          const result = await wishlistApi.addItem(variantId);
-          if (result && result.success !== false && result.data) {
-            toastManager.success(__('Item added to wishlist successfully.', 'kirki-ecommerce'));
-          } else {
-            throw new Error(result?.message || __('Failed to add item to wishlist. Please try again.', 'kirki-ecommerce'));
-          }
-        }
-      } catch (error: any) {
-        toastManager.error(error.message || __('Something went wrong. Please try again.', 'kirki-ecommerce'));
-      }
-    },
+    }
   };
 }

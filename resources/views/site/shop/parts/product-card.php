@@ -15,6 +15,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Url;
 
 $product = $data['product'] ?? null;
 
@@ -36,16 +37,24 @@ $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
 $has_wishlist            = $product['has_wishlist'];
 ?>
-<div class="kecom-product-card">
-    <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image" x-data="<?php printf('{ wishlisted: %s}', json_encode( $has_wishlist) ) ?>">
+<div class="kecom-product-card" x-data="<?php printf('wishlist(%s)', $has_wishlist ? 'true' : 'false' ) ?>">
+    <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
         <?php if (!empty($ribbon_text)) : ?>
             <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
         <?php endif; ?>
-        <span class="kecom-product-card-wishlist"  :class="{ 'active' : wishlisted }" @click.prevent="<?php printf('wishlistItem(%d,wishlisted);', $variant_id); ?>wishlisted = !wishlisted; "><?php Icon::render('heart'); ?></span>
     </a>
+    <?php if( is_user_logged_in() ): ?>
+    <span class="kecom-product-card-wishlist" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem(<?php echo esc_attr($variant_id); ?>);">
+        <?php Icon::render('heart'); ?>
+    </span>
+    <?php else: ?>
+    <a href="<?php echo esc_url( Url::get_login_url()); ?>" class="kecom-product-card-wishlist">
+        <?php Icon::render('heart'); ?>
+    </a>
+    <?php endif; ?>
 
     <div class="kecom-product-card-body">
         <?php if ($category_name) : ?>

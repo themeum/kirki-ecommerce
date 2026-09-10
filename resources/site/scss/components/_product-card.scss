@@ -4,6 +4,7 @@
 .kecom-product-card {
   display: flex;
   flex-direction: column;
+  position: relative;
 
   &-image {
     display: block;
@@ -40,7 +41,7 @@
     position: absolute;
     top: $spacing-6;
     right: $spacing-6;
-    z-index: 9999;
+    z-index: 1;
     box-shadow: $shadow-sm;
     width: $spacing-13;
     height: $spacing-13;

@@ -129,6 +129,17 @@
     @include breakpoint-down(md) {
       gap: $spacing-9;
     }
+
+    &-button-group {
+      @include flex(column, stretch, start);
+      gap: $spacing-4;
+      .kecom-product-wishlist.active {
+        svg {
+          color: $icon-primary;
+          fill: $icon-primary;
+        }
+      }
+    }
   }
 
   .kecom-product-title-and-price {

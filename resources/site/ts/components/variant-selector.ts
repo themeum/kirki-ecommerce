@@ -28,6 +28,7 @@ export type Variant = {
   allow_back_order: boolean;
   has_limit_per_order: boolean;
   max_per_order: number | null;
+  is_wishlisted: boolean;
 };
 
 export type VariantSelectorConfig = {
