@@ -1,42 +1,51 @@
-import { ArrowLeft } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import { Fragment, type ReactNode } from 'react';
+import { Link } from 'react-router';
 
-import Button from '@/components/ui/button';
+import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+
+type SettingsBreadcrumb = {
+  label: string;
+  to: string;
+};
 
 type SettingsPageHeaderProps = {
   icon?: ReactNode;
   title?: string;
-  onBack?: () => void;
+  breadcrumbs?: SettingsBreadcrumb[];
+  actions?: ReactNode;
 };
 
 const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
-  const { icon, title, onBack } = props;
+  const { icon, title, breadcrumbs = [], actions } = props;
+  const hasBreadcrumbs = breadcrumbs.length > 0;
 
   return (
     <Flex align="center" justify="flex-start" gap={2} cssOverride={styles.wrapper}>
-      {onBack && (
-        <>
-          <Button
-            variant="tertiary"
-            size="icon-sm"
-            aria-label={__('Back', 'kirki-ecommerce')}
-            onClick={onBack}
-          >
-            <ArrowLeft css={scoped({ minWidth: 16, minHeight: 16 })} />
-          </Button>
-        </>
-      )}
       <Flex gap={2} align="center">
         {icon}
-        <Text variant="heading6" weight="semibold">
+        {breadcrumbs.map((crumb) => (
+          <Fragment key={crumb.to}>
+            <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />
+            <Link to={crumb.to} css={scoped(styles.crumb)}>
+              {crumb.label}
+            </Link>
+          </Fragment>
+        ))}
+        {hasBreadcrumbs && <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />}
+        <Text
+          variant="heading6"
+          weight="semibold"
+          aria-current={hasBreadcrumbs ? 'page' : undefined}
+        >
           {title}
         </Text>
       </Flex>
+      {actions && <ActionGroup>{actions}</ActionGroup>}
     </Flex>
   );
 };
@@ -44,10 +53,26 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
 SettingsPageHeader.displayName = 'SettingsPageHeader';
 
 export default SettingsPageHeader;
+export type { SettingsBreadcrumb };
 
 const styles = defineStyles({
   wrapper: {
     width: '100%',
+  },
+  separator: {
+    width: 16,
+    height: 16,
+    flexShrink: 0,
+    color: theme.colors.text.subdued,
+  },
+  crumb: {
+    ...theme.typography.heading6('medium'),
+    color: theme.colors.text.secondary,
+    textDecoration: 'none',
+    '&:hover': {
+      color: theme.colors.text.primary,
+      textDecoration: 'underline',
+    },
   },
   backButton: {
     height: '36px',

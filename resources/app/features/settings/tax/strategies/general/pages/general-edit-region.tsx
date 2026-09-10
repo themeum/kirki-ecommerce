@@ -34,6 +34,7 @@ import {
   TaxRegionGeneralFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-general-form';
 import GeneralTaxRegionSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-skeleton';
+import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -180,8 +181,13 @@ const GeneralEditRegion = () => {
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
                 title={country?.name ?? usedRegion?.name ?? code}
-                icon={country?.flag ?? usedRegion?.flag}
-                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
+                icon={<TaxIcon />}
+                breadcrumbs={[
+                  {
+                    label: __('Tax', 'kirki-ecommerce'),
+                    to: RouteConfig.Settings.get('TaxSettings').buildLink(),
+                  },
+                ]}
               />
 
               <Card cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}>

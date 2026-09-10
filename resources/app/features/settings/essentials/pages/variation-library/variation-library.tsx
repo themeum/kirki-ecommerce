@@ -1,11 +1,17 @@
-import { Package, Palette, PlusIcon } from 'lucide-react';
+import { Box, Package, Palette, PlusIcon } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import { Card, CardContent, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import {
   StackedItem,
@@ -26,7 +32,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
-import { __ } from '@/wpi18n';
+import { __, _n, sprintf } from '@/wpi18n';
 
 type AttributeListItem = Attribute & {
   badge1?: string;
@@ -81,28 +87,38 @@ const VariationList = () => {
   const openDialog = (type: 'color' | 'list') => {
     setVariationType(type);
     setShowPopup(true);
-  }
+  };
 
   return (
     <Card cssOverride={cardStyles.formCard}>
-      <CardContent >
+      <CardContent>
         <CardTitle>
           <Flex align="center" justify="space-between">
             {__('Variation Library', 'kirki-ecommerce')}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant='secondary'>
+                <Button variant="secondary">
                   <PlusIcon />
                   {__('Add Variation')}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => openDialog('color')}><Palette size={16} /> {__('Color', 'kirki-ecommerce')}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => openDialog('list')}><Package size={16} /> {__('List', 'kirki-ecommerce')}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDialog('color')}>
+                  <Palette size={16} /> {__('Color', 'kirki-ecommerce')}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => openDialog('list')}>
+                  <Package size={16} /> {__('List', 'kirki-ecommerce')}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </Flex>
         </CardTitle>
+        <CardDescription>
+          {__(
+            'Create reusable color and list attributes that products use to build variants.',
+            'kirki-ecommerce',
+          )}
+        </CardDescription>
         <div css={scoped({ marginTop: theme.spacing[5] })}>
           {isLoading ? (
             <StackedListSkeleton />
@@ -110,7 +126,7 @@ const VariationList = () => {
             <Card cssOverride={cardStyles.innerDarkCard}>
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
-                  <BoxIcon />
+                  <Box />
                   <span css={scoped(styles.emptyStateText)}>
                     {__('Added variation library will appear here', 'kirki-ecommerce')}
                   </span>
@@ -124,15 +140,31 @@ const VariationList = () => {
                   {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
                   <StackedItemContent>
                     <StackedItemTitle>
-                      <Text variant="small" weight="medium">
-                        {item.name}
-                      </Text>
+                      <Flex gap={2} align="center">
+                        <Text variant="small" weight="medium">
+                          {item.name}
+                        </Text>
+                        <Badge
+                          variant="secondary"
+                          cssOverride={{ padding: `2px ${theme.spacing[2]}` }}
+                        >
+                          {sprintf(
+                            _n(
+                              '%d value',
+                              '%d values',
+                              item.values?.length ?? 0,
+                              'kirki-ecommerce',
+                            ),
+                            item.values?.length ?? 0,
+                          )}
+                        </Badge>
+                      </Flex>
                     </StackedItemTitle>
                   </StackedItemContent>
                   <StackedItemActions>
                     <ActionGroup>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}
@@ -141,7 +173,7 @@ const VariationList = () => {
                         <TrashIcon />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Edit', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}

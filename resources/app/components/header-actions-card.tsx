@@ -15,18 +15,14 @@ type HeaderActionsCardProps = {
 };
 
 const HeaderActionsCard = (props: HeaderActionsCardProps) => {
-  const {
-    header,
-    subHeader,
-    buttonText,
-    onAdd,
-    hideButton = false,
-  } = props;
+  const { header, subHeader, buttonText, onAdd, hideButton = false } = props;
   return (
     <>
-      <Flex direction="column" gap={2}>
+      <Flex direction="column" gap={1}>
         <Flex align="center">
-          <Text variant="heading6" weight="semibold" color="primary">{header}</Text>
+          <Text variant="heading6" weight="semibold" color="primary">
+            {header}
+          </Text>
           {!hideButton && (
             <ActionGroup>
               <Button variant="secondary" onClick={onAdd}>
@@ -36,7 +32,9 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
             </ActionGroup>
           )}
         </Flex>
-        <Text variant="small" color="secondary">{subHeader}</Text>
+        <Text variant="small" color="secondary">
+          {subHeader}
+        </Text>
       </Flex>
     </>
   );

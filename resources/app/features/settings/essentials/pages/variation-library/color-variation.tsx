@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { RouteConfig } from '@/config/route-config';
 import type { Attribute, AttributeValue } from '@/features/products';
 import { useAttributeQuery } from '@/features/products';
 import VariationTable from '@/features/settings/essentials/pages/variation-library/variation-table/variation-table';
 import VariationValuePopup from '@/features/settings/essentials/pages/variation-library/variation-value-dialog';
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { ColorPaletteIcon } from '@/icons';
+import { ColorPaletteIcon, SnowflakeIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -22,8 +23,6 @@ type AttributeWithMeta = Attribute & { updated_at?: string };
 const ColorVariation = () => {
   const { id } = useParams();
   const { data: selectedItem, isLoading } = useAttributeQuery(Number(id), Boolean(id));
-
-  const navigate = useNavigate();
 
   const [colorList, setColorList] = useState<AttributeValue[]>([]);
   const [addVariantPopup, setAddVariantPopup] = useState(false);
@@ -39,19 +38,18 @@ const ColorVariation = () => {
         <Container size="sm">
           <Flex direction="column" gap={4}>
             <SettingsPageHeader
-              icon={<ColorPaletteIcon />}
+              icon={<SnowflakeIcon />}
               title={selectedItem?.name ?? __('Color', 'kirki-ecommerce')}
-              onBack={() => navigate('/settings/essentials')}
-              rightAction={
-                <div>
-                  <Button
-                    variant="link"
-                    cssOverride={styles.addColorButton}
-                    onClick={() => setAddVariantPopup(true)}
-                  >
-                    {__('Add color', 'kirki-ecommerce')}
-                  </Button>
-                </div>
+              breadcrumbs={[
+                {
+                  label: __('Essentials', 'kirki-ecommerce'),
+                  to: RouteConfig.Settings.get('EssentialsSettings').buildLink(),
+                },
+              ]}
+              actions={
+                <Button variant="tertiary" size="sm" onClick={() => setAddVariantPopup(true)}>
+                  {__('Add color', 'kirki-ecommerce')}
+                </Button>
               }
             />
             {!colorList?.length ? (
@@ -94,10 +92,6 @@ ColorVariation.displayName = 'ColorVariation';
 export default ColorVariation;
 
 const styles = defineStyles({
-  addColorButton: {
-    color: theme.colors.text.emphasis,
-    padding: theme.spacing[0],
-  },
   roundedCard: {
     borderRadius: theme.radius.lg,
   },

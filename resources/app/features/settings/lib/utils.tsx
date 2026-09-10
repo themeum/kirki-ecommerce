@@ -1,7 +1,6 @@
 import {
   Banknote,
   CircleDollarSign,
-  Globe,
   Home,
   Mail,
   Package,
@@ -176,12 +175,6 @@ export const advancedSettings: SettingsNavItem[] = [
     link: RouteConfig.Settings.get('AdvancedSettings').buildLink(),
     icon: <SlidersHorizontal {...navIconProps} />,
     header: __('Advanced', 'kirki-ecommerce'),
-    subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
-  },
-  {
-    link: RouteConfig.Settings.get('AdvancedSettings').buildLink(),
-    icon: <Globe {...navIconProps} />,
-    header: __('Languages', 'kirki-ecommerce'),
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },
   {

@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigate } from 'react-router';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
@@ -28,6 +27,7 @@ import {
   TaxRegionEuFormSchema,
 } from '@/features/settings/tax/strategies/eu/schemas/forms/tax-region-eu-form';
 import EUTaxRegionSkeleton from '@/features/settings/tax/strategies/eu/skeletons/eu-tax-region-skeleton';
+import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -36,7 +36,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const EditRegionEU = () => {
-  const navigate = useNavigate();
   const { loaded, regions, setRegions, isSaving, saveRegions } = useTaxRegionSettings();
 
   const form = useForm<TaxRegionEuFormInput>({
@@ -125,8 +124,13 @@ const EditRegionEU = () => {
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
                 title={__('EU', 'kirki-ecommerce')}
-                icon="🇪🇺"
-                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
+                icon={<TaxIcon />}
+                breadcrumbs={[
+                  {
+                    label: __('Tax', 'kirki-ecommerce'),
+                    to: RouteConfig.Settings.get('TaxSettings').buildLink(),
+                  },
+                ]}
               />
 
               <Card cssOverride={cardStyles.formCard}>
