@@ -75,6 +75,130 @@ class SettingsApiTest extends RestTestCase
     }
 
     /**
+     * Base general settings payload with sensible required defaults, so
+     * tests can focus on the fields they override.
+     *
+     * @param array $overrides The general settings data to override.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function general_settings_payload(array $overrides = []): array
+    {
+        return [
+            'key' => OptionKeys::GENERAL_SETTINGS,
+            'data' => array_merge([
+                'store_name' => 'Kirki Ecommerce',
+                'store_email' => 'store@example.com',
+                'store_address' => [
+                    'address_line_1' => '123 Main St',
+                    'city' => 'New York',
+                    'state' => 'NY',
+                    'postal_code' => '10001',
+                    'country' => 'US',
+                ],
+                'selling_location_type' => 'all-countries',
+                'selling_countries' => [],
+                'order_number' => [
+                    'prefix' => '',
+                    'suffix' => '',
+                ],
+                'invoice_number' => [
+                    'prefix' => '',
+                    'suffix' => '',
+                    'sequence' => '000001',
+                    'apply_year_prefix' => false,
+                    'reset_sequence_every_year' => false,
+                ],
+            ], $overrides),
+        ];
+    }
+
+    /**
+     * Update general settings persists the order_number and invoice_number
+     * configuration.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_persists_order_number_and_invoice_number_config(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'order_number' => [
+                'prefix' => 'ORD-',
+                'suffix' => '-X',
+            ],
+            'invoice_number' => [
+                'prefix' => 'INV-',
+                'suffix' => '-Y',
+                'sequence' => '000050',
+                'apply_year_prefix' => true,
+                'reset_sequence_every_year' => true,
+            ],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame('ORD-', $payload['data']['order_number']['prefix']);
+        $this->assertSame('-X', $payload['data']['order_number']['suffix']);
+        $this->assertSame('INV-', $payload['data']['invoice_number']['prefix']);
+        $this->assertSame('000050', $payload['data']['invoice_number']['sequence']);
+        $this->assertTrue($payload['data']['invoice_number']['apply_year_prefix']);
+        $this->assertTrue($payload['data']['invoice_number']['reset_sequence_every_year']);
+    }
+
+    /**
+     * A non-digit invoice number sequence is rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_rejects_non_digit_invoice_sequence(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'invoice_number' => [
+                'prefix' => '',
+                'suffix' => '',
+                'sequence' => '12a3',
+                'apply_year_prefix' => false,
+                'reset_sequence_every_year' => false,
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertStringContainsString('sequence', wp_json_encode($data['errors']));
+    }
+
+    /**
+     * A slash or backslash in an order/invoice number prefix or suffix is
+     * rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_rejects_slashes_in_number_affixes(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'order_number' => [
+                'prefix' => 'ORD/',
+                'suffix' => '',
+            ],
+            'invoice_number' => [
+                'prefix' => '',
+                'suffix' => 'INV\\',
+                'sequence' => '000001',
+                'apply_year_prefix' => false,
+                'reset_sequence_every_year' => false,
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $errors = wp_json_encode($data['errors']);
+        $this->assertStringContainsString('order_number', $errors);
+        $this->assertStringContainsString('invoice_number', $errors);
+    }
+
+    /**
      * Base tax settings payload with a single tax region merged in.
      *
      * @param array $region The tax region to include.

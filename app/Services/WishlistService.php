@@ -12,6 +12,8 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 use function Kirki\Ecommerce\Framework\user;
 
 class WishlistService
@@ -126,9 +128,7 @@ class WishlistService
     {
         $variant = Variant::find($variant_id);
 
-        if (!$variant) {
-            throw new NotFoundException(__('Variant not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $existing = $this->get_item($user_id, $variant_id);
 
@@ -158,9 +158,7 @@ class WishlistService
             ->where('variant_id', $variant_id)
             ->first();
 
-        if (!$item) {
-            throw new NotFoundException(__('Wishlist item not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$item, __('Wishlist item not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return (bool) $item->delete();
     }

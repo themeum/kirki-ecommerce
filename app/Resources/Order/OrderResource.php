@@ -14,6 +14,7 @@ class OrderResource extends Resource
             'id' => $this->id,
             'uuid' => $this->uuid,
             'order_number' => $this->order_number,
+            'invoice_number' => $this->invoice_number,
             'customer_id' => $this->customer_id,
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
