@@ -69,35 +69,18 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
   const initialShipping = (() => {
     const cartAddress = initialCartData?.shipping_address;
     if (cartAddress && Object.keys(cartAddress).length) {
-      if (cartAddress.id) {
-        return cartAddress;
-      }
-      const matched =
-        rawSavedAddresses.find(
-          (savedAddress: any) =>
-            savedAddress.address_line1 &&
-            savedAddress.address_line1 === cartAddress.address_line1 &&
-            savedAddress.city === cartAddress.city,
-        ) ?? defaultShippingSaved;
-      return { ...cartAddress, id: matched?.id ?? null };
+      return cartAddress;
     }
     return defaultShippingSaved ?? {};
   })();
 
   const initialBilling = (() => {
+    if (initialCartData?.is_billing_same_as_shipping) {
+      return {};
+    }
     const cartAddress = initialCartData?.billing_address;
     if (cartAddress && Object.keys(cartAddress).length) {
-      if (cartAddress.id) {
-        return cartAddress;
-      }
-      const matched =
-        rawSavedAddresses.find(
-          (savedAddress: any) =>
-            savedAddress.address_line1 &&
-            savedAddress.address_line1 === cartAddress.address_line1 &&
-            savedAddress.city === cartAddress.city,
-        ) ?? defaultBillingSaved;
-      return { ...cartAddress, id: matched?.id ?? null };
+      return cartAddress;
     }
     return defaultBillingSaved ?? {};
   })();
@@ -283,9 +266,6 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       if (selected) {
         if (this.pickerPurpose === 'shipping') {
           this.setShippingAddress(selected);
-          if (this.billingSameAsShipping) {
-            this.setBillingAddress(selected);
-          }
         } else {
           this.setBillingAddress(selected);
         }
