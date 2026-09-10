@@ -257,7 +257,6 @@ const styles = defineStyles({
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.background.fillBrand,
-      // ...uiFocusRing(theme),
     },
     '&:disabled': {
       backgroundColor: theme.colors.background.surfaceAlt,
@@ -272,7 +271,6 @@ const styles = defineStyles({
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
       borderColor: theme.colors.background.fillCritical,
-      // ...uiFocusRing(theme, theme.colors.background.fillCriticalSecondary),
     },
   },
   value: {
@@ -324,7 +322,7 @@ const styles = defineStyles({
     },
   },
   content: {
-    minWidth: 'var(--radix-popover-trigger-width)',
+    minWidth: 'calc(var(--radix-popover-trigger-width) + 2px)',
     maxWidth: 'none',
     padding: 0,
     overflow: 'hidden',

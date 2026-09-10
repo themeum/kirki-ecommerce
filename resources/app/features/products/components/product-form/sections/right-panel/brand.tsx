@@ -12,7 +12,9 @@ import Text from '@/components/ui/text';
 import type { Brand as BrandEntity } from '@/features/brands';
 import { BrandAddEditPopover, useBrandsQuery } from '@/features/brands';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 import { Minus } from 'lucide-react';
@@ -84,10 +86,16 @@ const Brand = () => {
       {productBrand?.id ? (
         <Field>
           <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
-          <Card cssOverride={cardStyles.innerCard}>
-            <CardContent cssOverride={cardStyles.innerContent}>
+          <Card
+            cssOverride={mergeCss(cardStyles.innerCard, {
+              minHeight: '48px',
+              maxHeight: '48px',
+              justifyContent: 'center',
+            })}
+          >
+            <CardContent cssOverride={{ paddingInline: theme.spacing[2] }}>
               <Flex gap={2} align="center">
-                <Image src={brandLogo} />
+                <Image src={brandLogo} width={24} height={24} />
                 <Text variant="small">{productBrand?.name}</Text>
                 <ActionGroup cssOverride={{ cursor: 'pointer' }}>
                   <Button variant="ghost" size="icon" onClick={handleRemoveBrand}>
