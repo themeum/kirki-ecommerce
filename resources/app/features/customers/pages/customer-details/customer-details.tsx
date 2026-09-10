@@ -6,11 +6,10 @@ import { useNavigate, useParams } from 'react-router';
 import MultiSelectField from '@/components/form/multi-select-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Label from '@/components/ui/label';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import BillingAddress from '@/features/customers/pages/customer-details/billing-address';
@@ -85,72 +84,72 @@ const CustomerDetails = () => {
   };
 
   return (
-    <Form {...form}>
-      <PageHeading
-        text={
-          isNew ? __('New Customer', 'kirki-ecommerce') : __('Edit Customer', 'kirki-ecommerce')
-        }
-        type="primary"
-        actions={
-          <>
-            <Button variant="ghost" onClick={handleBack}>
-              {__('Cancel', 'kirki-ecommerce')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={form.handleSubmit(handleSubmit)}
-              loading={isSubmitting}
-            >
-              {isNew ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
-            </Button>
-          </>
-        }
-        hasBack
-        onBack={handleBack}
-        sticky
-      />
-      {isLoadingCustomer ? (
-        <CustomerDetailsSkeleton />
-      ) : (
-        <Container>
-          <Flex gap={4}>
-            <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
-              <CustomerOverview />
-              <ShippingAddress />
-              <BillingAddress />
-            </Flex>
+    <Page>
+      <Form {...form}>
+        <PageHeading
+          text={
+            isNew ? __('New Customer', 'kirki-ecommerce') : __('Edit Customer', 'kirki-ecommerce')
+          }
+          actions={
+            <>
+              <Button variant="ghost" onClick={handleBack}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={form.handleSubmit(handleSubmit)}
+                loading={isSubmitting}
+              >
+                {isNew ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
+              </Button>
+            </>
+          }
+          hasBack
+          onBack={handleBack}
+        />
+        {isLoadingCustomer ? (
+          <CustomerDetailsSkeleton />
+        ) : (
+                  <PageContent>
+            <Flex gap={4}>
+              <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
+                <CustomerOverview />
+                <ShippingAddress />
+                <BillingAddress />
+              </Flex>
 
-            <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
-              <Card cssOverride={cardStyles.formCard}>
-                <CardContent>
-                  <Flex direction="column" gap={4}>
-                    <Label>{__('Notes', 'kirki-ecommerce')}</Label>
-                    <Button variant="secondary" style={{ width: '100%' }}>
-                      <PlusIcon />
-                      {__('Add note', 'kirki-ecommerce')}
-                    </Button>
-                  </Flex>
-                </CardContent>
-              </Card>
+              <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
+                <Card cssOverride={cardStyles.formCard}>
+                  <CardContent>
+                    <Flex direction="column" gap={4}>
+                      <Label>{__('Notes', 'kirki-ecommerce')}</Label>
+                      <Button variant="secondary" style={{ width: '100%' }}>
+                        <PlusIcon />
+                        {__('Add note', 'kirki-ecommerce')}
+                      </Button>
+                    </Flex>
+                  </CardContent>
+                </Card>
 
-              <Card cssOverride={cardStyles.formCard}>
-                <CardContent>
-                  <MultiSelectField
-                    name="tags"
-                    valueAs="strings"
-                    label={__('Tags', 'kirki-ecommerce')}
-                    placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
-                    createLabel={__('Add Tag', 'kirki-ecommerce')}
-                    creatable
-                    options={[]}
-                  />
-                </CardContent>
-              </Card>
+                <Card cssOverride={cardStyles.formCard}>
+                  <CardContent>
+                    <MultiSelectField
+                      name="tags"
+                      valueAs="strings"
+                      label={__('Tags', 'kirki-ecommerce')}
+                      placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
+                      createLabel={__('Add Tag', 'kirki-ecommerce')}
+                      creatable
+                      options={[]}
+                    />
+                  </CardContent>
+                </Card>
+              </Flex>
             </Flex>
-          </Flex>
-        </Container>
-      )}
-    </Form>
+          </PageContent>
+        )}
+      </Form>
+    </Page>
   );
 };
 

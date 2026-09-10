@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +15,7 @@ import {
 import EmptyState from '@/components/ui/empty-state';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import {
   TooltipContent,
@@ -127,10 +125,10 @@ const EditInventory = () => {
   if (isError) {
     return (
       <Page>
-        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} sticky />
-        <Container>
+        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
+        <PageContent>
           <EmptyState text={__('This variant could not be found.', 'kirki-ecommerce')} />
-        </Container>
+        </PageContent>
       </Page>
     );
   }
@@ -138,7 +136,7 @@ const EditInventory = () => {
   if (isLoading || !variant) {
     return (
       <Page>
-        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} sticky />
+        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <EditInventorySkeleton />
       </Page>
     );
@@ -162,7 +160,6 @@ const EditInventory = () => {
         <PageHeading
           hasBack
           onBack={handleBack}
-          sticky
           buttonProps={{ disabled: isSubmitting }}
           actions={
             <>
@@ -236,7 +233,7 @@ const EditInventory = () => {
           </Flex>
         </PageHeading>
 
-        <Container>
+        <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
               <Price />
@@ -248,7 +245,7 @@ const EditInventory = () => {
               <Image />
             </Flex>
           </Flex>
-        </Container>
+        </PageContent>
 
         <UnsavedToast
           visible={isBlocked}

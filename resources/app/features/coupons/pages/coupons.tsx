@@ -1,9 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CouponTable from '@/features/coupons/components/coupon-table/coupon-table';
@@ -26,9 +24,9 @@ const Coupons = () => {
           </Button>
         }
       />
-      <Container>
+      <PageContent>
         <CouponTable />
-      </Container>
+      </PageContent>
     </Page>
   );
 };

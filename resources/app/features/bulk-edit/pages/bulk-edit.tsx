@@ -11,7 +11,7 @@ import Button from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import FullPageContainer from '@/components/ui/full-page-container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
 import { useBulkEditNavigationGuard } from '@/features/bulk-edit/hooks/use-bulk-edit-navigation-guard';
@@ -231,16 +231,15 @@ const BulkEditPage = () => {
   const variants = getValues('variants');
 
   return (
-    <>
+    <Page>
       <PageHeading
         text={sprintf(
           _n('Editing %d variant', 'Editing %d variants', variants.length, 'kirki-ecommerce'),
           variants.length,
         )}
         cssOverride={styles.heading}
-        size="fullWidth"
+        containerSize="fullWidth"
         hasBack
-        noMargin
         buttonProps={{ variant: 'outline', size: 'icon' }}
         backIcon={<ChevronLeft size={16} aria-hidden="true" />}
         onBack={(event) => {
@@ -270,54 +269,56 @@ const BulkEditPage = () => {
         {isDirty && <Badge variant="secondary">{__('Unsaved Changes', 'kirki-ecommerce')}</Badge>}
       </PageHeading>
 
-      <FullPageContainer cssOverride={styles.pageBackground}>
-        {isEmptySelection ? (
-          <Flex
-            direction="column"
-            align="center"
-            justify="center"
-            gap={3}
-            cssOverride={styles.emptyState}
-          >
-            <Text weight="medium">{__('No variants selected', 'kirki-ecommerce')}</Text>
-            <Text color="secondary">
-              {__(
-                'Select one or more variants first, then open Bulk Edit again.',
-                'kirki-ecommerce',
-              )}
-            </Text>
-            <Button variant="secondary" onClick={() => navigate(-1)}>
-              {__('Go back', 'kirki-ecommerce')}
-            </Button>
-          </Flex>
-        ) : loaded && !isLoading ? (
-          <Card
-            cssOverride={mergeCss(styles.tableCard, {
-              borderRadius: 0,
-            })}
-          >
-            <FormProvider {...form}>
-              <BulkEditTable
-                ref={tableRef}
-                variants={variants}
-                columnVisibility={columnVisibility}
-                onColumnVisibilityChange={(updater) =>
-                  setColumnVisibility(
-                    typeof updater === 'function' ? updater(columnVisibility) : updater,
-                  )
-                }
-                onFillCommit={handleFillCommit}
-                onTypeToEdit={handleTypeToEdit}
-                onSpaceToggle={handleSpaceToggle}
-              />
-            </FormProvider>
-          </Card>
-        ) : (
-          <Card cssOverride={styles.tableCard}>
-            <BulkEditTableSkeleton rowCount={ids.length || undefined} />
-          </Card>
-        )}
-      </FullPageContainer>
+      <PageContent containerSize="none">
+        <FullPageContainer cssOverride={styles.pageBackground}>
+          {isEmptySelection ? (
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              gap={3}
+              cssOverride={styles.emptyState}
+            >
+              <Text weight="medium">{__('No variants selected', 'kirki-ecommerce')}</Text>
+              <Text color="secondary">
+                {__(
+                  'Select one or more variants first, then open Bulk Edit again.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
+              <Button variant="secondary" onClick={() => navigate(-1)}>
+                {__('Go back', 'kirki-ecommerce')}
+              </Button>
+            </Flex>
+          ) : loaded && !isLoading ? (
+            <Card
+              cssOverride={mergeCss(styles.tableCard, {
+                borderRadius: 0,
+              })}
+            >
+              <FormProvider {...form}>
+                <BulkEditTable
+                  ref={tableRef}
+                  variants={variants}
+                  columnVisibility={columnVisibility}
+                  onColumnVisibilityChange={(updater) =>
+                    setColumnVisibility(
+                      typeof updater === 'function' ? updater(columnVisibility) : updater,
+                    )
+                  }
+                  onFillCommit={handleFillCommit}
+                  onTypeToEdit={handleTypeToEdit}
+                  onSpaceToggle={handleSpaceToggle}
+                />
+              </FormProvider>
+            </Card>
+          ) : (
+            <Card cssOverride={styles.tableCard}>
+              <BulkEditTableSkeleton rowCount={ids.length || undefined} />
+            </Card>
+          )}
+        </FullPageContainer>
+      </PageContent>
 
       {isBlocked && (
         <ConfirmationDialog
@@ -344,7 +345,7 @@ const BulkEditPage = () => {
           onCancel={() => setShowCancelConfirm(false)}
         />
       )}
-    </>
+    </Page>
   );
 };
 

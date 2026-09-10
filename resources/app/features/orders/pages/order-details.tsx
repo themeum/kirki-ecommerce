@@ -4,7 +4,6 @@ import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,8 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import CustomerCard from '@/features/orders/components/order-create/customer-card';
 import NotesCard from '@/features/orders/components/order-create/notes-card';
@@ -72,12 +70,10 @@ const OrderDetails = () => {
       <Page>
         <PageHeading
           text={__('Orders', 'kirki-ecommerce')}
-          type="primary"
           hasBack
           onBack={handleBack}
-          sticky
         />
-        <Container>
+        <PageContent>
           <Card cssOverride={{ marginTop: theme.spacing[12] }}>
             <CardContent>
               <Flex justify="center" align="center" cssOverride={{ minHeight: 200 }}>
@@ -87,7 +83,7 @@ const OrderDetails = () => {
               </Flex>
             </CardContent>
           </Card>
-        </Container>
+        </PageContent>
       </Page>
     );
   }
@@ -97,7 +93,6 @@ const OrderDetails = () => {
       <Form {...form}>
         <PageHeading
           text={`${__('Order', 'kirki-ecommerce')} #${order.order_number}`}
-          type="primary"
           actions={
             <>
               {/* @todo: Edit is not workable now, implement it later */}
@@ -128,14 +123,13 @@ const OrderDetails = () => {
           }
           hasBack
           onBack={handleBack}
-          sticky
         >
           <Flex gap={1}>
             <Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>
             <Badge variant={fulfillmentBadge.variant}>{fulfillmentBadge.text}</Badge>
           </Flex>
         </PageHeading>
-        <Container>
+        <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
               <Card cssOverride={cardStyles.formCard}>
@@ -203,7 +197,7 @@ const OrderDetails = () => {
               <NotesCard onSave={handleSaveOrder} isSaving={isSaving} />
             </Flex>
           </Flex>
-        </Container>
+        </PageContent>
 
         {isTrackingDialogOpen && (
           <AddTrackingDialog

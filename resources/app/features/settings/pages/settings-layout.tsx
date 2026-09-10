@@ -3,7 +3,13 @@ import { Outlet, useBlocker, useLocation, useOutletContext } from 'react-router'
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Button from '@/components/ui/button';
-import PageHeading from '@/components/ui/page-heading';
+import {
+  Page,
+  PAGE_HEADING_HEIGHT,
+  PAGE_HEADING_STICKY_TOP,
+  PageContent,
+  PageHeading,
+} from '@/components/ui/page';
 import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
 import { theme } from '@/theme';
@@ -22,11 +28,6 @@ type RootOutletContext = {
 type SettingsLayoutOutletContext = RootOutletContext & {
   registerActions: (actions: RegisteredSettingsPageActions | null) => void;
 };
-
-const SETTINGS_HEADER_STICKY_TOP = '64px';
-// Header border-box height: 16px top padding + 32px forced heading height +
-// 16px bottom padding + 1px border (see PageHeading's wrapperSticky/heading styles).
-const SETTINGS_HEADER_HEIGHT = '65px';
 
 const SettingsLayout = () => {
   const { pathname } = useLocation();
@@ -68,15 +69,13 @@ const SettingsLayout = () => {
   };
 
   return (
-    <>
+    <Page containerSize="none">
       {isBlocked && (
         <ConfirmationDialog onConfirm={handleConfirmLeave} onCancel={handleCancelLeave} />
       )}
       <PageHeading
         text={__('Settings', 'kirki-ecommerce')}
-        size="lg"
-        sticky
-        style={{ height: '32px' }}
+        containerSize="lg"
         actions={
           isDirty && (
             <>
@@ -99,17 +98,19 @@ const SettingsLayout = () => {
           )
         }
       />
-      <div css={scoped(styles.centerRow)}>
-        <div css={scoped(styles.row)}>
-          <aside css={scoped(styles.sidebar)}>
-            <SettingsSidebar />
-          </aside>
-          <div key={pathname} css={scoped(styles.contentPane)}>
-            <Outlet context={outletContext} />
+      <PageContent>
+        <div css={scoped(styles.centerRow)}>
+          <div css={scoped(styles.row)}>
+            <aside css={scoped(styles.sidebar)}>
+              <SettingsSidebar />
+            </aside>
+            <div key={pathname} css={scoped(styles.contentPane)}>
+              <Outlet context={outletContext} />
+            </div>
           </div>
         </div>
-      </div>
-    </>
+      </PageContent>
+    </Page>
   );
 };
 
@@ -132,7 +133,7 @@ const styles = defineStyles({
     width: '276px',
     flexShrink: 0,
     position: 'sticky',
-    top: `calc(${SETTINGS_HEADER_STICKY_TOP} + ${SETTINGS_HEADER_HEIGHT})`,
+    top: `calc(${PAGE_HEADING_STICKY_TOP} + ${PAGE_HEADING_HEIGHT})`,
     alignSelf: 'flex-start',
   },
   contentPane: {
