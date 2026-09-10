@@ -34,6 +34,8 @@ use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Models\Address;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
@@ -86,6 +88,8 @@ class CreateOrderAction
 
     public function execute(CreateOrderPayloadDTO $dto)
     {
+        $this->resolve_billing_and_shipping_addresses($dto);
+
         if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
             $this->resolve_checkout_cart($dto);
         }
@@ -110,6 +114,8 @@ class CreateOrderAction
 
         try {
             $order = $this->order_service->create_order($create_order_dto);
+            $this->sync_address($dto, $order);
+
             $coupon = !empty($order->discount_details) ? $this->coupon_service->find($order->discount_details['id']) : null;
 
             if ($coupon) {
@@ -147,6 +153,57 @@ class CreateOrderAction
             DB::rollback();
             throw $e;
         }
+    }
+
+    /**
+     * If the order is marked as "billing same as shipping", copy the
+     * shipping address fields to the billing address fields.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @return void
+     */
+    protected function resolve_billing_and_shipping_addresses(CreateOrderPayloadDTO $dto)
+    {
+        if ($dto->is_billing_same_as_shipping) {
+            $dto->billing_id = $dto->shipping_id;
+            $dto->billing_first_name = $dto->shipping_first_name;
+            $dto->billing_last_name = $dto->shipping_last_name;
+            $dto->billing_address_line1 = $dto->shipping_address_line1;
+            $dto->billing_address_line2 = $dto->shipping_address_line2;
+            $dto->billing_city = $dto->shipping_city;
+            $dto->billing_state = $dto->shipping_state;
+            $dto->billing_postal_code = $dto->shipping_postal_code;
+            $dto->billing_country = $dto->shipping_country;
+            $dto->billing_phone = $dto->shipping_phone;
+            $dto->billing_email = $dto->shipping_email;
+        }
+    }
+
+    /**
+     * Sync the order's shipping and billing addresses to the customer's
+     * default shipping and billing addresses, creating them if they don't
+     * exist yet.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @param Order $order
+     * @return void
+     */
+    protected function sync_address(CreateOrderPayloadDTO $dto, $order)
+    {
+        if (empty($dto->shipping_id)) {
+            $dto->shipping_id = $this->create_address($dto, $order->customer_id, AddressPurpose::SHIPPING)->id;
+        }
+
+        if (empty($dto->billing_id) && !$dto->is_billing_same_as_shipping) {
+            $dto->billing_id = $this->create_address($dto, $order->customer_id, AddressPurpose::BILLING)->id;
+        }
+
+        if (empty($dto->billing_id) && $dto->is_billing_same_as_shipping) {
+            $dto->billing_id = $dto->shipping_id;
+        }
+
+        $this->address_service->set_default($dto->shipping_id, AddressPurpose::SHIPPING);
+        $this->address_service->set_default($dto->billing_id, AddressPurpose::BILLING);
     }
 
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
@@ -190,28 +247,7 @@ class CreateOrderAction
     {
         $customer = $dto->customer_id ? $this->customer_service->find($dto->customer_id) : null;
 
-        if (!empty($customer) && !empty($customer->shipping_address) && !empty($customer->billing_address)) {
-            $this->update_address($dto, $customer, AddressPurpose::SHIPPING);
-            $this->update_address($dto, $customer, AddressPurpose::BILLING);
-            return $customer->id;
-        }
-
-        if (!empty($customer) && empty($customer->shipping_address) && empty($customer->billing_address)) {
-            $this->create_address($dto, $customer, AddressPurpose::BILLING);
-            $this->create_address($dto, $customer, AddressPurpose::SHIPPING);
-
-            return $customer->id;
-        }
-
-        if (!empty($customer) && !empty($customer->billing_address) && empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, AddressPurpose::SHIPPING);
-            $this->update_address($dto, $customer, AddressPurpose::BILLING);
-            return $customer->id;
-        }
-
-        if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, AddressPurpose::BILLING);
-            $this->update_address($dto, $customer, AddressPurpose::SHIPPING);
+        if (!empty($customer)) {
             return $customer->id;
         }
 
@@ -239,19 +275,20 @@ class CreateOrderAction
      * the checkout request's shipping/billing fields.
      *
      * @param CreateOrderPayloadDTO $dto
-     * @param Customer $customer
+     * @param int $customer_id
      * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING -
      * which request field prefix to read and which default flag to set.
      * Unrelated to the Address's own type (home/office/others), which
      * defaults to home here.
-     * @return void
+     * @return Address
+     * @throws Throwable
      */
-    protected function create_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
+    protected function create_address(CreateOrderPayloadDTO $dto, $customer_id, $purpose)
     {
         $address_dto = $this->prepare_checkout_address_dto($dto, $purpose);
-        $address_dto->customer_id = $customer->id;
+        $address_dto->customer_id = $customer_id;
 
-        $this->address_service->create($address_dto);
+        return $this->address_service->create($address_dto);
     }
 
     /**

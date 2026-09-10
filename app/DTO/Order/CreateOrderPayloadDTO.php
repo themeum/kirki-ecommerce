@@ -24,6 +24,9 @@ class CreateOrderPayloadDTO extends DTO
     /** @var string|null */
     public $shipping_method;
 
+    /** @var int|null */
+    public $shipping_id;
+
     /** @var string|null */
     public $shipping_first_name;
 
@@ -56,6 +59,12 @@ class CreateOrderPayloadDTO extends DTO
 
     /** @var string|null */
     public $shipping_company;
+
+    /** @var bool */
+    public $is_billing_same_as_shipping = true;
+
+    /** @var int|null */
+    public $billing_id;
 
     /** @var string|null */
     public $billing_first_name;
