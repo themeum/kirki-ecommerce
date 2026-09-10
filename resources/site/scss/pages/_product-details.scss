@@ -235,10 +235,10 @@
     }
 
     &:disabled {
-      opacity: 0.4;
       cursor: not-allowed;
       position: relative;
       overflow: hidden;
+      z-index: 1;
 
       &::after {
         content: '';
@@ -251,6 +251,7 @@
           $border-disabled calc(50% + 0.5px),
           transparent calc(50% + 0.5px)
         );
+        z-index: -1;
       }
     }
   }
