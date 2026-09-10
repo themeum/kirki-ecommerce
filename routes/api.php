@@ -128,6 +128,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 
     // Currency Exchange
     Route::get('/currency-exchange/providers', [CurrencyExchangeController::class, 'get_providers']);
+    Route::post('/currency-exchange/sync', [CurrencyExchangeController::class, 'sync']);
 
 
     // Coupons

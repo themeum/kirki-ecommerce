@@ -1,7 +1,18 @@
-import DropdownButton from '@/components/dropdown-button';
-import ActionGroup from '@/components/ui/action-group';
+import { Check, MoreVertical, Trash2 } from 'lucide-react';
+import { useFormContext, useWatch } from 'react-hook-form';
+import { useOutletContext } from 'react-router';
+
+import NumberField from '@/components/form/number-field';
+import SwitchField from '@/components/form/switch-field';
 import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import {
   StackedItem,
@@ -10,14 +21,12 @@ import {
   StackedItemMedia,
   StackedItems,
   StackedItemTitle,
-  useStackedItem,
 } from '@/components/ui/stacked-items';
-import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { useAvailableCurrencyList } from '@/features/settings/multi-currency/hooks/use-available-currency-list';
 import type { CurrencyListItem } from '@/features/settings/multi-currency/lib/currency-list';
 import AddCurrencyPopup from '@/features/settings/multi-currency/pages/add-currency-dialog';
-import EditCurrencyDialog from '@/features/settings/multi-currency/pages/edit-currency-dialog';
+import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { InfoIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -25,73 +34,148 @@ import { defineStyles } from '@/theme/mixins';
 import { dateFormatter } from '@/utils/common';
 import { __, sprintf } from '@/wpi18n';
 
+type SettingsOutletContext = {
+  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
+};
+
+type CurrencyRateInputProps = {
+  index: number;
+  code: string;
+};
+
+const CurrencyRateInput = (props: CurrencyRateInputProps) => {
+  const { index, code } = props;
+
+  return (
+    <NumberField
+      name={`currencies.${index}.exchange_rate`}
+      min={0}
+      aria-label={sprintf(__('Exchange rate for %s', 'kirki-ecommerce'), code)}
+      cssOverride={styles.rateInput}
+    />
+  );
+};
+
 type CurrencyRowActionsProps = {
   item: CurrencyListItem;
-  onToggle: (item: CurrencyListItem) => void;
-  onAction: (
-    action: string | number | (string | number)[],
-    item: CurrencyListItem,
-  ) => void;
+  index: number;
+  onAction: (action: string | number | (string | number)[], item: CurrencyListItem) => void;
 };
 
 const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
-  const { item, onToggle, onAction } = props;
-  const { setOpen } = useStackedItem();
+  const { item, index, onAction } = props;
+  const { confirmAction } = useOutletContext<SettingsOutletContext>();
+  const { formState } = useFormContext<MultiCurrencySettingsFormInput>();
+
+  if (item.is_action_disabled) {
+    return null;
+  }
+
+  const unsavedChangesNote = formState.isDirty
+    ? ` ${__('Unsaved currency changes will be discarded.', 'kirki-ecommerce')}`
+    : '';
+
+  const handleSetBase = () => {
+    confirmAction({
+      action: () => onAction('set_base', item),
+      otherProps: {
+        variant: 'warning',
+        force: true,
+        title: __('Set as default currency?', 'kirki-ecommerce'),
+        subtitle:
+          __(
+            'This currency becomes the base for all exchange rates and the previous default is demoted.',
+            'kirki-ecommerce',
+          ) + unsavedChangesNote,
+      },
+    });
+  };
+
+  const handleDelete = () => {
+    confirmAction({
+      action: () => onAction('delete', item),
+      otherProps: {
+        variant: 'delete',
+        force: true,
+        title: __('Delete currency?', 'kirki-ecommerce'),
+        subtitle:
+          __(
+            'Are you sure you want to delete this currency? This action cannot be undone.',
+            'kirki-ecommerce',
+          ) + unsavedChangesNote,
+      },
+    });
+  };
 
   return (
-    <ActionGroup>
-      {!item.is_toggle_disabled && (
-        <Switch
-          checked={Boolean(item.is_enabled)}
-          onCheckedChange={() => onToggle(item)}
-        />
+    <Flex gap={2} align="center" cssOverride={{ marginLeft: 'auto' }}>
+      {!item.is_toggle_disabled && index >= 0 && (
+        <SwitchField name={`currencies.${index}.is_active`} />
       )}
-      {!item.is_action_disabled && (
-        <DropdownButton
-          buttonProps={{
-            variant: 'secondary',
-            cssOverride: styles.actionButton,
-          }}
-          dropdownStyle={{ minWidth: '170px' }}
-          size="small"
-          hasLeftIcon={false}
-          options={item.actionsArray ?? []}
-          onOptionToggle={(value) => setOpen(value === true)}
-          onOptionSelect={(action) => onAction(action, item)}
-        />
-      )}
-    </ActionGroup>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            cssOverride={{ '& svg': { width: 16, height: 16 } }}
+          >
+            <MoreVertical />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleSetBase}>
+            <Check size="16" />
+            <span>{__('Set as Base Currency', 'kirki-ecommerce')}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleDelete}
+            cssOverride={{ color: theme.colors.text.critical }}
+          >
+            <Trash2 size="16" />
+            <span>{__('Delete', 'kirki-ecommerce')}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Flex>
   );
 };
 
 export const AvailableCurrencyList = () => {
   const {
     currencyList,
+    baseCurrencyCode,
     showApiProviderStatus,
     lastSyncAt,
-    nextSyncAt,
-    editCurrency,
-    setEditCurrency,
-    updateData,
-    handleToggleCurrencyItem,
     handleAction,
   } = useAvailableCurrencyList();
 
+  const { control } = useFormContext<MultiCurrencySettingsFormInput>();
+  const currencies = useWatch({ control, name: 'currencies' }) ?? [];
+
   return (
-    <>
-      <Card cssOverride={{ ...cardStyles.innerCard, marginTop: theme.spacing[5] }}>
-        <CardContent cssOverride={styles.innerCardContent}>
-          <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
-            <Flex gap={2} align="center">
-              <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
-              <Badge>
-                {__('Coming Soon', 'kirki-ecommerce')}
-              </Badge>
-            </Flex>
-            <AddCurrencyPopup />
+    <Card cssOverride={{ ...cardStyles.innerCard, marginTop: theme.spacing[5] }}>
+      <CardContent cssOverride={styles.innerCardContent}>
+        <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
+          <Flex direction="column" gap={1}>
+            <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
+            {baseCurrencyCode && (
+              <Text variant="small" color="subdued">
+                {sprintf(
+                  __('Exchange rates are shown per 1.00 %s', 'kirki-ecommerce'),
+                  baseCurrencyCode,
+                )}
+              </Text>
+            )}
           </Flex>
-          <StackedItems>
-            {currencyList.map((item) => (
+          <AddCurrencyPopup />
+        </Flex>
+        <StackedItems>
+          {currencyList.map((item) => {
+            const fieldIndex = currencies.findIndex((currency) => currency.id === item.id);
+            const isActive =
+              fieldIndex >= 0 ? currencies[fieldIndex]?.is_active : item.is_enabled;
+
+            return (
               <StackedItem key={item.id} id={String(item.id)}>
                 {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
                 <StackedItemContent>
@@ -100,56 +184,44 @@ export const AvailableCurrencyList = () => {
                       {item.name}
                     </Text>
                     {item.is_base && (
-                      <Badge variant="secondary">
-                        {__('Base currency', 'kirki-ecommerce')}
-                      </Badge>
+                      <Badge variant="secondary">{__('Base currency', 'kirki-ecommerce')}</Badge>
                     )}
-                    {item.is_enabled === false && (
-                      <Badge variant="destructive">
-                        {__('Inactive', 'kirki-ecommerce')}
-                      </Badge>
+                    {isActive === false && (
+                      <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                     )}
                   </StackedItemTitle>
                 </StackedItemContent>
                 <StackedItemActions>
-                  <CurrencyRowActions
-                    item={item}
-                    onToggle={handleToggleCurrencyItem}
-                    onAction={handleAction}
-                  />
+                  <Flex gap={3} align="center">
+                    {item.is_base ? (
+                      <Text variant="small" color="subdued">
+                        {__('1.00', 'kirki-ecommerce')}
+                      </Text>
+                    ) : (
+                      fieldIndex >= 0 && (
+                        <CurrencyRateInput index={fieldIndex} code={item.code} />
+                      )
+                    )}
+                    <CurrencyRowActions item={item} index={fieldIndex} onAction={handleAction} />
+                  </Flex>
                 </StackedItemActions>
               </StackedItem>
-            ))}
-          </StackedItems>
+            );
+          })}
+        </StackedItems>
+        {showApiProviderStatus && (
           <Flex gap={2} cssOverride={{ marginTop: theme.spacing[4] }} align="center">
             <InfoIcon />
-            <Text variant="small" color="subdued">{showApiProviderStatus
-              ? sprintf(
-                __(
-                  'API connection is active. Last sync: %s. Next update %s.',
-                  'kirki-ecommerce',
-                ),
+            <Text variant="small" color="subdued">
+              {sprintf(
+                __('Last synced: %s', 'kirki-ecommerce'),
                 dateFormatter(lastSyncAt, 'relative'),
-                dateFormatter(nextSyncAt, 'relative'),
-              )
-              : __('API connection is inactive', 'kirki-ecommerce')}</Text>
+              )}
+            </Text>
           </Flex>
-        </CardContent>
-      </Card>
-      {editCurrency && (
-        <EditCurrencyDialog
-          editCurrency={editCurrency}
-          setEditCurrency={setEditCurrency}
-          handleUpdateData={(currency) => updateData({
-            items: [{
-              ...currency,
-              is_active: currency?.is_active ?? true,
-              is_base: currency?.is_base ?? false,
-            }],
-          })}
-        />
-      )}
-    </>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 
@@ -157,7 +229,8 @@ const styles = defineStyles({
   innerCardContent: {
     padding: theme.spacing[5],
   },
-  actionButton: {
-    padding: theme.spacing[1],
+  rateInput: {
+    width: '96px',
+    minHeight: '32px',
   },
 });

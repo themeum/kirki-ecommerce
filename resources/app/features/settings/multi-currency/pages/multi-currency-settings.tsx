@@ -9,14 +9,20 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
+import { toCurrencyDraft } from '@/features/settings/multi-currency/lib/currency-list';
 import ApiConfig from '@/features/settings/multi-currency/pages/api-config/api-config';
 import { AvailableCurrencyList } from '@/features/settings/multi-currency/pages/available-currency-list';
 import CurrencyFormatSettings from '@/features/settings/multi-currency/pages/currency-format-settings';
+import type { CurrencyDraft } from '@/features/settings/multi-currency/schemas/catalog/currency';
 import {
   type MultiCurrencySettingsFormInput,
   type MultiCurrencySettingsFormPayload,
   MultiCurrencySettingsFormSchema,
 } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
+import {
+  useAvailableCurrenciesQuery,
+  useUpdateCurrencyMutation,
+} from '@/features/settings/multi-currency/services/currency';
 import MultiCurrencySettingsSkeleton from '@/features/settings/multi-currency/skeletons/multi-currency-settings-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { CurrencyIcon } from '@/icons';
@@ -30,8 +36,10 @@ import { __ } from '@/wpi18n';
 
 const MultiCurrencySettings = () => {
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
+  const { data: rawCurrencies = [] } = useAvailableCurrenciesQuery();
   const { mutateAsync: saveSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'currency'>();
+  const { mutateAsync: updateCurrencies } = useUpdateCurrencyMutation();
 
   const form = useForm<MultiCurrencySettingsFormInput, unknown, MultiCurrencySettingsFormPayload>({
     resolver: zodResolver(MultiCurrencySettingsFormSchema),
@@ -41,29 +49,16 @@ const MultiCurrencySettings = () => {
   const { isDirty } = form.formState;
 
   useEffect(() => {
-    if (!currencySettingsData || !Object.keys(currencySettingsData).length) {
+    if (!currencySettingsData || !Object.keys(currencySettingsData).length || !rawCurrencies.length) {
       return;
     }
 
-    const apiConfigData = (currencySettingsData.api_config as Record<string, unknown> | null) ?? {};
-
     form.reset(
       pickFormValues(MultiCurrencySettingsFormSchema, currencySettingsData, {
-        api_config: {
-          api_key: typeof apiConfigData.api_key === 'string' ? apiConfigData.api_key : '',
-          update_frequency:
-            typeof apiConfigData.update_frequency === 'string'
-              ? apiConfigData.update_frequency
-              : 'every_1_hour',
-          fallback_behaviour:
-            typeof apiConfigData.fallback_behaviour === 'string'
-              ? apiConfigData.fallback_behaviour
-              : 'last_known_rate',
-          is_cache_enabled: Boolean(apiConfigData.is_cache_enabled),
-        },
+        currencies: rawCurrencies.map(toCurrencyDraft),
       }),
     );
-  }, [currencySettingsData, form]);
+  }, [currencySettingsData, rawCurrencies, form]);
 
   useEffect(() => {
     setUnsavedDataStatus(isDirty);
@@ -71,7 +66,35 @@ const MultiCurrencySettings = () => {
 
   const handleSaveData = async (payload: MultiCurrencySettingsFormPayload) => {
     try {
-      await saveSettings({ key: 'currency', data: payload });
+      const editedCurrencies = form.getValues('currencies') ?? [];
+      const changedItems = editedCurrencies.flatMap<CurrencyDraft>((currency) => {
+        const original = rawCurrencies.find((row) => row.id === currency.id);
+        if (!original) {
+          return [];
+        }
+
+        const rateChanged =
+          String(original.exchange_rate) !== String(currency.exchange_rate);
+        const activeChanged = Boolean(original.is_active) !== Boolean(currency.is_active);
+
+        if (!rateChanged && !activeChanged) {
+          return [];
+        }
+
+        return [
+          toCurrencyDraft({
+            ...original,
+            exchange_rate: currency.exchange_rate,
+            is_active: currency.is_active,
+          }),
+        ];
+      });
+
+      await Promise.all([
+        saveSettings({ key: 'currency', data: payload }),
+        changedItems.length ? updateCurrencies({ items: changedItems }) : Promise.resolve(),
+      ]);
+
       form.reset(form.getValues());
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -108,7 +131,7 @@ const MultiCurrencySettings = () => {
                   </Text>
                 </Flex>
                 <AvailableCurrencyList />
-                <ApiConfig />
+                <ApiConfig currencySettings={currencySettingsData} />
               </Flex>
             </CardContent>
           </Card>

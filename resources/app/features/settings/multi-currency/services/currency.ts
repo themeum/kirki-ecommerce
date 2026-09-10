@@ -9,6 +9,7 @@ import {
   CurrencySchema,
 } from '@/features/settings/multi-currency/schemas/catalog/currency';
 import { apiClient } from '@/libs/api';
+import { settingsKeys } from '@/libs/query-keys';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
 import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
@@ -56,6 +57,12 @@ const updateCurrency = (data: CurrencyBulkPayload) => {
 const deleteCurrency = (id: number) => {
   return apiClient
     .delete(endpoints.CURRENCY(id))
+    .then((response) => parseMessage(response));
+};
+
+const syncCurrencyRates = () => {
+  return apiClient
+    .post(endpoints.CURRENCY_EXCHANGE_SYNC)
     .then((response) => parseMessage(response));
 };
 
@@ -136,7 +143,25 @@ const useDeleteCurrencyMutation = () => {
   });
 };
 
+const useSyncCurrencyRatesMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: syncCurrencyRates,
+    onSuccess(response) {
+      toastMutationSuccess(
+        response.message ||
+        __('Exchange rates synced successfully.', 'kirki-ecommerce'),
+      );
+      void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
+      void queryClient.invalidateQueries({ queryKey: settingsKeys.section('currency') });
+    },
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
 export {
   createCurrency, type CurrencyBulkPayload,
-deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation};
+deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, syncCurrencyRates, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useSyncCurrencyRatesMutation, useUpdateCurrencyMutation};
 

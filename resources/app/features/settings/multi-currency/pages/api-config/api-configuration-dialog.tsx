@@ -1,54 +1,63 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import PasswordField from '@/components/form/password-field';
 import SelectField from '@/components/form/select-field';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
-import { type ApiConfigurationFormInput, type ApiConfigurationFormPayload, ApiConfigurationFormSchema } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
+import {
+  type ApiConfigurationFormInput,
+  type ApiConfigurationFormPayload,
+  ApiConfigurationFormSchema,
+} from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
+import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { ConfigureKeyIcon } from '@/icons';
 import { getDefaults } from '@/libs/zod';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { noop } from '@/utils/function';
-import { __ } from '@/wpi18n';
+import { isDefined } from '@/utils/object';
+import { __, sprintf } from '@/wpi18n';
 
 const apiConfigurationDefaultValues = getDefaults(ApiConfigurationFormSchema);
-
-type ApiConfigData = {
-  api_key?: string;
-  update_frequency?: string;
-  fallback_behaviour?: string;
-  is_cache_enabled?: boolean;
-  [key: string]: unknown;
-};
 
 type ApiConfigurationPopupProps = {
   isOpen: boolean;
   onClose?: () => void;
-  onSave?: (values: ApiConfigurationFormPayload) => void;
-  handleOnChange?: (value: unknown, key: string) => void;
-  dataObj: ApiConfigData;
-  selectedAPI: string;
+  onSave?: (values: ApiConfigurationFormPayload | null) => void;
+  providerName: string;
 };
 
 const ApiConfigurationPopup = ({
   isOpen,
   onClose = noop,
   onSave,
-  handleOnChange,
-  dataObj,
-  selectedAPI,
+  providerName,
 }: ApiConfigurationPopupProps) => {
   const form = useForm<ApiConfigurationFormInput, unknown, ApiConfigurationFormPayload>({
     resolver: zodResolver(ApiConfigurationFormSchema),
     defaultValues: apiConfigurationDefaultValues,
+  });
+
+  const { control } = useFormContext<MultiCurrencySettingsFormInput>();
+  const apiConfig = useWatch({
+    control,
+    name: 'api_config',
   });
 
   useEffect(() => {
@@ -57,22 +66,17 @@ const ApiConfigurationPopup = ({
       return;
     }
 
-    const hasData = dataObj?.api_key;
     form.reset(
-      hasData
+      isDefined(apiConfig)
         ? {
-            api_key: dataObj.api_key || '',
-            update_frequency:
-              dataObj.update_frequency ||
-              apiConfigurationDefaultValues.update_frequency,
-            fallback_behaviour:
-              dataObj.fallback_behaviour ||
-              apiConfigurationDefaultValues.fallback_behaviour,
-            is_cache_enabled: Boolean(dataObj.is_cache_enabled),
+            api_key: apiConfig.api_key,
+            update_frequency: apiConfig.update_frequency,
+            fallback_behaviour: apiConfig.fallback_behaviour,
+            is_cache_enabled: apiConfig.is_cache_enabled,
           }
         : apiConfigurationDefaultValues,
     );
-  }, [selectedAPI, dataObj, isOpen, form]);
+  }, [apiConfig, isOpen, form]);
 
   const updateFrequencyOptions = [
     { label: __('Every 15 minutes', 'kirki-ecommerce'), value: 'every_15_min' },
@@ -103,10 +107,8 @@ const ApiConfigurationPopup = ({
   const handleConfiguration = (values: ApiConfigurationFormPayload) => {
     if (onSave) {
       onSave(values);
-    } else if (handleOnChange) {
-      handleOnChange(selectedAPI, 'api_provider');
-      handleOnChange(values, 'api_config');
     }
+
     onClose();
   };
 
@@ -122,9 +124,7 @@ const ApiConfigurationPopup = ({
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>
-            {__('API Configuration', 'kirki-ecommerce')}
-          </DialogTitle>
+          <DialogTitle>{__('API Configuration', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleConfiguration)}>
@@ -135,10 +135,18 @@ const ApiConfigurationPopup = ({
                   label={__('API Key', 'kirki-ecommerce')}
                   placeholder="******"
                 />
-                <Text weight="medium" cssOverride={styles.helperText}>{__(
-                    'Your API key is encrypted and stored securely. Get your API key from ExchangeRate API',
-                    'kirki-ecommerce',
-                  )}</Text>
+                <Text variant="paragraph" weight="medium" color="secondary">
+                  {
+                    /* translators: %s: provider name */
+                    sprintf(
+                      __(
+                        'Your API key is encrypted and stored securely. Get your API key from %s',
+                        'kirki-ecommerce',
+                      ),
+                      providerName,
+                    )
+                  }
+                </Text>
                 <SelectField
                   name="update_frequency"
                   label={__('Update Frequency', 'kirki-ecommerce')}
@@ -151,10 +159,7 @@ const ApiConfigurationPopup = ({
                 />
                 <CheckboxField
                   name="is_cache_enabled"
-                  label={__(
-                    'Cache exchange rates to reduce API calls',
-                    'kirki-ecommerce',
-                  )}
+                  label={__('Cache exchange rates to reduce API calls', 'kirki-ecommerce')}
                 />
               </Flex>
             </DialogBody>
@@ -163,18 +168,15 @@ const ApiConfigurationPopup = ({
                 type="button"
                 variant="destructive"
                 onClick={() => {
-                  form.reset(apiConfigurationDefaultValues);
+                  onSave?.(null);
+                  onClose();
                 }}
               >
                 {__('Remove', 'kirki-ecommerce')}
               </Button>
               <ActionGroup gap={3}>
                 <DialogClose asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    cssOverride={styles.cancelButton}
-                  >
+                  <Button type="button" variant="ghost" cssOverride={styles.cancelButton}>
                     {__('Cancel', 'kirki-ecommerce')}
                   </Button>
                 </DialogClose>
@@ -198,8 +200,5 @@ export default ApiConfigurationPopup;
 const styles = defineStyles({
   cancelButton: {
     boxShadow: theme.shadow.sm,
-  },
-  helperText: {
-    ...theme.typography.paragraph(),
   },
 });

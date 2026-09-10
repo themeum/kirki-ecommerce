@@ -17,10 +17,10 @@ describe('getActionArray', () => {
     expect(getActionArray(buildCurrency({ is_base: true }))).toEqual([]);
   });
 
-  it('offers edit, delete, and set-base actions for a non-base currency', () => {
+  it('offers delete and set-base actions for a non-base currency', () => {
     const actions = getActionArray(buildCurrency({ is_base: false }));
 
-    expect(actions.map((a) => a.value)).toEqual(['edit', 'delete', 'set_base']);
+    expect(actions.map((a) => a.value)).toEqual(['delete', 'set_base']);
   });
 });
 
@@ -34,12 +34,11 @@ describe('buildCurrencyListItems', () => {
     expect(item.actionsArray).toEqual([]);
   });
 
-  it('formats the exchange rate as a string and leaves it undefined when absent', () => {
-    const [withRate] = buildCurrencyListItems([buildCurrency({ exchange_rate: 1.25 })]);
-    const [withoutRate] = buildCurrencyListItems([buildCurrency({ exchange_rate: null })]);
+  it('carries the symbol as the row icon and mirrors is_active to is_enabled', () => {
+    const [item] = buildCurrencyListItems([buildCurrency({ is_active: false })]);
 
-    expect(withRate.rightText).toBe('1.25');
-    expect(withoutRate.rightText).toBeUndefined();
+    expect(item.icon).toBe('$');
+    expect(item.is_enabled).toBe(false);
   });
 });
 
@@ -49,11 +48,13 @@ describe('buildCurrencyUpdatePayload', () => {
     { ...buildCurrency({ id: 2, is_active: false, is_base: false }) },
   ];
 
-  it('flips a single boolean field on the targeted currency', () => {
+  it('flips a single boolean field on the targeted currency, keeping only currency fields', () => {
     const payload = buildCurrencyUpdatePayload(list, list[1], 'is_active');
 
     expect(payload).toEqual({
-      items: [{ ...list[1], is_active: true, is_base: false }],
+      items: [
+        { id: 2, name: 'US Dollar', code: 'USD', symbol: '$', is_active: true, is_base: false },
+      ],
     });
   });
 
@@ -62,8 +63,8 @@ describe('buildCurrencyUpdatePayload', () => {
 
     expect(payload).toEqual({
       items: [
-        { ...list[0], is_base: false, is_active: true },
-        { ...list[1], is_base: true, is_active: false },
+        { id: 1, name: 'US Dollar', code: 'USD', symbol: '$', is_base: false, is_active: true },
+        { id: 2, name: 'US Dollar', code: 'USD', symbol: '$', is_base: true, is_active: false },
       ],
     });
   });

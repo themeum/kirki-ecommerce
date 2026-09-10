@@ -1,0 +1,92 @@
+info:
+  name: Sync Exchange Rates
+  type: http
+  seq: 2
+  tags:
+    - currency-exchange
+
+http:
+  method: POST
+  url: "{{baseUrl}}/currency-exchange/sync"
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/currency-exchange/sync"
+      method: POST
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "last_sync_at": "2026-09-10 07:45:12",
+              "next_sync_at": "2026-09-10 08:45:12",
+              "usage": {
+                "total": 300,
+                "used": 12,
+                "remaining": 288,
+                "reset_at": null
+              }
+            },
+            "message": "Exchange rates synced successfully."
+          }
+  - name: 400 Response (no provider configured)
+    description: Failure
+    request:
+      url: "{{baseUrl}}/currency-exchange/sync"
+      method: POST
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Configure an exchange rate provider before syncing."
+          }
+  - name: 400 Response (provider error)
+    description: Failure
+    request:
+      url: "{{baseUrl}}/currency-exchange/sync"
+      method: POST
+    response:
+      status: 400
+      statusText: Bad Request
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "message": "Invalid API key."
+          }
+
+docs: |-
+  # Sync Exchange Rates
+
+  Pulls fresh exchange rates for every configured currency from the active
+  provider and persists them, along with the sync timestamp and (where the
+  provider reports it) API usage.
+
+  Returns `400` when no provider is configured, or when the provider rejects
+  the request (for example an invalid API key) — in both cases no rates change.

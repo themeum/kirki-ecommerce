@@ -35,7 +35,7 @@ class CurrencyController
 
         return response()->json([
             'data' => AvailableCurrencyListResource::collection($data),
-            'message' => __('Currencys retrieved successfully.', 'kirki-ecommerce'),
+            'message' => __('Currencies retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
 
@@ -86,6 +86,7 @@ class CurrencyController
     {
         $items = $request->input('items') ?? [];
         $currencies = [];
+        $errors = [];
         $total_count = count($items);
         $error_count = 0;
 
@@ -95,12 +96,21 @@ class CurrencyController
                 $currencies[] = $this->service->update($payload);
             } catch (Exception $e) {
                 $error_count++;
+                $errors[] = $e->getMessage();
             }
+        }
+
+        if ($error_count === $total_count && $total_count > 0) {
+            return response()->json([
+                'errors' => $errors,
+                'message' => __('None of the currencies could be updated.', 'kirki-ecommerce'),
+            ], Response::UNPROCESSABLE_ENTITY);
         }
 
         if ($error_count > 0) {
             return response()->json([
                 'data' => CurrencyResource::collection($currencies),
+                'errors' => $errors,
                 /* translators: %1$s: number of currencies updated, %2$s: number of errors */
                 'message' => sprintf(__('Updated %1$s currencies successfully. %2$s errors occurred.', 'kirki-ecommerce'), $total_count - $error_count, $error_count),
             ], Response::CREATED);

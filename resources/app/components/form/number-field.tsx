@@ -21,6 +21,7 @@ type NumberFieldProps<
   max?: number | null;
   readOnly?: boolean
   showError?: boolean;
+  'aria-label'?: string;
 };
 
 const NumberField = <
@@ -38,6 +39,7 @@ const NumberField = <
   max,
   readOnly,
   showError = true,
+  'aria-label': ariaLabel,
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const currentValue = useWatch({ control, name });
@@ -65,6 +67,7 @@ const NumberField = <
             disabled={disabled}
             readOnly={readOnly}
             error={Boolean(fieldState.error)}
+            aria-label={ariaLabel}
             aria-invalid={fieldState.invalid}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               const nextValue = event.target.value;

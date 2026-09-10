@@ -34,7 +34,7 @@ const AddCurrencyPopup = () => {
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setOpenPopup(true)} disabled>
+      <Button variant="secondary" onClick={() => setOpenPopup(true)}>
         <PlusIcon />
         {__('Add Currency', 'kirki-ecommerce')}
       </Button>

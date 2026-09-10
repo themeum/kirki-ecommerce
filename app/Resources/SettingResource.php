@@ -8,7 +8,10 @@ use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Page;
 use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
+use Kirki\Ecommerce\Framework\Supports\Somoy;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\dd;
@@ -34,6 +37,8 @@ class SettingResource extends Resource
             case OptionKeys::ADVANCE_SETTINGS:
                 $data = $this->get_advanced_settings($data);
                 break;
+            case OptionKeys::CURRENCY_SETTINGS:
+                $data = $this->get_currency_settings($data);
             default:
                 break;
         }
@@ -124,5 +129,57 @@ class SettingResource extends Resource
         }
 
         return $data;
+    }
+
+    /**
+     * Get the currency settings.
+     * 
+     * @param array $data
+     * 
+     * @return array
+     */
+    protected function get_currency_settings($data)
+    {
+        $reset_at = $data['usage']['reset_at'] ?? null;
+
+        if (!empty($reset_at) && is_object($reset_at)) {
+            $properties = get_object_vars($reset_at);
+
+            if (
+                isset($properties['__PHP_Incomplete_Class_Name']) &&
+                $properties['__PHP_Incomplete_Class_Name'] === Somoy::class
+            ) {
+                $reset_at = Date::parse(
+                    $properties['date'],
+                    $properties['timezone']
+                )->to_date_time_string();
+            } else {
+                $reset_at = null;
+            }
+        }
+
+        return [
+            'currency_format' => $data['currency_format'] ?? null,
+            'currency_position' => $data['currency_position'] ?? null,
+            'thousand_separator' => $data['thousand_separator'] ?? null,
+            'decimal_separator' => $data['decimal_separator'] ?? null,
+            'is_automatic_update_enabled' => $data['is_automatic_update_enabled'] ?? false,
+            'api_provider' => $data['api_provider'] ?? null,
+            'last_sync_at' => $data['last_sync_at'] ?? null,
+            'next_sync_at' => $data['next_sync_at'] ?? null,
+            'api_config' => !empty($data['api_config']) ? [
+                'api_key' => $data['api_config']['api_key'] ?? null,
+                'update_frequency' => $data['api_config']['update_frequency'] ?? null,
+                'fallback_behaviour' => $data['api_config']['fallback_behaviour'] ?? null,
+                'is_cache_enabled' => $data['api_config']['is_cache_enabled'] ?? false
+            ] : null,
+            'base_currency' => $data['base_currency'] ?? null,
+            'usage' => !empty($data['usage']) ? [
+                'total' => $data['usage']['total'] ?? null,
+                'used' => $data['usage']['used'] ?? null,
+                'remaining' => $data['usage']['remaining'] ?? null,
+                'reset_at' => $reset_at
+            ] : null
+        ];
     }
 }

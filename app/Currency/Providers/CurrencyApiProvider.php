@@ -126,7 +126,7 @@ class CurrencyApiProvider implements CurrencyProvider
 
         throw_if(empty($api_key), __('CurrencyApi API key is missing.', 'kirki-ecommerce'));
 
-        $response = Http::get(static::API_URL . '/status', ['api_key' => $api_key]);
+        $response = Http::get(static::API_URL . '/status', ['apikey' => $api_key]);
 
         throw_if(!$response->successful(), $response->reason() ?: __('Failed to retrieve CurrencyApi usage data.', 'kirki-ecommerce'));
 
@@ -138,7 +138,7 @@ class CurrencyApiProvider implements CurrencyProvider
             'total' => $month['total'] ?? null,
             'used' => $month['used'] ?? null,
             'remaining' => $month['remaining'] ?? null,
-            'reset_at' => Date::now()->add_month()->first_of_month(),
+            'reset_at' => null,
         ]);
     }
 }
