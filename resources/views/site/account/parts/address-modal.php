@@ -145,11 +145,11 @@ use Kirki\Ecommerce\App\Supports\Icon;
                             class="kecom-select"
                             :class="{ 'kecom-input-error': errors.state }"
                             x-model="formData.state"
-                            :disabled="availableStates.length === 0"
+                            :disabled="getAvailableStates().length === 0"
                             @change="delete errors.state"
                         >
-                            <option value="" x-text="availableStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
-                            <template x-for="state in availableStates" :key="state.id">
+                            <option value="" x-text="getAvailableStates().length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
+                            <template x-for="state in getAvailableStates()" :key="state.id">
                                 <option :value="state.id" x-text="state.name"></option>
                             </template>
                         </select>

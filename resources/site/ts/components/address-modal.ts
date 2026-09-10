@@ -130,7 +130,9 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       const countriesList: CountryItem[] =
         this.countries ?? (config?.countries as CountryItem[]) ?? [];
       const country = countriesList.find(
-        (c: CountryItem) => (c.code || String(c.id)) === countryCode,
+        (countryItem: CountryItem) =>
+          (countryItem.code || String(countryItem.id)).toLowerCase() ===
+          String(countryCode).toLowerCase(),
       );
       return country?.states ?? [];
     },

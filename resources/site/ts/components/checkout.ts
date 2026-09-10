@@ -132,6 +132,10 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       },
     }),
 
+    get availableStates(): CountryState[] {
+      return (this as any).getAvailableStates();
+    },
+
     get shippingStates(): CountryState[] {
       return getStatesForCountry(this.shippingAddress.country, this.countries);
     },
