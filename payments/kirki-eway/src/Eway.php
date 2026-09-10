@@ -66,15 +66,18 @@ class Eway extends PaymentProvider
     public function pay(Order $order)
     {
         if (!$this->enabled()) {
-            throw new Exception(__('Eway is not enabled.', 'kirki-ecommerce-quickpay'));
+            throw new Exception(__('Eway is not enabled.', 'kirki-ecommerce-eway'));
         }
 
         try {
             $this->client = $this->get_client();
+            $builder = new EwayTransactionBuilder($order);
+            $payload = $builder->build_transaction_payload();
+            $response = $this->client->create_transaction($payload);
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => '',//$payment_link['url'],
+                'value' => $response['SharedPaymentUrl'],
             ]);
         } catch (Exception $e) {
             throw new Exception(sprintf(__('Eway Payment Error: %s', 'kirki-ecommerce-eway'), $e->getMessage()));

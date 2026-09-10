@@ -48,48 +48,17 @@ class EwayClient
         return hash_equals($expected_checksum, $given_checksum);
     }
 
-    /**
-     * Create a QuickPay payment.
-     *
-     * @param array $payload The payment request payload.
-     * @return array The decoded JSON response, including the payment id.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment(array $payload): array
+    public function create_transaction(array $payload): array
     {
-        return $this->send(QuickpayConstant::POST_METHOD, QuickpayConstant::API_URL . 'payments', $payload);
+        return $this->send(EwayConstant::POST_METHOD, $this->get_base_url() . EwayConstant::API_ACCESS_CODE_SHARED, $payload);
     }
 
-    /**
-     * Create a QuickPay payment link for an existing payment.
-     *
-     * @param array $payload The payment link request payload.
-     * @param int $payment_id The QuickPay payment ID to attach the link to.
-     * @return array The decoded JSON response, including the link url.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment_link(array $payload, int $payment_id): array
-    {
-        $url = QuickpayConstant::API_URL . "payments/{$payment_id}/link";
-
-        return $this->send(QuickpayConstant::PUT_METHOD, $url, $payload);
-    }
-
-    /**
-     * Send a request to the QuickPay API and decode the JSON response.
-     *
-     * @param string $method One of QuickpayConstant::POST_METHOD, ::PUT_METHOD or ::GET_METHOD.
-     * @param string $url The full request URL.
-     * @param array $payload The request payload, for 'post'/'put' requests.
-     * @return array The decoded JSON response.
-     * @throws Exception If the API request fails.
-     */
     protected function send(string $method, string $url, array $payload = []): array
     {
         $request = Http::with_token($this->get_auth(), 'Basic')
-            ->with_headers(['Accept-Version' => 'v' . QuickpayConstant::API_VERSION]);
+            ->with_headers(['X-EWAY-APIVERSION' => EwayConstant::API_VERSION]);
 
-        if (QuickpayConstant::GET_METHOD !== $method) {
+        if (EwayConstant::GET_METHOD !== $method) {
             $request = $request->with_body(wp_json_encode($payload));
         }
 
@@ -102,18 +71,16 @@ class EwayClient
         return $response->json();
     }
 
-    /**
-     * Build the HTTP Basic Auth token from the configured credentials.
-     *
-     * @return string Base64-encoded "username:password".
-     * @throws InvalidArgumentException If the username or password is missing.
-     */
-    protected function get_auth(): string
+    protected function get_base_url(): string
     {
-        if (empty($this->api_key)) {
-            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-ecommerce-quickpay'));
-        }
+        return $this->sandbox ? EwayConstant::ENDPOINT_SANDBOX : EwayConstant::ENDPOINT_PRODUCTION;
+    }
 
-        return base64_encode(":{$this->api_key}");
+    protected function get_auth()
+    {
+        if (empty($this->api_key) || empty($this->api_password)) {
+            throw new InvalidArgumentException(__('Invalid API Key Or API Password.', 'kirki-ecommerce-eway'));
+        }
+        return base64_encode($this->api_key . ':' . $this->api_password);
     }
 }
