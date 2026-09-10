@@ -1,5 +1,4 @@
 import ActionGroup from '@/components/ui/action-group';
-import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import FilterPopup from '@/features/inventory/components/inventory-table/filter-popup/filter-popup';
@@ -7,11 +6,10 @@ import { inventoryListOptions } from '@/features/inventory/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const InventoryTableFilters = () => {
-  const { params, setParam, handleDateFilter } = useDataTableParams(inventoryListOptions);
+  const { params, setParam } = useDataTableParams(inventoryListOptions);
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -24,19 +22,8 @@ const InventoryTableFilters = () => {
         />
       </div>
 
-      <FilterPopup />
-
       <ActionGroup>
-        <DateRangePicker
-          value={{
-            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
-            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
-          }}
-          presets
-          clearable
-          onChange={handleDateFilter}
-          size="sm"
-        />
+        <FilterPopup />
       </ActionGroup>
     </Flex>
   );
