@@ -48,12 +48,21 @@ export const GeneralSettingsSchema = z
     store_address: StoreAddressSchema.nullish(),
     selling_location_type: z.string().nullish(),
     selling_countries: z.array(z.string()).nullish(),
-    order_id_prefix: z.string().nullish(),
-    order_id_suffix: z.string().nullish(),
-    invoice_id_prefix: z.string().nullish(),
-    invoice_id_sequence: z.string().nullish(),
-    invoice_id_suffix: z.string().nullish(),
-    invoice_counter_reset_schedule: z.string().nullish(),
+    order_number: z
+      .object({
+        prefix: z.string().nullish(),
+        suffix: z.string().nullish(),
+      })
+      .nullish(),
+    invoice_number: z
+      .object({
+        prefix: z.string().nullish(),
+        suffix: z.string().nullish(),
+        sequence: z.string().nullish(),
+        apply_year_prefix: z.boolean().nullish(),
+        reset_sequence_every_year: z.boolean().nullish(),
+      })
+      .nullish(),
   })
   .passthrough();
 

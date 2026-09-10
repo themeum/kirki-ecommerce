@@ -177,6 +177,7 @@ const PageTable = ({ pages }: PageTableProps) => {
 
   return (
     <DataTable
+      tableId="pages"
       data={data}
       columns={columns}
       pageCount={1}

@@ -19,6 +19,7 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
+use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
@@ -111,6 +112,11 @@ class OrderService
     public function create_order(CreateOrderDTO $dto)
     {
         $order = Order::create($dto->to_array());
+
+        $order->update([
+            'order_number' => OrderNumberGenerator::generate_order_number($order->id),
+            'invoice_number' => OrderNumberGenerator::generate_invoice_number(),
+        ]);
 
         return $this->find_order($order->id);
     }

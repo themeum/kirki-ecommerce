@@ -146,6 +146,19 @@ class SettingsUpdateRequest extends Request
         }
     }
 
+    protected function messages()
+    {
+        $no_slashes_message = __('Slashes and backslashes are not allowed.', 'kirki-ecommerce');
+
+        return [
+            'data.invoice_number.sequence.regex' =>  __('The sequence field must contain digits only.', 'kirki-ecommerce'),
+            'data.order_number.prefix.regex' => $no_slashes_message,
+            'data.order_number.suffix.regex' => $no_slashes_message,
+            'data.invoice_number.prefix.regex' => $no_slashes_message,
+            'data.invoice_number.suffix.regex' => $no_slashes_message,
+        ];
+    }
+
     protected function get_general_settings_rules()
     {
         return [
@@ -162,12 +175,15 @@ class SettingsUpdateRequest extends Request
             'data.store_address.country' => 'required|string',
             'data.selling_location_type' => 'required|string|in:' . implode(',', SellingLocationType::get_constant_values()),
             'data.selling_countries' => 'nullable|array',
-            'data.order_id_prefix' => 'nullable|string',
-            'data.order_id_suffix' => 'nullable|string',
-            'data.invoice_id_prefix' => 'nullable|string',
-            'data.invoice_id_sequence' => 'nullable|string',
-            'data.invoice_id_suffix' => 'nullable|string',
-            'data.invoice_counter_reset_schedule' => 'nullable|string',
+            'data.order_number' => 'nullable|array',
+            'data.order_number.prefix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.order_number.suffix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.invoice_number' => 'nullable|array',
+            'data.invoice_number.prefix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.invoice_number.suffix' => 'string|regex:~^[^/\\\\]*$~',
+            'data.invoice_number.sequence' => 'required|string|regex:/^\d+$/',
+            'data.invoice_number.apply_year_prefix' => 'boolean',
+            'data.invoice_number.reset_sequence_every_year' => 'boolean',
         ];
     }
 
@@ -187,12 +203,15 @@ class SettingsUpdateRequest extends Request
             'data.store_address.country' => Sanitizer::TEXT,
             'data.selling_location_type' => Sanitizer::TEXT,
             'data.selling_countries' => Sanitizer::ARRAY,
-            'data.order_id_prefix' => Sanitizer::TEXT,
-            'data.order_id_suffix' => Sanitizer::TEXT,
-            'data.invoice_id_prefix' => Sanitizer::TEXT,
-            'data.invoice_id_sequence' => Sanitizer::TEXT,
-            'data.invoice_id_suffix' => Sanitizer::TEXT,
-            'data.invoice_counter_reset_schedule' => Sanitizer::TEXT,
+            'data.order_number' => Sanitizer::ARRAY,
+            'data.order_number.prefix' => Sanitizer::TEXT,
+            'data.order_number.suffix' => Sanitizer::TEXT,
+            'data.invoice_number' => Sanitizer::ARRAY,
+            'data.invoice_number.prefix' => Sanitizer::TEXT,
+            'data.invoice_number.suffix' => Sanitizer::TEXT,
+            'data.invoice_number.sequence' => Sanitizer::TEXT,
+            'data.invoice_number.apply_year_prefix' => Sanitizer::BOOL,
+            'data.invoice_number.reset_sequence_every_year' => Sanitizer::BOOL,
         ];
     }
 

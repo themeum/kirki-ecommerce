@@ -19,7 +19,6 @@ const OrderTableAction = memo(() => {
     setParam('search', value);
   };
 
-
   return (
     <Flex cssOverride={styles.wrapper}>
       <div style={{ width: '160px' }}>
