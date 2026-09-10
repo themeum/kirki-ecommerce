@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
+import FloatingBar from '@/components/floating-bar/floating-bar';
 import MediaGalleryField from '@/components/form/media-gallery-field';
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
@@ -12,7 +13,6 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { Separator } from '@/components/ui/separator';
-import UnsavedToast from '@/components/unsaved-toast';
 import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
 import Inventory from '@/features/products/components/product-form/sections/inventory/inventory';
 import Price from '@/features/products/components/product-form/sections/price/price';
@@ -83,7 +83,7 @@ const ProductForm = ({
     void onDuplicate?.();
   };
 
-  const handleToastDiscard = useCallback(() => {
+  const handleBarDiscard = useCallback(() => {
     discardChanges();
     if (duplicateBlockedByUnsaved) {
       setDuplicateBlockedByUnsaved(false);
@@ -91,7 +91,7 @@ const ProductForm = ({
     }
   }, [discardChanges, duplicateBlockedByUnsaved, onDuplicate]);
 
-  const handleToastSave = useCallback(async () => {
+  const handleBarSave = useCallback(async () => {
     const result = await handleSave();
     if (result.success && duplicateBlockedByUnsaved) {
       setDuplicateBlockedByUnsaved(false);
@@ -107,17 +107,17 @@ const ProductForm = ({
           text={
             isCreate ? __('New Product', 'kirki-ecommerce') : __('Edit Product', 'kirki-ecommerce')
           }
-          hasBack
           actions={
             <>
               <Button variant="tertiary" onClick={handleBack} disabled={isSubmitting}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
-              <Button variant="primary" onClick={() => handleSave()} loading={isSubmitting}>
+              <Button variant="primary" onClick={() => void handleBarSave()} loading={isSubmitting}>
                 {isCreate ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
               </Button>
             </>
           }
+          hasBack
         />
         <PageContent>
           <div style={{ display: 'flex', gap: 16, width: '100%' }}>
@@ -182,18 +182,22 @@ const ProductForm = ({
             />
           </div>
         </PageContent>
-        <UnsavedToast
+        <FloatingBar
           visible={(isBlocked || duplicateBlockedByUnsaved) && isDirty}
-          onDiscardChanges={handleToastDiscard}
-          onSave={handleToastSave}
-          isSubmitting={isSubmitting}
           shakeSignal={shakeSignal}
-          message={
+          label={
             duplicateBlockedByUnsaved
               ? __('Unsaved product, take an action to proceed.', 'kirki-ecommerce')
               : __('Unsaved product', 'kirki-ecommerce')
           }
-        />
+        >
+          <Button variant="tertiary" onClick={handleBarDiscard} disabled={isSubmitting}>
+            {__('Discard', 'kirki-ecommerce')}
+          </Button>
+          <Button variant="primary" onClick={() => void handleBarSave()} loading={isSubmitting}>
+            {isCreate ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
+          </Button>
+        </FloatingBar>
       </Form>
     </Page>
   );

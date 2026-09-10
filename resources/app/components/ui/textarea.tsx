@@ -35,7 +35,6 @@ const styles = defineStyles({
     width: '100%',
     backgroundColor: theme.colors.background.fill,
     border: `1px solid ${theme.colors.border.secondary}`,
-    boxShadow: theme.shadow.sm,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     resize: 'none',

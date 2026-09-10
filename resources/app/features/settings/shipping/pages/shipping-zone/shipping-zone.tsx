@@ -11,7 +11,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { ShippingMethod } from '@/features/settings/shipping/pages/shipping-method/shipping-method';
 import {
@@ -89,10 +88,6 @@ const ShippingZonePage = () => {
     form.reset(pickFormValues(ShippingZoneFormSchema, activeZone));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the zone id so the form only reloads when a different zone is opened; depending on the whole object would discard edits as the zone list refetches
   }, [activeZone?.id]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSaveZone = async (payload: ShippingZoneFormPayload) => {
     const updatedZones = shippingZonesObj.map((zone) =>

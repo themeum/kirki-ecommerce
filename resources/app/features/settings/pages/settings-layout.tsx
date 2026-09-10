@@ -1,12 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Outlet, useBlocker, useLocation, useOutletContext } from 'react-router';
+import { useCallback, useState } from 'react';
+import { Outlet, useLocation, useOutletContext } from 'react-router';
 
-import ConfirmationDialog from '@/components/modal/confirmation-dialog';
+import FloatingBar from '@/components/floating-bar/floating-bar';
+import Button from '@/components/ui/button';
 import { Page, PAGE_HEADING_STICKY_TOP, PageContent } from '@/components/ui/page';
 import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
+import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const SIDEBAR_WIDTH = '230px';
 const CONTENT_PANE_WIDTH = '600px';
@@ -32,29 +35,26 @@ const SettingsLayout = () => {
   const isDirty = actions?.isDirty ?? false;
   const isSaving = actions?.isSaving ?? false;
 
-  const shouldBlock = useCallback(() => isDirty && !isSaving, [isDirty, isSaving]);
-  const blocker = useBlocker(shouldBlock);
-  const isBlocked = blocker.state === 'blocked';
-
-  useEffect(() => {
-    if (isBlocked && !isDirty && blocker.state === 'blocked') {
-      blocker.reset();
-    }
-  }, [isBlocked, isDirty, blocker]);
+  const { cancelNavigation, markSaving, shakeSignal } = useUnsavedNavigationGuard(isDirty);
 
   const registerActions = useCallback((next: RegisteredSettingsPageActions | null) => {
     setActions(next);
   }, []);
 
-  const handleConfirmLeave = () => {
-    if (blocker.state === 'blocked') {
-      blocker.proceed();
-    }
+  // Discarding reverts the page and stays put; any navigation that was blocked
+  // is abandoned rather than completed, so the merchant keeps the settings page
+  // they are looking at.
+  const handleDiscard = () => {
+    actions?.onDiscard();
+    cancelNavigation();
   };
 
-  const handleCancelLeave = () => {
-    if (blocker.state === 'blocked') {
-      blocker.reset();
+  const handleSave = async () => {
+    markSaving(true);
+    try {
+      await actions?.onSave();
+    } finally {
+      markSaving(false);
     }
   };
 
@@ -65,34 +65,6 @@ const SettingsLayout = () => {
 
   return (
     <Page containerSize="none">
-      {isBlocked && (
-        <ConfirmationDialog onConfirm={handleConfirmLeave} onCancel={handleCancelLeave} />
-      )}
-      {/* <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        containerSize="lg"
-        actions={
-          isDirty && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => actions?.onDiscard()}
-                disabled={!isDirty || isSaving}
-              >
-                {__('Discard', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => actions?.onSave()}
-                loading={isSaving}
-                disabled={!isDirty || isSaving}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          )
-        }
-      /> */}
       <PageContent>
         <div css={scoped(styles.centerRow)}>
           <div css={scoped(styles.row)}>
@@ -105,6 +77,14 @@ const SettingsLayout = () => {
           </div>
         </div>
       </PageContent>
+      <FloatingBar visible={isDirty} shakeSignal={shakeSignal}>
+        <Button variant="tertiary" onClick={handleDiscard} disabled={isSaving}>
+          {__('Discard', 'kirki-ecommerce')}
+        </Button>
+        <Button variant="primary" onClick={() => void handleSave()} loading={isSaving}>
+          {__('Save', 'kirki-ecommerce')}
+        </Button>
+      </FloatingBar>
     </Page>
   );
 };

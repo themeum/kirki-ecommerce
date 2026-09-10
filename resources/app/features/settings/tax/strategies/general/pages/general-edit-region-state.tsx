@@ -10,7 +10,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SingleTaxRate from '@/features/settings/tax/shared/components/single-tax-rate';
 import TaxRules from '@/features/settings/tax/shared/components/tax-rules/tax-rules';
@@ -86,10 +85,6 @@ const GeneralEditRegionState = () => {
       rules: currentState.rules ?? [],
     });
   }, [currentState, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const backToRegion = useCallback(
     () =>

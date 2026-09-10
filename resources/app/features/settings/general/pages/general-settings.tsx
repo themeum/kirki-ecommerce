@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Home } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -16,7 +17,6 @@ import {
 } from '@/features/settings/general/schemas/forms/general-settings-form';
 import GeneralSettingsSkeleton from '@/features/settings/general/skeletons/general-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -25,7 +25,6 @@ import type { GeneralSettings as GeneralSettingsData } from '@/schemas/catalog/s
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { Home } from 'lucide-react';
 
 const mapSettingsToFormValues = (settings: GeneralSettingsData): GeneralSettingsFormInput => {
   const storeAddress = settings.store_address;
@@ -60,10 +59,6 @@ const GeneralSettings = () => {
 
     form.reset(mapSettingsToFormValues(generalSettingsData));
   }, [generalSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSaveData = async (payload: GeneralSettingsFormPayload) => {
     try {

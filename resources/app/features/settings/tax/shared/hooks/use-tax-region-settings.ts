@@ -1,6 +1,5 @@
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import { useInvalidateTaxSettings } from '@/features/settings/tax/shared/hooks/use-invalidate-tax-settings';
 import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import {
@@ -55,7 +54,6 @@ export const useTaxRegionSettings = (): UseTaxRegionSettingsResult => {
     if (options.silent) {
       try {
         await updateSettings({ key: 'tax', data: payload });
-        setUnsavedDataStatus(false);
         invalidateTaxSettings();
       } catch (error) {
         toastMutationError(error);

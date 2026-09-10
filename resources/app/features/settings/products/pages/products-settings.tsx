@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { StandardUnit } from '@/features/settings/products/pages/standard-unit';
 import {
@@ -45,10 +44,6 @@ const ProductsSettings = () => {
       }),
     );
   }, [productSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(form.formState.isDirty);
-  }, [form.formState.isDirty]);
 
   const handleSaveData = async (payload: ProductsSettingsFormPayload) => {
     try {

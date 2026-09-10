@@ -14,7 +14,6 @@ import FullPageContainer from '@/components/ui/full-page-container';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import type { FillCommitPayload } from '@/features/bulk-edit/contexts/cell-selection-context';
-import { useBulkEditNavigationGuard } from '@/features/bulk-edit/hooks/use-bulk-edit-navigation-guard';
 import { useColumnVisibility } from '@/features/bulk-edit/hooks/use-column-visibility';
 import { bulkEditColumnGroups, bulkEditColumns } from '@/features/bulk-edit/lib/columns';
 import { editableKindOf } from '@/features/bulk-edit/lib/editable-kind';
@@ -30,6 +29,7 @@ import {
 } from '@/features/bulk-edit/services/bulk-edit';
 import BulkEditTableSkeleton from '@/features/bulk-edit/skeletons/bulk-edit-table-skeleton';
 import type { BulkEditFormValues } from '@/features/bulk-edit/types';
+import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -114,7 +114,7 @@ const BulkEditPage = () => {
   }, [bulkData, reset]);
 
   const isDirty = formState.isDirty;
-  const { isBlocked, discardChanges, dismissToast } = useBulkEditNavigationGuard(isDirty);
+  const { isBlocked, proceedNavigation, cancelNavigation } = useUnsavedNavigationGuard(isDirty);
 
   const handleFillCommit = (payload: FillCommitPayload) => {
     const sourceVariant = getValues(`variants.${payload.sourceRow}`);
@@ -328,8 +328,8 @@ const BulkEditPage = () => {
             'You have unsaved changes on this page. Leaving now will discard them.',
             'kirki-ecommerce',
           )}
-          onConfirm={discardChanges}
-          onCancel={dismissToast}
+          onConfirm={proceedNavigation}
+          onCancel={cancelNavigation}
         />
       )}
 

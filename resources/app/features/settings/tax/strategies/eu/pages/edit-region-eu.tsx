@@ -10,7 +10,6 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import TaxRules from '@/features/settings/tax/shared/components/tax-rules/tax-rules';
 import { useTaxRegionSettings } from '@/features/settings/tax/shared/hooks/use-tax-region-settings';
@@ -83,10 +82,6 @@ const EditRegionEU = () => {
       rules: eu?.rules ?? [],
     });
   }, [regions, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const updateTaxRules = useCallback(
     (rulesList: TaxRule[]) => {
