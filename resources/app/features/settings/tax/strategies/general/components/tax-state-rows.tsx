@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react';
+import { useCallback } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
@@ -30,6 +31,16 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
 
   const arrayError = formState.errors.states as { message?: string } | undefined;
 
+  const goToState = useCallback(
+    (stateId: string) =>
+      void navigate(
+        RouteConfig.Settings.get('TaxSettings')
+          .get('EditTaxRegionState')
+          .buildLink({ code, state: stateId }),
+      ),
+    [code, navigate],
+  );
+
   if (!fields.length) {
     return (
       <>
@@ -56,7 +67,12 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
         const stateLabel = stateNameById[id] ?? row?.name ?? id;
 
         return (
-          <Card key={field.id} cssOverride={mergeCss(cardStyles.innerCard, styles.stateRow)}>
+          <Card
+            key={field.id}
+            cssOverride={mergeCss(cardStyles.innerCard, styles.stateRow)}
+            role="button"
+            onClick={() => void goToState(id)}
+          >
             <CardContent cssOverride={cardStyles.innerContent}>
               <Flex
                 align="center"
@@ -64,18 +80,7 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
                 gap={2}
                 cssOverride={{ width: '100%', height: '32px' }}
               >
-                <Text
-                  variant="small"
-                  weight="medium"
-                  cssOverride={{ cursor: 'pointer' }}
-                  onClick={() =>
-                    void navigate(
-                      RouteConfig.Settings.get('TaxSettings')
-                        .get('EditTaxRegionState')
-                        .buildLink({ code, state: id }),
-                    )
-                  }
-                >
+                <Text variant="small" weight="medium">
                   {stateLabel}
                 </Text>
                 <Flex align="center" gap={2}>
@@ -107,17 +112,7 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
                   >
                     <TrashIcon />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() =>
-                      void navigate(
-                        RouteConfig.Settings.get('TaxSettings')
-                          .get('EditTaxRegionState')
-                          .buildLink({ code, state: id }),
-                      )
-                    }
-                  >
+                  <Button variant="ghost" size="icon-sm" onClick={() => void goToState(id)}>
                     <ChevronRight size={16} css={scoped(styles.chevron)} />
                   </Button>
                 </Flex>
@@ -140,6 +135,7 @@ const styles = defineStyles({
     color: theme.colors.text.subdued,
   },
   stateRow: {
+    cursor: 'pointer',
     '& [data-state-row="remove"]': {
       display: 'none',
     },
