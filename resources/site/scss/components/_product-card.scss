@@ -80,6 +80,10 @@
     text-decoration: line-through;
   }
 
+  &-tax-info {
+    @include typography(sm, regular, $text-secondary);
+  }
+
   &-add-to-cart {
     opacity: 0;
     @include transition((opacity));
