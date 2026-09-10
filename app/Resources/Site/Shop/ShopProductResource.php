@@ -48,8 +48,7 @@ class ShopProductResource extends Resource
         $variant_id   = intval($variant->id);
         $out_of_stock = $this->resolve_stock_status($variant_id);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
-        $wishlist_item = app(WishlistService::class)->get_item(customer()->get_id(), $variant_id);
-        $has_wishlist = $wishlist_item ? true : false;
+        $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 
         return [
             'id'                      => $this->id,
@@ -66,7 +65,7 @@ class ShopProductResource extends Resource
             'has_variants'            => $has_variants,
             'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
-            'has_wishlist'            => $has_wishlist,
+            'has_wishlist'            => $is_wishlisted,
         ];
     }
 

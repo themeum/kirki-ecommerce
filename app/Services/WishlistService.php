@@ -12,6 +12,8 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\user;
+
 class WishlistService
 {
     /**
@@ -90,6 +92,24 @@ class WishlistService
     public function get_item(int $user_id, int $variant_id)
     {
         return Wishlist::where('user_id', $user_id)->where('variant_id', $variant_id)->first();
+    }
+
+    /**
+     * Check if a variant is in the wishlist for the given user.
+     *
+     * @param int $variant_id variant id.
+     *
+     * @return bool
+     */
+    public function is_wishlisted(int $variant_id, int $user_id = 0): bool
+    {
+        $user_id = $user_id ?: (int) user()->get_id();
+
+        if (empty($user_id)) {
+            return false;
+        }
+
+        return (bool) $this->get_item($user_id, $variant_id);
     }
 
     /**
