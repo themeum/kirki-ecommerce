@@ -28,9 +28,9 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
     <Flex align="center" justify="flex-start" gap={2} cssOverride={styles.wrapper}>
       <Flex gap={2} align="center">
         {icon}
-        {breadcrumbs.map((crumb) => (
+        {breadcrumbs.map((crumb, index) => (
           <Fragment key={crumb.to}>
-            <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />
+            {index > 0 && <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />}
             <Link to={crumb.to} css={scoped(styles.crumb)}>
               {crumb.label}
             </Link>

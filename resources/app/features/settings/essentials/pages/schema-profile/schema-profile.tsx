@@ -124,7 +124,7 @@ const SchemaProfileComponent = () => {
                   <StackedItemActions>
                     <ActionGroup>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}
@@ -133,7 +133,7 @@ const SchemaProfileComponent = () => {
                         <TrashIcon />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Edit', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}

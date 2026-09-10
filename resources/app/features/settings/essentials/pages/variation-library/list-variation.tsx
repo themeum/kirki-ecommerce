@@ -10,7 +10,7 @@ import { RouteConfig } from '@/config/route-config';
 import type { Attribute, AttributeValue } from '@/features/products';
 import { useAttributeQuery } from '@/features/products';
 import VariationTable from '@/features/settings/essentials/pages/variation-library/variation-table/variation-table';
-import VariationValuePopup from '@/features/settings/essentials/pages/variation-library/variation-value-dialog';
+import VariationValuePopover from '@/features/settings/essentials/pages/variation-library/variation-value-popover';
 import VariationDetailSkeleton from '@/features/settings/essentials/skeletons/variation-detail-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { SnowflakeIcon } from '@/icons';
@@ -48,9 +48,16 @@ const ListVariation = () => {
                 },
               ]}
               actions={
-                <Button variant="tertiary" size="sm" onClick={() => setAddVariantPopup(true)}>
-                  {__('Add value', 'kirki-ecommerce')}
-                </Button>
+                <VariationValuePopover
+                  isOpen={addVariantPopup}
+                  onOpenChange={setAddVariantPopup}
+                  selectedItem={selectedAttribute}
+                  type={selectedAttribute?.type}
+                >
+                  <Button variant="tertiary" size="sm">
+                    {__('Add value', 'kirki-ecommerce')}
+                  </Button>
+                </VariationValuePopover>
               }
             />
             {!attributeValueList?.length ? (
@@ -78,12 +85,6 @@ const ListVariation = () => {
       ) : (
         <VariationDetailSkeleton />
       )}
-      <VariationValuePopup
-        isOpen={addVariantPopup}
-        selectedItem={selectedAttribute}
-        onClose={() => setAddVariantPopup(false)}
-        type={selectedAttribute?.type}
-      />
     </>
   );
 };
