@@ -165,6 +165,10 @@ class AddressService
 
         $is_updated = $address->update($data->to_array());
 
+        if ($is_updated && (!empty($data->is_default_shipping) || !empty($data->is_default_billing))) {
+            $this->enforce_single_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
+        }
+
         throw_if(!$is_updated, __('Address could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return Address::find($data->id);
