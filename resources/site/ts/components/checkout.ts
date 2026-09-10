@@ -239,6 +239,33 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       delete this.billingErrors.state;
     },
 
+    getOtherSavedAddress(): any {
+      if (
+        defaultBillingSaved &&
+        String(defaultBillingSaved.id) !== String(this.shippingAddress.id)
+      ) {
+        return defaultBillingSaved;
+      }
+
+      return (
+        this.savedAddresses.find(
+          (address: any) => String(address.id) !== String(this.shippingAddress.id),
+        ) ?? null
+      );
+    },
+
+    onBillingSameAsShippingChange() {
+      if (!this.billingSameAsShipping) {
+        if (this.savedAddresses.length > 1 && !this.billingAddress.id) {
+          const otherAddress = this.getOtherSavedAddress();
+          if (otherAddress) {
+            this.setBillingAddress(otherAddress);
+          }
+        }
+      }
+      void this.updateCart();
+    },
+
     // ── Address picker modal ──────────────────────────────────────────────
 
     openShippingPicker() {
