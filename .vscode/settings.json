@@ -25,9 +25,7 @@
     "source.fixAll": "always",
     "source.fixAll.eslint": "always"
   },
-  "eslint.workingDirectories": [
-    { "mode": "auto" }
-  ],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
   "[php]": {
     "editor.tabSize": 4,
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
@@ -112,5 +110,8 @@
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.preferences.importModuleSpecifier": "non-relative"
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+
+  "phpSniffer.autoDetect": true,
+  "phpSniffer.standard": "./phpcs-wporg.xml.dist"
 }
