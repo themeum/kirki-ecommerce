@@ -10,4 +10,6 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 class EwayConstant
 {
     use HasConstants;
+
+    const TRANSACTION_TYPE_PURCHASE = 'Purchase';
 }

@@ -1,0 +1,133 @@
+info:
+  name: Eway
+  type: http
+  seq: 7
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/eway"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
+          "api_password": "NcllIDOG",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/eway"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
+              "api_password": "NcllIDOG",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "eway",
+              "name": "Eway",
+              "icon": "eway",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "Eway payment gateway",
+              "settings": {
+                "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
+                "api_password": "NcllIDOG",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "api_key",
+                  "label": "API Key",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "api_password",
+                  "label": "API Password",
+                  "type": "password",
+                  "required": true
+                },
+
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/eway",
+              "webhook_events": [
+
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/eway"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+               "api_key": "60CF3Ck1+eCACUFrHrciRrttyBv9Xv3s4vbKt7rzJIFBxhgdPnKMaC+Q3RDk72Kt3l2m1P",
+              "api_password": "NcllIDOG",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.
