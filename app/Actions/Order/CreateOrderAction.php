@@ -185,12 +185,26 @@ class CreateOrderAction
      * default shipping and billing addresses, creating them if they don't
      * exist yet.
      *
+     * A guest order has no customer_id and therefore no address book to
+     * sync into - the order's own shipping and billing column snapshots
+     * already carry the data, so this is a no-op for guests.
+     *
+     * Runs inside CreateOrderAction::execute()'s own open transaction, so
+     * every AddressService call here must be a without-transaction variant
+     * - the framework's Connection has no transaction nesting support, and
+     * a nested START TRANSACTION would implicitly commit the order insert
+     * early.
+     *
      * @param CreateOrderPayloadDTO $dto
      * @param Order $order
      * @return void
      */
     protected function sync_address(CreateOrderPayloadDTO $dto, $order)
     {
+        if (empty($order->customer_id)) {
+            return;
+        }
+
         if (empty($dto->shipping_id)) {
             $dto->shipping_id = $this->create_address($dto, $order->customer_id, AddressPurpose::SHIPPING)->id;
         }
@@ -203,8 +217,8 @@ class CreateOrderAction
             $dto->billing_id = $dto->shipping_id;
         }
 
-        $this->address_service->set_default($dto->shipping_id, AddressPurpose::SHIPPING);
-        $this->address_service->set_default($dto->billing_id, AddressPurpose::BILLING);
+        $this->address_service->set_default_without_transaction($dto->shipping_id, AddressPurpose::SHIPPING);
+        $this->address_service->set_default_without_transaction($dto->billing_id, AddressPurpose::BILLING);
     }
 
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
@@ -286,7 +300,7 @@ class CreateOrderAction
         $address_dto = $this->prepare_checkout_address_dto($dto, $purpose);
         $address_dto->customer_id = $customer_id;
 
-        return $this->address_service->create($address_dto);
+        return $this->address_service->create_without_transaction($address_dto);
     }
 
     /**

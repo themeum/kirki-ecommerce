@@ -110,6 +110,8 @@ class OrderCreateRequest extends Request
             'shipping_email' => Sanitizer::EMAIL,
             'shipping_company' => Sanitizer::TEXT,
 
+            'is_billing_same_as_shipping' => Sanitizer::BOOL,
+
             'billing_id' => Sanitizer::INT,
             'billing_first_name' => Sanitizer::TEXT,
             'billing_last_name' => Sanitizer::TEXT,

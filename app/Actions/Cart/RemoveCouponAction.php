@@ -23,7 +23,7 @@ class RemoveCouponAction
     {
         $applied_coupon = $cart->coupons->first(fn($coupon) => $coupon->code === $code);
 
-        throw_if(empty($applied_coupon_info), __('Coupon not found in cart.', 'kirki-ecommerce'), ValidationException::class, Response::NOT_FOUND);
+        throw_if(empty($applied_coupon), __('Coupon not found in cart.', 'kirki-ecommerce'), ValidationException::class, Response::NOT_FOUND);
 
         $this->cart_service->remove_coupons($cart->id, [$applied_coupon->id]);
 

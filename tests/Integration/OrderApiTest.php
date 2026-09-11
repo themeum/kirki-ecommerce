@@ -642,6 +642,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
             'billing_last_name' => 'Billing',
         ]));
@@ -706,6 +707,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
             'billing_last_name' => 'Billing',
             'billing_phone' => '555-9999',
@@ -737,6 +739,7 @@ class OrderApiTest extends RestTestCase
 
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Guest',
             'billing_last_name' => 'Shopper',
             'billing_email' => $billing_email,
@@ -1055,7 +1058,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
 
         $item_coupon = Coupon::create([
             'title' => 'Item Coupon',
@@ -1173,7 +1176,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $this->variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $first_coupon->id]);
         CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $second_coupon->id]);
 

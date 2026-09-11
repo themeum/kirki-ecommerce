@@ -135,14 +135,16 @@ class CartService
 
         $customer = customer($data['user_id']);
 
-        if (!empty($customer)) {
-            $is_billing_same_as_shipping = $customer->get_shipping_address()['id'] === $customer->get_billing_address()['id'];
+        if (!empty($customer->get_customer_id())) {
+            $shipping_address = $customer->get_shipping_address();
+            $billing_address = $customer->get_billing_address();
+            $is_billing_same_as_shipping = ($shipping_address ? $shipping_address['id'] : null) === ($billing_address ? $billing_address['id'] : null);
 
-            $data['shipping_address'] = $customer->get_shipping_address();
+            $data['shipping_address'] = $shipping_address;
             $data['is_billing_same_as_shipping'] = $is_billing_same_as_shipping;
 
             if (!$data['is_billing_same_as_shipping']) {
-                $data['billing_address'] = $customer->get_billing_address();
+                $data['billing_address'] = $billing_address;
             }
         }
 
