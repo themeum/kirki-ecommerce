@@ -9,16 +9,16 @@
   box-sizing: border-box;
 
   &[data-position-x='center'] {
-    left: 50%;
+    inset-inline-start: 50%;
     transform: translateX(-50%);
   }
 
   &[data-position-x='left'] {
-    left: 16px;
+    inset-inline-start: 16px;
   }
 
   &[data-position-x='right'] {
-    right: 16px;
+    inset-inline-end: 16px;
   }
 
   &[data-position-y='top'] {
@@ -55,8 +55,8 @@
 
 .kecom-toast-item {
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   width: 100%;
   box-sizing: border-box;
   user-select: none;
@@ -233,7 +233,7 @@
   color: $icon-secondary;
   cursor: pointer;
   margin-top: 2px;
-  margin-left: auto;
+  margin-inline-start: auto;
   transition:
     background-color 150ms ease,
     color 150ms ease;

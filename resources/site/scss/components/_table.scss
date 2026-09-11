@@ -20,7 +20,7 @@
   border: none;
   border-collapse: separate;
   border-spacing: 0;
-  text-align: left;
+  text-align: start;
 
   th {
     background-color: $background-surface-alt;
@@ -32,13 +32,13 @@
     border: none;
 
     &:first-child {
-      padding-left: $spacing-6;
-      border-top-left-radius: $radius-2xl;
+      padding-inline-start: $spacing-6;
+      border-start-start-radius: $radius-2xl;
     }
 
     &:last-child {
-      padding-right: $spacing-6;
-      border-top-right-radius: $radius-2xl;
+      padding-inline-end: $spacing-6;
+      border-start-end-radius: $radius-2xl;
     }
   }
 
@@ -52,11 +52,11 @@
 
   tbody tr {
     &:last-child td:first-child {
-      border-bottom-left-radius: $radius-2xl;
+      border-end-start-radius: $radius-2xl;
     }
 
     &:last-child td:last-child {
-      border-bottom-right-radius: $radius-2xl;
+      border-end-end-radius: $radius-2xl;
     }
   }
 
@@ -74,13 +74,13 @@
         padding: $spacing-7;
 
         &:first-child {
-          border-top-left-radius: $radius-2xl;
-          border-bottom-left-radius: $radius-2xl;
+          border-start-start-radius: $radius-2xl;
+          border-end-start-radius: $radius-2xl;
         }
 
         &:last-child {
-          border-top-right-radius: $radius-2xl;
-          border-bottom-right-radius: $radius-2xl;
+          border-start-end-radius: $radius-2xl;
+          border-end-end-radius: $radius-2xl;
         }
       }
     }

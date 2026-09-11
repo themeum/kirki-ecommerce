@@ -28,7 +28,7 @@
     @include typography(xs, medium, $text-light);
     position: absolute;
     top: 12px;
-    left: 16px;
+    inset-inline-start: 16px;
     background-color: $background-fill-critical;
     padding: $spacing-2 $spacing-4;
     border-radius: $radius-sm;

@@ -39,7 +39,7 @@
   }
 
   &-action {
-    margin-left: auto;
+    margin-inline-start: auto;
     flex-shrink: 0;
     white-space: nowrap;
     @include typography(sm, medium, $text-primary);

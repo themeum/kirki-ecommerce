@@ -8,12 +8,12 @@
   position: sticky;
   top: $spacing-12;
   padding: $spacing-14 $spacing-12;
-  border-right: 1px solid $border-default;
+  border-inline-end: 1px solid $border-default;
   height: 100%;
 
   @include breakpoint-down(md) {
     background-color: $background-surface-alt;
-    border-right: none;
+    border-inline-end: none;
     border-top: 1px solid $border-default;
     padding: $spacing-4;
     top: auto;
@@ -61,7 +61,7 @@
     border: none;
     outline: none;
     cursor: pointer;
-    text-align: left;
+    text-align: start;
     @include transition((color));
 
     &:hover {

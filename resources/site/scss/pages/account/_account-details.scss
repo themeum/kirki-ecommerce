@@ -78,12 +78,12 @@
   align-items: center;
 
   .kecom-input {
-    padding-right: $spacing-10;
+    padding-inline-end: $spacing-10;
   }
 
   .kecom-password-toggle-btn {
     position: absolute;
-    right: $spacing-4;
+    inset-inline-end: $spacing-4;
     background: transparent;
     border: none;
     outline: none;

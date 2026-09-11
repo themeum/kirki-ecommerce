@@ -34,7 +34,7 @@
   .kecom-product-qty-badge {
     position: absolute;
     top: -4px;
-    right: -4px;
+    inset-inline-end: -4px;
     @include flex-center();
     @include typography(sm, semibold, $text-light);
     min-width: 22px;

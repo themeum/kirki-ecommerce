@@ -75,11 +75,11 @@
   }
 
   .kecom-product-nav-prev {
-    left: $spacing-8;
+    inset-inline-start: $spacing-8;
   }
 
   .kecom-product-nav-next {
-    right: $spacing-8;
+    inset-inline-end: $spacing-8;
   }
 
   .kecom-product-thumbnails {
@@ -333,8 +333,8 @@
         content: '';
         position: absolute;
         bottom: -1px;
-        left: 0;
-        right: 0;
+        inset-inline-start: 0;
+        inset-inline-end: 0;
         height: 2px;
         background-color: $border-inverse;
       }
