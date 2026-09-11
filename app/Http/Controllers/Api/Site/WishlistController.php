@@ -135,7 +135,7 @@ class WishlistController
     public function remove_item(Request $request)
     {
         $user_id = (int) user()->get_id();
-        $variant_id = $request->int('variant_id');
+        $variant_id = $request->int('id');
 
         $wishlist = Wishlist::where(['user_id' => $user_id, 'variant_id' => $variant_id])->first();
 
@@ -146,9 +146,12 @@ class WishlistController
         }
 
         $this->wishlist_service->remove_item($user_id, $variant_id);
+        $data = $this->wishlist_service->all($user_id);
+
+        $wishlist = WishlistResource::paginated(new Paginator($data, $data->count(), 9, 1));
 
         return response()->json([
-            'data'    => true,
+            'data'    => $wishlist,
             'message' => __('Item removed from wishlist successfully.', 'kirki-ecommerce'),
         ]);
     }

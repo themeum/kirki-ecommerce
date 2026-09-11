@@ -37,7 +37,7 @@ $sidebar_data = [
 <?php Template::get_header(); ?>
 
 <div class="kecom-page-wrapper kecom-products-page" x-data="shop()">
-    <div class="kecom-container">
+    <div class="kecom-container" x-data="pagination()">
         <?php
         include_view(
             'site.shop.parts.breadcrumb',

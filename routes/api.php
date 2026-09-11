@@ -284,6 +284,7 @@ Route::group([
     Route::patch('/addresses/{id}/set-default', [AddressController::class, 'set_default']);
 
     Route::get('/wishlist', [WishlistController::class, 'get']);
+    Route::get('/wishlist/items', [AccountController::class, 'wishlist_items']);
     Route::post('/wishlist', [WishlistController::class, 'add_item']);
     Route::delete('/wishlist/{id}', [WishlistController::class, 'remove_item'])->where('id', '[\d]+');
     Route::delete('/wishlist/empty', [WishlistController::class, 'empty_wishlist']);

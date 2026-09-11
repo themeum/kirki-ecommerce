@@ -14,6 +14,8 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+use function Kirki\Ecommerce\Framework\user;
+
 class WishlistService
 {
     /**
@@ -66,7 +68,7 @@ class WishlistService
     {
         $query = Wishlist::query()
             ->where('user_id', $user_id)
-            ->with(['variant.product.media', 'variant.product.currency', 'variant.media']);
+            ->with(['variant.product.media', 'variant.product.currency', 'variant.media', 'variant.product.categories']);
 
         if ($filters) {
             $query->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $q) use ($filters) {
@@ -79,6 +81,37 @@ class WishlistService
         }
 
         return $query;
+    }
+
+    /**
+     * Check if a variant is in the wishlist for the given user.
+     *
+     * @param int $user_id user id.
+     * @param int $variant_id variant id.
+     *
+     * @return Wishlist|null
+     */
+    public function get_item(int $user_id, int $variant_id)
+    {
+        return Wishlist::where('user_id', $user_id)->where('variant_id', $variant_id)->first();
+    }
+
+    /**
+     * Check if a variant is in the wishlist for the given user.
+     *
+     * @param int $variant_id variant id.
+     *
+     * @return bool
+     */
+    public function is_wishlisted(int $variant_id, int $user_id = 0): bool
+    {
+        $user_id = $user_id ?: (int) user()->get_id();
+
+        if (empty($user_id)) {
+            return false;
+        }
+
+        return (bool) $this->get_item($user_id, $variant_id);
     }
 
     /**
@@ -97,9 +130,7 @@ class WishlistService
 
         throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        $existing = Wishlist::where('user_id', $user_id)
-            ->where('variant_id', $variant_id)
-            ->first();
+        $existing = $this->get_item($user_id, $variant_id);
 
         if ($existing) {
             return $existing;

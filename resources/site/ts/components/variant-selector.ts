@@ -29,6 +29,7 @@ export type Variant = {
   has_limit_per_order: boolean;
   max_per_order: number | null;
   track_inventory?: boolean;
+  is_wishlisted: boolean;
 };
 
 export type VariantSelectorConfig = {

@@ -169,6 +169,6 @@ export function shop() {
       } finally {
         this.isLoading = false;
       }
-    },
+    }
   };
 }
