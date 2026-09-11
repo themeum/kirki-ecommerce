@@ -56,7 +56,8 @@ class EwayClient
     protected function send(string $method, string $url, array $payload = []): array
     {
         $request = Http::with_token($this->get_auth(), 'Basic')
-            ->with_headers(['X-EWAY-APIVERSION' => EwayConstant::API_VERSION]);
+                    ->with_headers(['X-EWAY-APIVERSION' => EwayConstant::API_VERSION])
+                    ->with_user_agent('KirkiEcommerce/1.0');
 
         if (EwayConstant::GET_METHOD !== $method) {
             $request = $request->with_body(wp_json_encode($payload));

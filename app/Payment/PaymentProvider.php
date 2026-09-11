@@ -9,6 +9,8 @@ use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\RedirectResponse;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Exception;
@@ -427,6 +429,22 @@ class PaymentProvider
     public function webhook()
     {
         return true;
+    }
+
+    /**
+     * Handle a GET request to the webhook URL.
+     *
+     * Gateways that send the customer back to the webhook URL after payment
+     * override this to confirm the payment and return where to send them. The
+     * default returns null, which the controller answers with a plain 200 —
+     * enough for gateways that only ping the URL to check it is reachable.
+     *
+     * @param Request $request
+     * @return RedirectResponse|null
+     */
+    public function handle_return(Request $request)
+    {
+        return null;
     }
 
     /**

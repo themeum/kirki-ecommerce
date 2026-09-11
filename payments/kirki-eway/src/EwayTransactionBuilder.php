@@ -23,7 +23,7 @@ class EwayTransactionBuilder
         $this->order = $order;
     }
 
-    public function build_transaction_payload()
+    public function build_transaction_payload($webhook_url)
     {
         $billing_address = $this->split_address(50, 'billing');
         $shipping_address = $this->split_address(50, 'shipping');
@@ -31,7 +31,7 @@ class EwayTransactionBuilder
         return [
             'Method' => EwayConstant::PROCESS_PAYMENT,
             'TransactionType' => EwayConstant::TRANSACTION_TYPE_PURCHASE,
-            'RedirectUrl' => Url::get_checkout_success_url($this->order->uuid),
+            'RedirectUrl' => $webhook_url,
             'CancelUrl' => Url::get_checkout_failed_url($this->order->uuid),
             'CustomerReadOnly'    => true,
             'VerifyCustomerPhone' => true,
@@ -62,10 +62,10 @@ class EwayTransactionBuilder
                 'Email' => $this->order->shipping_email ?? ''
             ],
             'Items' => $this->get_items(),
-            'Options' => [['Value' => $this->order->uuid]],
+            'InvoiceReference' => $this->order->uuid,
             'Payment' => [
                 'TotalAmount' => $this->order->invoiced_total,
-                'CurrencyCode' => $this->order->currency_code,
+                'CurrencyCode' => 'AUD'//$this->order->currency_code,
             ]
         ];
     }

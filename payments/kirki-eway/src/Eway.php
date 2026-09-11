@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -72,8 +73,13 @@ class Eway extends PaymentProvider
         try {
             $this->client = $this->get_client();
             $builder = new EwayTransactionBuilder($order);
-            $payload = $builder->build_transaction_payload();
+            $payload = $builder->build_transaction_payload($this->webhook_url());
             $response = $this->client->create_transaction($payload);
+
+            if (array_key_exists('Errors', $response) && !empty($response['Errors'])) {
+                $error_message = EwayErrorCode::describe($response['Errors']);
+                throw new Exception($error_message);
+            }
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
@@ -130,9 +136,14 @@ class Eway extends PaymentProvider
      */
     public function webhook()
     {
-        $payload = $this->verify_and_parse_notification();
+        $payload = Request::capture();
+
+        if (!$this->verify_and_parse_notification($payload)) {
+            return false;
+        }
 
         http_response_code(200);
+
 
         try {
             $order_uuid = $payload->variables->order_uuid ?? '';
@@ -239,15 +250,9 @@ class Eway extends PaymentProvider
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 
-    /**
-     * Read the raw webhook payload, verify its checksum, and decode it.
-     *
-     * @return object
-     * @throws Exception If the payload is missing or its checksum is invalid.
-     */
-    protected function verify_and_parse_notification()
+    protected function verify_and_parse_notification($payload)
     {
-        $raw_payload = file_get_contents('php://input');
+        $access_code = $payload->get('AccessCode', null, 'string');
         $this->client = $this->get_client();
 
         // Respond with a 200 status code to acknowledge the notification.

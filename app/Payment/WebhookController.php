@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Payment;
 
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
+use Kirki\Ecommerce\Framework\Http\RedirectResponse;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -24,5 +25,21 @@ class WebhookController
             'success' => $result,
             'message' => $result ? __('Webhook handled successfully', 'kirki-ecommerce') : __('Webhook handling failed', 'kirki-ecommerce'),
         ], $result ? Response::OK : Response::BAD_REQUEST);
+    }
+
+    public function handle_return(Request $request, $provider_id)
+    {
+        $provider = Payment::get_provider($provider_id);
+
+        throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
+
+        $result = $provider->handle_return($request);
+
+        // REST routes don't dispatch RedirectResponse like site routes do, so send it here.
+        if ($result instanceof RedirectResponse) {
+            $result->send();
+        }
+
+        return response()->json(['success' => true], Response::OK);
     }
 }
