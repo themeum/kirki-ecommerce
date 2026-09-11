@@ -11,13 +11,14 @@ type ItemsResponse = {
   };
 };
 
-export function paginator(itemsGrid?:string, paginationContainer?:string, apiUrl?: string) {
+export function pagination(itemsGrid?:string, paginationContainer?:string, headerClass?: string, apiUrl?: string) {
   const { __ } = window.wp.i18n;
 
   return {
     isLoading: false,
     itemsGrid: itemsGrid || 'kecom-products-grid',
     paginationContainer: paginationContainer || 'kecom-pagination-container',
+    headerClass: headerClass || 'kecom-breadcrumb-list',
     apiUrl: apiUrl || '/shop/products',
 
     init() {
@@ -63,7 +64,7 @@ export function paginator(itemsGrid?:string, paginationContainer?:string, apiUrl
 
           // Smoothly scroll to the page title if requested
           if (shouldScroll) {
-            const pageTitle = document.querySelector('.kecom-breadcrumb-list');
+            const pageTitle = document.querySelector(`.${this.headerClass}`);
             if (pageTitle) {
               pageTitle.scrollIntoView({ behavior: 'smooth' });
             }

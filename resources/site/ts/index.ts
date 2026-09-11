@@ -25,7 +25,7 @@ import { shop } from './components/shop';
 import { wishlist } from './components/wishlist';
 import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
-import { paginator } from './components/paginator';
+import { pagination } from './components/pagination';
 import { accountWishlist } from './components/account-wishlist';
 
 import { accountOrders } from './components/account-orders';
@@ -60,7 +60,7 @@ Alpine.data('stateField', stateField);
 Alpine.data('shop', shop);
 Alpine.data('miniCart', miniCart);
 Alpine.data('wishlist', wishlist);
-Alpine.data('paginator', paginator);
+Alpine.data('pagination', pagination);
 Alpine.data('accountWishlist', accountWishlist);
 
 // Initialize Alpine

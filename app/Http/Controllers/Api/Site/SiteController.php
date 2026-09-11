@@ -57,7 +57,7 @@ class SiteController
             $pagination_html = ob_get_clean();
 
             $data = [
-                'products'   => $products_html,
+                'items'   => $products_html,
                 'pagination' => $pagination_html,
                 'filters'    => $filters,
             ];
@@ -66,7 +66,7 @@ class SiteController
             unset($pagination['results']);
 
             $data = [
-                'products'   => $products,
+                'items'   => $products,
                 'pagination' => $pagination,
                 'filters'    => $filters,
             ];

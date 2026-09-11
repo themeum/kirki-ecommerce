@@ -31,7 +31,7 @@ $wishlist_items = $wishlists->items()->all();
                 <?php  if (empty($wishlist_items)) : ?>
                     <?php include_view('site.account.wishlist.empty'); ?>
                 <?php else : ?>
-                <div class="kecom-account-wishlist" x-data="paginator('kecom-products-grid','kecom-pagination-container','/account/wishlist/items')">
+                <div class="kecom-account-wishlist" x-data="pagination('kecom-products-grid','kecom-pagination-container', 'kecom-account-panel-header','/account/wishlist/items')">
                     <div class="kecom-account-panel-header">
                         <h3 class="kecom-account-panel-header-title">
                             <?php esc_html_e('Wishlist', 'kirki-ecommerce'); ?>
