@@ -65,7 +65,7 @@ class ShopProductResource extends Resource
             'has_variants'            => $has_variants,
             'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
-            'has_wishlist'            => $is_wishlisted,
+            'is_wishlisted'           => $is_wishlisted,
         ];
     }
 

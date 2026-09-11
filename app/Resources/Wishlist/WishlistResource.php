@@ -71,7 +71,7 @@ class WishlistResource extends Resource
             'out_of_stock' => $out_of_stock,
             'ribbon_text' => $variant ? $this->resolve_ribbon_text($out_of_stock) : '',
             'category_name' => $variant ? $this->resolve_category_name($product) : '',
-            'has_wishlist' => $is_wishlisted,
+            'is_wishlisted' => $is_wishlisted,
             'has_variants' => false,
         ];
     }

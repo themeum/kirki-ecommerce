@@ -35,10 +35,10 @@ $out_of_stock            = $product['out_of_stock'];
 $has_variants            = $product['has_variants'];
 $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
-$has_wishlist            = $product['has_wishlist'];
+$is_wishlisted            = $product['is_wishlisted'];
 $display_context         = $data['context'] ?? null;
 ?>
-<div class="kecom-product-card" x-data="<?php printf('wishlist(%s, %s, \'%s\')', $has_wishlist ? 'true' : 'false', 'null', esc_js($display_context)); ?>">
+<div class="kecom-product-card" x-data="<?php printf('wishlist(%s, %s, \'%s\')', $is_wishlisted ? 'true' : 'false', 'null', esc_js($display_context)); ?>">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
         <?php if (!empty($ribbon_text)) : ?>
             <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
