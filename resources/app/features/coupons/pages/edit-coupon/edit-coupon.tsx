@@ -7,11 +7,9 @@ import { useNavigate, useParams } from 'react-router';
 
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
@@ -181,8 +179,6 @@ const EditCoupon = () => {
       <Form {...form}>
         <PageHeading
           text={isNew ? __('New Coupon', 'kirki-ecommerce') : __('Edit Coupon', 'kirki-ecommerce')}
-          type="primary"
-          sticky
           actions={
             <>
               <Button variant="ghost" onClick={handleBack}>
@@ -205,7 +201,7 @@ const EditCoupon = () => {
           )}
         </PageHeading>
 
-        <Container>
+        <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} basis="70%" grow={1}>
               <Tabs
@@ -248,7 +244,7 @@ const EditCoupon = () => {
               <CouponPreview />
             </div>
           </Flex>
-        </Container>
+        </PageContent>
       </Form>
     </Page>
   );

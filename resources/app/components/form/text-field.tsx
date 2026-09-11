@@ -18,6 +18,7 @@ type TextFieldProps<
   disabled?: boolean;
   readOnly?: boolean;
   onClick?: () => void;
+  onBlur?: () => void;
   cssOverride?: CSSObject;
   autoFocus?: boolean;
 };
@@ -35,6 +36,7 @@ const TextField = <
   disabled,
   readOnly,
   onClick,
+  onBlur,
   cssOverride,
   autoFocus = false,
 }: TextFieldProps<TFieldValues, TName>) => {
@@ -64,6 +66,10 @@ const TextField = <
             disabled={disabled}
             readOnly={readOnly}
             onClick={onClick}
+            onBlur={() => {
+              field.onBlur();
+              onBlur?.();
+            }}
             error={Boolean(fieldState.error)}
             aria-invalid={fieldState.invalid}
             // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus

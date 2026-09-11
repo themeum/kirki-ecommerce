@@ -10,7 +10,6 @@ import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import TaxRegions from '@/features/settings/tax/components/tax-region-list';
 import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
@@ -81,10 +80,6 @@ const TaxSettings = () => {
       }),
     );
   }, [taxSettings, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSaveTaxSettings = async (
     payload: TaxSettingsFormPayload,

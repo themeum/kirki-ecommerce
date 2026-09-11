@@ -38,6 +38,5 @@ const styles = defineStyles({
   separator: {
     marginInline: `-${theme.spacing[4]}`,
     width: `calc(100% + ${theme.spacing[4]} + ${theme.spacing[4]})`,
-    backgroundColor: theme.colors.background.surfaceSubdued,
   },
 });

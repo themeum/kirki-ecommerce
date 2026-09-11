@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CustomerTable from '@/features/customers/components/customer-table/customer-table';
@@ -17,7 +16,7 @@ const Customers = () => {
   };
 
   return (
-    <>
+    <Page>
       <PageHeading
         text={__('Customers', 'kirki-ecommerce')}
         actions={
@@ -27,7 +26,7 @@ const Customers = () => {
         }
       />
 
-      <Container>
+      <PageContent>
         <Flex direction="column" gap={2}>
           {/* TODO: implement group management later */}
           {/* <Card cssOverride={cardStyles.formCard}>
@@ -64,8 +63,8 @@ const Customers = () => {
           </Card> */}
           <CustomerTable />
         </Flex>
-      </Container>
-    </>
+      </PageContent>
+    </Page>
   );
 };
 

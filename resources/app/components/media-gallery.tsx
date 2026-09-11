@@ -1,6 +1,20 @@
-import { closestCenter, DndContext, type DragEndEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
 import { useState } from 'react';
@@ -11,12 +25,13 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import { useMediaLibrary } from '@/hooks';
-import { MoveIcon, PlusIcon, TrashIcon } from '@/icons';
+import { MoveIcon, PlusIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
+import { Trash2, Trash2Icon } from 'lucide-react';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;
@@ -53,14 +68,10 @@ const SortableItem = ({
   isLarge,
   disableDrag,
 }: SortableItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled: disableDrag });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+    disabled: disableDrag,
+  });
 
   const style = defineStyles({
     transform: CSS.Transform.toString(transform),
@@ -114,9 +125,7 @@ const SortableItem = ({
             aria-label={__('Move', 'kirki-ecommerce')}
             {...listeners}
             style={{
-              transform: isDragging
-                ? `scale(${normalizedScaleX}, ${normalizedScaleY})`
-                : '',
+              transform: isDragging ? `scale(${normalizedScaleX}, ${normalizedScaleY})` : '',
             }}
             cssOverride={styles.dragHandlerButton}
           >
@@ -129,22 +138,28 @@ const SortableItem = ({
           css={scopedMerge(styles.itemActions, isActive && styles.itemActive)}
           data-gallery-actions
         >
-          <Checkbox
-            value={selectedImages?.includes(index)}
-            onChange={(v: boolean) => onSelectImage(v)}
-          />
+          <div css={styles.checkboxWrapper}>
+            <Checkbox
+              value={selectedImages?.includes(index)}
+              onChange={(v: boolean) => onSelectImage(v)}
+            />
+          </div>
           {!selectedImages?.length && (
             <Button
               variant="ghost"
+              size="icon-sm"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
+              cssOverride={{ backgroundColor: theme.colors.background.fill }}
             >
-              <TrashIcon color={theme.colors.text.critical} />
+              <Trash2Icon color={theme.colors.text.critical} />
             </Button>
           )}
         </div>
       )}
-      {url && <Image src={url} alt={alt} width="100%" height="100%" cssOverride={styles.itemImage} />}
+      {url && (
+        <Image src={url} alt={alt} width="100%" height="100%" cssOverride={styles.itemImage} />
+      )}
     </div>
   );
 };
@@ -206,9 +221,7 @@ const MediaGallery = ({
       const updatedList = [...selectedImages, currentIndex];
       setSelectedImages(updatedList);
     } else {
-      const filteredList = selectedImages?.filter(
-        (_item, index) => index !== currentIndex,
-      );
+      const filteredList = selectedImages?.filter((_item, index) => index !== currentIndex);
       setSelectedImages(filteredList);
     }
   };
@@ -231,12 +244,8 @@ const MediaGallery = ({
   };
 
   const handleDeleteSingleImage = (currentIndex: number) => {
-    setSelectedImages((prev) =>
-      prev.filter((_item, index) => index !== currentIndex),
-    );
-    const filteredMedia = mediaItems?.filter(
-      (_item, index) => index !== currentIndex,
-    );
+    setSelectedImages((prev) => prev.filter((_item, index) => index !== currentIndex));
+    const filteredMedia = mediaItems?.filter((_item, index) => index !== currentIndex);
     onUpdate(filteredMedia);
   };
 
@@ -246,19 +255,21 @@ const MediaGallery = ({
         <Flex align="center" justify="space-between">
           <Checkbox
             value={selectedImages?.length === mediaItems?.length}
-            label={`${selectedImages?.length} ${selectedImages?.length > 1 ? 'files' : 'file'
-              } selected`}
+            label={`${selectedImages?.length} ${
+              selectedImages?.length > 1 ? 'files' : 'file'
+            } selected`}
             isPartialChecked={
-              selectedImages?.length < mediaItems?.length &&
-              selectedImages?.length !== 0
+              selectedImages?.length < mediaItems?.length && selectedImages?.length !== 0
             }
             onChange={() => handleSelectAllImages()}
           />
           <Button
-            variant="link"
+            variant="ghost"
+            size="sm"
             cssOverride={styles.deleteButton}
             onClick={handleDeleteSelectedImages}
           >
+            <Trash2 />
             {__('Delete', 'kirki-ecommerce')}
           </Button>
         </Flex>
@@ -267,9 +278,7 @@ const MediaGallery = ({
           {label && (
             <Field data-invalid={error ? true : undefined}>
               <FieldLabel style={{ minHeight: '23px' }}>{label}</FieldLabel>
-              {helpText && !error && (
-                <FieldDescription>{helpText}</FieldDescription>
-              )}
+              {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
               {typeof error === 'string' && <FieldError>{error}</FieldError>}
             </Field>
           )}
@@ -299,9 +308,7 @@ const MediaGallery = ({
                   alt={img.alt || ''}
                   isLarge={isLarge}
                   selectedImages={selectedImages}
-                  onSelectImage={(value) =>
-                    updateSelectedImageList(value, index)
-                  }
+                  onSelectImage={(value) => updateSelectedImageList(value, index)}
                   onDeleteImage={() => handleDeleteSingleImage(index)}
                 />
               );
@@ -314,7 +321,13 @@ const MediaGallery = ({
                 onClick={() => setExpanded(true)}
               >
                 {fourthItem.url && (
-                  <Image src={fourthItem.url} alt={fourthItem.alt} width="100%" height="100%" cssOverride={styles.itemImage} />
+                  <Image
+                    src={fourthItem.url}
+                    alt={fourthItem.alt}
+                    width="100%"
+                    height="100%"
+                    cssOverride={styles.itemImage}
+                  />
                 )}
                 <div css={scoped(styles.remainingOverlayText)}>+{remainingCount}</div>
               </button>
@@ -363,6 +376,12 @@ const styles = defineStyles({
       opacity: 1,
     },
   },
+  checkboxWrapper: scoped({
+    width: 16,
+    height: 16,
+    background: theme.colors.background.fill,
+    borderRadius: theme.radius.sm,
+  }),
   itemImage: {
     border: 'none',
     borderRadius: theme.radius.none,
@@ -385,8 +404,8 @@ const styles = defineStyles({
   },
   itemActions: {
     position: 'absolute',
-    top: '8px',
-    left: '6px',
+    top: '12px',
+    left: '12px',
     right: '6px',
     zIndex: 3,
     display: 'flex',

@@ -4,7 +4,12 @@ import { useLocation } from 'react-router';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
-import { advancedSettings, businessOperationSettings, type SettingsNavItem, storeManagementSettings } from '@/features/settings/lib/utils';
+import {
+  advancedSettings,
+  businessOperationSettings,
+  type SettingsNavItem,
+  storeManagementSettings,
+} from '@/features/settings/lib/utils';
 import { SettingsNavItemRow } from '@/features/settings/pages/settings-nav-item';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -17,23 +22,20 @@ type SettingsSection = {
 
 const settingsSections: SettingsSection[] = [
   {
-    title: __('STORE MANAGEMENT', 'kirki-ecommerce'),
+    title: __('Store', 'kirki-ecommerce'),
     items: storeManagementSettings,
   },
   {
-    title: __('BUSINESS OPERATION', 'kirki-ecommerce'),
+    title: __('Business', 'kirki-ecommerce'),
     items: businessOperationSettings,
   },
   {
-    title: __('ADVANCED CONFIGURATION', 'kirki-ecommerce'),
+    title: __('Configuration', 'kirki-ecommerce'),
     items: advancedSettings,
   },
 ];
 
-const filterSettingsItems = (
-  items: SettingsNavItem[],
-  query: string,
-): SettingsNavItem[] => {
+const filterSettingsItems = (items: SettingsNavItem[], query: string): SettingsNavItem[] => {
   if (!query) {
     return items;
   }
@@ -73,19 +75,26 @@ const SettingsSidebar = () => {
 
   return (
     <div css={scoped(styles.panel)}>
-      <Flex direction="column" gap={6}>
-        <Searchbox value={searchQuery} onChange={handleSearchChange} />
+      <Flex direction="column" gap={3}>
+        <Searchbox
+          value={searchQuery}
+          onChange={handleSearchChange}
+          cssOverride={styles.searchbox}
+        />
         {filteredSections.length === 0 ? (
-          <Text color="subdued">
-            {__('No settings found', 'kirki-ecommerce')}
-          </Text>
+          <Text color="subdued">{__('No settings found', 'kirki-ecommerce')}</Text>
         ) : (
           filteredSections.map((section) => (
             <Flex key={section.title} direction="column" gap={2}>
-              <Text variant="tiny" color="secondary">
+              <Text
+                variant="tiny"
+                color="secondary"
+                weight="medium"
+                cssOverride={{ marginLeft: theme.spacing[1] }}
+              >
                 {section.title}
               </Text>
-              <Flex direction="column" cssOverride={styles.itemList}>
+              <Flex direction="column" gap={1}>
                 {section.items.map((item, index) => (
                   <SettingsNavItemRow
                     key={item.header}
@@ -95,10 +104,7 @@ const SettingsSidebar = () => {
                     disabled={item.disabled}
                     isFirst={index === 0}
                     isLast={index === section.items.length - 1}
-                    isActive={isSettingsRouteActive(
-                      location.pathname,
-                      item.link,
-                    )}
+                    isActive={isSettingsRouteActive(location.pathname, item.link)}
                   />
                 ))}
               </Flex>
@@ -115,15 +121,20 @@ SettingsSidebar.displayName = 'SettingsSidebar';
 export default SettingsSidebar;
 
 const styles = defineStyles({
+  searchbox: {
+    backgroundColor: theme.colors.background.surfaceAlt,
+    border: 'none',
+    marginBottom: theme.spacing[1],
+    '& svg': {
+      color: theme.colors.icon.secondary,
+    },
+  },
   panel: {
     width: '100%',
-    padding: theme.spacing[4],
-    borderRadius: theme.radius.xl,
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    boxShadow:
-      '0px -1px 1px 0.5px hsla(0, 0%, 0%, 0.1) inset, 0px 0.5px 1px 0px hsla(0, 0%, 0%, 0.1) inset',
-  },
-  itemList: {
-    gap: '2px',
+    padding: `${theme.spacing[2]} ${theme.spacing[2]} ${theme.spacing[3]} ${theme.spacing[2]}`,
+    border: `1px solid ${theme.colors.border.tertiary}`,
+    borderRadius: theme.radius.xxl,
+    backgroundColor: theme.colors.background.fill,
+    boxShadow: '0px -1px 1px 0.5px rgba(0, 0, 0, 0.1) inset',
   },
 });

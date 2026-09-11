@@ -20,7 +20,7 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
       {edit && (
         <Button
           variant="secondary"
-          size="icon"
+          size="icon-sm"
           cssOverride={edit.cssOverride}
           aria-label={edit.label ?? __('Edit', 'kirki-ecommerce')}
           onClick={edit.onClick}
