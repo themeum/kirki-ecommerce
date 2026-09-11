@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { PageContent } from '@/components/ui/page';
 import Skeleton from '@/components/ui/skeleton';
 import { cardStyles } from '@/theme/card-styles';
 
@@ -15,7 +15,7 @@ FieldSkeleton.displayName = 'FieldSkeleton';
 
 const CollectionDetailsSkeleton = () => {
   return (
-    <Container size="md">
+    <PageContent>
       <Flex direction="column" gap={4}>
         <Card cssOverride={cardStyles.formCard}>
           <CardContent>
@@ -37,7 +37,7 @@ const CollectionDetailsSkeleton = () => {
           </CardContent>
         </Card>
       </Flex>
-    </Container>
+    </PageContent>
   );
 };
 

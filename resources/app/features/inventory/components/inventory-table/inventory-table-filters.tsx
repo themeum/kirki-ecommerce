@@ -17,7 +17,7 @@ const InventoryTableFilters = () => {
         <Searchbox
           onChange={(value) => setParam('search', value)}
           value={params.search}
-          placeholder={__('Search Products', 'kirki-ecommerce')}
+          placeholder={__('Search...', 'kirki-ecommerce')}
           clearable
         />
       </div>

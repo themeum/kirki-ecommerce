@@ -8,7 +8,8 @@ import { theme } from '@/theme';
  */
 const chipFieldControlCss: CSSObject = {
   width: '100%',
-  minHeight: '36px',
+  minHeight: '32px',
+  maxHeight: '32px',
   margin: 0,
   padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   border: 'none',
@@ -17,7 +18,7 @@ const chipFieldControlCss: CSSObject = {
   outline: 'none',
   boxShadow: 'none',
   cursor: 'text',
-  ...theme.typography.small(),
+  ...theme.typography.small('medium'),
   color: theme.colors.text.primary,
   '&::placeholder': {
     color: theme.colors.text.secondary,

@@ -5,8 +5,8 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useParams } from 'react-router';
 
+import FloatingBar from '@/components/floating-bar/floating-bar';
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,8 +16,7 @@ import {
 import EmptyState from '@/components/ui/empty-state';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import {
   TooltipContent,
@@ -25,7 +24,6 @@ import {
   TooltipRoot,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import UnsavedToast from '@/components/unsaved-toast';
 import { RouteConfig } from '@/config/route-config';
 import Image from '@/features/inventory/components/variant-form/sections/image';
 import Inventory from '@/features/inventory/components/variant-form/sections/inventory';
@@ -65,12 +63,8 @@ const EditInventory = () => {
   const { isDirty } = form.formState;
   const productNameRef = useRef<HTMLElement>(null);
   const [isProductNameTruncated, setIsProductNameTruncated] = useState(false);
-  const {
-    isBlocked,
-    discardChanges: proceedBlockedNavigation,
-    markSaving,
-    shakeSignal,
-  } = useUnsavedNavigationGuard(isDirty);
+  const { isBlocked, cancelNavigation, markSaving, shakeSignal } =
+    useUnsavedNavigationGuard(isDirty);
 
   useEffect(() => {
     if (!variant) {
@@ -119,18 +113,21 @@ const EditInventory = () => {
     }
   };
 
+  // Discarding reverts the form and stays put; any navigation that was blocked
+  // is abandoned rather than completed, so the merchant keeps the page they
+  // are looking at.
   const handleDiscardChanges = () => {
     form.reset();
-    proceedBlockedNavigation();
+    cancelNavigation();
   };
 
   if (isError) {
     return (
       <Page>
-        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} sticky />
-        <Container>
+        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
+        <PageContent>
           <EmptyState text={__('This variant could not be found.', 'kirki-ecommerce')} />
-        </Container>
+        </PageContent>
       </Page>
     );
   }
@@ -138,7 +135,7 @@ const EditInventory = () => {
   if (isLoading || !variant) {
     return (
       <Page>
-        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} sticky />
+        <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <EditInventorySkeleton />
       </Page>
     );
@@ -162,7 +159,6 @@ const EditInventory = () => {
         <PageHeading
           hasBack
           onBack={handleBack}
-          sticky
           buttonProps={{ disabled: isSubmitting }}
           actions={
             <>
@@ -236,7 +232,7 @@ const EditInventory = () => {
           </Flex>
         </PageHeading>
 
-        <Container>
+        <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
               <Price />
@@ -248,16 +244,16 @@ const EditInventory = () => {
               <Image />
             </Flex>
           </Flex>
-        </Container>
+        </PageContent>
 
-        <UnsavedToast
-          visible={isBlocked}
-          onDiscardChanges={handleDiscardChanges}
-          onSave={handleSave}
-          isSubmitting={isSubmitting}
-          shakeSignal={shakeSignal}
-          message={__('Unsaved variant', 'kirki-ecommerce')}
-        />
+        <FloatingBar visible={isBlocked} shakeSignal={shakeSignal}>
+          <Button variant="tertiary" onClick={handleDiscardChanges} disabled={isSubmitting}>
+            {__('Discard', 'kirki-ecommerce')}
+          </Button>
+          <Button variant="primary" onClick={handleSave} loading={isSubmitting}>
+            {__('Save', 'kirki-ecommerce')}
+          </Button>
+        </FloatingBar>
       </Form>
     </Page>
   );
@@ -269,7 +265,6 @@ export default EditInventory;
 
 const styles = defineStyles({
   breadcrumb: {
-    marginLeft: `-${theme.spacing[3]}`,
     minWidth: 0,
     overflow: 'hidden',
   },

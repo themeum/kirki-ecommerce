@@ -8,7 +8,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import ApiConfig from '@/features/settings/multi-currency/pages/api-config/api-config';
 import { AvailableCurrencyList } from '@/features/settings/multi-currency/pages/available-currency-list';
 import CurrencyFormatSettings from '@/features/settings/multi-currency/pages/currency-format-settings';
@@ -64,10 +63,6 @@ const MultiCurrencySettings = () => {
       }),
     );
   }, [currencySettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSaveData = async (payload: MultiCurrencySettingsFormPayload) => {
     try {

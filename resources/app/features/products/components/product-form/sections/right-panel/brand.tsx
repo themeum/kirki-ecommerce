@@ -12,10 +12,12 @@ import Text from '@/components/ui/text';
 import type { Brand as BrandEntity } from '@/features/brands';
 import { BrandAddEditPopover, useBrandsQuery } from '@/features/brands';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { MinusIcon } from '@/icons';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
+import { mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
+import { Minus } from 'lucide-react';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 
@@ -23,9 +25,7 @@ const Brand = () => {
   const { watch, setValue } = useFormContext<ProductFormInput>();
   const productBrand = watch('brand');
   const { data: brandData } = useBrandsQuery({ limit: -1 });
-  const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>(
-    [],
-  );
+  const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>([]);
   const [openBrandCreatePopup, setOpenBrandCreatePopup] = useState(false);
   const [brandTitle, setBrandTitle] = useState('');
 
@@ -57,9 +57,7 @@ const Brand = () => {
   };
 
   const handleAddBrand = (brandValue: string) => {
-    const suggestion = suggestionArray.find(
-      (item) => String(item.value) === brandValue,
-    );
+    const suggestion = suggestionArray.find((item) => String(item.value) === brandValue);
     if (!suggestion) {
       return;
     }
@@ -69,10 +67,7 @@ const Brand = () => {
       {
         id: suggestion.id,
         name: suggestion.name,
-        logo:
-          suggestion.logo && typeof suggestion.logo === 'object'
-            ? suggestion.logo
-            : null,
+        logo: suggestion.logo && typeof suggestion.logo === 'object' ? suggestion.logo : null,
       },
       { shouldDirty: true, shouldValidate: true },
     );
@@ -84,26 +79,27 @@ const Brand = () => {
   };
 
   const brandLogo =
-    productBrand?.logo && typeof productBrand.logo === 'object'
-      ? productBrand.logo
-      : null;
+    productBrand?.logo && typeof productBrand.logo === 'object' ? productBrand.logo : null;
 
   return (
     <>
       {productBrand?.id ? (
         <Field>
           <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
-          <Card cssOverride={cardStyles.innerCard}>
-            <CardContent cssOverride={cardStyles.innerContent}>
+          <Card
+            cssOverride={mergeCss(cardStyles.innerCard, {
+              minHeight: '48px',
+              maxHeight: '48px',
+              justifyContent: 'center',
+            })}
+          >
+            <CardContent cssOverride={{ paddingInline: theme.spacing[2] }}>
               <Flex gap={2} align="center">
-                <Image src={brandLogo} />
+                <Image src={brandLogo} width={24} height={24} />
                 <Text variant="small">{productBrand?.name}</Text>
                 <ActionGroup cssOverride={{ cursor: 'pointer' }}>
-                  <Button
-                    variant="ghost"
-                    onClick={handleRemoveBrand}
-                  >
-                    <MinusIcon />
+                  <Button variant="ghost" size="icon" onClick={handleRemoveBrand}>
+                    <Minus />
                   </Button>
                 </ActionGroup>
               </Flex>
@@ -137,4 +133,3 @@ const Brand = () => {
 Brand.displayName = 'Brand';
 
 export default Brand;
-

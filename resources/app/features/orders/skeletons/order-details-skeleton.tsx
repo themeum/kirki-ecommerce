@@ -1,8 +1,7 @@
 import PageHeadingSkeleton from '@/components/skeletons/page-heading-skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import Page from '@/components/ui/page';
+import { Page, PageContent } from '@/components/ui/page';
 import Skeleton from '@/components/ui/skeleton';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -55,7 +54,7 @@ const OrderDetailsSkeleton = () => {
       <PageHeadingSkeleton>
         <Skeleton width={40} height={32} />
       </PageHeadingSkeleton>
-      <Container>
+      <PageContent>
         <Flex gap={4} cssOverride={styles.row}>
           <Flex direction="column" gap={4} cssOverride={styles.mainColumn}>
             <Card cssOverride={cardStyles.formCard}>
@@ -100,7 +99,7 @@ const OrderDetailsSkeleton = () => {
             <SideCardSkeleton rows={2} />
           </Flex>
         </Flex>
-      </Container>
+      </PageContent>
     </Page>
   );
 };

@@ -24,7 +24,6 @@ import {
 } from '@/features/settings/email/schemas/forms/email-settings-form';
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { AtSignIcon, BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -77,10 +76,6 @@ const EmailSettings = () => {
     }
     form.reset(pickFormValues(EmailSettingsFormSchema, emailSettingsData));
   }, [emailSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(form.formState.isDirty);
-  }, [form.formState.isDirty]);
 
   const handleSaveData = async (payload: EmailSettingsFormPayload) => {
     try {

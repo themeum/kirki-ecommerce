@@ -10,13 +10,17 @@ import {
   StackedItem,
   StackedItemActions,
   StackedItemContent,
+  StackedItemMedia,
   StackedItems,
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import AddSchemaPopup from '@/features/settings/essentials/pages/schema-profile/add-schema-dialog';
 import type { SchemaProfile } from '@/features/settings/essentials/schemas/catalog/schema-profile';
-import { useDeleteSchemaMutation, useSchemasQuery } from '@/features/settings/essentials/services/schema';
+import {
+  useDeleteSchemaMutation,
+  useSchemasQuery,
+} from '@/features/settings/essentials/services/schema';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -24,6 +28,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
+import { Code } from 'lucide-react';
 
 type SchemaListItem = SchemaProfile & {
   badge1?: string;
@@ -75,14 +80,14 @@ const SchemaProfileComponent = () => {
 
   return (
     <Card cssOverride={cardStyles.formCard}>
-      <CardContent >
+      <CardContent>
         <HeaderActionsCard
-          header={__('Schema Profile', 'kirki-ecommerce')}
+          header={__('Schemas', 'kirki-ecommerce')}
           subHeader={__(
-            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+            'Define structured data properties that products use for richer search results.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Add Profile', 'kirki-ecommerce')}
+          buttonText={__('Add Schema', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>
@@ -103,22 +108,23 @@ const SchemaProfileComponent = () => {
             <StackedItems>
               {schemaProfileList.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
+                  <StackedItemMedia>
+                    <Code size={16} />
+                  </StackedItemMedia>
                   <StackedItemContent>
                     <StackedItemTitle>
                       <Text variant="small" weight="medium">
                         {item.name}
                       </Text>
                       {item.is_default && (
-                        <Badge variant="secondary">
-                          {__('Default', 'kirki-ecommerce')}
-                        </Badge>
+                        <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
                       )}
                     </StackedItemTitle>
                   </StackedItemContent>
                   <StackedItemActions>
                     <ActionGroup>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}
@@ -127,7 +133,7 @@ const SchemaProfileComponent = () => {
                         <TrashIcon />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Edit', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}

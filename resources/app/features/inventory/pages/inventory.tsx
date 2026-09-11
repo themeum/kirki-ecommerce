@@ -1,24 +1,14 @@
-import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import InventoryTable from '@/features/inventory/components/inventory-table/inventory-table';
 import { __ } from '@/wpi18n';
 
 const Inventory = () => (
-  <>
-    <PageHeading
-      text={__('Inventory', 'kirki-ecommerce')}
-      actions={
-        <>
-          <Button variant="ghost">{__('Import', 'kirki-ecommerce')}</Button>
-          <Button variant="ghost">{__('Export', 'kirki-ecommerce')}</Button>
-        </>
-      }
-    />
-    <Container>
+  <Page>
+    <PageHeading text={__('Inventory', 'kirki-ecommerce')} />
+    <PageContent>
       <InventoryTable />
-    </Container>
-  </>
+    </PageContent>
+  </Page>
 );
 
 Inventory.displayName = 'Inventory';

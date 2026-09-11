@@ -4,14 +4,14 @@ import { useOutletContext } from 'react-router';
 type SettingsPageActionsInput = {
   isDirty: boolean;
   isSaving?: boolean;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   onDiscard: () => void;
 };
 
 type RegisteredSettingsPageActions = {
   isDirty: boolean;
   isSaving: boolean;
-  onSave: () => void;
+  onSave: () => void | Promise<void>;
   onDiscard: () => void;
 };
 
