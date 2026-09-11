@@ -6,10 +6,7 @@ import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type SkeletonRadius = keyof typeof theme.radius;
 
-type SkeletonProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type SkeletonProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   width?: string | number;
   height?: string | number;
   radius?: SkeletonRadius;
@@ -68,7 +65,7 @@ const radiusStyles = defineStyles({
 const styles = defineStyles({
   root: {
     flexShrink: 0,
-    backgroundColor: theme.colors.background.surfaceTertiary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     width: 'var(--skeleton-width, 100%)',
     height: 'var(--skeleton-height, 1rem)',
     animation: `${skeletonPulse} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite`,

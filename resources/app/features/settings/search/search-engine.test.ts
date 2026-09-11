@@ -139,6 +139,18 @@ describe('settings search engine', () => {
     expect(idsFor('a')).toEqual([]);
   });
 
+  it('drops a document that matches part of the query when another matches all of it', () => {
+    expect(idsFor('rate')).toContain('currency.management');
+    expect(idsFor('shipping rate')).toEqual(['shipping.zones']);
+  });
+
+  it('keeps partial matches when no document matches the whole query', () => {
+    const results = idsFor('parcel currency');
+
+    expect(results).toContain('shipping.pickup');
+    expect(results).toContain('currency.management');
+  });
+
   it('orders results by descending score', () => {
     const scores = search(corpus, 'shipping rate').map(
       (result) => result.score,

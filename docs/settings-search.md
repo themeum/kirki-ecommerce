@@ -65,9 +65,27 @@ document and a query are always vectorised by identical code.
    description ×2, label ×1.5, placeholder and help text ×1.
 5. **Compare.** Both vectors are L2-normalised, so cosine similarity is a plain
    dot product. The top 12 above the threshold are kept.
+6. **Require full coverage.** If any surviving card matched *every* word the
+   merchant typed, the cards that matched only some of them are dropped.
 
 Expansion is weighted below a literal term, so a card containing the typed word
 outranks a card that matches only through a related word.
+
+Step 6 is what keeps a multi-word query honest. Cosine similarity scores a card
+that matched one word out of two, and a partial match can easily clear the
+threshold on the strength of a single rare word. "Digital wallet" used to return
+Payment Gateways *and* Tax Profiles, because Tax Profiles says "food, books or
+digital goods" — one accidental word, none of the intent. Coverage counts, per
+typed word, whether the card carries that word literally (or the prefix/typo
+term it was recovered to in step 3); concept siblings deliberately do not count,
+since they are the loose half of the match.
+
+The rule only fires when some card covers the **whole** query — otherwise every
+candidate is partial and there is nothing to prefer. That is what leaves "money
+back" (no card contains either word) and "without an account" free to be
+answered entirely by concepts, while "cash on delivery" now reaches Manual
+Payment Methods instead of three shipping cards, because it is the only card
+carrying both *cash* and *delivery*.
 
 But a *rank* is not enough on its own: when nothing in the query appears in the
 corpus at all, every candidate is a synonym and the discount has nothing to rank

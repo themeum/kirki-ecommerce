@@ -26,6 +26,7 @@ const MIN_LOOSE_LENGTH = 3;
 const MIN_FUZZY_LENGTH = 5;
 const MAX_STEM_OVERSHOOT = 2;
 const SHORT_WORD_LENGTH = 6;
+const MIN_COVERAGE_WORDS = 2;
 
 export const FIELD_BOOSTS = {
   title: 3,
@@ -219,6 +220,7 @@ const fuzzyMatches = (stem, vocabulary) => {
 const resolveUnknownWords = (parsedQuery, vocabulary, lookup) => {
   const resolved = new Map();
   const confidence = new Map();
+  const termsByWord = new Map();
   const lastIndex = parsedQuery.words.length - 1;
 
   parsedQuery.words.forEach((word, index) => {
@@ -233,13 +235,44 @@ const resolveUnknownWords = (parsedQuery, vocabulary, lookup) => {
     const weight = prefixed.length > 0 ? PREFIX_WEIGHT : FUZZY_WEIGHT;
     const certainty = prefixed.length > 0 ? PREFIX_CONFIDENCE : FUZZY_CONFIDENCE;
 
+    termsByWord.set(word, matches);
+
     for (const term of matches) {
       addWeight(resolved, term, weight);
       raiseConfidence(confidence, term, certainty);
     }
   });
 
-  return { resolved, confidence };
+  return { resolved, confidence, termsByWord };
+};
+
+const coverageGroupsFor = (parsedQuery, lookup, termsByWord) => {
+  return parsedQuery.words.map((word) => {
+    const stem = stemWord(word);
+    const terms = lookup.has(stem) ? [stem] : (termsByWord.get(word) ?? []);
+
+    return terms
+      .map((term) => lookup.get(term))
+      .filter((position) => position !== undefined);
+  });
+};
+
+const coverageOf = (document, groups) => {
+  return groups.reduce((total, positions) => {
+    return total + (positions.some((position) => document.vector[position]) ? 1 : 0);
+  }, 0);
+};
+
+const withoutPartialMatches = (results, coverageById, matchableWords) => {
+  if (matchableWords < MIN_COVERAGE_WORDS) {
+    return results;
+  }
+
+  const complete = results.filter(
+    (result) => coverageById.get(result.id) === matchableWords,
+  );
+
+  return complete.length > 0 ? complete : results;
 };
 
 const matchedTermsFor = (index, document, parsedQuery, literalTerms) => {
@@ -314,7 +347,7 @@ export const search = (index, query) => {
   }
 
   const lookup = termIndexOf(index);
-  const { resolved, confidence } = resolveUnknownWords(
+  const { resolved, confidence, termsByWord } = resolveUnknownWords(
     parsedQuery,
     index.vocabulary,
     lookup,
@@ -349,6 +382,9 @@ export const search = (index, query) => {
   }
 
   const queryVector = new Map(normalize(entries));
+  const coverageGroups = coverageGroupsFor(parsedQuery, lookup, termsByWord);
+  const matchableWords = coverageGroups.filter((positions) => positions.length > 0).length;
+  const coverageById = new Map();
   const results = [];
 
   for (const document of index.documents) {
@@ -370,6 +406,8 @@ export const search = (index, query) => {
       continue;
     }
 
+    coverageById.set(document.id, coverageOf(document, coverageGroups));
+
     results.push({
       id: document.id,
       score,
@@ -381,5 +419,7 @@ export const search = (index, query) => {
     return literalSearch(index, query);
   }
 
-  return results.sort((a, b) => b.score - a.score).slice(0, MAX_RESULTS);
+  return withoutPartialMatches(results, coverageById, matchableWords)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MAX_RESULTS);
 };

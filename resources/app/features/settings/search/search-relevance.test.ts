@@ -74,6 +74,7 @@ const keyworded: [query: string, expected: string[]][] = [
   ['bank transfer', ['payments.offline']],
   ['upc', ['essentials.barcode-generation']],
   ['seo', ['essentials.schema-profile']],
+  ['cash on delivery', ['payments.offline']],
 ];
 
 const literal: [query: string, expected: string[]][] = [
@@ -130,6 +131,10 @@ describe('settings search relevance', () => {
     const ranked = topResults('variation');
 
     expect(ranked[0]).toBe('essentials.variation-library');
+  });
+
+  it('drops a card that matches only part of a multi-word query', () => {
+    expect(topResults('digital wallet')).toEqual(['payments.online']);
   });
 
   it('does not append literal matches to a query that already found something', () => {
