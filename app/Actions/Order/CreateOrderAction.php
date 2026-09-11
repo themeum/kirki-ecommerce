@@ -303,28 +303,6 @@ class CreateOrderAction
         return $this->address_service->create_without_transaction($address_dto);
     }
 
-    /**
-     * Update the customer's existing default shipping/billing address from
-     * the checkout request's shipping/billing fields, preserving the
-     * address's own type (home/office/others).
-     *
-     * @param CreateOrderPayloadDTO $dto
-     * @param Customer $customer
-     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
-     * @return void
-     */
-    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
-    {
-        $existing = $customer->{$purpose . '_address'};
-
-        $address_dto = $this->prepare_checkout_address_dto($dto, $purpose, true);
-        $address_dto->customer_id = $customer->id;
-        $address_dto->id = $existing->id;
-        $address_dto->type = $existing->type;
-
-        $this->address_service->update($address_dto);
-    }
-
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
     {
         $wp_user = get_userdata($dto->created_by) ?: null;

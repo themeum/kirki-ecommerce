@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Exception;
 
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * Keeps an order's coupon-attribution tables (`order_coupons`/`order_item_coupons`)
@@ -96,12 +97,14 @@ trait PersistsOrderCoupons
     {
         $sum = collection($order_coupons)->sum(fn(OrderCoupon $order_coupon) => $order_coupon->base_discount_amount);
 
-        if ($sum !== $expected_total) {
-            throw new Exception(sprintf(
-                'Order coupon discount reconciliation failed: order_coupons sum to %d but the order\'s discount total is %d.',
+        throw_if(
+            $sum !== $expected_total,
+            sprintf(
+                /* translators: 1: Sum of order coupons, 2: Expected discount total. */
+                __('Order coupon discount reconciliation failed: order_coupons sum to %1$d but the order\'s discount total is %2$d.', 'kirki-ecommerce'),
                 $sum,
                 $expected_total
-            ));
-        }
+            )
+        );
     }
 }
