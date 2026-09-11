@@ -1,4 +1,5 @@
 import { apiRequest } from '../api/client';
+import { EVENTS, listen } from '../events';
 import { toastManager } from '../services/toast/runtime';
 
 type ItemsResponse = {
@@ -34,10 +35,22 @@ export function pagination(itemsGrid?:string, paginationContainer?:string, heade
 
             // Update the browser URL with the current page path and the query parameters from the pagination link
             window.history.pushState({}, '', window.location.pathname + urlObj.search);
-            void this.fetchItems(true);
+            void this.fetchItems(false);
           }
         });
       }
+
+      listen(EVENTS.ACCOUNT_WISHLIST_REMOVED, (pagination) => {
+        const params = new URLSearchParams(window.location.search);
+        const currentPage = params.get('current_page') ?? 1;
+
+        if (Number(currentPage) > Number(pagination?.last_page)) {
+          params.set('current_page', pagination?.last_page?.toString() ?? '');
+          window.location.search = params.toString();
+        }
+
+        void this.fetchItems(false);
+      });
     },
 
     async fetchItems(shouldScroll = false) {

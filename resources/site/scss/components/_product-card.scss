@@ -55,6 +55,13 @@
         fill: $icon-primary;
       }
     }
+    &:hover{
+      transform: scale(1.1);
+      svg{
+        transform: scale(1.1);
+      }
+      transition: all 300ms ease;
+    }
   }
 
   &-body {

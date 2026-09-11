@@ -207,7 +207,9 @@ foreach ($media as $media_item) {
                 </div>
 
                 <!-- Add to Cart Button -->
-                <div class="kecom-product-info-button-group" x-data="wishlist(selectedVariant?.is_wishlisted || false,variants)">
+                <div class="kecom-product-info-button-group" x-data="wishlist(selectedVariant?.is_wishlisted || false,variants)" x-init="$watch('selectedVariantId', (val) => {
+                    isWishlisted = wishlistedVariants[val];
+                })">
                     <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
                     imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">

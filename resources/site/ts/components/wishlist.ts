@@ -1,4 +1,5 @@
 import { wishlistApi } from '../api/wishlist';
+import { emit, EVENTS } from '../events';
 import { toastManager } from '../services/toast/runtime';
 import { Variant } from './variant-selector';
 
@@ -28,11 +29,15 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: 
             this.wishlistedVariants[variantId] = false;
             if (context === 'account') {
               const wishlistCard = document.getElementById(`${variantId}`);
+              const wishlistCount = document.querySelector('.kecom-wishlist-count');
               if (wishlistCard) {
                 wishlistCard.parentElement?.remove();
+                if (wishlistCount) {
+                  wishlistCount.textContent = `(${result.data.count})`;
+                }
               }
             }
-
+            emit(EVENTS.ACCOUNT_WISHLIST_REMOVED,result.data);
           } else {
             throw new Error(
               result?.message ||
