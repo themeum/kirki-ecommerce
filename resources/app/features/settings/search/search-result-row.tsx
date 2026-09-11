@@ -27,7 +27,7 @@ const SearchResultRow = (props: SearchResultRowProps) => {
     });
 
     if (location.pathname !== result.route) {
-      void navigate(result.route);
+      void navigate({ pathname: result.route, search: location.search });
     }
   };
 
@@ -45,19 +45,15 @@ const SearchResultRow = (props: SearchResultRowProps) => {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
+      title={`${result.pageTitle} › ${result.title}`}
     >
       <Flex gap={2} align="center" cssOverride={styles.content}>
         <span css={scoped(styles.iconWrap)} data-settings-icon>
           {result.icon}
         </span>
-        <Flex direction="column" gap={0} cssOverride={styles.labels}>
-          <Text variant="small" weight="medium" cssOverride={styles.title}>
-            <HighlightedText text={result.title} terms={result.matchedTerms} />
-          </Text>
-          <Text variant="tiny" color="subdued" cssOverride={styles.title}>
-            {result.pageTitle}
-          </Text>
-        </Flex>
+        <Text variant="small" weight="medium" cssOverride={styles.title} data-settings-heading>
+          <HighlightedText text={result.title} terms={result.matchedTerms} />
+        </Text>
       </Flex>
     </div>
   );
@@ -67,27 +63,45 @@ SearchResultRow.displayName = 'SearchResultRow';
 
 export default SearchResultRow;
 
+const highlightedRow = defineStyles({
+  backgroundColor: theme.colors.background.fillSecondary,
+  '& svg': {
+    color: theme.colors.background.fillBrand,
+  },
+});
+
+const highlightedHeading = defineStyles({
+  color: theme.colors.background.fillBrand,
+});
+
+const highlightedIcon = defineStyles({
+  color: theme.colors.background.fillBrand,
+});
+
 const styles = defineStyles({
   row: {
+    position: 'relative',
     display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: theme.spacing[2],
+    height: '28px',
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     cursor: 'pointer',
-    borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
-    '&:hover, &:focus-visible': {
-      backgroundColor: theme.colors.background.fillSecondary,
-    },
+    borderRadius: theme.radius.lg,
+    '&:hover, &:focus-visible': highlightedRow,
+    '&:hover [data-settings-heading], &:focus-visible [data-settings-heading]':
+      highlightedHeading,
+    '&:hover [data-settings-icon], &:focus-visible [data-settings-icon]': highlightedIcon,
   },
   content: {
     flex: 1,
     minWidth: 0,
   },
-  labels: {
-    minWidth: 0,
-  },
   title: {
+    transition: 'color 0.2s ease',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -98,9 +112,11 @@ const styles = defineStyles({
     justifyContent: 'center',
     flexShrink: 0,
     color: theme.colors.icon.primary,
+    transition: 'color 0.2s ease',
     '& svg': {
       width: 16,
       height: 16,
+      color: theme.colors.icon.primary,
     },
   },
 });

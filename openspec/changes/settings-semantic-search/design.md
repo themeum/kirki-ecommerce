@@ -173,5 +173,5 @@ navigation — that is the hook point for scroll-and-mark.
 
 No data migration, no schema change, no backend change. The change is additive
 except for the sidebar's search behaviour, which is replaced in place. Rollback is
-reverting the commit; the generated index is a committed file with no consumers
-outside the settings sidebar.
+reverting the commit; the generated index is a gitignored build artifact with no
+consumers outside the settings sidebar.

@@ -37,6 +37,14 @@ describe('HighlightedText', () => {
     expect(container.textContent).toBe('Store Contact Details');
   });
 
+  it('marks a word whatever case it is written in', () => {
+    const { container } = render(
+      <HighlightedText text="SHIPPING zones" terms={['ship', 'zone']} />,
+    );
+
+    expect(marksIn(container)).toEqual(['SHIPPING', 'zones']);
+  });
+
   it('renders plain text when nothing matched', () => {
     const { container } = render(
       <HighlightedText text="Store Contact Details" terms={[]} />,

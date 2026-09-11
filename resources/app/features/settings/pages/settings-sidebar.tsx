@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useLocation } from 'react-router';
+import { useLocation, useSearchParams } from 'react-router';
 
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
@@ -20,6 +19,8 @@ import {
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const SEARCH_QUERY_PARAM = 'q';
 
 type SettingsSection = {
   title: string;
@@ -77,14 +78,28 @@ SearchResults.displayName = 'SearchResults';
 
 const SettingsSidebar = () => {
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get(SEARCH_QUERY_PARAM) ?? '';
   const { results, isSearching, isLoading } = useSettingsSearch(searchQuery);
   const { clearTarget } = useSettingsSearchTarget();
 
   const handleSearchChange = (value: string | number) => {
     const next = String(value);
 
-    setSearchQuery(next);
+    setSearchParams(
+      (current) => {
+        const updated = new URLSearchParams(current);
+
+        if (next.trim()) {
+          updated.set(SEARCH_QUERY_PARAM, next);
+        } else {
+          updated.delete(SEARCH_QUERY_PARAM);
+        }
+
+        return updated;
+      },
+      { replace: true },
+    );
 
     if (!next.trim()) {
       clearTarget();
@@ -141,10 +156,14 @@ export default SettingsSidebar;
 const styles = defineStyles({
   searchbox: {
     backgroundColor: theme.colors.background.surfaceAlt,
-    border: 'none',
+    border: '1px solid transparent',
     marginBottom: theme.spacing[1],
+    color: theme.colors.text.primary,
     '& svg': {
       color: theme.colors.icon.secondary,
+    },
+    '& input': {
+      ...theme.typography.small('medium'),
     },
   },
   panel: {

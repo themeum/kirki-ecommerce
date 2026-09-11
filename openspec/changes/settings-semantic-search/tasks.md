@@ -47,3 +47,12 @@
 - [x] 7.3 Write `docs/settings-search.md` per `CLAUDE.md` §6 — table of contents, numbered sections, quick start first, how to add a searchable card, how to extend the lexicon, and an honest section on the known limits (lexicon-bounded meaning, index drift, English-only, transient marks)
 - [ ] 7.4 Hand off for manual check: "money back" (semantic, no literal overlap), "guest" (literal, single card), "tax" (page plus its cards), "zzzz" (no results) — confirm marks in both panes and that a result scrolls to the right card
 - [x] 7.5 Add `features/settings/search/highlighted-text.test.tsx` — mark rendering, related-term marks, text preservation, and that a substring match ("Taxonomy" for "tax") is not marked. Added because `CLAUDE.md` §0 rules out browser verification for this project
+
+## 8. Post-review follow-ups
+
+- [x] 8.1 Make the sidebar result rows match the native nav item — one 28px line, icon-only page identity, ellipsised title, same hover/focus treatment
+- [x] 8.2 Stop committing the generated index: gitignore `settings-search-index.json`, `git rm --cached` it, and add `predev`/`prebuild` hooks so a fresh clone regenerates it before Vite reads it
+- [x] 8.3 Fix broken card layout when marking: replace each marked text node with a single `<span data-settings-search-mark-group>` instead of splicing the marks in directly, so a bare text child of a flex row stays one flex item. Regression covered by `features/settings/search/use-search-highlight.test.tsx`
+- [x] 8.4 Persist the query as `?q=` and read it back on mount, so a reload restores the results; `SearchResultRow` navigates with `{ pathname, search }` to carry it across pages. Covered by `features/settings/pages/settings-sidebar.test.tsx`
+- [x] 8.5 Pin case-insensitivity end to end — the engine already lowercases in `tokenizer.mjs` and both highlighters stem the lowercased surface word, so no code change was needed; added regression tests to `search-engine.test.ts`, `highlighted-text.test.tsx` and `use-search-highlight.test.tsx`
+- [x] 8.6 Call out the chosen card on arrival — `use-search-highlight.ts` lifts it with an inline `transform` under a large drop shadow (350ms rise), holds 5s, then settles it back over 1.2s and removes `transform`/`box-shadow`/`transition`; cleared on unmount, route change or a new target

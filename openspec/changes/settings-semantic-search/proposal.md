@@ -16,8 +16,8 @@ that setting, which is exactly the knowledge search is supposed to replace.
   "No results found".
 - Search matches by **meaning, not substring**. A build-time crawler extracts each
   settings card's copy from the TSX source, converts it to a TF-IDF vector expanded
-  through a hand-authored concept lexicon, and stores the result as a committed
-  JSON index. At runtime the typed query is converted to a vector by the same code
+  through a hand-authored concept lexicon, and stores the result as a generated
+  JSON index (gitignored, rebuilt by `dev`, `build` and `make:package`). At runtime the typed query is converted to a vector by the same code
   and compared with cosine similarity. No external search library, no model, and no
   network call — the whole thing runs client-side and offline.
 - Each result points at a **card**, not just a page. Selecting one navigates to the

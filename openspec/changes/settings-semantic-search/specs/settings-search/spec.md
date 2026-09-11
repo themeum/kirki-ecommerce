@@ -50,6 +50,15 @@ SHALL rank above a result that matches only through a related term.
   in another
 - **THEN** the card containing the literal words is ordered above the other
 
+#### Scenario: Query typed in any case
+
+- **WHEN** the merchant types a query whose letters are capitalised differently
+  from the settings copy it should match
+- **THEN** the same results are returned in the same order as for the lowercase
+  query
+- **AND** the matching words are marked in the card even though their capitalisation
+  differs from what was typed
+
 #### Scenario: Unrelated query returns nothing
 
 - **WHEN** the merchant searches for text unrelated to any setting
@@ -103,6 +112,30 @@ the grouped navigation exactly as it was before the search.
 - **THEN** the grouped navigation sections and their headings are shown again
 - **AND** the navigation item for the current page is highlighted as active
 
+### Requirement: An active query survives a page reload
+
+The active query SHALL be reflected in the browser address, so that reloading a
+settings page, or returning to that address later, restores the results rather
+than an empty search box. Choosing a result SHALL carry the query to the result's
+page, and clearing the search box SHALL remove it from the address.
+
+#### Scenario: Reloading mid-search
+
+- **WHEN** the merchant reloads a settings page whose address carries a query
+- **THEN** the search box shows that query
+- **AND** the sidebar shows its results instead of the grouped navigation
+
+#### Scenario: Following a result to another page
+
+- **WHEN** the merchant chooses a result belonging to a different settings page
+- **THEN** the destination address still carries the query, so the results list
+  remains in place
+
+#### Scenario: Clearing the query removes it from the address
+
+- **WHEN** the merchant clears the search box
+- **THEN** the query is no longer present in the address
+
 ### Requirement: Choosing a result reveals the setting it found
 
 Selecting a search result SHALL navigate to the settings page that holds the
@@ -141,6 +174,21 @@ query is cleared or when the merchant navigates away from the matched setting.
   one the merchant typed
 - **THEN** the related term is marked in its place, so the result is not shown
   without any indication of why it matched
+
+#### Scenario: Marking leaves the card's layout untouched
+
+- **WHEN** the marked words sit in text whose position depends on how its
+  container arranges its children, such as a card title sharing a row with a
+  button
+- **THEN** the words keep their original spacing and position, and the row is
+  laid out as it was before the marking
+
+#### Scenario: The chosen card is called out briefly
+
+- **WHEN** the merchant chooses a result and its card is brought into view
+- **THEN** the card lifts above the cards around it so it plainly stands out
+- **AND** it settles back into place on its own a few seconds later, leaving the
+  card as it was and moving nothing else on the page
 
 #### Scenario: Marking is cleared
 

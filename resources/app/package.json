@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "npm run search:index",
     "build": "tsc --noEmit && vite build",
+    "prebuild": "npm run search:index",
     "search:index": "node scripts/build-settings-search-index.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/",

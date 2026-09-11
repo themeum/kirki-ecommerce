@@ -7,10 +7,10 @@ settings source before the admin frontend is bundled, so that the shipped plugin
 can never carry an index describing wording that is not in the interface it ships
 with.
 
-#### Scenario: Stale committed index at package time
+#### Scenario: Stale local index at package time
 
-- **WHEN** `npm run make:package` is run while the committed search index was
-  generated from older settings copy
+- **WHEN** `npm run make:package` is run while the packaging machine's local search
+  index was generated from older settings copy, or is absent entirely
 - **THEN** the index is regenerated from the current source before the frontend is
   built
 - **AND** the zip contains the regenerated index rather than the stale one

@@ -91,6 +91,17 @@ describe('settings search engine', () => {
     );
   });
 
+  it('matches the same documents whatever case the query is typed in', () => {
+    const lower = search(corpus, 'guest checkout');
+    const upper = search(corpus, 'GUEST CHECKOUT');
+    const mixed = search(corpus, 'GuEsT ChEcKoUt');
+
+    expect(upper.map((result) => result.id)).toEqual(lower.map((result) => result.id));
+    expect(mixed.map((result) => result.id)).toEqual(lower.map((result) => result.id));
+    expect(upper[0].matchedTerms).toEqual(lower[0].matchedTerms);
+    expect(upper[0].score).toBeCloseTo(lower[0].score);
+  });
+
   it('returns nothing for an unrelated query', () => {
     expect(idsFor('quantum astrophysics telescope')).toEqual([]);
   });

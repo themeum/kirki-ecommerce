@@ -14,7 +14,8 @@ call.
 - [5. Extending the concept lexicon](#5-extending-the-concept-lexicon)
 - [6. The index file](#6-the-index-file)
 - [7. Highlighting](#7-highlighting)
-- [8. Limits you should know about](#8-limits-you-should-know-about)
+- [8. The query in the address](#8-the-query-in-the-address)
+- [9. Limits you should know about](#9-limits-you-should-know-about)
 
 ---
 
@@ -33,8 +34,9 @@ settings search index: 42 documents, 278 terms, 0 warnings
 written to features/settings/search/settings-search-index.json
 ```
 
-Commit the regenerated JSON. `npm run make:package` runs the same command before
-bundling, so a release always ships an index built from the source it ships with.
+The JSON is gitignored, so there is nothing to commit. `npm run dev`, `npm run build`
+and `npm run make:package` each rebuild it first, so a release always ships an index
+built from the source it ships with.
 
 ## 2. How a query is matched
 
@@ -53,6 +55,11 @@ document and a query are always vectorised by identical code.
 
 Because expansion is weighted below a literal term, a card containing the typed
 word always outranks a card that only matches through a related word.
+
+Case never matters. Step 1 lowercases, so "VAT", "Vat" and "vat" produce the same
+query vector, and both highlighters stem the lowercased surface word before
+comparing it to a matched term — so a lowercase query still marks a capitalised
+word in a card title.
 
 ## 3. Making a card searchable
 
@@ -109,9 +116,11 @@ index afterwards, since document vectors embed the expansion.
 
 ## 6. The index file
 
-`features/settings/search/settings-search-index.json` is generated and committed.
-Vite code-splits it, so it is fetched when a merchant first types in the search
-box rather than at admin boot — about 25 kB, 7.6 kB gzipped.
+`features/settings/search/settings-search-index.json` is generated, not committed —
+it is gitignored, and `npm run dev` and `npm run build` regenerate it first, so a
+fresh clone builds one before Vite ever reads it. Vite code-splits it, so it is
+fetched when a merchant first types in the search box rather than at admin boot —
+about 25 kB, 7.6 kB gzipped.
 
 ```jsonc
 {
@@ -146,19 +155,61 @@ score, including ones the merchant never typed. Those drive both panes:
   view, and wraps matching words in `<mark>` inside that card only. Cleanup
   restores the original text nodes when the query is cleared or the route changes.
 
+The chosen card also lifts off the page the moment it is found, so it is obvious
+which of several similar cards the result meant. It rises 10px over 350ms under a
+large drop shadow, floats there for 5 seconds, then settles back over 1.2s.
+`focusCard` writes `transform`, `box-shadow` and `transition` inline on the card
+element and removes all three once it has landed, so nothing is left behind.
+Choosing the same result again re-triggers the lift.
+
+The lift is a `transform`, which paints the card above its static siblings without
+any z-index bookkeeping, and — because it is a transform rather than a margin — it
+moves nothing else on the page.
+
+Each marked text node is replaced by a **single** `<span data-settings-search-mark-group>`
+holding the marks, never by the marks themselves. This matters: settings copy is
+often a bare text child of a flex row — `<Flex justify="space-between">Variation
+Library<AddButton /></Flex>` — where one text node is one anonymous flex item.
+Splicing two `<mark>` elements in there would create two flex items and drop the
+whitespace between them, so `space-between` would fling the words to opposite ends
+of the row. The wrapper keeps it one item. `use-search-highlight.test.tsx` pins
+this.
+
 A result matching purely by meaning therefore still shows *why* it matched: search
 "money back" and the word `payment` is marked.
 
-## 8. Limits you should know about
+## 8. The query in the address
+
+The active query lives in the address as `?q=`, written by the sidebar 300 ms after
+the last keystroke (the search box debounces) and read back on mount:
+
+```
+#/settings/essentials?q=variant
+```
+
+So reloading mid-search restores the results rather than an empty box, and a link
+to a search can be shared. Choosing a result carries the query over to the
+destination page, which is why `SearchResultRow` navigates with
+`{ pathname, search }` rather than a bare path. Clearing the box removes the
+parameter. Every write uses `replace: true`, so typing a query does not fill the
+back button with one entry per keystroke.
+
+What is *not* in the address is which result was chosen — so a reload restores the
+list, but the marks in the right-hand pane come back only when a result is clicked
+again. Say the word if that should persist too.
+
+## 9. Limits you should know about
 
 Be honest about these rather than discovering them later.
 
 - **Meaning is bounded by the lexicon.** Synonyms nobody wrote into
   `concept-lexicon.mjs` do not match. This is a maintained artifact, not a trained
   model — it generalises exactly as far as you have extended it.
-- **The index can drift.** Nothing enforces freshness outside `make:package`.
-  Change a label without rerunning the crawler and search returns a result that
-  highlights nothing, because the terms it indexed are no longer on screen.
+- **The index can drift within a session.** `npm run dev`, `npm run build` and
+  `make:package` each regenerate it, but nothing watches the source afterwards.
+  Change a label mid-session without rerunning the crawler and search returns a
+  result that highlights nothing, because the terms it indexed are no longer on
+  screen.
 - **English only.** Copy is extracted from source literals. The admin bundle has
   no `wp_set_script_translations()` and the repo has no `.pot`, so the admin UI is
   English today and this costs nothing — but a translated admin would search
