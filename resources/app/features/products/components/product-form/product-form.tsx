@@ -100,7 +100,7 @@ const ProductForm = ({
   }, [duplicateBlockedByUnsaved, handleSave, onDuplicate]);
 
   return (
-    <Page>
+    <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
           onBack={handleBack}

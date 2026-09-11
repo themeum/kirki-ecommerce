@@ -45,7 +45,7 @@ type PageProps = {
 };
 
 const Page = forwardRef<HTMLDivElement, PropsWithChildren<PageProps>>((props, ref) => {
-  const { minHeight = '100%', containerSize = 'xl', children } = props;
+  const { minHeight = '100%', containerSize = 'fluid', children } = props;
 
   return (
     <PageContainerContext.Provider value={containerSize}>
