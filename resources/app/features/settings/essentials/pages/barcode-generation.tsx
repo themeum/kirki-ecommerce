@@ -26,7 +26,7 @@ type BarcodeGenerationProps = {
 const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
   return (
     <div>
-      <Card data-search-id="essentials.barcode-generation" cssOverride={cardStyles.formCard}>
+      <Card data-search-id="essentials.barcode-generation" data-search-keywords="upc, ean, isbn, gtin, product label, scanner" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Barcode Generation', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

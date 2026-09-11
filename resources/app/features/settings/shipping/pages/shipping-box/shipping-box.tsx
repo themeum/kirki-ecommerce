@@ -183,7 +183,7 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card data-search-id="shipping.boxes" cssOverride={cardStyles.formCard}>
+      <Card data-search-id="shipping.boxes" data-search-keywords="parcel, package, dimensions, carton, packaging" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Box', 'kirki-ecommerce')}

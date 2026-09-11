@@ -81,7 +81,7 @@ const VariationList = () => {
   };
 
   return (
-    <Card data-search-id="essentials.variation-library" cssOverride={cardStyles.formCard}>
+    <Card data-search-id="essentials.variation-library" data-search-keywords="size, swatch, option set, attribute term" cssOverride={cardStyles.formCard}>
       <CardContent>
         <CardTitle>
           <Flex align="center" justify="space-between">

@@ -61,4 +61,29 @@ describe('HighlightedText', () => {
 
     expect(marksIn(container)).toEqual([]);
   });
+
+  it('marks a word that begins with a literal prefix', () => {
+    const { container } = render(
+      <HighlightedText text="Variation Library" terms={[]} prefixes={['va']} />,
+    );
+
+    expect(marksIn(container)).toEqual(['Variation']);
+  });
+
+  it('does not mark a word that merely contains the prefix', () => {
+    const { container } = render(
+      <HighlightedText text="Advanced settings" terms={[]} prefixes={['va']} />,
+    );
+
+    expect(marksIn(container)).toEqual([]);
+  });
+
+  it('marks nothing when a card matched only on copy that is not rendered', () => {
+    const { container } = render(
+      <HighlightedText text="Shipping Box" terms={['parcel']} />,
+    );
+
+    expect(marksIn(container)).toEqual([]);
+    expect(container.textContent).toBe('Shipping Box');
+  });
 });

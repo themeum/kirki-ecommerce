@@ -6,14 +6,15 @@ import { defineStyles, scoped } from '@/theme/mixins';
 type HighlightedTextProps = {
   text: string;
   terms: string[];
+  prefixes?: string[];
 };
 
 const WORD_PATTERN = /[A-Za-z0-9]+/g;
 
 const HighlightedText = (props: HighlightedTextProps) => {
-  const { text, terms } = props;
+  const { text, terms, prefixes = [] } = props;
 
-  if (terms.length === 0) {
+  if (terms.length === 0 && prefixes.length === 0) {
     return <>{text}</>;
   }
 
@@ -24,7 +25,12 @@ const HighlightedText = (props: HighlightedTextProps) => {
   for (const match of text.matchAll(WORD_PATTERN)) {
     const word = match[0];
 
-    if (!matched.has(stemWord(word.toLowerCase()))) {
+    const lowercased = word.toLowerCase();
+
+    if (
+      !matched.has(stemWord(lowercased)) &&
+      !prefixes.some((prefix) => lowercased.startsWith(prefix))
+    ) {
       continue;
     }
 

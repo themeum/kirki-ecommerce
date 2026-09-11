@@ -84,12 +84,25 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
   const fallbackRef = useRef<HTMLInputElement>(null);
   const inputRef = (ref as RefObject<HTMLInputElement | null>) || fallbackRef;
   const [searchValue, setSearchValue] = useState(value ?? '');
+  const lastEmittedValue = useRef<string | null>(null);
 
   useEffect(() => {
-    setSearchValue(value ?? '');
+    const nextValue = value ?? '';
+
+    if (nextValue === lastEmittedValue.current) {
+      lastEmittedValue.current = null;
+      return;
+    }
+
+    setSearchValue(nextValue);
   }, [value]);
 
-  const debouncedOnChange = useRef(debounce(onChange, delay)).current;
+  const debouncedOnChange = useRef(
+    debounce((nextValue: string) => {
+      lastEmittedValue.current = nextValue;
+      onChange(nextValue);
+    }, delay),
+  ).current;
 
   const handleSearchChange = (nextValue: string) => {
     setSearchValue(nextValue);
@@ -124,6 +137,7 @@ const Searchbox = forwardRef<HTMLInputElement, SearchboxProps>((props, ref) => {
           readOnly={readOnly}
           disabled={isDisabled}
           aria-invalid={Boolean(error) || undefined}
+          onFocus={(event) => event.target.select()}
         />
         <InputGroupAddon align="inline-start">
           <Search size={16} aria-hidden="true" />

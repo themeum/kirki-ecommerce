@@ -333,6 +333,7 @@ const styles = defineStyles({
   searchRow: {
     minHeight: 'calc(var(--radix-popover-trigger-height) - 1px)',
     padding: `0 ${theme.spacing[3]}`,
+    borderBottom: 'none',
   },
   itemCheck: {
     ...flexCenter(),

@@ -72,7 +72,7 @@ const CheckoutSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />
-          <Card data-search-id="checkout.guest-checkout" cssOverride={cardStyles.formCard}>
+          <Card data-search-id="checkout.guest-checkout" data-search-keywords="anonymous, without registration, no sign up, skip login" cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex align="center">
                 <Flex direction="column" gap={2}>

@@ -14,7 +14,7 @@ const CurrencyFormatSettings = () => {
   ];
 
   return (
-    <Card data-search-id="currency.format" cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[5] })}>
+    <Card data-search-id="currency.format" data-search-keywords="decimal places, symbol position, price display, number format" data-search-title={__('Currency Format', 'kirki-ecommerce')} cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[5] })}>
       <CardContent cssOverride={cardStyles.innerContent}>
         <Flex direction="column" gap={4}>
           <SelectField

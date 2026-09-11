@@ -64,6 +64,53 @@ SHALL rank above a result that matches only through a related term.
 - **WHEN** the merchant searches for text unrelated to any setting
 - **THEN** no results are returned rather than a list of weak matches
 
+### Requirement: A query still matches when it is incomplete or misspelled
+
+The search SHALL tolerate the two ways a merchant's typing differs from the
+indexed wording. A trailing word that is still being typed SHALL be treated as
+the beginning of a word, and a word that matches nothing SHALL be retried against
+similar spellings. Both SHALL rank below an exactly typed word.
+
+#### Scenario: Query is still being typed
+
+- **WHEN** the merchant has typed only the first few letters of the last word of
+  a query
+- **THEN** the settings whose wording begins with those letters are returned,
+  rather than an empty list
+
+#### Scenario: Query contains a misspelling
+
+- **WHEN** the merchant misspells a word by a letter or two
+- **THEN** the settings matching the intended word are returned
+
+#### Scenario: Exact wording still wins
+
+- **WHEN** one setting matches a word exactly and another matches only the
+  corrected or completed form of it
+- **THEN** the exact match is ordered above the other
+
+### Requirement: A weakly connected match must be a strong match
+
+A result reached only through related meaning SHALL be held to a higher standard
+than one containing the typed words, in proportion to how indirect the connection
+is. A word belonging to many unrelated concepts SHALL carry less weight than a
+word belonging to one, since it says correspondingly less about what the merchant
+meant. When no setting can be reached with sufficient confidence, the search
+SHALL return nothing rather than its least-bad guess.
+
+#### Scenario: Query whose words appear nowhere in the settings
+
+- **WHEN** the merchant searches for a capability the settings do not cover,
+  using words that appear in no setting
+- **THEN** no results are returned, rather than settings that share only a
+  loosely associated word
+
+#### Scenario: Ambiguous word does not drag in unrelated settings
+
+- **WHEN** a query word belongs to several unrelated concepts at once
+- **THEN** the settings it reaches through those concepts are not returned unless
+  they match strongly on their own
+
 ### Requirement: Search runs locally with no network request
 
 Searching SHALL be performed entirely within the browser, without contacting any
@@ -215,3 +262,97 @@ content missing from the index is discoverable rather than silently absent.
 - **WHEN** the regeneration command encounters a card that holds merchant-visible
   copy but has no identifier a result can point at
 - **THEN** the command reports that card to the developer
+
+### Requirement: A card can declare search keywords that are not shown to the merchant
+
+A searchable card SHALL be able to declare additional words that make it findable
+without those words appearing anywhere in its visible copy, so that a setting can
+be reached by the vocabulary a merchant uses for it rather than only the
+vocabulary the interface uses. Declared keywords SHALL weigh more than a word
+that merely occurs in a card's description, and less than the card's own name, so
+that a card actually named for a thing still ranks above a card that only lists
+it. Declared keywords SHALL never be displayed, and SHALL never be marked, since
+there is nothing on screen to mark.
+
+#### Scenario: Keyword reaches a card whose copy never says it
+
+- **WHEN** the merchant searches for a word that appears in no card's visible copy
+  but is declared as a keyword of one card
+- **THEN** that card is returned
+
+#### Scenario: The card named for a thing still wins
+
+- **WHEN** one card's name contains the typed word and another card only declares
+  it as a keyword
+- **THEN** the card named for it is ordered above the other
+
+#### Scenario: Keywords are invisible
+
+- **WHEN** a card is returned because of one of its declared keywords
+- **THEN** no part of the keyword list is rendered in the result or in the card
+
+### Requirement: A card can declare the name search shows for it
+
+A searchable card whose visible heading cannot be read from the source — because
+it has none, or because its heading is a value only known while the page is
+running — SHALL be able to declare the name search uses for it. That declared
+name SHALL be what a result displays and SHALL carry the same weight as a card's
+own title. Declaring a name SHALL NOT change what the card looks like, so that a
+card with no heading by design does not acquire one.
+
+#### Scenario: A card with no readable heading
+
+- **WHEN** a searchable card has no heading the index can read, and declares a
+  name instead
+- **THEN** a result for that card displays the declared name
+
+#### Scenario: Nothing is added to the page
+
+- **WHEN** a card declares a name for search
+- **THEN** the card renders exactly as it did before
+
+#### Scenario: No name to fall back on
+
+- **WHEN** a searchable card neither has a readable heading nor declares a name
+- **THEN** the regeneration command reports it, rather than a result silently
+  showing the merchant an internal identifier
+
+### Requirement: A query that means nothing falls back to literal matching
+
+When a query cannot be matched by meaning at all, the search SHALL fall back to
+matching the typed characters literally against the indexed wording, rather than
+reporting that nothing was found. A card SHALL qualify when, for every word the
+merchant typed, it holds a word beginning with that word, compared without regard
+to case. Literal results SHALL be ordered by the strongest kind of content each
+one matched in, so a match in a card's name outranks a match in its body text.
+The fallback SHALL NOT run when the meaning-based search returned anything, so
+that it can never weaken a result the merchant would otherwise have seen.
+
+#### Scenario: A fragment too short to mean anything
+
+- **WHEN** the merchant types a fragment of a word that matches no setting by
+  meaning, such as the first two letters of a word
+- **THEN** the settings holding a word that begins with that fragment are returned
+
+#### Scenario: Each typed word must be found
+
+- **WHEN** the merchant types two fragments and a card holds a word beginning with
+  only one of them
+- **THEN** that card is not returned
+
+#### Scenario: Meaning takes precedence
+
+- **WHEN** a query returns results by meaning
+- **THEN** no literal-only results are added below them
+
+#### Scenario: Nothing matches either way
+
+- **WHEN** the merchant types text that matches no setting by meaning and begins
+  no word in any setting
+- **THEN** no results are returned
+
+#### Scenario: The literal fragment is marked
+
+- **WHEN** a card is returned by the literal fallback
+- **THEN** the words that begin with what the merchant typed are marked in the
+  result and in the card, in the same way as a meaning-based match

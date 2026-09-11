@@ -43,7 +43,7 @@
 ## 7. Verification and docs
 
 - [x] 7.1 Run `npm run typecheck` and `npm test` in `resources/app` — both clean
-- [ ] 7.2 Run `npm run make:package` and confirm the zip's bundle carries the freshly generated index. **BLOCKED — pre-existing, not caused by this change:** `npm run build` exits 2 because `components/ui/skeleton.tsx:38` indexes a radius map lacking an `xxl` key, so `make:package` cannot complete on this branch. Verified as far as possible instead: `bash -n bin/make-package.sh` passes, `npm run --if-present search:index` runs in `resources/app` and no-ops in `resources/site`, and `npx vite build` emits the index as its own chunk (`js/pages/settings-search-index-*.chunk.js`, 25.17 kB / 7.59 kB gzipped)
+- [x] 7.2 **Unblocked and completed.** The blocker was a pre-existing bug, not this change: `components/ui/skeleton.tsx` declared `SkeletonRadius = keyof typeof theme.radius`, but its own `radiusStyles` map was missing the `xxl` entry the theme defines — so `styles.radii[radius]` could not be indexed and `tsc` exited 2. Added the one missing line; typecheck is now clean with **no errors at all**, and the `no-unsafe-argument` lint error on the same line went with it. `npm run make:package` then produced `build/kirki-ecommerce-1.0.0-alpha.3.zip`, whose `assets/js/pages/settings-search-index-DRLL1dYp.chunk.js` (31.31 kB / 9.25 kB gzipped) contains `parcel`, `gtin` and `Exchange Rate API Status` — proving the shipped index was rebuilt from current source
 - [x] 7.3 Write `docs/settings-search.md` per `CLAUDE.md` §6 — table of contents, numbered sections, quick start first, how to add a searchable card, how to extend the lexicon, and an honest section on the known limits (lexicon-bounded meaning, index drift, English-only, transient marks)
 - [ ] 7.4 Hand off for manual check: "money back" (semantic, no literal overlap), "guest" (literal, single card), "tax" (page plus its cards), "zzzz" (no results) — confirm marks in both panes and that a result scrolls to the right card
 - [x] 7.5 Add `features/settings/search/highlighted-text.test.tsx` — mark rendering, related-term marks, text preservation, and that a substring match ("Taxonomy" for "tax") is not marked. Added because `CLAUDE.md` §0 rules out browser verification for this project
@@ -55,4 +55,62 @@
 - [x] 8.3 Fix broken card layout when marking: replace each marked text node with a single `<span data-settings-search-mark-group>` instead of splicing the marks in directly, so a bare text child of a flex row stays one flex item. Regression covered by `features/settings/search/use-search-highlight.test.tsx`
 - [x] 8.4 Persist the query as `?q=` and read it back on mount, so a reload restores the results; `SearchResultRow` navigates with `{ pathname, search }` to carry it across pages. Covered by `features/settings/pages/settings-sidebar.test.tsx`
 - [x] 8.5 Pin case-insensitivity end to end — the engine already lowercases in `tokenizer.mjs` and both highlighters stem the lowercased surface word, so no code change was needed; added regression tests to `search-engine.test.ts`, `highlighted-text.test.tsx` and `use-search-highlight.test.tsx`
-- [x] 8.6 Call out the chosen card on arrival — `use-search-highlight.ts` lifts it with an inline `transform` under a large drop shadow (350ms rise), holds 5s, then settles it back over 1.2s and removes `transform`/`box-shadow`/`transition`; cleared on unmount, route change or a new target
+- [x] 8.6 Call out the chosen card on arrival — `use-search-highlight.ts` lifts it with an inline `transform` under a large drop shadow, holds, then settles it back and removes `transform`/`box-shadow`/`transition`; travel and durations are the `FOCUS_*` constants, and the test reads them rather than hard-coding them so they stay tunable. Cleared on unmount, route change or a new target
+
+## 9. Relevance
+
+Prompted by `"money back"` returning the Shipping Box card: its description is the only place in the corpus containing the word *cost*, which `money` reaches through the `~price` group. Baseline on a 36-query set was 29/36.
+
+- [x] 9.1 Add `features/settings/search/search-relevance.test.ts` — a golden set of ~40 real queries run against the generated index, grouped by what each exercises (named literally, meant semantically, misspelled, half-typed) plus a set that must return nothing; add a `pretest` hook so the index is rebuilt before the suite runs
+- [x] 9.2 Complete the trailing word as a prefix — match it against the vocabulary in both directions (`varia` → `variation`, `shipp` → the stem `ship`, bounded to 2 characters of overshoot) at a weight below a literal term. Only the last word, since earlier words are finished
+- [x] 9.3 Recover from typos — bounded edit distance (`editDistance` in `tokenizer.mjs`, limit 1 up to 6 characters and 2 beyond) over the 278-term vocabulary, as a fallback for any word that matched neither exactly nor by prefix
+- [x] 9.4 Damp hub words — divide a stem's expansion weight by the number of concept groups it belongs to, so `money` (4 groups) expands a quarter as strongly as a word in one. **Corrected:** on its own this changed nothing for an all-expansion query, because scaling every surviving dimension equally is erased by the L2 normalisation that follows
+- [x] 9.5 Gate on match confidence instead — every term carries how directly it came from the typed query (literal 1.0, prefix 0.9, typo 0.8, expansion `0.6 / group count`), and a document must clear `score × confidence >= 0.12` using the strongest term it matched on. This replaces the flat threshold and is what actually empties `"money back"`
+- [x] 9.6 Fix `termFrequency` for sub-unit weights — `1 + log(w)` goes negative below `w = 0.368`, which damping now reaches; it is linear below 1 and logarithmic above, continuous at 1
+- [x] 9.7 Re-run the golden set: 29/36 → 36/36, with every typo and prefix case fixed and `"money back"` returning nothing
+
+## 10. Authored keywords and literal fallback
+
+Decisions locked with you before writing these: content changes stay structural
+(no merchant copy rewrites); `data-search-keywords` gets its own field kind at
+×2.5; the literal pass runs **only** when the semantic pass returns zero; a
+literal match is a case-insensitive **word prefix**; and every typed word must
+match (AND).
+
+### 10.1 Indexable content
+
+- [x] 10.1.1 **Corrected — fixed the crawler, not the JSX.** `Text` defaults to `variant="paragraph"`, so adding `variant="small"` would have shrunk the rendered type in 17 places; the option chosen was the one where nothing visual changes, and `CLAUDE.md` §0 rules out my verifying a visual change. Relaxed `textElementKind` in the crawler instead: `color` of `secondary`/`subdued` now classifies as `description` regardless of `variant`. Colour is this design system's "supporting text" signal, so the heuristic is the honest one. Zero source files under `features/settings/**` touched, all 17 now index at ×2
+- [x] 10.1.2 **Corrected — declared the title instead of rendering one.** `task_6ac14ce6` had not landed (all three still resolved to their slug). All three genuinely have no static heading — `currency.api-status`'s is the runtime `{selectedAPI}` — so adding a visible `<CardTitle>` would have been a design change I cannot verify. Added a `data-search-title` attribute to the crawler instead, read off the same element as `data-search-id`, indexed at ×3 and used as the document title. Applied to the three cards with `__()` values, since unlike keywords a search title *is* rendered, in the result row. **Added during archive:** the crawler now also warns on any document with no readable title, so this class of defect cannot recur silently — verified by removing one `data-search-title` and watching the warning appear, then restoring it
+- [x] 10.1.3 42 documents, 0 warnings, no title falls back to a slug
+
+### 10.2 `data-search-keywords`
+
+- [x] 10.2.1 Added `keywords: 2.5` to `FIELD_BOOSTS`
+- [x] 10.2.2 `openScope` now reads `data-search-title` and `data-search-keywords` off the opening element and pushes them as fields of that scope only, so neither is inherited by a nested scope. `attributeValue` gained a `{__('…')}` branch for the title. The attribute loop skips every `data-search-*` attribute, so an authored value can never also be collected as ordinary copy
+- [x] 10.2.3 **Not needed — premise was wrong.** The `data-search-id` pass-through exists only so the runtime highlighter can `querySelector` the card in the DOM. Keywords are consumed entirely at build time: the crawler reads the attribute lexically from the call site and never looks at the DOM. A pass-through would emit markup nothing reads
+- [x] 10.2.4 Authored on all 31 tagged cards (32 counts the `header-actions-card` pass-through, not a document). Plain string attributes rather than `__()`: keywords are never rendered, so they are not user-facing text, and 31 comma-separated lists would be a pointless burden on translators. Vocabulary is 374 terms, up from 279. Two authored sets were wrong and were corrected — see 10.4.1
+- [x] 10.2.5 Covered by `highlighted-text.test.tsx` — "marks nothing when a card matched only on copy that is not rendered" asserts that a `parcel` match on Shipping Box produces no marks and leaves the title text intact
+
+### 10.3 Literal fallback
+
+- [x] 10.3.1 `surfaceWords()` emits the map; `text` is gone and the one assertion in `search-engine.test.ts` now reads `words`. **Corrected:** the map is 455 bytes *larger* than the strings it replaces (7,777 vs 7,322, measured), not smaller — per-entry JSON overhead slightly outweighs collapsing duplicates. 0.9% of the index, for keeping the field boosts prefix ranking needs. `design.md` was corrected to match
+- [x] 10.3.2 `literalSearch()` added exactly as specified; returns `{ id, score, matchedTerms: [], matchedPrefixes }`
+- [x] 10.3.3 Wired into all three of `search()`'s empty exits — the stopword-only query, the no-vocabulary-term query (this is the `"va"` path), and an empty result set. Verified: `"va"` → Variation Library / Tax Regions, `"va zo"` → Tax Regions only, `"zzzz"`, `"money back"` and `"the and of"` → nothing
+- [x] 10.3.4 Threaded through `search-engine.d.mts` (optional on `SearchResult`, `SearchFieldKind` gains `keywords`, `SearchDocument.text` becomes `words`), `use-settings-search.ts`, `SettingsSearchResult`, `SettingsSearchTarget` and `SearchResultRow`
+- [x] 10.3.5 Both highlighters now mark on stem equality **or** a prefix match. `"va"` marks `Variation`, not `Advanced`
+
+### 10.4 Verification and docs
+
+- [x] 10.4.1 Golden set is now 49 cases: 5 keyword-only queries (`parcel`, `gst`, `bank transfer`, `upc`, `seo`), 3 literal-fallback queries (`va`, `va zo`, `gtin`), `va qq` added to the must-return-nothing set, plus a naming-beats-listing case and one asserting no literal tail is appended to a query that already matched. All 38 originals unchanged.
+
+  Three golden queries broke on the first keyword pass, and all three were my authoring, not the engine:
+  - `"money back"` and `"refund"` hit `checkout.legal-information` because I gave it `refund policy, return policy`. That card only has Terms & Conditions and Privacy Policy fields — the keywords claimed a capability it does not have, which is worse than a false positive. Replaced with `cookie policy, legal page`.
+  - `"loyalty points program"` hit `essentials.barcode-generation` because `label printing` put `print` in the vocabulary and `points` is one edit from it. Changed to `product label`.
+  - `"money back"` then hit `payments.offline`, because `bank` (from `bank transfer`) is one edit from `back`. `bank transfer` is worth keeping, so the fix was `MIN_FUZZY_LENGTH = 5` in `search-engine.mjs`: a word under five letters is no longer retried by edit distance, since one edit rewrites a quarter of a four-letter word. All four golden typo cases are 6–7 letters, so none regressed
+- [x] 10.4.2 Three cases in `highlighted-text.test.tsx` (prefix marks `Variation`; prefix does not mark `Advanced`; a keyword-only match marks nothing) and one in `use-search-highlight.test.tsx` (`"va"` marks `Variation` and not `Advanced` in the same row). The DOM harness gained optional `terms`/`prefixes` props
+- [x] 10.4.3 **Typecheck fully clean — no errors at all**, for the first time on this branch (see 7.2). Lint: 6 errors, down from 7; all are `simple-import-sort/imports` in files whose imports this change never touched, and `npx eslint` over `features/settings/search`, `features/settings/multi-currency` and the crawler is clean. Tests: **972/972 across 124 files**, confirmed stable over three consecutive runs.
+
+  Two failures were fixed along the way rather than reported:
+  - `add-variation-popover.test.tsx` (5 tests) queried `'Add Variation'` while an uncommitted edit had renamed that button to `'Variation'`. Pre-existing, proven by stashing the one source file and watching all 5 pass; the test now queries the current label.
+  - **My own regression:** the `use-search-highlight.test.tsx` harness took `terms`/`prefixes` as props with array *defaults* and listed them in the effect's dependency array. A default array is a fresh identity each render, so the effect re-ran, called `setTarget`, re-rendered, and looped forever — the file never completed. Defaults hoisted to module constants. This was also why the whole suite took 1,874s; it now runs in 10.5s
+- [x] 10.4.4 §3 gained "Declaring keywords" and "Declaring a title"; §10 "When nothing matches by meaning" covers the literal fallback and why it is gated on an empty result set; §11 "Writing card copy that searches well" covers the per-file blind spot, idf of generic words, the 15–40 word target and hub words; old §10 Limits is now §12 and gained a bullet on keywords being an unverified claim. §1, §2, §6, §7 and §9 updated for the new counts, boost and index shape

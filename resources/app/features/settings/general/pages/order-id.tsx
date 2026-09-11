@@ -27,7 +27,7 @@ const OrderId = () => {
 
   return (
     <div>
-      <Card data-search-id="general.order-id" cssOverride={cardStyles.formCard}>
+      <Card data-search-id="general.order-id" data-search-keywords="order number, reference number, numbering" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Order ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

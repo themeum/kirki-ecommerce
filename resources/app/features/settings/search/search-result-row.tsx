@@ -24,6 +24,7 @@ const SearchResultRow = (props: SearchResultRowProps) => {
       searchId: result.id,
       route: result.route,
       terms: result.matchedTerms,
+      prefixes: result.matchedPrefixes,
     });
 
     if (location.pathname !== result.route) {
@@ -52,7 +53,11 @@ const SearchResultRow = (props: SearchResultRowProps) => {
           {result.icon}
         </span>
         <Text variant="small" weight="medium" cssOverride={styles.title} data-settings-heading>
-          <HighlightedText text={result.title} terms={result.matchedTerms} />
+          <HighlightedText
+            text={result.title}
+            terms={result.matchedTerms}
+            prefixes={result.matchedPrefixes}
+          />
         </Text>
       </Flex>
     </div>

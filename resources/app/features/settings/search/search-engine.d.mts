@@ -1,4 +1,4 @@
-export type SearchFieldKind = 'title' | 'description' | 'label' | 'text';
+export type SearchFieldKind = 'title' | 'keywords' | 'description' | 'label' | 'text';
 
 export type SearchField = {
   kind: SearchFieldKind;
@@ -20,7 +20,7 @@ export type SearchDocument = {
   route: string;
   pageTitle: string;
   title: string;
-  text: string;
+  words: Record<string, number>;
   vector: Record<string, number>;
 };
 
@@ -35,16 +35,21 @@ export type SearchResult = {
   id: string;
   score: number;
   matchedTerms: string[];
+  matchedPrefixes?: string[];
 };
 
 export type ParsedQuery = {
+  words: string[];
   stems: Set<string>;
   concepts: Set<string>;
   weights: Map<string, number>;
+  confidence: Map<string, number>;
 };
 
 export declare const INDEX_VERSION: number;
 export declare const EXPANSION_WEIGHT: number;
+export declare const PREFIX_WEIGHT: number;
+export declare const FUZZY_WEIGHT: number;
 export declare const SCORE_THRESHOLD: number;
 export declare const MAX_RESULTS: number;
 export declare const FIELD_BOOSTS: Record<SearchFieldKind, number>;
@@ -62,6 +67,10 @@ export declare const buildIndex: (
 ) => SearchIndex;
 export declare const buildQuery: (query: string) => ParsedQuery;
 export declare const search: (
+  index: SearchIndex,
+  query: string,
+) => SearchResult[];
+export declare const literalSearch: (
   index: SearchIndex,
   query: string,
 ) => SearchResult[];

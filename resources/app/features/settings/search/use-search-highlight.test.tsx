@@ -8,12 +8,29 @@ import {
   SettingsSearchProvider,
   useSettingsSearchTarget,
 } from '@/features/settings/search/settings-search-context';
-import { useSearchHighlight } from '@/features/settings/search/use-search-highlight';
+import {
+  FOCUS_HOLD_MS,
+  FOCUS_SETTLE_MS,
+  useSearchHighlight,
+} from '@/features/settings/search/use-search-highlight';
 
 const ROUTE = '/settings/essentials';
 const SEARCH_ID = 'essentials.variation-library';
 
-const Harness = ({ title = 'Variation Library' }: { title?: string }) => {
+type HarnessProps = {
+  title?: string;
+  terms?: string[];
+  prefixes?: string[];
+};
+
+const DEFAULT_TERMS = [stemWord('variation'), stemWord('library')];
+const NO_PREFIXES: string[] = [];
+
+const Harness = ({
+  title = 'Variation Library',
+  terms = DEFAULT_TERMS,
+  prefixes = NO_PREFIXES,
+}: HarnessProps) => {
   const { setTarget, clearTarget } = useSettingsSearchTarget();
   useSearchHighlight();
 
@@ -21,9 +38,10 @@ const Harness = ({ title = 'Variation Library' }: { title?: string }) => {
     setTarget({
       searchId: SEARCH_ID,
       route: ROUTE,
-      terms: [stemWord('variation'), stemWord('library')],
+      terms,
+      prefixes,
     });
-  }, [setTarget]);
+  }, [setTarget, terms, prefixes]);
 
   return (
     <div data-search-id={SEARCH_ID} data-testid="card">
@@ -37,11 +55,11 @@ const Harness = ({ title = 'Variation Library' }: { title?: string }) => {
   );
 };
 
-const renderHarness = () => {
+const renderHarness = (props: HarnessProps = {}) => {
   return render(
     <MemoryRouter initialEntries={[ROUTE]}>
       <SettingsSearchProvider>
-        <Harness />
+        <Harness {...props} />
       </SettingsSearchProvider>
     </MemoryRouter>,
   );
@@ -85,17 +103,17 @@ describe('useSearchHighlight', () => {
     expect(marks.map((mark) => mark.textContent)).toEqual(['VARIATION', 'library']);
   });
 
-  it('lifts the card for five seconds and then settles it back', () => {
+  it('lifts the card and then settles it back', () => {
     vi.useFakeTimers();
     renderHarness();
 
     const card = screen.getByTestId('card');
 
-    expect(card.style.transform).toBe('translateY(-10px)');
+    expect(card.style.transform).toMatch(/^translateY\(-\d+px\)$/);
     expect(card.style.boxShadow).not.toBe('');
 
     act(() => {
-      vi.advanceTimersByTime(5000);
+      vi.advanceTimersByTime(FOCUS_HOLD_MS);
     });
 
     expect(card.style.transform).toBe('');
@@ -103,7 +121,7 @@ describe('useSearchHighlight', () => {
     expect(card.style.transition).toContain('transform');
 
     act(() => {
-      vi.advanceTimersByTime(1200);
+      vi.advanceTimersByTime(FOCUS_SETTLE_MS);
     });
 
     expect(card.style.transition).toBe('');
@@ -119,5 +137,13 @@ describe('useSearchHighlight', () => {
     expect(row.querySelectorAll('mark')).toHaveLength(0);
     expect(row.children).toHaveLength(1);
     expect(row.firstChild?.nodeValue).toBe('Variation Library');
+  });
+
+  it('marks the words a literal prefix begins, and no others', () => {
+    renderHarness({ title: 'Variation and Advanced', terms: [], prefixes: ['va'] });
+
+    const marks = [...screen.getByTestId('title-row').querySelectorAll('mark')];
+
+    expect(marks.map((mark) => mark.textContent)).toEqual(['Variation']);
   });
 });

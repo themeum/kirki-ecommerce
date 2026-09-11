@@ -43,7 +43,10 @@ const ApiConfigurationCard = ({
   const usage = dataObj?.usage;
 
   return (
-    <Card data-search-id="currency.api-status">
+    <Card
+      data-search-id="currency.api-status" data-search-keywords="connection, sync, quota, usage limit"
+      data-search-title={__('Exchange Rate API Status', 'kirki-ecommerce')}
+    >
       <CardContent>
         <Flex direction="column" gap={5}>
           <Flex

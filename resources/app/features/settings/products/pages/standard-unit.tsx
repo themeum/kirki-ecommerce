@@ -24,7 +24,7 @@ export const StandardUnit = () => {
 
   return (
     <div>
-      <Card data-search-id="products.standards" cssOverride={cardStyles.formCard}>
+      <Card data-search-id="products.standards" data-search-keywords="kg, lb, cm, inch, measurement, unit of measure" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Standards', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

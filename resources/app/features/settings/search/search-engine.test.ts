@@ -76,7 +76,7 @@ describe('settings search engine', () => {
     const results = idsFor('money back');
 
     expect(results[0]).toBe('payments.refunds');
-    expect(corpus.documents[0].text).not.toMatch(/money|back/i);
+    expect(Object.keys(corpus.documents[0].words)).not.toContain('money');
   });
 
   it('ranks a literal match above a related-term match', () => {
@@ -124,6 +124,19 @@ describe('settings search engine', () => {
 
     expect(result.id).toBe('checkout.guest');
     expect(result.matchedTerms).toContain('guest');
+  });
+
+  it('prefix-matches a single-letter query that has no semantic meaning', () => {
+    const results = idsFor('c');
+
+    expect(results).toContain('currency.management');
+    expect(results).toContain('checkout.guest');
+    expect(results).toContain('payments.refunds');
+    expect(results).not.toContain('shipping.zones');
+  });
+
+  it('still returns nothing for a single letter that is a stopword', () => {
+    expect(idsFor('a')).toEqual([]);
   });
 
   it('orders results by descending score', () => {

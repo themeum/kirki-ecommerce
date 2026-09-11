@@ -107,7 +107,7 @@ const CustomerEmail = (props: CustomerEmailProps) => {
 
   return (
     <div>
-      <Card data-search-id="email.customer-emails" cssOverride={styles.roundedCard}>
+      <Card data-search-id="email.customer-emails" data-search-keywords="notification, transactional, receipt, confirmation" cssOverride={styles.roundedCard}>
         <CardContent>
 
           <Flex direction="column" gap={4}>

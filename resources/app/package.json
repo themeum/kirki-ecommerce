@@ -14,7 +14,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "pretest": "npm run search:index"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

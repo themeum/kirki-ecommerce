@@ -16,6 +16,7 @@ type SettingsSearchResult = {
   route: string;
   icon: ReactNode;
   matchedTerms: string[];
+  matchedPrefixes: string[];
 };
 
 const buildIconMap = () => {
@@ -86,6 +87,7 @@ export const useSettingsSearch = (query: string) => {
           route: document.route,
           icon: iconByRoute.get(document.route) ?? null,
           matchedTerms: result.matchedTerms,
+          matchedPrefixes: result.matchedPrefixes ?? [],
         },
       ];
     });

@@ -2,7 +2,8 @@ import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { PlusIcon } from '@/icons';
+import { theme } from '@/theme';
+import { PlusIcon } from 'lucide-react';
 
 type HeaderActionsCardProps = {
   'data-search-id'?: string;
@@ -26,7 +27,12 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
           </Text>
           {!hideButton && (
             <ActionGroup>
-              <Button variant="secondary" onClick={onAdd}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onAdd}
+                cssOverride={{ color: theme.colors.text.emphasis }}
+              >
                 <PlusIcon />
                 {buttonText}
               </Button>

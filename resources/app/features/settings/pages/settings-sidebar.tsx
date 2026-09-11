@@ -62,7 +62,11 @@ const SearchResults = (props: SearchResultsProps) => {
   }
 
   if (results.length === 0) {
-    return <Text color="subdued">{__('No results found', 'kirki-ecommerce')}</Text>;
+    return (
+      <Text color="subdued" cssOverride={{ marginLeft: theme.spacing[1] }}>
+        {__('No results found', 'kirki-ecommerce')}
+      </Text>
+    );
   }
 
   return (

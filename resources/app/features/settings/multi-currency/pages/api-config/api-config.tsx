@@ -119,7 +119,7 @@ const ApiConfig = () => {
             dataObj={(formValues || {}) as CurrencySettings}
           />
         ) : (
-          <Card data-search-id="currency.api-configuration" cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })} >
+          <Card data-search-id="currency.api-configuration" data-search-keywords="api key, conversion rate, exchange rate provider, automatic rates" data-search-title={__('Exchange Rate API Configuration', 'kirki-ecommerce')} cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })} >
             <CardContent cssOverride={cardStyles.innerContent}>
               <Flex justify="space-between" align="center">
                 <Flex direction="column" gap={2}>

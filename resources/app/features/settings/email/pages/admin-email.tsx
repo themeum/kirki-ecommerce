@@ -108,7 +108,7 @@ const AdminEmail = (props: AdminEmailProps) => {
 
   return (
     <>
-      <Card data-search-id="email.admin-emails" cssOverride={styles.roundedCard}>
+      <Card data-search-id="email.admin-emails" data-search-keywords="notification, alert, recipient, store owner, staff" cssOverride={styles.roundedCard}>
         <CardContent>
 
           <Flex direction="column" gap={4}>

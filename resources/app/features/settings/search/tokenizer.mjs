@@ -49,11 +49,19 @@ export const stemWord = (word) => {
   return stem.length >= 3 ? stem : word;
 };
 
-export const splitWords = (text) => {
+const splitTerms = (text, minLength) => {
   return String(text ?? '')
     .toLowerCase()
     .split(/[^a-z0-9]+/)
-    .filter((word) => word.length >= 2 && !STOPWORDS.has(word));
+    .filter((word) => word.length >= minLength && !STOPWORDS.has(word));
+};
+
+export const splitWords = (text) => {
+  return splitTerms(text, 2);
+};
+
+export const splitQueryWords = (text) => {
+  return splitTerms(text, 1);
 };
 
 export const tokenize = (text) => {
@@ -62,4 +70,33 @@ export const tokenize = (text) => {
 
 export const isStopword = (word) => {
   return STOPWORDS.has(String(word ?? '').toLowerCase());
+};
+
+export const editDistance = (a, b, limit) => {
+  if (Math.abs(a.length - b.length) > limit) {
+    return limit + 1;
+  }
+
+  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+
+  for (let row = 1; row <= a.length; row += 1) {
+    const current = [row];
+    let best = row;
+
+    for (let column = 1; column <= b.length; column += 1) {
+      const substitution = previous[column - 1] + (a[row - 1] === b[column - 1] ? 0 : 1);
+      const distance = Math.min(current[column - 1] + 1, previous[column] + 1, substitution);
+
+      current.push(distance);
+      best = Math.min(best, distance);
+    }
+
+    if (best > limit) {
+      return limit + 1;
+    }
+
+    previous = current;
+  }
+
+  return previous[b.length];
 };

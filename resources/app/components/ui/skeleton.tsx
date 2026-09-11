@@ -61,6 +61,7 @@ const radiusStyles = defineStyles({
   md: { borderRadius: theme.radius.md },
   lg: { borderRadius: theme.radius.lg },
   xl: { borderRadius: theme.radius.xl },
+  xxl: { borderRadius: theme.radius.xxl },
   full: { borderRadius: theme.radius.full },
 });
 

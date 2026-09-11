@@ -9,9 +9,9 @@ const MARK_ATTRIBUTE = 'data-settings-search-mark';
 const GROUP_ATTRIBUTE = 'data-settings-search-mark-group';
 const WORD_PATTERN = /[A-Za-z0-9]+/g;
 const MAX_LOOKUP_FRAMES = 40;
-const FOCUS_HOLD_MS = 1000;
+export const FOCUS_HOLD_MS = 1000;
 const FOCUS_RISE_MS = 150;
-const FOCUS_SETTLE_MS = 1200;
+export const FOCUS_SETTLE_MS = 1200;
 const FOCUS_LIFT = 'translateY(-4px)';
 const FOCUS_SHADOW = `0 22px 56px -8px rgba(0, 0, 0, 0.30), 0 8px 20px -6px rgba(0, 0, 0, 0.16), 0 0 0 2px ${theme.colors.background.fillSecondaryHover}`;
 
@@ -78,13 +78,18 @@ const collectTextNodes = (element: Element) => {
   return nodes;
 };
 
-const markTextNode = (node: Text, terms: Set<string>) => {
+const markTextNode = (node: Text, terms: Set<string>, prefixes: string[]) => {
   const text = node.nodeValue ?? '';
   const fragment = document.createDocumentFragment();
   let cursor = 0;
 
   for (const match of text.matchAll(WORD_PATTERN)) {
-    if (!terms.has(stemWord(match[0].toLowerCase()))) {
+    const word = match[0].toLowerCase();
+
+    if (
+      !terms.has(stemWord(word)) &&
+      !prefixes.some((prefix) => word.startsWith(prefix))
+    ) {
       continue;
     }
 
@@ -123,7 +128,10 @@ export const useSearchHighlight = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    if (target?.route !== pathname || target.terms.length === 0) {
+    if (
+      target?.route !== pathname ||
+      (target.terms.length === 0 && target.prefixes.length === 0)
+    ) {
       return;
     }
 
@@ -153,7 +161,7 @@ export const useSearchHighlight = () => {
       const terms = new Set(target.terms);
 
       for (const node of collectTextNodes(element)) {
-        markTextNode(node, terms);
+        markTextNode(node, terms, target.prefixes);
       }
     };
 

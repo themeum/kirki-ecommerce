@@ -98,6 +98,25 @@ const openingElementOf = (node) => {
   return null;
 };
 
+const translatedLiteral = (node, sourceFile) => {
+  if (!node || !ts.isCallExpression(node)) {
+    return null;
+  }
+
+  const [firstArgument] = node.arguments;
+
+  if (
+    !TRANSLATION_CALLS.has(node.expression.getText(sourceFile)) ||
+    !firstArgument ||
+    !(ts.isStringLiteral(firstArgument) ||
+      ts.isNoSubstitutionTemplateLiteral(firstArgument))
+  ) {
+    return null;
+  }
+
+  return firstArgument.text;
+};
+
 const attributeValue = (opening, sourceFile, name) => {
   for (const attribute of opening.attributes.properties) {
     if (!ts.isJsxAttribute(attribute)) {
@@ -112,6 +131,10 @@ const attributeValue = (opening, sourceFile, name) => {
 
     if (initializer && ts.isStringLiteral(initializer)) {
       return initializer.text;
+    }
+
+    if (initializer && ts.isJsxExpression(initializer)) {
+      return translatedLiteral(initializer.expression, sourceFile);
     }
   }
 
@@ -131,7 +154,7 @@ const textElementKind = (opening, sourceFile) => {
     return 'title';
   }
 
-  if (variant === 'small' && ['secondary', 'subdued'].includes(color)) {
+  if (['secondary', 'subdued'].includes(color)) {
     return 'description';
   }
 
@@ -142,7 +165,7 @@ const collectFromFile = (filePath, documents) => {
   const sourceFile = parse(filePath);
   const relativePath = path.relative(APP_ROOT, filePath);
 
-  const openScope = (searchId, node) => {
+  const openScope = (searchId, node, opening) => {
     const [pageKey] = searchId.split('.');
     const page = SETTINGS_PAGES[pageKey];
 
@@ -162,6 +185,18 @@ const collectFromFile = (filePath, documents) => {
     };
 
     documents.push(scope);
+
+    const declaredTitle = attributeValue(opening, sourceFile, 'data-search-title');
+
+    if (declaredTitle) {
+      push(scope, 'title', declaredTitle);
+    }
+
+    const declaredKeywords = attributeValue(opening, sourceFile, 'data-search-keywords');
+
+    for (const keyword of (declaredKeywords ?? '').split(',')) {
+      push(scope, 'keywords', keyword);
+    }
 
     return scope;
   };
@@ -208,7 +243,7 @@ const collectFromFile = (filePath, documents) => {
 
     const tagName = opening.tagName.getText(sourceFile);
     const searchId = attributeValue(opening, sourceFile, 'data-search-id');
-    const nextScope = searchId ? openScope(searchId, node) : scope;
+    const nextScope = searchId ? openScope(searchId, node, opening) : scope;
 
     if (!scope && !searchId && tagName === 'Card') {
       const body = sourceFile.text.slice(node.pos, node.end);
@@ -226,6 +261,13 @@ const collectFromFile = (filePath, documents) => {
       kind;
 
     for (const attribute of opening.attributes.properties) {
+      if (
+        ts.isJsxAttribute(attribute) &&
+        attribute.name.getText(sourceFile).startsWith('data-search-')
+      ) {
+        continue;
+      }
+
       if (ts.isJsxAttribute(attribute) && attribute.initializer) {
         const attributeKind =
           ATTRIBUTE_KINDS[attribute.name.getText(sourceFile)] ?? nextKind;
@@ -375,6 +417,14 @@ const empty = documents.filter((document) => document.fields.length === 0);
 
 for (const document of empty) {
   warnings.push(`document "${document.id}" has no translated copy`);
+}
+
+const untitled = documents.filter((document) => !document.title);
+
+for (const document of untitled) {
+  warnings.push(
+    `document "${document.id}" has no title the crawler can read — add data-search-title, or a result will show its id`,
+  );
 }
 
 const index = buildIndex(

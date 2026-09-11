@@ -5,6 +5,7 @@ type SettingsSearchTarget = {
   searchId: string;
   route: string;
   terms: string[];
+  prefixes: string[];
 };
 
 type SettingsSearchContextValue = {

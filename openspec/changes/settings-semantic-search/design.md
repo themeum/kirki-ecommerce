@@ -141,6 +141,52 @@ with no marks; and shipping both paths doubles the surface for one visual effect
 `settings-layout.tsx` keys its content pane by `pathname`, so the pane remounts on
 navigation — that is the hook point for scroll-and-mark.
 
+### Authored keywords carry their own boost, above description and below title
+
+`data-search-keywords` sits on the card element next to `data-search-id`, is
+split on commas, and is indexed as a `keywords` field at boost 2.5 — between
+title (3) and description (2).
+
+*Why not reuse an existing kind:* at title strength a card could hijack a query
+away from the card actually named for that thing; at description strength a
+hand-picked keyword would count for no more than a word that happened to land in
+a sentence. 2.5 keeps the visible name as a card's primary identity while still
+letting a curated word beat incidental prose.
+
+*Why an attribute rather than a lexicon entry:* the concept lexicon says two
+words mean the same thing everywhere in the corpus. A keyword says *this card*
+answers to *this word*, which is a per-card fact and does not belong in a global
+synonym group. The lexicon stays the place for vocabulary; keywords are the place
+for a specific card's aliases.
+
+### Literal matching is a fallback, never a supplement
+
+When the vector pass returns nothing, `search()` runs a second pass that requires
+every typed word to prefix some word in a document, compared case-insensitively,
+ranked by the strongest field each word was found in.
+
+*Why only on zero results:* section 9 spent its whole effort teaching the engine
+to return nothing rather than its least-bad guess — `"money back"` returning no
+results is a tested outcome, not an accident. A literal tail appended to every
+query would undo that for the 38 golden queries at a stroke. Gating on an empty
+result set means the fallback can only ever turn "nothing" into "something".
+
+*Why word-prefix rather than substring:* a two-character substring query matches
+a large and arbitrary slice of a 42-document corpus — `"va"` would pull in
+*ad**va**nced* and *pri**va**cy* alongside *VAT*. Prefix matching is what an admin
+search box is expected to do, and it is what makes the fragment case the user
+raised (`"va"` → VAT, Variations) behave predictably.
+
+*Why AND across words:* typing more should narrow. With OR, adding a second
+fragment grows the list, which reads as a bug.
+
+*Cost:* `buildIndex` emits a per-document `words` map (lowercase surface word →
+highest field boost) in place of the joined `text` string it emitted before. No
+runtime code read `text`. **Measured, not assumed:** the maps total 7,777 bytes
+against the strings' 7,322 — 455 bytes more, because the per-entry JSON overhead
+slightly outweighs what collapsing duplicates saves. That is 0.9% of the index,
+which is a fair price for keeping the field boosts that prefix ranking needs.
+
 ## Risks / Trade-offs
 
 - **Meaning is bounded by the lexicon** → Seed it from the settings domain

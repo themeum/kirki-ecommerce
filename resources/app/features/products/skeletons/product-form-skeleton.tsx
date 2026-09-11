@@ -61,7 +61,7 @@ CardSkeleton.displayName = 'CardSkeleton';
 
 const ProductFormSkeleton = () => {
   return (
-    <Page>
+    <Page containerSize="xl">
       <PageHeadingSkeleton>
         <Skeleton width={72} height={32} />
         <Skeleton width={72} height={32} />
