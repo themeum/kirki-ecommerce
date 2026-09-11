@@ -135,9 +135,14 @@ class CartService
         $customer = customer($data['user_id']);
 
         if (!empty($customer)) {
+            $is_billing_same_as_shipping = $customer->get_shipping_address()['id'] === $customer->get_billing_address()['id'];
+
             $data['shipping_address'] = $customer->get_shipping_address();
-            $data['billing_address'] = $customer->get_billing_address();
-            $data['is_billing_same_as_shipping'] = $data['shipping_address']['id'] === $data['billing_address']['id'];
+            $data['is_billing_same_as_shipping'] = $is_billing_same_as_shipping;
+
+            if (!$data['is_billing_same_as_shipping']) {
+                $data['billing_address'] = $customer->get_billing_address();
+            }
         }
 
         return CartModel::create($data);
@@ -168,6 +173,7 @@ class CartService
         $data = [
             'currency_code' => base_currency()->code, // @todo: Implement currency selection in the future for multi-currency support
             'base_currency_code' => base_currency()->code,
+            'is_billing_same_as_shipping' => true,
         ];
 
         if (!empty($user_id)) {
