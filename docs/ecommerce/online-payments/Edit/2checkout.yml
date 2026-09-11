@@ -1,0 +1,142 @@
+info:
+  name: 2checkout
+  type: http
+  seq: 7
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/twocheckout"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "merchant_code": "256172060889",
+          "secret_key": "r)WXbzTMhq3x5nZdRCu[",
+          "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/quickpay"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "merchant_code": "256172060889",
+              "secret_key": "r)WXbzTMhq3x5nZdRCu[",
+              "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "twocheckout",
+              "name": "2Checkout(Verifone)",
+              "icon": "twocheckout",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "2Checkout(Verifone) payment gateway",
+              "settings": {
+                "merchant_code": "256172060889",
+                "secret_key": "r)WXbzTMhq3x5nZdRCu[",
+                "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "merchant_code",
+                  "label": "Merchant Code",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "secret_key",
+                  "label": "Secret Key",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "buy_link_secret_word",
+                  "label": "Buy Link Secret Word",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/twocheckout",
+              "webhook_events": [
+
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/quickpay"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+               "merchant_code": "256172060889",
+              "secret_key": "r)WXbzTMhq3x5nZdRCu[",
+              "buy_link_secret_word" : "cYa7!gP2GWu$Ng$*$Ttd@#mN!pFGJ??pFPsmVdzRwWu?2kQ6Q#VK5ruZTd@2ns8z",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.
