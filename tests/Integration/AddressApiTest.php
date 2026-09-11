@@ -219,6 +219,30 @@ class AddressApiTest extends RestTestCase
         $this->assertTrue($payload['data']['is_default_billing']);
     }
 
+    public function test_update_address_can_explicitly_set_default_status(): void
+    {
+        $this->login_as_new_customer();
+        $first = $this->assert_api_success(
+            $this->request('POST', 'account/addresses', $this->address_payload(['is_default_shipping' => true])),
+            201
+        );
+        $second = $this->assert_api_success(
+            $this->request('POST', 'account/addresses', $this->address_payload(['type' => 'office'])),
+            201
+        );
+
+        $response = $this->request('PUT', 'account/addresses/' . $second['data']['id'], $this->address_payload([
+            'type' => 'office',
+            'is_default_shipping' => true,
+        ]));
+
+        $payload = $this->assert_api_success($response, 200);
+        $this->assertTrue($payload['data']['is_default_shipping']);
+
+        $first_now = $this->assert_api_success($this->request('GET', 'account/addresses/' . $first['data']['id']), 200);
+        $this->assertFalse($first_now['data']['is_default_shipping']);
+    }
+
     public function test_update_address_not_owned_returns_404(): void
     {
         $this->login_as_new_customer();
@@ -248,21 +272,36 @@ class AddressApiTest extends RestTestCase
         $this->assert_api_error($show_response, 404);
     }
 
-    public function test_delete_default_address_does_not_promote_another(): void
+    public function test_delete_default_address_promotes_another(): void
     {
         $this->login_as_new_customer();
         $first = $this->assert_api_success(
             $this->request('POST', 'account/addresses', $this->address_payload(['is_default_billing' => true])),
             201
         );
-        $this->request('POST', 'account/addresses', $this->address_payload(['type' => 'office']));
+        $second = $this->assert_api_success(
+            $this->request('POST', 'account/addresses', $this->address_payload(['type' => 'office'])),
+            201
+        );
 
         $this->request('DELETE', 'account/addresses/' . $first['data']['id']);
 
+        $remaining = $this->assert_api_success($this->request('GET', 'account/addresses/' . $second['data']['id']), 200);
+        $this->assertTrue($remaining['data']['is_default_billing']);
+    }
+
+    public function test_delete_only_address_leaves_no_default(): void
+    {
+        $this->login_as_new_customer();
+        $only = $this->assert_api_success(
+            $this->request('POST', 'account/addresses', $this->address_payload(['is_default_billing' => true, 'is_default_shipping' => true])),
+            201
+        );
+
+        $this->request('DELETE', 'account/addresses/' . $only['data']['id']);
+
         $list = $this->assert_api_success($this->request('GET', 'account/addresses'), 200);
-        foreach ($list['data'] as $address) {
-            $this->assertFalse($address['is_default_billing']);
-        }
+        $this->assertEmpty($list['data']);
     }
 
     public function test_set_default_shipping_only(): void

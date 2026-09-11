@@ -103,11 +103,10 @@ class OrderManager
         $is_cancelled = $this->order_service->apply_order_action($id, $order->order_status, OrderAction::CANCEL_ORDER);
 
         if ($is_cancelled) {
-            if (!empty($order->coupon_usage)) {
-                $coupon_id = $order->coupon_usage->coupon_id;
-                $order->coupon_usage->delete();
-                $this->coupon_service->decrement($coupon_id, 'current_usage_count');
-            }
+            $order->order_coupons->reject(fn($order_coupon) => !empty($order_coupon->usage_reversed_at))->each(function ($order_coupon) {
+                $order_coupon->update(['usage_reversed_at' => Date::now()]);
+                $this->coupon_service->decrement($order_coupon->coupon_id, 'current_usage_count');
+            });
 
             $this->inventory_service->release_all_reserved_stock($order);
             $this->order_service->partial_update_order($id, [

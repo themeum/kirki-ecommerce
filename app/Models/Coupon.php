@@ -120,9 +120,9 @@ class Coupon extends Model
         return $this->belongs_to_many(Customer::class, 'kirki_ecommerce_coupon_customers', 'coupon_id', 'customer_id')->with_pivot('is_excluded');
     }
 
-    public function usage()
+    public function order_coupons()
     {
-        return $this->has_many(CouponUsage::class, 'coupon_id', 'id');
+        return $this->has_many(OrderCoupon::class, 'coupon_id', 'id');
     }
 
     /**

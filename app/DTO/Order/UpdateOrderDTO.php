@@ -51,9 +51,6 @@ class UpdateOrderDTO extends DTO
     /** @var int */
     public $base_discount_total;
 
-    /** @var array */
-    public $discount_details;
-
     /** @var int */
     public $invoiced_tax_total;
 

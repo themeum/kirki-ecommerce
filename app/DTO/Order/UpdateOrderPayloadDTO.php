@@ -18,8 +18,8 @@ class UpdateOrderPayloadDTO extends DTO
     /** @var string */
     public $currency_code;
 
-    /** @var string|null */
-    public $coupon_code;
+    /** @var string[] Coupon codes to apply. */
+    public $coupon_codes = [];
 
     /** @var string|null */
     public $shipping_method;

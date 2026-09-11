@@ -18,8 +18,12 @@ class CreateOrderPayloadDTO extends DTO
     /** @var string */
     public $payment_provider;
 
-    /** @var string|null */
-    public $coupon_code;
+    /**
+     * @var string[] Coupon codes to apply. Populated either from the checkout
+     *      cart's applied coupons (resolve_checkout_cart()) or, for a manual/
+     *      direct order, directly from the request's `coupon_codes` field.
+     */
+    public $coupon_codes = [];
 
     /** @var string|null */
     public $shipping_method;

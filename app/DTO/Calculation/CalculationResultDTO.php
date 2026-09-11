@@ -15,14 +15,16 @@ class CalculationResultDTO extends DTO
     public $base_product_total = 0;
     /** @var int */
     public $base_discount_total = 0;
-    /** @var array|null */
-    public $discount_details;
+    /** @var \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] */
+    public $coupon_results = [];
     /** @var int */
     public $base_shipping_subtotal = 0;
     /** @var int */
     public $base_shipping_discount = 0;
     /** @var int */
     public $base_shipping_tax = 0;
+    /** @var \Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO[] */
+    public $shipping_tax_breakdown = [];
     /** @var int */
     public $base_shipping_total = 0;
     /** @var int */

@@ -135,13 +135,11 @@ class AddressService
         DB::begin_transaction();
 
         try {
-            $address = Address::create($data->to_array());
-
-            $this->unset_current_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
+            $address = $this->create_without_transaction($data);
 
             DB::commit();
 
-            return Address::find($address->id);
+            return $address;
         } catch (Throwable $e) {
             DB::rollback();
 
@@ -150,9 +148,27 @@ class AddressService
     }
 
     /**
+     * Create a new address without opening its own transaction - for
+     * callers (e.g. CreateOrderAction) that are already inside one.
+     *
+     * @param CreateAddressDTO $data
+     * @return Address
+     */
+    public function create_without_transaction(CreateAddressDTO $data)
+    {
+        $address = Address::create($data->to_array());
+
+        $this->unset_current_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
+
+        return Address::find($address->id);
+    }
+
+    /**
      * Updates an address's details.
      *
-     * Does not touch is_default_shipping/is_default_billing - see set_default().
+     * Leaves is_default_shipping/is_default_billing untouched when the
+     * request omits them; when either is explicitly submitted (true or
+     * false), it is set the same way set_default() sets it.
      *
      * @param UpdateAddressDTO $data
      * @throws NotFoundException
@@ -160,11 +176,34 @@ class AddressService
      */
     public function update(UpdateAddressDTO $data)
     {
+        return $this->update_without_transaction($data);
+    }
+
+    /**
+     * Update an address without opening its own transaction - for callers
+     * (e.g. CreateOrderAction) that are already inside one.
+     *
+     * @param UpdateAddressDTO $data
+     * @throws NotFoundException
+     * @return Address
+     */
+    public function update_without_transaction(UpdateAddressDTO $data)
+    {
         $address = Address::find($data->id);
 
         throw_if(empty($address), __('Address could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        $is_updated = $address->update($data->to_array());
+        $attributes = $data->to_array();
+
+        if ($data->is_default_shipping === null) {
+            unset($attributes['is_default_shipping']);
+        }
+
+        if ($data->is_default_billing === null) {
+            unset($attributes['is_default_billing']);
+        }
+
+        $is_updated = $address->update($attributes);
 
         if ($is_updated && (!empty($data->is_default_shipping) || !empty($data->is_default_billing))) {
             $this->unset_current_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
@@ -192,32 +231,48 @@ class AddressService
      */
     public function set_default(int $id, string $purpose)
     {
+        DB::begin_transaction();
+
+        try {
+            $address = $this->set_default_without_transaction($id, $purpose);
+
+            DB::commit();
+
+            return $address;
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Set an address as default without opening its own transaction - for
+     * callers (e.g. CreateOrderAction) that are already inside one.
+     *
+     * @param int $id
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
+     * @throws NotFoundException
+     * @return Address
+     */
+    public function set_default_without_transaction(int $id, string $purpose)
+    {
         $address = Address::find($id);
 
         if (empty($address)) {
             throw new NotFoundException(__('Address not found.', 'kirki-ecommerce'), Response::NOT_FOUND); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Caught centrally in Route.php; ApiExceptionHandler puts the message into a JSON response (HTML-escaping would corrupt it) and SiteExceptionHandler already calls esc_html() once before wp_die().
         }
 
-        DB::begin_transaction();
+        $address->update(['is_default_' . $purpose => true]);
 
-        try {
-            $address->update(['is_default_' . $purpose => true]);
+        $this->unset_current_default(
+            $address->customer_id,
+            $address->id,
+            $purpose === AddressPurpose::SHIPPING,
+            $purpose === AddressPurpose::BILLING
+        );
 
-            $this->unset_current_default(
-                $address->customer_id,
-                $address->id,
-                $purpose === AddressPurpose::SHIPPING,
-                $purpose === AddressPurpose::BILLING
-            );
-
-            DB::commit();
-
-            return Address::find($id);
-        } catch (Throwable $e) {
-            DB::rollback();
-
-            throw $e;
-        }
+        return Address::find($id);
     }
 
     /**
