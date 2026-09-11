@@ -1,9 +1,18 @@
 import { useWatch } from 'react-hook-form';
 
-import { buildCurrencyListItems, buildCurrencyUpdatePayload, type CurrencyListItem } from '@/features/settings/multi-currency/lib/currency-list';
+import {
+  buildCurrencyListItems,
+  buildCurrencyUpdatePayload,
+  type CurrencyListItem,
+} from '@/features/settings/multi-currency/lib/currency-list';
 import type { Currency } from '@/features/settings/multi-currency/schemas/catalog/currency';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
-import { type CurrencyBulkPayload, useAvailableCurrenciesQuery, useDeleteCurrencyMutation, useUpdateCurrencyMutation } from '@/features/settings/multi-currency/services/currency';
+import {
+  type CurrencyBulkPayload,
+  useAvailableCurrenciesQuery,
+  useDeleteCurrencyMutation,
+  useUpdateCurrencyMutation,
+} from '@/features/settings/multi-currency/services/currency';
 
 type UseAvailableCurrencyListResult = {
   currencyList: CurrencyListItem[];
@@ -11,11 +20,9 @@ type UseAvailableCurrencyListResult = {
   showApiProviderStatus: boolean;
   lastSyncAt: string | null | undefined;
   updateData: (payload: CurrencyBulkPayload | null) => void;
+  handleToggleCurrencyItem: (item: CurrencyListItem) => void;
   handleDeleteCurrencyItem: (item: CurrencyListItem) => void;
-  handleAction: (
-    action: string | number | (string | number)[],
-    item: CurrencyListItem,
-  ) => void;
+  handleAction: (action: 'delete' | 'status' | 'set_base', item: CurrencyListItem) => void;
 };
 
 export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
@@ -49,13 +56,16 @@ export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
     });
   };
 
-  const handleAction = (
-    action: string | number | (string | number)[],
-    item: CurrencyListItem,
-  ) => {
+  const handleToggleCurrencyItem = (item: CurrencyListItem) => {
+    updateCurrencyList(item, 'is_active');
+  };
+
+  const handleAction = (action: 'delete' | 'status' | 'set_base', item: CurrencyListItem) => {
     if (action === 'delete') {
       handleDeleteCurrencyItem(item);
-    } else {
+    } else if (action === 'status') {
+      handleToggleCurrencyItem(item);
+    } else if (action === 'set_base') {
       updateCurrencyList(item, 'is_base');
     }
   };
@@ -67,6 +77,7 @@ export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
     lastSyncAt: dataObj?.last_sync_at,
     updateData,
     handleDeleteCurrencyItem,
+    handleToggleCurrencyItem,
     handleAction,
   };
 };

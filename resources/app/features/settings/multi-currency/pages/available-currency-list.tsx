@@ -1,9 +1,9 @@
-import { Check, MoreVertical, Trash2 } from 'lucide-react';
+import { Check, CircleSlashIcon, MoreVertical, Trash2 } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useOutletContext } from 'react-router';
 
 import NumberField from '@/components/form/number-field';
-import SwitchField from '@/components/form/switch-field';
+import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,6 +52,7 @@ const CurrencyRateInput = (props: CurrencyRateInputProps) => {
       min={0}
       aria-label={sprintf(__('Exchange rate for %s', 'kirki-ecommerce'), code)}
       cssOverride={styles.rateInput}
+      inputCssOverride={{ minHeight: '24px' }}
     />
   );
 };
@@ -59,7 +60,7 @@ const CurrencyRateInput = (props: CurrencyRateInputProps) => {
 type CurrencyRowActionsProps = {
   item: CurrencyListItem;
   index: number;
-  onAction: (action: string | number | (string | number)[], item: CurrencyListItem) => void;
+  onAction: (action: 'delete' | 'status' | 'set_base', item: CurrencyListItem) => void;
 };
 
 const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
@@ -107,11 +108,43 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
     });
   };
 
+  const handleStatus = () => {
+    confirmAction({
+      action: () => onAction('status', item),
+      otherProps: {
+        variant: 'warning',
+        force: true,
+        title: !item.is_active
+          ? __('Activate currency?', 'kirki-ecommerce')
+          : __('Deactivate currency?', 'kirki-ecommerce'),
+        subtitle: sprintf(
+          /* translators: %s: unsaved changes note */
+          !item.is_active
+            ? __(
+                'Are you sure you want to deactivate this currency? This action cannot be undone. %s',
+                'kirki-ecommerce',
+              )
+            : __(
+                'Are you sure you want to activate this currency? This action cannot be undone. %s',
+                'kirki-ecommerce',
+              ),
+          unsavedChangesNote,
+        ),
+      },
+    });
+  };
+
   return (
-    <Flex gap={2} align="center" cssOverride={{ marginLeft: 'auto' }}>
-      {!item.is_toggle_disabled && index >= 0 && (
-        <SwitchField name={`currencies.${index}.is_active`} />
-      )}
+    <ActionGroup>
+      <Flex gap={1} cssOverride={{ alignItems: 'center' }}>
+        {item.is_base ? (
+          <Text variant="small" color="subdued">
+            {__('1.00', 'kirki-ecommerce')}
+          </Text>
+        ) : (
+          index >= 0 && <CurrencyRateInput index={index} code={item.code} />
+        )}
+      </Flex>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -123,31 +156,32 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          {!item.is_toggle_disabled && index >= 0 && (
+            <DropdownMenuItem onClick={handleStatus}>
+              <CircleSlashIcon size="16" />
+              <Text variant="small">{item.is_active ? __('Deactivate', 'kirki-ecommerce') : __('Activate', 'kirki-ecommerce')}</Text>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={handleSetBase}>
             <Check size="16" />
-            <span>{__('Set as Base Currency', 'kirki-ecommerce')}</span>
+            <Text variant="small">{__('Set as Base Currency', 'kirki-ecommerce')}</Text>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleDelete}
             cssOverride={{ color: theme.colors.text.critical }}
           >
             <Trash2 size="16" />
-            <span>{__('Delete', 'kirki-ecommerce')}</span>
+            <Text variant="small">{__('Delete', 'kirki-ecommerce')}</Text>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </Flex>
+    </ActionGroup>
   );
 };
 
 export const AvailableCurrencyList = () => {
-  const {
-    currencyList,
-    baseCurrencyCode,
-    showApiProviderStatus,
-    lastSyncAt,
-    handleAction,
-  } = useAvailableCurrencyList();
+  const { currencyList, baseCurrencyCode, showApiProviderStatus, lastSyncAt, handleAction } =
+    useAvailableCurrencyList();
 
   const { control } = useFormContext<MultiCurrencySettingsFormInput>();
   const currencies = useWatch({ control, name: 'currencies' }) ?? [];
@@ -172,8 +206,7 @@ export const AvailableCurrencyList = () => {
         <StackedItems>
           {currencyList.map((item) => {
             const fieldIndex = currencies.findIndex((currency) => currency.id === item.id);
-            const isActive =
-              fieldIndex >= 0 ? currencies[fieldIndex]?.is_active : item.is_enabled;
+            const isActive = fieldIndex >= 0 ? currencies[fieldIndex]?.is_active : item.is_enabled;
 
             return (
               <StackedItem key={item.id} id={String(item.id)}>
@@ -192,18 +225,7 @@ export const AvailableCurrencyList = () => {
                   </StackedItemTitle>
                 </StackedItemContent>
                 <StackedItemActions>
-                  <Flex gap={3} align="center">
-                    {item.is_base ? (
-                      <Text variant="small" color="subdued">
-                        {__('1.00', 'kirki-ecommerce')}
-                      </Text>
-                    ) : (
-                      fieldIndex >= 0 && (
-                        <CurrencyRateInput index={fieldIndex} code={item.code} />
-                      )
-                    )}
-                    <CurrencyRowActions item={item} index={fieldIndex} onAction={handleAction} />
-                  </Flex>
+                  <CurrencyRowActions item={item} index={fieldIndex} onAction={handleAction} />
                 </StackedItemActions>
               </StackedItem>
             );
@@ -231,6 +253,6 @@ const styles = defineStyles({
   },
   rateInput: {
     width: '96px',
-    minHeight: '32px',
+    minHeight: '24px',
   },
 });

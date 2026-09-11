@@ -17,9 +17,10 @@ type NumberFieldProps<
   placeholder?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
+  inputCssOverride?: CSSObject;
   min?: number | null;
   max?: number | null;
-  readOnly?: boolean
+  readOnly?: boolean;
   showError?: boolean;
   'aria-label'?: string;
 };
@@ -35,6 +36,7 @@ const NumberField = <
   placeholder,
   disabled,
   cssOverride,
+  inputCssOverride,
   min,
   max,
   readOnly,
@@ -50,10 +52,7 @@ const NumberField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field
-          data-invalid={fieldState.invalid || undefined}
-          cssOverride={cssOverride}
-        >
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && (
             <FieldLabel htmlFor={fieldId} infoText={infoText}>
               {label}
@@ -62,6 +61,7 @@ const NumberField = <
           <NumberInput
             {...field}
             id={fieldId}
+            cssOverride={inputCssOverride}
             value={currentValue ?? ''}
             placeholder={placeholder}
             disabled={disabled}
@@ -90,7 +90,7 @@ const NumberField = <
             }}
             name={field.name}
             ref={field.ref}
-            onFocus={event => event.target.select()}
+            onFocus={(event) => event.target.select()}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && showError && <FieldError errors={[fieldState.error]} />}
