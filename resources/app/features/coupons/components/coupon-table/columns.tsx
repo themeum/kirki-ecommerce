@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { Ban, Copy, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
@@ -91,7 +92,7 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
   {
     id: 'title',
     header: __('Title', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => <CouponTitleCell item={row.original} />,
   },
   {
@@ -106,25 +107,25 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
   {
     id: 'method',
     header: __('Method', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => row.original.method,
   },
   {
     id: 'discount_type',
     header: __('Type', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => row.original.discount_type,
   },
   {
     id: 'current_usage_count',
     header: __('Used', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => row.original.current_usage_count,
   },
   {
     id: 'created_at',
     header: __('Created at', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) =>
       row.original.created_at
         ? format(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT)
@@ -138,7 +139,9 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
   },
 ];
 
-const couponBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const couponBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 export { couponBulkActions, couponColumns };
 

@@ -29,17 +29,11 @@ export const EVENTS = {
   /** Fired when the user selects a different payment method. */
   PAYMENT_METHOD_CHANGED: 'kecom:payment-method:changed',
 
-  /** Trigger the shipping form to run its validation. */
-  SHIPPING_FORM_VALIDATE: 'kecom:shipping-form:validate',
+  /** Trigger the contact form to run its validation. */
+  CONTACT_FORM_VALIDATE: 'kecom:contact-form:validate',
 
-  /** Trigger the billing form to run its validation. */
-  BILLING_FORM_VALIDATE: 'kecom:billing-form:validate',
-
-  /** Fired by the shipping form after validation completes. */
-  SHIPPING_FORM_VALIDATED: 'kecom:shipping-form:validated',
-
-  /** Fired by the billing form after validation completes. */
-  BILLING_FORM_VALIDATED: 'kecom:billing-form:validated',
+  /** Fired by the contact form after validation completes. */
+  CONTACT_FORM_VALIDATED: 'kecom:contact-form:validated',
 
   /** Fired when the modal opens. */
   MODAL_OPENED: 'kecom:modal:opened',
@@ -70,17 +64,11 @@ export type Events = {
   /** Fired when the user selects a different payment method. */
   [EVENTS.PAYMENT_METHOD_CHANGED]: { method: string };
 
-  /** Trigger the shipping form to run its validation. */
-  [EVENTS.SHIPPING_FORM_VALIDATE]: void;
+  /** Trigger the contact form to run its validation. */
+  [EVENTS.CONTACT_FORM_VALIDATE]: void;
 
-  /** Trigger the billing form to run its validation. */
-  [EVENTS.BILLING_FORM_VALIDATE]: void;
-
-  /** Fired by the shipping form after validation completes. */
-  [EVENTS.SHIPPING_FORM_VALIDATED]: { isValid: boolean };
-
-  /** Fired by the billing form after validation completes. */
-  [EVENTS.BILLING_FORM_VALIDATED]: { isValid: boolean };
+  /** Fired by the contact form after validation completes. */
+  [EVENTS.CONTACT_FORM_VALIDATED]: { isValid: boolean };
 
   /** Fired when the modal opens. */
   [EVENTS.MODAL_OPENED]: void;
@@ -134,4 +122,28 @@ export function listen<K extends keyof Events>(
   };
   window.addEventListener(name, listener, options);
   return () => window.removeEventListener(name, listener);
+}
+
+/**
+ * Wait for a one-shot window event, resolving with its typed detail.
+ */
+export function waitForEvent<K extends keyof Events>(
+  eventName: K,
+  timeoutMs = 2000,
+): Promise<Events[K]> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      unsubscribe();
+      reject(new Error(`Timed out waiting for ${eventName}`));
+    }, timeoutMs);
+
+    const unsubscribe = listen(
+      eventName,
+      ((detail: Events[K]) => {
+        clearTimeout(timer);
+        resolve(detail);
+      }) as any,
+      { once: true },
+    );
+  });
 }

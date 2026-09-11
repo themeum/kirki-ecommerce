@@ -5,11 +5,14 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderActivity;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class OrderActivityService
 {
@@ -58,6 +61,20 @@ class OrderActivityService
     }
 
     /**
+     * Get all of an order's activities, newest first.
+     *
+     * @param int $order_id
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     */
+    public function get_order_activity(int $order_id)
+    {
+        return $this->list_query( $order_id )
+            ->where( 'activity_type', '!=', OrderActivityType::COMMENT_ADDED )
+            ->where( 'activity_type', '!=', OrderActivityType::PAYMENT_COMPLETED ) // todo: will be replaced with private activity status
+            ->get( ['activity_type','created_at'] );
+    }
+
+    /**
      * Base query for an order's activities, newest first.
      *
      * @param int $order_id
@@ -86,9 +103,7 @@ class OrderActivityService
             ->where('id', $id)
             ->first();
 
-        if (!$activity) {
-            throw new NotFoundException(__('Activity not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$activity, __('Activity not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $activity;
     }
@@ -111,9 +126,7 @@ class OrderActivityService
     {
         $activity = $this->find_or_fail($order_id, $id);
 
-        if ($activity->activity_type !== OrderActivityType::COMMENT_ADDED) {
-            throw new ValidationException(__('Only comments can be deleted.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
-        }
+        throw_if($activity->activity_type !== OrderActivityType::COMMENT_ADDED, __('Only comments can be deleted.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         return (bool) $activity->delete();
     }

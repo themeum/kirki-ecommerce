@@ -8,7 +8,9 @@ export const RouteConfig = {
     EditProduct: defineRoute('/:id'),
   }),
   BulkVariants: defineRoute('/variants/bulk'),
-  Inventory: defineRoute('/inventory'),
+  Inventory: defineRoute('/inventory', {
+    EditInventory: defineRoute('/:id'),
+  }),
 
   Coupons: defineRoute('/coupons', {
     EditCoupon: defineRoute('/:id'),
@@ -44,6 +46,7 @@ export const RouteConfig = {
     TaxSettings: defineRoute('/tax', {
       EditRegionEU: defineRoute('/region/eu'),
       EditTaxRegion: defineRoute('/region/:code'),
+      EditTaxRegionState: defineRoute('/region/:code/:state'),
     }),
     EmailSettings: defineRoute('/email', {
       EditEmailTemplate: defineRoute('/edit-template'),

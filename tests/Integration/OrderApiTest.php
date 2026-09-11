@@ -2,15 +2,17 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
-use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
@@ -31,6 +33,7 @@ use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -95,6 +98,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertArrayHasKey('id', $payload['data']);
         $this->assertNotEmpty($payload['data']['order_number']);
+        $this->assertNotEmpty($payload['data']['invoice_number']);
         $this->assertEquals('PayPal', $payload['data']['payment_provider_name']);
         $this->assertNotEmpty($payload['data']['payment_provider_icon']);
         $this->assertFalse($payload['data']['payment_provider_is_offline']);
@@ -102,6 +106,84 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
 
         $this->order_id = $payload['data']['id'];
+    }
+
+    /**
+     * Order number and invoice number apply the configured prefix/suffix.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_order_number_and_invoice_number_apply_settings_prefix_suffix(): void
+    {
+        Settings::update('general.order_number', [
+            'prefix' => 'ORD-',
+            'suffix' => '-X',
+        ]);
+        Settings::update('general.invoice_number', [
+            'prefix' => 'INV-',
+            'suffix' => '-Y',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $order = $this->create_order();
+
+        $this->assertSame(
+            'ORD-' . str_pad((string) $order['id'], 6, '0', STR_PAD_LEFT) . '-X',
+            $order['order_number']
+        );
+        $this->assertMatchesRegularExpression('/^INV-\d{6}-Y$/', $order['invoice_number']);
+    }
+
+    /**
+     * Invoice number increments sequentially across orders.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_invoice_number_increments_sequentially_across_orders(): void
+    {
+        Settings::update('general.invoice_number', [
+            'prefix' => '',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $first_order = $this->create_order();
+        $second_order = $this->create_order();
+
+        $this->assertSame(
+            (int) $first_order['invoice_number'] + 1,
+            (int) $second_order['invoice_number']
+        );
+    }
+
+    /**
+     * Invoice number applies the year prefix when enabled.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_invoice_number_applies_year_prefix_when_enabled(): void
+    {
+        Settings::update('general.invoice_number', [
+            'prefix' => 'INV-',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => true,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $order = $this->create_order();
+
+        $this->assertMatchesRegularExpression(
+            '/^INV-' . date('y') . '-\d{6}$/',
+            $order['invoice_number']
+        );
     }
 
     /**
@@ -493,7 +575,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertNotNull($customer);
         $this->assertEquals($customer->id, $payload['data']['customer_id']);
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
     }
 
     /**
@@ -724,8 +806,11 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * When billing is marked as same as shipping, the provisioned
-     * customer's billing address is duplicated from the shipping address.
+     * When the checkout request's billing fields already match its shipping
+     * fields (e.g. because the shopper checked "same as shipping" in the
+     * UI), the provisioned customer's two default addresses end up with the
+     * same field values - the backend does not do any copying itself, it
+     * just persists whatever billing fields were submitted.
      *
      * @return void
      */
@@ -736,50 +821,19 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'is_billing_same_as_shipping' => true,
         ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
         $customer = Customer::where('user_id', $user_id)->first();
 
-        $shipping_address = Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->first();
-        $billing_address = Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->first();
+        $shipping_address = Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->first();
+        $billing_address = Address::where('customer_id', $customer->id)->where('is_default_billing', true)->first();
 
         $this->assertNotNull($shipping_address);
         $this->assertNotNull($billing_address);
         $this->assertEquals($shipping_address->address_line1, $billing_address->address_line1);
         $this->assertEquals('123 Main St', $shipping_address->address_line1);
-    }
-
-    /**
-     * An order created with billing marked as same as shipping persists the
-     * flag and snapshots the shipping address into the billing fields,
-     * discarding any billing address sent alongside it.
-     *
-     * @return void
-     */
-    public function test_store_order_persists_billing_same_as_shipping(): void
-    {
-        $response = $this->request('POST', 'orders', $this->order_payload([
-            'is_billing_same_as_shipping' => true,
-            'shipping_address_line1' => '742 Evergreen Terrace',
-            'shipping_city' => 'Springfield',
-            'billing_address_line1' => '1 Stale Street',
-            'billing_city' => 'Oldtown',
-        ]));
-        $payload = $this->assert_api_success($response, 201);
-        $this->order_id = $payload['data']['id'];
-
-        $this->assertTrue($payload['data']['is_billing_same_as_shipping']);
-        $this->assertEquals($payload['data']['shipping_address'], $payload['data']['billing_address']);
-        $this->assertEquals('742 Evergreen Terrace', $payload['data']['billing_address']['address_line1']);
-        $this->assertEquals('Springfield', $payload['data']['billing_address']['city']);
-
-        $order = Order::find($this->order_id);
-
-        $this->assertTrue((bool) $order->is_billing_same_as_shipping);
-        $this->assertEquals('742 Evergreen Terrace', $order->billing_address_line1);
     }
 
     /**
@@ -824,8 +878,8 @@ class OrderApiTest extends RestTestCase
         $customer = Customer::where('user_id', $user_id)->first();
 
         $this->assertNotNull($customer);
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_billing', true)->exists());
         $this->assertEquals($order_count_before, Order::count());
     }
 
@@ -1238,7 +1292,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $cart->cart_token;
 
         $this->assertNotNull(Cart::where('cart_token', $cart_token)->first());
@@ -1284,7 +1338,7 @@ class OrderApiTest extends RestTestCase
         $add_to_cart_dto->variant_id = $this->variant_id;
         $add_to_cart_dto->quantity = 1;
 
-        $guest_cart = app()->make(CartService::class)->add_item($add_to_cart_dto);
+        $guest_cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
         $cart_token = $guest_cart->cart_token;
         $user_id = $this->create_shopper_user();
 
@@ -1339,7 +1393,6 @@ class OrderApiTest extends RestTestCase
         $customer_payload->first_name = 'Existing';
         $customer_payload->last_name = 'Customer';
         $customer_payload->email = 'existing-' . $unique . '@example.com';
-        $customer_payload->is_billing_same_as_shipping = true;
 
         $address_payload = new CreateAddressDTO();
         $address_payload->first_name = 'Existing';
@@ -1361,6 +1414,46 @@ class OrderApiTest extends RestTestCase
      * @return array
      * @since 1.0.0
      */
+    /**
+     * Orders can be sorted by every column the list presents, including the
+     * line quantity and the status, whose request name differs from the column.
+     *
+     * @dataProvider derived_order_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_orders_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->create_order();
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'orders', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_order_sort_fields(): array
+    {
+        return [
+            'order number' => ['order_number'],
+            'quantity' => ['quantity'],
+            'invoiced total' => ['invoiced_total'],
+            'status' => ['status'],
+            'payment provider' => ['payment_provider'],
+            'created at' => ['created_at'],
+        ];
+    }
+
     protected function create_order(array $overrides = []): array
     {
         $response = $this->request('POST', 'orders', $this->order_payload($overrides));
@@ -1383,8 +1476,19 @@ class OrderApiTest extends RestTestCase
             'last_name' => 'Customer',
             'email' => 'order-customer-' . $unique . '@example.com',
             'phone' => '5550100',
-            'is_billing_same_as_shipping' => true,
             'shipping_address' => [
+                'first_name' => 'Order',
+                'last_name' => 'Customer',
+                'email' => 'order-customer-' . $unique . '@example.com',
+                'phone' => '5550100',
+                'address_line1' => '123 Main St',
+                'address_line2' => '',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country' => 'US',
+            ],
+            'billing_address' => [
                 'first_name' => 'Order',
                 'last_name' => 'Customer',
                 'email' => 'order-customer-' . $unique . '@example.com',
@@ -1455,19 +1559,279 @@ class OrderApiTest extends RestTestCase
             'shipping_address_line1' => '123 Main St',
             'shipping_city' => 'New York',
             'shipping_state' => 'NY',
-            'shipping_postcode' => '10001',
+            'shipping_postal_code' => '10001',
             'shipping_country' => 'US',
             'billing_first_name' => 'John',
             'billing_last_name' => 'Doe',
             'billing_address_line1' => '123 Main St',
             'billing_city' => 'New York',
             'billing_state' => 'NY',
-            'billing_postcode' => '10001',
+            'billing_postal_code' => '10001',
             'billing_country' => 'US',
             'customer_notes' => 'Test order',
             'admin_notes' => 'Test order',
         ];
 
         return array_merge($payload, $overrides);
+    }
+
+    /**
+     * A fulfilment-derived status option lists orders whatever their payment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_fulfillment(): void
+    {
+        $shipped_paid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+        $shipped_unpaid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::UNPAID);
+        $delivered = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['status' => OrderListStatus::ORDER_SHIPPED]);
+
+        $this->assertContains($shipped_paid, $ids);
+        $this->assertContains($shipped_unpaid, $ids);
+        $this->assertNotContains($delivered, $ids);
+    }
+
+    /**
+     * Every fulfilment-derived status option maps to its own fulfilment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_maps_each_fulfillment_status_option(): void
+    {
+        $options = [
+            OrderListStatus::ORDER_PLACED => FulfillmentStatus::UNFULFILLED,
+            OrderListStatus::ORDER_PROCESSING => FulfillmentStatus::PROCESSING,
+            OrderListStatus::ORDER_ON_HOLD => FulfillmentStatus::ON_HOLD,
+            OrderListStatus::ORDER_DELIVERED => FulfillmentStatus::DELIVERED,
+            OrderListStatus::ORDER_RETURNED => FulfillmentStatus::RETURNED,
+            OrderListStatus::ORDER_CANCELLED => FulfillmentStatus::CANCELLED,
+        ];
+
+        $created = [];
+
+        foreach ($options as $option => $fulfillment_status) {
+            $created[$option] = $this->create_order_in_state($fulfillment_status, PaymentStatus::PAID);
+        }
+
+        foreach ($options as $option => $fulfillment_status) {
+            $ids = $this->listed_order_ids(['status' => $option]);
+
+            $this->assertContains($created[$option], $ids, 'Missing order for ' . $option);
+
+            foreach ($created as $other_option => $other_id) {
+                if ($other_option === $option) {
+                    continue;
+                }
+
+                $this->assertNotContains($other_id, $ids, 'Unexpected order in ' . $option);
+            }
+        }
+    }
+
+    /**
+     * A payment-derived status option resolves against the payment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_payment(): void
+    {
+        $failed = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::FAILED);
+        $refunding = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::REFUNDING);
+        $refunded = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::REFUNDED);
+        $paid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $failed_ids = $this->listed_order_ids(['status' => OrderListStatus::PAYMENT_FAILED]);
+        $this->assertContains($failed, $failed_ids);
+        $this->assertNotContains($paid, $failed_ids);
+
+        $refunding_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_IN_PROGRESS]);
+        $this->assertContains($refunding, $refunding_ids);
+        $this->assertNotContains($refunded, $refunding_ids);
+
+        $refunded_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUNDED]);
+        $this->assertContains($refunded, $refunded_ids);
+        $this->assertNotContains($refunding, $refunded_ids);
+    }
+
+    /**
+     * A lifecycle-only status option resolves against the order status.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_order_status(): void
+    {
+        $requested = $this->create_order_in_state(
+            FulfillmentStatus::DELIVERED,
+            PaymentStatus::PAID,
+            OrderStatus::REFUND_REQUESTED
+        );
+        $declined = $this->create_order_in_state(
+            FulfillmentStatus::DELIVERED,
+            PaymentStatus::PAID,
+            OrderStatus::REFUND_DECLINED
+        );
+
+        $requested_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_REQUESTED]);
+        $this->assertContains($requested, $requested_ids);
+        $this->assertNotContains($declined, $requested_ids);
+
+        $declined_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_DECLINED]);
+        $this->assertContains($declined, $declined_ids);
+        $this->assertNotContains($requested, $declined_ids);
+    }
+
+    /**
+     * Filtering by payment status narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_filters_by_payment_status(): void
+    {
+        $unpaid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::UNPAID);
+        $paid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['payment_status' => PaymentStatus::UNPAID]);
+
+        $this->assertContains($unpaid, $ids);
+        $this->assertNotContains($paid, $ids);
+    }
+
+    /**
+     * Combining a status option with a payment status narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_combines_status_and_payment_status(): void
+    {
+        $shipped_unpaid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::UNPAID);
+        $shipped_paid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+        $delivered_unpaid = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::UNPAID);
+
+        $ids = $this->listed_order_ids([
+            'status' => OrderListStatus::ORDER_SHIPPED,
+            'payment_status' => PaymentStatus::UNPAID,
+        ]);
+
+        $this->assertContains($shipped_unpaid, $ids);
+        $this->assertNotContains($shipped_paid, $ids);
+        $this->assertNotContains($delivered_unpaid, $ids);
+    }
+
+    /**
+     * Filtering by delivery method narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_filters_by_delivery_method(): void
+    {
+        $order = $this->create_order();
+        $other = $this->create_order();
+        Order::find($other['id'])->update(['shipping_method' => 'method-0002']);
+
+        $ids = $this->listed_order_ids(['shipping_method' => 'method-0001']);
+
+        $this->assertContains((int) $order['id'], $ids);
+        $this->assertNotContains((int) $other['id'], $ids);
+    }
+
+    /**
+     * The delivery method options are the enabled zone methods from settings.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_shipping_methods_endpoint_lists_enabled_zone_methods(): void
+    {
+        $response = $this->request('GET', 'shipping-methods');
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals(
+            [['id' => 'method-0001', 'name' => 'Standard Delivery', 'type' => 'flat_rate']],
+            $payload['data']
+        );
+    }
+
+    /**
+     * An unrecognised status is rejected rather than silently returning nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_rejects_unrecognised_status(): void
+    {
+        $response = $this->request('GET', 'orders', ['status' => 'not-a-status']);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A recognised status the order does not hold succeeds and omits it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_with_unmatched_status_succeeds_and_omits_the_order(): void
+    {
+        $shipped = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['status' => OrderListStatus::ORDER_RETURNED]);
+
+        $this->assertNotContains($shipped, $ids);
+    }
+
+    /**
+     * Create an order and force it into a known state.
+     *
+     * @param string      $fulfillment_status Fulfilment state to set.
+     * @param string      $payment_status     Payment state to set.
+     * @param string|null $order_status       Lifecycle state to set, when it matters.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_order_in_state(
+        string $fulfillment_status,
+        string $payment_status,
+        string $order_status = null
+    ): int {
+        $order = $this->create_order();
+
+        $attributes = [
+            'fulfillment_status' => $fulfillment_status,
+            'payment_status' => $payment_status,
+        ];
+
+        if (!is_null($order_status)) {
+            $attributes['order_status'] = $order_status;
+        }
+
+        Order::find($order['id'])->update($attributes);
+
+        return (int) $order['id'];
+    }
+
+    /**
+     * Request the order list and return the listed order identifiers.
+     *
+     * @param array $params Query parameters.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function listed_order_ids(array $params = []): array
+    {
+        $response = $this->request('GET', 'orders', array_merge(['limit' => 100], $params));
+        $payload = $this->assert_api_success($response);
+
+        return array_map('intval', array_column($payload['data']['results'], 'id'));
     }
 }

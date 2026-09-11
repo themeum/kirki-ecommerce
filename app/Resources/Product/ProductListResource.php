@@ -42,7 +42,11 @@ class ProductListResource extends Resource
             'sku' => $this->sku,
             'inventory' => $inventory,
             'availability_status' => $availability_status,
-            'availability_label' => !is_null($availability_status) ? $availability_service->format_status_label($availability_status, $inventory) : null,
+            'availability_label' => !is_null($availability_status) ? $availability_service->format_status_label(
+                $availability_status,
+                $inventory,
+                $this->has_variants ? $this->variants->count() : null
+            ) : null,
             'base_price' => Money::prepare_amount_from_minor($min_price),
             'base_price_money_object' => Money::prepare_amount_object_from_minor($min_price),
             'display_price' => Money::prepare_amount_from_minor($min_price, null, $display_currency),

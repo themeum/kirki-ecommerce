@@ -22,6 +22,10 @@ export class ToastService {
     return toastManager.info(message, duration);
   }
 
+  action(message: string, duration?: number, options?: ToastOptions): string {
+    return toastManager.action(message, duration, options);
+  }
+
   dismiss(id?: string): void {
     toastManager.dismiss(id);
   }

@@ -24,4 +24,46 @@ final class OrderActivityType
     const REFUND_REQUESTED = 'refund-requested';
     const REFUND_DELETED = 'refund-deleted';
     const COMMENT_ADDED = 'comment-added';
+
+    /**
+     * Get the list of order activity types.
+     *
+     * @since 1.0.0
+     * 
+     * @return array<string, string>
+     */
+    public static function get_list(): array
+    {
+        return [
+            self::ORDER_PLACED => __( 'Order Placed', 'kirki-ecommerce' ),
+            self::PAYMENT_COMPLETED => __( 'Payment Completed', 'kirki-ecommerce' ),
+            self::PAYMENT_FAILED => __( 'Payment Failed', 'kirki-ecommerce' ),
+            self::PROCESSING => __( 'Order Processing', 'kirki-ecommerce' ),
+            self::FULFILLMENT_RESUMED => __( 'Fulfillment Resumed', 'kirki-ecommerce' ),
+            self::SHIPPED => __( 'Order Shipped', 'kirki-ecommerce' ),
+            self::DELIVERED => __( 'Order Delivered', 'kirki-ecommerce' ),
+            self::CANCELLED => __( 'Order Cancelled', 'kirki-ecommerce' ),
+            self::TRACKING_ADDED => __( 'Tracking Added', 'kirki-ecommerce' ),
+            self::ARCHIVED => __( 'Order Archived', 'kirki-ecommerce' ),
+            self::ON_HOLD => __( 'Order On Hold', 'kirki-ecommerce' ),
+            self::PARTIALLY_REFUNDED => __( 'Order Partially Refunded', 'kirki-ecommerce' ),
+            self::REFUNDED => __( 'Order Refunded', 'kirki-ecommerce' ),
+            self::REFUND_REQUESTED => __( 'Order Refund Requested', 'kirki-ecommerce' ),
+            self::REFUND_DELETED => __( 'Order Refund Deleted', 'kirki-ecommerce' ),
+            self::COMMENT_ADDED => __( 'Comment Added', 'kirki-ecommerce' ),
+        ];
+    }
+
+    /**
+     * Get the formatted order activity type.
+     *
+     * @since 1.0.0
+     * 
+     * @param string $type
+     * @return string
+     */
+    public static function get_formatted( $type )
+    {
+        return static::get_list()[$type] ?? '';
+    }
 }

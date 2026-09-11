@@ -2,12 +2,17 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+use Exception;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
+use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource as BaseOrderResource;
 use Kirki\Ecommerce\App\Services\CountryService;
+use Kirki\Ecommerce\App\Supports\Url;
 
+use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 
 class OrderResource extends BaseOrderResource
@@ -23,12 +28,7 @@ class OrderResource extends BaseOrderResource
                 return $item->product_data;
             })->to_array(),
             'updated_at' => $this->updated_at,
-            'order_timeline' => [
-                'paid_at' => ['status' => __('Payment Confirmed', 'kirki-ecommerce'), 'date' => $this->paid_at],
-                'shipped_at' => ['status' => __('Order Shipped', 'kirki-ecommerce'), 'date' => $this->shipped_at],
-                'cancelled_at' => ['status' => __('Order Cancelled', 'kirki-ecommerce'), 'date' => $this->cancelled_at],
-                'delivered_at' => ['status' => __('Order Delivered', 'kirki-ecommerce'), 'date' => $this->delivered_at],
-            ]
+            'customer' => $this->customer_id ? customer(null, $this->customer_id)->get_customer() : [],
         ]);
     }
 
@@ -49,6 +49,26 @@ class OrderResource extends BaseOrderResource
             return null;
         }
 
-        return Payment::pay($this->resource);
+        if ($this->base_total <= 0) {
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => Url::get_checkout_success_url($this->uuid),
+            ]);
+        }
+
+        try {
+            $payment_action = Payment::pay($this->resource);
+
+            if ($payment_action instanceof PaymentActionDTO) {
+                return $payment_action;
+            }
+        } catch (Exception $e) {
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => Url::get_checkout_success_url($this->uuid),
+            ]);
+        }
+
+        return;
     }
 }

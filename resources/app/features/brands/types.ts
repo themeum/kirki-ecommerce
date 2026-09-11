@@ -6,7 +6,7 @@ const brandListOptions: UseListParamsOptions = {
     sort_by: 'name',
     sort_order: 'asc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
 };
 

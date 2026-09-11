@@ -13,7 +13,9 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -76,42 +78,14 @@ class PageInlineScript extends BaseHook
      */
     protected function set_addresses_page_data($view_data, $config)
     {
-        $data             = (object) $view_data;
-        $customer         = $data->customer->get_customer() ?? null;
-        $billing_address  = $data->billing_address ?? [];
-        $shipping_address = $data->shipping_address ?? [];
+        $data     = (object) $view_data;
+        $customer = $data->customer->get_customer() ?? null;
 
-        $config['countries']                   = $data->countries ?? Utils::get_countries();
-        $config['customer_id']                 = $customer->id ?? 0;
-        $config['is_billing_same_as_shipping'] = (bool) ($customer->is_billing_same_as_shipping ?? false);
-        $config['addresses']                   = [
-            'billing'  => $this->format_address($billing_address),
-            'shipping' => $this->format_address($shipping_address),
-        ];
+        $config['countries']   = $data->countries ?? Utils::get_countries();
+        $config['customer_id'] = $customer->id ?? 0;
+        $config['addresses']   = AddressResource::collection($data->addresses ?? []);
 
         return $config;
-    }
-
-    /**
-     * Format address model or data to an array.
-     *
-     * @since 1.0.0
-     *
-     * @param mixed $address Address model or array.
-     *
-     * @return array
-     */
-    protected function format_address($address): array
-    {
-        if (empty($address)) {
-            return [];
-        }
-
-        if (is_object($address) && method_exists($address, 'to_array')) {
-            return $address->to_array();
-        }
-
-        return (array) $address;
     }
 
     /**
@@ -174,7 +148,9 @@ class PageInlineScript extends BaseHook
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
-            'is_billing_same_as_shipping' => $cart['is_billing_same_as_shipping'] ?? false,
+            'is_billing_same_as_shipping' => (bool) ($cart['is_billing_same_as_shipping'] ?? false),
+            'shipping_address'            => $cart['shipping_address'] ?? null,
+            'billing_address'             => $cart['billing_address'] ?? null,
             'pricing'                     => [
                 'coupons'                             => array_map(function ($coupon) {
                     return [
@@ -200,6 +176,19 @@ class PageInlineScript extends BaseHook
 
         $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
+        $config['addresses'] = AddressResource::collection($data->addresses ?? []);
+
+        if (is_user_logged_in()) {
+            $current_user = wp_get_current_user();
+            $config['current_user'] = [
+                'id'         => $current_user->ID,
+                'name'       => trim($current_user->first_name . ' ' . $current_user->last_name) ?: $current_user->display_name,
+                'email'      => $current_user->user_email,
+                'avatar_url' => get_avatar_url($current_user->ID, ['size' => 96]),
+            ];
+        } else {
+            $config['current_user'] = null;
+        }
 
         return $config;
     }
@@ -241,26 +230,46 @@ class PageInlineScript extends BaseHook
         }
 
         // Prepare variants for Alpine.js
-        $variants_data = [];
-        foreach ($variants as $v) {
-            $variant_attrs = [];
+        $product_id        = intval($product['id'] ?? 0);
+        $inventory_service = app()->make(InventoryService::class);
+        $variants_data     = [];
 
-            foreach ($v['attribute_values'] ?? [] as $attr_value_id) {
+        foreach ($variants as $variant) {
+            $variant_id          = intval($variant['id'] ?? 0);
+            $price               = $variant['display_price_money_object']->display;
+            $display_price       = $variant['display_price'] ?? 0;
+            $display_sale_price  = $variant['display_sale_price'] ?? null;
+            $sale_price          = $display_sale_price ? $variant['display_sale_price_money_object']->display : null;
+            $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
+                ? round((1 - ($display_sale_price / $display_price)) * 100)
+                : null;
+            $stock               = intval($variant['available_quantity'] ?? 0);
+            $available           = $inventory_service->has_stock($variant_id, 1);
+            $allow_back_order    = (bool) ($variant['allow_back_order'] ?? false);
+            $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
+            $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
+            $image               = $variant['media']['url'] ?? null;
+
+            $variant_attrs = [];
+            foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
                 if (isset($attribute_value_map[$attr_value_id])) {
                     $variant_attrs[] = $attribute_value_map[$attr_value_id];
                 }
             }
 
             $variants_data[] = [
-                'id'             => $v['id'] ?? 0,
-                'product_id'     => $product['id'] ?? 0,
-                'price'          => $v['display_price_money_object']->display,
-                'sale_price'     => $v['display_sale_price'] ? $v['display_sale_price_money_object']->display : null,
-                'discount_percentage' => ! empty($v['display_price']) && ! empty($v['display_sale_price']) ? round((1 - ($v['display_sale_price'] / $v['display_price'])) * 100) : null,
-                'stock'          => (int) ($v['available_quantity'] ?? 0),
-                'attributes'     => $variant_attrs,
-                'available'      => $v['in_stock'] ? true : ($v['available_quantity'] ?? 0) > 0,
-                'image'          => $v['media']['url'] ?? null,
+                'id'                  => $variant_id,
+                'product_id'          => $product_id,
+                'price'               => $price,
+                'sale_price'          => $sale_price,
+                'discount_percentage' => $discount_percentage,
+                'stock'               => $stock,
+                'attributes'          => $variant_attrs,
+                'available'           => $available,
+                'allow_back_order'    => $allow_back_order,
+                'has_limit_per_order' => $has_limit_per_order,
+                'max_per_order'       => $max_per_order,
+                'image'               => $image,
             ];
         }
 

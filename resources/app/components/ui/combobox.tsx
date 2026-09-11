@@ -1,6 +1,6 @@
 import { type CSSObject } from '@emotion/react';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
-import { type ReactNode, useId, useState } from 'react';
+import { type ReactNode, useId, useRef, useState } from 'react';
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -61,6 +61,8 @@ const Combobox = ({
   const [open, setOpen] = useState(false);
   const listboxId = useId();
   const [search, setSearch] = useState('');
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [triggerHeight, setTriggerHeight] = useState(0);
 
   const selectedValues = multiple
     ? Array.isArray(value)
@@ -152,6 +154,9 @@ const Combobox = ({
       modal
       open={open}
       onOpenChange={(nextOpen) => {
+        if (nextOpen) {
+          setTriggerHeight(triggerRef.current?.offsetHeight ?? 0);
+        }
         setOpen(nextOpen);
         if (!nextOpen) {
           setSearch('');
@@ -160,6 +165,7 @@ const Combobox = ({
     >
       <PopoverTrigger asChild>
         <button
+          ref={triggerRef}
           type="button"
           role="combobox"
           aria-expanded={open}
@@ -172,10 +178,16 @@ const Combobox = ({
           <ChevronsUpDown size={16} css={scoped(styles.chevron)} />
         </button>
       </PopoverTrigger>
-      <PopoverContent id={listboxId} align="start" cssOverride={styles.content}>
+      <PopoverContent
+        id={listboxId}
+        align="start"
+        sideOffset={-triggerHeight}
+        cssOverride={styles.content}
+      >
         <Command>
           <CommandInput
             placeholder={searchPlaceholder}
+            wrapperCss={styles.searchRow}
             cssOverride={searchInputCss}
             value={search}
             onValueChange={setSearch}
@@ -309,11 +321,17 @@ const styles = defineStyles({
     },
   },
   content: {
-    width: 'var(--radix-popover-trigger-width)',
     minWidth: 'var(--radix-popover-trigger-width)',
-    maxWidth: 'var(--radix-popover-trigger-width)',
+    maxWidth: 'none',
     padding: 0,
     overflow: 'hidden',
+    borderRadius: theme.radius.lg,
+  },
+  // Less the panel's own top border, so the row's divider lands exactly where
+  // the trigger's bottom edge was and the trigger is covered without a sliver.
+  searchRow: {
+    minHeight: 'calc(var(--radix-popover-trigger-height) - 1px)',
+    padding: `0 ${theme.spacing[3]}`,
   },
   itemCheck: {
     ...flexCenter(),

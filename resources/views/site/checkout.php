@@ -33,6 +33,7 @@ $available_shipping_methods = $cart["available_shipping_methods"] ?? [];
         <div class="kecom-checkout-grid">
             <!-- Left Column -->
             <div class="kecom-checkout-left">
+                <?php include_view('site.checkout.parts.contact-info'); ?>
                 <?php include_view('site.checkout.parts.shipping-form', compact('countries', 'shipping_address')); ?>
                 <?php include_view('site.checkout.parts.billing-form', compact('countries', 'billing_address')); ?>
                 <?php include_view('site.checkout.parts.shipping-methods'); ?>
@@ -52,6 +53,12 @@ $available_shipping_methods = $cart["available_shipping_methods"] ?? [];
             </div>
         </div>
     </div>
+
+    <!-- Address Picker Modal -->
+    <?php include_view('site.checkout.parts.address-picker-modal'); ?>
+
+    <!-- Add/Edit Address Modal -->
+    <?php include_view('site.account.parts.address-modal'); ?>
 </div>
 
 <?php Template::get_footer(); ?>

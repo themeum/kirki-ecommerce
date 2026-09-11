@@ -31,13 +31,12 @@ $menu_items = Utils::get_account_menu_items();
                 if (!empty($item['class'])) {
                     $classes[] = $item['class'];
                 }
-                ?>
+            ?>
                 <li class="kecom-account-nav-item kecom-account-nav-item-<?php echo esc_attr($key); ?>">
                     <a
                         href="<?php echo esc_url($item['url']); ?>"
                         class="<?php echo esc_attr(implode(' ', $classes)); ?>"
-                        <?php echo $is_active ? 'aria-current="page"' : ''; ?>
-                    >
+                        <?php echo $is_active ? 'aria-current="page"' : ''; ?>>
                         <?php if (!empty($item['icon'])) : ?>
                             <?php Icon::render($item['icon']); ?>
                         <?php endif; ?>

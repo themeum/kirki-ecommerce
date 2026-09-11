@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
-use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationeRequest;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
 
 use Kirki\Ecommerce\App\Services\VariantService;
@@ -24,7 +24,7 @@ class OrderCalculationController
         $this->variant_service = $variant_service;
     }
 
-    public function get(OrderCalculationeRequest $request, RecalculateCartAction $action)
+    public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
     {
         $context = $this->prepare_context_dto($request->all());
 
@@ -50,7 +50,7 @@ class OrderCalculationController
                 'address_line2' => $data['shipping_address_line2'],
                 'city' => $data['shipping_city'],
                 'state' => $data['shipping_state'],
-                'postal_code' => $data['shipping_postcode'],
+                'postal_code' => $data['shipping_postal_code'],
                 'country' => $data['shipping_country']
             ],
             'customer_id' => $data['customer_id'],

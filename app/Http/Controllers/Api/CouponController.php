@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
+use Kirki\Ecommerce\App\Http\Requests\Coupon\CouponListRequest;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
@@ -31,10 +32,9 @@ class CouponController
         $this->service = $service;
     }
 
-    public function get(Request $request)
+    public function get(CouponListRequest $request)
     {
         $params = CouponFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'title', 'code', 'start_datetime', 'end_datetime', 'usage_limit', 'is_active', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);

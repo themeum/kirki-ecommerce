@@ -5,6 +5,8 @@
  * @package Kirki\Ecommerce\Templates
  */
 
+use Kirki\Ecommerce\App\Supports\Icon;
+
 defined('ABSPATH') || exit;
 ?>
 
@@ -30,5 +32,9 @@ defined('ABSPATH') || exit;
     </div>
     <div x-show="availableShippingMethods.length === 0" class="kecom-text-base kecom-text-subdued">
         <?php esc_html_e('No shipping methods found!', 'kirki-ecommerce'); ?>
+    </div>
+    <div x-show="shippingMethodError" x-cloak class="kecom-alert kecom-alert-error kecom-mt-4">
+        <?php Icon::render('information', ['size' => 20]); ?>
+        <p x-text="shippingMethodError"></p>
     </div>
 </div>

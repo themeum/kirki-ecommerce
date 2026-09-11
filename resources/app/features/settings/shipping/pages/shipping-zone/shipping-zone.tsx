@@ -26,6 +26,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
+import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingZonePage = () => {
@@ -37,15 +38,25 @@ const ShippingZonePage = () => {
   const [shippingZonesObj, setShippingZonesObj] = useState<ShippingZone[]>([]);
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
-  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'shipping'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } =
+    useUpdateSettingsMutation<'shipping'>();
 
-  const loaded = !isLoading && Boolean(shippingSettingsData);
   const zones = useMemo(
     () => (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [],
     [shippingSettingsData?.shipping_zones],
   );
 
   const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
+
+  const disabledRegions = useMemo(
+    () =>
+      mergeRegionsByCountry(
+        zones
+          .filter((zone) => String(zone.id) !== String(zoneId))
+          .flatMap((zone) => zone.regions ?? []),
+      ),
+    [zones, zoneId],
+  );
 
   const form = useForm<ShippingZoneFormInput, unknown, ShippingZoneFormPayload>({
     resolver: zodResolver(ShippingZoneFormSchema),
@@ -55,9 +66,7 @@ const ShippingZonePage = () => {
   const { isDirty } = form.formState;
 
   const shippingMethodList = useMemo(() => {
-    return shippingZonesObj.reduce<
-      Record<string | number, ShippingMethodData[]>
-    >((acc, zone) => {
+    return shippingZonesObj.reduce<Record<string | number, ShippingMethodData[]>>((acc, zone) => {
       acc[zone.id] = (zone.shipping_methods || []).map((method) => ({
         ...method,
         zoneId: zone.id,
@@ -117,8 +126,8 @@ const ShippingZonePage = () => {
 
   return (
     <>
-      <Container size="sm">
-        {loaded ? (
+      {!isLoading ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
@@ -133,28 +142,28 @@ const ShippingZonePage = () => {
                       label={__('Title', 'kirki-ecommerce')}
                       placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
                     />
-                    <RegionsField name="regions" label={__('Regions', 'kirki-ecommerce')} />
+                    <RegionsField
+                      name="regions"
+                      label={__('Regions', 'kirki-ecommerce')}
+                      disabledRegions={disabledRegions}
+                    />
                   </Flex>
                 </CardContent>
               </Card>
 
               <ShippingMethod
                 shippingSettingsData={shippingSettingsData}
-                shippingMethodList={
-                  activeZone
-                    ? shippingMethodList[activeZone.id] || []
-                    : []
-                }
+                shippingMethodList={activeZone ? shippingMethodList[activeZone.id] || [] : []}
                 shippingZonesObj={shippingZonesObj}
                 setShippingZonesObj={setShippingZonesObj}
                 zoneId={zoneId}
               />
             </Flex>
           </Form>
-        ) : (
-          <ShippingZoneSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <ShippingZoneSkeleton />
+      )}
     </>
   );
 };

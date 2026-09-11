@@ -5,7 +5,13 @@ import Button from '@/components/ui/button';
 import { FieldError, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import { theme } from '@/theme';
@@ -48,7 +54,7 @@ const ShippingPopover = ({
   };
 
   return (
-    <Flex direction="column" gap={1}>
+    <Flex direction="column" gap={1} align="flex-start">
       <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>{children}</PopoverTrigger>
         <PopoverContent align="start" cssOverride={styles.content}>
@@ -85,7 +91,7 @@ const ShippingPopover = ({
           </Flex>
         </PopoverContent>
       </Popover>
-      {error && <FieldError errors={[error]} />}
+      {error && <FieldError errors={[error]} cssOverride={theme.typography.tiny()} />}
     </Flex>
   );
 };

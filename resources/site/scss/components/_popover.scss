@@ -1,0 +1,117 @@
+// Component - Popover
+// Base: .kecom-popover
+// Modifiers: .kecom-popover-panel-bottom-end, .kecom-popover-panel-bottom-start, .kecom-popover-panel-top-end, .kecom-popover-panel-top-start
+// Elements:  .kecom-popover-panel, .kecom-popover-item, .kecom-popover-divider
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-popover {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.kecom-popover-panel {
+  position: absolute;
+  min-width: 180px;
+  background-color: $background-fill;
+  border-radius: $radius-lg;
+  box-shadow:
+    0px 4px 6px -1px hsla(0, 0%, 0%, 0.1),
+    0px 0px 4px -2px hsla(0, 0%, 0%, 0.1);
+  padding: $spacing-2;
+  z-index: 50;
+  overflow: hidden;
+
+  &[x-cloak] {
+    display: none;
+  }
+
+  &-bottom-end {
+    top: calc(100% + 4px);
+    right: 0;
+  }
+
+  &-bottom-start {
+    top: calc(100% + 4px);
+    left: 0;
+  }
+
+  &-top-end {
+    bottom: calc(100% + 4px);
+    right: 0;
+  }
+
+  &-top-start {
+    bottom: calc(100% + 4px);
+    left: 0;
+  }
+}
+
+.kecom-popover-item {
+  @include button-reset;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  width: 100%;
+  text-align: left;
+  padding: $spacing-3 $spacing-4;
+  @include typography(base, normal, $text-primary);
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    background-color: transparent;
+    color: $text-primary;
+  }
+
+  &.is-disabled,
+  &:disabled {
+    color: $text-disabled;
+    cursor: not-allowed;
+  }
+
+  &-danger,
+  &.kecom-popover-item-danger {
+    color: $text-critical;
+  }
+}
+
+.kecom-popover-divider {
+  height: 1px;
+  background-color: $border-secondary;
+  margin: $spacing-1 0;
+}
+
+.kecom-popover-enter {
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+
+.kecom-popover-enter-start {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}
+
+.kecom-popover-enter-end {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.kecom-popover-leave {
+  transition:
+    opacity 0.1s ease-in,
+    transform 0.1s ease-in;
+}
+
+.kecom-popover-leave-start {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.kecom-popover-leave-end {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}

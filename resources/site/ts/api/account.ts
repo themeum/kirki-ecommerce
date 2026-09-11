@@ -19,7 +19,8 @@ export interface PasswordChangePayload {
 }
 
 export interface AccountAddressPayload {
-  type: 'billing' | 'shipping';
+  type?: string;
+  label?: string;
   first_name?: string;
   last_name?: string;
   company?: string;
@@ -31,12 +32,13 @@ export interface AccountAddressPayload {
   state?: string;
   postal_code?: string;
   country?: string;
-  is_billing_same_as_shipping?: boolean;
+  is_default_shipping?: boolean;
+  is_default_billing?: boolean;
 }
 
 export type OrdersPayload = {
   page: number;
-  format: 'html'|'json';
+  format: 'html' | 'json';
 };
 
 export interface ApiResponse<T = any> {
@@ -66,10 +68,36 @@ export const accountApi = {
     });
   },
 
-  updateAddress(payload: AccountAddressPayload): Promise<ApiResponse> {
+  createAddress(payload: AccountAddressPayload): Promise<ApiResponse> {
     return apiRequest<ApiResponse>(ENDPOINTS.account.addresses, {
+      method: 'POST',
+      body: payload,
+    });
+  },
+
+  editAddress(id: number | string, payload: AccountAddressPayload): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.addressSingle(id), {
       method: 'PUT',
       body: payload,
+    });
+  },
+
+  deleteAddress(id: number | string): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.addressSingle(id), {
+      method: 'DELETE',
+    });
+  },
+
+  setDefaultAddress(id: number | string, purpose: 'shipping' | 'billing'): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.addressSetDefault(id), {
+      method: 'PATCH',
+      body: { purpose },
+    });
+  },
+
+  resendVerificationEmail(): Promise<ApiResponse> {
+    return apiRequest<ApiResponse>(ENDPOINTS.account.resendVerificationEmail, {
+      method: 'POST',
     });
   },
 };

@@ -3,15 +3,15 @@
   "type": "project",
   "autoload": {
     "psr-4": {
-      "Kirki\\Ecommerce\\Framework\\": "libraries/framework/",
+      "Kirki\\Ecommerce\\Framework\\": "vendor/libraries/framework/src/",
       "Kirki\\Ecommerce\\App\\": "app/",
       "Kirki\\Ecommerce\\Database\\Migrations\\": "database/migrations/",
       "Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"
     },
     "files": [
       "bootstrap/abspath.php",
-      "libraries/framework/helpers.php",
-      "libraries/framework/Polyfill/Polyfill.php",
+      "vendor/libraries/framework/src/helpers.php",
+      "vendor/libraries/framework/src/Polyfill/Polyfill.php",
       "app/helpers.php"
     ]
   },
@@ -42,6 +42,9 @@
     },
     "preferred-install": {
       "themeum/framework": "source"
+    },
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
   },
   "require-dev": {
@@ -51,18 +54,19 @@
     "php-stubs/wp-cli-stubs": "^2.12",
     "fakerphp/faker": "^1.24",
     "humbug/php-scoper": "^0.17",
-    "symfony/var-dumper": "^5.4"
+    "symfony/var-dumper": "^5.4",
+    "wp-coding-standards/wpcs": "^3.4",
+    "phpcompatibility/phpcompatibility-wp": "^2.1"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
     "scope": [
       "@putenv XDEBUG_MODE=off",
-      "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.config.php --output-dir=./libraries/framework --force",
-      "@remove-framework-from-vendor"
-    ],
-    "remove-framework-from-vendor": [
-      "rm -rf vendor/themeum/",
+      "@php bin/scope-framework.php --relocate",
+      "@composer dump-autoload",
+      "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.config.php --output-dir=./vendor/.scoper-staging --force",
+      "@php bin/scope-framework.php",
       "@composer dump-autoload"
     ],
     "post-install-cmd": [
@@ -71,6 +75,7 @@
     "post-update-cmd": [
       "@php -r \"if (in_array('--dev', $_SERVER['argv']) || !in_array('--no-dev', $_SERVER['argv'])) { echo shell_exec('composer scope'); }\""
     ],
+    "phpcs:wporg": "phpcs --standard=phpcs-wporg.xml.dist",
     "test": "bash bin/phpunit --testdox",
     "test:unit": "bash bin/phpunit --testsuite Unit --testdox",
     "test:integration": "bash bin/phpunit --testsuite Integration --testdox",

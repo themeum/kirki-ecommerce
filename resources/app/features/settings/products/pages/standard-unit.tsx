@@ -28,10 +28,7 @@ export const StandardUnit = () => {
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Standards', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
-            {__(
-              "Select a unit for your store's product weight and dimensions.",
-              'kirki-ecommerce',
-            )}
+            {__("Select a unit for your store's product weight and dimensions.", 'kirki-ecommerce')}
           </CardDescription>
         </CardHeader>
         <CardContent cssOverride={cardStyles.largeContent}>
@@ -57,10 +54,9 @@ export const StandardUnit = () => {
                 <Flex>
                   <Flex direction="column" gap={2}>
                     <Text weight="medium">{__('Show unit price', 'kirki-ecommerce')}</Text>
-                    <Text color="secondary">{__(
-                      'Enable to show unit price in your products',
-                      'kirki-ecommerce',
-                    )}</Text>
+                    <Text color="secondary">
+                      {__('Enable to show unit price in your products', 'kirki-ecommerce')}
+                    </Text>
                   </Flex>
                   <ActionGroup>
                     <SwitchField name="is_unit_price_visible" />
@@ -73,6 +69,7 @@ export const StandardUnit = () => {
                 <NumberField
                   name="low_stock_threshold"
                   label={__('Low stock threshold', 'kirki-ecommerce')}
+                  placeholder={__('Enter threshold', 'kirki-ecommerce')}
                   infoText={__(
                     'Default quantity at or below which a variant reports as low stock, unless it has its own threshold.',
                     'kirki-ecommerce',

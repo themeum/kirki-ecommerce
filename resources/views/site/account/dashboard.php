@@ -11,21 +11,38 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\App\Wordpress\User;
+
 use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\session;
 use function Kirki\Ecommerce\Framework\view_data;
 
+/**
+ * @var Kirki\Ecommerce\App\Wordpress\User $user
+ * @var Kirki\Ecommerce\App\Models\Customer $customer
+ * @var array $orders
+ */
 $user = view_data('user');
 $customer = view_data('customer');
 $orders = view_data('orders', []);
 
-$display_name = $user->display_name ?: $user->user_login ?: __('Customer', 'kirki-ecommerce');
-$user_email = $user->user_email ?: '';
+$display_name = $user->get_display_name() ?: $user->get_username() ?: __('Customer', 'kirki-ecommerce');
+$user_email = $user->get_email() ?: '';
 
 $billing_address = $customer ? $customer->get_billing_address() : null;
 $shipping_address = $customer ? $customer->get_shipping_address() : null;
-$register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : '';
+$register_since = $user ? gmdate('M j, Y', strtotime($user->get()->user_registered)) : '';
+$email_verified = $user->email_verified();
+$verification_sent_at = $user->get_email_verification_sent_at();
+$cooldown_duration = MINUTE_IN_SECONDS * 2;
+$cooldown_remaining = 0;
+if ($verification_sent_at && (time() - $verification_sent_at) < $cooldown_duration) {
+    $cooldown_remaining = $cooldown_duration - (time() - $verification_sent_at);
+}
+$has_sent_verification = !empty($verification_sent_at);
 ?>
 
 <?php Template::get_header(); ?>
@@ -39,7 +56,40 @@ $register_since = $user ? date('M j, Y', strtotime($user->user_registered)) : ''
 
             <!-- Right Content Area -->
             <main class="kecom-account-content">
-                <div class="kecom-account-dashboard">
+                <div class="kecom-account-dashboard" x-data="accountDashboard(<?php echo (int) $cooldown_remaining; ?>, <?php echo $has_sent_verification ? 'true' : 'false'; ?>)">
+
+                    <?php if (session()->has('errors')) : ?>
+                        <div class="kecom-alert kecom-alert-error kecom-mb-10">
+                            <?php Icon::render('information-fill', ['size' => 20]); ?>
+                            <?php foreach (session('errors') as $error) : ?>
+                                <p><?php echo esc_html($error); ?></p>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (session()->has('success')) : ?>
+                        <div class="kecom-alert kecom-alert-success kecom-mb-10">
+                            <?php Icon::render('information-fill', ['size' => 20]); ?>
+                            <p><?php echo esc_html(session('success')); ?></p>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!$email_verified) : ?>
+                    <div class="kecom-alert kecom-alert-info kecom-mb-10">
+                        <?php Icon::render('information-fill', ['size' => 20]); ?>
+                        <p x-show="!verificationSent"><?php esc_html_e('Confirm your email address to check for past orders and link them to your account', 'kirki-ecommerce'); ?></p>
+                        <p x-show="verificationSent" x-cloak><?php esc_html_e('A confirmation link has been sent to your email address. Please check your inbox', 'kirki-ecommerce'); ?></p>
+
+                        <button type="button" class="kecom-alert-action" @click="resendVerificationEmail()" :disabled="verificationLoading || cooldownRemaining > 0" :style="cooldownRemaining > 0 ? 'text-decoration: none; cursor: default;' : ''">
+                            <span x-show="cooldownRemaining > 0" x-cloak x-text="`<?php esc_html_e('Resend after', 'kirki-ecommerce'); ?> ${cooldownRemaining} <?php esc_html_e('sec', 'kirki-ecommerce'); ?>`"></span>
+                            <span x-show="cooldownRemaining <= 0 && !verificationLoading" x-text="hasSentVerification ? '<?php echo esc_js(__('Resend', 'kirki-ecommerce')); ?>' : '<?php echo esc_js(__('Confirm Email', 'kirki-ecommerce')); ?>'">
+                                <?php echo $has_sent_verification ? esc_html__('Resend', 'kirki-ecommerce') : esc_html__('Confirm Email', 'kirki-ecommerce'); ?>
+                            </span>
+                            <span x-show="cooldownRemaining <= 0 && verificationLoading" x-cloak><?php esc_html_e('Sending...', 'kirki-ecommerce'); ?></span>
+                        </button>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Welcome Greeting -->
                     <div class="kecom-account-welcome">
                         <span class="kecom-account-welcome-label"><?php esc_html_e('Welcome back,', 'kirki-ecommerce'); ?></span>

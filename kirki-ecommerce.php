@@ -2,15 +2,15 @@
 
 /**
  * Plugin Name:       Kirki Ecommerce
- * Plugin URI:        https://ecommerce.kirki.com
+ * Plugin URI:        https://kirki.com
  * Description:       Kirki Ecommerce is a full-featured e-commerce solution with superior UX, UI, and lightning-fast functionality.
- * Version:           1.0.0-alpha.2
+ * Version:           1.0.0-alpha.3
  * Author:            Themeum
- * Author URI:        https://themeum.com
+ * Author URI:        https://www.themeum.com
  * Text Domain:       kirki-ecommerce
  * Requires PHP:      7.4
  * Requires at least: 5.9
- * Tested up to:      6.9
+ * Tested up to:      7.1
  * License:           GPLv2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
@@ -28,7 +28,7 @@ use Kirki\Ecommerce\App\KirkiEcommerce;
  * The kirki ecommerce plugin version
  * @var string
  */
-define('KIRKI_ECOMMERCE_VERSION', '1.0.0-alpha.2');
+define('KIRKI_ECOMMERCE_VERSION', '1.0.0-alpha.3');
 
 /**
  * The kirki ecommerce plugin slug
@@ -79,9 +79,6 @@ define('KIRKI_ECOMMERCE_PREFIX', 'kirki_ecommerce_');
 define('KIRKI_ECOMMERCE_MODE', 'development');
 
 require_once KIRKI_ECOMMERCE_PLUGIN_PATH . '/vendor/autoload.php';
-
-// Set UTC as default timezone for the application
-date_default_timezone_set('UTC');
 
 // Register activation, deactivation, and uninstall hooks
 register_activation_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 'handle_activation']);

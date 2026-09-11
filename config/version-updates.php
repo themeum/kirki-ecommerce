@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Database\Seeders\OnBoarding\OnBoardingSeeder;
 
@@ -20,5 +22,9 @@ return [
     },
     '1.0.0-alpha.2' => function () {
         Utils::generate_site_pages();
+    },
+    '1.0.0-alpha.3' => function () {
+        // Nothing to do here
+        // We need to keep it for running the migrator
     }
 ];

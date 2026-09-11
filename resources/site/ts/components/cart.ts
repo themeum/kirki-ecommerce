@@ -50,23 +50,16 @@ export function cart() {
 
       try {
         const result = await cartApi.removeItem(itemId);
+        if (Object.keys(result.data).length === 0) {
+          window.location.reload();
+        }
         this.cartData = Object.assign(this.cartData, result.data);
         document.dispatchEvent(new CustomEvent('kecom:cart-updated', { detail: result.data }));
         const item = document.getElementById(String(itemId));
         if (item) {
           item.remove();
         }
-
-        if (this.cartData.items_count === 0) {
-          const cartItems = document.querySelector('.kecom-cart-items');
-          if (cartItems) {
-            const empty_cart = document.createElement('h4');
-            empty_cart.className = 'kecom-cart-items-empty-text';
-            empty_cart.textContent = __('No items currently in cart.', 'kirki-ecommerce');
-            cartItems.appendChild(empty_cart);
-          }
-        }
-        toastManager.success(__('Item removed to cart', 'kirki-ecommerce'));
+        toastManager.success(__('Item removed from cart', 'kirki-ecommerce'));
       } catch (e: unknown) {
         this.error = e instanceof Error ? e.message : null;
         toastManager.error(this.error ?? __('Something went wrong', 'kirki-ecommerce'));

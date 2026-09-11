@@ -6,7 +6,7 @@ const tagListOptions: UseListParamsOptions = {
     sort_by: 'id',
     sort_order: 'desc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
 };
 

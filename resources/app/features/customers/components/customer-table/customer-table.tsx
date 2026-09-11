@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
@@ -11,17 +12,20 @@ import { customerColumns } from '@/features/customers/components/customer-table/
 import CustomerTableFilters from '@/features/customers/components/customer-table/customer-table-filters';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
 import { useBulkDeleteCustomersMutation, useCustomersQuery, useDeleteCustomerMutation } from '@/features/customers/services/customer';
+import type { CustomerListFilter } from '@/features/customers/types';
 import { customerListOptions } from '@/features/customers/types';
 import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const customerBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const customerBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const CustomerTable = () => {
   const navigate = useNavigate();
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(customerListOptions);
+    useDataTableParams<CustomerListFilter>(customerListOptions);
 
   const { data, isFetching } = useCustomersQuery(params);
   const deleteMutation = useDeleteCustomerMutation();
@@ -74,6 +78,7 @@ const CustomerTable = () => {
 
   return (
     <DataTable
+      tableId="customers"
       data={data?.results ?? []}
       columns={columns}
       total={data?.total}
@@ -85,7 +90,7 @@ const CustomerTable = () => {
       isLoading={isFetching}
       enableRowSelection
       selectionResetKey={selectionResetKey}
-      bulkActionOptions={customerBulkActions}
+      bulkActions={customerBulkActions}
       onBulkApply={handleBulkApply}
       columnPinning={{ right: ['actions'] }}
       onRowClick={handleRowClick}

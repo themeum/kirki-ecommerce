@@ -1,22 +1,19 @@
 import { z } from 'zod';
 
 import { ProductAttributeSchema } from '@/features/products/schemas/catalog/attribute';
-import { VariantSchema } from '@/features/products/schemas/catalog/variant';
+import {
+  AvailabilityStatusSchema,
+  VariantSchema,
+} from '@/features/products/schemas/catalog/variant';
 import { MoneyAmountSchema, MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
+
+export { AvailabilityStatusSchema };
+export type { AvailabilityStatus } from '@/features/products/schemas/catalog/variant';
 
 export const ProductStatusSchema = z.enum(['draft', 'published', 'trashed']);
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
-
-export const AvailabilityStatusSchema = z.enum([
-  'in_stock',
-  'low_stock',
-  'out_of_stock',
-  'partially_stocked',
-]);
-
-export type AvailabilityStatus = z.infer<typeof AvailabilityStatusSchema>;
 
 export const ProductCurrencySchema = z.object({
   id: z.number(),

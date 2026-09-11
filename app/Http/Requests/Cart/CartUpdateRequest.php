@@ -7,19 +7,11 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 class CartUpdateRequest extends Request
 {
-    public function prepare_for_validation()
-    {
-        if($this->input('is_billing_same_as_shipping')){
-            $this->merge([
-                'billing_address' => $this->input('shipping_address')
-            ]);
-        }
-    }
-
     public function rules()
     {
         return [
             'shipping_address' => 'array|nullable',
+            'shipping_address.id' => 'numeric|nullable',
             'shipping_address.first_name' => 'string|nullable',
             'shipping_address.last_name' => 'string|nullable',
             'shipping_address.email' => 'email|nullable',
@@ -35,6 +27,7 @@ class CartUpdateRequest extends Request
             'is_billing_same_as_shipping' => 'boolean|nullable',
 
             'billing_address' => 'array|nullable',
+            'billing_address.id' => 'numeric|nullable',
             'billing_address.first_name' => 'string|nullable',
             'billing_address.last_name' => 'string|nullable',
             'billing_address.email' => 'email|nullable',
@@ -57,6 +50,7 @@ class CartUpdateRequest extends Request
     {
         return [
             'shipping_address' => Sanitizer::ARRAY,
+            'shipping_address.id' => Sanitizer::INT,
             'shipping_address.first_name' => Sanitizer::TEXT,
             'shipping_address.last_name' => Sanitizer::TEXT,
             'shipping_address.email' => Sanitizer::TEXT,
@@ -72,6 +66,7 @@ class CartUpdateRequest extends Request
             'is_billing_same_as_shipping' => Sanitizer::BOOL,
 
             'billing_address' => Sanitizer::ARRAY,
+            'billing_address.id' => Sanitizer::INT,
             'billing_address.first_name' => Sanitizer::TEXT,
             'billing_address.last_name' => Sanitizer::TEXT,
             'billing_address.email' => Sanitizer::TEXT,

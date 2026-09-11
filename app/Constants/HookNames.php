@@ -4,5 +4,6 @@ namespace Kirki\Ecommerce\App\Constants;
 
 class HookNames
 {
-    const ECOMMERCE_PAYMENT_PROVIDERS = 'kirki_ecommerce_payment_providers';
+    public const ECOMMERCE_PAYMENT_PROVIDERS = 'kirki_ecommerce_payment_providers';
+    public const USER_EMAIL_VERIFIED = 'kecom_user_email_verified';
 }

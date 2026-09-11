@@ -21,14 +21,14 @@ class EUTaxStrategy extends AbstractTaxStrategy
             return new TaxResultDTO();
         }
 
-        return $this->calculate_tax('shipping_tax', [], $shipping_cost);
+        return $this->calculate_tax('shipping_tax', ['shipping_address' => $this->address], $shipping_cost);
     }
 
     public function calculate_tax(string $type, array $context_data, int $amount): TaxResultDTO
     {
         $result = new TaxResultDTO();
 
-        $rate = $this->get_rate($this->settings[$type] ?? [], $this->address['country']);
+        $rate = $this->get_rate($type);
         $amount = Money::from_minor($amount);
 
         if (!empty($this->settings['rules']) && !empty($context_data)) {
@@ -67,11 +67,29 @@ class EUTaxStrategy extends AbstractTaxStrategy
         return $result;
     }
 
-    protected function get_rate($rates, $country)
+    /**
+     * Get the VAT rate configured for the address's member country. A member
+     * country has a single rate that applies to both product and shipping tax.
+     *
+     * @param string $type 'product_tax' or 'shipping_tax' — kept as the
+     *                      rules-context key; it does not affect the rate.
+     * @return float
+     */
+    protected function get_rate(string $type): float
     {
-        foreach ($rates as $rate) {
-            if ($country === $rate['country']) {
-                return $rate['rate'];
+        // TODO: honour $this->settings['type'] === 'micro_business' — a micro
+        // business charges its home-country VAT rate, not the destination
+        // member-country rate resolved below. Currently 'oss' and 'micro_business'
+        // behave identically.
+        $address_country = (string) ($this->address['country'] ?? '');
+
+        if ($address_country === '') {
+            return 0;
+        }
+
+        foreach ($this->settings['countries'] ?? [] as $country) {
+            if (is_array($country) && (string) ($country['code'] ?? '') === $address_country) {
+                return (float) ($country['rate'] ?? 0);
             }
         }
 

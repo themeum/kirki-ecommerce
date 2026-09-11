@@ -111,6 +111,7 @@ export function accountDetails(config: AccountDetailsConfig) {
         toast.success(res?.message || 'Password updated successfully.');
         resetForm?.();
         this.closePasswordModal();
+        window.location.reload();
       } catch (err: any) {
         if (err?.errors && typeof err.errors === 'object') {
           let hasFieldErrors = false;

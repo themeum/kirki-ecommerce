@@ -1,7 +1,12 @@
 import { type CSSObject, keyframes } from '@emotion/react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { X } from 'lucide-react';
-import { type ComponentPropsWithoutRef, type ComponentRef, forwardRef, type HTMLAttributes } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  type ComponentRef,
+  forwardRef,
+  type HTMLAttributes,
+} from 'react';
 
 import Button from '@/components/ui/button';
 import { useWordpressMedia } from '@/hooks';
@@ -13,12 +18,8 @@ const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
-const DialogPortal = ({
-  ...props
-}: ComponentPropsWithoutRef<typeof DialogPrimitive.Portal>) => {
-  return (
-    <DialogPrimitive.Portal container={getPortalContainer()} {...props} />
-  );
+const DialogPortal = ({ ...props }: ComponentPropsWithoutRef<typeof DialogPrimitive.Portal>) => {
+  return <DialogPrimitive.Portal container={getPortalContainer()} {...props} />;
 };
 
 DialogPortal.displayName = 'DialogPortal';
@@ -32,16 +33,15 @@ type DialogOverlayProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const DialogOverlay = forwardRef<
-  ComponentRef<typeof DialogPrimitive.Overlay>,
-  DialogOverlayProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const DialogOverlay = forwardRef<ComponentRef<typeof DialogPrimitive.Overlay>, DialogOverlayProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return (
-    <DialogPrimitive.Overlay ref={ref} css={scopedMerge(styles.overlay, cssOverride)} {...rest} />
-  );
-});
+    return (
+      <DialogPrimitive.Overlay ref={ref} css={scopedMerge(styles.overlay, cssOverride)} {...rest} />
+    );
+  },
+);
 
 DialogOverlay.displayName = 'DialogOverlay';
 
@@ -52,66 +52,64 @@ type DialogContentProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const DialogContent = forwardRef<
-  ComponentRef<typeof DialogPrimitive.Content>,
-  DialogContentProps
->((props, ref) => {
-  const { cssOverride, children, ...rest } = props;
-  const { isWpMediaFrameOpen, isWpMediaNode } = useWordpressMedia();
+const DialogContent = forwardRef<ComponentRef<typeof DialogPrimitive.Content>, DialogContentProps>(
+  (props, ref) => {
+    const { cssOverride, children, ...rest } = props;
+    const { isWpMediaFrameOpen, isWpMediaNode } = useWordpressMedia();
 
-  return (
-    <DialogPortal>
-      <DialogOverlay />
-      <DialogPrimitive.Content
-        ref={ref}
-        css={scopedMerge(styles.content, cssOverride)}
-        onEscapeKeyDown={(event) => {
-          if (isWpMediaFrameOpen()) {
-            event.preventDefault();
-            return;
-          }
+    return (
+      <DialogPortal>
+        <DialogOverlay />
+        <DialogPrimitive.Content
+          ref={ref}
+          css={scopedMerge(styles.content, cssOverride)}
+          onEscapeKeyDown={(event) => {
+            if (isWpMediaFrameOpen()) {
+              event.preventDefault();
+              return;
+            }
 
-          rest.onEscapeKeyDown?.(event);
-        }}
-        onInteractOutside={(event) => {
-          if (isWpMediaNode(event.detail.originalEvent.target)) {
-            event.preventDefault();
-            return;
-          }
+            rest.onEscapeKeyDown?.(event);
+          }}
+          onInteractOutside={(event) => {
+            if (isWpMediaNode(event.detail.originalEvent.target)) {
+              event.preventDefault();
+              return;
+            }
 
-          rest.onInteractOutside?.(event);
-        }}
-        {...rest}
-      >
-        {children}
-      </DialogPrimitive.Content>
-    </DialogPortal>
-  );
-});
+            rest.onInteractOutside?.(event);
+          }}
+          {...rest}
+        >
+          {children}
+        </DialogPrimitive.Content>
+      </DialogPortal>
+    );
+  },
+);
 
 DialogContent.displayName = 'DialogContent';
 
-const DialogCloseButton = forwardRef<
-  HTMLButtonElement,
-  ComponentPropsWithoutRef<typeof Button>
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const DialogCloseButton = forwardRef<HTMLButtonElement, ComponentPropsWithoutRef<typeof Button>>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return (
-    <DialogPrimitive.Close asChild>
-      <Button
-        ref={ref}
-        variant="ghost"
-        size="icon"
-        aria-label="Close"
-        cssOverride={mergeCss(styles.closeButton, cssOverride)}
-        {...rest}
-      >
-        <X size={16} aria-hidden="true" />
-      </Button>
-    </DialogPrimitive.Close>
-  );
-});
+    return (
+      <DialogPrimitive.Close asChild>
+        <Button
+          ref={ref}
+          variant="ghost"
+          size="icon"
+          aria-label="Close"
+          cssOverride={mergeCss(styles.closeButton, cssOverride)}
+          {...rest}
+        >
+          <X size={16} aria-hidden="true" />
+        </Button>
+      </DialogPrimitive.Close>
+    );
+  },
+);
 
 DialogCloseButton.displayName = 'DialogCloseButton';
 
@@ -150,16 +148,15 @@ type DialogTitleProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const DialogTitle = forwardRef<
-  ComponentRef<typeof DialogPrimitive.Title>,
-  DialogTitleProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const DialogTitle = forwardRef<ComponentRef<typeof DialogPrimitive.Title>, DialogTitleProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return (
-    <DialogPrimitive.Title ref={ref} css={scopedMerge(styles.title, cssOverride)} {...rest} />
-  );
-});
+    return (
+      <DialogPrimitive.Title ref={ref} css={scopedMerge(styles.title, cssOverride)} {...rest} />
+    );
+  },
+);
 
 DialogTitle.displayName = 'DialogTitle';
 
@@ -188,9 +185,18 @@ const DialogDescription = forwardRef<
 DialogDescription.displayName = 'DialogDescription';
 
 export {
-  Dialog, DialogBody, DialogClose,
+  Dialog,
+  DialogBody,
+  DialogClose,
   DialogCloseButton,
-  DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
 };
 
 const dialogOverlayIn = keyframes({
@@ -230,7 +236,7 @@ const styles = defineStyles({
     position: 'fixed',
     inset: 0,
     zIndex: theme.zIndex.dialogOverlay,
-    background: 'color-mix(in oklab, #000 10%, transparent)',
+    background: 'rgba(0, 0, 0, 0.6)',
     backdropFilter: 'blur(4px)',
     WebkitBackdropFilter: 'blur(4px)',
     '&[data-state="open"]': {

@@ -1,28 +1,15 @@
-import type { Dispatch, SetStateAction } from 'react';
-
-import DropdownButton from '@/components/dropdown-button';
 import ActionGroup from '@/components/ui/action-group';
-import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
-import { allTableHeaders } from '@/features/inventory/lib/utils';
+import FilterPopup from '@/features/inventory/components/inventory-table/filter-popup/filter-popup';
 import { inventoryListOptions } from '@/features/inventory/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-type InventoryTableFiltersProps = {
-  selectedFields: string[];
-  setSelectedFields: Dispatch<SetStateAction<string[]>>;
-};
-
-const InventoryTableFilters = ({
-  selectedFields,
-  setSelectedFields,
-}: InventoryTableFiltersProps) => {
-  const { params, setParam, handleDateFilter } = useDataTableParams(inventoryListOptions);
+const InventoryTableFilters = () => {
+  const { params, setParam } = useDataTableParams(inventoryListOptions);
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -36,30 +23,7 @@ const InventoryTableFilters = ({
       </div>
 
       <ActionGroup>
-        <DateRangePicker
-          value={{
-            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
-            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
-          }}
-          presets
-          clearable
-          onChange={handleDateFilter}
-          size="sm"
-        />
-        <DropdownButton
-          buttonProps={{
-            variant: 'outline',
-          }}
-          options={allTableHeaders}
-          value={selectedFields}
-          hasLeftIcon
-          checkboxField
-          multiple
-          dropdownStyle={{ minWidth: '288px' }}
-          onOptionSelect={(value) =>
-            setSelectedFields(value as string[])
-          }
-        />
+        <FilterPopup />
       </ActionGroup>
     </Flex>
   );

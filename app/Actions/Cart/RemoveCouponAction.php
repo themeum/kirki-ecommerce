@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class RemoveCouponAction
 {
     protected $cart_service;
@@ -21,9 +23,7 @@ class RemoveCouponAction
     {
         $applied_coupon = $cart->coupons->first(fn($coupon) => $coupon->code === $code);
 
-        if (empty($applied_coupon)) {
-            throw new ValidationException(__('Coupon not found in cart.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($applied_coupon_info), __('Coupon not found in cart.', 'kirki-ecommerce'), ValidationException::class, Response::NOT_FOUND);
 
         $this->cart_service->remove_coupons($cart->id, [$applied_coupon->id]);
 

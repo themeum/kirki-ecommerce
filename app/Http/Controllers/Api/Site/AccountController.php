@@ -11,11 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
-use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
-use Kirki\Ecommerce\App\DTO\Account\UpdateAddressPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
-use Kirki\Ecommerce\App\Http\Requests\Account\AddressUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
@@ -91,29 +88,6 @@ class AccountController
     }
 
     /**
-     * Update addresses.
-     *
-     * @since 1.0.0
-     *
-     * @param AddressUpdateRequest $request Request.
-     * @param UpdateAccountAddressesAction $action Action.
-     *
-     * @return Response response.
-     */
-    public function update_addresses(AddressUpdateRequest $request, UpdateAccountAddressesAction $action)
-    {
-        $address_payload = UpdateAddressPayloadDTO::from_array($request->sanitized());
-        $address_payload->user_id = user()->get_id();
-
-        $customer = $action->execute($address_payload);
-
-        return response()->json([
-            'data' => CustomerResource::make($customer),
-            'message' => __('Address updated successfully.', 'kirki-ecommerce'),
-        ]);
-    }
-
-    /**
      * Customer orders.
      *
      * @since 1.0.0
@@ -149,5 +123,40 @@ class AccountController
             'data' => $order_data['orders'],
             'message' => __('Orders fetched successfully', 'kirki-ecommerce')
         ]);
+    }
+
+    /**
+     * Resend verification email to the current logged-in user.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Request.
+     * @param UserService $user_service User service.
+     *
+     * @return Response JSON response.
+     */
+    public function resend_verification_email(Request $request, UserService $user_service)
+    {
+        $user_id = user()->get_id();
+
+        if (empty($user_id)) {
+            return response()->json([
+                'message' => __('Unauthorized.', 'kirki-ecommerce'),
+            ], Response::UNAUTHORIZED);
+        }
+
+        try {
+            $user_service->resend_verification_email($user_id);
+
+            return response()->json([
+                'data' => true,
+                'message' => __('Verification email has been sent to your email address.', 'kirki-ecommerce'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => false,
+                'message' => $e->getMessage(),
+            ], Response::UNPROCESSABLE_ENTITY);
+        }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Database\Migrations\CreateAddressesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterAddressesTypeColumnToString;
 use Kirki\Ecommerce\Database\Migrations\CreateLanguagesTable;
@@ -54,10 +56,15 @@ use Kirki\Ecommerce\Database\Migrations\CreateSchedulerJobsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchedulerJobsStatusColumnToString;
 use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
+use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
+use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
+use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 use Kirki\Ecommerce\Database\Migrations\DropCouponUsageTable;
 use Kirki\Ecommerce\Database\Migrations\AlterCartsDropDiscountDetails;
 use Kirki\Ecommerce\Database\Migrations\AlterOrdersDropLegacyCouponColumns;
+use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
+use Kirki\Ecommerce\Database\Migrations\AddInvoiceNumberToOrdersTable;
 
 return [
     CreateLanguagesTable::class,
@@ -98,13 +105,13 @@ return [
     CreateShippingBoxesTable::class,
     CreateTaxProfilesTable::class,
     CreateSchedulerJobsTable::class,
+    CreateWishlistTable::class,
 
     // Gives every key an explicit, project-owned name. Must stay after every Create* migration and
     // before every Alter* migration: at this point an upgraded database and a fresh install hold
     // the same tables, which is what lets one code path serve both. Never reorder, never edit.
+    // Since v1.0.0-alpha.2
     AlterSchemaKeysToExplicitNames::class,
-
-    // Altering the tables structures
     AlterAddressesTypeColumnToString::class,
     AlterAttributesTypeColumnToString::class,
     ReplaceCartsCustomerIdWithUserId::class,
@@ -116,8 +123,16 @@ return [
     AddIsDefaultToShippingProfilesTable::class,
     AddIsDefaultToTaxProfilesTable::class,
     AlterSchedulerJobsStatusColumnToString::class,
+
+    // Since v1.0.0-alpha.3
     AddLowStockThresholdToVariantsTable::class,
     AddPublishedAtAndTrashedAtToProductsTable::class,
+
+    // Since v1.0.0-alpha.4
+    AlterAddressesTableForAddressBook::class,
+    DropIsBillingSameAsShippingFromCustomersTable::class,
+    DropIsBillingSameAsShippingFromOrdersTable::class,
+    AddInvoiceNumberToOrdersTable::class,
 
     CreateCartCouponsTable::class,
     CreateOrderCouponsTable::class,

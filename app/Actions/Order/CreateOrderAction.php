@@ -2,9 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
-use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
+use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -34,14 +34,16 @@ use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Exception;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Models\Address;
+use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CreateOrderAction
@@ -89,6 +91,8 @@ class CreateOrderAction
 
     public function execute(CreateOrderPayloadDTO $dto)
     {
+        $this->resolve_billing_and_shipping_addresses($dto);
+
         if (!$dto->is_manual && (!empty($dto->cart_token) || !empty($dto->user_id))) {
             $this->resolve_checkout_cart($dto);
         }
@@ -104,9 +108,7 @@ class CreateOrderAction
 
         $context = $this->prepare_calculation_context_dto($dto);
 
-        if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce'));
-        }
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
         $create_order_dto = $this->prepare_create_order_dto($calculated_result, $dto, $context);
@@ -115,13 +117,13 @@ class CreateOrderAction
 
         try {
             $order = $this->order_service->create_order($create_order_dto);
+            $this->sync_address($dto, $order);
 
             foreach ($dto->items as $item_data) {
                 $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
 
-                if (!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity)) {
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
-                }
+                /* translators: %s: variant ID */
+                throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
 
                 $this->order_service->create_order_item($order_item_dto);
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
@@ -154,13 +156,62 @@ class CreateOrderAction
         }
     }
 
+    /**
+     * If the order is marked as "billing same as shipping", copy the
+     * shipping address fields to the billing address fields.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @return void
+     */
+    protected function resolve_billing_and_shipping_addresses(CreateOrderPayloadDTO $dto)
+    {
+        if ($dto->is_billing_same_as_shipping) {
+            $dto->billing_id = $dto->shipping_id;
+            $dto->billing_first_name = $dto->shipping_first_name;
+            $dto->billing_last_name = $dto->shipping_last_name;
+            $dto->billing_address_line1 = $dto->shipping_address_line1;
+            $dto->billing_address_line2 = $dto->shipping_address_line2;
+            $dto->billing_city = $dto->shipping_city;
+            $dto->billing_state = $dto->shipping_state;
+            $dto->billing_postal_code = $dto->shipping_postal_code;
+            $dto->billing_country = $dto->shipping_country;
+            $dto->billing_phone = $dto->shipping_phone;
+            $dto->billing_email = $dto->shipping_email;
+        }
+    }
+
+    /**
+     * Sync the order's shipping and billing addresses to the customer's
+     * default shipping and billing addresses, creating them if they don't
+     * exist yet.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @param Order $order
+     * @return void
+     */
+    protected function sync_address(CreateOrderPayloadDTO $dto, $order)
+    {
+        if (empty($dto->shipping_id)) {
+            $dto->shipping_id = $this->create_address($dto, $order->customer_id, AddressPurpose::SHIPPING)->id;
+        }
+
+        if (empty($dto->billing_id) && !$dto->is_billing_same_as_shipping) {
+            $dto->billing_id = $this->create_address($dto, $order->customer_id, AddressPurpose::BILLING)->id;
+        }
+
+        if (empty($dto->billing_id) && $dto->is_billing_same_as_shipping) {
+            $dto->billing_id = $dto->shipping_id;
+        }
+
+        $this->address_service->set_default($dto->shipping_id, AddressPurpose::SHIPPING);
+        $this->address_service->set_default($dto->billing_id, AddressPurpose::BILLING);
+    }
+
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
 
-        if (empty($cart) || empty($cart->items)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($cart) || empty($cart->items), __('Cart not found.', 'kirki-ecommerce'));
 
         $items = [];
 
@@ -171,9 +222,7 @@ class CreateOrderAction
             ];
         }
 
-        if (empty($items)) {
-            throw new Exception(__('Cart is empty.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($items), __('Cart is empty.', 'kirki-ecommerce'));
 
         $dto->items = $items;
         $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
@@ -196,40 +245,15 @@ class CreateOrderAction
     {
         $customer = $dto->customer_id ? $this->customer_service->find($dto->customer_id) : null;
 
-        if (!empty($customer) && !empty($customer->shipping_address) && !empty($customer->billing_address)) {
-            $this->update_address($dto, $customer, AddressType::SHIPPING);
-            $this->update_address($dto, $customer, AddressType::BILLING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
-            return $customer->id;
-        }
-
-        if (!empty($customer) && empty($customer->shipping_address) && empty($customer->billing_address)) {
-            $this->create_address($dto, $customer, AddressType::BILLING);
-            $this->create_address($dto, $customer, AddressType::SHIPPING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, $dto->is_billing_same_as_shipping);
-
-            return $customer->id;
-        }
-
-        if (!empty($customer) && !empty($customer->billing_address) && empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, AddressType::SHIPPING);
-            $this->update_address($dto, $customer, AddressType::BILLING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, false);
-            return $customer->id;
-        }
-        
-        if (!empty($customer) && empty($customer->billing_address) && !empty($customer->shipping_address)) {
-            $this->create_address($dto, $customer, AddressType::BILLING);
-            $this->update_address($dto, $customer, AddressType::SHIPPING);
-            $this->customer_service->set_billing_same_as_shipping($customer->id, false);
+        if (!empty($customer)) {
             return $customer->id;
         }
 
         try {
             $customer = $this->create_customer_action->execute(
                 $this->prepare_checkout_customer_dto($dto),
-                $this->prepare_checkout_address_dto($dto, AddressType::SHIPPING),
-                $this->prepare_checkout_address_dto($dto, AddressType::BILLING)
+                $this->prepare_checkout_address_dto($dto, AddressPurpose::SHIPPING),
+                $this->prepare_checkout_address_dto($dto, AddressPurpose::BILLING)
             );
 
             return $customer->id;
@@ -244,23 +268,49 @@ class CreateOrderAction
         }
     }
 
-    protected function create_address(CreateOrderPayloadDTO $dto, $customer, $type)
+    /**
+     * Create a new default shipping/billing address for the customer from
+     * the checkout request's shipping/billing fields.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @param int $customer_id
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING -
+     * which request field prefix to read and which default flag to set.
+     * Unrelated to the Address's own type (home/office/others), which
+     * defaults to home here.
+     * @return Address
+     * @throws Throwable
+     */
+    protected function create_address(CreateOrderPayloadDTO $dto, $customer_id, $purpose)
     {
-        $address_dto = $this->prepare_checkout_address_dto($dto, $type);
-        $address_dto->customer_id = $customer->id;
+        $address_dto = $this->prepare_checkout_address_dto($dto, $purpose);
+        $address_dto->customer_id = $customer_id;
 
-        $this->address_service->create($address_dto);
+        return $this->address_service->create($address_dto);
     }
-    
-    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $type)
+
+    /**
+     * Update the customer's existing default shipping/billing address from
+     * the checkout request's shipping/billing fields, preserving the
+     * address's own type (home/office/others).
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @param Customer $customer
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
+     * @return void
+     */
+    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
     {
-        $address_dto = $this->prepare_checkout_address_dto($dto, $type, true);
+        $existing = $customer->{$purpose . '_address'};
+
+        $address_dto = $this->prepare_checkout_address_dto($dto, $purpose, true);
         $address_dto->customer_id = $customer->id;
-        $address_dto->id = $customer->{$type . '_address'}->id;
+        $address_dto->id = $existing->id;
+        $address_dto->type = $existing->type;
 
         $this->address_service->update($address_dto);
     }
-   
+
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
     {
         $wp_user = get_userdata($dto->created_by) ?: null;
@@ -271,7 +321,6 @@ class CreateOrderAction
         $customer_payload->last_name = !empty($wp_user->last_name) ? $wp_user->last_name : $dto->billing_last_name;
         $customer_payload->email = !empty($wp_user->user_email) ? $wp_user->user_email : $dto->billing_email;
         $customer_payload->phone = !empty($wp_user->phone) ? $wp_user->phone : $dto->billing_phone;
-        $customer_payload->is_billing_same_as_shipping = (bool) $dto->is_billing_same_as_shipping;
 
         return $customer_payload;
     }
@@ -305,10 +354,14 @@ class CreateOrderAction
         $address_payload->city = $dto->{"{$prefix}_city"};
         $address_payload->state = $dto->{"{$prefix}_state"};
         $address_payload->country = $dto->{"{$prefix}_country"};
-        $address_payload->postal_code = $dto->{"{$prefix}_postcode"};
+        $address_payload->postal_code = $dto->{"{$prefix}_postal_code"};
         $address_payload->email = $dto->{"{$prefix}_email"};
         $address_payload->phone = $dto->{"{$prefix}_phone"};
-        $address_payload->type = $prefix;
+
+        if (!$is_update) {
+            $address_payload->type = AddressType::HOME;
+            $address_payload->{"is_default_{$prefix}"} = true;
+        }
 
         return $address_payload;
     }
@@ -331,7 +384,7 @@ class CreateOrderAction
             'address_line2' => $dto->shipping_address_line2,
             'city' => $dto->shipping_city,
             'state' => $dto->shipping_state,
-            'postcode' => $dto->shipping_postcode,
+            'postal_code' => $dto->shipping_postal_code,
             'country' => $dto->shipping_country,
         ];
         $context->coupon_codes = $dto->coupon_codes;
@@ -349,19 +402,16 @@ class CreateOrderAction
         foreach ($dto->items as $item_data) {
             $variant = $this->variant_service->find($item_data['variant_id']);
 
-            if (!$variant) {
-                throw new Exception("Variant not found for item: " . Arr::json_encode($item_data));
-            }
+            /* translators: %s: JSON-encoded item data */
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
 
-            if ($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity']) {
-                throw new Exception(sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
-            }
+            /* translators: %s: variant ID */
+            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
 
             $product = $variant->product;
 
-            if (empty($product)) {
-                throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
-            }
+            /* translators: %s: variant ID */
+            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
 
             $product->load('categories');
 
@@ -387,7 +437,6 @@ class CreateOrderAction
         $target_currency_code = $dto->currency_code;
         $order_dto = new CreateOrderDTO();
         $order_dto->uuid = uuid();
-        $order_dto->order_number = 'ORD-' . strtoupper(uniqid()); // TODO: get from settings
         $order_dto->customer_id = $context->customer_id ?: null;
         $order_dto->fulfillment_status = FulfillmentStatus::UNFULFILLED;
         $order_dto->order_status = OrderStatus::PENDING;
@@ -427,12 +476,10 @@ class CreateOrderAction
         $order_dto->shipping_city = $dto->shipping_city;
         $order_dto->shipping_state = $dto->shipping_state;
         $order_dto->shipping_country = $dto->shipping_country;
-        $order_dto->shipping_postal_code = $dto->shipping_postcode;
+        $order_dto->shipping_postal_code = $dto->shipping_postal_code;
         $order_dto->shipping_phone = $dto->shipping_phone;
         $order_dto->shipping_email = $dto->shipping_email;
         $order_dto->shipping_company = $dto->shipping_company;
-
-        $order_dto->is_billing_same_as_shipping = filter_var($dto->is_billing_same_as_shipping, FILTER_VALIDATE_BOOLEAN);
 
         $order_dto->billing_first_name = $dto->billing_first_name;
         $order_dto->billing_last_name = $dto->billing_last_name;
@@ -441,7 +488,7 @@ class CreateOrderAction
         $order_dto->billing_city = $dto->billing_city;
         $order_dto->billing_state = $dto->billing_state;
         $order_dto->billing_country = $dto->billing_country;
-        $order_dto->billing_postal_code = $dto->billing_postcode;
+        $order_dto->billing_postal_code = $dto->billing_postal_code;
         $order_dto->billing_phone = $dto->billing_phone;
         $order_dto->billing_email = $dto->billing_email;
         $order_dto->billing_company = $dto->billing_company;
@@ -465,9 +512,8 @@ class CreateOrderAction
         $variant = $this->variants_map[$calculated_item->variant_id];
         $product = $variant->product;
 
-        if (empty($product)) {
-            throw new Exception(sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
-        }
+        /* translators: %s: variant ID */
+        throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
 
         $product->load('media');
 

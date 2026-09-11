@@ -18,18 +18,20 @@ export type OrderItem = {
 
 type OrderListFilter = {
   search?: string;
-  fulfillment_status?: string;
+  status?: string;
   payment_status?: string;
+  shipping_method?: string;
   from_date?: string | null;
   to_date?: string | null;
 };
 
 const orderListFilterConfig: ListFilterConfig<OrderListFilter> = {
-  keys: ['search', 'fulfillment_status', 'payment_status'],
+  keys: ['search', 'status', 'payment_status', 'shipping_method'],
   parsers: {
     search: { parse: parseString },
-    fulfillment_status: { parse: parseString },
+    status: { parse: parseString },
     payment_status: { parse: parseString },
+    shipping_method: { parse: parseString },
   },
 };
 
@@ -39,31 +41,39 @@ const orderListOptions: UseListParamsOptions<OrderListFilter> = {
     sort_by: 'id',
     sort_order: 'desc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
   filter: orderListFilterConfig,
 };
 
-const fulfillmentStatusOptions: SuggestionOption[] = [
+const orderStatusOptions: SuggestionOption[] = [
   { value: 'all', title: __('All', 'kirki-ecommerce') },
-  { value: 'unfulfilled', title: __('Unfulfilled', 'kirki-ecommerce') },
-  { value: 'processing', title: __('Processing', 'kirki-ecommerce') },
-  { value: 'shipped', title: __('Shipped', 'kirki-ecommerce') },
-  { value: 'delivered', title: __('Delivered', 'kirki-ecommerce') },
-  { value: 'on-hold', title: __('On hold', 'kirki-ecommerce') },
-  { value: 'cancelled', title: __('Cancelled', 'kirki-ecommerce') },
-  { value: 'returned', title: __('Returned', 'kirki-ecommerce') },
+  { value: 'order-placed', title: __('Order placed', 'kirki-ecommerce') },
+  { value: 'order-processing', title: __('Order processing', 'kirki-ecommerce') },
+  { value: 'order-on-hold', title: __('Order on hold', 'kirki-ecommerce') },
+  { value: 'order-shipped', title: __('Order shipped', 'kirki-ecommerce') },
+  { value: 'order-delivered', title: __('Order delivered', 'kirki-ecommerce') },
+  { value: 'payment-failed', title: __('Payment failed', 'kirki-ecommerce') },
+  { value: 'order-cancelled', title: __('Order cancelled', 'kirki-ecommerce') },
+  { value: 'refund-requested', title: __('Refund requested', 'kirki-ecommerce') },
+  { value: 'refund-in-progress', title: __('Refund in progress', 'kirki-ecommerce') },
+  { value: 'refunded', title: __('Refunded', 'kirki-ecommerce') },
+  { value: 'refund-declined', title: __('Refund declined', 'kirki-ecommerce') },
+  { value: 'order-returned', title: __('Order returned', 'kirki-ecommerce') },
 ];
 
 const paymentStatusOptions: SuggestionOption[] = [
   { value: 'all', title: __('All', 'kirki-ecommerce') },
   { value: 'paid', title: __('Paid', 'kirki-ecommerce') },
   { value: 'unpaid', title: __('Unpaid', 'kirki-ecommerce') },
+  { value: 'pending', title: __('Pending', 'kirki-ecommerce') },
+  { value: 'processing', title: __('Processing', 'kirki-ecommerce') },
   { value: 'failed', title: __('Failed', 'kirki-ecommerce') },
+  { value: 'cancelled', title: __('Cancelled', 'kirki-ecommerce') },
   { value: 'refunding', title: __('Refunding', 'kirki-ecommerce') },
   { value: 'refunded', title: __('Refunded', 'kirki-ecommerce') },
 ];
 
 export type { OrderListFilter };
 
-export { fulfillmentStatusOptions, orderListFilterConfig, orderListOptions, paymentStatusOptions };
+export { orderListFilterConfig, orderListOptions, orderStatusOptions, paymentStatusOptions };

@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
@@ -36,7 +37,7 @@ class PageIdentifier extends BaseHook
     public function handle(...$args)
     {
         $post_states = $args[0];
-        if (!is_admin() || ! isset($_GET['post_type'])) {
+        if (!is_admin() || Superglobals::query('post_type') === null) {
             return $args[0];
         }
 
@@ -47,8 +48,6 @@ class PageIdentifier extends BaseHook
         $checkout_page_id = Utils::get_checkout_page_id();
         $account_page_id = Utils::get_account_page_id();
         $design_system_page_id = Utils::get_design_system_page_id();
-        $login_page_id = Utils::get_login_page_id();
-        $registration_page_id = Utils::get_registration_page_id();
 
         if ($shop_page_id === $post->ID) {
             $post_states['kirki_ecommerce_shop'] = __('Shop Page', 'kirki-ecommerce');
@@ -68,14 +67,6 @@ class PageIdentifier extends BaseHook
 
         if ($design_system_page_id === $post->ID) {
             $post_states['kirki_ecommerce_design_system'] = __('Design System Page', 'kirki-ecommerce');
-        }
-
-        if ($login_page_id === $post->ID) {
-            $post_states['kirki_ecommerce_login'] = __('Login Page', 'kirki-ecommerce');
-        }
-
-        if ($registration_page_id === $post->ID) {
-            $post_states['kirki_ecommerce_register'] = __('Registration Page', 'kirki-ecommerce');
         }
 
         return $post_states;

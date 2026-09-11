@@ -23,6 +23,9 @@ export const ENDPOINTS = {
     profile: '/account/profile',
     passwordChange: '/account/password-change',
     addresses: '/account/addresses',
+    addressSingle: (id: number | string) => `/account/addresses/${id}`,
+    addressSetDefault: (id: number | string) => `/account/addresses/${id}/set-default`,
     orders: '/account/orders',
+    resendVerificationEmail: '/account/resend-verification-email',
   },
 } as const;

@@ -27,7 +27,7 @@ const couponListOptions: UseListParamsOptions<CouponListFilter> = {
     sort_by: 'id',
     sort_order: 'desc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
   filter: couponListFilterConfig,
 };
@@ -36,7 +36,7 @@ const statusOptions: SuggestionOption[] = [
   { value: 'all', title: __('All', 'kirki-ecommerce') },
   { value: 'active', title: __('Active', 'kirki-ecommerce') },
   { value: 'scheduled', title: __('Scheduled', 'kirki-ecommerce') },
-  { value: 'inactive', title: __('Inactive', 'kirki-ecommerce') },
+  { value: 'inactive', title: __('Not Active', 'kirki-ecommerce') },
   { value: 'expired', title: __('Expired', 'kirki-ecommerce') },
 ];
 

@@ -130,6 +130,47 @@ class ShippingService
     }
 
     /**
+     * Get every enabled shipping method defined across the enabled zones.
+     *
+     * Zones scope a method to a region, so the same method can be defined in
+     * more than one zone. Orders store only the method id, so the list is
+     * deduplicated by id and carries just what a filter control needs.
+     *
+     * @return array<int, array{id: string, name: string, type: string}>
+     */
+    public function get_all_shipping_methods()
+    {
+        $zones = $this->shipping_settings['shipping_zones'] ?? [];
+        $methods = [];
+
+        foreach ($zones as $zone) {
+            if (!($zone['is_enabled'] ?? false)) {
+                continue;
+            }
+
+            foreach ($zone['shipping_methods'] ?? [] as $method) {
+                if (($method['is_enabled'] ?? false) !== true) {
+                    continue;
+                }
+
+                $id = $method['id'] ?? null;
+
+                if (empty($id) || isset($methods[$id])) {
+                    continue;
+                }
+
+                $methods[$id] = [
+                    'id' => (string) $id,
+                    'name' => $method['name'] ?? '',
+                    'type' => $method['type'] ?? '',
+                ];
+            }
+        }
+
+        return array_values($methods);
+    }
+
+    /**
      * Get selected shipping method for a shipping address
      *
      * @param CalculationContextDTO $context

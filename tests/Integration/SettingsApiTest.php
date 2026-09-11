@@ -73,4 +73,407 @@ class SettingsApiTest extends RestTestCase
         $response = $this->request('GET', 'settings/' . OptionKeys::PRODUCT_SETTINGS);
         $this->assert_api_error($response, 401);
     }
+
+    /**
+     * Base general settings payload with sensible required defaults, so
+     * tests can focus on the fields they override.
+     *
+     * @param array $overrides The general settings data to override.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function general_settings_payload(array $overrides = []): array
+    {
+        return [
+            'key' => OptionKeys::GENERAL_SETTINGS,
+            'data' => array_merge([
+                'store_name' => 'Kirki Ecommerce',
+                'store_email' => 'store@example.com',
+                'store_address' => [
+                    'address_line_1' => '123 Main St',
+                    'city' => 'New York',
+                    'state' => 'NY',
+                    'postal_code' => '10001',
+                    'country' => 'US',
+                ],
+                'selling_location_type' => 'all-countries',
+                'selling_countries' => [],
+                'order_number' => [
+                    'prefix' => '',
+                    'suffix' => '',
+                ],
+                'invoice_number' => [
+                    'prefix' => '',
+                    'suffix' => '',
+                    'sequence' => '000001',
+                    'apply_year_prefix' => false,
+                    'reset_sequence_every_year' => false,
+                ],
+            ], $overrides),
+        ];
+    }
+
+    /**
+     * Update general settings persists the order_number and invoice_number
+     * configuration.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_persists_order_number_and_invoice_number_config(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'order_number' => [
+                'prefix' => 'ORD-',
+                'suffix' => '-X',
+            ],
+            'invoice_number' => [
+                'prefix' => 'INV-',
+                'suffix' => '-Y',
+                'sequence' => '000050',
+                'apply_year_prefix' => true,
+                'reset_sequence_every_year' => true,
+            ],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame('ORD-', $payload['data']['order_number']['prefix']);
+        $this->assertSame('-X', $payload['data']['order_number']['suffix']);
+        $this->assertSame('INV-', $payload['data']['invoice_number']['prefix']);
+        $this->assertSame('000050', $payload['data']['invoice_number']['sequence']);
+        $this->assertTrue($payload['data']['invoice_number']['apply_year_prefix']);
+        $this->assertTrue($payload['data']['invoice_number']['reset_sequence_every_year']);
+    }
+
+    /**
+     * A non-digit invoice number sequence is rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_rejects_non_digit_invoice_sequence(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'invoice_number' => [
+                'prefix' => '',
+                'suffix' => '',
+                'sequence' => '12a3',
+                'apply_year_prefix' => false,
+                'reset_sequence_every_year' => false,
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertStringContainsString('sequence', wp_json_encode($data['errors']));
+    }
+
+    /**
+     * A slash or backslash in an order/invoice number prefix or suffix is
+     * rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_general_settings_rejects_slashes_in_number_affixes(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->general_settings_payload([
+            'order_number' => [
+                'prefix' => 'ORD/',
+                'suffix' => '',
+            ],
+            'invoice_number' => [
+                'prefix' => '',
+                'suffix' => 'INV\\',
+                'sequence' => '000001',
+                'apply_year_prefix' => false,
+                'reset_sequence_every_year' => false,
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $errors = wp_json_encode($data['errors']);
+        $this->assertStringContainsString('order_number', $errors);
+        $this->assertStringContainsString('invoice_number', $errors);
+    }
+
+    /**
+     * Base tax settings payload with a single tax region merged in.
+     *
+     * @param array $region The tax region to include.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function tax_settings_payload(array $region): array
+    {
+        return [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => true,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [$region],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ];
+    }
+
+    /**
+     * A non-numeric state rate is rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_tax_settings_non_numeric_state_rate_returns_422(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->tax_settings_payload([
+            'code' => 'BD',
+            'is_enabled' => true,
+            'type' => null,
+            'is_central_tax_enabled' => false,
+            'states' => [
+                [
+                    'id' => '771',
+                    'name' => 'Dhaka District',
+                    'product_tax_rate' => 'twenty',
+                    'shipping_tax_rate' => 5,
+                    'rules' => [],
+                ],
+            ],
+            'rules' => [],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertStringContainsString('product_tax_rate', wp_json_encode($data['errors']));
+    }
+
+    /**
+     * A new central region round-trips with an empty states array.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_tax_settings_central_region_round_trips(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->tax_settings_payload([
+            'code' => 'BD',
+            'is_enabled' => true,
+            'type' => null,
+            'is_central_tax_enabled' => true,
+            'central_product_tax' => 15,
+            'central_shipping_tax' => 5,
+            'states' => [],
+            'rules' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $region = $payload['data']['tax_regions'][0];
+        $this->assertSame('BD', $region['code']);
+        $this->assertSame([], $region['states']);
+        $this->assertArrayNotHasKey('product_tax', $region);
+    }
+
+    /**
+     * A per-state region round-trips keyed by state id, with its per-state rules.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_tax_settings_per_state_region_round_trips(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->tax_settings_payload([
+            'code' => 'BD',
+            'is_enabled' => true,
+            'type' => null,
+            'is_central_tax_enabled' => false,
+            'states' => [
+                [
+                    'id' => '771',
+                    'name' => 'Dhaka District',
+                    'product_tax_rate' => 20,
+                    'shipping_tax_rate' => 5,
+                    'rules' => [
+                        [
+                            'relation' => 'AND',
+                            'conditions' => [
+                                ['type' => 'tax_profile', 'operator' => '=', 'value' => 'digital'],
+                            ],
+                            'action' => ['type' => 'set_tax_rate', 'value' => 7],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => '785',
+                    'name' => 'Chittagong District',
+                    'product_tax_rate' => 21,
+                    'shipping_tax_rate' => 6,
+                    'rules' => [],
+                ],
+            ],
+            'rules' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $region = $payload['data']['tax_regions'][0];
+        $this->assertCount(2, $region['states']);
+        $this->assertSame('771', $region['states'][0]['id']);
+        $this->assertSame(20.0, (float) $region['states'][0]['product_tax_rate']);
+        $this->assertSame(5.0, (float) $region['states'][0]['shipping_tax_rate']);
+        $this->assertCount(1, $region['states'][0]['rules']);
+        $this->assertSame('set_tax_rate', $region['states'][0]['rules'][0]['action']['type']);
+    }
+
+    /**
+     * Toggling a per-state region to central clears its states on save.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_tax_settings_central_toggle_clears_states(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->tax_settings_payload([
+            'code' => 'BD',
+            'is_enabled' => true,
+            'type' => null,
+            'is_central_tax_enabled' => true,
+            'central_product_tax' => 15,
+            'central_shipping_tax' => 5,
+            'states' => [
+                [
+                    'id' => '771',
+                    'name' => 'Dhaka District',
+                    'product_tax_rate' => 20,
+                    'shipping_tax_rate' => 5,
+                    'rules' => [],
+                ],
+            ],
+            'rules' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertSame([], $payload['data']['tax_regions'][0]['states']);
+    }
+
+    /**
+     * A region's display name and flag round-trip alongside its code.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_tax_settings_region_name_and_flag_round_trip(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->tax_settings_payload([
+            'code' => 'BD',
+            'name' => 'Bangladesh',
+            'flag' => '🇧🇩',
+            'is_enabled' => true,
+            'type' => null,
+            'is_central_tax_enabled' => true,
+            'central_product_tax' => 15,
+            'central_shipping_tax' => 5,
+            'states' => [],
+            'rules' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $region = $payload['data']['tax_regions'][0];
+        $this->assertSame('Bangladesh', $region['name']);
+        $this->assertSame('🇧🇩', $region['flag']);
+    }
+
+    /**
+     * The EU region round-trips its per-country single VAT rate keyed by
+     * country code.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_tax_settings_eu_region_round_trips(): void
+    {
+        $response = $this->request('PUT', 'settings', $this->tax_settings_payload([
+            'code' => 'EU',
+            'name' => 'European Union',
+            'flag' => '🇪🇺',
+            'is_enabled' => true,
+            'type' => 'oss',
+            'countries' => [
+                [
+                    'code' => 'AT',
+                    'name' => 'Austria',
+                    'flag' => '🇦🇹',
+                    'rate' => 20,
+                ],
+            ],
+            'rules' => [],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $region = $payload['data']['tax_regions'][0];
+        $this->assertSame('AT', $region['countries'][0]['code']);
+        $this->assertSame(20.0, (float) $region['countries'][0]['rate']);
+    }
+
+    /**
+     * Advanced settings persist the page-key to page-id assignments and the
+     * resource echoes them back as a resolved list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_advance_settings_persists_page_assignments(): void
+    {
+        $shop_page_id = static::factory()->post->create([
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'post_title' => 'Storefront',
+        ]);
+        $cart_page_id = static::factory()->post->create([
+            'post_type' => 'page',
+            'post_status' => 'publish',
+            'post_title' => 'Basket',
+        ]);
+
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::ADVANCE_SETTINGS,
+            'data' => [
+                'pages' => [
+                    'shop' => $shop_page_id,
+                    'cart' => $cart_page_id,
+                ],
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $pages = array_column($payload['data']['pages'], null, 'key');
+
+        $this->assertSame($shop_page_id, $pages['shop']['id']);
+        $this->assertSame('active', $pages['shop']['status']);
+        $this->assertSame($cart_page_id, $pages['cart']['id']);
+        $this->assertNull($pages['checkout']['id']);
+        $this->assertSame('not-found', $pages['checkout']['status']);
+    }
+
+    /**
+     * A non-integer page assignment is rejected with 422.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_advance_settings_non_integer_page_returns_422(): void
+    {
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::ADVANCE_SETTINGS,
+            'data' => [
+                'pages' => [
+                    'shop' => 'not-a-page',
+                ],
+            ],
+        ]);
+
+        $data = $this->assert_validation_error($response);
+        $this->assertStringContainsString('pages', wp_json_encode($data['errors']));
+    }
 }

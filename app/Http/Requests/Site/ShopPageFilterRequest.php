@@ -53,7 +53,7 @@ class ShopPageFilterRequest extends Request
     {
         //TODO: Will be added later.
         return [
-            // 'search' => Sanitizer::TEXT,
+            'search' => Sanitizer::TEXT,
             // 'category_ids' => Sanitizer::ARRAY,
             // 'brand_ids' => Sanitizer::ARRAY,
             // 'attribute_value_ids' => Sanitizer::ARRAY,

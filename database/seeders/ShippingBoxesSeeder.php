@@ -29,7 +29,7 @@ class ShippingBoxesSeeder extends Seeder
         return [
             [
                 'name' => 'Small Poly Mailer',
-                'description' => 'For apparel, accessories, and small electronics.',
+                'description' => 'For single apparel items and lightweight accessories.',
                 'width' => 25.00,
                 'height' => 30.00,
                 'length' => 2.00,
@@ -38,7 +38,7 @@ class ShippingBoxesSeeder extends Seeder
             ],
             [
                 'name' => 'Medium Carton Box',
-                'description' => 'Standard box for shoes, kitchen appliances, and medium items.',
+                'description' => 'Standard box for shoes, bags, and folded apparel.',
                 'width' => 40.00,
                 'height' => 30.00,
                 'length' => 25.00,
@@ -47,7 +47,7 @@ class ShippingBoxesSeeder extends Seeder
             ],
             [
                 'name' => 'Large Carton Box',
-                'description' => 'For laptops, vacuum cleaners, and bulky home goods.',
+                'description' => 'For bulky outerwear and multi-item apparel orders.',
                 'width' => 60.00,
                 'height' => 40.00,
                 'length' => 35.00,
@@ -55,8 +55,8 @@ class ShippingBoxesSeeder extends Seeder
                 'is_default' => false,
             ],
             [
-                'name' => 'Extra Large Furniture Box',
-                'description' => 'For flat-pack furniture, mattresses, and oversized items.',
+                'name' => 'Bulk Order Box',
+                'description' => 'For wholesale and large multi-item apparel orders.',
                 'width' => 120.00,
                 'height' => 80.00,
                 'length' => 20.00,

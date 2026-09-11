@@ -9,8 +9,10 @@ use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CreateCustomerAction
 {
@@ -46,21 +48,22 @@ class CreateCustomerAction
 
             $customer = $this->customer_service->create($customer_payload);
 
-            if (empty($customer)) {
-                throw new Exception(__('Customer could not be created.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($customer), __('Customer could not be created.', 'kirki-ecommerce'));
 
+            // Set both flags explicitly on each payload (not just the one being
+            // claimed) so this is safe even if the caller passed the same
+            // CreateAddressDTO instance for both parameters.
             $shipping_address_payload->customer_id = $customer->id;
-            $shipping_address_payload->type = AddressType::SHIPPING;
+            $shipping_address_payload->type = AddressType::HOME;
+            $shipping_address_payload->is_default_shipping = true;
+            $shipping_address_payload->is_default_billing = false;
 
             $this->create_address($shipping_address_payload);
 
-            if ($customer_payload->is_billing_same_as_shipping) {
-                $billing_address_payload = $shipping_address_payload;
-            }
-
             $billing_address_payload->customer_id = $customer->id;
-            $billing_address_payload->type = AddressType::BILLING;
+            $billing_address_payload->type = AddressType::HOME;
+            $billing_address_payload->is_default_shipping = false;
+            $billing_address_payload->is_default_billing = true;
 
             $this->create_address($billing_address_payload);
 
@@ -79,9 +82,7 @@ class CreateCustomerAction
     protected function create_user(CreateCustomerDTO $customer)
     {
         if (!empty($customer->user_id)) {
-            if (empty(get_userdata($customer->user_id))) {
-                throw new Exception(__('User could not be found.', 'kirki-ecommerce'));
-            }
+            throw_if(empty(get_userdata($customer->user_id)), __('User could not be found.', 'kirki-ecommerce'));
 
             return $customer->user_id;
         }
@@ -98,7 +99,7 @@ class CreateCustomerAction
         $user_id = wp_insert_user($new_user);
 
         if (is_wp_error($user_id)) {
-            throw new Exception($user_id->get_error_message());
+            throw_anyway($user_id->get_error_message());
         }
 
         return $user_id;
@@ -108,9 +109,7 @@ class CreateCustomerAction
     {
         $is_created_billing_address = $this->address_service->create($address_payload);
 
-        if (!$is_created_billing_address) {
-            throw new Exception(__('Customer address could not be created.', 'kirki-ecommerce'));
-        }
+        throw_if(!$is_created_billing_address, __('Customer address could not be created.', 'kirki-ecommerce'));
 
         return true;
     }

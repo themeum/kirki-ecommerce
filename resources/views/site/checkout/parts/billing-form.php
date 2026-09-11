@@ -5,150 +5,130 @@
  * @package Kirki\Ecommerce\Templates
  */
 
+use function Kirki\Ecommerce\Framework\include_view;
+
 defined('ABSPATH') || exit;
 extract($data);
-
-// Billing Info.
-$billing_first_name = $billing_address["first_name"] ?? '';
-$billing_last_name = $billing_address["last_name"] ?? '';
-$billing_address_line1 = $billing_address["address_line1"] ?? '';
-$billing_address_line2 = $billing_address["address_line2"] ?? '';
-
-$billing_city = $billing_address["city"] ?? '';
-$billing_state = $billing_address["state"] ?? '';
-$billing_country = $billing_address["country"] ?? '';
-$billing_postal_code = $billing_address["postal_code"] ?? '';
-
-$billing_phone = $billing_address["phone"] ?? '';
-$billing_email = $billing_address["email"] ?? '';
 ?>
 
-<!-- Billing Form -->
-<div class="kecom-billing-section" x-show="!billingSameAsShipping">
-    <h2 class="kecom-section-title"><?php esc_html_e('Billing Details', 'kirki-ecommerce'); ?></h2>
-    <form id="billing-form" class="kecom-billing-form kecom-form" x-data="form({
-        defaultValues: {
-            country: '<?php echo esc_js($billing_country); ?>',
-            first_name: '<?php echo esc_js($billing_first_name); ?>',
-            last_name: '<?php echo esc_js($billing_last_name); ?>',
-            address_line1: '<?php echo esc_js($billing_address_line1); ?>',
-            address_line2: '<?php echo esc_js($billing_address_line2); ?>',
-            city: '<?php echo esc_js($billing_city); ?>',
-            state: '<?php echo esc_js($billing_state); ?>',
-            postal_code: '<?php echo esc_js($billing_postal_code); ?>',
-            phone: '<?php echo esc_js($billing_phone); ?>',
-            email: '<?php echo esc_js($billing_email); ?>'
-        },
-        mode: 'onChange'
-   })" :inert="billingSameAsShipping" x-on:kecom:billing-form:validate.window="await validateForm(); $dispatch('kecom:billing-form:validated', { isValid })">
-        <div class="kecom-field" x-bind="fieldWrapper('country')">
-            <label class="kecom-field-label" for="billing-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
-            <select class="kecom-select" id="billing-country" name="country" x-bind="register('country', { required: '<?php esc_html_e('Country is required', 'kirki-ecommerce'); ?>' })">
-                <option value=""><?php esc_html_e('Select Country', 'kirki-ecommerce'); ?></option>
-                <?php foreach ($countries as $country) : ?>
-                    <option value="<?php echo esc_attr($country['code']); ?>">
-                        <?php echo esc_html($country['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <span class="kecom-field-error" x-show="errors.country" x-text="errors.country"></span>
-        </div>
-        <div class="kecom-billing-form-row">
-            <div class="kecom-field" x-bind="fieldWrapper('first_name')">
-                <label class="kecom-field-label" for="billing-first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
-                <input
-                    class="kecom-input"
-                    type="text"
-                    id="billing-first-name"
-                    name="first_name"
-                    x-bind="register('first_name', { required: '<?php esc_html_e('First name is required', 'kirki-ecommerce'); ?>' })">
-                <span class="kecom-field-error" x-show="errors.first_name" x-text="errors.first_name"></span>
-            </div>
-            <div class="kecom-field" x-bind="fieldWrapper('last_name')">
-                <label class="kecom-field-label" for="billing-last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
-                <input
-                    class="kecom-input"
-                    type="text"
-                    id="billing-last-name"
-                    name="last_name"
-                    x-bind="register('last_name', { required: '<?php esc_html_e('Last name is required', 'kirki-ecommerce'); ?>' })">
-                <span class="kecom-field-error" x-show="errors.last_name" x-text="errors.last_name"></span>
-            </div>
-        </div>
-        <div class="kecom-field" x-bind="fieldWrapper('address_line1')">
-            <label class="kecom-field-label" for="billing-address-line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
-            <input
-                class="kecom-input"
-                type="text"
-                id="billing-address-line1"
-                name="address_line1"
-                x-bind="register('address_line1', { required: '<?php esc_html_e('Address is required', 'kirki-ecommerce'); ?>' })">
-            <span class="kecom-field-error" x-show="errors.address_line1" x-text="errors.address_line1"></span>
-        </div>
-        <div class="kecom-field">
-            <label class="kecom-field-label" for="billing-address-line2">
-                <?php esc_html_e('Apartment, suit, etc.', 'kirki-ecommerce'); ?> <span class="kecom-text-subdued">(<?php esc_html_e('optional', 'kirki-ecommerce'); ?>)</span>
-            </label>
-            <input class="kecom-input" type="text" id="billing-address-line2" name="address_line2" x-bind="register('address_line2')">
-        </div>
-        <div class="kecom-billing-form-row">
-            <div class="kecom-field" x-bind="fieldWrapper('city')">
-                <label class="kecom-field-label" for="billing-city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
-                <input
-                    class="kecom-input"
-                    type="text"
-                    id="billing-city"
-                    name="city"
-                    x-bind="register('city', { required: '<?php esc_html_e('City is required', 'kirki-ecommerce'); ?>' })">
-                <span class="kecom-field-error" x-show="errors.city" x-text="errors.city"></span>
-            </div>
-            <div class="kecom-field" x-data="stateField()" x-bind="fieldWrapper('state')">
-                <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
-                <select
-                    class="kecom-select"
-                    id="billing-state"
-                    name="state"
-                    :disabled="states.length === 0"
-                    x-bind="register('state', {
-                        validate: (val) => (!states.length || (val && String(val).trim() !== '')) || '<?php esc_html_e('State is required', 'kirki-ecommerce'); ?>'
-                    })">
-                    <option value="" x-text="states.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
-                    <template x-for="state in states" :key="state.id">
-                        <option :value="state.id" x-text="state.name"></option>
-                    </template>
+<!-- Billing Section -->
+<div class="kecom-billing-section" x-show="!billingSameAsShipping" x-cloak>
+    <!-- Saved Address Card -->
+    <div x-show="showSavedBillingAddress" class="kecom-checkout-saved-address-wrap">
+        <?php include_view('site.checkout.parts.address-selected-card', [
+            'purpose' => 'billing',
+            'title'   => __('Billing Address', 'kirki-ecommerce'),
+        ]); ?>
+    </div>
+
+    <!-- Inline Billing Form (when no saved addresses or only 1 address) -->
+    <div x-show="!showSavedBillingAddress">
+        <h2 class="kecom-section-title"><?php esc_html_e('Billing Details', 'kirki-ecommerce'); ?></h2>
+        <div id="billing-form" class="kecom-billing-form kecom-form">
+            <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.country }">
+                <label class="kecom-field-label" for="billing-country"><?php esc_html_e('Country/region', 'kirki-ecommerce'); ?></label>
+                <select class="kecom-select" id="billing-country" name="country" x-model="billingAddress.country" @change="onBillingCountryChange">
+                    <option value=""><?php esc_html_e('Select Country', 'kirki-ecommerce'); ?></option>
+                    <?php foreach ($countries as $country) : ?>
+                        <option value="<?php echo esc_attr($country['code']); ?>">
+                            <?php echo esc_html($country['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
-                <span class="kecom-field-error" x-show="errors.state" x-text="errors.state"></span>
+                <span class="kecom-field-error" x-show="billingErrors.country" x-text="billingErrors.country"></span>
             </div>
-            <div class="kecom-field" x-bind="fieldWrapper('postal_code')">
-                <label class="kecom-field-label" for="billing-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
+            <div class="kecom-billing-form-row">
+                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.first_name }">
+                    <label class="kecom-field-label" for="billing-first-name"><?php esc_html_e('First Name', 'kirki-ecommerce'); ?></label>
+                    <input
+                        class="kecom-input"
+                        type="text"
+                        id="billing-first-name"
+                        name="first_name"
+                        x-model="billingAddress.first_name"
+                        @input="delete billingErrors.first_name">
+                    <span class="kecom-field-error" x-show="billingErrors.first_name" x-text="billingErrors.first_name"></span>
+                </div>
+                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.last_name }">
+                    <label class="kecom-field-label" for="billing-last-name"><?php esc_html_e('Last Name', 'kirki-ecommerce'); ?></label>
+                    <input
+                        class="kecom-input"
+                        type="text"
+                        id="billing-last-name"
+                        name="last_name"
+                        x-model="billingAddress.last_name"
+                        @input="delete billingErrors.last_name">
+                    <span class="kecom-field-error" x-show="billingErrors.last_name" x-text="billingErrors.last_name"></span>
+                </div>
+            </div>
+            <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.address_line1 }">
+                <label class="kecom-field-label" for="billing-address-line1"><?php esc_html_e('Address', 'kirki-ecommerce'); ?></label>
                 <input
                     class="kecom-input"
                     type="text"
-                    id="billing-postal-code"
-                    name="postal_code"
-                    x-bind="register('postal_code', { required: '<?php esc_html_e('Postal code is required', 'kirki-ecommerce'); ?>' })">
-                <span class="kecom-field-error" x-show="errors.postal_code" x-text="errors.postal_code"></span>
+                    id="billing-address-line1"
+                    name="address_line1"
+                    x-model="billingAddress.address_line1"
+                    @input="delete billingErrors.address_line1">
+                <span class="kecom-field-error" x-show="billingErrors.address_line1" x-text="billingErrors.address_line1"></span>
+            </div>
+            <div class="kecom-field">
+                <label class="kecom-field-label" for="billing-address-line2">
+                    <?php esc_html_e('Apartment, suit, etc.', 'kirki-ecommerce'); ?> <span class="kecom-text-subdued">(<?php esc_html_e('optional', 'kirki-ecommerce'); ?>)</span>
+                </label>
+                <input class="kecom-input" type="text" id="billing-address-line2" name="address_line2" x-model="billingAddress.address_line2">
+            </div>
+            <div class="kecom-billing-form-row">
+                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.city }">
+                    <label class="kecom-field-label" for="billing-city"><?php esc_html_e('City', 'kirki-ecommerce'); ?></label>
+                    <input
+                        class="kecom-input"
+                        type="text"
+                        id="billing-city"
+                        name="city"
+                        x-model="billingAddress.city"
+                        @input="delete billingErrors.city">
+                    <span class="kecom-field-error" x-show="billingErrors.city" x-text="billingErrors.city"></span>
+                </div>
+                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.state }">
+                    <label class="kecom-field-label" for="billing-state"><?php esc_html_e('State', 'kirki-ecommerce'); ?></label>
+                    <select
+                        class="kecom-select"
+                        id="billing-state"
+                        name="state"
+                        :disabled="billingStates.length === 0"
+                        x-model="billingAddress.state"
+                        @change="onBillingStateChange">
+                        <option value="" x-text="billingStates.length ? '<?php esc_attr_e('Select State', 'kirki-ecommerce'); ?>' : '<?php esc_attr_e('No states available', 'kirki-ecommerce'); ?>'"></option>
+                        <template x-for="state in billingStates" :key="state.id">
+                            <option :value="state.id" x-text="state.name" :selected="String(state.id) === String(billingAddress.state)"></option>
+                        </template>
+                    </select>
+                    <span class="kecom-field-error" x-show="billingErrors.state" x-text="billingErrors.state"></span>
+                </div>
+                <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.postal_code }">
+                    <label class="kecom-field-label" for="billing-postal-code"><?php esc_html_e('Postal code', 'kirki-ecommerce'); ?></label>
+                    <input
+                        class="kecom-input"
+                        type="text"
+                        id="billing-postal-code"
+                        name="postal_code"
+                        x-model="billingAddress.postal_code"
+                        @input="delete billingErrors.postal_code">
+                    <span class="kecom-field-error" x-show="billingErrors.postal_code" x-text="billingErrors.postal_code"></span>
+                </div>
+            </div>
+            <div class="kecom-field" :class="{ 'kecom-field-error-state': billingErrors.phone }">
+                <label class="kecom-field-label" for="billing-phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
+                <input
+                    class="kecom-input"
+                    type="tel"
+                    id="billing-phone"
+                    name="phone"
+                    x-model="billingAddress.phone"
+                    @input="delete billingErrors.phone">
+                <span class="kecom-field-error" x-show="billingErrors.phone" x-text="billingErrors.phone"></span>
             </div>
         </div>
-        <div class="kecom-field" x-bind="fieldWrapper('phone')">
-            <label class="kecom-field-label" for="billing-phone"><?php esc_html_e('Phone Number', 'kirki-ecommerce'); ?></label>
-            <input
-                class="kecom-input"
-                type="tel"
-                id="billing-phone"
-                name="phone"
-                x-bind="register('phone', { required: '<?php esc_html_e('Phone number is required', 'kirki-ecommerce'); ?>' })">
-            <span class="kecom-field-error" x-show="errors.phone" x-text="errors.phone"></span>
-        </div>
-        <div class="kecom-field" x-bind="fieldWrapper('email')">
-            <label class="kecom-field-label" for="billing-email"><?php esc_html_e('Email Address', 'kirki-ecommerce'); ?></label>
-            <input
-                class="kecom-input"
-                type="email"
-                id="billing-email"
-                name="email"
-                x-bind="register('email', { required: '<?php esc_html_e('Email address is required', 'kirki-ecommerce'); ?>', email: '<?php esc_html_e('Please enter a valid email address', 'kirki-ecommerce'); ?>' })">
-            <span class="kecom-field-error" x-show="errors.email" x-text="errors.email"></span>
-        </div>
-    </form>
+    </div>
 </div>

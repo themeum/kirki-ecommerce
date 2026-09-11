@@ -1,6 +1,6 @@
 import type { UseListParamsOptions } from '@/hooks/use-list-params';
 import type { ListFilterConfig } from '@/types/list-state';
-import { parseNumberArray, parseStatus, parseString } from '@/types/list-state';
+import { parseNumber, parseNumberArray, parseStatus, parseString } from '@/types/list-state';
 
 type UnitPriceValue = {
   total_unit_amount?: number | string | null;
@@ -20,8 +20,8 @@ export type { UnitPriceValue, UpdateVariantsPayload };
 export type ProductListFilter = {
   search?: string;
   category_ids?: number[];
-  brand_ids?: number[];
-  collection_ids?: number[];
+  brand_id?: number;
+  collection_id?: number;
   status?: string | string[];
   availability_status?: string;
   inventory_type?: string;
@@ -33,8 +33,8 @@ const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
   keys: [
     'search',
     'category_ids',
-    'brand_ids',
-    'collection_ids',
+    'brand_id',
+    'collection_id',
     'status',
     'availability_status',
     'inventory_type',
@@ -42,8 +42,8 @@ const productListFilterConfig: ListFilterConfig<ProductListFilter> = {
   parsers: {
     search: { parse: parseString },
     category_ids: { parse: parseNumberArray },
-    brand_ids: { parse: parseNumberArray },
-    collection_ids: { parse: parseNumberArray },
+    brand_id: { parse: parseNumber },
+    collection_id: { parse: parseNumber },
     status: { parse: parseStatus },
     availability_status: { parse: parseString },
     inventory_type: { parse: parseString },
@@ -56,7 +56,7 @@ const productListOptions: UseListParamsOptions<ProductListFilter> = {
     sort_by: 'id',
     sort_order: 'desc',
     page: 1,
-    limit: 10,
+    limit: 20,
   },
   filter: productListFilterConfig,
 };

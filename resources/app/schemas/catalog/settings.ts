@@ -19,7 +19,7 @@ import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schema
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
-import { TaxRegionSchema } from '@/features/settings/tax/schemas/catalog/tax';
+import { TaxRegionSchema } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
 /**
@@ -48,12 +48,21 @@ export const GeneralSettingsSchema = z
     store_address: StoreAddressSchema.nullish(),
     selling_location_type: z.string().nullish(),
     selling_countries: z.array(z.string()).nullish(),
-    order_id_prefix: z.string().nullish(),
-    order_id_suffix: z.string().nullish(),
-    invoice_id_prefix: z.string().nullish(),
-    invoice_id_sequence: z.string().nullish(),
-    invoice_id_suffix: z.string().nullish(),
-    invoice_counter_reset_schedule: z.string().nullish(),
+    order_number: z
+      .object({
+        prefix: z.string().nullish(),
+        suffix: z.string().nullish(),
+      })
+      .nullish(),
+    invoice_number: z
+      .object({
+        prefix: z.string().nullish(),
+        suffix: z.string().nullish(),
+        sequence: z.string().nullish(),
+        apply_year_prefix: z.boolean().nullish(),
+        reset_sequence_every_year: z.boolean().nullish(),
+      })
+      .nullish(),
   })
   .passthrough();
 
@@ -164,7 +173,7 @@ export const TaxSettingsSchema = z
   .object({
     is_tax_inclusive_price: z.boolean().nullish(),
     is_shipping_tax_enabled: z.boolean().nullish(),
-    is_enabled_taxed_price: z.boolean().nullish(),
+    is_enabled_display_inclusive_taxed_price: z.boolean().nullish(),
     tax_regions: z.array(TaxRegionSchema).nullish(),
     tax_services: z.array(z.unknown()).nullish(),
     tax_ids: z.array(z.unknown()).nullish(),
@@ -216,6 +225,26 @@ export const PaymentSettingsSchema = z
 
 export type PaymentSettings = z.infer<typeof PaymentSettingsSchema>;
 
+export const AdvanceSettingsPageSchema = z.object({
+  id: z.number().nullish(),
+  key: z.enum(['shop', 'cart', 'checkout', 'account', 'login', 'register']),
+  name: z.string(),
+  title: z.string(),
+  slug: z.string().nullish(),
+  url: z.string().nullish(),
+  status: z.enum(['active', 'inactive', 'not-found']),
+});
+
+export type AdvanceSettingsPage = z.infer<typeof AdvanceSettingsPageSchema>;
+
+export const AdvanceSettingsSchema = z
+  .object({
+    pages: z.array(AdvanceSettingsPageSchema).nullish(),
+  })
+  .passthrough();
+
+export type AdvanceSettings = z.infer<typeof AdvanceSettingsSchema>;
+
 /**
  * `orders` and `default` are deliberately absent: neither has a documented
  * endpoint or a frontend caller (`docs/ecommerce/settings/` has no
@@ -231,6 +260,7 @@ export const SettingsSchemaMap = {
   tax: TaxSettingsSchema,
   currency: CurrencySettingsSchema,
   payment: PaymentSettingsSchema,
+  advance: AdvanceSettingsSchema,
 } as const;
 
 export type SettingsSectionKey = keyof typeof SettingsSchemaMap;

@@ -13,9 +13,12 @@ namespace Kirki\Ecommerce\App\Supports;
 
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Http\Controllers\Site\AccountController;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Route;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
@@ -36,9 +39,9 @@ class Utils
      */
     public static function is_nonce_verified($request_method = null): bool
     {
-        $request_method = !$request_method ? sanitize_text_field($_SERVER['REQUEST_METHOD']) : $request_method;
-        $data = strtolower($request_method) === 'post' ? $_POST : $_GET;
-        $nonce_value = sanitize_text_field(Arr::get($data, 'ajax_nonce'));
+        $request_method = !$request_method ? Superglobals::server('REQUEST_METHOD', '', Sanitizer::TEXT) : $request_method;
+        $data = strtolower($request_method) === 'post' ? Superglobals::post() : Superglobals::query();
+        $nonce_value = Sanitizer::apply_rule(Arr::get($data, 'kecom_nonce', ''), Sanitizer::TEXT);
 
         return wp_verify_nonce($nonce_value, 'kirki_ecommerce_nonce') !== false;
     }
@@ -52,7 +55,7 @@ class Utils
      */
     public static function get_shop_page_id()
     {
-        return Settings::get('advance.pages.shop', 0);
+        return Settings::get('advance.pages.' . PageKeys::SHOP, 0);
     }
 
     /**
@@ -64,14 +67,11 @@ class Utils
      */
     public static function get_site_pages()
     {
-        $pages = [
-            'advance.pages.shop' => __('Shop', 'kirki-ecommerce'),
-            'advance.pages.cart' => __('Cart', 'kirki-ecommerce'),
-            'advance.pages.checkout' => __('Checkout', 'kirki-ecommerce'),
-            'advance.pages.account' => __('Account', 'kirki-ecommerce'),
-            'advance.pages.login' => __('Login', 'kirki-ecommerce'),
-            'advance.pages.register' => __('Register', 'kirki-ecommerce'),
-        ];
+        $pages = [];
+
+        foreach (PageKeys::get_list() as $key => $name) {
+            $pages['advance.pages.' . $key] = $name;
+        }
 
         $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
 
@@ -92,6 +92,15 @@ class Utils
         $account_page_slug = !empty($account_page) ? $account_page->post_name : 'account';
 
         $route_config = [
+            'action' => [
+                'url'       => Url::get_account_url('action'),
+                'hook'      => 'template_redirect',
+                'priority'  => 1,
+                'route_path' => $account_page_slug . '/action',
+                'route_name' => 'account.action',
+                'callback'  => [AccountController::class, 'action'],
+                'is_menu'   => false,
+            ],
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),
                 'icon'      => 'dashboard',
@@ -115,7 +124,7 @@ class Utils
             'orders.show' => [
                 'title'     => __('Order Details', 'kirki-ecommerce'),
                 'route_path' => $account_page_slug . '/orders/{uuid}',
-                'route_name' => 'account.orders.show',
+                'route_name' => 'account.orders.details',
                 'callback'  => [AccountController::class, 'order_details'],
             ],
             'addresses' => [
@@ -203,35 +212,17 @@ class Utils
 
                     $page_id = wp_insert_post($new_page);
                     Settings::update($settings_key, $page_id);
+                } else {
+                    wp_update_post([
+                        'ID' => $page_id,
+                        'post_status'  => 'publish',
+                    ]);
                 }
             }
         } catch (\Exception $e) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine error path, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log('Error generating site pages: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Get login page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The login page id.
-     */
-    public static function get_login_page_id()
-    {
-        return Settings::get('advance.pages.login', 0);
-    }
-
-    /**
-     * Get registration page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The registration page id.
-     */
-    public static function get_registration_page_id()
-    {
-        return Settings::get('advance.pages.register', 0);
     }
 
     /**
@@ -243,7 +234,7 @@ class Utils
      */
     public static function get_cart_page_id()
     {
-        return Settings::get('advance.pages.cart', 0);
+        return Settings::get('advance.pages.' . PageKeys::CART, 0);
     }
 
     /**
@@ -255,7 +246,7 @@ class Utils
      */
     public static function get_checkout_page_id()
     {
-        return Settings::get('advance.pages.checkout', 0);
+        return Settings::get('advance.pages.' . PageKeys::CHECKOUT, 0);
     }
 
     /**
@@ -274,7 +265,7 @@ class Utils
      */
     public static function get_account_page_id()
     {
-        return Settings::get('advance.pages.account', 0);
+        return Settings::get('advance.pages.' . PageKeys::ACCOUNT, 0);
     }
 
     /**
@@ -306,10 +297,11 @@ class Utils
 
         // Resolve the account page base path (e.g. "/account" or "/shop/account").
         $account_url  = get_permalink($account_page_id);
-        $account_path = rtrim(parse_url($account_url, PHP_URL_PATH), '/');
+        $account_path = rtrim(wp_parse_url($account_url, PHP_URL_PATH), '/');
 
         // Current request path, stripped of query string.
-        $current_path = rtrim(strtok($_SERVER['REQUEST_URI'] ?? '', '?'), '/');
+        $request_uri = Superglobals::server('REQUEST_URI', '', Sanitizer::TEXT);
+        $current_path = rtrim(strtok($request_uri, '?'), '/');
 
         // No sub-path given: match the account root or any page beneath it.
         if ($sub_path === null) {
@@ -391,15 +383,52 @@ class Utils
             case FulfillmentStatus::ON_HOLD:
                 return 'kecom-badge-caution-light';
             case FulfillmentStatus::UNFULFILLED:
-                return 'kecom-badge-warning-light';
+                return 'kecom-badge-slate';
             case FulfillmentStatus::DELIVERED:
                 return 'kecom-badge-success-light';
             case PaymentStatus::PAID:
                 return 'kecom-badge-success-light';
             case PaymentStatus::UNPAID:
                 return 'kecom-badge-warning-light';
+            case PaymentStatus::FAILED:
+                return 'kecom-badge-error-light';
             default:
                 return 'kecom-badge-default';
+        }
+    }
+
+    /**
+     * Check guest checkout is enabled.
+     *
+     * @since 1.0.0
+     *
+     * @return bool True if guest checkout is enabled, false otherwise.
+     */
+    public static function guest_checkout_enabled()
+    {
+        return Settings::get('checkout.is_allowed_guest_checkout', false);
+    }
+
+    /**
+     * Get page url by page key.
+     *
+     * @param string $page_key page key.
+     *
+     * @return string|null page url.
+     */
+    public static function get_page_url_by_key(string $page_key)
+    {
+        switch ($page_key) {
+            case PageKeys::SHOP:
+                return Url::get_shop_url();
+            case PageKeys::CART:
+                return Url::get_cart_url();
+            case PageKeys::CHECKOUT:
+                return Url::get_checkout_url();
+            case PageKeys::ACCOUNT:
+                return Url::get_account_url();
+            default:
+                return null;
         }
     }
 }

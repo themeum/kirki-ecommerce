@@ -106,9 +106,9 @@ class Razorpay extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'key_id' => 'required|string',
-            'key_secret' => 'required|string',
-            'webhook_secret' => 'required|string',
+            'key_id' => 'sometimes|string',
+            'key_secret' => 'sometimes|string',
+            'webhook_secret' => 'sometimes|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 

@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart as CartConstants;
-use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
+use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\Models\Cart as CartModel;
@@ -22,6 +22,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\request;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -55,6 +56,25 @@ class CartService
         }
 
         return $guest_cart;
+    }
+
+    /**
+     * Resolve the canonical cart for the given identity, creating a new
+     * one if none exists.
+     *
+     * @param int|null $user_id
+     * @param string|null $token
+     * @return CartModel
+     */
+    public function get_or_create_cart($user_id = null, $token = null)
+    {
+        $cart = $this->get_cart($user_id, $token);
+
+        if (empty($cart)) {
+            $cart = $this->create_new_cart($user_id);
+        }
+
+        return $cart;
     }
 
     protected function resolve_owned_cart(int $user_id, ?string $token = null)
@@ -109,15 +129,21 @@ class CartService
     {
         $this->assert_single_owner_identity($data);
 
-        if(empty($data['user_id'])){
+        if (empty($data['user_id'])) {
             return CartModel::create($data);
         }
 
         $customer = customer($data['user_id']);
-        
-        if(!empty($customer)){
+
+        if (!empty($customer)) {
+            $is_billing_same_as_shipping = $customer->get_shipping_address()['id'] === $customer->get_billing_address()['id'];
+
             $data['shipping_address'] = $customer->get_shipping_address();
-            $data['billing_address'] = $customer->get_billing_address();
+            $data['is_billing_same_as_shipping'] = $is_billing_same_as_shipping;
+
+            if (!$data['is_billing_same_as_shipping']) {
+                $data['billing_address'] = $customer->get_billing_address();
+            }
         }
 
         return CartModel::create($data);
@@ -138,9 +164,9 @@ class CartService
         return $this->find($id);
     }
 
-    protected function add_item_to_cart($cart_id, array $item_data)
+    public function add_item_to_cart(CreateCartItemDTO $dto)
     {
-        return CartItem::create(array_merge(['cart_id' => $cart_id], $item_data));
+        return CartItem::create($dto->to_array());
     }
 
     protected function create_new_cart($user_id = null)
@@ -148,6 +174,7 @@ class CartService
         $data = [
             'currency_code' => base_currency()->code, // @todo: Implement currency selection in the future for multi-currency support
             'base_currency_code' => base_currency()->code,
+            'is_billing_same_as_shipping' => true,
         ];
 
         if (!empty($user_id)) {
@@ -173,43 +200,13 @@ class CartService
             ->first();
     }
 
-    public function add_item(AddToCartDTO $dto)
-    {
-        $cart = $this->get_cart($dto->user_id, $dto->token);
-
-        if (empty($cart)) {
-            $cart = $this->create_new_cart($dto->user_id);
-        }
-
-        $cart_id = $cart->id;
-
-        $existing_item = $this->find_item_in_cart($cart_id, $dto->variant_id);
-
-        if ($existing_item) {
-            $new_quantity = $existing_item->quantity + $dto->quantity;
-            $this->update_item_quantity($cart_id, $existing_item->id, $new_quantity);
-        } else {
-            $this->add_item_to_cart($cart_id, [
-                'product_id' => $dto->product_id,
-                'variant_id' => $dto->variant_id,
-                'quantity' => $dto->quantity,
-            ]);
-        }
-
-        return $this->find($cart_id);
-    }
-
     public function update_item_quantity($cart_id, $item_id, $quantity)
     {
         $item = $this->find_item($item_id);
 
-        if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
-        if ($item->cart_id !== $cart_id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN);
-        }
+        throw_if($item->cart_id !== $cart_id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
         return $this->update_item($item_id, ['quantity' => $quantity]);
     }
@@ -239,19 +236,13 @@ class CartService
     {
         $cart = $this->get_cart($dto->user_id, $dto->token);
 
-        if (empty($cart)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'));
 
         $item = $this->find_item($dto->item_id);
 
-        if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
-        if ($item->cart_id !== $cart->id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN);
-        }
+        throw_if($item->cart_id !== $cart->id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
         $is_last_item = $cart->items->count() === 1;
 
@@ -383,9 +374,7 @@ class CartService
 
     protected function assert_single_owner_identity(array $data): void
     {
-        if (!empty($data['user_id']) && !empty($data['cart_token'])) {
-            throw new ValidationException(__('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
-        }
+        throw_if(!empty($data['user_id']) && !empty($data['cart_token']), __('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 
     protected function create_cart_cookie(string $token): void

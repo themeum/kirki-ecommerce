@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
@@ -10,6 +11,7 @@ use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderItemCoupon;
 use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
@@ -21,13 +23,42 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
+use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
+use function Kirki\Ecommerce\Framework\user;
 
 class OrderService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'uuid' => 'uuid',
+            'order_number' => 'order_number',
+            'customer_id' => 'customer_id',
+            'order_status' => 'order_status',
+            'status' => 'order_status',
+            'quantity' => 'items_count',
+            'sub_total' => 'sub_total',
+            'invoiced_total' => 'invoiced_total',
+            'payment_provider' => 'payment_provider',
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Get all orders with optional search and sorting.
      *
@@ -85,6 +116,11 @@ class OrderService
     public function create_order(CreateOrderDTO $dto)
     {
         $order = Order::create($dto->to_array());
+
+        $order->update([
+            'order_number' => OrderNumberGenerator::generate_order_number($order->id),
+            'invoice_number' => OrderNumberGenerator::generate_invoice_number(),
+        ]);
 
         return $this->find_order($order->id);
     }
@@ -209,9 +245,7 @@ class OrderService
     {
         $order = $this->find_order($id);
 
-        if (!$order) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $order;
     }
@@ -276,9 +310,7 @@ class OrderService
 
         $order = Order::find($id);
 
-        if (empty($order)) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($order), __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         $is_updated = (bool) $order->update([
             'order_status' => $target_status,
@@ -286,9 +318,7 @@ class OrderService
             'payment_status' => $target_state['payment_status'],
         ]);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$is_updated, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $is_updated;
     }
@@ -337,9 +367,7 @@ class OrderService
     {
         $result = $this->delete_order($id);
 
-        if (!$result) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$result, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $result;
     }
@@ -353,15 +381,11 @@ class OrderService
      */
     public function bulk_delete(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No orders selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($ids), __('No orders selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Order::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Orders could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Orders could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -385,7 +409,7 @@ class OrderService
      */
     protected function list_query(OrderListFilterDTO $filters)
     {
-        return Order::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = Order::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(
                 ['order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
                 'like',
@@ -397,7 +421,7 @@ class OrderService
             })
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
-                return $query->where('order_status', $filters->status);
+                return $query->apply_status_filter($filters->status);
             })
             ->when(!empty($filters->fulfillment_status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('fulfillment_status', $filters->fulfillment_status);
@@ -405,10 +429,64 @@ class OrderService
             ->when(!empty($filters->payment_status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('payment_status', $filters->payment_status);
             })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
+            ->when(!empty($filters->shipping_method), function (QueryBuilder $query) use ($filters) {
+                return $query->where('shipping_method', $filters->shipping_method);
             });
+
+        return $this->apply_sorting($query, $filters);
+    }
+
+    /**
+     * Get guest orders by email.
+     *
+     * @since 1.0.0
+     *
+     * @param string $email Email address.
+     *
+     * @return Collection<Order>
+     */
+    public function get_guest_orders_by_email($email)
+    {
+        return Order::where_null('customer_id')
+            ->where('customer_email', $email)
+            ->get();
+    }
+
+    /**
+     * Merge guest orders into customer account.
+     *
+     * @since 1.0.0
+     *
+     * @param int $user_id
+     *
+     * @return void
+     */
+    public function merge_guest_orders($user_id)
+    {
+        $user = user($user_id);
+        if (!$user) {
+            return;
+        }
+
+        $customer_service = app(CustomerService::class);
+        $customer = $customer_service->find_by_user_id($user_id);
+        if (!$customer) {
+            $dto = new CreateCustomerDTO();
+            $dto->user_id = $user_id;
+            $dto->first_name = $user->get_first_name();
+            $dto->last_name = $user->get_first_name();
+            $dto->email = $user->get_email();
+            $customer = $customer_service->create($dto);
+        }
+
+        if ($customer) {
+            $guest_orders = $this->get_guest_orders_by_email($user->get_email());
+            $order_ids = $guest_orders->pluck('id')->to_array();
+            if (!empty($order_ids)) {
+                Order::where_in('id', $order_ids)->update([
+                'customer_id' => $customer->id,
+                ]);
+            }
+        }
     }
 }

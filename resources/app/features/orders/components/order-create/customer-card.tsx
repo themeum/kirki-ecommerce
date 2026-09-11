@@ -41,10 +41,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   const shouldApplyCustomerAddress = useRef(false);
 
   const customerId = useWatch({ control: form.control, name: 'customer_id' });
-  const { data: customer } = useCustomerQuery(
-    Number(customerId ?? 0),
-    Boolean(customerId),
-  );
+  const { data: customer } = useCustomerQuery(Number(customerId ?? 0), Boolean(customerId));
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
   const error = form.formState.errors.customer_id;
 
@@ -84,7 +81,11 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
-        <CardTitle><Text variant="small" weight="medium">{__('Customer', 'kirki-ecommerce')}</Text></CardTitle>
+        <CardTitle>
+          <Text variant="small" weight="medium">
+            {__('Customer', 'kirki-ecommerce')}
+          </Text>
+        </CardTitle>
         {customer && !readonly && (
           <ActionGroup>
             <Button
@@ -109,9 +110,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
       <CardContent>
         {customer ? (
           <CustomerSummary
-            name={[values.shipping_first_name, values.shipping_last_name]
-              .filter(Boolean)
-              .join(' ')}
+            name={[values.shipping_first_name, values.shipping_last_name].filter(Boolean).join(' ')}
             email={values.shipping_email}
             phone={values.shipping_phone}
             photo={customer.photo}
@@ -119,15 +118,17 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
             shippingAddress={formatShippingAddress(values, countries)}
           />
         ) : (
-          <CustomerSearchDropdown
-            onSelect={handleSelectCustomer}
-            onOpenAddDialog={(searchText) => {
-              setDialogPrefill(searchText);
-              setAddDialogOpen(true);
-            }}
-          />
+          <Flex direction="column" gap={2}>
+            <CustomerSearchDropdown
+              onSelect={handleSelectCustomer}
+              onOpenAddDialog={(searchText) => {
+                setDialogPrefill(searchText);
+                setAddDialogOpen(true);
+              }}
+            />
+            {error && <FieldError errors={[error]} />}
+          </Flex>
         )}
-        {error && <FieldError errors={[error]} />}
         {!readonly && onSave && isChangingCustomer && (
           <Flex gap={2} justify="flex-end" cssOverride={styles.changeActions}>
             <Button variant="ghost" onClick={handleCancelChange}>
