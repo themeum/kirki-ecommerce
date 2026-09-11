@@ -424,7 +424,7 @@ class PaymentProvider
     /**
      * Webhook handler.
      *
-     * @return bool
+     * @return bool|WebhookResult
      */
     public function webhook()
     {
