@@ -20,7 +20,7 @@ extract($data);
     ]); ?>
     <div class="kecom-field kecom-checkout-billing-toggle">
         <label class="kecom-checkbox">
-            <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping">
+            <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping" @change="onBillingSameAsShippingChange">
             <span class="kecom-checkbox-label"><?php esc_html_e('The billing address is same as shipping address.', 'kirki-ecommerce'); ?></span>
         </label>
     </div>
@@ -136,7 +136,7 @@ extract($data);
         </div>
         <div class="kecom-field">
             <label class="kecom-checkbox">
-                <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping">
+                <input class="kecom-checkbox-input" type="checkbox" x-model="billingSameAsShipping" @change="onBillingSameAsShippingChange">
                 <span class="kecom-checkbox-label"><?php esc_html_e('The billing address is same as shipping address.', 'kirki-ecommerce'); ?></span>
             </label>
         </div>

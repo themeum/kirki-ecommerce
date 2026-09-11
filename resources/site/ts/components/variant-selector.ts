@@ -28,6 +28,7 @@ export type Variant = {
   allow_back_order: boolean;
   has_limit_per_order: boolean;
   max_per_order: number | null;
+  track_inventory?: boolean;
   is_wishlisted: boolean;
 };
 
@@ -49,6 +50,25 @@ export function variantSelector(config: VariantSelectorConfig) {
 
     get selectedVariant(): Variant | null {
       return this.variants.find((v) => v.id === this.selectedVariantId) ?? this.variants[0];
+    },
+
+    get maxQuantity(): number | undefined {
+      return this.getMaxQuantity();
+    },
+
+    getMaxQuantity(): number | undefined {
+      const variant = this.selectedVariant;
+      if (!variant) {
+        return undefined;
+      }
+      const limits: number[] = [];
+      if (variant.track_inventory && variant.stock !== undefined && !variant.allow_back_order) {
+        limits.push(variant.stock);
+      }
+      if (variant.has_limit_per_order && variant.max_per_order) {
+        limits.push(variant.max_per_order);
+      }
+      return limits.length ? Math.min(...limits) : undefined;
     },
 
     get availableVariants(): Variant[] {

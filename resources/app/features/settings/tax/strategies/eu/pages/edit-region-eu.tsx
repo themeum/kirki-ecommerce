@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigate } from 'react-router';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Container from '@/components/ui/container';
@@ -10,7 +9,6 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import TaxRules from '@/features/settings/tax/shared/components/tax-rules/tax-rules';
 import { useTaxRegionSettings } from '@/features/settings/tax/shared/hooks/use-tax-region-settings';
@@ -29,6 +27,7 @@ import {
   TaxRegionEuFormSchema,
 } from '@/features/settings/tax/strategies/eu/schemas/forms/tax-region-eu-form';
 import EUTaxRegionSkeleton from '@/features/settings/tax/strategies/eu/skeletons/eu-tax-region-skeleton';
+import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -37,7 +36,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const EditRegionEU = () => {
-  const navigate = useNavigate();
   const { loaded, regions, setRegions, isSaving, saveRegions } = useTaxRegionSettings();
 
   const form = useForm<TaxRegionEuFormInput>({
@@ -84,10 +82,6 @@ const EditRegionEU = () => {
     });
   }, [regions, form]);
 
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
-
   const updateTaxRules = useCallback(
     (rulesList: TaxRule[]) => {
       form.setValue('rules', rulesList, { shouldDirty: true });
@@ -130,8 +124,13 @@ const EditRegionEU = () => {
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
                 title={__('EU', 'kirki-ecommerce')}
-                icon="🇪🇺"
-                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
+                icon={<TaxIcon />}
+                breadcrumbs={[
+                  {
+                    label: __('Tax', 'kirki-ecommerce'),
+                    to: RouteConfig.Settings.get('TaxSettings').buildLink(),
+                  },
+                ]}
               />
 
               <Card cssOverride={cardStyles.formCard}>

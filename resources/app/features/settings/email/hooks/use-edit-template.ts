@@ -14,7 +14,6 @@ import {
   EmailTemplateFormSchema,
 } from '@/features/settings/email/schemas/forms/email-template-form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -39,10 +38,6 @@ export const useEditTemplate = (): UseEditTemplateResult => {
 
   const heightValue = form.watch('height') ?? 50;
   const { isDirty } = form.formState;
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   useEffect(() => {
     if (!defaultEmail) {

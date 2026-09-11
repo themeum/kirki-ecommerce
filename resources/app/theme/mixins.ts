@@ -56,10 +56,7 @@ const deepMergeCss = (base: CSSObject, override: CSSObject): CSSObject => {
     const overrideValue = override[key as keyof CSSObject];
 
     if (isPlainObject(baseValue) && isPlainObject(overrideValue)) {
-      result[key as keyof CSSObject] = deepMergeCss(
-        baseValue,
-        overrideValue,
-      );
+      result[key as keyof CSSObject] = deepMergeCss(baseValue, overrideValue);
       continue;
     }
 
@@ -148,11 +145,11 @@ const itemCenter = (): CSSObject => {
  * @returns CSS object for the focus ring box-shadow.
  */
 const uiFocusRing = (theme: Theme, ringColor?: string): CSSObject => {
-  const color = ringColor ?? theme.colors.border.ring;
+  const color = ringColor ?? theme.colors.background.fillSecondaryHover;
 
   return {
     outline: 'none',
-    boxShadow: `0 0 0 2px ${theme.colors.background.fill}, 0 0 0 4px ${color}`,
+    boxShadow: `0px 0px 0px 3px ${color}`,
   };
 };
 
@@ -168,4 +165,3 @@ export {
 };
 
 export type { CssOverrideProp, StyleTree };
-

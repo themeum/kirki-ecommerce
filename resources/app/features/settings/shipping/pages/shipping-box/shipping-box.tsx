@@ -1,4 +1,4 @@
-import { Package2 } from 'lucide-react';
+import { Edit3, Package2 } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -19,9 +19,12 @@ import {
 import Text from '@/components/ui/text';
 import ShippingBoxPopup from '@/features/settings/shipping/pages/shipping-box/shipping-box-dialog';
 import type { ShippingBox as ShippingBoxType } from '@/features/settings/shipping/schemas/catalog/shipping';
-import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/features/settings/shipping/services/shipping';
+import {
+  useDeleteShippingBoxMutation,
+  useShippingBoxesQuery,
+  useUpdateShippingBoxMutation,
+} from '@/features/settings/shipping/services/shipping';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
-import { EditPenIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -54,18 +57,19 @@ const ShippingBoxRowActions = (props: ShippingBoxRowActionsProps) => {
   return (
     <ActionGroup>
       <Button
-        variant="outline"
+        variant="tertiary"
         size="icon-sm"
         aria-label={__('Edit', 'kirki-ecommerce')}
         cssOverride={styles.actionButton}
         onClick={() => onEdit(item)}
       >
-        <EditPenIcon />
+        <Edit3 />
       </Button>
       {!item.is_action_disabled && (
         <DropdownButton
           buttonProps={{
             cssOverride: styles.actionButton,
+            variant: 'tertiary',
           }}
           dropdownStyle={{ minWidth: '170px' }}
           size="small"
@@ -179,7 +183,7 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard} >
+      <Card cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Box', 'kirki-ecommerce')}
@@ -190,9 +194,7 @@ const ShippingBox = () => {
             buttonText={__('Create Box', 'kirki-ecommerce')}
             onAdd={openCreatePopup}
           />
-          {isLoading && (
-            <StackedListSkeleton cssOverride={{ marginTop: theme.spacing[5] }} />
-          )}
+          {isLoading && <StackedListSkeleton cssOverride={{ marginTop: theme.spacing[5] }} />}
           {!isLoading && shippingBoxList.length > 0 && (
             <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingBoxList.map((item) => (
@@ -211,9 +213,7 @@ const ShippingBox = () => {
                         </Text>
                       )}
                       {item.is_default && (
-                        <Badge variant="secondary">
-                          {__('Default', 'kirki-ecommerce')}
-                        </Badge>
+                        <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
                       )}
                     </StackedItemTitle>
                   </StackedItemContent>

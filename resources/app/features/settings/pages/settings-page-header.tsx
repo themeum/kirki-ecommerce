@@ -1,46 +1,51 @@
-import { ArrowLeft } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import { Fragment, type ReactNode } from 'react';
+import { Link } from 'react-router';
 
-import Button from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import ActionGroup from '@/components/ui/action-group';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+
+type SettingsBreadcrumb = {
+  label: string;
+  to: string;
+};
 
 type SettingsPageHeaderProps = {
   icon?: ReactNode;
   title?: string;
-  onBack?: () => void;
-  rightAction?: ReactNode;
+  breadcrumbs?: SettingsBreadcrumb[];
+  actions?: ReactNode;
 };
 
 const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
-  const { icon, title, onBack, rightAction } = props;
+  const { icon, title, breadcrumbs = [], actions } = props;
+  const hasBreadcrumbs = breadcrumbs.length > 0;
 
   return (
-    <Flex align="center" justify="center" gap={2}>
-      {onBack && (
-        <>
-          <Button
-            variant="ghost"
-            aria-label={__('Back', 'kirki-ecommerce')}
-            onClick={onBack}
-            cssOverride={styles.backButton}
-          >
-            <ArrowLeft css={scoped({ minWidth: 16, minHeight: 16 })} />
-          </Button>
-        </>
-      )}
-      <Card cssOverride={cardStyles.navbarCard}>
-        <Flex gap={2} align="center">
-          {icon}
-          <Text variant="heading6" weight="semibold">{title}</Text>
-        </Flex>
-        {rightAction}
-      </Card>
+    <Flex align="center" justify="flex-start" gap={2} cssOverride={styles.wrapper}>
+      <Flex gap={2} align="center">
+        {icon}
+        {breadcrumbs.map((crumb, index) => (
+          <Fragment key={crumb.to}>
+            {index > 0 && <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />}
+            <Link to={crumb.to} css={scoped(styles.crumb)}>
+              {crumb.label}
+            </Link>
+          </Fragment>
+        ))}
+        {hasBreadcrumbs && <ChevronLeft css={scoped(styles.separator)} aria-hidden="true" />}
+        <Text
+          variant="heading6"
+          weight="semibold"
+          aria-current={hasBreadcrumbs ? 'page' : undefined}
+        >
+          {title}
+        </Text>
+      </Flex>
+      {actions && <ActionGroup>{actions}</ActionGroup>}
     </Flex>
   );
 };
@@ -48,8 +53,27 @@ const SettingsPageHeader = (props: SettingsPageHeaderProps) => {
 SettingsPageHeader.displayName = 'SettingsPageHeader';
 
 export default SettingsPageHeader;
+export type { SettingsBreadcrumb };
 
 const styles = defineStyles({
+  wrapper: {
+    width: '100%',
+  },
+  separator: {
+    width: 16,
+    height: 16,
+    flexShrink: 0,
+    color: theme.colors.text.subdued,
+  },
+  crumb: {
+    ...theme.typography.heading6('medium'),
+    color: theme.colors.text.secondary,
+    textDecoration: 'none',
+    '&:hover': {
+      color: theme.colors.text.primary,
+      textDecoration: 'underline',
+    },
+  },
   backButton: {
     height: '36px',
     width: '36px',

@@ -13,7 +13,8 @@ import {
   uiFocusRing,
 } from '@/theme/mixins';
 
-type ButtonVariant = 'primary' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+type ButtonVariant =
+  'primary' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'tertiary';
 
 type ButtonSize = 'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg';
 
@@ -100,7 +101,7 @@ const buttonSpin = keyframes({
 const styles = defineStyles({
   base: {
     ...flexCenter(),
-    ...theme.typography.small('medium'),
+    ...theme.typography.tiny('medium'),
     position: 'relative',
     width: 'max-content',
     cursor: 'pointer',
@@ -112,6 +113,7 @@ const styles = defineStyles({
     appearance: 'none',
     WebkitAppearance: 'none',
     transition: 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    borderRadius: theme.radius.lg,
     '& svg': {
       flexShrink: 0,
       pointerEvents: 'none',
@@ -139,10 +141,10 @@ const styles = defineStyles({
     },
     secondary: {
       backgroundColor: theme.colors.background.fillSecondary,
-      color: theme.colors.text.primary,
+      color: theme.colors.text.emphasis,
       '&:hover': {
         backgroundColor: theme.colors.background.fillSecondaryHover,
-        color: theme.colors.text.primary,
+        color: theme.colors.text.emphasis,
       },
     },
     destructive: {
@@ -154,25 +156,37 @@ const styles = defineStyles({
       },
     },
     outline: {
-      backgroundColor: theme.colors.background.fill,
-      border: `1px solid ${theme.colors.border.default}`,
+      backgroundColor: 'transparent',
+      border: `1px solid ${theme.colors.border.secondary}`,
       color: theme.colors.text.primary,
       '&:hover': {
-        backgroundColor: theme.colors.background.fillHover,
+        backgroundColor: theme.colors.background.surfaceAlt,
         color: theme.colors.text.primary,
       },
     },
     ghost: {
-      backgroundColor: theme.colors.background.fill,
+      backgroundColor: 'transparent',
       color: theme.colors.text.primary,
       '&:hover': {
-        backgroundColor: theme.colors.background.fillHover,
+        backgroundColor: theme.colors.background.surfaceAlt,
         color: theme.colors.text.primary,
       },
     },
     link: {
-      backgroundColor: theme.colors.background.fill,
+      backgroundColor: 'transparent',
       color: theme.colors.text.primary,
+      '&:hover': {
+        textDecoration: 'underline',
+        color: theme.colors.text.emphasis,
+      },
+    },
+    tertiary: {
+      backgroundColor: theme.colors.background.surfaceAlt,
+      color: theme.colors.text.primary,
+      '&:hover': {
+        backgroundColor: theme.colors.background.surfaceSecondary,
+        color: theme.colors.text.primary,
+      },
     },
   },
   sizes: {
@@ -190,7 +204,6 @@ const styles = defineStyles({
       ...theme.typography.tiny(),
       height: '28px',
       padding: '0 10px',
-      borderRadius: theme.radius.md,
       '& svg': {
         width: '14px',
         height: '14px',
@@ -199,16 +212,15 @@ const styles = defineStyles({
     default: {
       height: '32px',
       padding: `0 ${theme.spacing[3]}`,
-      borderRadius: theme.radius.md,
       '& svg': {
         width: '16px',
         height: '16px',
       },
     },
     lg: {
+      ...theme.typography.small(),
       height: '36px',
       padding: `0 ${theme.spacing[4]}`,
-      borderRadius: theme.radius.lg,
       '& svg': {
         width: '16px',
         height: '16px',
@@ -217,8 +229,8 @@ const styles = defineStyles({
     'icon-xs': {
       height: '24px',
       width: '24px',
-      padding: 0,
       borderRadius: theme.radius.md,
+      padding: 0,
       '& svg': {
         width: '12px',
         height: '12px',
@@ -228,7 +240,6 @@ const styles = defineStyles({
       height: '28px',
       width: '28px',
       padding: 0,
-      borderRadius: theme.radius.md,
       '& svg': {
         width: '14px',
         height: '14px',
@@ -238,7 +249,6 @@ const styles = defineStyles({
       height: '32px',
       width: '32px',
       padding: 0,
-      borderRadius: theme.radius.md,
       '& svg': {
         width: '16px',
         height: '16px',
@@ -248,7 +258,6 @@ const styles = defineStyles({
       height: '36px',
       width: '36px',
       padding: 0,
-      borderRadius: theme.radius.lg,
       '& svg': {
         width: '16px',
         height: '16px',

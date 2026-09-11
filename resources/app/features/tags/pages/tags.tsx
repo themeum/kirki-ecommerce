@@ -1,21 +1,19 @@
-import Container from '@/components/ui/container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import NewTag from '@/features/tags/components/new-tag';
 import TagTable from '@/features/tags/components/tag-table/tag-table';
 import { __ } from '@/wpi18n';
 
 const Tags = () => {
   return (
-    <>
+    <Page>
       <PageHeading text={__('Tags', 'kirki-ecommerce')} actions={<NewTag />} />
-      <Container>
+      <PageContent>
         <TagTable />
-      </Container>
-    </>
+      </PageContent>
+    </Page>
   );
 };
 
 Tags.displayName = 'Tags';
 
 export default Tags;
-
