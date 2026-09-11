@@ -47,7 +47,10 @@ const InvoiceId = () => {
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Invoice ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
-            {__('Customize your invoice ID structure and auto-numbering', 'kirki-ecommerce')}
+            {__(
+              'Prefix, suffix, sequence and yearly reset for invoice numbering.',
+              'kirki-ecommerce',
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent cssOverride={cardStyles.largeContent}>

@@ -14,7 +14,7 @@ export const Review = () => {
       <CardHeader cssOverride={cardStyles.sectionHeader}>
         <CardTitle>{__('Reviews', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
-          {__('Configure how customers can submit reviews for your products', 'kirki-ecommerce')}
+          {__('Let shoppers post product reviews and star ratings.', 'kirki-ecommerce')}
         </CardDescription>
       </CardHeader>
       <CardContent cssOverride={cardStyles.largeContent}>

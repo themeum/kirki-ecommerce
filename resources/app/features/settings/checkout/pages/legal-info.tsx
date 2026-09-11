@@ -17,7 +17,7 @@ const LegalInfo = () => {
           <CardTitle>{__('Legal Information', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'show or hide your terms & conditions and privacy policy on the checkout page',
+              'Terms, conditions and privacy policy links shown on the checkout page.',
               'kirki-ecommerce',
             )}
           </CardDescription>

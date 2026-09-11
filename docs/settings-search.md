@@ -33,7 +33,7 @@ cd resources/app && npm run search:index
 The command reports what it built and what it could not reach:
 
 ```
-settings search index: 42 documents, 374 terms, 0 warnings
+settings search index: 42 documents, 391 terms, 0 warnings
 written to features/settings/search/settings-search-index.json
 ```
 
@@ -56,7 +56,7 @@ document and a query are always vectorised by identical code.
    `variation`, and `shipp` reaches the stem `ship` — because the merchant is
    usually still typing it. Any word, last or not, that still matches nothing
    falls back to an edit-distance search over the vocabulary, so `curency` finds
-   `currency`. The vocabulary is 374 terms, so scanning all of it per keystroke
+   `currency`. The vocabulary is 391 terms, so scanning all of it per keystroke
    costs nothing. A word shorter than five letters is never retried by edit
    distance — one edit rewrites a quarter of a four-letter word, which is how
    "back" used to reach "bank".
@@ -215,7 +215,7 @@ section 9 when you do.
 it is gitignored, and `npm run dev` and `npm run build` regenerate it first, so a
 fresh clone builds one before Vite ever reads it. Vite code-splits it, so it is
 fetched when a merchant first types in the search box rather than at admin boot —
-about 25 kB, 7.6 kB gzipped.
+about 53 kB, 10.3 kB gzipped.
 
 ```jsonc
 {
@@ -240,7 +240,7 @@ Terms prefixed with `~` are concept ids, not words. Vector keys are indexes into
 `words` maps each *surface* word — unstemmed, lowercased, stopwords dropped — to
 the highest field boost it appeared under in that card. Only the literal fallback
 in section 10 reads it; the vector carries everything the meaning-based search
-needs. About 25 kB, 7.6 kB gzipped before keywords; 53 kB and 10.2 kB after.
+needs. About 25 kB, 7.6 kB gzipped before keywords; 53 kB and 10.3 kB after.
 
 Do not hand-edit this file. The 11 sidebar navigation items are indexed as
 documents too, read straight from `features/settings/lib/utils.tsx`.
@@ -307,7 +307,7 @@ again. Say the word if that should persist too.
 
 Every knob in section 2 moves *all* scores. Retuning one by hand and eyeballing a
 couple of queries is how you fix one search and silently break four, so the
-tuning is pinned by a golden set: `search-relevance.test.ts` runs ~40 real
+tuning is pinned by a golden set: `search-relevance.test.ts` runs ~50 real
 merchant queries against the **generated index itself**, not a fixture, and
 asserts the right card is in the top 3.
 
@@ -402,25 +402,26 @@ literals, JSX text, and the recognised attributes are collected.
 "Set parcel dimensions and package weight used to rate shipments."
 ```
 
-The first contributes `configur` (idf 1.83), `box`, `cost`, `calculat`. That word
+The first contributes `configur` (idf 2.71), `box`, `cost`, `calculat`. That word
 `cost` was the corpus's only occurrence, so it carried idf 3.76 — and in a
 13-word card it dominated the vector badly enough that "money back" returned
-Shipping Box. The second spends the same sentence on words a merchant types.
+Shipping Box. The second spends the same sentence on words a merchant types, and
+is the copy that card carries today.
 
 **Distinctive beats generic.** Measured across the 42 documents:
 
 ```
-product 1.57   set 1.65   store 1.65   add 1.83   configure 1.83   edit 1.83
-appear 1.95    customer 1.95   create 2.08   currency 2.24   enter 2.24
+product 1.50   add 1.73   store 1.83   edit 1.83   customer 1.83   create 1.95
+appear 2.08    price 2.08   set 2.24   enter 2.24   currency 2.24   configure 2.71
 ```
 
-against 140 words that appear in exactly one document, at 3.76. "Configure your
+against 237 words that appear in exactly one document, at 3.76. "Configure your
 store settings" is very nearly free of information.
 
-**Aim for roughly 15–40 words per card.** The current spread runs from 3 words
-(`advanced.pages`) to 61 (`essentials.barcode-generation`), and both ends hurt: a
-five-dimension vector lets one accidental word own a third of it, while a 61-word
-document dilutes everything in it.
+**Aim for roughly 15–40 words per card.** The current spread runs from 13 words
+(`currency.preferences`) to 41 (`essentials.barcode-generation`), and both ends
+hurt: a five-dimension vector lets one accidental word own a third of it, while a
+60-word document dilutes everything in it.
 
 **Don't restate the page name in every card on that page.** Repeating "Shipping"
 across the shipping cards drives that word's idf down for all of them and helps

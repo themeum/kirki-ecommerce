@@ -112,7 +112,10 @@ const MultiCurrencySettings = () => {
               <Flex direction="column" gap={2}>
                 <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
                 <Text color="secondary">
-                  {__('Set your preferences for how currency is displayed.', 'kirki-ecommerce')}
+                  {__(
+                    'Symbol placement, decimals and separators used wherever prices are shown.',
+                    'kirki-ecommerce',
+                  )}
                 </Text>
               </Flex>
               <CurrencyFormatSettings />

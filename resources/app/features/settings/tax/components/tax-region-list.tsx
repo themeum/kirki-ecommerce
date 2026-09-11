@@ -166,7 +166,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
             subHeader={__(
-              'Define tax regions where you collect sales tax. Each shopper is matched to one region based on their address.',
+              'Places where you are registered to collect sales tax, matched by shopper address.',
               'kirki-ecommerce',
             )}
             buttonText={__('Add Region', 'kirki-ecommerce')}

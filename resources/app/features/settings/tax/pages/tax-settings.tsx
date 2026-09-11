@@ -118,16 +118,21 @@ const TaxSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
-          <Card data-search-id="tax.collection" data-search-keywords="inclusive, exclusive, vat, gst, price display" cssOverride={cardStyles.formCard}>
+          <Card
+            data-search-id="tax.collection"
+            data-search-keywords="inclusive, exclusive, vat, gst, price display"
+            data-search-title={__('Tax Collection', 'kirki-ecommerce')}
+            cssOverride={cardStyles.formCard}
+          >
             <CardContent>
               <Flex direction="column" gap={4}>
-                <Flex direction="column" gap={2}>
+                <Flex direction="column">
                   <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
                     {__('How would you like to collect tax?', 'kirki-ecommerce')}
                   </Text>
                   <Text color="secondary">
                     {__(
-                      'Configure how tax is displayed and how it appears on your product listings.',
+                      'Whether product prices are shown with tax included or added separately.',
                       'kirki-ecommerce',
                     )}
                   </Text>

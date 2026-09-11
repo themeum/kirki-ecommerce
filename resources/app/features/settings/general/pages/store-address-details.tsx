@@ -18,10 +18,10 @@ const StoreAddressDetails = () => {
     <div>
       <Card data-search-id="general.store-address" data-search-keywords="location, warehouse, origin address, headquarters" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
-          <CardTitle>{__('Store address', 'kirki-ecommerce')}</CardTitle>
+          <CardTitle>{__('Store Address', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              "Configure your store's physical address here.",
+              'Street, city, postcode, country and state where your store operates.',
               'kirki-ecommerce',
             )}
           </CardDescription>

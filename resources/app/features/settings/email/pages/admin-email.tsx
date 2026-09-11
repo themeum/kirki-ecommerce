@@ -120,7 +120,10 @@ const AdminEmail = (props: AdminEmailProps) => {
                 </Text>
               </Flex>
               <Text color="secondary">
-                {__('Manage admin emails here', 'kirki-ecommerce')}
+                {__(
+                  'Order and account alerts sent to store administrators.',
+                  'kirki-ecommerce',
+                )}
               </Text>
             </Flex>
 

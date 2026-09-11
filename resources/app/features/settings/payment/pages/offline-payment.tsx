@@ -87,9 +87,9 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
         <CardContent >
           <Flex direction="column" gap={4}>
             <HeaderActionsCard
-              header={__('Manual payment methods', 'kirki-ecommerce')}
+              header={__('Manual Payment Methods', 'kirki-ecommerce')}
               subHeader={__(
-                "For manual payments, you'll need to approve orders made outside your online store.",
+                'Methods you confirm by hand for orders paid outside your online store.',
                 'kirki-ecommerce',
               )}
               buttonText={__('Add Payment Methods', 'kirki-ecommerce')}

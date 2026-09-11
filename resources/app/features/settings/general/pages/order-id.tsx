@@ -32,7 +32,7 @@ const OrderId = () => {
           <CardTitle>{__('Order ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'Shown on the order page, customer pages, and customer order notifications to identify order',
+              'Prefix, suffix and numbering used for the order numbers customers see.',
               'kirki-ecommerce',
             )}
           </CardDescription>

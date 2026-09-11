@@ -12,7 +12,7 @@ const StoreContactDetails = () => {
         <CardTitle>{__('Store Contact Details', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
           {__(
-            "Set up your store's contact information",
+            'Store name, logo, email and phone number shown to your customers.',
             'kirki-ecommerce',
           )}
         </CardDescription>

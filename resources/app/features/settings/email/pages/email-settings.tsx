@@ -154,7 +154,7 @@ const EmailSettings = () => {
                   </Flex>
                   <Text color="secondary">
                     {__(
-                      'Configure logo, colors, sender email, and more for emails',
+                      'Logo, colors, sender name and footer shared by every outgoing email.',
                       'kirki-ecommerce',
                     )}
                   </Text>

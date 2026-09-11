@@ -49,10 +49,14 @@ const AdvancedSettings = () => {
     <Container size="sm">
       <Flex direction="column" gap={4}>
         <SettingsPageHeader
-          icon={<SlidersHorizontalIcon />}
+          icon={<SlidersHorizontalIcon size={16} />}
           title={__('Advanced', 'kirki-ecommerce')}
         />
-        <Card data-search-id="advanced.pages" data-search-keywords="cart page, my account page, thank you page, shop page, page assignment, permalink, endpoint" cssOverride={cardStyles.formCard}>
+        <Card
+          data-search-id="advanced.pages"
+          data-search-keywords="cart page, my account page, thank you page, shop page, page assignment, permalink, endpoint"
+          cssOverride={cardStyles.formCard}
+        >
           <CardContent>
             <Flex direction="column" gap={2}>
               <Flex justify="space-between" align="center">
@@ -66,6 +70,12 @@ const AdvancedSettings = () => {
                   {__('Run Fix', 'kirki-ecommerce')}
                 </Button>
               </Flex>
+              <Text variant="small" color="secondary">
+                {__(
+                  'Which WordPress pages your storefront uses, and repairing missing ones.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
               <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>
                 {hasPageError && <Alert type="warning" text={<AlertMessage />} hasHighlight />}
                 <PageTable pages={pages} />

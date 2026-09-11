@@ -31,7 +31,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
           <CardTitle>{__('Barcode Generation', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              "Select a unit for your store's product weight and dimensions.",
+              'Barcode format, size and label content generated from product SKUs.',
               'kirki-ecommerce',
             )}
           </CardDescription>
@@ -145,7 +145,7 @@ const BarcodeGeneration = (_props: BarcodeGenerationProps) => {
                     'kirki-ecommerce',
                   )}</Text>
                   <Text color="secondary">{__(
-                    'Enable this option to let customers submit product reviews',
+                    'Create barcodes for every product that does not have one yet.',
                     'kirki-ecommerce',
                   )}</Text>
                 </Flex>

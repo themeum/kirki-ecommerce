@@ -116,7 +116,12 @@ const CustomerEmail = (props: CustomerEmailProps) => {
                 <User2 size={16} />
                 <Text weight="semibold">{__('Customer Emails', 'kirki-ecommerce')}</Text>
               </Flex>
-              <Text color="secondary">{__('Manage customer emails here', 'kirki-ecommerce')}</Text>
+              <Text color="secondary">
+                {__(
+                  'Order confirmation and registration messages sent to your shoppers.',
+                  'kirki-ecommerce',
+                )}
+              </Text>
             </Flex>
 
             <OptionAccordion

@@ -28,6 +28,13 @@ const relevant: [query: string, expected: string[]][] = [
   ['structured data', ['essentials.schema-profile']],
   ['email template', ['email.default-template']],
   ['product weight unit', ['products.standards']],
+  ['star ratings', ['products.reviews']],
+  ['low stock threshold', ['products.standards']],
+  ['postcode', ['general.store-address']],
+  ['billing fields', ['checkout.configuration']],
+  ['decimal separator', ['currency.format', 'currency.preferences']],
+  ['sender name', ['email.default-template']],
+  ['wordpress pages', ['advanced.pages']],
 ];
 
 const related: [query: string, expected: string[]][] = [
@@ -40,6 +47,9 @@ const related: [query: string, expected: string[]][] = [
   ['exchange rate', ['currency.management']],
   ['countries i sell to', ['general.selling-locations']],
   ['box size', ['shipping.boxes']],
+  ['tax included in price', ['tax.collection']],
+  ['digital wallet', ['payments.online']],
+  ['bulky items', ['shipping.profiles']],
 ];
 
 const misspelled: [query: string, expected: string[]][] = [

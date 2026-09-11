@@ -73,9 +73,9 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
         <CardContent>
           <Flex direction="column" gap={4}>
             <HeaderActionsCard
-              header={__('Payment gateways', 'kirki-ecommerce')}
+              header={__('Payment Gateways', 'kirki-ecommerce')}
               subHeader={__(
-                "Set up and manage your online store's payment options.",
+                'Online providers that process card and digital wallet payments.',
                 'kirki-ecommerce',
               )}
               buttonText={__('Add Payment Methods', 'kirki-ecommerce')}

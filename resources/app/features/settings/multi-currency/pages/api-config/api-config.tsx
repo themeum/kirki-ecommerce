@@ -130,7 +130,7 @@ const ApiConfig = () => {
                     </Flex>
                   )}
                   <Text variant="small" color="secondary">{__(
-                    'Configure your API key and connection settings for ExchangeRate API',
+                    'API key and connection details used to fetch live conversion rates.',
                     'kirki-ecommerce',
                   )}</Text>
                 </Flex>

@@ -127,7 +127,7 @@ export const storeManagementSettings: SettingsNavItem[] = [
     link: RouteConfig.Settings.get('EssentialsSettings').buildLink(),
     icon: <Snowflake {...navIconProps} />,
     header: __('Essentials', 'kirki-ecommerce'),
-    subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
+    subHeader: __('Reusable product options and labels', 'kirki-ecommerce'),
   },
 ];
 
@@ -142,7 +142,7 @@ export const businessOperationSettings: SettingsNavItem[] = [
     link: RouteConfig.Settings.get('MultiCurrencySettings').buildLink(),
     icon: <CircleDollarSign {...navIconProps} />,
     header: __('Currency', 'kirki-ecommerce'),
-    subHeader: __('Tax zones and rules setup', 'kirki-ecommerce'),
+    subHeader: __('Multiple currencies and pricing', 'kirki-ecommerce'),
   },
   {
     link: RouteConfig.Settings.get('TaxSettings').buildLink(),
@@ -181,7 +181,7 @@ export const advancedSettings: SettingsNavItem[] = [
     link: RouteConfig.Settings.get('AdvancedSettings').buildLink(),
     icon: <Scale {...navIconProps} />,
     header: __('Legal', 'kirki-ecommerce'),
-    subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
+    subHeader: __('Store policies and compliance', 'kirki-ecommerce'),
   },
 ];
 

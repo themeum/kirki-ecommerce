@@ -22,7 +22,7 @@ const CheckoutConf = () => {
           <CardTitle>{__('Checkout Configuration', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'Customize your checkout process to suit your preferences.',
+              'Which billing fields shoppers fill in, and whether coupon codes are accepted.',
               'kirki-ecommerce',
             )}
           </CardDescription>

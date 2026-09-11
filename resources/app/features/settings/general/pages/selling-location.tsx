@@ -62,7 +62,7 @@ const SellingLocation = () => {
           <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'Select the countries where you want to sell your products.',
+              'Countries and territories your store sells to.',
               'kirki-ecommerce',
             )}
           </CardDescription>
