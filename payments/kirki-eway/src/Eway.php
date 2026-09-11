@@ -9,10 +9,15 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\RedirectResponse;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 use Kirki\Ecommerce\Framework\Validation\Validator;
+
+use function Kirki\Ecommerce\Framework\redirect;
 
 defined('ABSPATH') || exit;
 
@@ -22,6 +27,7 @@ defined('ABSPATH') || exit;
 class Eway extends PaymentProvider
 {
     protected ?EwayClient $client = null;
+    protected $reference_id;
 
     public function __construct()
     {
@@ -138,14 +144,25 @@ class Eway extends PaymentProvider
     {
         $payload = Request::capture();
 
-        if (!$this->verify_and_parse_notification($payload)) {
-            return false;
-        }
-
         http_response_code(200);
 
-
         try {
+            $access_code = $payload->get('AccessCode', null, 'string');
+            if (!$access_code) {
+                throw new Exception(__('Invalid Payload Access Code.', 'kirki-ecommerce-eway'));
+            }
+            $this->client = $this->get_client();
+            $transaction = $this->client->get_transaction($access_code);
+
+            if (array_key_exists('Errors', $transaction) && !empty($transaction['Errors'])) {
+                $error_message = EwayErrorCode::describe($transaction['Errors']);
+                Log::critical($error_message);
+                $this->reference_id = $transaction['Transactions'][0]['InvoiceReference'];
+                return false;
+            }
+
+            
+
             $order_uuid = $payload->variables->order_uuid ?? '';
             if (!$order_uuid) {
                 throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-eway'));
@@ -250,18 +267,17 @@ class Eway extends PaymentProvider
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 
-    protected function verify_and_parse_notification($payload)
+    public function handle_return(Request $request): ?RedirectResponse
     {
-        $access_code = $payload->get('AccessCode', null, 'string');
-        $this->client = $this->get_client();
+        $response = $this->webhook();
 
-        // Respond with a 200 status code to acknowledge the notification.
-        http_response_code(200);
-
-        if (empty($raw_payload) || ! $this->client->is_verified($raw_payload)) {
-            throw new Exception(__('Invalid Payload From QuickPay.', 'kirki-ecommerce-quickpay'));
+        try {
+            if ($response) {
+                return redirect(Url::get_checkout_success_url($this->reference_id));
+            }
+            return redirect(Url::get_checkout_failed_url($this->reference_id));
+        } catch (\Throwable $th) {
+            return redirect(Url::get_checkout_failed_url($this->reference_id));
         }
-
-        return json_decode($raw_payload);
     }
 }

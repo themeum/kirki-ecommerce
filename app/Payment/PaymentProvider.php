@@ -432,22 +432,6 @@ class PaymentProvider
     }
 
     /**
-     * Handle a GET request to the webhook URL.
-     *
-     * Gateways that send the customer back to the webhook URL after payment
-     * override this to confirm the payment and return where to send them. The
-     * default returns null, which the controller answers with a plain 200 —
-     * enough for gateways that only ping the URL to check it is reachable.
-     *
-     * @param Request $request
-     * @return RedirectResponse|null
-     */
-    public function handle_return(Request $request)
-    {
-        return null;
-    }
-
-    /**
      * Get the webhook URL.
      *
      * @return string
@@ -593,5 +577,21 @@ class PaymentProvider
     public static function format_amount($amount, $currency)
     {
         return number_format(Money::from_minor($amount, $currency)->getAmount()->toFloat(), 2, '.', '');
+    }
+
+    /**
+     * Handle a GET request to the webhook URL.
+     *
+     * Gateways that send the customer back to the webhook URL after payment
+     * override this to confirm the payment and return where to send them. The
+     * default returns null, which the controller answers with a plain 200 —
+     * enough for gateways that only ping the URL to check it is reachable.
+     *
+     * @param Request $request
+     * @return RedirectResponse|null
+     */
+    public function handle_return(Request $request)
+    {
+        return null;
     }
 }
