@@ -176,6 +176,10 @@
     text-decoration: none;
   }
 
+  .kecom-product-tax-info {
+    @include typography(base, regular, $text-subdued);
+  }
+
   .kecom-product-short-description {
     @include typography(base, normal, $text-secondary);
     margin: 0px;
