@@ -17,6 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { type CSSObject } from '@emotion/react';
+import { Trash2, Trash2Icon } from 'lucide-react';
 import { useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -31,7 +32,6 @@ import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
-import { Trash2, Trash2Icon } from 'lucide-react';
 
 type MediaItem = Omit<MediaRef, 'id'> & {
   id?: string | number;

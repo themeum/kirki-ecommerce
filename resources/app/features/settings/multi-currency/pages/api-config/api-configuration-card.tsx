@@ -1,4 +1,5 @@
 import { type Dispatch, type SetStateAction } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -6,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import ProgressBar from '@/components/ui/progressbar';
 import Text from '@/components/ui/text';
+import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { EditIcon, FlagIcon, RadioTickIcon } from '@/icons';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
@@ -14,61 +16,54 @@ import { dateFormatter } from '@/utils/common';
 import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
 
-type ApiConfigData = {
-  api_key?: string;
-  update_frequency?: string;
-  fallback_behaviour?: string;
-  is_cache_enabled?: boolean;
-  [key: string]: unknown;
-};
-
 type ApiConfigurationCardProps = {
-  selectedAPI: string;
-  apiConfigObj: ApiConfigData;
+  providerName: string;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
-  dataObj: CurrencySettings;
+  currencySettings?: CurrencySettings | null;
 };
 
 const ApiConfigurationCard = ({
-  selectedAPI,
-  apiConfigObj,
+  providerName,
   setOpenPopup,
-  dataObj,
+  currencySettings,
 }: ApiConfigurationCardProps) => {
+  const { control } = useFormContext<MultiCurrencySettingsFormInput>();
   const formatValue = (value: unknown) =>
     toDisplayString(value)
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const usage = dataObj?.usage;
+  const apiConfig = useWatch({
+    control,
+    name: 'api_config',
+  });
+
+  const usage = currencySettings?.usage;
 
   return (
     <Card>
       <CardContent>
         <Flex direction="column" gap={5}>
-          <Flex
-            justify="space-between" align="flex-start">
+          <Flex justify="space-between" align="flex-start">
             <Flex direction="column" gap={2}>
               <Flex gap={2} align="center">
                 <FlagIcon />
-                <Text weight="semibold">{selectedAPI}</Text>
+                <Text weight="semibold">{providerName}</Text>
                 <Badge variant="success">
                   <span data-icon="inline-start" aria-hidden="true">
                     <RadioTickIcon />
                   </span>
-                  Configured
+                  {__('Configured', 'kirki-ecommerce')}
                 </Badge>
               </Flex>
-              <Text color="secondary">{sprintf(
+              <Text color="secondary" variant="small">
+                {sprintf(
                   __(`Last tested: %s`, 'kirki-ecommerce'),
-                  dateFormatter(dataObj?.last_sync_at, 'datetime'),
-                )}</Text>
+                  dateFormatter(currencySettings?.last_sync_at, 'datetime'),
+                )}
+              </Text>
             </Flex>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setOpenPopup(true)}
-            >
+            <Button variant="outline" size="icon" onClick={() => setOpenPopup(true)}>
               <EditIcon />
             </Button>
           </Flex>
@@ -78,7 +73,7 @@ const ApiConfigurationCard = ({
                 value={Number(usage?.used)}
                 showProgressIndicator={false}
                 style={{ gap: '10px' }}
-                progressBarColor={theme.primitives.colors.gray16}
+                progressBarColor={theme.colors.background.fillBrand}
                 label={__('API Usage', 'kirki-ecommerce')}
                 rightText={sprintf(
                   __('%d/%d', 'kirki-ecommerce'),
@@ -86,21 +81,27 @@ const ApiConfigurationCard = ({
                   usage?.total ?? 0,
                 )}
               />
-              <Text style={{ color: theme.primitives.colors.gray12 }}>{sprintf(
+              <Text variant="small" color="subdued">
+                {sprintf(
                   __('Resets on %s', 'kirki-ecommerce'),
-                  dateFormatter(dataObj?.next_sync_at),
-                )}</Text>
+                  dateFormatter(currencySettings?.next_sync_at),
+                )}
+              </Text>
             </Flex>
           )}
           <Card cssOverride={styles.innerDarkCard}>
             <CardContent cssOverride={styles.innerDarkContent}>
               <Flex gap={1}>
-                <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Fallback Behavior: ', 'kirki-ecommerce')}</Text>
-                <Text>{formatValue(apiConfigObj?.fallback_behaviour)}</Text>
+                <Text color="subdued" variant="small">
+                  {__('Fallback Behavior: ', 'kirki-ecommerce')}
+                </Text>
+                <Text variant="small">{formatValue(apiConfig?.fallback_behaviour)}</Text>
               </Flex>
               <Flex gap={1}>
-                <Text style={{ color: theme.primitives.colors.gray12 }}>{__('Update Frequency: ', 'kirki-ecommerce')}</Text>
-                <Text>{formatValue(apiConfigObj?.update_frequency)}</Text>
+                <Text color="subdued" variant="small">
+                  {__('Update Frequency: ', 'kirki-ecommerce')}
+                </Text>
+                <Text variant="small">{formatValue(apiConfig?.update_frequency)}</Text>
               </Flex>
             </CardContent>
           </Card>

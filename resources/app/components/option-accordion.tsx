@@ -1,6 +1,11 @@
 import { type ReactNode } from 'react';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import Badge from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -19,6 +24,7 @@ type OptionAccordionProps = {
   variant?: 'shipping' | 'inactive';
   enabled?: boolean;
   disabled?: boolean;
+  open?: boolean;
 };
 
 const OptionAccordion = (props: OptionAccordionProps) => {
@@ -31,6 +37,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     variant,
     enabled = true,
     disabled = false,
+    open = false,
   } = props;
 
   return (
@@ -40,25 +47,26 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
+        defaultValue={open ? 'option-item' : undefined}
       >
-        <AccordionItem>
+        <AccordionItem value={open ? 'option-item' : undefined}>
           <AccordionTrigger cssOverride={styles.trigger} gap={4} disabled={disabled}>
-            <Flex gap={3} align="center">
+            <Flex gap={4} align="center">
               {leftIcon}
-              <Flex direction="column" gap={1}>
+              <Flex direction="column" gap={2}>
                 <Flex gap={1} align="center" cssOverride={{ height: 24 }}>
                   <Text weight="semibold" variant="heading6" color="primary">
                     {header}
                   </Text>
                   {!enabled && (
-                    <Badge variant="destructive">
-                      {__('Inactive', 'kirki-ecommerce')}
-                    </Badge>
+                    <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                   )}
                 </Flex>
-                <Text variant="small" color="secondary">
-                  {subHeader}
-                </Text>
+                {subHeader && (
+                  <Text variant="small" color="secondary">
+                    {subHeader}
+                  </Text>
+                )}
               </Flex>
             </Flex>
           </AccordionTrigger>
@@ -91,7 +99,7 @@ const styles = defineStyles({
     width: '100%',
   },
   trigger: {
-    padding: `${theme.spacing[3]} ${theme.spacing[1]} ${theme.spacing[3]} ${theme.spacing[4]}`,
+    padding: `${theme.spacing[3]} ${theme.spacing[4]} ${theme.spacing[3]} ${theme.spacing[4]}`,
   },
   contentCard: {
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,

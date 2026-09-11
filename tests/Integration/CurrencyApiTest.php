@@ -95,6 +95,33 @@ class CurrencyApiTest extends RestTestCase
     }
 
     /**
+     * Update currencies returns 422 when every item fails.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_currencies_all_failing_returns_422(): void
+    {
+        $response = $this->request('PUT', 'currencies', [
+            'items' => [
+                [
+                    'id' => 999999,
+                    'code' => 'ZZZ',
+                    'name' => 'Missing Currency',
+                    'symbol' => '$',
+                    'exchange_rate' => 1.0,
+                    'is_active' => true,
+                    'is_base' => false,
+                ],
+            ],
+        ]);
+
+        $payload = $this->assert_api_error($response, 422);
+        $this->assertArrayHasKey('errors', $payload);
+        $this->assertNotEmpty($payload['errors']);
+    }
+
+    /**
      * Delete currency removes record.
      *
      * @return void

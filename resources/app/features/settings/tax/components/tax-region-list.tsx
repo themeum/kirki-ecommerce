@@ -15,6 +15,7 @@ import Text from '@/components/ui/text';
 import { resolveTaxRegionStrategy } from '@/features/settings/tax/registry';
 import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import type { Country } from '@/schemas/reference/country';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
@@ -23,10 +24,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
-};
 
 type TaxRegionsProps = {
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;

@@ -1,16 +1,20 @@
 import { Flag, RefreshCcw } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import SwitchField from '@/components/form/switch-field';
 import OptionAccordion from '@/components/option-accordion';
 import ActionGroup from '@/components/ui/action-group';
-import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Label from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import Text from '@/components/ui/text';
 import ApiConfigurationCard from '@/features/settings/multi-currency/pages/api-config/api-configuration-card';
 import ApiConfigurationPopup from '@/features/settings/multi-currency/pages/api-config/api-configuration-dialog';
@@ -22,139 +26,136 @@ import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-type ApiProvider = {
-  id: string | number;
-  name: string;
-};
-
-type ApiConfigData = {
-  api_key?: string;
-  update_frequency?: string;
-  fallback_behaviour?: string;
-  is_cache_enabled?: boolean;
-  [key: string]: unknown;
-};
-
-const ApiConfig = () => {
-  const { setValue } = useFormContext<MultiCurrencySettingsFormInput>();
-  const formValues = useWatch<MultiCurrencySettingsFormInput>();
-  const apiProvider = useWatch<MultiCurrencySettingsFormInput, 'api_provider'>({
+const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings | null }) => {
+  const { setValue, control } = useFormContext<MultiCurrencySettingsFormInput>();
+  const apiProvider = useWatch({
+    control,
     name: 'api_provider',
   });
-  const apiConfig = useWatch<MultiCurrencySettingsFormInput>({
+  const apiConfig = useWatch({
+    control,
     name: 'api_config',
   });
 
-  const [selectedAPI, setSelectedAPI] = useState('');
-  const [apiConfigObj, setApiConfigObj] = useState<ApiConfigData>({});
   const [openPopup, setOpenPopup] = useState(false);
 
   const { data: providersData } = useCurrencyExchangeProvidersQuery();
-  const apiProviderList = (providersData as ApiProvider[]) || [];
-
-  useEffect(() => {
-    setSelectedAPI(apiProvider != null ? String(apiProvider) : '');
-  }, [apiProvider]);
-
-  useEffect(() => {
-    if (selectedAPI === apiProvider) {
-      setApiConfigObj((apiConfig as ApiConfigData) || {});
-    } else {
-      setApiConfigObj({});
+  const apiProviderList = useMemo(() => {
+    if (!isDefined(providersData)) {
+      return [];
     }
-  }, [selectedAPI, apiProvider, apiConfig]);
 
-  const rightActions = () => (
-    <ActionGroup gap={2}>
-      <SwitchField name="is_automatic_update_enabled" disabled />
-    </ActionGroup>
-  );
+    return providersData;
+  }, [providersData]);
 
-  const hasAPIConfiguration = apiConfigObj?.api_key;
+  const providerName = useMemo(() => {
+    if (!isDefined(apiProvider)) {
+      return '';
+    }
+
+    return apiProviderList.find((item) => item.id === apiProvider)?.name || '';
+  }, [apiProvider, apiProviderList]);
+
+  // @todo: will be handled later
+  // const rightActions = () => (
+  //   <ActionGroup gap={2}>
+  //     <SwitchField name="is_automatic_update_enabled" disabled />
+  //   </ActionGroup>
+  // );
+
+  const isApiProviderSelected = isDefined(apiProvider) && apiProvider;
+  const hasAPIConfiguration = Boolean(apiConfig?.api_key);
 
   const handlePopupSave = (values: ApiConfigurationFormPayload) => {
-    setValue('api_provider', selectedAPI, { shouldDirty: true });
     setValue('api_config', values, { shouldDirty: true });
   };
 
   return (
     <div>
       <OptionAccordion
-        header={<Flex gap={2} align="center">
-          {__('Automatic Updates', 'kirki-ecommerce')}
-          <Badge>Work in progress</Badge>
-        </Flex>}
+        header={
+          <Flex gap={2} align="center">
+            {__('Automatic Updates', 'kirki-ecommerce')}
+          </Flex>
+        }
         subHeader={__(
           'Configure automatic exchange rate providers for real-time currency conversion',
           'kirki-ecommerce',
         )}
         leftIcon={<RefreshCcw size={16} />}
-        rightActions={rightActions()}
-        disabled
+        // rightActions={rightActions()}
+        open
       >
         <Flex direction="column" gap={2}>
-          <Label htmlFor="api-provider-select">
-            {__('Select API Provider', 'kirki-ecommerce')}
-          </Label>
-          <Select value={selectedAPI} onValueChange={setSelectedAPI}>
-            <SelectTrigger id="api-provider-select">
-              <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
-            </SelectTrigger>
-            <SelectContent>
-              {apiProviderList?.map((item) => (
-                <SelectItem key={item.id} value={String(item.id)}>
-                  {item.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Flex>
-        {selectedAPI && hasAPIConfiguration ? (
-          <ApiConfigurationCard
-            setOpenPopup={setOpenPopup}
-            selectedAPI={selectedAPI}
-            apiConfigObj={apiConfigObj}
-            dataObj={(formValues || {}) as CurrencySettings}
-          />
-        ) : (
-          <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })} >
-            <CardContent cssOverride={cardStyles.innerContent}>
-              <Flex justify="space-between" align="center">
-                <Flex direction="column" gap={2}>
-                  {selectedAPI && (
-                    <Flex gap={2} align="center">
-                      <Flag size={16} />
-                      <Text>{selectedAPI}</Text>
+          <Flex direction="column" gap={2}>
+            <Label htmlFor="api-provider-select">
+              {__('Select API Provider', 'kirki-ecommerce')}
+            </Label>
+            <Select
+              value={apiProvider ?? undefined}
+              onValueChange={(value) => setValue('api_provider', value, { shouldDirty: true })}
+            >
+              <SelectTrigger id="api-provider-select">
+                <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
+              </SelectTrigger>
+              <SelectContent>
+                {apiProviderList?.map((item) => (
+                  <SelectItem key={item.id} value={String(item.id)}>
+                    {item.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Flex>
+          {isApiProviderSelected && (
+            <Flex direction="column" gap="4">
+              {hasAPIConfiguration ? (
+                <ApiConfigurationCard
+                  setOpenPopup={setOpenPopup}
+                  providerName={providerName}
+                  currencySettings={currencySettings}
+                />
+              ) : (
+                <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}>
+                  <CardContent cssOverride={cardStyles.innerContent}>
+                    <Flex justify="space-between" align="center">
+                      <Flex direction="column" gap={2}>
+                        <Flex gap={2} align="center">
+                          <Flag size={16} />
+                          <Text>{providerName}</Text>
+                        </Flex>
+                        <Text variant="small" color="secondary">
+                          {__(
+                            'Configure your API key and connection settings for ExchangeRate API',
+                            'kirki-ecommerce',
+                          )}
+                        </Text>
+                      </Flex>
+                      <ActionGroup>
+                        <Button variant="outline" onClick={() => setOpenPopup(true)}>
+                          <WrenchIcon />
+                          {__('Configure', 'kirki-ecommerce')}
+                        </Button>
+                      </ActionGroup>
                     </Flex>
-                  )}
-                  <Text variant="small" color="secondary">{__(
-                    'Configure your API key and connection settings for ExchangeRate API',
-                    'kirki-ecommerce',
-                  )}</Text>
-                </Flex>
-                <ActionGroup>
-                  <Button
-                    variant="outline"
-                    onClick={() => setOpenPopup(true)}
-                  >
-                    <WrenchIcon />
-                    {__('Configure', 'kirki-ecommerce')}
-                  </Button>
-                </ActionGroup>
-              </Flex>
-            </CardContent>
-          </Card>
-        )}
+                  </CardContent>
+                </Card>
+              )}
+            </Flex>
+          )}
+        </Flex>
       </OptionAccordion>
-      <ApiConfigurationPopup
-        isOpen={openPopup}
-        onClose={() => setOpenPopup(false)}
-        dataObj={apiConfigObj}
-        onSave={handlePopupSave}
-        selectedAPI={selectedAPI}
-      />
+      {isApiProviderSelected && (
+        <ApiConfigurationPopup
+          isOpen={openPopup}
+          onClose={() => setOpenPopup(false)}
+          onSave={handlePopupSave}
+          providerName={providerName}
+        />
+      )}
     </div>
   );
 };

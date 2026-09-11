@@ -3,23 +3,22 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Switch from '@/components/ui/switch';
 import { RouteConfig } from '@/config/route-config';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type { ShippingZone } from '@/features/settings/shipping/types';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { EditIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
-
-type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
-};
 
 type ShippingZoneActionsProps = {
   item: ShippingZone;
@@ -27,11 +26,7 @@ type ShippingZoneActionsProps = {
   onDelete: (item: ShippingZone) => void;
 };
 
-const ShippingZoneActions = ({
-  item,
-  onToggle,
-  onDelete,
-}: ShippingZoneActionsProps) => {
+const ShippingZoneActions = ({ item, onToggle, onDelete }: ShippingZoneActionsProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const navigate = useNavigate();
 
@@ -87,4 +82,3 @@ const ShippingZoneActions = ({
 ShippingZoneActions.displayName = 'ShippingZoneActions';
 
 export default ShippingZoneActions;
-

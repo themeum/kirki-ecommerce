@@ -40,4 +40,39 @@ describe('MultiCurrencySettingsFormSchema', () => {
     const result = MultiCurrencySettingsFormSchema.parse({});
     expect(result.is_automatic_update_enabled).toBe(false);
   });
+
+  const currencyItem = {
+    id: 2,
+    name: 'Euro',
+    code: 'EUR',
+    symbol: '€',
+    exchange_rate: 0.92,
+    is_base: false,
+    is_active: true,
+  };
+
+  it('accepts a currencies array with positive exchange rates', () => {
+    expect(() =>
+      MultiCurrencySettingsFormSchema.parse({ ...base, currencies: [currencyItem] }),
+    ).not.toThrow();
+  });
+
+  it('rejects a zero, blank, or negative exchange rate', () => {
+    for (const exchange_rate of [0, '', -1]) {
+      expect(() =>
+        MultiCurrencySettingsFormSchema.parse({
+          ...base,
+          currencies: [{ ...currencyItem, exchange_rate }],
+        }),
+      ).toThrow();
+    }
+  });
+
+  it('does not forward currencies into the settings payload', () => {
+    const result = MultiCurrencySettingsFormSchema.parse({
+      ...base,
+      currencies: [currencyItem],
+    });
+    expect(result).not.toHaveProperty('currencies');
+  });
 });

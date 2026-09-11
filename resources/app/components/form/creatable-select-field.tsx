@@ -1,4 +1,5 @@
 import type { CSSObject } from '@emotion/react';
+import { PlusCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
@@ -14,7 +15,6 @@ import {
 } from '@/components/ui/select';
 import { theme } from '@/theme';
 import { isDefined } from '@/utils/object';
-import { PlusCircle } from 'lucide-react';
 
 const ADD_NEW_VALUE = '__add_new__';
 

@@ -1,8 +1,16 @@
-import { Info, Trash2 } from 'lucide-react';
+import { Check, Info, Trash2 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import Button from '@/components/ui/button';
-import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
 import type { ConfirmationVariant } from '@/types/components/common';
@@ -15,6 +23,9 @@ type ConfirmationDialogProps = {
   subtitle?: string;
   onConfirm?: () => void;
   onCancel?: () => void;
+  confirmText?: string;
+  cancelText?: string;
+  iconColor?: string;
 };
 
 type VariantUi = {
@@ -22,6 +33,7 @@ type VariantUi = {
   confirmVariant: 'primary' | 'secondary' | 'destructive';
   icon: ReactNode;
   iconBg: string;
+  iconColor?: string;
 };
 
 const ConfirmationDialog = (props: ConfirmationDialogProps) => {
@@ -32,6 +44,9 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
     subtitle,
     onConfirm,
     onCancel,
+    confirmText,
+    cancelText = __('Cancel', 'kirki-ecommerce'),
+    iconColor,
   } = props;
 
   const VARIANT_UI: Record<ConfirmationVariant, VariantUi> = {
@@ -52,15 +67,21 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
       confirmVariant: 'destructive',
       icon: <Trash2 size={20} aria-hidden="true" />,
       iconBg: theme.colors.background.fillCriticalSecondary,
+      iconColor: theme.colors.icon.critical,
+    },
+    success: {
+      confirmText: __('Confirm', 'kirki-ecommerce'),
+      confirmVariant: 'primary',
+      icon: <Check size={20} aria-hidden="true" />,
+      iconBg: theme.colors.background.fillSuccessSecondary,
+      iconColor: theme.colors.icon.success,
     },
   };
 
   const ui = VARIANT_UI[variant];
 
   const finalTitle =
-    variant === 'default'
-      ? __('Unsaved changes', 'kirki-ecommerce')
-      : (title ?? '');
+    variant === 'default' ? __('Unsaved changes', 'kirki-ecommerce') : (title ?? '');
 
   const finalSubtitle =
     variant === 'default'
@@ -81,7 +102,7 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
         <DialogHeader cssOverride={styles.header}>
           <span
             css={scoped(styles.icon)}
-            style={{ background: ui.iconBg }}
+            style={{ background: ui.iconBg, color: iconColor ?? ui.iconColor }}
             aria-hidden="true"
           >
             {ui.icon}
@@ -90,21 +111,15 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
             {finalTitle || __('Confirm', 'kirki-ecommerce')}
           </DialogTitle>
           {!!finalSubtitle && (
-            <DialogDescription cssOverride={styles.description}>
-              {finalSubtitle}
-            </DialogDescription>
+            <DialogDescription cssOverride={styles.description}>{finalSubtitle}</DialogDescription>
           )}
         </DialogHeader>
         <DialogFooter cssOverride={styles.footer}>
           <Button cssOverride={styles.action} variant="outline" onClick={onCancel}>
-            {__('Cancel', 'kirki-ecommerce')}
+            {cancelText}
           </Button>
-          <Button
-            cssOverride={styles.action}
-            variant={ui.confirmVariant}
-            onClick={onConfirm}
-          >
-            {ui.confirmText}
+          <Button cssOverride={styles.action} variant={ui.confirmVariant} onClick={onConfirm}>
+            {confirmText ?? ui.confirmText}
           </Button>
         </DialogFooter>
       </DialogContent>

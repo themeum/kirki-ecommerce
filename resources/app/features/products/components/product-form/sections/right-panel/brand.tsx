@@ -1,3 +1,4 @@
+import { Minus } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
@@ -17,7 +18,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
-import { Minus } from 'lucide-react';
 
 type BrandSuggestion = SelectOption & BrandEntity;
 

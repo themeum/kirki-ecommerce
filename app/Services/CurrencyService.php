@@ -247,7 +247,7 @@ class CurrencyService
     {
         $query = Currency::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(['name', 'code', 'symbol'], 'like', '%' . $search . '%');
-        });
+        })->order_by('is_base', 'desc');
 
         return $this->apply_sorting($query, $filters);
     }
