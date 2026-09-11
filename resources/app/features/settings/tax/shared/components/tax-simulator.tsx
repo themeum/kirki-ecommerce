@@ -10,7 +10,7 @@ import { __ } from '@/wpi18n';
 const TaxSimulator = () => {
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent >
           <Flex gap={2}>
             <Flex gap={3} direction="column" cssOverride={{ width: '55%' }}>

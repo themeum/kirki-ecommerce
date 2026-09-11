@@ -52,7 +52,7 @@ const AdvancedSettings = () => {
           icon={<SlidersHorizontalIcon />}
           title={__('Advanced', 'kirki-ecommerce')}
         />
-        <Card cssOverride={cardStyles.formCard}>
+        <Card data-search-id="advanced.pages" cssOverride={cardStyles.formCard}>
           <CardContent>
             <Flex direction="column" gap={2}>
               <Flex justify="space-between" align="center">

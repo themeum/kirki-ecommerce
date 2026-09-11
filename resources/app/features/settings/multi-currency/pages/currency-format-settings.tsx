@@ -14,7 +14,7 @@ const CurrencyFormatSettings = () => {
   ];
 
   return (
-    <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[5] })}>
+    <Card data-search-id="currency.format" cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[5] })}>
       <CardContent cssOverride={cardStyles.innerContent}>
         <Flex direction="column" gap={4}>
           <SelectField

@@ -12,7 +12,7 @@ import { __ } from '@/wpi18n';
 const ShippingSolution = () => {
   return (
     <>
-      <Card cssOverride={cardStyles.formCard} >
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard} >
         <CardContent >
 
           <Flex direction="column" gap={2}>

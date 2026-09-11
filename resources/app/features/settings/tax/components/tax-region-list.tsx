@@ -161,7 +161,7 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="tax.regions" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}

@@ -16,7 +16,7 @@ const StoreAddressDetails = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="general.store-address" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Store address', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

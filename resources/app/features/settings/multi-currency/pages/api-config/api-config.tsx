@@ -119,7 +119,7 @@ const ApiConfig = () => {
             dataObj={(formValues || {}) as CurrencySettings}
           />
         ) : (
-          <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })} >
+          <Card data-search-id="currency.api-configuration" cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })} >
             <CardContent cssOverride={cardStyles.innerContent}>
               <Flex justify="space-between" align="center">
                 <Flex direction="column" gap={2}>

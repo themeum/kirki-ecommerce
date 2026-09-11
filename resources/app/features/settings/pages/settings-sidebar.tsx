@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router';
 
 import Flex from '@/components/ui/flex';
@@ -11,6 +11,12 @@ import {
   storeManagementSettings,
 } from '@/features/settings/lib/utils';
 import { SettingsNavItemRow } from '@/features/settings/pages/settings-nav-item';
+import SearchResultRow from '@/features/settings/search/search-result-row';
+import { useSettingsSearchTarget } from '@/features/settings/search/settings-search-context';
+import {
+  type SettingsSearchResult,
+  useSettingsSearch,
+} from '@/features/settings/search/use-settings-search';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -35,20 +41,6 @@ const settingsSections: SettingsSection[] = [
   },
 ];
 
-const filterSettingsItems = (items: SettingsNavItem[], query: string): SettingsNavItem[] => {
-  if (!query) {
-    return items;
-  }
-
-  const search = query.toLowerCase().trim();
-
-  return items.filter((item) => {
-    const header = item.header.toLowerCase();
-    const subHeader = item.subHeader.toLowerCase();
-    return header.includes(search) || subHeader.includes(search);
-  });
-};
-
 const isSettingsRouteActive = (pathname: string, link: string) => {
   if (!link) {
     return false;
@@ -56,21 +48,47 @@ const isSettingsRouteActive = (pathname: string, link: string) => {
   return pathname === link || pathname.startsWith(`${link}/`);
 };
 
+type SearchResultsProps = {
+  results: SettingsSearchResult[];
+  isLoading: boolean;
+};
+
+const SearchResults = (props: SearchResultsProps) => {
+  const { results, isLoading } = props;
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (results.length === 0) {
+    return <Text color="subdued">{__('No results found', 'kirki-ecommerce')}</Text>;
+  }
+
+  return (
+    <Flex direction="column" gap={1}>
+      {results.map((result) => (
+        <SearchResultRow key={result.id} result={result} />
+      ))}
+    </Flex>
+  );
+};
+
+SearchResults.displayName = 'SearchResults';
+
 const SettingsSidebar = () => {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredSections = useMemo(() => {
-    return settingsSections
-      .map((section) => ({
-        ...section,
-        items: filterSettingsItems(section.items, searchQuery),
-      }))
-      .filter((section) => section.items.length > 0);
-  }, [searchQuery]);
+  const { results, isSearching, isLoading } = useSettingsSearch(searchQuery);
+  const { clearTarget } = useSettingsSearchTarget();
 
   const handleSearchChange = (value: string | number) => {
-    setSearchQuery(String(value));
+    const next = String(value);
+
+    setSearchQuery(next);
+
+    if (!next.trim()) {
+      clearTarget();
+    }
   };
 
   return (
@@ -81,10 +99,10 @@ const SettingsSidebar = () => {
           onChange={handleSearchChange}
           cssOverride={styles.searchbox}
         />
-        {filteredSections.length === 0 ? (
-          <Text color="subdued">{__('No settings found', 'kirki-ecommerce')}</Text>
+        {isSearching ? (
+          <SearchResults results={results} isLoading={isLoading} />
         ) : (
-          filteredSections.map((section) => (
+          settingsSections.map((section) => (
             <Flex key={section.title} direction="column" gap={2}>
               <Text
                 variant="tiny"

@@ -175,7 +175,7 @@ const ShippingDeliveryMethod = () => {
             title={methodTypeTitles[methodType] ?? ''}
             breadcrumbs={breadcrumbs}
           />
-          <Card cssOverride={cardStyles.formCard}>
+          <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={4}>
                 <TextField

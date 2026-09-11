@@ -17,7 +17,7 @@ const CheckoutConf = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="checkout.configuration" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Checkout Configuration', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>

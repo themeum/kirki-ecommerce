@@ -144,7 +144,7 @@ const EmailSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
-          <Card cssOverride={styles.roundedCard}>
+          <Card data-search-id="email.default-template" cssOverride={styles.roundedCard}>
             <CardContent>
               <Flex justify="space-between" align="center">
                 <Flex direction="column" gap={2} align="flex-start">

@@ -10,7 +10,7 @@ import { __ } from '@/wpi18n';
 
 export const Review = () => {
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card data-search-id="products.reviews" cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={cardStyles.sectionHeader}>
         <CardTitle>{__('Reviews', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>

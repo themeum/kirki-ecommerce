@@ -3,6 +3,7 @@
     "dev:app": "npm run dev --prefix resources/app",
     "dev:site": "npm run dev --prefix resources/site",
     "dev": "npm run dev:app & npm run dev:site",
-    "make:package": "bash bin/make-package.sh"
+    "make:package": "bash bin/make-package.sh",
+    "search:index": "npm run search:index --prefix resources/app"
   }
 }

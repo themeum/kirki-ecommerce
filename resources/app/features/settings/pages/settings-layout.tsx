@@ -6,6 +6,8 @@ import Button from '@/components/ui/button';
 import { Page, PAGE_HEADING_STICKY_TOP, PageContent } from '@/components/ui/page';
 import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
+import { SettingsSearchProvider } from '@/features/settings/search/settings-search-context';
+import SettingsSearchHighlighter from '@/features/settings/search/settings-search-highlighter';
 import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -27,7 +29,7 @@ type SettingsLayoutOutletContext = RootOutletContext & {
   registerActions: (actions: RegisteredSettingsPageActions | null) => void;
 };
 
-const SettingsLayout = () => {
+const SettingsLayoutShell = () => {
   const { pathname } = useLocation();
   const { confirmAction } = useOutletContext<RootOutletContext>();
   const [actions, setActions] = useState<RegisteredSettingsPageActions | null>(null);
@@ -86,6 +88,17 @@ const SettingsLayout = () => {
         </Button>
       </FloatingBar>
     </Page>
+  );
+};
+
+SettingsLayoutShell.displayName = 'SettingsLayoutShell';
+
+const SettingsLayout = () => {
+  return (
+    <SettingsSearchProvider>
+      <SettingsSearchHighlighter />
+      <SettingsLayoutShell />
+    </SettingsSearchProvider>
   );
 };
 

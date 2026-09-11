@@ -43,7 +43,7 @@ const ApiConfigurationCard = ({
   const usage = dataObj?.usage;
 
   return (
-    <Card>
+    <Card data-search-id="currency.api-status">
       <CardContent>
         <Flex direction="column" gap={5}>
           <Flex

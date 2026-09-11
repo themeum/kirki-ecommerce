@@ -52,7 +52,7 @@ const ShippingSettings = () => {
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader icon={<TruckIcon />} title={__('Shipping', 'kirki-ecommerce')} />
-              <Card cssOverride={cardStyles.formCard}>
+              <Card data-search-id="shipping.zones" cssOverride={cardStyles.formCard}>
                 <CardContent
                   cssOverride={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[5] }}
                 >
