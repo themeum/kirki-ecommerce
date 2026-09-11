@@ -72,6 +72,16 @@ class TaxProfileService
     }
 
     /**
+     * Find the default tax profile.
+     *
+     * @return TaxProfile|null
+     */
+    public function find_default()
+    {
+        return TaxProfile::where('is_default', true)->first() ?? null;
+    }
+
+    /**
      * Create a new tax profile.
      *
      * @param CreateTaxProfileDTO $data
@@ -80,6 +90,10 @@ class TaxProfileService
     public function create(CreateTaxProfileDTO $data)
     {
         $tax_profile = TaxProfile::create($data->to_array());
+
+        if ($tax_profile->is_default) {
+            TaxProfile::where('id', '!=', $tax_profile->id)->update(['is_default' => false]);
+        }
 
         return $tax_profile;
     }
@@ -96,6 +110,10 @@ class TaxProfileService
         $tax_profile = TaxProfile::find($data->id);
 
         throw_if(empty($tax_profile), __('Tax profile could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if ($data->is_default) {
+            TaxProfile::where('id', '!=', $data->id)->update(['is_default' => false]);
+        }
 
         $is_updated = (bool) $tax_profile->update($data->to_array());
 

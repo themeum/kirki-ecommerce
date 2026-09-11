@@ -10,8 +10,8 @@ use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
+use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Supports\Tax;
-use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -57,6 +57,9 @@ class RecalculateCartAction
         $is_inclusive_tax = $tax_settings->get('is_tax_inclusive_price') ?? false;
         $tax_strategy = $context->should_calculate_tax ? Tax::get_tax_strategy($context->shipping_address) : null;
 
+        $default_tax_profile = TaxProfile::where('is_default', true)->first();
+        $default_tax_profile_id = $default_tax_profile ? $default_tax_profile->id : null;
+
         // Iterate Items and Calculate Item Totals
         foreach ($context->items as $item) {
             $item_result = clone $item;
@@ -86,7 +89,7 @@ class RecalculateCartAction
                     'shipping_address' => $context->shipping_address,
                     'base_product_price' => $item_total_money->getMinorAmount()->toInt(),
                     'product_categories' => $item->product_categories,
-                    'tax_profile' => $item->tax_profile_id
+                    'tax_profile' => $item->tax_profile_id ? $item->tax_profile_id : $default_tax_profile_id
                 ]);
 
                 $tax_result = $tax_strategy->calculate_product_tax($tax_context);
@@ -191,7 +194,7 @@ class RecalculateCartAction
 
         return $this->shipping_service->calculate($context);
     }
-    
+
     protected function is_shipping_method_taxable(CalculationContextDTO $context)
     {
         if (empty($context->shipping_address) || empty($context->shipping_method_id)) {
