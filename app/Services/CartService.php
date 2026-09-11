@@ -128,15 +128,16 @@ class CartService
     {
         $this->assert_single_owner_identity($data);
 
-        if(empty($data['user_id'])){
+        if (empty($data['user_id'])) {
             return CartModel::create($data);
         }
 
         $customer = customer($data['user_id']);
-        
-        if(!empty($customer)){
+
+        if (!empty($customer)) {
             $data['shipping_address'] = $customer->get_shipping_address();
             $data['billing_address'] = $customer->get_billing_address();
+            $data['is_billing_same_as_shipping'] = $data['shipping_address']['id'] === $data['billing_address']['id'];
         }
 
         return CartModel::create($data);
