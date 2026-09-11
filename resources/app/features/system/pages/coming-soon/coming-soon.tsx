@@ -1,8 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import Text from '@/components/ui/text';
 import { LockIcon, LoudHandMic } from '@/icons';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
@@ -21,7 +19,7 @@ const ComingSoon = (props: ComingSoonProps) => {
         text={text || __('Coming Soon', 'kirki-ecommerce')}
         leftIcon={<LockIcon />}
       />
-      <Container>
+      <PageContent>
         <Card cssOverride={styles.card}>
           <CardContent>
             <Flex direction="column" align="center" gap={6}>
@@ -46,7 +44,7 @@ const ComingSoon = (props: ComingSoonProps) => {
             </Flex>
           </CardContent>
         </Card>
-      </Container>
+      </PageContent>
     </Page>
   );
 };

@@ -2,15 +2,18 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-import type { DataTableBulkAction } from '@/components/data-table';
-import type { DataTableSelectionState } from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import CategoryAddEditPopover from '@/features/categories/components/category-add-edit-dialog';
 import CategoryTableFilters from '@/features/categories/components/category-table/category-table-filters';
 import { categoryColumns } from '@/features/categories/components/category-table/columns';
 import type { Category } from '@/features/categories/schemas/catalog/category';
-import { useBulkDeleteCategoriesMutation, useCategoriesQuery, useDeleteCategoryMutation } from '@/features/categories/services/category';
+import {
+  useBulkDeleteCategoriesMutation,
+  useCategoriesQuery,
+  useDeleteCategoryMutation,
+} from '@/features/categories/services/category';
 import { categoryListOptions } from '@/features/categories/types';
 import { useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
@@ -35,7 +38,9 @@ const CategoryTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
     [bulkDeleteMutation],
   );
@@ -87,7 +92,11 @@ const CategoryTable = () => {
         toolbar={<CategoryTableFilters />}
       />
       {editingItem && (
-        <CategoryAddEditPopover key={editingItem.id} category={editingItem} onClose={() => setEditingItem(null)} />
+        <CategoryAddEditPopover
+          key={editingItem.id}
+          category={editingItem}
+          onClose={() => setEditingItem(null)}
+        />
       )}
     </>
   );

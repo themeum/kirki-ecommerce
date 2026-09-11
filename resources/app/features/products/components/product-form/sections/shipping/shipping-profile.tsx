@@ -32,9 +32,7 @@ const ShippingProfile = () => {
     name: 'variants.0.shipping_profile_id',
   });
   const { data: shippingProfiles } = useShippingProfilesQuery({ limit: -1 });
-  const [shippingProfileList, setShippingProfileList] = useState<
-    SelectOption[]
-  >([]);
+  const [shippingProfileList, setShippingProfileList] = useState<SelectOption[]>([]);
   const [openAddProfilePopup, setOpenAddProfilePopup] = useState(false);
   const [show, setShow] = useState(Boolean(shippingProfileId));
 
@@ -90,9 +88,7 @@ const ShippingProfile = () => {
             }}
           >
             <SelectTrigger style={{ visibility: show ? 'visible' : 'hidden' }}>
-              <SelectValue
-                placeholder={__('Add Shipping Profile', 'kirki-ecommerce')}
-              />
+              <SelectValue placeholder={__('Add Shipping Profile', 'kirki-ecommerce')} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ADD_SHIPPING_PROFILE_VALUE}>
@@ -130,7 +126,6 @@ export default ShippingProfile;
 
 const styles = defineStyles({
   innerDarkRowContent: {
-    padding: `${theme.spacing[1]} ${theme.spacing[2]} ${theme.spacing[1]} ${theme.spacing[3]}`,
-    height: '44px',
+    padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
   },
 });

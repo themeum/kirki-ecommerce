@@ -53,11 +53,12 @@ const styles = defineStyles({
     xl: {
       maxWidth: '1024px',
     },
-    xxl: {
-      maxWidth: '1280px',
-    },
     fullWidth: {
       maxWidth: '100%',
+    },
+    fluid: {
+      maxWidth: '100%',
+      padding: `${theme.spacing[0]} ${theme.spacing[6]}`,
     },
   },
   scrollable: {

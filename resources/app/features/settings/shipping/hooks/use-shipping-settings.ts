@@ -6,7 +6,6 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import {
   getShippingMethodData as getZoneShippingMethods,
   removeZone,
@@ -94,10 +93,6 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
 
     form.reset(pickFormValues(ShippingSettingsFormSchema, shippingSettingsData));
   }, [shippingSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const setShippingZonesObj = (
     updater: ShippingZone[] | ((prev: ShippingZone[]) => ShippingZone[]),

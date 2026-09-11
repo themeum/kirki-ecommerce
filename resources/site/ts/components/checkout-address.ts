@@ -68,6 +68,7 @@ import type { CheckoutRequest } from '../types';
 
 export type ShippingOrderFields = Pick<
   CheckoutRequest,
+  | 'shipping_id'
   | 'shipping_first_name'
   | 'shipping_last_name'
   | 'shipping_address_line1'
@@ -82,6 +83,7 @@ export type ShippingOrderFields = Pick<
 
 export type BillingOrderFields = Pick<
   CheckoutRequest,
+  | 'billing_id'
   | 'billing_first_name'
   | 'billing_last_name'
   | 'billing_address_line1'
@@ -96,6 +98,7 @@ export type BillingOrderFields = Pick<
 
 export function toShippingOrderFields(address: CheckoutAddress): ShippingOrderFields {
   return {
+    shipping_id: address.id || '',
     shipping_first_name: address.first_name || '',
     shipping_last_name: address.last_name || '',
     shipping_address_line1: address.address_line1 || '',
@@ -111,6 +114,7 @@ export function toShippingOrderFields(address: CheckoutAddress): ShippingOrderFi
 
 export function toBillingOrderFields(address: CheckoutAddress): BillingOrderFields {
   return {
+    billing_id: address.id || '',
     billing_first_name: address.first_name || '',
     billing_last_name: address.last_name || '',
     billing_address_line1: address.address_line1 || '',

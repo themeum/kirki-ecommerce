@@ -10,6 +10,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
+use Kirki\Ecommerce\App\Events\AddressUpdated;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -136,7 +137,7 @@ class AddressService
         try {
             $address = Address::create($data->to_array());
 
-            $this->enforce_single_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
+            $this->unset_current_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
 
             DB::commit();
 
@@ -165,7 +166,13 @@ class AddressService
 
         $is_updated = $address->update($data->to_array());
 
+        if ($is_updated && (!empty($data->is_default_shipping) || !empty($data->is_default_billing))) {
+            $this->unset_current_default($address->customer_id, $address->id, !empty($data->is_default_shipping), !empty($data->is_default_billing));
+        }
+
         throw_if(!$is_updated, __('Address could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        AddressUpdated::dispatch($address);
 
         return Address::find($data->id);
     }
@@ -196,7 +203,7 @@ class AddressService
         try {
             $address->update(['is_default_' . $purpose => true]);
 
-            $this->enforce_single_default(
+            $this->unset_current_default(
                 $address->customer_id,
                 $address->id,
                 $purpose === AddressPurpose::SHIPPING,
@@ -223,7 +230,7 @@ class AddressService
      * @param bool $unset_billing
      * @return void
      */
-    protected function enforce_single_default(int $customer_id, int $except_id, bool $unset_shipping, bool $unset_billing)
+    protected function unset_current_default(int $customer_id, int $except_id, bool $unset_shipping, bool $unset_billing)
     {
         if ($unset_shipping) {
             Address::where('customer_id', $customer_id)
@@ -247,7 +254,21 @@ class AddressService
      */
     public function delete(int $id)
     {
-        $is_deleted = Address::where('id', $id)->delete();
+        $address = Address::find($id);
+
+        throw_if(!$address, __('Address not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        $is_deleted = $address->delete();
+
+        $first_address = Address::where('customer_id', $address->customer_id)->first();
+
+        if ($is_deleted && $address->is_default_billing && $first_address) {
+            $this->set_default($first_address->id, AddressPurpose::BILLING);
+        }
+
+        if ($is_deleted && $address->is_default_shipping && $first_address) {
+            $this->set_default($first_address->id, AddressPurpose::SHIPPING);
+        }
 
         throw_if(!$is_deleted, __('Address could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 

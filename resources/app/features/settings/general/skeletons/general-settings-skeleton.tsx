@@ -1,16 +1,16 @@
-import Container from '@/components/ui/container';
+import { Home } from 'lucide-react';
+
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SettingsPageSkeleton from '@/features/settings/skeletons/settings-page-skeleton';
-import { HomeIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
 const GeneralSettingsSkeleton = () => (
-  <Container size="sm">
-    <SettingsPageSkeleton
-      cards={[4, 4, 2, 2, 2]}
-      header={<SettingsPageHeader icon={<HomeIcon />} title={__('General', 'kirki-ecommerce')} />}
-    />
-  </Container>
+  <SettingsPageSkeleton
+    cards={[4, 4, 2, 2, 2]}
+    header={
+      <SettingsPageHeader icon={<Home size={16} />} title={__('General', 'kirki-ecommerce')} />
+    }
+  />
 );
 
 GeneralSettingsSkeleton.displayName = 'GeneralSettingsSkeleton';

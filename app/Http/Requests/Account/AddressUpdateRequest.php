@@ -24,6 +24,8 @@ class AddressUpdateRequest extends Request
             'postal_code' => 'required|string',
             'country' => 'required|string',
             'label' => 'nullable|string',
+            'is_default_shipping' => 'nullable|boolean',
+            'is_default_billing' => 'nullable|boolean',
         ];
     }
 
@@ -43,6 +45,8 @@ class AddressUpdateRequest extends Request
             'postal_code' => Sanitizer::TEXT,
             'country' => Sanitizer::TEXT,
             'label' => Sanitizer::TEXT,
+            'is_default_shipping' => Sanitizer::BOOL,
+            'is_default_billing' => Sanitizer::BOOL,
         ];
     }
 }

@@ -11,7 +11,6 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
@@ -23,19 +22,10 @@ use function Kirki\Ecommerce\Framework\view_data;
 
 $product = view_data();
 
-$media = $product['media'] ?? [];
-$product_image = array_shift($media) ?? [];
-$has_variants = $product['has_variants'] ?? false;
-$ribbon = $product['ribbon'] ?? '';
-
-$variants = $product['variants'] ?? [];
-$attributes = $product['attributes'] ?? [];
-$currency = $product['currency'] ?? [];
-$variant = $variants[0] ?? [];
-$price = Money::format_from_decimal($variant['base_price'], $currency['code']);
-$sale_price = isset($variant['base_sale_price']) ? Money::format_from_decimal($variant['base_sale_price'], $currency['code']) : null;
-$track_inventory = $variant['track_inventory'] ?? false;
-$quantity = (int) $variant['available_quantity'] ?? 0;
+$media           = $product['media'] ?? [];
+$product_image   = array_shift($media) ?? [];
+$ribbon          = $product['ribbon'] ?? '';
+$attributes      = $product['attributes'] ?? [];
 $additional_info = $product['additional_info'] ?? [];
 
 // Get variant ID from URL query param
@@ -102,9 +92,9 @@ foreach ($media as $media_item) {
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) :
-                ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php
-                                                                                                                      endif; ?> })">
+            <div 
+                class="kecom-product-info" 
+                x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -170,21 +160,12 @@ foreach ($media as $media_item) {
                 <?php endif; ?>
 
                 <!-- Quantity -->
-                 <div class="kecom-product-variant-group">
+                <div class="kecom-product-variant-group">
                     <span class="kecom-product-variant-label"><?php esc_html_e('Quantity', 'kirki-ecommerce'); ?></span>
                     <div
                         x-data="quantitySelector({
                             min: 1,
-                            max: () => {
-                                const variant = selectedVariant;
-                                if (!variant) return undefined;
-                                const limits = [];
-                                <?php if ($track_inventory) : ?>
-                                if (variant.stock !== undefined && !variant.allow_back_order) limits.push(variant.stock);
-                                <?php endif; ?>
-                                if (variant.has_limit_per_order && variant.max_per_order) limits.push(variant.max_per_order);
-                                return limits.length ? Math.min(...limits) : undefined;
-                            },
+                            max: () => maxQuantity,
                             initial: 1
                         })"
                         class="kecom-quantity"

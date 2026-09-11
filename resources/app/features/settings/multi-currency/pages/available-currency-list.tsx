@@ -223,16 +223,18 @@ export const AvailableCurrencyList = () => {
                   </StackedItemTitle>
                 </StackedItemContent>
                 <StackedItemActions>
-                  {item.is_action_disabled ? (
+                  {item.is_base ? (
                     <Text variant="small" color="subdued">
-                      {__('0.00', 'kirki-ecommerce')}
+                      {__('1.00', 'kirki-ecommerce')}
                     </Text>
                   ) : (
                     <>
                       <Text variant="small" color="subdued" data-right-text>
                         {item.exchange_rate || '--'}
                       </Text>
-                      <CurrencyRowActions item={item} index={index} onAction={handleAction} />
+                      {!item.is_action_disabled && (
+                        <CurrencyRowActions item={item} index={index} onAction={handleAction} />
+                      )}
                     </>
                   )}
                 </StackedItemActions>
@@ -264,6 +266,7 @@ const styles = defineStyles({
   },
   innerCardContent: {
     padding: theme.spacing[3],
+    backgroundColor: theme.colors.background.surfaceAlt,
   },
   rateInput: {
     width: '120px',

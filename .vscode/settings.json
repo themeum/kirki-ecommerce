@@ -25,15 +25,25 @@
     "source.fixAll": "always",
     "source.fixAll.eslint": "always"
   },
-  "eslint.workingDirectories": [
-    { "mode": "auto" }
-  ],
+  "eslint.workingDirectories": [{ "mode": "auto" }],
   "[php]": {
     "editor.tabSize": 4,
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
     "editor.formatOnPaste": false
   },
   "intelephense.environment.phpVersion": "7.4.33",
+  "intelephense.files.exclude": [
+    "**/.git/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/CVS/**",
+    "**/.DS_Store/**",
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**/{Tests,tests}/**",
+    "**/.history/**",
+    "**/build/**"
+  ],
   "intelephense.stubs": [
     "apache",
     "bcmath",
@@ -112,5 +122,8 @@
     "editor.defaultFormatter": "vscode.html-language-features"
   },
   "typescript.preferences.importModuleSpecifier": "non-relative",
-  "javascript.preferences.importModuleSpecifier": "non-relative"
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+
+  "phpSniffer.autoDetect": true,
+  "phpSniffer.standard": "./phpcs-wporg.xml.dist"
 }

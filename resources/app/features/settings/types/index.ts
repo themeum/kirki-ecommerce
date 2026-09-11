@@ -7,23 +7,12 @@ type SettingsPageActionsInput = {
   onDiscard: () => void;
 };
 
-type RegisteredSettingsPageActions = {
-  isDirty: boolean;
-  isSaving: boolean;
-  onSave: () => void;
-  onDiscard: () => void;
-};
 type SettingsOutletContext = {
   confirmAction: (params: ConfirmActionParams) => void;
 };
 
 type SettingsLayoutOutletContext = SettingsOutletContext & {
-  registerActions: (actions: RegisteredSettingsPageActions | null) => void;
+  registerActions: (actions: SettingsPageActionsInput | null) => void;
 };
 
-export type {
-  RegisteredSettingsPageActions,
-  SettingsLayoutOutletContext,
-  SettingsOutletContext,
-  SettingsPageActionsInput,
-};
+export type { SettingsLayoutOutletContext, SettingsOutletContext, SettingsPageActionsInput };

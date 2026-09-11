@@ -178,6 +178,7 @@ const useCreateAttributeValueMutation = () => {
         __('Attribute value created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.details() });
       void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
@@ -196,6 +197,7 @@ const useUpdateAttributeValueMutation = () => {
         __('Attribute value updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.details() });
       void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
@@ -214,6 +216,7 @@ const useDeleteAttributeValueMutation = () => {
         __('Attribute value deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.details() });
       void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {
@@ -232,6 +235,7 @@ const useBulkDeleteAttributeValuesMutation = () => {
         __('Attribute values deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: attributeKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: attributeKeys.details() });
       void queryClient.invalidateQueries({ queryKey: attributeKeys.valuesLists() });
     },
     onError(error) {

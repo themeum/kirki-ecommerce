@@ -1,5 +1,22 @@
 import path from 'path';
 
+const MIXINS_MODULE_SUFFIX = 'theme/mixins';
+const LABELED_HELPERS = new Set(['scoped', 'scopedMerge']);
+
+/**
+ * Convert a camelCase/snake_case name to kebab-case.
+ *
+ * @param {string} name Source name.
+ *
+ * @returns {string} Kebab-case name.
+ */
+const toKebabCase = (name) => {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/_/g, '-')
+    .toLowerCase();
+};
+
 /**
  * Derive a kebab-case basename from a source file path.
  *
@@ -8,18 +25,47 @@ import path from 'path';
  * @returns {string} Kebab-case file basename without extension.
  */
 const getFileLabel = (filename) => {
-  const basename = path.basename(filename).replace(/\.[^.]+$/, '');
-
-  return basename
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/_/g, '-')
-    .toLowerCase();
+  return toKebabCase(path.basename(filename).replace(/\.[^.]+$/, ''));
 };
 
 /**
- * Walk up from a CallExpression to collect object property key names.
+ * Check that an identifier callee is the scoped()/scopedMerge() helper imported
+ * from theme/mixins, and not an unrelated local binding with the same name.
  *
- * @param {import('@babel/core').NodePath} callPath Path to the scoped() call.
+ * Calls made *inside* theme/mixins.ts resolve to local bindings, so the
+ * scoped() call that scopedMerge() makes internally is never labeled — that is
+ * what kept every scopedMerge() call site collapsing onto one `mixins-L<line>`
+ * label.
+ *
+ * @param {import('@babel/core').NodePath} callPath Path to the helper call.
+ * @param {string} name Local callee name.
+ *
+ * @returns {string|null} The imported helper name, or null when not a helper.
+ */
+const getHelperName = (callPath, name) => {
+  const binding = callPath.scope.getBinding(name);
+
+  if (!binding || !binding.path.isImportSpecifier()) {
+    return null;
+  }
+
+  const source = binding.path.parentPath.node.source.value;
+
+  if (!source.endsWith(MIXINS_MODULE_SUFFIX)) {
+    return null;
+  }
+
+  const imported = binding.path.node.imported;
+  const importedName = imported.type === 'Identifier' ? imported.name : imported.value;
+
+  return LABELED_HELPERS.has(importedName) ? importedName : null;
+};
+
+/**
+ * Walk up from a CallExpression to collect object property key names, stopping
+ * at the enclosing function or declarator so unrelated outer keys aren't picked up.
+ *
+ * @param {import('@babel/core').NodePath} callPath Path to the helper call.
  *
  * @returns {string[]} Key path from outermost object property to innermost.
  */
@@ -44,7 +90,7 @@ const getKeyPath = (callPath) => {
       }
     }
 
-    if (current.isVariableDeclarator() || current.isProgram()) {
+    if (current.isFunction() || current.isVariableDeclarator() || current.isProgram()) {
       break;
     }
 
@@ -55,12 +101,13 @@ const getKeyPath = (callPath) => {
 };
 
 /**
- * Babel plugin that injects debug labels into scoped() calls during development.
+ * Babel plugin that injects debug labels into scoped()/scopedMerge() calls
+ * during development.
  *
- * Transforms: scoped({ ... }) → scoped('base', { ... })
+ * Transforms: scoped({ ... }) → scoped('button-L77', { ... })
  *
- * Uses the leaf object key so composed styles stay short in DevTools
- * (e.g. css-xxx-base-primary-sm instead of long file+path labels).
+ * Labels are file-qualified so the generated Emotion class name
+ * (e.g. css-1062m53-button-L77) points at the exact call site.
  *
  * @param {import('@babel/core')} api Babel API.
  *
@@ -79,34 +126,29 @@ export default function babelPluginScopedAutoLabel(api) {
       CallExpression(callPath, state) {
         const callee = callPath.get('callee');
 
-        if (!callee.isIdentifier({ name: 'scoped' })) {
+        if (!callee.isIdentifier()) {
+          return;
+        }
+
+        if (!getHelperName(callPath, callee.node.name)) {
           return;
         }
 
         const args = callPath.node.arguments;
 
-        if (args.length === 0) {
-          return;
-        }
-
-        if (t.isStringLiteral(args[0])) {
+        if (args.length === 0 || t.isStringLiteral(args[0])) {
           return;
         }
 
         const filename = state.filename || state.file?.opts?.filename || 'unknown';
         const fileLabel = getFileLabel(filename);
         const keyPath = getKeyPath(callPath);
+        const leafKey = keyPath[keyPath.length - 1];
+        const line = callPath.node.loc?.start?.line;
 
-        // Leaf key only so composed css={[base, primary, sm]} stays short:
-        // css-xxx-base-primary-sm (not button-base-button-variants-primary-...)
-        let label = fileLabel;
-
-        if (keyPath.length > 0) {
-          label = keyPath[keyPath.length - 1];
-        } else {
-          const line = callPath.node.loc?.start?.line;
-          label = line ? `${fileLabel}-L${line}` : fileLabel;
-        }
+        const label = leafKey
+          ? `${fileLabel}-${toKebabCase(leafKey)}`
+          : `${fileLabel}-L${line ?? 0}`;
 
         callPath.node.arguments.unshift(t.stringLiteral(label));
       },

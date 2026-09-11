@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
+import { PageContent } from '@/components/ui/page';
 import Skeleton from '@/components/ui/skeleton';
 import { cardStyles } from '@/theme/card-styles';
 
@@ -16,7 +16,7 @@ FieldSkeleton.displayName = 'FieldSkeleton';
 
 const EditInventorySkeleton = () => {
   return (
-    <Container>
+    <PageContent>
       <Flex gap={4}>
         <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
           <Card cssOverride={cardStyles.formCard}>
@@ -75,7 +75,7 @@ const EditInventorySkeleton = () => {
           </Card>
         </Flex>
       </Flex>
-    </Container>
+    </PageContent>
   );
 };
 

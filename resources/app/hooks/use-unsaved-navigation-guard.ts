@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBlocker } from 'react-router';
 
+import { setUnsavedDataStatus } from '@/libs/unsaved-store';
+
 type UnsavedNavigationGuard = {
   isBlocked: boolean;
-  discardChanges: () => void;
-  dismissToast: () => void;
+  proceedNavigation: () => void;
+  cancelNavigation: () => void;
   markSaving: (saving: boolean) => void;
   shakeSignal: number;
 };
@@ -14,6 +16,14 @@ export const useUnsavedNavigationGuard = (
 ): UnsavedNavigationGuard => {
   const isSavingRef = useRef(false);
   const [shakeSignal, setShakeSignal] = useState(0);
+
+  // The single owner of the application-wide unsaved flag that the root
+  // controller's `beforeunload` reads. Clearing it on unmount is what stops an
+  // abandoned dirty screen from leaving the flag set for every later page.
+  useEffect(() => {
+    setUnsavedDataStatus(isDirty);
+    return () => setUnsavedDataStatus(false);
+  }, [isDirty]);
 
   // A ref (not state) so a save-triggered navigation started synchronously
   // inside onSubmit is never blocked, regardless of React's render/effect
@@ -27,9 +37,9 @@ export const useUnsavedNavigationGuard = (
   const isBlocked = blocker.state === 'blocked';
 
   // Every blocked navigation attempt (the first one, and any repeat attempt
-  // while the toast is already open) produces a fresh blocker object, even
+  // while the bar is already visible) produces a fresh blocker object, even
   // though `isBlocked` itself stays `true` across repeats. Bump a signal on
-  // each one so the toast can replay its shake animation as a nudge.
+  // each one so the bar can replay its shake animation as a nudge.
   useEffect(() => {
     if (blocker.state === 'blocked') {
       setShakeSignal((value) => value + 1);
@@ -44,13 +54,13 @@ export const useUnsavedNavigationGuard = (
     }
   }, [isBlocked, isDirty, blocker]);
 
-  const discardChanges = () => {
+  const proceedNavigation = () => {
     if (blocker.state === 'blocked') {
       blocker.proceed();
     }
   };
 
-  const dismissToast = () => {
+  const cancelNavigation = () => {
     if (blocker.state === 'blocked') {
       blocker.reset();
     }
@@ -60,5 +70,11 @@ export const useUnsavedNavigationGuard = (
     isSavingRef.current = saving;
   };
 
-  return { isBlocked, discardChanges, dismissToast, markSaving, shakeSignal };
+  return {
+    isBlocked,
+    proceedNavigation,
+    cancelNavigation,
+    markSaving,
+    shakeSignal,
+  };
 };
