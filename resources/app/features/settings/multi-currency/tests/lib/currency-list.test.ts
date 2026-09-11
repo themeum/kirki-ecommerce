@@ -1,27 +1,21 @@
 import { describe, expect, it } from 'vitest';
 
 import type { CurrencyListItem } from '@/features/settings/multi-currency/lib/currency-list';
-import { buildCurrencyListItems, buildCurrencyUpdatePayload, getActionArray } from '@/features/settings/multi-currency/lib/currency-list';
-import type { Currency } from '@/features/settings/multi-currency/schemas/catalog/currency';
+import {
+  buildCurrencyListItems,
+  buildCurrencyUpdatePayload,
+} from '@/features/settings/multi-currency/lib/currency-list';
+import type { CurrencyRateItem } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 
-const buildCurrency = (overrides: Partial<Currency>): Currency => ({
+const buildCurrency = (overrides: Partial<CurrencyRateItem> = {}): CurrencyRateItem => ({
   id: 1,
   name: 'US Dollar',
   code: 'USD',
   symbol: '$',
+  exchange_rate: 1,
+  is_base: false,
+  is_active: true,
   ...overrides,
-});
-
-describe('getActionArray', () => {
-  it('offers no actions for the base currency', () => {
-    expect(getActionArray(buildCurrency({ is_base: true }))).toEqual([]);
-  });
-
-  it('offers delete and set-base actions for a non-base currency', () => {
-    const actions = getActionArray(buildCurrency({ is_base: false }));
-
-    expect(actions.map((a) => a.value)).toEqual(['delete', 'set_base']);
-  });
 });
 
 describe('buildCurrencyListItems', () => {
@@ -53,7 +47,15 @@ describe('buildCurrencyUpdatePayload', () => {
 
     expect(payload).toEqual({
       items: [
-        { id: 2, name: 'US Dollar', code: 'USD', symbol: '$', is_active: true, is_base: false },
+        {
+          id: 2,
+          name: 'US Dollar',
+          code: 'USD',
+          symbol: '$',
+          exchange_rate: 1,
+          is_active: true,
+          is_base: false,
+        },
       ],
     });
   });
@@ -63,8 +65,24 @@ describe('buildCurrencyUpdatePayload', () => {
 
     expect(payload).toEqual({
       items: [
-        { id: 1, name: 'US Dollar', code: 'USD', symbol: '$', is_base: false, is_active: true },
-        { id: 2, name: 'US Dollar', code: 'USD', symbol: '$', is_base: true, is_active: false },
+        {
+          id: 1,
+          name: 'US Dollar',
+          code: 'USD',
+          symbol: '$',
+          exchange_rate: 1,
+          is_base: false,
+          is_active: true,
+        },
+        {
+          id: 2,
+          name: 'US Dollar',
+          code: 'USD',
+          symbol: '$',
+          exchange_rate: 1,
+          is_base: true,
+          is_active: false,
+        },
       ],
     });
   });

@@ -20,10 +20,7 @@ import ApiConfigurationCard from '@/features/settings/multi-currency/pages/api-c
 import ApiConfigurationPopup from '@/features/settings/multi-currency/pages/api-config/api-configuration-dialog';
 import type { ApiConfigurationFormPayload } from '@/features/settings/multi-currency/schemas/forms/api-configuration-form';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
-import {
-  useCurrencyExchangeProvidersQuery,
-  useSyncCurrencyRatesMutation,
-} from '@/features/settings/multi-currency/services/currency';
+import { useCurrencyExchangeProvidersQuery } from '@/features/settings/multi-currency/services/currency';
 import { WrenchIcon } from '@/icons';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
@@ -34,7 +31,6 @@ import { __ } from '@/wpi18n';
 
 const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings | null }) => {
   const { setValue, control } = useFormContext<MultiCurrencySettingsFormInput>();
-  const { mutate: syncRates, isPending: isSyncing } = useSyncCurrencyRatesMutation();
   const apiProvider = useWatch({
     control,
     name: 'api_provider',
@@ -73,7 +69,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
   const isApiProviderSelected = isDefined(apiProvider) && apiProvider;
   const hasAPIConfiguration = Boolean(apiConfig?.api_key);
 
-  const handlePopupSave = (values: ApiConfigurationFormPayload | null) => {
+  const handlePopupSave = (values: ApiConfigurationFormPayload) => {
     setValue('api_config', values, { shouldDirty: true });
   };
 
@@ -85,10 +81,10 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
             {__('Automatic Updates', 'kirki-ecommerce')}
           </Flex>
         }
-        // subHeader={__(
-        //   'Configure automatic exchange rate providers for real-time currency conversion',
-        //   'kirki-ecommerce',
-        // )}
+        subHeader={__(
+          'Configure automatic exchange rate providers for real-time currency conversion',
+          'kirki-ecommerce',
+        )}
         leftIcon={<RefreshCcw size={16} />}
         // rightActions={rightActions()}
         open
@@ -117,18 +113,11 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
           {isApiProviderSelected && (
             <Flex direction="column" gap="4">
               {hasAPIConfiguration ? (
-                <>
-                  <ApiConfigurationCard
-                    setOpenPopup={setOpenPopup}
-                    providerName={providerName}
-                    currencySettings={currencySettings}
-                  />
-                  <Flex justify="flex-end">
-                    <Button variant="secondary" loading={isSyncing} onClick={() => syncRates()}>
-                      {__('Sync Now', 'kirki-ecommerce')}
-                    </Button>
-                  </Flex>
-                </>
+                <ApiConfigurationCard
+                  setOpenPopup={setOpenPopup}
+                  providerName={providerName}
+                  currencySettings={currencySettings}
+                />
               ) : (
                 <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}>
                   <CardContent cssOverride={cardStyles.innerContent}>

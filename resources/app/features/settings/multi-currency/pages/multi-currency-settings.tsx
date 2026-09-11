@@ -10,6 +10,7 @@ import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import { toCurrencyDraft } from '@/features/settings/multi-currency/lib/currency-list';
+import AddCurrencyPopup from '@/features/settings/multi-currency/pages/add-currency-dialog';
 import ApiConfig from '@/features/settings/multi-currency/pages/api-config/api-config';
 import { AvailableCurrencyList } from '@/features/settings/multi-currency/pages/available-currency-list';
 import CurrencyFormatSettings from '@/features/settings/multi-currency/pages/currency-format-settings';
@@ -49,7 +50,11 @@ const MultiCurrencySettings = () => {
   const { isDirty } = form.formState;
 
   useEffect(() => {
-    if (!currencySettingsData || !Object.keys(currencySettingsData).length || !rawCurrencies.length) {
+    if (
+      !currencySettingsData ||
+      !Object.keys(currencySettingsData).length ||
+      !rawCurrencies.length
+    ) {
       return;
     }
 
@@ -73,8 +78,7 @@ const MultiCurrencySettings = () => {
           return [];
         }
 
-        const rateChanged =
-          String(original.exchange_rate) !== String(currency.exchange_rate);
+        const rateChanged = String(original.exchange_rate) !== String(currency.exchange_rate);
         const activeChanged = Boolean(original.is_active) !== Boolean(currency.is_active);
 
         if (!rateChanged && !activeChanged) {
@@ -120,15 +124,21 @@ const MultiCurrencySettings = () => {
 
           <Card cssOverride={cardStyles.innerCard}>
             <CardContent cssOverride={{ paddingBottom: theme.spacing[4] }}>
-              <Flex direction="column" gap={2} cssOverride={{ marginTop: theme.spacing[5] }}>
-                <Flex direction="column" gap={2}>
-                  <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
-                  <Text variant="small" color="secondary">
-                    {__(
-                      'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
-                      'kirki-ecommerce',
-                    )}
-                  </Text>
+              <Flex direction="column" gap={3}>
+                <Flex
+                  justify="space-between"
+                  cssOverride={{ marginTop: theme.spacing[3], marginBottom: theme.spacing[3] }}
+                >
+                  <Flex direction="column" gap={2}>
+                    <Text weight="semibold">{__('Currency Management', 'kirki-ecommerce')}</Text>
+                    <Text variant="small" color="secondary">
+                      {__(
+                        'Manage product pricing across multiple currencies with manual or automatic conversion rates.',
+                        'kirki-ecommerce',
+                      )}
+                    </Text>
+                  </Flex>
+                  <AddCurrencyPopup />
                 </Flex>
                 <AvailableCurrencyList />
                 <ApiConfig currencySettings={currencySettingsData} />

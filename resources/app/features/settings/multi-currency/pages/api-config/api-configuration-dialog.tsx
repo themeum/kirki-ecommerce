@@ -39,7 +39,7 @@ const apiConfigurationDefaultValues = getDefaults(ApiConfigurationFormSchema);
 type ApiConfigurationPopupProps = {
   isOpen: boolean;
   onClose?: () => void;
-  onSave?: (values: ApiConfigurationFormPayload | null) => void;
+  onSave?: (values: ApiConfigurationFormPayload) => void;
   providerName: string;
 };
 
@@ -164,16 +164,6 @@ const ApiConfigurationPopup = ({
               </Flex>
             </DialogBody>
             <DialogFooter style={{ justifyContent: 'space-between' }}>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => {
-                  onSave?.(null);
-                  onClose();
-                }}
-              >
-                {__('Remove', 'kirki-ecommerce')}
-              </Button>
               <ActionGroup gap={3}>
                 <DialogClose asChild>
                   <Button type="button" variant="ghost" cssOverride={styles.cancelButton}>

@@ -1,6 +1,12 @@
 import type { CSSObject } from '@emotion/react';
 import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
-import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch } from 'react-hook-form';
+import {
+  Controller,
+  type FieldPath,
+  type FieldValues,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import NumberInput from '@/components/ui/number-input';
@@ -17,7 +23,6 @@ type NumberFieldProps<
   placeholder?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
-  inputCssOverride?: CSSObject;
   min?: number | null;
   max?: number | null;
   readOnly?: boolean;
@@ -36,7 +41,6 @@ const NumberField = <
   placeholder,
   disabled,
   cssOverride,
-  inputCssOverride,
   min,
   max,
   readOnly,
@@ -61,7 +65,6 @@ const NumberField = <
           <NumberInput
             {...field}
             id={fieldId}
-            cssOverride={inputCssOverride}
             value={currentValue ?? ''}
             placeholder={placeholder}
             disabled={disabled}

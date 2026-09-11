@@ -5,8 +5,10 @@ import {
   buildCurrencyUpdatePayload,
   type CurrencyListItem,
 } from '@/features/settings/multi-currency/lib/currency-list';
-import type { Currency } from '@/features/settings/multi-currency/schemas/catalog/currency';
-import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
+import type {
+  CurrencyRateItem,
+  MultiCurrencySettingsFormInput,
+} from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import {
   type CurrencyBulkPayload,
   useAvailableCurrenciesQuery,
@@ -19,6 +21,7 @@ type UseAvailableCurrencyListResult = {
   baseCurrencyCode: string | undefined;
   showApiProviderStatus: boolean;
   lastSyncAt: string | null | undefined;
+  nextSyncAt: string | null | undefined;
   updateData: (payload: CurrencyBulkPayload | null) => void;
   handleToggleCurrencyItem: (item: CurrencyListItem) => void;
   handleDeleteCurrencyItem: (item: CurrencyListItem) => void;
@@ -26,15 +29,18 @@ type UseAvailableCurrencyListResult = {
 };
 
 export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
-  const dataObj = useWatch<MultiCurrencySettingsFormInput>();
+  const settings = useWatch<MultiCurrencySettingsFormInput>();
+  const currencies = useWatch<MultiCurrencySettingsFormInput, 'currencies'>({ name: 'currencies' });
 
-  const { data: rawCurrencies = [], refetch } = useAvailableCurrenciesQuery();
+  const { refetch } = useAvailableCurrenciesQuery();
   const { mutate: updateCurrencyMutate } = useUpdateCurrencyMutation();
   const { mutate: deleteCurrencyMutate } = useDeleteCurrencyMutation();
 
-  const showApiProviderStatus = Boolean(dataObj?.api_provider && dataObj?.last_sync_at);
+  const showApiProviderStatus = Boolean(
+    settings?.api_provider && settings?.api_config?.api_key && settings?.last_sync_at,
+  );
 
-  const currencyList = buildCurrencyListItems(rawCurrencies);
+  const currencyList = buildCurrencyListItems(currencies ?? []);
   const baseCurrencyCode = currencyList.find((currency) => currency?.is_base)?.code;
 
   const updateData: UseAvailableCurrencyListResult['updateData'] = (payload) => {
@@ -46,11 +52,14 @@ export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
     });
   };
 
-  const updateCurrencyList = (item: CurrencyListItem, key: keyof Currency) => {
+  const updateCurrencyList = (item: CurrencyListItem, key: keyof CurrencyRateItem) => {
     updateData(buildCurrencyUpdatePayload(currencyList, item, key));
   };
 
   const handleDeleteCurrencyItem = (item: CurrencyListItem) => {
+    if (item.id === undefined) {
+      return;
+    }
     deleteCurrencyMutate(item.id, {
       onSuccess: () => refetch(),
     });
@@ -74,7 +83,8 @@ export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
     currencyList,
     baseCurrencyCode,
     showApiProviderStatus,
-    lastSyncAt: dataObj?.last_sync_at,
+    lastSyncAt: settings?.last_sync_at,
+    nextSyncAt: settings?.next_sync_at,
     updateData,
     handleDeleteCurrencyItem,
     handleToggleCurrencyItem,

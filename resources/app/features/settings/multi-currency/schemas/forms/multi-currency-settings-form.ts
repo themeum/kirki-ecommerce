@@ -2,7 +2,6 @@ import { z } from 'zod';
 
 import { CurrencyDraftSchema } from '@/features/settings/multi-currency/schemas/catalog/currency';
 import { prepareFormSchema } from '@/libs/zod';
-import { MoneyAmountSchema } from '@/schemas/shared/api';
 import { __ } from '@/wpi18n';
 
 export const ApiConfigSchema = z.object({
@@ -13,11 +12,16 @@ export const ApiConfigSchema = z.object({
 });
 
 const CurrencyRateItemSchema = CurrencyDraftSchema.extend({
-  exchange_rate: MoneyAmountSchema.nullish().refine(
-    (value) => value != null && value !== '' && Number(value) > 0,
-    __('Exchange rate must be greater than 0', 'kirki-ecommerce'),
-  ),
+  exchange_rate: z
+    .union([z.number(), z.string()])
+    .nullish()
+    .refine(
+      (value) => value != null && value !== '' && Number(value) > 0,
+      __('Exchange rate must be greater than 0', 'kirki-ecommerce'),
+    ),
 });
+
+export type CurrencyRateItem = z.infer<typeof CurrencyRateItemSchema>;
 
 const MultiCurrencySettingsFormShape = z.object({
   is_automatic_update_enabled: z.boolean().nullish().default(false),
