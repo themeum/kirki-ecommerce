@@ -140,7 +140,7 @@
         &::after {
           content: '';
           position: absolute;
-          right: -8.5px;
+          inset-inline-end: -8.5px;
           top: 3px;
           height: 12px;
           width: 1px;
