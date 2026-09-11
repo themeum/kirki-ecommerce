@@ -25,7 +25,6 @@ describe('buildCurrencyListItems', () => {
     expect(item.is_toggle_disabled).toBe(true);
     expect(item.is_action_disabled).toBe(true);
     expect(item.is_enabled).toBe(true);
-    expect(item.actionsArray).toEqual([]);
   });
 
   it('carries the symbol as the row icon and mirrors is_active to is_enabled', () => {

@@ -4,24 +4,15 @@ import { Outlet, useBlocker, useLocation, useOutletContext } from 'react-router'
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import Button from '@/components/ui/button';
 import PageHeading from '@/components/ui/page-heading';
-import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
+import type {
+  RegisteredSettingsPageActions,
+  SettingsLayoutOutletContext,
+  SettingsOutletContext,
+} from '@/features/settings/types';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-type ConfirmActionParams = {
-  action?: () => void;
-  otherProps?: Record<string, unknown>;
-};
-
-type RootOutletContext = {
-  confirmAction: (params: ConfirmActionParams) => void;
-};
-
-type SettingsLayoutOutletContext = RootOutletContext & {
-  registerActions: (actions: RegisteredSettingsPageActions | null) => void;
-};
 
 const SETTINGS_HEADER_STICKY_TOP = '64px';
 // Header border-box height: 16px top padding + 32px forced heading height +
@@ -30,7 +21,7 @@ const SETTINGS_HEADER_HEIGHT = '65px';
 
 const SettingsLayout = () => {
   const { pathname } = useLocation();
-  const { confirmAction } = useOutletContext<RootOutletContext>();
+  const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [actions, setActions] = useState<RegisteredSettingsPageActions | null>(null);
 
   const isDirty = actions?.isDirty ?? false;

@@ -28,9 +28,7 @@ type PendingAction = {
 
 const UnsavedChangesController = () => {
   const hasUnsavedData = useUnsavedStatus();
-  const [pendingAction, setPendingAction] = useState<PendingAction | null>(
-    null,
-  );
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -92,3 +90,5 @@ const UnsavedChangesController = () => {
 UnsavedChangesController.displayName = 'UnsavedChangesController';
 
 export default UnsavedChangesController;
+
+export type { ConfirmActionParams };

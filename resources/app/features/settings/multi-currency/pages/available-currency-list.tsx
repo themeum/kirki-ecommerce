@@ -29,15 +29,12 @@ import { useAvailableCurrencyList } from '@/features/settings/multi-currency/hoo
 import type { CurrencyListItem } from '@/features/settings/multi-currency/lib/currency-list';
 import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import { useSyncCurrencyRatesMutation } from '@/features/settings/multi-currency/services/currency';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { dateFormatter } from '@/utils/common';
 import { __, sprintf } from '@/wpi18n';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
-};
 
 type CurrencyRateInputProps = {
   index: number;
@@ -86,12 +83,12 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
     confirmAction({
       action: () => onAction('set_base', item),
       otherProps: {
-        variant: 'warning',
+        variant: 'success',
         force: true,
-        title: __('Set as default currency?', 'kirki-ecommerce'),
+        title: __('Set as Base Currency', 'kirki-ecommerce'),
         subtitle:
           __(
-            'This currency becomes the base for all exchange rates and the previous default is demoted.',
+            'Would you like to make this your primary currency? All exchange rates will be adjusted accordingly.',
             'kirki-ecommerce',
           ) + unsavedChangesNote,
       },
@@ -104,10 +101,10 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
       otherProps: {
         variant: 'delete',
         force: true,
-        title: __('Delete currency?', 'kirki-ecommerce'),
+        title: __('Delete Currency', 'kirki-ecommerce'),
         subtitle:
           __(
-            'Are you sure you want to delete this currency? This action cannot be undone.',
+            'Do you really want to remove this currency? All exchange rates and transaction history will be permanently lost.',
             'kirki-ecommerce',
           ) + unsavedChangesNote,
       },
@@ -191,7 +188,12 @@ export const AvailableCurrencyList = () => {
       <CardContent cssOverride={styles.innerCardContent}>
         <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
           <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>
-          <Button variant="ghost" loading={isSyncing} onClick={() => syncRates()}>
+          <Button
+            variant="ghost"
+            loading={isSyncing}
+            disabled={isSyncing}
+            onClick={() => syncRates()}
+          >
             <RefreshCcw size="12" />
             <Text variant="tiny"> {__('Sync Now', 'kirki-ecommerce')}</Text>
           </Button>
