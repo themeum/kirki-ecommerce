@@ -82,12 +82,12 @@ const SchemaProfileComponent = () => {
     <Card cssOverride={cardStyles.formCard}>
       <CardContent>
         <HeaderActionsCard
-          header={__('Schema Profile', 'kirki-ecommerce')}
+          header={__('Schemas', 'kirki-ecommerce')}
           subHeader={__(
             'Define structured data properties that products use for richer search results.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Add Profile', 'kirki-ecommerce')}
+          buttonText={__('Add Schema', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>

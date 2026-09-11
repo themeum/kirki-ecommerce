@@ -122,7 +122,7 @@ const VariationList = () => {
                             {item.name}
                           </Text>
                         </Link>
-                        <Badge variant="info" cssOverride={{ padding: `2px ${theme.spacing[2]}` }}>
+                        <Badge variant="secondary">
                           {sprintf(
                             _n(
                               '%d value',
