@@ -36,8 +36,9 @@ $has_variants            = $product['has_variants'];
 $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
 $has_wishlist            = $product['has_wishlist'];
+$display_context         = $data['context'] ?? null;
 ?>
-<div class="kecom-product-card" x-data="<?php printf('wishlist(%s)', $has_wishlist ? 'true' : 'false' ) ?>">
+<div class="kecom-product-card" x-data="<?php printf('wishlist(%s, %s, \'%s\')', $has_wishlist ? 'true' : 'false', 'null', esc_js($display_context)); ?>">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
         <?php if (!empty($ribbon_text)) : ?>
             <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
@@ -46,12 +47,12 @@ $has_wishlist            = $product['has_wishlist'];
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
         <?php endif; ?>
     </a>
-    <?php if( is_user_logged_in() ): ?>
-    <span class="kecom-product-card-wishlist" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem(<?php echo esc_attr($variant_id); ?>);">
+    <?php if (is_user_logged_in()) : ?>
+    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr( $variant_id ) ?>" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem(<?php echo esc_attr($variant_id); ?>);">
         <?php Icon::render('heart'); ?>
     </span>
-    <?php else: ?>
-    <a href="<?php echo esc_url( Url::get_login_url()); ?>" class="kecom-product-card-wishlist">
+    <?php else : ?>
+    <a href="<?php echo esc_url(Url::get_login_url()); ?>" class="kecom-product-card-wishlist">
         <?php Icon::render('heart'); ?>
     </a>
     <?php endif; ?>

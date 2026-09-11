@@ -25,6 +25,8 @@ import { shop } from './components/shop';
 import { wishlist } from './components/wishlist';
 import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
+import { paginator } from './components/paginator';
+import { accountWishlist } from './components/account-wishlist';
 
 import { accountOrders } from './components/account-orders';
 import { registerLocalTimeDirective } from './directives/local-time';
@@ -57,7 +59,9 @@ Alpine.data('form', form);
 Alpine.data('stateField', stateField);
 Alpine.data('shop', shop);
 Alpine.data('miniCart', miniCart);
-Alpine.data('wishlist', wishlist)
+Alpine.data('wishlist', wishlist);
+Alpine.data('paginator', paginator);
+Alpine.data('accountWishlist', accountWishlist);
 
 // Initialize Alpine
 window.Alpine = Alpine;

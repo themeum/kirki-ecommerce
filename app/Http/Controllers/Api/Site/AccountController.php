@@ -13,11 +13,17 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
+use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
+use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
+use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 
@@ -158,5 +164,52 @@ class AccountController
                 'message' => $e->getMessage(),
             ], Response::UNPROCESSABLE_ENTITY);
         }
+    }
+
+    public function wishlist_items(WishlistFilterRequest $request, WishlistService $service) {
+
+        $format = $request->string('format', 'json');
+        $sanitized_input = $request->sanitized();
+        $filters = ListFilterDTO::from_array($sanitized_input);
+        $filters->page = intval($sanitized_input['current_page'] ?? 1);
+        $filters->limit = 9;
+        $user_id   = user()->get_id();
+        $wishlists = $service->paginated($user_id,$filters);
+        $wishlists_resource = new Collection(WishlistResource::collection($wishlists->items()->all()));
+
+        $data = [];
+
+        if ($format === 'html') {
+            ob_start();
+            
+            foreach( $wishlists_resource as $wishlist ) {
+               include_view('site.shop.parts.product-card', ['product' => $wishlist , 'context' => 'account']);
+            }
+
+            $items_html = ob_get_clean();
+
+            ob_start();
+            Template::render_pagination($wishlists);
+            $pagination_html = ob_get_clean();
+
+            $data = [
+                'items' => $items_html,
+                'pagination' => $pagination_html
+            ];
+        } else {
+            $pagination = $wishlists->to_array();
+            unset($pagination['results']);
+
+            $data = [
+                'items' => $wishlists_resource,
+                'pagination' => $pagination
+            ];
+        }
+
+        return response()->json([
+            'data' => $data,
+            'message' => __('Wishlist items fetched successfully', 'kirki-ecommerce')
+        ]);
+
     }
 }

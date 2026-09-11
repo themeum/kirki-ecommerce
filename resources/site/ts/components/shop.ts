@@ -1,5 +1,4 @@
 import { apiRequest } from '../api/client';
-import { wishlistApi } from '../api/wishlist';
 import { emit, EVENTS } from '../events';
 import { toastManager } from '../services/toast/runtime';
 

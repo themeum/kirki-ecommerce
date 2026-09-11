@@ -2,7 +2,7 @@ import { wishlistApi } from '../api/wishlist';
 import { toastManager } from '../services/toast/runtime';
 import { Variant } from './variant-selector';
 
-export function wishlist(wishlisted: boolean,variantList?: Variant[]) {
+export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: string) {
   const { __ } = window.wp.i18n;
 
   return {
@@ -26,6 +26,13 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[]) {
             toastManager.success(__('Item removed from wishlist successfully.', 'kirki-ecommerce'));
             this.isWishlisted = false;
             this.wishlistedVariants[variantId] = false;
+            if (context === 'account') {
+              const wishlistCard = document.getElementById(`${variantId}`);
+              if (wishlistCard) {
+                wishlistCard.parentElement?.remove();
+              }
+            }
+
           } else {
             throw new Error(
               result?.message ||
