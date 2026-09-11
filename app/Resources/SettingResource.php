@@ -140,24 +140,6 @@ class SettingResource extends Resource
      */
     protected function get_currency_settings($data)
     {
-        $reset_at = $data['usage']['reset_at'] ?? null;
-
-        if (!empty($reset_at) && is_object($reset_at)) {
-            $properties = get_object_vars($reset_at);
-
-            if (
-                isset($properties['__PHP_Incomplete_Class_Name']) &&
-                $properties['__PHP_Incomplete_Class_Name'] === Somoy::class
-            ) {
-                $reset_at = Date::parse(
-                    $properties['date'],
-                    $properties['timezone']
-                )->to_date_time_string();
-            } else {
-                $reset_at = null;
-            }
-        }
-
         return [
             'currency_format' => $data['currency_format'] ?? null,
             'currency_position' => $data['currency_position'] ?? null,
@@ -178,7 +160,7 @@ class SettingResource extends Resource
                 'total' => $data['usage']['total'] ?? null,
                 'used' => $data['usage']['used'] ?? null,
                 'remaining' => $data['usage']['remaining'] ?? null,
-                'reset_at' => $reset_at
+                'reset_at' =>  $data['usage']['reset_at'] ?? null,
             ] : null
         ];
     }
