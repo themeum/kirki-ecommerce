@@ -259,7 +259,8 @@ const styles = defineStyles({
     maxHeight: '32px',
     alignItems: 'center',
     borderRadius: theme.radius.lg,
-    border: `1px solid ${theme.colors.border.secondary}`,
+    // border: `1px solid ${theme.colors.border.secondary}`,
+    border: '1px solid red',
     backgroundColor: theme.colors.background.fill,
     transition: 'color, box-shadow',
     overflow: 'hidden',
@@ -341,7 +342,7 @@ const styles = defineStyles({
     background: 'transparent',
     outline: 'none',
     boxShadow: 'none',
-    ...theme.typography.small(),
+    ...theme.typography.small('medium'),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -362,7 +363,8 @@ const styles = defineStyles({
     },
   },
   input: {
-    minHeight: '36px',
+    minHeight: '32px',
+    maxHeight: '32px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
       MozAppearance: 'textfield',

@@ -83,7 +83,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="payments.offline" cssOverride={cardStyles.formCard}>
         <CardContent >
           <Flex direction="column" gap={4}>
             <HeaderActionsCard

@@ -79,7 +79,7 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card data-search-id="essentials.schema-profile" cssOverride={cardStyles.formCard}>
       <CardContent>
         <HeaderActionsCard
           header={__('Schemas', 'kirki-ecommerce')}

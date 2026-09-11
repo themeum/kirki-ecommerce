@@ -69,7 +69,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="payments.online" cssOverride={cardStyles.formCard}>
         <CardContent>
           <Flex direction="column" gap={4}>
             <HeaderActionsCard

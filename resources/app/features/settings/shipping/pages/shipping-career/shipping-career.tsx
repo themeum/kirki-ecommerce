@@ -15,7 +15,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
   const hasShippingCareers = false;
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard} >
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard} >
         <CardContent >
 
           <HeaderActionsCard
@@ -29,7 +29,7 @@ const ShippingCareer = (_props: ShippingCareerProps) => {
           />
 
           {!hasShippingCareers ? (
-            <Card cssOverride={cardStyles.innerDarkCard}>
+            <Card data-search-skip="true" cssOverride={cardStyles.innerDarkCard}>
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}>
                 <Flex direction="column" gap={2} align="center">
                   <BoxOpenIcon />

@@ -77,7 +77,7 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="shipping.profiles" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}

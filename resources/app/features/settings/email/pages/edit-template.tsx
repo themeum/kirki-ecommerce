@@ -43,7 +43,7 @@ const EditTemplate = () => {
               />
               <Flex gap={12} cssOverride={{ width: '100%' }}>
                 <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>
-                  <Card
+                  <Card data-search-skip="true"
                     cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
                   >
                     <CardContent>
@@ -81,7 +81,7 @@ const EditTemplate = () => {
                       />
                     </CardContent>
                   </Card>
-                  <Card
+                  <Card data-search-skip="true"
                     cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
                   >
                     <CardContent>

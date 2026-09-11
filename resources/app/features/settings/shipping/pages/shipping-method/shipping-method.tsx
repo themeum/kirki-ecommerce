@@ -101,7 +101,7 @@ export const ShippingMethod = ({
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent >
           <HeaderActionsCard
             header={__('Shipping Methods', 'kirki-ecommerce')}
@@ -114,7 +114,7 @@ export const ShippingMethod = ({
           />
 
           {!shippingMethodList?.length ? (
-            <Card cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}>
+            <Card data-search-skip="true" cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}>
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
                   <BoxIcon size={24} />

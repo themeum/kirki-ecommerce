@@ -87,7 +87,7 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="tax.profile" cssOverride={cardStyles.formCard}>
         <CardContent >
           <HeaderActionsCard
             header={__('Tax Profiles', 'kirki-ecommerce')}

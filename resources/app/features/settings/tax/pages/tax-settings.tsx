@@ -118,7 +118,7 @@ const TaxSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
-          <Card cssOverride={cardStyles.formCard}>
+          <Card data-search-id="tax.collection" cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={4}>
                 <Flex direction="column" gap={2}>

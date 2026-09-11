@@ -60,6 +60,10 @@ build_frontend() {
   else
     npm install
   fi
+  # Regenerated before the bundle is built so the shipped settings search index
+  # can never describe copy that differs from the interface shipping with it.
+  # Only resources/app defines this script; --if-present makes it a no-op elsewhere.
+  npm run --if-present search:index
   npm run build
   popd > /dev/null
 }

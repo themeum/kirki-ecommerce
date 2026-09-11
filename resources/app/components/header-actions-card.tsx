@@ -5,6 +5,7 @@ import Text from '@/components/ui/text';
 import { PlusIcon } from '@/icons';
 
 type HeaderActionsCardProps = {
+  'data-search-id'?: string;
   header?: string;
   subHeader?: string;
   buttonText?: string;
@@ -18,7 +19,7 @@ const HeaderActionsCard = (props: HeaderActionsCardProps) => {
   const { header, subHeader, buttonText, onAdd, hideButton = false } = props;
   return (
     <>
-      <Flex direction="column" gap={1}>
+      <Flex direction="column" gap={1} data-search-id={props['data-search-id']}>
         <Flex align="center">
           <Text variant="heading6" weight="semibold" color="primary">
             {header}

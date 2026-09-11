@@ -79,7 +79,7 @@ export const AvailableCurrencyList = () => {
 
   return (
     <>
-      <Card cssOverride={{ ...cardStyles.innerCard, marginTop: theme.spacing[5] }}>
+      <Card data-search-id="currency.available-currencies" cssOverride={{ ...cardStyles.innerCard, marginTop: theme.spacing[5] }}>
         <CardContent cssOverride={styles.innerCardContent}>
           <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
             <Flex gap={2} align="center">
