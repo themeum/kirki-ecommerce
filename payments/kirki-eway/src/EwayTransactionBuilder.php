@@ -8,102 +8,123 @@ use Kirki\Ecommerce\App\Supports\Url;
 defined('ABSPATH') || exit;
 
 /**
- * Builds Eway request payloads and interprets transaction status.
- *
+ * Builds the Eway Responsive Shared Page request payload for an order.
  */
 class EwayTransactionBuilder
 {
     protected Order $order;
 
     /**
-     * @param Order $order The order to build QuickPay payloads for.
+     * @param Order $order The order to build the Eway payload for.
      */
     public function __construct(Order $order)
     {
         $this->order = $order;
     }
 
-    public function build_transaction_payload($webhook_url)
+    /**
+     * Build the Responsive Shared Page access code request payload.
+     *
+     * @param string $redirect_url Where Eway sends the customer, with an AccessCode, after payment.
+     * @return array The request body for AccessCodesShared.
+     */
+    public function build_transaction_payload(string $redirect_url): array
     {
-        $billing_address = $this->split_address(50, 'billing');
-        $shipping_address = $this->split_address(50, 'shipping');
-
         return [
-            'Method' => EwayConstant::PROCESS_PAYMENT,
+            'Method' => EwayConstant::METHOD_PROCESS_PAYMENT,
             'TransactionType' => EwayConstant::TRANSACTION_TYPE_PURCHASE,
-            'RedirectUrl' => $webhook_url,
+            'RedirectUrl' => $redirect_url,
             'CancelUrl' => Url::get_checkout_failed_url($this->order->uuid),
-            'CustomerReadOnly'    => true,
+            'CustomerReadOnly' => true,
             'VerifyCustomerPhone' => true,
             'VerifyCustomerEmail' => true,
             'Capture' => true,
-            'Customer' => [
-                'FirstName' => $this->limit_string_length($this->order->customer_first_name, 30) ?? '',
-                'LastName' => $this->limit_string_length($this->order->customer_last_name, 30) ?? '',
-                'Street1' => $billing_address[0] ?? '',
-                'Street2' => $billing_address[1] ?? '',
-                'City' => $this->limit_string_length($this->order->billing_city, 50) ?? '',
-                'State' => $this->limit_string_length($this->order->billing_state, 50) ?? '',
-                'PostalCode' => $this->limit_string_length($this->order->billing_postal_code, 30) ?? '',
-                'Country' => $this->order->billing_country ?? '',
-                'Mobile' => $this->order->billing_phone ?? '',
-                'Email' => $this->order->billing_email ?? '',
+            'Customer' => $this->address('billing', $this->order->customer_first_name, $this->order->customer_last_name) + [
+                'Mobile' => (string) $this->order->billing_phone,
+                'Email' => (string) $this->order->billing_email,
             ],
-            'ShippingAddress' => [
-                'FirstName' => $this->limit_string_length($this->order->shipping_first_name, 30) ?? '',
-                'LastName' => $this->limit_string_length($this->order->shipping_first_name, 30) ?? '',
-                'Street1' => $shipping_address[0] ?? '',
-                'Street2' => $shipping_address[1] ?? '',
-                'City' => $this->limit_string_length($this->order->shipping_city, 50) ?? '',
-                'State' => $this->limit_string_length($this->order->shipping_state, 50) ?? '',
-                'Country' => $this->order->shipping_country ?? '',
-                'PostalCode' => $this->order->shipping_postal_code ?? '',
-                'Phone' => $this->order->shipping_phone ?? '',
-                'Email' => $this->order->shipping_email ?? ''
+            'ShippingAddress' => $this->address('shipping', $this->order->shipping_first_name, $this->order->shipping_last_name) + [
+                'Phone' => (string) $this->order->shipping_phone,
+                'Email' => (string) $this->order->shipping_email,
             ],
-            'Items' => $this->get_items(),
+            'Items' => $this->line_items(),
             'Payment' => [
-                'TotalAmount' => $this->order->invoiced_total,
-                'CurrencyCode' => 'AUD',//$this->order->currency_code,
+                'TotalAmount' => (int) $this->order->invoiced_total,
+                'CurrencyCode' => $this->order->currency_code,
                 'InvoiceReference' => $this->order->uuid,
-            ]
+            ],
         ];
     }
 
-    protected function split_address(int $max_length, string $type): array
+    /**
+     * Build a customer billing or shipping address block from the order.
+     *
+     * @param string $type Order address prefix, "billing" or "shipping".
+     * @param string|null $first_name
+     * @param string|null $last_name
+     * @return array
+     */
+    protected function address(string $type, ?string $first_name, ?string $last_name): array
     {
-        $address_line1 = $this->order->{$type . '_address_line1'} ?? '';
-        $address_line2 = $this->order->{$type . '_address_line2'} ?? '';
+        [$street1, $street2] = $this->street_lines($type);
 
-        $address_line1 = $this->order->{$type . '_address_line1'} ?? $this->order->{$type . '_address_line2'} ?? '';
-
-        if (empty($address_line1) && empty($address_line2)) {
-            return [];
-        }
-
-        $address_1 = mb_strimwidth($address_line1, 0, $max_length);
-        $address_2 = strlen($address_line1) > $max_length
-            ? mb_strimwidth($address_line1, $max_length, $max_length) : $address_line2;
-
-        return [$address_1, $address_2];
+        return [
+            'FirstName' => $this->truncate($first_name, EwayConstant::NAME_MAX_LENGTH),
+            'LastName' => $this->truncate($last_name, EwayConstant::NAME_MAX_LENGTH),
+            'Street1' => $street1,
+            'Street2' => $street2,
+            'City' => $this->truncate($this->order->{"{$type}_city"}, EwayConstant::FIELD_MAX_LENGTH),
+            'State' => $this->truncate($this->order->{"{$type}_state"}, EwayConstant::FIELD_MAX_LENGTH),
+            'PostalCode' => $this->truncate($this->order->{"{$type}_postal_code"}, EwayConstant::POSTAL_CODE_MAX_LENGTH),
+            'Country' => (string) $this->order->{"{$type}_country"},
+        ];
     }
 
-    protected function limit_string_length(?string $string, int $length): string
+    /**
+     * Fit the address into Eway's two street fields.
+     *
+     * @param string $type Order address prefix, "billing" or "shipping".
+     * @return string[]
+     */
+    protected function street_lines(string $type): array
     {
-        if (empty($string) || empty($length)) {
-            return '';
+        $line1 = (string) $this->order->{"{$type}_address_line1"};
+        $line2 = (string) $this->order->{"{$type}_address_line2"};
+
+        if (mb_strlen($line1) > EwayConstant::FIELD_MAX_LENGTH) {
+            $line2 = mb_substr($line1, EwayConstant::FIELD_MAX_LENGTH);
         }
 
-        if (mb_strlen($string) <= $length) {
-            return $string;
-        }
-
-        $suffix = '...';
-
-        return Str::take($string, $length - mb_strlen($suffix)) . $suffix;
+        return [
+            mb_substr($line1, 0, EwayConstant::FIELD_MAX_LENGTH),
+            mb_substr($line2, 0, EwayConstant::FIELD_MAX_LENGTH),
+        ];
     }
 
-    protected function get_items()
+    /**
+     * Shorten a string to fit an Eway field, appending an ellipsis when cut.
+     *
+     * @param string|null $value      The value to shorten. Null becomes an empty string.
+     * @param int         $max_length The maximum length, inclusive of the ellipsis.
+     * @return string
+     */
+    protected function truncate(?string $value, int $max_length): string
+    {
+        $value = (string) $value;
+
+        if (mb_strlen($value) <= $max_length) {
+            return $value;
+        }
+
+        return mb_substr($value, 0, $max_length - 3) . '...';
+    }
+
+    /**
+     * Build the `Items` array for the transaction payload.
+     *
+     * @return array<int, array<string, mixed>> Eway line items, empty if the order has none.
+     */
+    protected function line_items(): array
     {
         $line_items = [];
 
@@ -111,29 +132,21 @@ class EwayTransactionBuilder
             $line_items[] = [
                 'Description' => $item->product_name,
                 'Quantity' => (int) $item->quantity,
-                'Total' => (int) $item->invoiced_total,
                 'UnitCost' => (int) $item->invoiced_price,
-                'Tax' => (int) $item->invoiced_tax_total
+                'Tax' => (int) $item->invoiced_tax_total,
+                'Total' => (int) $item->invoiced_total,
             ];
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
-            $line_items[] = $this->create_additional_charge(__('Shipping (Incl. any tax)'), $this->order->invoiced_shipping_total);
+            $line_items[] = [
+                'Description' => __('Shipping (Incl. any tax)', 'kirki-ecommerce-eway'),
+                'Quantity' => 1,
+                'UnitCost' => (int) $this->order->invoiced_shipping_total,
+                'Total' => (int) $this->order->invoiced_shipping_total,
+            ];
         }
 
         return $line_items;
-    }
-
-    protected function create_additional_charge($name, $cost): array
-    {
-        if (empty($name) || empty($cost)) {
-            return [];
-        }
-        return [
-            'Description' => $name,
-            'Quantity' => 1,
-            'UnitCost' => $cost,
-            'Total' => $cost
-        ];
     }
 }

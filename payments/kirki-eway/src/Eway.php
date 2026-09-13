@@ -16,32 +16,101 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 use Kirki\Ecommerce\Framework\Validation\Validator;
+use Throwable;
 
 use function Kirki\Ecommerce\Framework\redirect;
 
 defined('ABSPATH') || exit;
 
 /**
- * Eway payment gateway.
+ * Eway payment gateway, using Eway's Responsive Shared Page.
  */
 class Eway extends PaymentProvider
 {
     protected ?EwayClient $client = null;
-    protected $reference_id;
 
     public function __construct()
     {
         $this->id = 'eway';
+        $this->settings_key = 'eway';
         $this->title = __('Eway', 'kirki-ecommerce-eway');
         $this->description = __('Eway Payment Gateway', 'kirki-ecommerce-eway');
         $this->icon = $this->icon_url('eway');
-        $this->settings_key = 'eway';
         $this->is_offline = false;
         $this->is_available = true;
         $this->has_fields = true;
 
         parent::__construct();
+    }
 
+    /**
+     * Create an Eway shared payment page and send the customer to it.
+     *
+     * @param Order $order
+     * @return PaymentActionDTO
+     * @throws Exception If Eway is disabled or rejects the request.
+     */
+    public function pay(Order $order)
+    {
+        if (!$this->enabled()) {
+            throw new Exception(__('Eway is not enabled.', 'kirki-ecommerce-eway'));
+        }
+
+        try {
+            $payload = (new EwayTransactionBuilder($order))->build_transaction_payload($this->webhook_url());
+            $response = $this->get_client()->create_shared_access_code($payload);
+
+            if (!empty($response['Errors'])) {
+                throw new Exception(EwayResponseCode::describe($response['Errors']));
+            }
+        } catch (Exception $e) {
+            /* translators: %s: error message. */
+            throw new Exception(sprintf(__('Eway Payment Error: %s', 'kirki-ecommerce-eway'), $e->getMessage()));
+        }
+
+        return PaymentActionDTO::from_array([
+            'type' => PaymentActionType::REDIRECT,
+            'value' => $response['SharedPaymentUrl'],
+        ]);
+    }
+
+    /**
+     * Webhook handler.
+     *
+     * @return bool|WebhookResult
+     */
+    public function webhook()
+    {
+        return true;
+    }
+
+    /**
+     * Confirm the payment when Eway sends the customer back, then redirect them.
+     *
+     * @param Request $request
+     * @return RedirectResponse|null
+     */
+    public function handle_return(Request $request): ?RedirectResponse
+    {
+        try {
+            $transaction = $this->confirm_transaction($request);
+        } catch (Throwable $e) {
+            Log::critical($e->getMessage());
+
+            return redirect(home_url());
+        }
+
+        $order_uuid = (string) $transaction['InvoiceReference'];
+
+        return redirect(
+            $this->is_approved($transaction)
+                ? Url::get_checkout_success_url($order_uuid)
+                : Url::get_checkout_failed_url($order_uuid)
+        );
+    }
+
+    protected function init_admin_fields()
+    {
         $this->set_admin_fields([
             [
                 'name' => 'api_key',
@@ -64,41 +133,6 @@ class Eway extends PaymentProvider
     }
 
     /**
-     * Pay for an order.
-     *
-     * @param Order $order
-     * @return PaymentActionDTO
-     * @throws Exception
-     */
-    public function pay(Order $order)
-    {
-        if (!$this->enabled()) {
-            throw new Exception(__('Eway is not enabled.', 'kirki-ecommerce-eway'));
-        }
-
-        try {
-            $this->client = $this->get_client();
-            $builder = new EwayTransactionBuilder($order);
-            $payload = $builder->build_transaction_payload($this->webhook_url());
-            $response = $this->client->create_transaction($payload);
-
-            if (array_key_exists('Errors', $response) && !empty($response['Errors'])) {
-                $error_message = EwayErrorCode::describe($response['Errors']);
-                throw new Exception($error_message);
-            }
-
-            return PaymentActionDTO::from_array([
-                'type' => PaymentActionType::REDIRECT,
-                'value' => $response['SharedPaymentUrl'],
-            ]);
-        } catch (Exception $e) {
-            throw new Exception(sprintf(__('Eway Payment Error: %s', 'kirki-ecommerce-eway'), $e->getMessage()));
-        }
-    }
-
-    /**
-     * Validate settings.
-     *
      * @param array $settings
      * @return bool
      */
@@ -116,8 +150,6 @@ class Eway extends PaymentProvider
     }
 
     /**
-     * Sanitize settings.
-     *
      * @param array $settings
      * @return array
      */
@@ -135,54 +167,7 @@ class Eway extends PaymentProvider
     }
 
     /**
-     * Handle a QuickPay webhook notification.
-     *
-     * @return bool True if the notification was processed, false if ignored.
-     * @throws Exception If the payload is missing, invalid, or the API lookup fails.
-     */
-    public function webhook()
-    {
-        $payload = Request::capture();
-
-        http_response_code(200);
-
-        try {
-            $access_code = $payload->get('AccessCode', null, 'string');
-            if (!$access_code) {
-                throw new Exception(__('Invalid Payload Access Code.', 'kirki-ecommerce-eway'));
-            }
-            $this->client = $this->get_client();
-            $transaction = $this->client->get_transaction($access_code);
-            $this->reference_id = $transaction['Transactions'][0]['InvoiceReference'];
-
-            if (!$this->reference_id) {
-                Log::critical(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-eway'));
-                return false;
-            }
-
-            $order = OrderManager::find_by_uuid($this->reference_id);
-            if (!$order) {
-                Log::critical(__('Webhook error: Order Not Found.', 'kirki-ecommerce-eway'));
-                return false;
-            }
-
-            if ($order->payment_status === PaymentStatus::PAID) {
-                return false;
-            }
-
-            $this->handle_transaction_response($order, $transaction);
-
-            return $transaction['Transactions'][0]['TransactionStatus'] ? true : false;
-        } catch (\Throwable $th) {
-            throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-eway'), $th->getMessage()));
-        }
-    }
-
-    /**
-     * QuickPay API client.
-     *
-     * @return EwayClient
-     * @throws Exception If credentials are missing.
+     * @throws \InvalidArgumentException If the API credentials are not configured.
      */
     protected function get_client(): EwayClient
     {
@@ -201,60 +186,83 @@ class Eway extends PaymentProvider
         return new EwayClient($api_key, $api_password, $sandbox);
     }
 
-    protected function handle_transaction_response(Order $order, array $payload): void
+    /**
+     * Look up the transaction for the request's access code and settle its order.
+     *
+     * An order that is already paid is left untouched.
+     *
+     * @param Request $request
+     * @return array The Eway transaction record.
+     * @throws Exception If the access code is missing, the lookup fails, or the order is not found.
+     */
+    protected function confirm_transaction(Request $request): array
     {
-        if (array_key_exists('Errors', $payload) && !empty($payload['Errors'])) {
-            $error_message = EwayErrorCode::describe($payload['Errors']);
-            Log::critical($error_message);
+        $access_code = (string) $request->text('AccessCode');
+
+        if (empty($access_code)) {
+            throw new Exception(__('Invalid Payload Access Code.', 'kirki-ecommerce-eway'));
         }
 
-        $status = $payload['Transactions'][0]['TransactionStatus'] ? PaymentStatus::PAID : PaymentStatus::FAILED;
+        $response = $this->get_client()->get_transaction($access_code);
+        $transaction = $response['Transactions'][0] ?? [];
 
+        if (!empty($response['Errors'])) {
+            Log::critical(EwayResponseCode::describe($response['Errors']));
+        }
+
+        $order = OrderManager::find_by_uuid((string) ($transaction['InvoiceReference'] ?? ''));
+
+        if (!$order) {
+            throw new Exception(__('Order Not Found.', 'kirki-ecommerce-eway'));
+        }
+
+        if ($order->payment_status !== PaymentStatus::PAID) {
+            $this->settle_order($order, $transaction, $response);
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * Record the transaction on the order and mark its payment paid or failed.
+     *
+     * @param Order $order
+     * @param array $transaction The Eway transaction record.
+     * @param array $response    The full Eway response, stored as payment metadata.
+     * @return void
+     * @throws Exception If the order update fails; all changes are rolled back.
+     */
+    protected function settle_order(Order $order, array $transaction, array $response): void
+    {
         DB::begin_transaction();
 
         try {
-            switch ($status) {
-                case PaymentStatus::PAID:
-                    $this->record_transaction($order, $payload);
-                    OrderManager::mark_payment_as_paid($order->id);
-                    break;
+            OrderManager::set_transaction_id($order->id, (string) ($transaction['TransactionID'] ?? ''));
+            OrderManager::set_payment_metadata($order->id, wp_json_encode($response));
 
-                case PaymentStatus::FAILED:
-                    $this->record_transaction($order, $payload);
-                    OrderManager::mark_payment_as_failed($order->id);
-                    break;
-
-                default:
-                    OrderManager::mark_payment_as_unpaid($order->id);
+            if ($this->is_approved($transaction)) {
+                OrderManager::mark_payment_as_paid($order->id);
+            } else {
+                OrderManager::mark_payment_as_failed($order->id);
             }
 
             DB::commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             DB::rollback();
 
-            throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-quickpay'), $e->getMessage())
-            );
+            /* translators: %s: error message. */
+            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-eway'), $e->getMessage()));
         }
     }
 
-    protected function record_transaction(Order $order, $payload): void
+    /**
+     * Determine whether a completed Eway transaction was approved.
+     *
+     * @param array $transaction The decoded Eway transaction result.
+     * @return bool True if the payment was approved.
+     */
+    protected function is_approved(array $transaction): bool
     {
-        OrderManager::set_transaction_id($order->id, $payload['Transactions'][0]['TransactionID']);
-        OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
-    }
-
-    public function handle_return(Request $request): ?RedirectResponse
-    {
-        $response = $this->webhook();
-
-        try {
-            if ($response) {
-                return redirect(Url::get_checkout_success_url($this->reference_id));
-            }
-            return redirect(Url::get_checkout_failed_url($this->reference_id));
-        } catch (\Throwable $th) {
-            return redirect(Url::get_checkout_failed_url($this->reference_id));
-        }
+        return !empty($transaction['TransactionStatus']);
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Kirki\Ecommerce\Payments;
 
-use Kirki\Ecommerce\Framework\Concerns\HasConstants;
-
 defined('ABSPATH') || exit;
 
 /**
@@ -16,16 +14,14 @@ defined('ABSPATH') || exit;
  *
  * @see https://eway.io/api-v3/#response-amp-error-codes
  */
-class EwayErrorCode
+class EwayResponseCode
 {
-    use HasConstants;
-
     /**
      * Map of Eway response codes to their human readable meaning.
      *
      * @var array<string, string>
      */
-    const ERROR_CODES = [
+    public const MESSAGES = [
         // Approved — the transaction succeeded.
         'A2000' => 'Transaction Approved',
         'A2008' => 'Honour With Identification',
@@ -386,45 +382,22 @@ class EwayErrorCode
     {
         $code = strtoupper(trim($code));
 
-        return self::ERROR_CODES[$code] ?? $code;
+        return static::MESSAGES[$code] ?? $code;
     }
 
     /**
      * Resolve a comma separated list of codes to a readable sentence.
      *
-     * Eway packs multiple validation failures into a single `Errors` string,
-     * for example "V6011,V6044". This expands each one and keeps the code
-     * alongside the message so support requests stay actionable.
-     *
-     * @param string $errors The raw `Errors` field from an Eway response.
+     * @param string $codes The raw `Errors` field from an Eway response.
      * @return string
      */
-    public static function describe(string $errors): string
+    public static function describe(string $codes): string
     {
-        $codes = array_filter(array_map('trim', explode(',', $errors)));
-
-        if (empty($codes)) {
-            return '';
-        }
-
         $messages = array_map(
-            static function (string $code): string {
-                return sprintf('%s (%s)', self::message($code), $code);
-            },
-            $codes
+            fn (string $code): string => sprintf('%s (%s)', static::message($code), $code),
+            array_filter(array_map('trim', explode(',', $codes)))
         );
 
         return implode('; ', $messages);
-    }
-
-    /**
-     * Whether a transaction response code represents an approval.
-     *
-     * @param string $code
-     * @return bool
-     */
-    public static function is_approved(string $code): bool
-    {
-        return 0 === strpos(strtoupper(trim($code)), 'A');
     }
 }

@@ -2,23 +2,25 @@
 
 namespace Kirki\Ecommerce\Payments;
 
-use Kirki\Ecommerce\Framework\Concerns\HasConstants;
+defined('ABSPATH') || exit;
 
 /**
- * Constants for the QuickPay Payments API integration.
+ * Constants for the Eway Rapid API integration.
  */
-class EwayConstant
+final class EwayConstant
 {
-    use HasConstants;
+    public const API_VERSION = '47';
 
-    const TRANSACTION_TYPE_PURCHASE = 'Purchase';
-    const PROCESS_PAYMENT = 'ProcessPayment';
-    const RESPONSIVE_SHARED = 'ResponsiveShared';
+    public const BASE_URL_SANDBOX = 'https://api.sandbox.ewaypayments.com/';
+    public const BASE_URL_PRODUCTION = 'https://api.ewaypayments.com/';
 
-    const ENDPOINT_SANDBOX = 'https://api.sandbox.ewaypayments.com/';
-    const ENDPOINT_PRODUCTION = 'https://api.ewaypayments.com/';
-    const POST_METHOD = 'post';
-    const GET_METHOD = 'get';
-    const API_ACCESS_CODE_SHARED = 'AccessCodesShared';
-    const API_VERSION = 47;
+    public const PATH_ACCESS_CODES_SHARED = 'AccessCodesShared';
+    public const PATH_TRANSACTION = 'Transaction/';
+
+    public const METHOD_PROCESS_PAYMENT = 'ProcessPayment';
+    public const TRANSACTION_TYPE_PURCHASE = 'Purchase';
+
+    public const NAME_MAX_LENGTH = 30;
+    public const POSTAL_CODE_MAX_LENGTH = 30;
+    public const FIELD_MAX_LENGTH = 50;
 }
