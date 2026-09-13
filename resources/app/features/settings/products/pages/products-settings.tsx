@@ -2,11 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { StandardUnit } from '@/features/settings/products/pages/standard-unit';
 import {
@@ -20,6 +18,7 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ProductsSettings = () => {
@@ -46,10 +45,6 @@ const ProductsSettings = () => {
     );
   }, [productSettingsData, form]);
 
-  useEffect(() => {
-    setUnsavedDataStatus(form.formState.isDirty);
-  }, [form.formState.isDirty]);
-
   const handleSaveData = async (payload: ProductsSettingsFormPayload) => {
     try {
       await saveSettings({
@@ -74,7 +69,7 @@ const ProductsSettings = () => {
   });
 
   return !isLoading ? (
-    <Container size="sm">
+    <div css={scoped({ width: '100%' })}>
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader
@@ -86,7 +81,7 @@ const ProductsSettings = () => {
           {/* <Review /> */}
         </Flex>
       </Form>
-    </Container>
+    </div>
   ) : (
     <ProductsSettingsSkeleton />
   );

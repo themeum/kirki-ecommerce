@@ -1,18 +1,9 @@
 import type { CSSObject } from '@emotion/react';
 import { Fragment, type ReactNode } from 'react';
-import {
-  Controller,
-  type FieldPath,
-  type FieldValues,
-  useFormContext,
-} from 'react-hook-form';
+import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '@/components/ui/input-group';
+import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import {
   Select,
   SelectContent,
@@ -90,8 +81,7 @@ const UnitAmountField = <
           control={control}
           name={unitName}
           render={({ field: unitField, fieldState: unitState }) => {
-            const hasError =
-              Boolean(amountState.error) || Boolean(unitState.error);
+            const hasError = Boolean(amountState.error) || Boolean(unitState.error);
 
             const handleUnitChange = (nextUnit: string) => {
               unitField.onChange(nextUnit);
@@ -99,10 +89,7 @@ const UnitAmountField = <
             };
 
             return (
-              <Field
-                data-invalid={hasError || undefined}
-                cssOverride={cssOverride}
-              >
+              <Field data-invalid={hasError || undefined} cssOverride={cssOverride}>
                 {label && (
                   <FieldLabel htmlFor={fieldId} infoText={infoText}>
                     {label}
@@ -122,6 +109,7 @@ const UnitAmountField = <
                     onBlur={amountField.onBlur}
                     disabled={disabled}
                     aria-invalid={amountState.invalid}
+                    onFocus={(event) => event.target.select()}
                   />
                   <InputGroupAddon align="inline-end">
                     <Select
@@ -136,51 +124,43 @@ const UnitAmountField = <
                         cssOverride={styles.unitTrigger}
                       >
                         <SelectValue>
-                          {unitShortText
-                            ? unitShortText(unitField.value)
-                            : undefined}
+                          {unitShortText ? unitShortText(unitField.value) : undefined}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {isGrouped(unitOptions)
                           ? unitOptions.map((group, index) => (
-                            <Fragment key={group.heading}>
-                              {index > 0 && <SelectSeparator />}
-                              <SelectGroup>
-                                <SelectLabel icon={group.icon}>
-                                  {group.heading}
-                                </SelectLabel>
-                                {group.items.map((item) => (
-                                  <SelectItem
-                                    key={item.value}
-                                    value={item.value}
-                                    endSlot={item.endSlot}
-                                  >
-                                    {item.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </Fragment>
-                          ))
+                              <Fragment key={group.heading}>
+                                {index > 0 && <SelectSeparator />}
+                                <SelectGroup>
+                                  <SelectLabel icon={group.icon}>{group.heading}</SelectLabel>
+                                  {group.items.map((item) => (
+                                    <SelectItem
+                                      key={item.value}
+                                      value={item.value}
+                                      endSlot={item.endSlot}
+                                    >
+                                      {item.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </Fragment>
+                            ))
                           : unitOptions.map((option) => (
-                            <SelectItem
-                              key={option.value}
-                              value={option.value}
-                              endSlot={option.endSlot}
-                            >
-                              {option.label}
-                            </SelectItem>
-                          ))}
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                                endSlot={option.endSlot}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
                       </SelectContent>
                     </Select>
                   </InputGroupAddon>
                 </InputGroup>
-                {description && (
-                  <FieldDescription>{description}</FieldDescription>
-                )}
-                {hasError && (
-                  <FieldError errors={[amountState.error, unitState.error]} />
-                )}
+                {description && <FieldDescription>{description}</FieldDescription>}
+                {hasError && <FieldError errors={[amountState.error, unitState.error]} />}
               </Field>
             );
           }}

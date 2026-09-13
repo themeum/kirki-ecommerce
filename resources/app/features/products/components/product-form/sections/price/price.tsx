@@ -26,12 +26,8 @@ const Price = () => {
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
 
-  const showUnitPrice = Boolean(
-    useWatch({ control, name: 'variants.0.show_unit_price' }),
-  );
-  const chargeTaxes = Boolean(
-    useWatch({ control, name: 'variants.0.charge_taxes' }),
-  );
+  const showUnitPrice = Boolean(useWatch({ control, name: 'variants.0.show_unit_price' }));
+  const chargeTaxes = Boolean(useWatch({ control, name: 'variants.0.charge_taxes' }));
   const currency = useWatch({ control, name: 'currency' });
   const variant = useWatch({ control, name: 'variants.0' });
   const currencySymbol = currency?.symbol || '$';
@@ -117,10 +113,7 @@ const Price = () => {
                 <CheckboxField
                   name="variants.0.charge_taxes"
                   label={__('Charge tax on this product', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Apply tax to this product using a tax profile.',
-                    'kirki-ecommerce',
-                  )}
+                  infoText={__('Apply tax to this product using a tax profile.', 'kirki-ecommerce')}
                 />
                 {chargeTaxes && (
                   <CreatableSelectField
@@ -151,11 +144,7 @@ const Price = () => {
           <Flex direction="column" gap={2}>
             <Label>{__('Profit', 'kirki-ecommerce')}</Label>
             <div style={{ position: 'relative' }}>
-              <span
-                css={scoped(styles.inputLeftSymbol)}
-              >
-                {currencySymbol}
-              </span>
+              <span css={scoped(styles.inputLeftSymbol)}>{currencySymbol}</span>
               <Input
                 value={calculateProfit('profit', variant)}
                 cssOverride={{ textIndent: '12px' }}

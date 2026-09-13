@@ -1,23 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useOutletContext } from 'react-router';
 
-type SettingsPageActionsInput = {
-  isDirty: boolean;
-  isSaving?: boolean;
-  onSave: () => void;
-  onDiscard: () => void;
-};
-
-type RegisteredSettingsPageActions = {
-  isDirty: boolean;
-  isSaving: boolean;
-  onSave: () => void;
-  onDiscard: () => void;
-};
-
-type SettingsLayoutOutletContext = {
-  registerActions: (actions: RegisteredSettingsPageActions | null) => void;
-};
+import type {
+  SettingsLayoutOutletContext,
+  SettingsPageActionsInput,
+} from '@/features/settings/types';
 
 const useSettingsPageActions = (actions: SettingsPageActionsInput): void => {
   const { registerActions } = useOutletContext<SettingsLayoutOutletContext>();
@@ -37,4 +24,3 @@ const useSettingsPageActions = (actions: SettingsPageActionsInput): void => {
 };
 
 export { useSettingsPageActions };
-export type { RegisteredSettingsPageActions };

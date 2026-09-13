@@ -8,12 +8,11 @@ import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Image from '@/components/ui/image';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { NEW_ITEM_ID } from '@/conf';
@@ -81,9 +80,12 @@ const CollectionDetails = () => {
         });
       } else {
         const response = await createMutation.mutateAsync(payload);
-        void navigate(RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }), {
-          replace: true,
-        });
+        void navigate(
+          RouteConfig.Collections.get('CollectionDetail').buildLink({ id: response.data.id }),
+          {
+            replace: true,
+          },
+        );
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -95,127 +97,127 @@ const CollectionDetails = () => {
   };
 
   return (
-    <Form {...form}>
-      <PageHeading
-        text={
-          isNew ? __('New Collection', 'kirki-ecommerce') : __('Edit Collection', 'kirki-ecommerce')
-        }
-        type="primary"
-        sticky
-        actions={
-          <>
-            <Button variant="ghost" onClick={handleBack}>
-              {__('Cancel', 'kirki-ecommerce')}
-            </Button>
-            <Button
-              variant="primary"
-              onClick={form.handleSubmit(handleSubmit)}
-              loading={isSubmitting}
-            >
-              {isNew ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
-            </Button>
-          </>
-        }
-        hasBack
-        onBack={handleBack}
-      />
+    <Page containerSize="md">
+      <Form {...form}>
+        <PageHeading
+          text={
+            isNew ? __('New Collection', 'kirki-ecommerce') : __('Edit Collection', 'kirki-ecommerce')
+          }
+          actions={
+            <>
+              <Button variant="ghost" onClick={handleBack}>
+                {__('Cancel', 'kirki-ecommerce')}
+              </Button>
+              <Button
+                variant="primary"
+                onClick={form.handleSubmit(handleSubmit)}
+                loading={isSubmitting}
+              >
+                {isNew ? __('Create', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
+              </Button>
+            </>
+          }
+          hasBack
+          onBack={handleBack}
+        />
 
-      {isLoadingCollection ? (
-        <CollectionDetailsSkeleton />
-      ) : (
-        <Container size="md">
-          <Flex direction="column" gap={4}>
-            <Card cssOverride={cardStyles.formCard}>
-              <CardContent>
-                <Flex direction="column" gap={4}>
-                  <Grid>
-                    <TextField
-                      name="title"
-                      label={__('Title', 'kirki-ecommerce')}
-                      placeholder={__('e.g. Winter sale', 'kirki-ecommerce')}
+        {isLoadingCollection ? (
+          <CollectionDetailsSkeleton />
+        ) : (
+                  <PageContent>
+            <Flex direction="column" gap={4}>
+              <Card cssOverride={cardStyles.formCard}>
+                <CardContent>
+                  <Flex direction="column" gap={4}>
+                    <Grid>
+                      <TextField
+                        name="title"
+                        label={__('Title', 'kirki-ecommerce')}
+                        placeholder={__('e.g. Winter sale', 'kirki-ecommerce')}
+                      />
+                      <TextField
+                        name="slug"
+                        label={__('Slug', 'kirki-ecommerce')}
+                        placeholder={__('winter-sale', 'kirki-ecommerce')}
+                      />
+                    </Grid>
+                    <TextareaField
+                      name="description"
+                      label={__('Description', 'kirki-ecommerce')}
+                      rows={5}
+                      placeholder={__(
+                        'e.g. Discover our exciting winter sale! Enjoy amazing discounts on cozy sweaters, stylish boots, and essential winter gear.',
+                        'kirki-ecommerce',
+                      )}
                     />
-                    <TextField
-                      name="slug"
-                      label={__('Slug', 'kirki-ecommerce')}
-                      placeholder={__('winter-sale', 'kirki-ecommerce')}
-                    />
-                  </Grid>
-                  <TextareaField
-                    name="description"
-                    label={__('Description', 'kirki-ecommerce')}
-                    rows={5}
-                    placeholder={__(
-                      'e.g. Discover our exciting winter sale! Enjoy amazing discounts on cozy sweaters, stylish boots, and essential winter gear.',
-                      'kirki-ecommerce',
-                    )}
-                  />
-                  <MediaField name="banner" label={__('Banner', 'kirki-ecommerce')} />
-                </Flex>
-              </CardContent>
-            </Card>
+                    <MediaField name="banner" label={__('Banner', 'kirki-ecommerce')} />
+                  </Flex>
+                </CardContent>
+              </Card>
 
-            <Card cssOverride={mergeCss(cardStyles.formCard, styles.productPlaceholderCard)}>
-              <CardContent>
-                <Flex direction="column" gap={3} align="center" justify="center">
-                  <ProductIcon />
-                  <Button variant="secondary">
-                    <PlusIcon />
-                    {__('Select Products', 'kirki-ecommerce')}
-                  </Button>
-                </Flex>
-              </CardContent>
-            </Card>
+              <Card cssOverride={mergeCss(cardStyles.formCard, styles.productPlaceholderCard)}>
+                <CardContent>
+                  <Flex direction="column" gap={3} align="center" justify="center">
+                    <ProductIcon />
+                    <Button variant="secondary">
+                      <PlusIcon />
+                      {__('Select Products', 'kirki-ecommerce')}
+                    </Button>
+                  </Flex>
+                </CardContent>
+              </Card>
 
-            <Card cssOverride={cardStyles.formCard}>
-              <CardContent>
-                <Flex direction="column" gap={4}>
-                  <CardHeader>
-                    <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
-                  </CardHeader>
-                  <Card cssOverride={mergeCss(cardStyles.innerCard, { padding: theme.spacing[2] })}>
-                    <CardContent>
-                      <Flex gap={4} justify="space-between">
-                        <Flex direction="column" gap={2}>
-                          <Text variant="small" cssOverride={styles.seoUrl}>
-                            {window.kirki_ecommerce.site_url +
-                              ' › collections › ' +
-                              (watchedSlug || '')}
-                          </Text>
-                          <Text weight="semibold" cssOverride={styles.seoTitle}>
-                            {watchedSeoTitle || watchedTitle || ''}
-                          </Text>
-                          <Text variant="small" cssOverride={styles.seoDescription}>
-                            {watchedSeoDescription || watchedDescription || ''}
-                          </Text>
+              <Card cssOverride={cardStyles.formCard}>
+                <CardContent>
+                  <Flex direction="column" gap={4}>
+                    <CardHeader>
+                      <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
+                    </CardHeader>
+                    <Card cssOverride={mergeCss(cardStyles.innerCard, { padding: theme.spacing[2] })}>
+                      <CardContent>
+                        <Flex gap={4} justify="space-between">
+                          <Flex direction="column" gap={2}>
+                            <Text variant="small" cssOverride={styles.seoUrl}>
+                              {window.kirki_ecommerce.site_url +
+                                ' › collections › ' +
+                                (watchedSlug || '')}
+                            </Text>
+                            <Text weight="semibold" cssOverride={styles.seoTitle}>
+                              {watchedSeoTitle || watchedTitle || ''}
+                            </Text>
+                            <Text variant="small" cssOverride={styles.seoDescription}>
+                              {watchedSeoDescription || watchedDescription || ''}
+                            </Text>
+                          </Flex>
+                          <Image
+                            src={typeof watchedBanner === 'number' ? null : watchedBanner}
+                            width={92}
+                            height={92}
+                            cssOverride={{ flexShrink: 0 }}
+                          />
                         </Flex>
-                        <Image
-                          src={typeof watchedBanner === 'number' ? null : watchedBanner}
-                          width={92}
-                          height={92}
-                          cssOverride={{ flexShrink: 0 }}
-                        />
-                      </Flex>
-                    </CardContent>
-                  </Card>
-                  <Separator cssOverride={styles.seoSeparator} />
-                  <TextField
-                    name="seo_title"
-                    label={__('Title', 'kirki-ecommerce')}
-                    placeholder={__('Placeholder', 'kirki-ecommerce')}
-                  />
-                  <TextareaField
-                    name="seo_description"
-                    label={__('Meta Description', 'kirki-ecommerce')}
-                    rows={5}
-                    placeholder={__('Placeholder', 'kirki-ecommerce')}
-                  />
-                </Flex>
-              </CardContent>
-            </Card>
-          </Flex>
-        </Container>
-      )}
-    </Form>
+                      </CardContent>
+                    </Card>
+                    <Separator cssOverride={styles.seoSeparator} />
+                    <TextField
+                      name="seo_title"
+                      label={__('Title', 'kirki-ecommerce')}
+                      placeholder={__('Placeholder', 'kirki-ecommerce')}
+                    />
+                    <TextareaField
+                      name="seo_description"
+                      label={__('Meta Description', 'kirki-ecommerce')}
+                      rows={5}
+                      placeholder={__('Placeholder', 'kirki-ecommerce')}
+                    />
+                  </Flex>
+                </CardContent>
+              </Card>
+            </Flex>
+          </PageContent>
+        )}
+      </Form>
+    </Page>
   );
 };
 
@@ -238,6 +240,5 @@ const styles = defineStyles({
   },
   seoSeparator: {
     margin: `auto -${theme.spacing[4]}`,
-    backgroundColor: theme.colors.background.surfaceSubdued,
   },
 });

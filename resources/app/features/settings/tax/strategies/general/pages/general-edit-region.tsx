@@ -12,7 +12,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SingleTaxRate from '@/features/settings/tax/shared/components/single-tax-rate';
 import TaxRules from '@/features/settings/tax/shared/components/tax-rules/tax-rules';
@@ -35,6 +34,7 @@ import {
   TaxRegionGeneralFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-general-form';
 import GeneralTaxRegionSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-skeleton';
+import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -106,10 +106,6 @@ const GeneralEditRegion = () => {
       rules: region?.rules ?? [],
     });
   }, [regions, code, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleAddStates = async () => {
     if (!code) {
@@ -185,8 +181,13 @@ const GeneralEditRegion = () => {
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
                 title={country?.name ?? usedRegion?.name ?? code}
-                icon={country?.flag ?? usedRegion?.flag}
-                onBack={() => navigate(RouteConfig.Settings.get('TaxSettings').buildLink())}
+                icon={<TaxIcon />}
+                breadcrumbs={[
+                  {
+                    label: __('Tax', 'kirki-ecommerce'),
+                    to: RouteConfig.Settings.get('TaxSettings').buildLink(),
+                  },
+                ]}
               />
 
               <Card cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}>

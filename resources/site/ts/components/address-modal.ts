@@ -66,7 +66,7 @@ export interface AddressModalHost {
   formData: AddressFormData;
   countries: CountryItem[];
   availableStates: CountryState[];
-  hasAddresses(): boolean;
+  shouldDisplayDefaultCheckboxes(): boolean;
   addresses?: AddressItem[];
   savedAddresses?: AddressItem[];
   activeMenuId?: number | string | null;
@@ -130,7 +130,9 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       const countriesList: CountryItem[] =
         this.countries ?? (config?.countries as CountryItem[]) ?? [];
       const country = countriesList.find(
-        (c: CountryItem) => (c.code || String(c.id)) === countryCode,
+        (countryItem: CountryItem) =>
+          (countryItem.code || String(countryItem.id)).toLowerCase() ===
+          String(countryCode).toLowerCase(),
       );
       return country?.states ?? [];
     },
@@ -139,10 +141,9 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       return (this as AddressModalHost).getAvailableStates();
     },
 
-    hasAddresses(this: AddressModalHost): boolean {
-      const addressHost = this as AddressModalHost;
-      const addressList = addressHost.addresses ?? addressHost.savedAddresses ?? [];
-      return addressList.length > 0;
+    shouldDisplayDefaultCheckboxes(this: AddressModalHost): boolean {
+      const addressList = this.addresses ?? this.savedAddresses ?? [];
+      return this.isEditing ? addressList.length > 1 : addressList.length > 0;
     },
 
     getAddressLabel(address: AddressItem): string {
@@ -194,7 +195,10 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       return country ? country.name : code;
     },
 
-    getCityStateZip(this: AddressModalHost, address?: AddressItem | CheckoutAddress | null): string {
+    getCityStateZip(
+      this: AddressModalHost,
+      address?: AddressItem | CheckoutAddress | null,
+    ): string {
       if (!address) {
         return '';
       }

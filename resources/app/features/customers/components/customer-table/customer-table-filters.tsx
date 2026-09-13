@@ -7,7 +7,6 @@ import { customerListOptions } from '@/features/customers/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
 
 const CustomerTableFilters = () => {
   const { params, setParam } = useDataTableParams<CustomerListFilter>(customerListOptions);
@@ -25,6 +24,8 @@ const CustomerTableFilters = () => {
           clearable
         />
       </div>
+      <FilterPopup />
+
       <ActionGroup>
         <FilterPopup />
       </ActionGroup>

@@ -184,6 +184,7 @@ export type CheckoutRequest = {
   coupon_code?: string;
   shipping_method?: string;
   is_billing_same_as_shipping?: boolean;
+  shipping_id?: string | number;
   shipping_first_name: string;
   shipping_last_name: string;
   shipping_address_line1: string;
@@ -195,6 +196,7 @@ export type CheckoutRequest = {
   shipping_phone: string;
   shipping_email?: string;
   shipping_company?: string | null;
+  billing_id?: string | number;
   billing_first_name?: string;
   billing_last_name?: string;
   billing_address_line1?: string;
