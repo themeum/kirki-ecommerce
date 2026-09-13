@@ -153,33 +153,26 @@ class Eway extends PaymentProvider
             }
             $this->client = $this->get_client();
             $transaction = $this->client->get_transaction($access_code);
+            $this->reference_id = $transaction['Transactions'][0]['InvoiceReference'];
 
-            if (array_key_exists('Errors', $transaction) && !empty($transaction['Errors'])) {
-                $error_message = EwayErrorCode::describe($transaction['Errors']);
-                Log::critical($error_message);
-                $this->reference_id = $transaction['Transactions'][0]['InvoiceReference'];
+            if (!$this->reference_id) {
+                Log::critical(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-eway'));
                 return false;
             }
 
-            
-
-            $order_uuid = $payload->variables->order_uuid ?? '';
-            if (!$order_uuid) {
-                throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-eway'));
-            }
-
-            $order = OrderManager::find_by_uuid($order_uuid);
+            $order = OrderManager::find_by_uuid($this->reference_id);
             if (!$order) {
-                throw new Exception(__('Webhook error: Order Not Found.', 'kirki-ecommerce-eway'));
+                Log::critical(__('Webhook error: Order Not Found.', 'kirki-ecommerce-eway'));
+                return false;
             }
 
             if ($order->payment_status === PaymentStatus::PAID) {
                 return false;
             }
 
-            $this->handle_transaction_response($order, $payload);
+            $this->handle_transaction_response($order, $transaction);
 
-            return true;
+            return $transaction['Transactions'][0]['TransactionStatus'] ? true : false;
         } catch (\Throwable $th) {
             throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-eway'), $th->getMessage()));
         }
@@ -208,27 +201,14 @@ class Eway extends PaymentProvider
         return new EwayClient($api_key, $api_password, $sandbox);
     }
 
-    /**
-     * Apply an order's status, from QuickPay's Order Management API, to the local order.
-     *
-     * @param Order $order The local order.
-     * @param object $payload The payment data returned by QuickPay.
-     * @return void
-     * @throws Exception If the order update fails.
-     */
-    protected function handle_transaction_response(Order $order, object $payload): void
+    protected function handle_transaction_response(Order $order, array $payload): void
     {
-        if (empty($payload->operations)) {
-            throw new Exception(__('QuickPay payload data not found.', 'kirki-ecommerce-quickpay'));
+        if (array_key_exists('Errors', $payload) && !empty($payload['Errors'])) {
+            $error_message = EwayErrorCode::describe($payload['Errors']);
+            Log::critical($error_message);
         }
 
-        $operation = end($payload->operations);
-
-        if (QuickpayConstant::PAYMENT_CAPTURE !== $operation->type) {
-            return;
-        }
-
-        $status = $this->get_status($operation);
+        $status = $payload['Transactions'][0]['TransactionStatus'] ? PaymentStatus::PAID : PaymentStatus::FAILED;
 
         DB::begin_transaction();
 
@@ -237,9 +217,6 @@ class Eway extends PaymentProvider
                 case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
-                    if (!empty($payload->fee)) {
-                        OrderManager::set_payment_provider_fee($order->id, $payload->fee);
-                    }
                     break;
 
                 case PaymentStatus::FAILED:
@@ -261,9 +238,9 @@ class Eway extends PaymentProvider
         }
     }
 
-    protected function record_transaction(Order $order, object $payload): void
+    protected function record_transaction(Order $order, $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->id);
+        OrderManager::set_transaction_id($order->id, $payload['Transactions'][0]['TransactionID']);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 

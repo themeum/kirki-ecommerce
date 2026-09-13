@@ -62,10 +62,10 @@ class EwayTransactionBuilder
                 'Email' => $this->order->shipping_email ?? ''
             ],
             'Items' => $this->get_items(),
-            'InvoiceReference' => $this->order->uuid,
             'Payment' => [
                 'TotalAmount' => $this->order->invoiced_total,
-                'CurrencyCode' => 'AUD'//$this->order->currency_code,
+                'CurrencyCode' => 'AUD',//$this->order->currency_code,
+                'InvoiceReference' => $this->order->uuid,
             ]
         ];
     }
@@ -113,19 +113,12 @@ class EwayTransactionBuilder
                 'Quantity' => (int) $item->quantity,
                 'Total' => (int) $item->invoiced_total,
                 'UnitCost' => (int) $item->invoiced_price,
+                'Tax' => (int) $item->invoiced_tax_total
             ];
         }
 
-        if (!empty($this->order->invoiced_tax_total)) {
-            $line_items[] = $this->create_additional_charge('Tax', $this->order->invoiced_tax_total);
-        }
-
         if (!empty($this->order->invoiced_shipping_total)) {
-            $line_items[] = $this->create_additional_charge('Shipping Charge', $this->order->invoiced_shipping_total);
-        }
-
-        if (!empty($this->order->invoiced_discount_total)) {
-            $line_items[] = $this->create_additional_charge('Coupon Discount', -$this->order->invoiced_discount_total);
+            $line_items[] = $this->create_additional_charge(__('Shipping (Incl. any tax)'), $this->order->invoiced_shipping_total);
         }
 
         return $line_items;
