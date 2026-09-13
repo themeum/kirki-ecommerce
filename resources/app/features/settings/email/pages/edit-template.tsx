@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router';
-
 import ColorPickerField from '@/components/form/color-picker-field';
 import MediaField from '@/components/form/media-field';
 import ProgressBarField from '@/components/form/progress-bar-field';
@@ -19,13 +17,12 @@ import {
 } from '@/features/settings/email/lib/template';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { AlignCenterIcon, AlignLeftIcon, BrushIcon, SendIcon } from '@/icons';
+import { AlignCenterIcon, AlignLeftIcon, AtSignIcon, SendIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const EditTemplate = () => {
-  const navigate = useNavigate();
   const { form, loaded, heightValue } = useEditTemplate();
 
   return (
@@ -35,9 +32,14 @@ const EditTemplate = () => {
           <Form {...form}>
             <Flex direction="column" gap={4} cssOverride={{ width: '100%' }}>
               <SettingsPageHeader
-                icon={<BrushIcon />}
+                icon={<AtSignIcon />}
                 title={__('Edit Template', 'kirki-ecommerce')}
-                onBack={() => navigate(RouteConfig.Settings.get('EmailSettings').buildLink())}
+                breadcrumbs={[
+                  {
+                    label: __('Email', 'kirki-ecommerce'),
+                    to: RouteConfig.Settings.get('EmailSettings').buildLink(),
+                  },
+                ]}
               />
               <Flex gap={12} cssOverride={{ width: '100%' }}>
                 <Flex direction="column" gap={5} cssOverride={{ width: '44%' }}>

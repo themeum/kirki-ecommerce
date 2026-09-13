@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CollectionTable from '@/features/collections/components/collection-table/collection-table';
@@ -12,7 +11,7 @@ const Collections = () => {
   const navigate = useNavigate();
 
   return (
-    <>
+    <Page>
       <PageHeading
         text={__('Collections', 'kirki-ecommerce')}
         actions={
@@ -28,14 +27,13 @@ const Collections = () => {
           </Button>
         }
       />
-      <Container>
+      <PageContent>
         <CollectionTable />
-      </Container>
-    </>
+      </PageContent>
+    </Page>
   );
 };
 
 Collections.displayName = 'Collections';
 
 export default Collections;
-

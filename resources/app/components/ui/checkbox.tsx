@@ -126,7 +126,7 @@ const styles = defineStyles({
     lineHeight: 0,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.background.surface,
+    backgroundColor: 'transparent',
     color: theme.colors.background.surfaceTertiary,
     '&:focus-visible': {
       ...uiFocusRing(theme),
@@ -134,6 +134,10 @@ const styles = defineStyles({
     '&[data-state="checked"], &[data-state="indeterminate"]': {
       backgroundColor: theme.colors.background.fillBrand,
       borderColor: theme.colors.background.fillBrand,
+
+      '& svg': {
+        color: theme.colors.icon.inverse,
+      },
     },
     '&:disabled': {
       opacity: 0.5,

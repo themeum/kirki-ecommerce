@@ -6,7 +6,6 @@ import { useNavigate, useOutletContext } from 'react-router';
 
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import {
   getShippingMethodData as getZoneShippingMethods,
   removeZone,
@@ -22,6 +21,7 @@ import type {
   ShippingMethodData,
   ShippingZone,
 } from '@/features/settings/shipping/types';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -35,10 +35,6 @@ import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
-
-type SettingsOutletContext = {
-  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
-};
 
 type UseShippingSettingsResult = {
   form: UseFormReturn<ShippingSettingsFormInput, unknown, ShippingSettingsFormPayload>;
@@ -97,10 +93,6 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
 
     form.reset(pickFormValues(ShippingSettingsFormSchema, shippingSettingsData));
   }, [shippingSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const setShippingZonesObj = (
     updater: ShippingZone[] | ((prev: ShippingZone[]) => ShippingZone[]),

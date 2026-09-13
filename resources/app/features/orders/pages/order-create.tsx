@@ -1,11 +1,9 @@
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Page from '@/components/ui/page';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import CustomerCard from '@/features/orders/components/order-create/customer-card';
 import NotesCard from '@/features/orders/components/order-create/notes-card';
 import PaymentSummaryCard from '@/features/orders/components/order-create/payment-summary-card';
@@ -36,11 +34,10 @@ const OrderCreate = () => {
   } = useOrderCreate();
 
   return (
-    <Page>
+    <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
           text={__('Create order', 'kirki-ecommerce')}
-          type="primary"
           actions={
             <>
               <Button variant="ghost" onClick={handleBack}>
@@ -53,9 +50,8 @@ const OrderCreate = () => {
           }
           hasBack
           onBack={handleBack}
-          sticky
         />
-        <Container>
+        <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
               <ProductSelectionCard
@@ -86,7 +82,7 @@ const OrderCreate = () => {
               <NotesCard />
             </Flex>
           </Flex>
-        </Container>
+        </PageContent>
 
         {pickerOpen && (
           <SelectProductsDialog

@@ -1,12 +1,19 @@
 import { type CSSObject } from '@emotion/react';
 import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import type { ComponentRef} from 'react';
+import type { ComponentRef } from 'react';
 import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import {
+  defineStyles,
+  flexCenter,
+  itemCenter,
+  scoped,
+  scopedMerge,
+  uiFocusRing,
+} from '@/theme/mixins';
 
 const Select = SelectPrimitive.Root;
 
@@ -25,35 +32,33 @@ type SelectTriggerProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const SelectTrigger = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Trigger>,
-  SelectTriggerProps
->((props, ref) => {
-  const {
-    cssOverride,
-    variant = 'default',
-    error,
-    children,
-    ...rest
-  } = props;
+const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, SelectTriggerProps>(
+  (props, ref) => {
+    const { cssOverride, variant = 'default', error, children, ...rest } = props;
 
-  return (
-    <SelectPrimitive.Trigger
-      ref={ref}
-      data-slot="select-trigger"
-      data-error={error ? 'true' : undefined}
-      css={scopedMerge(styles.trigger, styles.variants[variant], error && styles.error, cssOverride)}
-      {...rest}
-    >
-      <span css={scoped(styles.value)}>{children}</span>
-      <SelectPrimitive.Icon asChild>
-        <span css={scoped(styles.chevron)}>
-          <ChevronDownIcon width={16} height={16} />
-        </span>
-      </SelectPrimitive.Icon>
-    </SelectPrimitive.Trigger>
-  );
-});
+    return (
+      <SelectPrimitive.Trigger
+        ref={ref}
+        data-slot="select-trigger"
+        data-error={error ? 'true' : undefined}
+        css={scopedMerge(
+          styles.trigger,
+          styles.variants[variant],
+          error && styles.error,
+          cssOverride,
+        )}
+        {...rest}
+      >
+        <span css={scoped(styles.value)}>{children}</span>
+        <SelectPrimitive.Icon asChild>
+          <span css={scoped(styles.chevron)}>
+            <ChevronDownIcon width={16} height={16} />
+          </span>
+        </SelectPrimitive.Icon>
+      </SelectPrimitive.Trigger>
+    );
+  },
+);
 
 SelectTrigger.displayName = 'SelectTrigger';
 
@@ -64,37 +69,31 @@ type SelectContentProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const SelectContent = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Content>,
-  SelectContentProps
->((props, ref) => {
-  const {
-    cssOverride,
-    children,
-    position = 'item-aligned',
-    ...rest
-  } = props;
-  const isPopper = position === 'popper';
+const SelectContent = forwardRef<ComponentRef<typeof SelectPrimitive.Content>, SelectContentProps>(
+  (props, ref) => {
+    const { cssOverride, children, position = 'item-aligned', ...rest } = props;
+    const isPopper = position === 'popper';
 
-  return (
-    <SelectPrimitive.Portal container={getPortalContainer()}>
-      <SelectPrimitive.Content
-        ref={ref}
-        position={position}
-        css={scopedMerge(
-          styles.content,
-          isPopper ? styles.contentPopper : styles.contentItemAligned,
-          cssOverride,
-        )}
-        {...rest}
-      >
-        <SelectPrimitive.Viewport css={scoped(styles.viewport)}>
-          {children}
-        </SelectPrimitive.Viewport>
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
-  );
-});
+    return (
+      <SelectPrimitive.Portal container={getPortalContainer()}>
+        <SelectPrimitive.Content
+          ref={ref}
+          position={position}
+          css={scopedMerge(
+            styles.content,
+            isPopper ? styles.contentPopper : styles.contentItemAligned,
+            cssOverride,
+          )}
+          {...rest}
+        >
+          <SelectPrimitive.Viewport css={scoped(styles.viewport)}>
+            {children}
+          </SelectPrimitive.Viewport>
+        </SelectPrimitive.Content>
+      </SelectPrimitive.Portal>
+    );
+  },
+);
 
 SelectContent.displayName = 'SelectContent';
 
@@ -106,19 +105,18 @@ type SelectLabelProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const SelectLabel = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Label>,
-  SelectLabelProps
->((props, ref) => {
-  const { cssOverride, icon, children, ...rest } = props;
+const SelectLabel = forwardRef<ComponentRef<typeof SelectPrimitive.Label>, SelectLabelProps>(
+  (props, ref) => {
+    const { cssOverride, icon, children, ...rest } = props;
 
-  return (
-    <SelectPrimitive.Label ref={ref} css={scopedMerge(styles.label, cssOverride)} {...rest}>
-      {icon && <span css={scoped(styles.labelIcon)}>{icon}</span>}
-      {children}
-    </SelectPrimitive.Label>
-  );
-});
+    return (
+      <SelectPrimitive.Label ref={ref} css={scopedMerge(styles.label, cssOverride)} {...rest}>
+        {icon && <span css={scoped(styles.labelIcon)}>{icon}</span>}
+        {children}
+      </SelectPrimitive.Label>
+    );
+  },
+);
 
 SelectLabel.displayName = 'SelectLabel';
 
@@ -130,24 +128,23 @@ type SelectItemProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const SelectItem = forwardRef<
-  ComponentRef<typeof SelectPrimitive.Item>,
-  SelectItemProps
->((props, ref) => {
-  const { cssOverride, endSlot, children, ...rest } = props;
+const SelectItem = forwardRef<ComponentRef<typeof SelectPrimitive.Item>, SelectItemProps>(
+  (props, ref) => {
+    const { cssOverride, endSlot, children, ...rest } = props;
 
-  return (
-    <SelectPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
-      <span css={scoped(styles.itemIndicator)}>
-        <SelectPrimitive.ItemIndicator>
-          <CheckIcon width={16} height={16} />
-        </SelectPrimitive.ItemIndicator>
-      </span>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-      {endSlot && <span css={scoped(styles.itemEndSlot)}>{endSlot}</span>}
-    </SelectPrimitive.Item>
-  );
-});
+    return (
+      <SelectPrimitive.Item ref={ref} css={scopedMerge(styles.item, cssOverride)} {...rest}>
+        <span css={scoped(styles.itemIndicator)}>
+          <SelectPrimitive.ItemIndicator>
+            <CheckIcon width={16} height={16} />
+          </SelectPrimitive.ItemIndicator>
+        </span>
+        <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+        {endSlot && <span css={scoped(styles.itemEndSlot)}>{endSlot}</span>}
+      </SelectPrimitive.Item>
+    );
+  },
+);
 
 SelectItem.displayName = 'SelectItem';
 
@@ -176,7 +173,14 @@ const SelectSeparator = forwardRef<
 SelectSeparator.displayName = 'SelectSeparator';
 
 export {
-  Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
 };
 
 /**
@@ -200,19 +204,18 @@ const styles = defineStyles({
   trigger: {
     width: '100%',
     minWidth: '90px',
-    height: '36px',
-    border: `1px solid ${theme.colors.border.default}`,
+    height: '32px',
+    border: `1px solid ${theme.colors.border.secondary}`,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.fill,
+    backgroundColor: theme.colors.background.surface,
     justifyContent: 'space-between',
     ...itemCenter(),
     gap: theme.spacing[2],
     ...theme.typography.small(),
     cursor: 'pointer',
     '&:focus-visible, &[data-state="open"]': {
-      borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme),
+      borderColor: theme.colors.background.fillBrand,
     },
     '&[data-disabled]': {
       backgroundColor: theme.colors.background.surfaceAlt,
@@ -265,7 +268,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[1]} 0`,
     border: `1px solid ${theme.colors.border.default}`,
     borderRadius: theme.radius.md,
-    boxShadow: theme.shadow.md,
+    boxShadow: theme.shadow.popover,
     backgroundColor: theme.colors.background.fill,
     minHeight: '33px',
     zIndex: theme.zIndex.dropdown,
@@ -311,6 +314,7 @@ const styles = defineStyles({
     position: 'relative',
     outline: 'none',
     ...theme.typography.small(),
+    maxHeight: '32px',
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,
     },

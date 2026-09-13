@@ -246,6 +246,7 @@ class PageInlineScript extends BaseHook
             $allow_back_order    = (bool) ($variant['allow_back_order'] ?? false);
             $has_limit_per_order = (bool) ($variant['has_limit_per_order'] ?? false);
             $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
+            $track_inventory     = (bool) ($variant['track_inventory'] ?? false);
             $image               = $variant['media']['url'] ?? null;
 
             $variant_attrs = [];
@@ -267,6 +268,7 @@ class PageInlineScript extends BaseHook
                 'allow_back_order'    => $allow_back_order,
                 'has_limit_per_order' => $has_limit_per_order,
                 'max_per_order'       => $max_per_order,
+                'track_inventory'     => $track_inventory,
                 'image'               => $image,
             ];
         }

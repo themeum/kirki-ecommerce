@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { RouteConfig } from '@/config/route-config';
 import ProductTable from '@/features/products/components/product-table/product-table';
 import { __ } from '@/wpi18n';
@@ -11,17 +10,11 @@ const Products = () => {
   const navigate = useNavigate();
 
   return (
-    <>
+    <Page>
       <PageHeading
         text={__('Products', 'kirki-ecommerce')}
         actions={
           <>
-            <Button variant="ghost" disabled>
-              {__('Import', 'kirki-ecommerce')}
-            </Button>
-            <Button variant="ghost" disabled>
-              {__('Export', 'kirki-ecommerce')}
-            </Button>
             <Button
               variant="primary"
               onClick={() => {
@@ -33,10 +26,10 @@ const Products = () => {
           </>
         }
       />
-      <Container>
+      <PageContent>
         <ProductTable />
-      </Container>
-    </>
+      </PageContent>
+    </Page>
   );
 };
 

@@ -49,6 +49,13 @@ class OrderResource extends BaseOrderResource
             return null;
         }
 
+        if ($this->base_total <= 0) {
+            return PaymentActionDTO::from_array([
+                'type' => PaymentActionType::REDIRECT,
+                'value' => Url::get_checkout_success_url($this->uuid),
+            ]);
+        }
+
         try {
             $payment_action = Payment::pay($this->resource);
 

@@ -6,7 +6,13 @@ import { type ReactNode, useRef, useState } from 'react';
 import Chip from '@/components/ui/chip';
 import ChipField from '@/components/ui/chip-field';
 import { chipFieldControlCss } from '@/components/ui/chip-field-styles';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
@@ -180,27 +186,25 @@ const MultiSelect = <TOption extends MultiSelectOption>({
               />
             }
             chips={
-              value.length > 0
-                ? (
-                  // The chips sit inside cmdk's root, whose keydown handler
-                  // preventDefaults Enter to select the active option. Stop
-                  // here so Enter still activates a chip's remove button.
-                  <div
-                    role="presentation"
-                    css={scoped(styles.chipsGuard)}
-                    onKeyDown={(event) => event.stopPropagation()}
-                  >
-                    {value.map((option) => (
-                      <Chip
-                        key={getOptionId(option)}
-                        text={renderChip(option)}
-                        closeIcon={<Minus size={14} aria-hidden="true" />}
-                        onRemove={() => handleRemove(option)}
-                      />
-                    ))}
-                  </div>
-                )
-                : undefined
+              value.length > 0 ? (
+                // The chips sit inside cmdk's root, whose keydown handler
+                // preventDefaults Enter to select the active option. Stop
+                // here so Enter still activates a chip's remove button.
+                <div
+                  role="presentation"
+                  css={scoped(styles.chipsGuard)}
+                  onKeyDown={(event) => event.stopPropagation()}
+                >
+                  {value.map((option) => (
+                    <Chip
+                      key={getOptionId(option)}
+                      text={renderChip(option)}
+                      closeIcon={<Minus size={14} aria-hidden="true" />}
+                      onRemove={() => handleRemove(option)}
+                    />
+                  ))}
+                </div>
+              ) : undefined
             }
           />
         </PopoverAnchor>
@@ -243,14 +247,8 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                 const isSelected = selectedIds.has(id);
 
                 return (
-                  <CommandItem
-                    key={id}
-                    value={option.title}
-                    onSelect={() => handleToggle(option)}
-                  >
-                    <span
-                      css={scopedMerge(styles.check, !isSelected && styles.checkEmpty)}
-                    >
+                  <CommandItem key={id} value={option.title} onSelect={() => handleToggle(option)}>
+                    <span css={scopedMerge(styles.check, !isSelected && styles.checkEmpty)}>
                       {isSelected && <Check size={14} />}
                     </span>
                     {renderOption(option)}

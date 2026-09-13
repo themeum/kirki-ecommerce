@@ -7,15 +7,6 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 class CartUpdateRequest extends Request
 {
-    public function prepare_for_validation()
-    {
-        if ($this->input('is_billing_same_as_shipping')) {
-            $this->merge([
-                'billing_address' => $this->input('shipping_address')
-            ]);
-        }
-    }
-
     public function rules()
     {
         return [
