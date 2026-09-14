@@ -17,7 +17,8 @@ const SearchResultRow = (props: SearchResultRowProps) => {
   const { result } = props;
   const navigate = useNavigate();
   const location = useLocation();
-  const { setTarget } = useSettingsSearchTarget();
+  const { target, setTarget } = useSettingsSearchTarget();
+  const isActive = target?.searchId === result.id;
 
   const handleSelect = () => {
     setTarget({
@@ -42,10 +43,12 @@ const SearchResultRow = (props: SearchResultRowProps) => {
   return (
     <div
       css={scoped(styles.row)}
+      data-active={isActive ? 'true' : undefined}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
+      aria-current={isActive ? 'page' : undefined}
       title={`${result.pageTitle} › ${result.title}`}
     >
       <Flex gap={2} align="center" cssOverride={styles.content}>
@@ -68,21 +71,6 @@ SearchResultRow.displayName = 'SearchResultRow';
 
 export default SearchResultRow;
 
-const highlightedRow = defineStyles({
-  backgroundColor: theme.colors.background.fillSecondary,
-  '& svg': {
-    color: theme.colors.background.fillBrand,
-  },
-});
-
-const highlightedHeading = defineStyles({
-  color: theme.colors.background.fillBrand,
-});
-
-const highlightedIcon = defineStyles({
-  color: theme.colors.background.fillBrand,
-});
-
 const styles = defineStyles({
   row: {
     position: 'relative',
@@ -96,10 +84,22 @@ const styles = defineStyles({
     cursor: 'pointer',
     backgroundColor: theme.colors.background.fill,
     borderRadius: theme.radius.lg,
-    '&:hover, &:focus-visible': highlightedRow,
-    '&:hover [data-settings-heading], &:focus-visible [data-settings-heading]':
-      highlightedHeading,
-    '&:hover [data-settings-icon], &:focus-visible [data-settings-icon]': highlightedIcon,
+    '&:hover, &:focus-visible': {
+      backgroundColor: theme.colors.background.surfaceAlt,
+      color: theme.colors.text.primary,
+      '& svg': {
+        color: theme.colors.text.primary,
+      },
+    },
+    '&[data-active="true"]': {
+      backgroundColor: theme.colors.background.fillSecondary,
+      '& [data-settings-heading]': {
+        color: theme.colors.background.fillBrand,
+      },
+      '& svg': {
+        color: theme.colors.background.fillBrand,
+      },
+    },
   },
   content: {
     flex: 1,
