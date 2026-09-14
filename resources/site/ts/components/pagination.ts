@@ -1,6 +1,7 @@
 import { apiRequest } from '../api/client';
 import { EVENTS, listen } from '../events';
 import { toastManager } from '../services/toast/runtime';
+import { fetchItems } from '../utils/items';
 
 type ItemsResponse = {
   success?: boolean;
@@ -35,7 +36,7 @@ export function pagination(itemsGrid?:string, paginationContainer?:string, heade
 
             // Update the browser URL with the current page path and the query parameters from the pagination link
             window.history.pushState({}, '', window.location.pathname + urlObj.search);
-            void this.fetchItems(false);
+            void fetchItems(this.apiUrl, this.itemsGrid, this.paginationContainer, this.headerClass, false, this.isLoading);
           }
         });
       }
@@ -49,48 +50,8 @@ export function pagination(itemsGrid?:string, paginationContainer?:string, heade
           window.location.search = params.toString();
         }
 
-        void this.fetchItems(false);
+        void fetchItems(this.apiUrl, this.itemsGrid, this.paginationContainer, this.headerClass, false, this.isLoading);
       });
-    },
-
-    async fetchItems(shouldScroll = false) {
-      this.isLoading = true;
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const result = await apiRequest<ItemsResponse>(
-          `${this.apiUrl}?format=html&${params.toString()}`,
-        );
-
-        if (result && result.success !== false && result.data) {
-          // Update products grid
-          const itemsGrid = document.querySelector(`.${this.itemsGrid}`);
-          if (itemsGrid && result.data.items !== undefined) {
-            itemsGrid.innerHTML = result.data.items;
-          }
-
-          // Update pagination container
-          const paginationContainer = document.querySelector(`.${this.paginationContainer}`);
-
-          if (paginationContainer && result.data.pagination !== undefined) {
-            paginationContainer.innerHTML = result.data.pagination;
-          }
-
-          // Smoothly scroll to the page title if requested
-          if (shouldScroll) {
-            const pageTitle = document.querySelector(`.${this.headerClass}`);
-            if (pageTitle) {
-              pageTitle.scrollIntoView({ behavior: 'smooth' });
-            }
-          }
-        } else {
-          throw new Error(result?.message || 'Failed to fetch products');
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        toastManager.error(__('Failed to retrieve products. Please try again.', 'kirki-ecommerce'));
-      } finally {
-        this.isLoading = false;
-      }
-    },
+    }
   };
 }
