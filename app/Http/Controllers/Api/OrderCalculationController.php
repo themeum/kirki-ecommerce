@@ -53,6 +53,18 @@ class OrderCalculationController
                 'postal_code' => $data['shipping_postal_code'],
                 'country' => $data['shipping_country']
             ],
+            'billing_address' => [
+                'first_name' => $data['billing_first_name'] ?? null,
+                'last_name' => $data['billing_last_name'] ?? null,
+                'email' => $data['billing_email'] ?? null,
+                'phone' => $data['billing_phone'] ?? null,
+                'address_line1' => $data['billing_address_line1'] ?? null,
+                'address_line2' => $data['billing_address_line2'] ?? null,
+                'city' => $data['billing_city'] ?? null,
+                'state' => $data['billing_state'] ?? null,
+                'postal_code' => $data['billing_postal_code'] ?? null,
+                'country' => $data['billing_country'] ?? null
+            ],
             'customer_id' => $data['customer_id'],
             'coupon_codes' => $data['coupon_codes'] ?? [],
             'shipping_method_id' => $data['shipping_method'] ?? null,

@@ -39,6 +39,10 @@ class OrderResource extends Resource
                 'invoiced_tax_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'base_tax' => Money::prepare_amount_from_minor($this->base_tax_total),
                 'base_tax_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total),
+                'invoiced_shipping_tax' => Money::prepare_amount_from_minor($this->invoiced_shipping_tax_amount, $this->currency_code),
+                'invoiced_shipping_tax_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_shipping_tax_amount, $this->currency_code),
+                'base_shipping_tax' => Money::prepare_amount_from_minor($this->base_shipping_tax_amount),
+                'base_shipping_tax_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_tax_amount),
                 'invoiced_total' => Money::prepare_amount_from_minor($this->invoiced_total, $this->currency_code),
                 'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
                 'base_total' => Money::prepare_amount_from_minor($this->base_total),
@@ -95,16 +99,17 @@ class OrderResource extends Resource
                     'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_total, $this->currency_code),
                     'base_total' => Money::prepare_amount_from_minor($item->base_total),
                     'base_total_money_object' => Money::prepare_amount_object_from_minor($item->base_total),
-                    'tax_rate' => $item->tax_rate,
                     'invoiced_tax_total' => Money::prepare_amount_from_minor($item->invoiced_tax_total, $this->currency_code),
                     'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_tax_total, $this->currency_code),
                     'base_tax_total' => Money::prepare_amount_from_minor($item->base_tax_total),
                     'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->base_tax_total),
-                    'tax_breakdown' => $item->tax_breakdown,
+                    'tax_lines' => $this->format_order_taxes($item->taxes, $this->currency_code),
                     'sku' => $item->sku,
                     'image' => MediaAttachment::make($item->product_image),
                 ];
             }),
+
+            'shipping_tax_lines' => $this->format_order_taxes($this->shipping_taxes, $this->currency_code),
 
             'shipping_address' => [
                 'first_name' => $this->shipping_first_name,
@@ -168,5 +173,31 @@ class OrderResource extends Resource
             'archived_at' => $this->archived_at,
             'created_at' => $this->created_at,
         ];
+    }
+
+    /**
+     * Format a set of persisted order_taxes rows (an item's, or the order's
+     * shipping) into API tax lines.
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $taxes
+     * @param string $currency_code
+     * @return array
+     */
+    protected function format_order_taxes($taxes, $currency_code)
+    {
+        if (empty($taxes)) {
+            return [];
+        }
+
+        return $taxes->map(function ($tax) use ($currency_code) {
+            return [
+                'name' => $tax->name,
+                'rate' => $tax->rate,
+                'invoiced_amount' => Money::prepare_amount_from_minor($tax->invoiced_amount, $currency_code),
+                'invoiced_amount_money_object' => Money::prepare_amount_object_from_minor($tax->invoiced_amount, $currency_code),
+                'base_amount' => Money::prepare_amount_from_minor($tax->base_amount),
+                'base_amount_money_object' => Money::prepare_amount_object_from_minor($tax->base_amount),
+            ];
+        });
     }
 }

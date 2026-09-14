@@ -99,32 +99,32 @@ trait FormatsCouponResults
     }
 
     /**
-     * Aggregate a flat list of TaxItemResultDTO entries (e.g. every item's
-     * tax_breakdown merged together) into one amount per tax name. Entries
+     * Aggregate a flat list of TaxLineDTO entries (e.g. every item's
+     * tax_lines merged together) into one amount per tax name. Entries
      * with a zero amount are dropped so a checkout summary never renders a
      * "Tax: $0.00" line when nothing was actually charged.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO[] $tax_items
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines
      * @param string $base_currency_code
      * @param string $display_currency
      * @return array
      */
-    protected function format_tax_breakdown(array $tax_items, $base_currency_code, $display_currency)
+    protected function format_tax_breakdown(array $tax_lines, $base_currency_code, $display_currency)
     {
         $totals_by_name = [];
 
-        foreach ($tax_items as $tax_item) {
-            if (empty($tax_item->base_amount)) {
+        foreach ($tax_lines as $tax_line) {
+            if (empty($tax_line->base_amount)) {
                 continue;
             }
 
-            $name = $tax_item->name;
+            $name = $tax_line->name;
 
             if (!isset($totals_by_name[$name])) {
-                $totals_by_name[$name] = ['rate' => $tax_item->rate, 'amount' => 0];
+                $totals_by_name[$name] = ['rate' => $tax_line->rate, 'amount' => 0];
             }
 
-            $totals_by_name[$name]['amount'] += $tax_item->base_amount;
+            $totals_by_name[$name]['amount'] += $tax_line->base_amount;
         }
 
         $breakdown = [];
@@ -166,22 +166,22 @@ trait FormatsCouponResults
     }
 
     /**
-     * Merge every calculated item's product tax breakdown into one flat list
-     * for cart-wide aggregation by tax name.
+     * Merge every calculated item's tax lines into one flat list for
+     * cart-wide aggregation by tax name.
      *
      * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result
-     * @return \Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO[]
+     * @return \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[]
      */
-    protected function flatten_item_tax_breakdowns($result)
+    protected function flatten_item_tax_lines($result)
     {
-        $tax_items = [];
+        $tax_lines = [];
 
         foreach ($result->items as $calculated_item) {
-            foreach ($calculated_item->tax_breakdown as $tax_item) {
-                $tax_items[] = $tax_item;
+            foreach ($calculated_item->tax_lines as $tax_line) {
+                $tax_lines[] = $tax_line;
             }
         }
 
-        return $tax_items;
+        return $tax_lines;
     }
 }

@@ -23,8 +23,8 @@ class CalculationResultDTO extends DTO
     public $base_shipping_discount = 0;
     /** @var int */
     public $base_shipping_tax = 0;
-    /** @var \Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO[] */
-    public $shipping_tax_breakdown = [];
+    /** @var \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] */
+    public $shipping_tax_lines = [];
     /** @var int */
     public $base_shipping_total = 0;
     /** @var int */

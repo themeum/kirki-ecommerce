@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
 use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
@@ -49,6 +50,7 @@ use function Kirki\Ecommerce\Framework\uuid;
 class CreateOrderAction
 {
     use PersistsOrderCoupons;
+    use PersistsOrderTaxes;
 
     protected $recalculate_cart_action;
     protected $variant_service;
@@ -129,7 +131,10 @@ class CreateOrderAction
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
             }
 
-            $order_coupons = $this->sync_order_coupons($order->fresh('items'), $calculated_result, $dto->currency_code, $order->exchange_rate);
+            $order_with_items = $order->fresh('items');
+
+            $order_coupons = $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
+            $this->sync_order_taxes($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
 
             foreach ($order_coupons as $order_coupon) {
                 $this->coupon_service->increment($order_coupon->coupon_id, 'current_usage_count');
@@ -379,6 +384,16 @@ class CreateOrderAction
             'postal_code' => $dto->shipping_postal_code,
             'country' => $dto->shipping_country,
         ];
+        $context->billing_address = [
+            'first_name' => $dto->billing_first_name,
+            'last_name' => $dto->billing_last_name,
+            'address_line1' => $dto->billing_address_line1,
+            'address_line2' => $dto->billing_address_line2,
+            'city' => $dto->billing_city,
+            'state' => $dto->billing_state,
+            'postal_code' => $dto->billing_postal_code,
+            'country' => $dto->billing_country,
+        ];
         $context->coupon_codes = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
@@ -414,6 +429,7 @@ class CreateOrderAction
             $item_dto->product_id = $product->id;
             $item_dto->quantity = $item_data['quantity'];
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
+            $item_dto->base_product_total = $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->product_categories = $product->categories->pluck('id')->all();
@@ -449,6 +465,9 @@ class CreateOrderAction
 
         $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_tax_total = $calculated_result->base_tax_total;
+
+        $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_shipping_tax_amount = $calculated_result->base_shipping_tax;
 
         $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_total = $calculated_result->base_total;
@@ -536,8 +555,6 @@ class CreateOrderAction
 
         $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
         $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-        $item_dto->tax_rate = $calculated_item->tax_rate;
-        $item_dto->tax_breakdown = $calculated_item->tax_breakdown;
 
         $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
         $item_dto->base_total = $calculated_item->base_total;

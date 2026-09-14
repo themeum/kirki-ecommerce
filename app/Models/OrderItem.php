@@ -17,10 +17,8 @@ class OrderItem extends Model
         'sku',
         'barcode',
         'product_image',
-        'tax_rate',
         'invoiced_tax_total',
         'base_tax_total',
-        'tax_breakdown',
         'invoiced_discount_amount',
         'base_discount_amount',
         'invoiced_price',
@@ -41,11 +39,9 @@ class OrderItem extends Model
         'product_id' => 'integer',
         'variant_id' => 'integer',
         'is_physical_product' => 'boolean',
-        'tax_rate' => 'float',
         'weight' => 'float',
         'product_data' => 'json',
         'quantity' => 'integer',
-        'tax_breakdown' => 'json',
     ];
 
     public function order()
@@ -66,5 +62,10 @@ class OrderItem extends Model
     public function order_item_coupons()
     {
         return $this->has_many(OrderItemCoupon::class, 'order_item_id');
+    }
+
+    public function taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_item_id');
     }
 }

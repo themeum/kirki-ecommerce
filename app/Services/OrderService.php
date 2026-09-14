@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderItemCoupon;
+use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -20,6 +21,7 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
@@ -198,6 +200,30 @@ class OrderService
     public function delete_order_coupons(int $order_id)
     {
         return (bool) OrderCoupon::query()->where('order_id', $order_id)->delete();
+    }
+
+    /**
+     * Create one order tax line, scoped to an order item or to the order's
+     * shipping.
+     *
+     * @param CreateOrderTaxDTO $dto
+     * @return OrderTax
+     */
+    public function create_order_tax(CreateOrderTaxDTO $dto)
+    {
+        return OrderTax::create($dto->to_array());
+    }
+
+    /**
+     * Delete every tax line for an order, so they can be recreated from a
+     * fresh calculation.
+     *
+     * @param int $order_id
+     * @return bool
+     */
+    public function delete_order_taxes(int $order_id)
+    {
+        return (bool) OrderTax::query()->where('order_id', $order_id)->delete();
     }
 
     /**

@@ -275,7 +275,7 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Create order persists order item product data and tax breakdown.
+     * Create order persists order item product data and tax lines.
      *
      * `product_data` is not exposed through the order resource, so this
      * asserts persistence at the model layer directly.
@@ -283,12 +283,12 @@ class OrderApiTest extends RestTestCase
      * @return void
      * @since 1.0.0
      */
-    public function test_create_order_persists_item_product_data_and_tax_breakdown(): void
+    public function test_create_order_persists_item_product_data_and_tax_lines(): void
     {
         $order = $this->create_order();
         $this->order_id = $order['id'];
 
-        $this->assertIsArray($order['items'][0]['tax_breakdown']);
+        $this->assertIsArray($order['items'][0]['tax_lines']);
 
         $item = OrderItem::find($order['items'][0]['id']);
         $this->assertIsArray($item->product_data);

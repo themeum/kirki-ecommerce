@@ -4,7 +4,7 @@ namespace Kirki\Ecommerce\Tests\Unit\Resources;
 
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
-use Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Resources\Concerns\FormatsCouponResults;
@@ -176,9 +176,9 @@ class FormatsCouponResultsTest extends TestCase
     public function test_aggregates_tax_amounts_by_name_across_multiple_entries(): void
     {
         $tax_items = [
-            TaxItemResultDTO::from_array(['name' => 'GST', 'rate' => 9, 'base_amount' => 100]),
-            TaxItemResultDTO::from_array(['name' => 'GST', 'rate' => 9, 'base_amount' => 50]),
-            TaxItemResultDTO::from_array(['name' => 'IST', 'rate' => 5, 'base_amount' => 30]),
+            TaxLineDTO::from_array(['name' => 'GST', 'rate' => 9, 'base_amount' => 100]),
+            TaxLineDTO::from_array(['name' => 'GST', 'rate' => 9, 'base_amount' => 50]),
+            TaxLineDTO::from_array(['name' => 'IST', 'rate' => 5, 'base_amount' => 30]),
         ];
 
         $breakdown = $this->format_tax_breakdown($tax_items, 'USD', null);
@@ -198,7 +198,7 @@ class FormatsCouponResultsTest extends TestCase
     public function test_excludes_zero_amount_tax_entries(): void
     {
         $tax_items = [
-            TaxItemResultDTO::from_array(['name' => 'Tax', 'rate' => 0, 'base_amount' => 0]),
+            TaxLineDTO::from_array(['name' => 'Tax', 'rate' => 0, 'base_amount' => 0]),
         ];
 
         $this->assertSame([], $this->format_tax_breakdown($tax_items, 'USD', null));
@@ -211,8 +211,8 @@ class FormatsCouponResultsTest extends TestCase
 
     public function test_keeps_shipping_and_product_tax_lines_independent_when_formatted_separately(): void
     {
-        $product_tax = [TaxItemResultDTO::from_array(['name' => 'VAT', 'rate' => 20, 'base_amount' => 1000])];
-        $shipping_tax = [TaxItemResultDTO::from_array(['name' => 'VAT', 'rate' => 20, 'base_amount' => 100])];
+        $product_tax = [TaxLineDTO::from_array(['name' => 'VAT', 'rate' => 20, 'base_amount' => 1000])];
+        $shipping_tax = [TaxLineDTO::from_array(['name' => 'VAT', 'rate' => 20, 'base_amount' => 100])];
 
         $product_breakdown = $this->format_tax_breakdown($product_tax, 'USD', null);
         $shipping_breakdown = $this->format_tax_breakdown($shipping_tax, 'USD', null);

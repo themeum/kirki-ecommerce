@@ -21,6 +21,9 @@ class CalculationContextDTO extends DTO
     /** @var array */
     public $shipping_address = [];
 
+    /** @var array */
+    public $billing_address = [];
+
     /** @var int */
     public $customer_id;
 
@@ -70,6 +73,7 @@ class CalculationContextDTO extends DTO
         }
 
         $dto->shipping_address = $cart->shipping_address ? $cart->shipping_address : [];
+        $dto->billing_address = $cart->billing_address ? $cart->billing_address : [];
         $dto->shipping_method_id = $cart->shipping_method;
 
         $dto->coupon_codes = $cart->coupons->pluck('code')->to_array();

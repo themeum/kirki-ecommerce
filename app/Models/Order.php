@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
@@ -39,6 +40,8 @@ class Order extends Model
         'base_discount_total',
         'invoiced_tax_total',
         'base_tax_total',
+        'invoiced_shipping_tax_amount',
+        'base_shipping_tax_amount',
         'invoiced_total',
         'base_total',
         'items_count',
@@ -111,6 +114,8 @@ class Order extends Model
         'shipping_metadata' => 'json',
         'invoiced_tax_total' => 'integer',
         'base_tax_total' => 'integer',
+        'invoiced_shipping_tax_amount' => 'integer',
+        'base_shipping_tax_amount' => 'integer',
     ];
 
     /**
@@ -171,6 +176,16 @@ class Order extends Model
     public function activities()
     {
         return $this->has_many(OrderActivity::class, 'order_id');
+    }
+
+    public function taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_id');
+    }
+
+    public function shipping_taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_id')->where('type', OrderTaxType::SHIPPING);
     }
 
     /**

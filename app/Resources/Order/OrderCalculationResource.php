@@ -76,8 +76,8 @@ class OrderCalculationResource extends Resource
                     $result->currency_code,
                     $display_currency
                 ),
-                'tax_breakdown' => $this->format_tax_breakdown($this->flatten_item_tax_breakdowns($result), $result->currency_code, $display_currency),
-                'shipping_tax_breakdown' => $this->format_tax_breakdown($result->shipping_tax_breakdown, $result->currency_code, $display_currency),
+                'tax_lines' => $this->format_tax_breakdown($this->flatten_item_tax_lines($result), $result->currency_code, $display_currency),
+                'shipping_tax_lines' => $this->format_tax_breakdown($result->shipping_tax_lines, $result->currency_code, $display_currency),
             ],
 
             'items_count' => $result->items_count,
@@ -105,16 +105,16 @@ class OrderCalculationResource extends Resource
                 $calculated_item = $result->items[$item->variant_id];
                 $product_coupon_discount = $this->get_product_coupon_discount_for_item($result->coupon_results, $item->variant_id);
 
-                $tax_breakdowns = [];
+                $tax_lines = [];
 
-                foreach ($calculated_item->tax_breakdown as $tax_breakdown_item) {
-                    $tax_breakdowns[] = [
-                        'name' => $tax_breakdown_item->name,
-                        'rate' => $tax_breakdown_item->rate,
-                        'base_amount' => Money::prepare_amount_from_minor($tax_breakdown_item->base_amount, $result->currency_code),
-                        'base_amount_money_object' => Money::prepare_amount_object_from_minor($tax_breakdown_item->base_amount, $result->currency_code),
-                        'display_amount' => Money::prepare_amount_from_minor($tax_breakdown_item->base_amount, $result->currency_code, $display_currency),
-                        'display_amount_money_object' => Money::prepare_amount_object_from_minor($tax_breakdown_item->base_amount, $result->currency_code, $display_currency),
+                foreach ($calculated_item->tax_lines as $tax_line) {
+                    $tax_lines[] = [
+                        'name' => $tax_line->name,
+                        'rate' => $tax_line->rate,
+                        'base_amount' => Money::prepare_amount_from_minor($tax_line->base_amount, $result->currency_code),
+                        'base_amount_money_object' => Money::prepare_amount_object_from_minor($tax_line->base_amount, $result->currency_code),
+                        'display_amount' => Money::prepare_amount_from_minor($tax_line->base_amount, $result->currency_code, $display_currency),
+                        'display_amount_money_object' => Money::prepare_amount_object_from_minor($tax_line->base_amount, $result->currency_code, $display_currency),
                     ];
                 }
 
@@ -125,12 +125,11 @@ class OrderCalculationResource extends Resource
                     'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal, $result->currency_code),
                     'display_subtotal' => Money::prepare_amount_from_minor($calculated_item->base_subtotal, $result->currency_code, $display_currency),
                     'display_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal, $result->currency_code, $display_currency),
-                    'tax_rate' => $calculated_item->tax_rate,
                     'base_tax_amount' => Money::prepare_amount_from_minor($calculated_item->base_tax_amount, $result->currency_code),
                     'base_tax_amount_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_tax_amount, $result->currency_code),
                     'display_tax_amount' => Money::prepare_amount_from_minor($calculated_item->base_tax_amount, $result->currency_code, $display_currency),
                     'display_tax_amount_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_tax_amount, $result->currency_code, $display_currency),
-                    'tax_breakdown' => $tax_breakdowns,
+                    'tax_lines' => $tax_lines,
                     'base_discount_amount' => Money::prepare_amount_from_minor($calculated_item->base_discount_amount, $result->currency_code),
                     'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_discount_amount, $result->currency_code),
                     'display_discount_amount' => Money::prepare_amount_from_minor($calculated_item->base_discount_amount, $result->currency_code, $display_currency),
