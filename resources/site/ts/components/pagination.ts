@@ -36,7 +36,7 @@ export function pagination(apiUrl: string,itemsGrid?:string, paginationContainer
 
             // Update the browser URL with the current page path and the query parameters from the pagination link
             window.history.pushState({}, '', window.location.pathname + urlObj.search);
-            void fetchItems(this.apiUrl, this.itemsGrid, this.paginationContainer, this.headerClass, false, this.isLoading);
+            void fetchItems(this.apiUrl, this.itemsGrid, this.paginationContainer, this.headerClass, true, this.isLoading);
           }
         });
       }
