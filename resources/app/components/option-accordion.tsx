@@ -17,6 +17,7 @@ import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
   header?: ReactNode;
+  titleAdornment?: ReactNode;
   subHeader?: string;
   leftIcon?: ReactNode;
   children?: ReactNode;
@@ -30,6 +31,7 @@ type OptionAccordionProps = {
 const OptionAccordion = (props: OptionAccordionProps) => {
   const {
     header,
+    titleAdornment = null,
     subHeader,
     leftIcon,
     children,
@@ -41,7 +43,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
   } = props;
 
   return (
-    <div css={scoped(styles.wrapper)}>
+    <div css={scoped(mergeCss(styles.wrapper, variant === 'shipping' && styles.shippingWrapper))}>
       <Accordion
         cssOverride={styles.accordion}
         hideSeparator={true}
@@ -50,7 +52,11 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         defaultValue={open ? 'option-item' : undefined}
       >
         <AccordionItem value={open ? 'option-item' : undefined}>
-          <AccordionTrigger cssOverride={styles.trigger} gap={4} disabled={disabled}>
+          <AccordionTrigger
+            cssOverride={mergeCss(styles.trigger, variant === 'shipping' && styles.shippingTrigger)}
+            gap={4}
+            disabled={disabled}
+          >
             <Flex gap={4} align="center">
               {leftIcon}
               <Flex direction="column" gap={2}>
@@ -58,6 +64,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   <Text weight="semibold" variant="heading6" color="primary">
                     {header}
                   </Text>
+                  {titleAdornment}
                   {!enabled && (
                     <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                   )}
@@ -71,7 +78,13 @@ const OptionAccordion = (props: OptionAccordionProps) => {
             </Flex>
           </AccordionTrigger>
           <AccordionContent>
-            <Card cssOverride={mergeCss(cardStyles.darkCard, styles.contentCard)}>
+            <Card
+              cssOverride={mergeCss(
+                cardStyles.darkCard,
+                styles.contentCard,
+                variant === 'shipping' && styles.shippingCard,
+              )}
+            >
               <CardContent
                 cssOverride={mergeCss(
                   cardStyles.innerCardContent,
@@ -105,10 +118,32 @@ const styles = defineStyles({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     display: 'flex',
     flexDirection: 'column',
+    boxShadow: 'none',
   },
   shippingContent: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing[3],
+    padding: theme.spacing[0],
+  },
+  shippingWrapper: {
+    borderColor: theme.colors.border.secondary,
+    overflow: 'hidden',
+  },
+  shippingCard: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: theme.radius.none,
+  },
+  shippingTrigger: {
+    '&:has(button[data-state="open"])': {
+      borderBottom: `1px solid ${theme.colors.border.secondary}`,
+    },
+    '& button[data-state="open"] [data-accordion-chevron]': {
+      visibility: 'hidden',
+    },
+    '&:hover button[data-state="open"] [data-accordion-chevron], &:focus-within button[data-state="open"] [data-accordion-chevron]':
+      {
+        visibility: 'visible',
+      },
   },
 });

@@ -1,4 +1,4 @@
-import { MoreVertical } from 'lucide-react';
+import { Ban, MoreVertical } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -9,12 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Switch from '@/components/ui/switch';
 import { RouteConfig } from '@/config/route-config';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type { ShippingZone } from '@/features/settings/shipping/types';
 import type { SettingsOutletContext } from '@/features/settings/types';
-import { EditIcon, TrashIcon } from '@/icons';
+import { EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
@@ -53,7 +52,15 @@ const ShippingZoneActions = ({ item, onToggle, onDelete }: ShippingZoneActionsPr
   };
   return (
     <ActionGroup gap={2} cssOverride={{ marginLeft: theme.spacing[2] }}>
-      <Switch checked={item?.is_enabled} onCheckedChange={() => onToggle(item)} />
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={__('Edit', 'kirki-ecommerce')}
+        cssOverride={{ '& svg': { width: 16, height: 16 } }}
+        onClick={() => handleEditAndDelete('edit', item)}
+      >
+        <EditPenIcon />
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -65,9 +72,13 @@ const ShippingZoneActions = ({ item, onToggle, onDelete }: ShippingZoneActionsPr
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => handleEditAndDelete('edit', item)}>
-            <EditIcon />
-            <span>{__('Edit', 'kirki-ecommerce')}</span>
+          <DropdownMenuItem onClick={() => onToggle(item)}>
+            <Ban size={16} />
+            <span>
+              {item?.is_enabled
+                ? __('Deactivate', 'kirki-ecommerce')
+                : __('Activate', 'kirki-ecommerce')}
+            </span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleEditAndDelete('delete', item)}>
             <TrashIcon />
