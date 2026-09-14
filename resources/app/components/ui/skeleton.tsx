@@ -17,16 +17,6 @@ const toCssLength = (value: string | number) => {
   return typeof value === 'number' ? `${value}px` : value;
 };
 
-const radiusStyles: Record<SkeletonRadius, CSSObject> = {
-  none: { borderRadius: theme.radius.none },
-  sm: { borderRadius: theme.radius.sm },
-  md: { borderRadius: theme.radius.md },
-  lg: { borderRadius: theme.radius.lg },
-  xl: { borderRadius: theme.radius.xl },
-  xxl: { borderRadius: theme.radius.xxl },
-  full: { borderRadius: theme.radius.full },
-};
-
 const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>((props, ref) => {
   const { cssOverride, width, height, radius = 'md', style, ...rest } = props;
 
@@ -62,10 +52,20 @@ const skeletonPulse = keyframes({
   },
 });
 
+const radiusStyles = defineStyles({
+  none: { borderRadius: theme.radius.none },
+  sm: { borderRadius: theme.radius.sm },
+  md: { borderRadius: theme.radius.md },
+  lg: { borderRadius: theme.radius.lg },
+  xl: { borderRadius: theme.radius.xl },
+  xxl: { borderRadius: theme.radius.xxl },
+  full: { borderRadius: theme.radius.full },
+});
+
 const styles = defineStyles({
   root: {
     flexShrink: 0,
-    backgroundColor: theme.colors.background.surfaceTertiary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     width: 'var(--skeleton-width, 100%)',
     height: 'var(--skeleton-height, 1rem)',
     animation: `${skeletonPulse} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite`,

@@ -4,14 +4,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "predev": "npm run search:index",
     "build": "tsc --noEmit && vite build",
+    "prebuild": "npm run search:index",
+    "search:index": "node scripts/build-settings-search-index.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --cache --cache-location node_modules/.cache/eslint/",
     "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "pretest": "npm run search:index"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

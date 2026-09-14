@@ -79,15 +79,15 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card data-search-id="essentials.schema-profile" data-search-keywords="seo, json ld, rich snippet, google, metadata" cssOverride={cardStyles.formCard}>
       <CardContent>
         <HeaderActionsCard
-          header={__('Schemas', 'kirki-ecommerce')}
+          header={__('Product Schemas', 'kirki-ecommerce')}
           subHeader={__(
-            'Define structured data properties that products use for richer search results.',
+            'Structured data properties attached to products for richer search listings.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Add Schema', 'kirki-ecommerce')}
+          buttonText={__('Schema', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>

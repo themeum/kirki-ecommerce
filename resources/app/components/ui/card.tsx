@@ -11,94 +11,56 @@ type CardProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
 const Card = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
   const { cssOverride, ...rest } = props;
 
-  return (
-    <div ref={ref} css={scopedMerge(styles.card, cssOverride)} {...rest} />
-  );
+  return <div ref={ref} css={scopedMerge(styles.card, cssOverride)} {...rest} />;
 });
 
 Card.displayName = 'Card';
 
-type CardSectionProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type CardSectionProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const CardHeader = forwardRef<HTMLDivElement, CardSectionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const CardHeader = forwardRef<HTMLDivElement, CardSectionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div ref={ref} css={scopedMerge(styles.header, cssOverride)} {...rest} />
-    );
-  },
-);
+  return <div ref={ref} css={scopedMerge(styles.header, cssOverride)} {...rest} />;
+});
 
 CardHeader.displayName = 'CardHeader';
 
 const CardTitle = forwardRef<HTMLDivElement, CardSectionProps>((props, ref) => {
   const { cssOverride, ...rest } = props;
 
-  return (
-    <div ref={ref} css={scopedMerge(styles.title, cssOverride)} {...rest} />
-  );
+  return <div ref={ref} css={scopedMerge(styles.title, cssOverride)} {...rest} />;
 });
 
 CardTitle.displayName = 'CardTitle';
 
-const CardDescription = forwardRef<HTMLDivElement, CardSectionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const CardDescription = forwardRef<HTMLDivElement, CardSectionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        css={scopedMerge(styles.description, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return <div ref={ref} css={scopedMerge(styles.description, cssOverride)} {...rest} />;
+});
 
 CardDescription.displayName = 'CardDescription';
 
-const CardContent = forwardRef<HTMLDivElement, CardSectionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const CardContent = forwardRef<HTMLDivElement, CardSectionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        css={scopedMerge(styles.content, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return <div ref={ref} css={scopedMerge(styles.content, cssOverride)} {...rest} />;
+});
 
 CardContent.displayName = 'CardContent';
 
-const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const CardFooter = forwardRef<HTMLDivElement, CardSectionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div ref={ref} css={scopedMerge(styles.footer, cssOverride)} {...rest} />
-    );
-  },
-);
+  return <div ref={ref} css={scopedMerge(styles.footer, cssOverride)} {...rest} />;
+});
 
 CardFooter.displayName = 'CardFooter';
 
-export {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-};
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle };
 export type { CardProps };
 
 const styles = defineStyles({
@@ -116,7 +78,6 @@ const styles = defineStyles({
   header: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing[2],
     paddingInline: theme.spacing[4],
   },
   title: {

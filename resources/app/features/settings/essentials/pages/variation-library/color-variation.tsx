@@ -60,7 +60,7 @@ const ColorVariation = () => {
               }
             />
             {!colorList?.length ? (
-              <Card cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
+              <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.roundedCard)}>
                 <CardContent
                   cssOverride={mergeCss(cardStyles.largeContentPadded, styles.emptyContent)}
                 >

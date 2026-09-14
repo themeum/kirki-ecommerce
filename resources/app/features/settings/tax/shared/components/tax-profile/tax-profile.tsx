@@ -87,12 +87,12 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="tax.profile" data-search-keywords="vat rate, gst rate, tax class, levy" cssOverride={cardStyles.formCard}>
         <CardContent >
           <HeaderActionsCard
             header={__('Tax Profiles', 'kirki-ecommerce')}
             subHeader={__(
-              'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+              'Rate groups for products taxed differently, such as food, books or digital goods.',
               'kirki-ecommerce',
             )}
             buttonText={__('Create Profile', 'kirki-ecommerce')}

@@ -23,7 +23,7 @@ const VatProcessDescription = ({ processValue }: { processValue: string }) => {
   }
 
   return (
-    <Card cssOverride={{ ...cardStyles.innerDarkCard, width: '100%' }}>
+    <Card data-search-skip="true" cssOverride={{ ...cardStyles.innerDarkCard, width: '100%' }}>
       <CardContent cssOverride={cardStyles.innerDarkContent}>
         <Text color="secondary" variant="small">
           {processValue === 'oss'
@@ -68,7 +68,7 @@ const VatProcessField = () => {
           >
             <Field>
               <FieldLabel htmlFor="vat-process-oss" cssOverride={styles.vatProcessLabel}>
-                <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)}>
+                <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)}>
                   <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatProcessContent)}>
                     <RadioGroupItem value="oss" id="vat-process-oss" />
                     <Text variant="small" weight="medium">
@@ -85,7 +85,7 @@ const VatProcessField = () => {
                 htmlFor="vat-process-micro-business"
                 cssOverride={styles.vatProcessLabel}
               >
-                <Card cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)}>
+                <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.innerCard, styles.vatProcessCard)}>
                   <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatProcessContent)}>
                     <RadioGroupItem value="micro_business" id="vat-process-micro-business" />
                     <Text variant="small" weight="medium">

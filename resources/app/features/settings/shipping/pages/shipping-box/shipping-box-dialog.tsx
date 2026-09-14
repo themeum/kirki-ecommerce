@@ -167,7 +167,7 @@ const ShippingBoxPopup = ({
               placeholder={__('e.g. Small Package', 'kirki-ecommerce')}
             />
             <div>
-              <Card
+              <Card data-search-skip="true"
                 cssOverride={mergeCss(
                   cardStyles.innerCard,
                   styles.dimensionsCard,

@@ -117,7 +117,7 @@ const MultiCurrencySettings = () => {
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<CurrencyIcon />} title={__('Currency', 'kirki-ecommerce')} />
 
-          <Card cssOverride={cardStyles.innerCard}>
+          <Card data-search-id="currency.management" data-search-keywords="multi currency, exchange rate, conversion" cssOverride={cardStyles.innerCard}>
             <CardContent cssOverride={{ paddingBottom: theme.spacing[4] }}>
               <Flex direction="column" gap={3}>
                 <Flex
@@ -140,12 +140,15 @@ const MultiCurrencySettings = () => {
               </Flex>
             </CardContent>
           </Card>
-          <Card cssOverride={cardStyles.formCard}>
+          <Card data-search-id="currency.preferences" data-search-keywords="symbol, rounding, price display" cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={2}>
                 <Text weight="semibold">{__('Currency Preferences', 'kirki-ecommerce')}</Text>
                 <Text color="secondary">
-                  {__('Set your preferences for how currency is displayed.', 'kirki-ecommerce')}
+                  {__(
+                    'Symbol placement, decimals and separators used wherever prices are shown.',
+                    'kirki-ecommerce',
+                  )}
                 </Text>
               </Flex>
               <CurrencyFormatSettings />

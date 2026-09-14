@@ -160,7 +160,7 @@ const TaxRuleFormCard = (props: TaxRuleFormCardProps) => {
   }));
 
   return (
-    <Card cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}>
+    <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.dashedCard)}>
       <CardContent>
         <Form {...form}>
           <Flex direction="column" gap={4}>
