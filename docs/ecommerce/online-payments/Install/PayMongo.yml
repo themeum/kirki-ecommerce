@@ -47,7 +47,7 @@ examples:
           {
             "success": true,
             "data": {
-              "id": "ec615e96-78bc-40b5-b944-dc69ae570d31",
+              "id": "ce615e69-78bc-40b5-b944-dc69ae570d32",
               "name": "PayMongo",
               "icon": "paymongo",
               "is_enabled": null,
