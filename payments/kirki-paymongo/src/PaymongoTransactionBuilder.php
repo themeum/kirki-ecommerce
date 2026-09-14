@@ -28,15 +28,28 @@ class PaymongoTransactionBuilder
      *
      * @return array
      */
-    public function create_payment_payload(): array
+    public function create_checkout_session_payload(): array
     {
         return [
-            'currency' => $this->order->currency_code,
-            'order_id' => $this->order->order_number,
-            'invoice_address' => $this->format_address('billing'),
-            'shipping_address' => $this->format_address('shipping'),
-            'basket' => $this->get_line_items(),
-            'variables' => ['order_uuid' => $this->order->uuid]
+            'data' => [
+                'attributes' => [
+                    'billing' => [
+                        'address' => $this->format_address('billing'),
+                        'email' => $this->order->billing_email ?? '',
+                        'name' => $this->order->billing_first_name . ' ' . $this->order->billing_last_name,
+                        'phone' => $this->order->billing_phone ?? ''
+                    ],
+                    'cancel_url' => Url::get_checkout_failed_url($this->order->uuid),
+                    'customer_email' => $this->order->customer_email ?? null,
+                    'line_items' => $this->get_line_items(),
+                    'payment_method_types' => PayMongoConstant::ALLOWED_PAYMENT_METHODS,
+                    'reference_number' => $this->order->uuid,
+                    'success_url' => Url::get_checkout_success_url($this->order->uuid) ,
+                    'send_email_receipt' => true,
+                    'show_description' => true,
+                    'show_line_items' => true,
+                ],
+            ],
         ];
     }
 
@@ -52,17 +65,13 @@ class PaymongoTransactionBuilder
             return [];
         }
 
-        $name = $this->order->{$type . '_first_name'} . ' ' . $this->order->{$type . '_last_name'};
-
         return [
-            'name' => $name,
-            'street'  => $this->order->{$type . '_address_line1'},
-            'house_number' => $this->order->{$type . '_address_line2'},
             'city' => $this->order->{$type . '_city'},
-            'zip_code' => (string) $this->order->{$type . '_postal_code'},
-            'region' => $this->order->{$type . '_state'},
-            'phone_number' => $this->order->{$type . '_phone'},
-            'email' => $this->order->{$type . '_email'},
+            'country' => $this->order->{$type . '_country'},
+            'line1'  => $this->order->{$type . '_address_line1'} ?? '',
+            'line2' => $this->order->{$type . '_address_line2'} ?? '',
+            'postal_code' => (string) $this->order->{$type . '_postal_code'} ?? '',
+            'state' => $this->order->{$type . '_state'} ?? '',
         ];
     }
 
@@ -77,51 +86,33 @@ class PaymongoTransactionBuilder
 
         foreach ($this->order->items as $item) {
             $line_items[] = [
-                'qty' => (int) $item->quantity,
-                'item_no' => (string) $item->variant_id,
-                'item_name' => $item->product_name,
-                'item_price' => (int) $item->invoiced_total,
-                'vat_rate' => (float) $item->tax_rate / 100,
+                'amount'   => $item->invoiced_price,
+                'currency' => $this->order->currency_code,
+                'name' => $item->product_name,
+                'quantity' => $item->quantity,
             ];
         }
 
-        if (!empty($this->order->invoiced_shipping_total)) {
-            $line_items[] = [
-                'item_no' => 'shipping',
-                'item_name' => __('Shipping Charge', 'kirki-ecommerce-quickpay'),
-                'qty' => 1,
-                'item_price' => (int) $this->order->invoiced_shipping_total,
-                'vat_rate' => 0
-            ];
-        }
+        // if (!empty($this->order->invoiced_shipping_total)) {
+        //     $line_items[] = [
+        //         'item_no' => 'shipping',
+        //         'item_name' => __('Shipping Charge', 'kirki-ecommerce-quickpay'),
+        //         'qty' => 1,
+        //         'item_price' => (int) $this->order->invoiced_shipping_total,
+        //         'vat_rate' => 0
+        //     ];
+        // }
 
-        if (!empty($this->order->invoiced_tax_total)) {
-            $line_items[] = [
-                'item_no' => 'tax',
-                'item_name' => __('Tax', 'kirki-ecommerce-quickpay'),
-                'qty' => 1,
-                'item_price' => (int) $this->order->invoiced_tax_total,
-                'vat_rate' => 0
-            ];
-        }
+        // if (!empty($this->order->invoiced_tax_total)) {
+        //     $line_items[] = [
+        //         'item_no' => 'tax',
+        //         'item_name' => __('Tax', 'kirki-ecommerce-quickpay'),
+        //         'qty' => 1,
+        //         'item_price' => (int) $this->order->invoiced_tax_total,
+        //         'vat_rate' => 0
+        //     ];
+        // }
 
         return $line_items;
-    }
-
-    /**
-     * Build the QuickPay payment link request payload for an order.
-     *
-     * @param string $webhook_url URL QuickPay should notify on payment status changes.
-     * @return array
-     */
-    public function create_payment_link_payload(string $webhook_url): array
-    {
-        return [
-            'amount' => (int) $this->order->invoiced_total,
-            'continue_url' => Url::get_checkout_success_url($this->order->uuid),
-            'cancel_url' => Url::get_checkout_failed_url($this->order->uuid),
-            'callback_url' => $webhook_url,
-            'auto_capture' => true
-        ];
     }
 }

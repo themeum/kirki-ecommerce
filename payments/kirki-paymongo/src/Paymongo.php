@@ -65,8 +65,9 @@ class Paymongo extends PaymentProvider
 
         try {
             $this->client = $this->get_client();
-
-
+            $builder = new PaymongoTransactionBuilder($order);
+            $payload = $builder->create_checkout_session_payload();
+            $response = $this->client->create_checkout_session_url($payload);
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,

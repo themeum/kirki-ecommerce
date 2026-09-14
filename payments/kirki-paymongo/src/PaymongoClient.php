@@ -45,31 +45,9 @@ class PaymongoClient
         return hash_equals($expected_checksum, $given_checksum);
     }
 
-    /**
-     * Create a QuickPay payment.
-     *
-     * @param array $payload The payment request payload.
-     * @return array The decoded JSON response, including the payment id.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment(array $payload): array
+    public function create_checkout_session_url(array $payload): array
     {
-        return $this->send(QuickpayConstant::POST_METHOD, QuickpayConstant::API_URL . 'payments', $payload);
-    }
-
-    /**
-     * Create a QuickPay payment link for an existing payment.
-     *
-     * @param array $payload The payment link request payload.
-     * @param int $payment_id The QuickPay payment ID to attach the link to.
-     * @return array The decoded JSON response, including the link url.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment_link(array $payload, int $payment_id): array
-    {
-        $url = QuickpayConstant::API_URL . "payments/{$payment_id}/link";
-
-        return $this->send(QuickpayConstant::PUT_METHOD, $url, $payload);
+        return $this->send(PayMongoConstant::POST_METHOD, PayMongoConstant::API_CHECKOUT_SESSIONS_URL, $payload);
     }
 
     /**
@@ -83,10 +61,9 @@ class PaymongoClient
      */
     protected function send(string $method, string $url, array $payload = []): array
     {
-        $request = Http::with_token($this->get_auth(), 'Basic')
-            ->with_headers(['Accept-Version' => 'v' . QuickpayConstant::API_VERSION]);
+        $request = Http::with_token($this->get_auth(), 'Basic');
 
-        if (QuickpayConstant::GET_METHOD !== $method) {
+        if (PayMongoConstant::GET_METHOD !== $method) {
             $request = $request->with_body(wp_json_encode($payload));
         }
 
@@ -108,9 +85,9 @@ class PaymongoClient
     protected function get_auth(): string
     {
         if (empty($this->api_key)) {
-            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-ecommerce-quickpay'));
+            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-ecommerce-paymongo'));
         }
 
-        return base64_encode(":{$this->api_key}");
+        return base64_encode($this->secret_key . ':');
     }
 }
