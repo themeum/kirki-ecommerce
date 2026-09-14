@@ -39,6 +39,8 @@ class SettingResource extends Resource
                 break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
+            case OptionKeys::EMAIL_SETTINGS:
+                $data = $this->get_email_settings($data);
             default:
                 break;
         }
@@ -163,5 +165,23 @@ class SettingResource extends Resource
                 'reset_at' =>  $data['usage']['reset_at'] ?? null,
             ] : null
         ];
+    }
+
+    /**
+     * Get the email settings.
+     * 
+     * @param array $data
+     * 
+     * @return array
+     */
+    protected function get_email_settings($data)
+    {
+        $header_logo = MediaAttachment::make($data['default_template']['logo'] ?? null);
+
+        return array_merge($data ?? [], [
+            'default_template' => array_merge($data['default_template'] ?? [], [
+                'logo' => $header_logo
+            ])
+        ]);
     }
 }

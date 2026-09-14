@@ -674,8 +674,8 @@ class SettingsUpdateRequest extends Request
         return [
             // Default template settings
             'data.default_template' => 'nullable|array',
-            'data.default_template.logo' => 'nullable|string',
-            'data.default_template.height' => 'nullable|string',
+            'data.default_template.logo' => 'nullable|integer',
+            'data.default_template.height' => 'nullable|integer',
             'data.default_template.position' => 'nullable|string',
             'data.default_template.colors' => 'nullable|array',
             'data.default_template.colors.background' => 'nullable|string',
@@ -839,8 +839,8 @@ class SettingsUpdateRequest extends Request
         return [
             // Default template settings
             'data.default_template' => Sanitizer::ARRAY,
-            'data.default_template.logo' => Sanitizer::TEXT,
-            'data.default_template.height' => Sanitizer::TEXT,
+            'data.default_template.logo' => Sanitizer::INT,
+            'data.default_template.height' => Sanitizer::INT,
             'data.default_template.position' => Sanitizer::TEXT,
             'data.default_template.colors' => Sanitizer::ARRAY,
             'data.default_template.colors.background' => Sanitizer::TEXT,

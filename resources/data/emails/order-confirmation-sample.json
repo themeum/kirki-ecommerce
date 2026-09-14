@@ -1,0 +1,79 @@
+{
+    "order_number": "10483",
+    "order_date_display": "August 29, 2025",
+    "currency_code": "USD",
+    "customer_name": "Michale Max",
+    "customer_notes": "This is a customer note. Customers can add a note to their order on checkout.\n\nIt can be multiple lines. If there's no note, this section is hidden.",
+    "shipping_method_name": "Express",
+    "payment_provider_name": "Bank Transfer",
+    "order_view_url": "#",
+    "items": [
+        {
+            "product_name": "Abstract Face Ceramic Vase",
+            "variant_name": "Colorful | Porcelain | Smooth",
+            "quantity": 1,
+            "image": null,
+            "invoiced_price": 2500,
+            "invoiced_total": 1250,
+            "discount_note": "WINTERISHERE 50%(-$12.50) Discount Applied"
+        },
+        {
+            "product_name": "Hand-Poured Lavender & Amber Soy Candle (8oz)",
+            "variant_name": null,
+            "quantity": 1,
+            "image": null,
+            "invoiced_price": 2500,
+            "invoiced_total": 1300,
+            "discount_note": "WINTERISHERE (-$12.00)"
+        },
+        {
+            "product_name": "Hand-Felted Acorn Keychain with Oak Leaf",
+            "variant_name": null,
+            "quantity": 2,
+            "image": null,
+            "invoiced_price": 800,
+            "invoiced_total": 800,
+            "discount_note": null
+        }
+    ],
+    "totals": {
+        "invoiced_subtotal": 3350,
+        "invoiced_discount": 1150,
+        "invoiced_shipping": 500,
+        "tax_rate": "10%",
+        "invoiced_tax": 0,
+        "base_tax": 1963,
+        "invoiced_total": 2700
+    },
+    "billing_address": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "company": "Company",
+        "address_line1": "123 Fake Street",
+        "address_line2": "",
+        "city": "Faketown",
+        "state": "CA",
+        "postal_code": "12345",
+        "country": "United States (US)",
+        "phone": "555-555-5555",
+        "email": "john@company.com"
+    },
+    "shipping_address": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "company": "Company",
+        "address_line1": "123 Fake Street",
+        "address_line2": "",
+        "city": "Faketown",
+        "state": "CA",
+        "postal_code": "12345",
+        "country": "United States (US)",
+        "phone": "555-555-5555",
+        "email": "john@company.com"
+    },
+    "support_email": "support@example.com",
+    "signature_message": "With gratitude,",
+    "signature_name": "John",
+    "store_name": "IONI Store",
+    "store_address": "3500 South DuPont Highway, Suite IQ-101, Dover, DE 19901"
+}
