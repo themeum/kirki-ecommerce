@@ -67,12 +67,8 @@ const OrderDetails = () => {
 
   if (isError || !order || !paymentBadge || !fulfillmentBadge) {
     return (
-      <Page>
-        <PageHeading
-          text={__('Orders', 'kirki-ecommerce')}
-          hasBack
-          onBack={handleBack}
-        />
+      <Page containerSize="xl">
+        <PageHeading text={__('Orders', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <PageContent>
           <Card cssOverride={{ marginTop: theme.spacing[12] }}>
             <CardContent>
@@ -89,7 +85,7 @@ const OrderDetails = () => {
   }
 
   return (
-    <Page>
+    <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
           text={`${__('Order', 'kirki-ecommerce')} #${order.order_number}`}

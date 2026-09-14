@@ -21,6 +21,7 @@ import type {
   ShippingMethodData,
   ShippingZone,
 } from '@/features/settings/shipping/types';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -34,10 +35,6 @@ import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
-
-type SettingsOutletContext = {
-  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
-};
 
 type UseShippingSettingsResult = {
   form: UseFormReturn<ShippingSettingsFormInput, unknown, ShippingSettingsFormPayload>;

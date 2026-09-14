@@ -85,7 +85,7 @@ type DropdownPosition = {
   top?: boolean;
 };
 type DropdownItemState = 'disabled' | 'titleOnly' | 'defaultSelected' | '';
-type ConfirmationVariant = 'default' | 'warning' | 'delete';
+type ConfirmationVariant = 'default' | 'warning' | 'delete' | 'success';
 
 export type {
   AlertType,

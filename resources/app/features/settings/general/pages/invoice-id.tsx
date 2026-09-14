@@ -59,22 +59,22 @@ const InvoiceId = () => {
                     <TextField
                       name="invoice_number.prefix"
                       label={__('Prefix', 'kirki-ecommerce')}
-                      placeholder={__('Enter a prefix', 'kirki-ecommerce')}
-                      description={__('Set invoice id prefix', 'kirki-ecommerce')}
+                      placeholder={__('INV-20', 'kirki-ecommerce')}
+                      infoText={__('Set invoice id prefix', 'kirki-ecommerce')}
                     />
 
                     <TextField
                       name="invoice_number.sequence"
                       label={__('Sequence', 'kirki-ecommerce')}
                       placeholder={__('000001', 'kirki-ecommerce')}
-                      description={__('Set invoice id sequence', 'kirki-ecommerce')}
+                      infoText={__('Set invoice id sequence', 'kirki-ecommerce')}
                     />
 
                     <TextField
                       name="invoice_number.suffix"
                       label={__('Suffix', 'kirki-ecommerce')}
-                      placeholder={__('Enter a suffix', 'kirki-ecommerce')}
-                      description={__('Set invoice id suffix', 'kirki-ecommerce')}
+                      placeholder={__('KIRKI', 'kirki-ecommerce')}
+                      infoText={__('Set invoice id suffix', 'kirki-ecommerce')}
                     />
                   </Grid>
 

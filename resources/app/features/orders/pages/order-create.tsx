@@ -34,7 +34,7 @@ const OrderCreate = () => {
   } = useOrderCreate();
 
   return (
-    <Page>
+    <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
           text={__('Create order', 'kirki-ecommerce')}

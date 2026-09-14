@@ -1,4 +1,5 @@
 import { css, type CSSObject, type Theme } from '@emotion/react';
+import React from 'react';
 
 const APP_ROOT_SELECTOR = '#wpbody-content .kirki-ecommerce-root';
 
@@ -81,6 +82,98 @@ const mergeCss = (...objects: MergeCssInput[]): CSSObject => {
     .reduce<CSSObject>((acc, object) => deepMergeCss(acc, object), {});
 };
 
+type DebugFiberType = {
+  displayName?: string;
+  name?: string;
+  render?: { displayName?: string; name?: string };
+  type?: { displayName?: string; name?: string };
+};
+
+type DebugFiber = {
+  type?: DebugFiberType | string | null;
+  _debugOwner?: DebugFiber | null;
+};
+
+type ReactDevInternals = {
+  __CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?: {
+    A?: { getOwner?: () => DebugFiber | null } | null;
+  };
+};
+
+/**
+ * Owner names that are safe to splice into a class name. Library wrappers use
+ * namespaced displayNames (Radix's `Primitive.button.Slot`), and a dot inside a
+ * class name silently turns the Emotion selector into an unmatchable compound
+ * one — so anything that is not a plain identifier is skipped outright rather
+ * than sanitized, since those wrapper names say nothing about where a component
+ * is used anyway.
+ */
+const OWNER_NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_]*$/;
+
+const toKebabCase = (name: string): string => {
+  return name
+    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+    .replace(/_/g, '-')
+    .toLowerCase();
+};
+
+const getFiberName = (fiber?: DebugFiber | null): string | undefined => {
+  const type = fiber?.type;
+
+  if (!type || typeof type === 'string') {
+    return undefined;
+  }
+
+  return (
+    type.displayName ??
+    type.name ??
+    type.render?.displayName ??
+    type.render?.name ??
+    type.type?.displayName ??
+    type.type?.name
+  );
+};
+
+/**
+ * Prefix a debug label with the component that rendered the current one, so a
+ * shared component's class name says where it is used — `<Card />` written in
+ * product-form.tsx serializes as `css-xxx-product-form-card-L15`.
+ *
+ * `getOwner()` returns the fiber currently rendering; its `_debugOwner` is the
+ * component whose JSX created that element. Returns the label unchanged outside
+ * a render pass (module scope, event handlers), when the owner is not a plain
+ * identifier, or when the label already carries the owner's name.
+ *
+ * Radix `asChild` clones its child, which re-points `_debugOwner` at the cloning
+ * wrapper, so triggers fall back to the plain call-site label.
+ *
+ * Only ever called behind `import.meta.env.DEV`. React's internals are read
+ * inline rather than cached so the whole branch drops out of production builds,
+ * and every access is optional so a React upgrade that moves `A.getOwner`
+ * degrades to an un-prefixed label instead of throwing.
+ *
+ * @param label Call-site label injected by the scoped-auto-label Babel plugin.
+ *
+ * @returns Label prefixed with the owning component name when one is available.
+ */
+const withOwnerLabel = (label: string): string => {
+  const internals = (React as unknown as ReactDevInternals)
+    .__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+  const owner = getFiberName(internals?.A?.getOwner?.()?._debugOwner);
+
+  if (!owner || !OWNER_NAME_PATTERN.test(owner)) {
+    return label;
+  }
+
+  const ownerLabel = toKebabCase(owner);
+
+  if (label === ownerLabel || label.startsWith(`${ownerLabel}-`)) {
+    return label;
+  }
+
+  return `${ownerLabel}-${label}`;
+};
+
 /**
  * Scope Emotion styles under the app root so they beat the normalize button/input resets.
  * Uses `&&` to raise specificity above typed form-control selectors (e.g. input[type="text"]).
@@ -95,7 +188,7 @@ const scoped = (stylesOrLabel: CSSObject | string, maybeStyles?: CSSObject) => {
   const styles = typeof stylesOrLabel === 'string' ? (maybeStyles ?? {}) : stylesOrLabel;
 
   return css({
-    label: import.meta.env.DEV && label ? label : undefined,
+    label: import.meta.env.DEV && label ? withOwnerLabel(label) : undefined,
     [`${APP_ROOT_SELECTOR} &&`]: styles,
   });
 };
@@ -103,12 +196,20 @@ const scoped = (stylesOrLabel: CSSObject | string, maybeStyles?: CSSObject) => {
 /**
  * Merge CSSObjects then wrap in a single scoped() call.
  *
+ * @param labelOrStyles CSS object, or a debug label when styles follow it.
  * @param objects CSS objects to merge before scoping.
  *
  * @returns Emotion css styles nested under the app root selector.
  */
-const scopedMerge = (...objects: MergeCssInput[]) => {
-  return scoped(mergeCss(...objects));
+const scopedMerge = (
+  labelOrStyles?: string | CSSObject | false | null,
+  ...objects: MergeCssInput[]
+) => {
+  if (typeof labelOrStyles === 'string') {
+    return scoped(labelOrStyles, mergeCss(...objects));
+  }
+
+  return scoped(mergeCss(labelOrStyles, ...objects));
 };
 
 /**
