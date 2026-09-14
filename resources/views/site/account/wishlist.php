@@ -37,7 +37,7 @@ $wishlist_items = $wishlists->items()->all();
                             <?php esc_html_e('Wishlist', 'kirki-ecommerce'); ?>
                             <span class="kecom-wishlist-count"><?php echo '(' . esc_html($wishlists->total()) . ')'; ?></span>
                         </h3>
-                        <button class="kecom-btn kecom-btn-outline" @click="emptyWishlist()">
+                        <button class="kecom-btn kecom-btn-outline" @click="openClearModal()">
                             <?php esc_html_e('Clear Wishlist', 'kirki-ecommerce'); ?>
                         </button>
                     </div>
@@ -53,6 +53,7 @@ $wishlist_items = $wishlists->items()->all();
                      </div>
                 </div>  
                 <?php endif; ?>
+                <?php include_view('site.account.wishlist.clear-wishlist-modal'); ?>
             </main>
          </div>
     </div>

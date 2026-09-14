@@ -78,6 +78,9 @@ class ShopProductResource extends Resource
      */
     private function resolve_default_variant($variants)
     {
+        if ( ! $variants ) {
+            return null;
+        }
         return $variants->filter(fn($variant) => 1 == $variant->is_default)->first();
     }
 

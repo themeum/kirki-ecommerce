@@ -6,14 +6,33 @@ export function accountWishlist() {
     const { __ } = window.wp.i18n;
 
     return {
-        async emptyWishlist() {
-            const result = await wishlistApi.empty();
+        clearModalOpen: false,
+        loading: false,
 
-            if (result.success) {
-                toastManager.success(__('Wishlist emptied successfully', 'kirki-ecommerce'));
-                window.location.reload();
-            } else {
-                toastManager.error(__('Failed to empty wishlist', 'kirki-ecommerce'));
+        cancelClear() {
+            this.clearModalOpen = false;
+        },
+
+        openClearModal() {
+            this.clearModalOpen = true;
+        },
+
+        async emptyWishlist() {
+            this.loading = true;
+            try {
+                const result = await wishlistApi.empty();
+                if (result.success) {
+                    toastManager.success(__('Wishlist emptied successfully', 'kirki-ecommerce'));
+                    this.clearModalOpen = false;
+                    window.location.reload();
+                } else {
+                    toastManager.error(__('Failed to empty wishlist', 'kirki-ecommerce'));
+                }
+            } catch (error: any) {
+                toastManager.error(error?.message || __('Failed to empty wishlist', 'kirki-ecommerce'));
+            } finally {
+                this.loading = false;
+                this.clearModalOpen = false;
             }
         },
     };

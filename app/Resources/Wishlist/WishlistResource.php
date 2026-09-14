@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Resources\Wishlist;
 
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
+use Kirki\Ecommerce\App\Supports\Url;
 
 class WishlistResource extends ShopProductResource
 {
@@ -41,6 +42,7 @@ class WishlistResource extends ShopProductResource
             $paren_data,
             [
                 'variant_id' => $this->variant_id,
+                'product_url' => Url::add_query_params(Url::get_product_url($this->slug), [ 'variant_id' => $this->variant_id ]),
                 'product_id' => $product ? $product->id : ($variant ? $variant->product_id : null),
                 'in_sale' => $in_sale,
                 'formatted_regular_price' => $pricing['formatted_regular_price'],
