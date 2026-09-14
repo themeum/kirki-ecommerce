@@ -25,6 +25,7 @@ import {
   shippingMethodIconMap,
 } from '@/features/settings/shipping/lib/utils';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import { useConfirmDelete } from '@/hooks';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
@@ -61,33 +62,46 @@ export const ShippingMethod = ({
     }));
   }, [shippingMethodList]);
 
-  const handleDeleteMethodItem = (item: ShippingMethodData) => {
-    const originalZones = [...shippingZonesObj];
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
-    const updatedZones = shippingZonesObj.map((zone) => {
-      if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
-        return zone;
-      }
-      return {
-        ...zone,
-        shipping_methods: zone.shipping_methods.filter((m) => m.id !== item.id),
-      };
-    });
-    setShippingZonesObj(updatedZones);
-    dispatchToastMessage('delete', {
-      title: __('Shipping method deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        setShippingZonesObj(originalZones);
+  const handleDeleteMethodItem = (item: ShippingMethodData) => {
+    confirmDelete(
+      {
+        title: __('Delete shipping method?', 'kirki-ecommerce'),
+        description: __(
+          'This method will be removed from the zone and will no longer be offered at checkout. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
       },
-      onSuccess: async () => {
-        await saveShippingZones({
-          zones: updatedZones,
-          from: 'delete',
-          shippingSettingsData,
+      () => {
+        const originalZones = [...shippingZonesObj];
+
+        const updatedZones = shippingZonesObj.map((zone) => {
+          if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
+            return zone;
+          }
+          return {
+            ...zone,
+            shipping_methods: zone.shipping_methods.filter((m) => m.id !== item.id),
+          };
+        });
+        setShippingZonesObj(updatedZones);
+        dispatchToastMessage('delete', {
+          title: __('Shipping method deleted', 'kirki-ecommerce'),
+          duration: 5000,
+          undoAction: () => {
+            setShippingZonesObj(originalZones);
+          },
+          onSuccess: async () => {
+            await saveShippingZones({
+              zones: updatedZones,
+              from: 'delete',
+              shippingSettingsData,
+            });
+          },
         });
       },
-    });
+    );
   };
 
   const handleEditDeliveryMethod = (item: ShippingMethodData) => {
@@ -162,7 +176,9 @@ export const ShippingMethod = ({
                         variant="outline"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
+                        cssOverride={mergeCss(styles.actionButton, {
+                          '& svg': { color: theme.colors.icon.critical },
+                        })}
                         onClick={() => handleDeleteMethodItem(item)}
                       >
                         <TrashIcon />
@@ -184,6 +200,7 @@ export const ShippingMethod = ({
           )}
         </CardContent>
       </Card>
+      {deleteConfirmation}
     </div>
   );
 };

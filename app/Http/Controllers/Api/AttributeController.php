@@ -55,7 +55,7 @@ class AttributeController
 
         return response()->json([
             'data' => AttributeResource::make($attribute),
-            'message' => __('Attribute created successfully.', 'kirki-ecommerce'),
+            'message' => __('Attribute created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -75,7 +75,7 @@ class AttributeController
 
         return response()->json([
             'data' => AttributeResource::make($attribute),
-            'message' => __('Attribute updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Attribute updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -85,7 +85,7 @@ class AttributeController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Attribute deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Attribute deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -101,14 +101,14 @@ class AttributeController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Attribute deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Attribute deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = AttributeListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All attributes deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All attributes deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

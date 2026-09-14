@@ -57,7 +57,7 @@ class TaxProfileController
 
         return response()->json([
             'data' => TaxProfileResource::make($tax_profile),
-            'message' => __('Tax profile created successfully.', 'kirki-ecommerce'),
+            'message' => __('Tax profile created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +79,7 @@ class TaxProfileController
 
         return response()->json([
             'data' => TaxProfileResource::make($tax_profile),
-            'message' => __('Tax profile updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Tax profile updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +89,7 @@ class TaxProfileController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Tax profile deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Tax profile deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +105,14 @@ class TaxProfileController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Tax profiles deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Tax profiles deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All tax profiles deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All tax profiles deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

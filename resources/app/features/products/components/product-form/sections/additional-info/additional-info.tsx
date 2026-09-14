@@ -47,9 +47,7 @@ const AdditionalInfo = () => {
       {showInfoForm ? (
         <AddOrEditInfo
           index={editedIndex}
-          initialValues={
-            editedIndex !== null ? fields[editedIndex] : undefined
-          }
+          initialValues={editedIndex !== null ? fields[editedIndex] : undefined}
           onClose={handleClose}
           onSave={(values) => {
             if (editedIndex !== null) {
@@ -67,10 +65,7 @@ const AdditionalInfo = () => {
               {fields.map((item, index) => (
                 <Card cssOverride={cardStyles.innerCard} key={item.id}>
                   <CardContent
-                    cssOverride={mergeCss(
-                      cardStyles.innerCardContent,
-                      styles.cardContent,
-                    )}
+                    cssOverride={mergeCss(cardStyles.innerCardContent, styles.cardContent)}
                   >
                     <Flex align="flex-start">
                       <Flex direction="column" gap={2}>
@@ -87,14 +82,12 @@ const AdditionalInfo = () => {
                       >
                         <Button
                           variant="secondary"
+                          cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                           onClick={() => remove(index)}
                         >
                           <TrashIcon />
                         </Button>
-                        <Button
-                          variant="secondary"
-                          onClick={() => handleEditInfo(index)}
-                        >
+                        <Button variant="secondary" onClick={() => handleEditInfo(index)}>
                           <EditIcon />
                         </Button>
                       </ActionGroup>
@@ -104,10 +97,7 @@ const AdditionalInfo = () => {
               ))}
             </div>
           )}
-          <Button
-            variant="secondary"
-            onClick={() => setShowInfoForm(true)}
-          >
+          <Button variant="secondary" onClick={() => setShowInfoForm(true)}>
             <PlusIcon />
             {__('Add an Info Section', 'kirki-ecommerce')}
           </Button>

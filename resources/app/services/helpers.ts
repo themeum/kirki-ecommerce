@@ -2,8 +2,16 @@ import { toast } from 'sonner';
 import type { z } from 'zod';
 
 import type { ApiClientResponse, ErrorResponse } from '@/libs/api';
-import { ApiEnvelopeSchema, type MessageResponse, MessageResponseSchema } from '@/schemas/shared/api';
-import { ApiValidationError, formatValidationIssues, isApiValidationError } from '@/schemas/shared/errors';
+import {
+  ApiEnvelopeSchema,
+  type MessageResponse,
+  MessageResponseSchema,
+} from '@/schemas/shared/api';
+import {
+  ApiValidationError,
+  formatValidationIssues,
+  isApiValidationError,
+} from '@/schemas/shared/errors';
 import { __ } from '@/wpi18n';
 
 const unwrapData = <T>(response: unknown): T => {
@@ -114,17 +122,21 @@ const toastMutationError = (error: unknown) => {
   toast.error(getErrorMessage(error));
 };
 
-const toastMutationSuccess = (message?: string) => {
+const toastMutationSuccess = (message?: string, options?: { description?: string }) => {
   if (!message) {
     return;
   }
-  toast.success(message);
+  toast.success(message, options);
 };
 
 export {
-  getErrorMessage, parseData,
-  parseMessage, parseResponse, toastMutationError,
-  toastMutationSuccess, unwrapData,
+  getErrorMessage,
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+  unwrapData,
   unwrapDataList,
   unwrapResponse,
 };

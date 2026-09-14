@@ -25,6 +25,7 @@ import {
   useUpdateShippingBoxMutation,
 } from '@/features/settings/shipping/services/shipping';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
+import { useConfirmDelete } from '@/hooks';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -109,6 +110,7 @@ const ShippingBox = () => {
   const { data: shippingBoxes = [], isLoading, refetch } = useShippingBoxesQuery({ limit: -1 });
   const { mutate: updateBox } = useUpdateShippingBoxMutation();
   const { mutate: deleteBox } = useDeleteShippingBoxMutation();
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   const shippingBoxList = useMemo<ShippingBoxListItem[]>(
     () =>
@@ -146,20 +148,31 @@ const ShippingBox = () => {
 
   const handleAction = (action: string, item: ShippingBoxListItem) => {
     if (action === 'delete') {
-      setRemovedIds((prev) => [...prev, item.id]);
-
-      dispatchToastMessage('delete', {
-        title: __('Shipping box deleted', 'kirki-ecommerce'),
-        duration: 5000,
-        undoAction: () => {
-          setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+      confirmDelete(
+        {
+          title: __('Delete shipping box?', 'kirki-ecommerce'),
+          description: __(
+            'This box will be permanently deleted and no longer used to calculate packaging. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
         },
-        onSuccess: () => {
-          deleteBox(item?.id, {
-            onSuccess: () => refetch(),
+        () => {
+          setRemovedIds((prev) => [...prev, item.id]);
+
+          dispatchToastMessage('delete', {
+            title: __('Shipping box deleted', 'kirki-ecommerce'),
+            duration: 5000,
+            undoAction: () => {
+              setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+            },
+            onSuccess: () => {
+              deleteBox(item?.id, {
+                onSuccess: () => refetch(),
+              });
+            },
           });
         },
-      });
+      );
     } else {
       const data = {
         ...item,
@@ -242,6 +255,7 @@ const ShippingBox = () => {
           onSave={() => refetch()}
         />
       )}
+      {deleteConfirmation}
     </>
   );
 };

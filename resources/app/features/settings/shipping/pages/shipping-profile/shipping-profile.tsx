@@ -24,11 +24,12 @@ import {
   deleteShippingProfile,
   useShippingProfilesQuery,
 } from '@/features/settings/shipping/services/shipping';
+import { useConfirmDelete } from '@/hooks';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
@@ -53,27 +54,42 @@ const ShippingProfile = () => {
     setEditProfileIndex(item?.id);
   };
 
-  const handleDeleteShippingProfile = async (item: ShippingProfileType) => {
-    const queryKey = shippingKeys.profiles.list(SHIPPING_PROFILES_PARAMS);
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
-    await queryClient.cancelQueries({ queryKey });
-    const previousProfiles = queryClient.getQueryData<ShippingProfileType[]>(queryKey);
+  const handleDeleteShippingProfile = (item: ShippingProfileType) => {
+    confirmDelete(
+      {
+        title: __('Delete shipping profile?', 'kirki-ecommerce'),
+        description: __(
+          'This shipping profile will be permanently deleted. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
+      },
+      () => {
+        void (async () => {
+          const queryKey = shippingKeys.profiles.list(SHIPPING_PROFILES_PARAMS);
 
-    queryClient.setQueryData<ShippingProfileType[]>(queryKey, (profiles) =>
-      (profiles ?? []).filter((profile) => profile.id !== item.id),
+          await queryClient.cancelQueries({ queryKey });
+          const previousProfiles = queryClient.getQueryData<ShippingProfileType[]>(queryKey);
+
+          queryClient.setQueryData<ShippingProfileType[]>(queryKey, (profiles) =>
+            (profiles ?? []).filter((profile) => profile.id !== item.id),
+          );
+
+          dispatchToastMessage('delete', {
+            title: __('Shipping profile deleted', 'kirki-ecommerce'),
+            duration: 5000,
+            undoAction: () => {
+              queryClient.setQueryData(queryKey, previousProfiles);
+            },
+            onSuccess: async () => {
+              await deleteShippingProfile(item?.id);
+              void queryClient.invalidateQueries({ queryKey: shippingKeys.profiles.all });
+            },
+          });
+        })();
+      },
     );
-
-    dispatchToastMessage('delete', {
-      title: __('Shipping profile deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        queryClient.setQueryData(queryKey, previousProfiles);
-      },
-      onSuccess: async () => {
-        await deleteShippingProfile(item?.id);
-        void queryClient.invalidateQueries({ queryKey: shippingKeys.profiles.all });
-      },
-    });
   };
 
   return (
@@ -84,10 +100,7 @@ const ShippingProfile = () => {
         cssOverride={cardStyles.formCard}
       >
         <CardContent>
-          <CreateProfilePopover
-            isOpen={showAddPopover}
-            onClose={() => setShowAddPopover(false)}
-          >
+          <CreateProfilePopover isOpen={showAddPopover} onClose={() => setShowAddPopover(false)}>
             <HeaderActionsCard
               header={__('Shipping Profiles', 'kirki-ecommerce')}
               subHeader={__(
@@ -126,8 +139,10 @@ const ShippingProfile = () => {
                           variant="outline"
                           size="icon-sm"
                           aria-label={__('Delete', 'kirki-ecommerce')}
-                          cssOverride={styles.deleteButton}
-                          onClick={() => void handleDeleteShippingProfile(item)}
+                          cssOverride={mergeCss(styles.deleteButton, {
+                            '& svg': { color: theme.colors.icon.critical },
+                          })}
+                          onClick={() => handleDeleteShippingProfile(item)}
                         >
                           <TrashIcon />
                         </Button>
@@ -155,6 +170,7 @@ const ShippingProfile = () => {
         shippingProfileList={shippingProfileList}
         editIndex={editProfileIndex}
       />
+      {deleteConfirmation}
     </>
   );
 };

@@ -21,6 +21,7 @@ import { taxKeys } from '@/features/settings';
 import { TaxProfilePopup } from '@/features/settings/tax/shared/components/tax-profile/tax-profile-dialog';
 import type { TaxProfile as TaxProfileType } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
+import { useConfirmDelete } from '@/hooks';
 import { BoxClosedIcon, BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { toastMutationError } from '@/services/helpers';
 import { theme } from '@/theme';
@@ -39,11 +40,8 @@ const TaxProfile = () => {
   // `onAutoClose` closure, so the two aren't provably the same operation.
   const queryClient = useQueryClient();
   const [showPopup, setShowPopup] = useState(false);
-  const [editingProfile, setEditingProfile] =
-    useState<TaxProfileListItem | null>(null);
-  const [taxProfileList, setTaxProfileList] = useState<TaxProfileListItem[]>(
-    [],
-  );
+  const [editingProfile, setEditingProfile] = useState<TaxProfileListItem | null>(null);
+  const [taxProfileList, setTaxProfileList] = useState<TaxProfileListItem[]>([]);
 
   const { data: taxProfiles } = useTaxProfilesQuery();
 
@@ -55,31 +53,42 @@ const TaxProfile = () => {
     setTaxProfileList(updatedData);
   }, [taxProfiles]);
 
-  const handleDeleteTaxProfile = (item: TaxProfileListItem) => {
-    const initialList = [...taxProfileList];
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
-    setTaxProfileList((prev) =>
-      prev.filter((profile) => profile?.id !== item?.id),
+  const handleDeleteTaxProfile = (item: TaxProfileListItem) => {
+    confirmDelete(
+      {
+        title: __('Delete tax profile?', 'kirki-ecommerce'),
+        description: __(
+          'This tax profile will be permanently deleted and no longer applied to your products. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
+      },
+      () => {
+        const initialList = [...taxProfileList];
+
+        setTaxProfileList((prev) => prev.filter((profile) => profile?.id !== item?.id));
+        toast(__('Tax profile deleted', 'kirki-ecommerce'), {
+          duration: 5000,
+          action: {
+            label: __('Undo', 'kirki-ecommerce'),
+            onClick: () => {
+              setTaxProfileList(initialList);
+            },
+          },
+          onAutoClose: () => {
+            deleteTaxProfile(item?.id)
+              .then(() => {
+                void queryClient.invalidateQueries({ queryKey: taxKeys.all });
+              })
+              .catch((error) => {
+                toastMutationError(error);
+                setTaxProfileList(initialList);
+              });
+          },
+        });
+      },
     );
-    toast(__('Tax profile deleted', 'kirki-ecommerce'), {
-      duration: 5000,
-      action: {
-        label: __('Undo', 'kirki-ecommerce'),
-        onClick: () => {
-          setTaxProfileList(initialList);
-        },
-      },
-      onAutoClose: () => {
-        deleteTaxProfile(item?.id)
-          .then(() => {
-            void queryClient.invalidateQueries({ queryKey: taxKeys.all });
-          })
-          .catch((error) => {
-            toastMutationError(error);
-            setTaxProfileList(initialList);
-          });
-      },
-    });
   };
 
   const handleEditTaxProfile = (item: TaxProfileListItem) => {
@@ -88,8 +97,12 @@ const TaxProfile = () => {
 
   return (
     <div>
-      <Card data-search-id="tax.profile" data-search-keywords="vat rate, gst rate, tax class, levy" cssOverride={cardStyles.formCard}>
-        <CardContent >
+      <Card
+        data-search-id="tax.profile"
+        data-search-keywords="vat rate, gst rate, tax class, levy"
+        cssOverride={cardStyles.formCard}
+      >
+        <CardContent>
           <HeaderActionsCard
             header={__('Tax Profiles', 'kirki-ecommerce')}
             subHeader={__(
@@ -107,10 +120,7 @@ const TaxProfile = () => {
                   <Flex direction="column" gap={2} align="center">
                     <BoxOpenIcon />
                     <span css={scoped(styles.emptyStateText)}>
-                      {__(
-                        'Added shipping profiles will appear here',
-                        'kirki-ecommerce',
-                      )}
+                      {__('Added shipping profiles will appear here', 'kirki-ecommerce')}
                     </span>
                   </Flex>
                 </CardContent>
@@ -126,9 +136,7 @@ const TaxProfile = () => {
                           {item.name}
                         </Text>
                         {item.is_default && (
-                          <Badge variant="secondary">
-                            {__('Default', 'kirki-ecommerce')}
-                          </Badge>
+                          <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
                         )}
                       </StackedItemTitle>
                     </StackedItemContent>
@@ -138,7 +146,9 @@ const TaxProfile = () => {
                           variant="outline"
                           size="icon-sm"
                           aria-label={__('Delete', 'kirki-ecommerce')}
-                          cssOverride={styles.actionButton}
+                          cssOverride={mergeCss(styles.actionButton, {
+                            '& svg': { color: theme.colors.icon.critical },
+                          })}
                           onClick={() => handleDeleteTaxProfile(item)}
                         >
                           <TrashIcon />
@@ -161,12 +171,7 @@ const TaxProfile = () => {
           </div>
         </CardContent>
       </Card>
-      {showPopup && (
-        <TaxProfilePopup
-          isOpen={showPopup}
-          onClose={() => setShowPopup(false)}
-        />
-      )}
+      {showPopup && <TaxProfilePopup isOpen={showPopup} onClose={() => setShowPopup(false)} />}
       {editingProfile && (
         <TaxProfilePopup
           isOpen={editingProfile}
@@ -175,6 +180,7 @@ const TaxProfile = () => {
           taxProfile={editingProfile}
         />
       )}
+      {deleteConfirmation}
     </div>
   );
 };
