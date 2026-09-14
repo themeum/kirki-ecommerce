@@ -124,7 +124,7 @@ export const CreateProfilePopup = ({
           </DialogHeader>
 
           <DialogBody>
-            <Flex direction="column" gap="4">
+            <Flex direction="column" gap={4}>
               <TextField
                 name="name"
                 label={__('Title', 'kirki-ecommerce')}
