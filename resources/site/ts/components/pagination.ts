@@ -13,7 +13,7 @@ type ItemsResponse = {
   };
 };
 
-export function pagination(itemsGrid?:string, paginationContainer?:string, headerClass?: string, apiUrl?: string) {
+export function pagination(apiUrl: string,itemsGrid?:string, paginationContainer?:string, headerClass?: string) {
   const { __ } = window.wp.i18n;
 
   return {
@@ -21,7 +21,7 @@ export function pagination(itemsGrid?:string, paginationContainer?:string, heade
     itemsGrid: itemsGrid || 'kecom-products-grid',
     paginationContainer: paginationContainer || 'kecom-pagination-container',
     headerClass: headerClass || 'kecom-breadcrumb-list',
-    apiUrl: apiUrl || '/shop/products',
+    apiUrl: apiUrl,
 
     init() {
       // Intercept pagination clicks dynamically
@@ -40,18 +40,6 @@ export function pagination(itemsGrid?:string, paginationContainer?:string, heade
           }
         });
       }
-
-      listen(EVENTS.ACCOUNT_WISHLIST_REMOVED, (pagination) => {
-        const params = new URLSearchParams(window.location.search);
-        const currentPage = params.get('current_page') ?? 1;
-
-        if (Number(currentPage) > Number(pagination?.last_page)) {
-          params.set('current_page', pagination?.last_page?.toString() ?? '');
-          window.location.search = params.toString();
-        }
-
-        void fetchItems(this.apiUrl, this.itemsGrid, this.paginationContainer, this.headerClass, false, this.isLoading);
-      });
     }
   };
 }
