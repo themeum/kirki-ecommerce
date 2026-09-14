@@ -155,6 +155,7 @@ const styles = defineStyles({
     },
   },
   row: {
+    position: 'relative',
     height: '34px',
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
@@ -162,6 +163,10 @@ const styles = defineStyles({
       backgroundColor: theme.colors.background.surfaceAlt,
     },
     '& [data-action-group="true"]': {
+      position: 'absolute',
+      right: theme.spacing[0],
+      top: '50%',
+      transform: 'translateY(-50%)',
       pointerEvents: 'none',
       opacity: 0,
     },

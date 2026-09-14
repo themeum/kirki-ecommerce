@@ -4,10 +4,10 @@ import { Outlet, useLocation, useOutletContext } from 'react-router';
 import FloatingBar from '@/components/floating-bar/floating-bar';
 import Button from '@/components/ui/button';
 import { Page, PAGE_HEADING_STICKY_TOP, PageContent } from '@/components/ui/page';
-import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
 import { SettingsSearchProvider } from '@/features/settings/search/settings-search-context';
 import SettingsSearchHighlighter from '@/features/settings/search/settings-search-highlighter';
+import type { SettingsOutletContext, SettingsPageActionsInput } from '@/features/settings/types';
 import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -26,20 +26,20 @@ type RootOutletContext = {
 };
 
 type SettingsLayoutOutletContext = RootOutletContext & {
-  registerActions: (actions: RegisteredSettingsPageActions | null) => void;
+  registerActions: (actions: SettingsPageActionsInput | null) => void;
 };
 
 const SettingsLayoutShell = () => {
   const { pathname } = useLocation();
-  const { confirmAction } = useOutletContext<RootOutletContext>();
-  const [actions, setActions] = useState<RegisteredSettingsPageActions | null>(null);
+  const { confirmAction } = useOutletContext<SettingsOutletContext>();
+  const [actions, setActions] = useState<SettingsPageActionsInput | null>(null);
 
   const isDirty = actions?.isDirty ?? false;
   const isSaving = actions?.isSaving ?? false;
 
   const { cancelNavigation, markSaving, shakeSignal } = useUnsavedNavigationGuard(isDirty);
 
-  const registerActions = useCallback((next: RegisteredSettingsPageActions | null) => {
+  const registerActions = useCallback((next: SettingsPageActionsInput | null) => {
     setActions(next);
   }, []);
 
@@ -51,10 +51,10 @@ const SettingsLayoutShell = () => {
     cancelNavigation();
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     markSaving(true);
     try {
-      await actions?.onSave();
+      actions?.onSave();
     } finally {
       markSaving(false);
     }

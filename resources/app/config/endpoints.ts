@@ -46,6 +46,7 @@ export const endpoints = {
   CURRENCIES_LIST: '/currencies/list',
   CURRENCY_PROVIDERS: '/currency-exchange/providers',
   CURRENCY_EXCHANGE_PROVIDERS: '/currency-exchange/providers',
+  CURRENCY_EXCHANGE_SYNC: '/currency-exchange/sync',
 
   PRODUCT_SCHEMAS: '/product-schemas',
   PRODUCT_SCHEMA: (id: string | number) => `/product-schemas/${id}`,

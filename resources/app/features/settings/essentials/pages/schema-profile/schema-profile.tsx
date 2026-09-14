@@ -1,3 +1,4 @@
+import { Code } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -28,7 +29,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
-import { Code } from 'lucide-react';
 
 type SchemaListItem = SchemaProfile & {
   badge1?: string;

@@ -32,7 +32,7 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>((props, ref) => {
       data-slot="skeleton"
       aria-hidden="true"
       style={skeletonStyle}
-      css={scopedMerge(styles.root, styles.radii[radius], cssOverride)}
+      css={scopedMerge(styles.root, radiusStyles[radius], cssOverride)}
       {...rest}
     />
   );
@@ -70,5 +70,4 @@ const styles = defineStyles({
     height: 'var(--skeleton-height, 1rem)',
     animation: `${skeletonPulse} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite`,
   },
-  radii: radiusStyles,
 });
