@@ -255,23 +255,24 @@ const styles = defineStyles({
     display: 'flex',
     width: '100%',
     minWidth: 0,
-    minHeight: '36px',
+    minHeight: '32px',
+    maxHeight: '32px',
     alignItems: 'center',
     borderRadius: theme.radius.lg,
-    border: `1px solid ${theme.colors.border.default}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
     backgroundColor: theme.colors.background.fill,
     transition: 'color, box-shadow',
     overflow: 'hidden',
     '&:focus-within': {
-      borderColor: theme.colors.border.default,
+      borderColor: theme.colors.background.fillBrand,
       ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
-      border: `1px solid ${theme.colors.border.critical}`,
+      border: `1px solid ${theme.colors.background.fillCritical}`,
       boxShadow: 'none',
       '&:focus-within': {
-        borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme, theme.colors.border.critical),
+        borderColor: theme.colors.background.fillCritical,
+        ...uiFocusRing(theme, theme.colors.background.fillCriticalSecondary),
       },
     },
     '&[data-disabled="true"]': {
@@ -340,7 +341,7 @@ const styles = defineStyles({
     background: 'transparent',
     outline: 'none',
     boxShadow: 'none',
-    ...theme.typography.small(),
+    ...theme.typography.small('medium'),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -361,7 +362,8 @@ const styles = defineStyles({
     },
   },
   input: {
-    minHeight: '36px',
+    minHeight: '32px',
+    maxHeight: '32px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
       MozAppearance: 'textfield',

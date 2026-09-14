@@ -1,7 +1,16 @@
 import { type CSSObject, keyframes } from '@emotion/react';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
-import { type ComponentPropsWithoutRef, createContext, type CSSProperties, type ElementRef, forwardRef, type ReactNode, useContext, useId } from 'react';
+import type { ComponentRef } from 'react';
+import {
+  type ComponentPropsWithoutRef,
+  createContext,
+  type CSSProperties,
+  forwardRef,
+  type ReactNode,
+  useContext,
+  useId,
+} from 'react';
 
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
@@ -41,18 +50,14 @@ const Accordion = ({
   onValueChange,
 }: AccordionProps) => {
   return (
-    <AccordionContext.Provider
-      value={{ hideSeparator, rightActions, hasBottomSpace }}
-    >
+    <AccordionContext.Provider value={{ hideSeparator, rightActions, hasBottomSpace }}>
       {type === 'single' ? (
         <AccordionPrimitive.Root
           type="single"
           collapsible
           css={scopedMerge(styles.base, cssOverride)}
           style={style}
-          defaultValue={
-            typeof defaultValue === 'string' ? defaultValue : undefined
-          }
+          defaultValue={typeof defaultValue === 'string' ? defaultValue : undefined}
           value={typeof value === 'string' ? value : undefined}
           onValueChange={onValueChange}
         >
@@ -70,16 +75,8 @@ const Accordion = ({
                 ? [defaultValue]
                 : undefined
           }
-          value={
-            Array.isArray(value)
-              ? value
-              : typeof value === 'string'
-                ? [value]
-                : undefined
-          }
-          onValueChange={
-            onValueChange
-          }
+          value={Array.isArray(value) ? value : typeof value === 'string' ? [value] : undefined}
+          onValueChange={onValueChange}
         >
           {children}
         </AccordionPrimitive.Root>
@@ -99,22 +96,21 @@ type AccordionItemProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const AccordionItem = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Item>,
-  AccordionItemProps
->((props, ref) => {
-  const { children, cssOverride, value, ...rest } = props;
-  const { hideSeparator } = useContext(AccordionContext);
-  const generatedId = useId();
-  const itemValue = value ?? generatedId;
+const AccordionItem = forwardRef<ComponentRef<typeof AccordionPrimitive.Item>, AccordionItemProps>(
+  (props, ref) => {
+    const { children, cssOverride, value, ...rest } = props as AccordionItemProps;
+    const { hideSeparator } = useContext(AccordionContext);
+    const generatedId = useId();
+    const itemValue = value ?? generatedId;
 
-  return (
-    <AccordionPrimitive.Item ref={ref} value={itemValue} css={cssOverride} {...rest}>
-      {children}
-      {!hideSeparator && <Separator />}
-    </AccordionPrimitive.Item>
-  );
-});
+    return (
+      <AccordionPrimitive.Item ref={ref} value={itemValue} css={scopedMerge(cssOverride)} {...rest}>
+        {children}
+        {!hideSeparator && <Separator />}
+      </AccordionPrimitive.Item>
+    );
+  },
+);
 
 AccordionItem.displayName = 'AccordionItem';
 
@@ -127,30 +123,27 @@ type AccordionTriggerProps = Omit<
 };
 
 const AccordionTrigger = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Trigger>,
+  ComponentRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
 >((props, ref) => {
-  const { children, cssOverride, gap = 8, style, ...rest } = props;
+  const { children, cssOverride, gap = 2, style, ...rest } = props;
   const { rightActions } = useContext(AccordionContext);
 
   return (
     <AccordionPrimitive.Header
       css={scopedMerge(styles.header, cssOverride)}
-      style={{ ...style, columnGap: `${gap}px` }}
+      style={{
+        ...style,
+        columnGap: theme.spacing?.[gap as keyof typeof theme.spacing] ?? `${gap * 4}px`,
+      }}
     >
-      <AccordionPrimitive.Trigger
-        ref={ref}
-        css={scoped(styles.trigger)}
-        {...rest}
-      >
+      <AccordionPrimitive.Trigger ref={ref} css={scoped(styles.trigger)} {...rest}>
         <div css={scoped(styles.title)}>{children}</div>
         <span css={scoped(styles.chevron)} data-accordion-chevron="">
           <ChevronDown size={16} aria-hidden="true" />
         </span>
       </AccordionPrimitive.Trigger>
-      {rightActions ? (
-        <div css={scoped(styles.rightActions)}>{rightActions}</div>
-      ) : null}
+      {rightActions ? <div css={scoped(styles.rightActions)}>{rightActions}</div> : null}
     </AccordionPrimitive.Header>
   );
 });
@@ -165,7 +158,7 @@ type AccordionContentProps = Omit<
 };
 
 const AccordionContent = forwardRef<
-  ElementRef<typeof AccordionPrimitive.Content>,
+  ComponentRef<typeof AccordionPrimitive.Content>,
   AccordionContentProps
 >((props, ref) => {
   const { children, cssOverride, ...rest } = props;
@@ -186,11 +179,7 @@ const AccordionContent = forwardRef<
 
 AccordionContent.displayName = 'AccordionContent';
 
-export {
-  Accordion, AccordionContent,
-  AccordionContext, AccordionItem,
-  AccordionTrigger,
-};
+export { Accordion, AccordionContent, AccordionContext, AccordionItem, AccordionTrigger };
 
 const slideDown = keyframes({
   from: { height: 0 },
@@ -210,11 +199,11 @@ const styles = defineStyles({
   header: {
     margin: 0,
     display: 'flex',
+    gap: theme.spacing[3],
     alignItems: 'center',
     width: '100%',
     padding: `${theme.spacing[4]} ${theme.spacing[0]}`,
-    '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]':
-    {
+    '&:hover [data-accordion-chevron], &:focus-within [data-accordion-chevron]': {
       visibility: 'visible',
     },
   },

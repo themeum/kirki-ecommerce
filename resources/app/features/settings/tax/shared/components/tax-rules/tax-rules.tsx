@@ -79,7 +79,7 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Rules', 'kirki-ecommerce')}

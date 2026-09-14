@@ -216,7 +216,7 @@ describe('CurrencySettingsSchema', () => {
     const result = CurrencySettingsSchema.safeParse({
       currency_format: 'short',
       is_automatic_update_enabled: true,
-      api_config: [],
+      api_config: {},
     });
     expect(result.success).toBe(true);
   });

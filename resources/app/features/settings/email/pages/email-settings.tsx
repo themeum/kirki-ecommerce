@@ -24,7 +24,6 @@ import {
 } from '@/features/settings/email/schemas/forms/email-settings-form';
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { AtSignIcon, BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -77,10 +76,6 @@ const EmailSettings = () => {
     }
     form.reset(pickFormValues(EmailSettingsFormSchema, emailSettingsData));
   }, [emailSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(form.formState.isDirty);
-  }, [form.formState.isDirty]);
 
   const handleSaveData = async (payload: EmailSettingsFormPayload) => {
     try {
@@ -149,7 +144,7 @@ const EmailSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
-          <Card cssOverride={styles.roundedCard}>
+          <Card data-search-id="email.default-template" data-search-keywords="branding, header, footer, from name, sender address" cssOverride={styles.roundedCard}>
             <CardContent>
               <Flex justify="space-between" align="center">
                 <Flex direction="column" gap={2} align="flex-start">
@@ -159,7 +154,7 @@ const EmailSettings = () => {
                   </Flex>
                   <Text color="secondary">
                     {__(
-                      'Configure logo, colors, sender email, and more for emails',
+                      'Logo, colors, sender name and footer shared by every outgoing email.',
                       'kirki-ecommerce',
                     )}
                   </Text>

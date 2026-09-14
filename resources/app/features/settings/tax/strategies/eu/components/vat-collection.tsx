@@ -82,7 +82,7 @@ export const VatCollection = (props: VatCollectionProps) => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('VAT Collection', 'kirki-ecommerce')}
@@ -96,7 +96,7 @@ export const VatCollection = (props: VatCollectionProps) => {
               const meta = resolveCountryMeta(item);
 
               return (
-                <Card key={item.code ?? index} cssOverride={cardStyles.innerCard}>
+                <Card data-search-skip="true" key={item.code ?? index} cssOverride={cardStyles.innerCard}>
                   <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatRow)}>
                     <Flex justify="space-between" cssOverride={{ width: '100%' }}>
                       <Flex gap={2} align="center">

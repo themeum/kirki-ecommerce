@@ -1,7 +1,6 @@
 import { memo } from 'react';
 
 import ActionGroup from '@/components/ui/action-group';
-import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { couponListOptions } from '@/features/coupons';
@@ -9,16 +8,14 @@ import FilterPopup from '@/features/coupons/components/coupon-table/filter-popup
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const CouponTableFilter = memo(() => {
-  const { params, setParam, handleDateFilter } = useDataTableParams(couponListOptions);
+  const { params, setParam } = useDataTableParams(couponListOptions);
 
   const handleSearchChange = (value: string) => {
     setParam('search', value);
   };
-
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -30,16 +27,6 @@ const CouponTableFilter = memo(() => {
         />
       </div>
       <ActionGroup>
-        <DateRangePicker
-          value={{
-            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
-            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
-          }}
-          presets
-          clearable
-          onChange={handleDateFilter}
-          size="sm"
-        />
         <FilterPopup />
       </ActionGroup>
     </Flex>

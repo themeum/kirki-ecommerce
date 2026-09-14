@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Outlet, useBlocker, useLocation, useOutletContext } from 'react-router';
+import { useCallback, useState } from 'react';
+import { Outlet, useLocation, useOutletContext } from 'react-router';
 
-import ConfirmationDialog from '@/components/modal/confirmation-dialog';
+import FloatingBar from '@/components/floating-bar/floating-bar';
 import Button from '@/components/ui/button';
-import PageHeading from '@/components/ui/page-heading';
-import type { RegisteredSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
+import { Page, PAGE_HEADING_STICKY_TOP, PageContent } from '@/components/ui/page';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
+import { SettingsSearchProvider } from '@/features/settings/search/settings-search-context';
+import SettingsSearchHighlighter from '@/features/settings/search/settings-search-highlighter';
+import type { SettingsOutletContext, SettingsPageActionsInput } from '@/features/settings/types';
+import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+
+const SIDEBAR_WIDTH = '230px';
+const CONTENT_PANE_WIDTH = '600px';
 
 type ConfirmActionParams = {
   action?: () => void;
@@ -20,45 +26,37 @@ type RootOutletContext = {
 };
 
 type SettingsLayoutOutletContext = RootOutletContext & {
-  registerActions: (actions: RegisteredSettingsPageActions | null) => void;
+  registerActions: (actions: SettingsPageActionsInput | null) => void;
 };
 
-const SETTINGS_HEADER_STICKY_TOP = '64px';
-// Header border-box height: 16px top padding + 32px forced heading height +
-// 16px bottom padding + 1px border (see PageHeading's wrapperSticky/heading styles).
-const SETTINGS_HEADER_HEIGHT = '65px';
-
-const SettingsLayout = () => {
+const SettingsLayoutShell = () => {
   const { pathname } = useLocation();
-  const { confirmAction } = useOutletContext<RootOutletContext>();
-  const [actions, setActions] = useState<RegisteredSettingsPageActions | null>(null);
+  const { confirmAction } = useOutletContext<SettingsOutletContext>();
+  const [actions, setActions] = useState<SettingsPageActionsInput | null>(null);
 
   const isDirty = actions?.isDirty ?? false;
   const isSaving = actions?.isSaving ?? false;
 
-  const shouldBlock = useCallback(() => isDirty && !isSaving, [isDirty, isSaving]);
-  const blocker = useBlocker(shouldBlock);
-  const isBlocked = blocker.state === 'blocked';
+  const { cancelNavigation, markSaving, shakeSignal } = useUnsavedNavigationGuard(isDirty);
 
-  useEffect(() => {
-    if (isBlocked && !isDirty && blocker.state === 'blocked') {
-      blocker.reset();
-    }
-  }, [isBlocked, isDirty, blocker]);
-
-  const registerActions = useCallback((next: RegisteredSettingsPageActions | null) => {
+  const registerActions = useCallback((next: SettingsPageActionsInput | null) => {
     setActions(next);
   }, []);
 
-  const handleConfirmLeave = () => {
-    if (blocker.state === 'blocked') {
-      blocker.proceed();
-    }
+  // Discarding reverts the page and stays put; any navigation that was blocked
+  // is abandoned rather than completed, so the merchant keeps the settings page
+  // they are looking at.
+  const handleDiscard = () => {
+    actions?.onDiscard();
+    cancelNavigation();
   };
 
-  const handleCancelLeave = () => {
-    if (blocker.state === 'blocked') {
-      blocker.reset();
+  const handleSave = () => {
+    markSaving(true);
+    try {
+      actions?.onSave();
+    } finally {
+      markSaving(false);
     }
   };
 
@@ -68,48 +66,39 @@ const SettingsLayout = () => {
   };
 
   return (
-    <>
-      {isBlocked && (
-        <ConfirmationDialog onConfirm={handleConfirmLeave} onCancel={handleCancelLeave} />
-      )}
-      <PageHeading
-        text={__('Settings', 'kirki-ecommerce')}
-        size="lg"
-        sticky
-        style={{ height: '32px' }}
-        actions={
-          isDirty && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => actions?.onDiscard()}
-                disabled={!isDirty || isSaving}
-              >
-                {__('Discard', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => actions?.onSave()}
-                loading={isSaving}
-                disabled={!isDirty || isSaving}
-              >
-                {__('Save', 'kirki-ecommerce')}
-              </Button>
-            </>
-          )
-        }
-      />
-      <div css={scoped(styles.centerRow)}>
-        <div css={scoped(styles.row)}>
-          <aside css={scoped(styles.sidebar)}>
-            <SettingsSidebar />
-          </aside>
-          <div key={pathname} css={scoped(styles.contentPane)}>
-            <Outlet context={outletContext} />
+    <Page containerSize="none">
+      <PageContent>
+        <div css={scoped(styles.centerRow)}>
+          <div css={scoped(styles.row)}>
+            <aside css={scoped(styles.sidebar)}>
+              <SettingsSidebar />
+            </aside>
+            <div key={pathname} css={scoped(styles.contentPane)}>
+              <Outlet context={outletContext} />
+            </div>
           </div>
         </div>
-      </div>
-    </>
+      </PageContent>
+      <FloatingBar visible={isDirty} shakeSignal={shakeSignal}>
+        <Button variant="tertiary" onClick={handleDiscard} disabled={isSaving}>
+          {__('Discard', 'kirki-ecommerce')}
+        </Button>
+        <Button variant="primary" onClick={() => void handleSave()} loading={isSaving}>
+          {__('Save', 'kirki-ecommerce')}
+        </Button>
+      </FloatingBar>
+    </Page>
+  );
+};
+
+SettingsLayoutShell.displayName = 'SettingsLayoutShell';
+
+const SettingsLayout = () => {
+  return (
+    <SettingsSearchProvider>
+      <SettingsSearchHighlighter />
+      <SettingsLayoutShell />
+    </SettingsSearchProvider>
   );
 };
 
@@ -129,17 +118,15 @@ const styles = defineStyles({
     gap: theme.spacing[6],
   },
   sidebar: {
-    width: '276px',
+    width: SIDEBAR_WIDTH,
     flexShrink: 0,
     position: 'sticky',
-    top: `calc(${SETTINGS_HEADER_STICKY_TOP} + ${SETTINGS_HEADER_HEIGHT})`,
+    top: `calc(${PAGE_HEADING_STICKY_TOP} + ${theme.spacing[4]})`,
     alignSelf: 'flex-start',
   },
   contentPane: {
-    // Floor, not a cap: a page's own Container can still grow past this
-    // (email-settings/edit-template.tsx does), but sparse content must not be
-    // allowed to shrink the column narrower than the standard settings
-    // content width.
-    minWidth: '600px',
+    minWidth: CONTENT_PANE_WIDTH,
+    maxWidth: CONTENT_PANE_WIDTH,
+    marginTop: theme.spacing[1],
   },
 });

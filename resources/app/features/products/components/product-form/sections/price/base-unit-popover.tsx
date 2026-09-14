@@ -151,7 +151,12 @@ const BaseUnitPopover = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          cssOverride={{ width: 240, height: 36, justifyContent: 'space-between' }}
+          cssOverride={{
+            width: 240,
+            height: 36,
+            justifyContent: 'space-between',
+            backgroundColor: theme.colors.background.fill,
+          }}
           {...buttonProps}
         >
           {btnText}

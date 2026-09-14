@@ -1,21 +1,17 @@
-import ActionGroup from '@/components/ui/action-group';
-import { DateRangePicker } from '@/components/ui/calendar';
 import Flex from '@/components/ui/flex';
 import Searchbox from '@/components/ui/searchbox';
 import { collectionListOptions } from '@/features/collections/types';
 import { useDataTableParams } from '@/hooks';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 const CollectionTableFilters = () => {
-  const { params, setParam, handleDateFilter } = useDataTableParams(collectionListOptions);
+  const { params, setParam } = useDataTableParams(collectionListOptions);
 
   const handleSearchChange = (value: string | number) => {
     setParam('search', value);
   };
-
 
   return (
     <Flex cssOverride={styles.wrapper}>
@@ -26,18 +22,6 @@ const CollectionTableFilters = () => {
           clearable
         />
       </div>
-      <ActionGroup>
-        <DateRangePicker
-          value={{
-            from: isDefined(params.from_date) ? new Date(params.from_date) : null,
-            to: isDefined(params.to_date) ? new Date(params.to_date) : null,
-          }}
-          presets
-          clearable
-          onChange={handleDateFilter}
-          size="sm"
-        />
-      </ActionGroup>
     </Flex>
   );
 };

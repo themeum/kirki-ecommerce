@@ -1,13 +1,21 @@
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
-import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import Text from '@/components/ui/text';
 import { useAddCurrencyDialog } from '@/features/settings/multi-currency/hooks/use-add-currency-dialog';
-import ExchangeRatePopup from '@/features/settings/multi-currency/pages/exchange-rate-dialog';
 import { PlusIcon, SearchIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -18,12 +26,7 @@ const AddCurrencyPopup = () => {
     form,
     openPopup,
     setOpenPopup,
-    openExchangePopup,
-    setOpenExchangePopup,
-    selectedCurrencyList,
-    setSelectedCurrencyList,
     searchValue,
-    setSearchValue,
     filteredCurrency,
     formSelected,
     handleSelectCurrencies,
@@ -34,9 +37,8 @@ const AddCurrencyPopup = () => {
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setOpenPopup(true)} disabled>
+      <Button variant="outline" size="icon-sm" onClick={() => setOpenPopup(true)}>
         <PlusIcon />
-        {__('Add Currency', 'kirki-ecommerce')}
       </Button>
       <Dialog
         open={openPopup}
@@ -49,9 +51,7 @@ const AddCurrencyPopup = () => {
         <DialogContent>
           <DialogCloseButton />
           <DialogHeader>
-            <DialogTitle>
-              {__('Select Additional Currencies', 'kirki-ecommerce')}
-            </DialogTitle>
+            <DialogTitle>{__('Select Additional Currencies', 'kirki-ecommerce')}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -77,17 +77,18 @@ const AddCurrencyPopup = () => {
                         id="add-currency-search"
                         type="search"
                         value={searchValue}
-                        placeholder={__(
-                          'e.g United States',
-                          'kirki-ecommerce',
-                        )}
+                        placeholder={__('Search', 'kirki-ecommerce')}
                         onChange={(e) => handleSearchCurrency(e)}
                         cssOverride={styles.searchInput}
                       />
                     </div>
                   </div>
 
-                  <Flex direction="column" gap={3} cssOverride={{ height: '200px', overflowX: 'scroll' }}>
+                  <Flex
+                    direction="column"
+                    gap={3}
+                    cssOverride={{ height: '200px', overflowX: 'scroll' }}
+                  >
                     {filteredCurrency?.length > 0 &&
                       filteredCurrency.map((currency, index) => (
                         <Flex
@@ -99,24 +100,25 @@ const AddCurrencyPopup = () => {
                           <Flex gap={2} align="center">
                             <Checkbox
                               id={`add-currency-checkbox-${index}`}
-                              checked={formSelected?.some(
-                                (c) => c.name === currency.name,
-                              )}
-                              onCheckedChange={() =>
-                                handleSelectCurrencies(currency)
-                              }
+                              checked={formSelected?.some((c) => c.name === currency.name)}
+                              onCheckedChange={() => handleSelectCurrencies(currency)}
                             />
-                            <Label
-                              htmlFor={`add-currency-checkbox-${index}`}
-                            >
+                            <Label htmlFor={`add-currency-checkbox-${index}`}>
                               {currency.code}
                             </Label>
                           </Flex>
                           <Flex justify="space-between" cssOverride={{ width: '100%' }}>
-                            <Text variant="small" style={{
-                              color: theme.colors.text.subdued,
-                            }}>{currency.name}</Text>
-                            <Text weight="semibold" cssOverride={styles.symbolText}>{currency.symbol}</Text>
+                            <Text
+                              variant="small"
+                              style={{
+                                color: theme.colors.text.subdued,
+                              }}
+                            >
+                              {currency.name}
+                            </Text>
+                            <Text weight="semibold" cssOverride={styles.symbolText}>
+                              {currency.symbol}
+                            </Text>
                           </Flex>
                         </Flex>
                       ))}
@@ -141,16 +143,6 @@ const AddCurrencyPopup = () => {
           </Form>
         </DialogContent>
       </Dialog>
-      {openExchangePopup && (
-        <ExchangeRatePopup
-          selectedCurrencyList={selectedCurrencyList}
-          setSelectedCurrencyList={setSelectedCurrencyList}
-          isOpen={openExchangePopup}
-          setIsOpen={setOpenExchangePopup}
-          setAddCurrencyPopup={setOpenPopup}
-          setSearchValue={setSearchValue}
-        />
-      )}
     </>
   );
 };

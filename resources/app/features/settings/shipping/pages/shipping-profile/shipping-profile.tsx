@@ -78,12 +78,12 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="shipping.profiles" data-search-keywords="rate, postage, carrier, courier, delivery charge" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}
             subHeader={__(
-              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'Rate groups for products that ship differently, such as bulky or heavy items.',
               'kirki-ecommerce',
             )}
             buttonText={__('Create Profile', 'kirki-ecommerce')}

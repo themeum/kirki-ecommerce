@@ -1,29 +1,21 @@
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import CustomerGroupTable from '@/features/customers/pages/customer-groups/customer-group-table';
 import { theme } from '@/theme';
 
 const CustomerGroups = () => (
-  <>
+  <Page>
     <PageHeading
       text="Manage Groups"
-      type="primary"
-      actions={
-        <Button variant="primary">
-          Create Group
-        </Button>
-      }
+      actions={<Button variant="primary">Create Group</Button>}
       style={{ columnGap: theme.spacing[3] }}
       hasBack
-      sticky
     />
 
-    <Container>
+    <PageContent>
       <CustomerGroupTable />
-    </Container>
-  </>
+    </PageContent>
+  </Page>
 );
 
 export default CustomerGroups;
-

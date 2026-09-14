@@ -10,7 +10,6 @@ import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
 import TaxProfile from '@/features/settings/tax/shared/components/tax-profile/tax-profile';
@@ -82,10 +81,6 @@ const TaxSettings = () => {
     );
   }, [taxSettings, form]);
 
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
-
   const handleSaveTaxSettings = async (
     payload: TaxSettingsFormPayload,
     updatedRegions?: TaxRegion[],
@@ -123,16 +118,21 @@ const TaxSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
-          <Card cssOverride={cardStyles.formCard}>
+          <Card
+            data-search-id="tax.collection"
+            data-search-keywords="inclusive, exclusive, vat, gst, price display"
+            data-search-title={__('Tax Collection', 'kirki-ecommerce')}
+            cssOverride={cardStyles.formCard}
+          >
             <CardContent>
               <Flex direction="column" gap={4}>
-                <Flex direction="column" gap={2}>
+                <Flex direction="column">
                   <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
                     {__('How would you like to collect tax?', 'kirki-ecommerce')}
                   </Text>
                   <Text color="secondary">
                     {__(
-                      'Configure how tax is displayed and how it appears on your product listings.',
+                      'Whether product prices are shown with tax included or added separately.',
                       'kirki-ecommerce',
                     )}
                   </Text>

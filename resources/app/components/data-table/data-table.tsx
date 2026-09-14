@@ -287,7 +287,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
               cssOverride={styles.toolbar}
             />
           ) : (
-            <Flex align="center" justify="space-between" gap={2} cssOverride={styles.toolbarRow}>
+            <Flex align="center" gap={2} cssOverride={styles.toolbarRow}>
               <div css={scoped(styles.toolbarContent)}>{toolbar}</div>
               {showColumnVisibilityMenu && (
                 <DataTableColumnVisibility table={table} onToggle={toggleColumnVisibility} />
@@ -473,5 +473,9 @@ const styles = defineStyles({
   toolbarContent: {
     flex: 1,
     minWidth: 0,
+    marginRight: `-${theme.spacing[3]}`,
+    '&:empty': {
+      marginRight: theme.spacing[0],
+    },
   },
 });

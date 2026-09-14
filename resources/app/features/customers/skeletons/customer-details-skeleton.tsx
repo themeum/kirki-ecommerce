@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
+import { PageContent } from '@/components/ui/page';
 import Skeleton from '@/components/ui/skeleton';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -30,7 +30,7 @@ CardSkeleton.displayName = 'CardSkeleton';
 
 const CustomerDetailsSkeleton = () => {
   return (
-    <Container>
+    <PageContent>
       <Flex gap={4} cssOverride={styles.row}>
         <Flex direction="column" gap={4} cssOverride={styles.mainColumn}>
           <CardSkeleton fields={4} />
@@ -42,7 +42,7 @@ const CustomerDetailsSkeleton = () => {
           <CardSkeleton fields={1} />
         </Flex>
       </Flex>
-    </Container>
+    </PageContent>
   );
 };
 

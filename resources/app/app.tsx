@@ -49,6 +49,22 @@ const getLeadingRouteHash = (hash: string): string => {
   return hashParts.slice(0, 2).join('/');
 };
 
+// WordPress renders these menu links as bare hash changes on the current
+// document. React Router never sees such a navigation, so its unsaved-changes
+// blocker fails to stop it — silently, by React Router's own warning. Handing
+// an in-app destination to the router instead is what lets the guard refuse it.
+const getInAppPath = (href: string): string | null => {
+  const target = new URL(href, window.location.href);
+  const isSameDocument =
+    target.pathname === window.location.pathname && target.search === window.location.search;
+
+  if (!isSameDocument || !target.hash.startsWith('#/')) {
+    return null;
+  }
+
+  return target.hash.slice(1);
+};
+
 const checkActiveSubmenu = (root: HTMLElement): void => {
   const searchParams = new URLSearchParams(window.location.search);
 
@@ -88,6 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const mouseEvent = event as MouseEvent;
       const target = mouseEvent.target as Element | null;
       const url = target?.closest('a')?.getAttribute('href');
+      const inAppPath =
+        url && !mouseEvent.metaKey && !mouseEvent.ctrlKey ? getInAppPath(url) : null;
+
+      if (inAppPath) {
+        void router.navigate(inAppPath).then(() => {
+          resetActiveMenu(ecommerceAdminMenu);
+          checkActiveSubmenu(ecommerceAdminMenu);
+        });
+        return;
+      }
+
       resetActiveMenu(ecommerceAdminMenu);
       menuItem.classList.add('current');
       if (url) {

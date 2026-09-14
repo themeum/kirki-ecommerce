@@ -1,9 +1,10 @@
 import type { CSSObject } from '@emotion/react';
+import { PlusCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
+import Button from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import Flex from '@/components/ui/flex';
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PlusCircleIcon } from '@/icons';
+import { theme } from '@/theme';
 import { isDefined } from '@/utils/object';
 
 const ADD_NEW_VALUE = '__add_new__';
@@ -93,11 +94,20 @@ const CreatableSelectField = <
             </SelectTrigger>
             <SelectContent>
               {onCreateNew && addNewLabel && (
-                <SelectItem value={ADD_NEW_VALUE}>
-                  <Flex gap={2} align="center">
-                    <PlusCircleIcon />
+                <SelectItem value={ADD_NEW_VALUE} cssOverride={{ paddingLeft: theme.spacing[2] }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    cssOverride={{
+                      padding: '0px',
+                      '&:hover': {
+                        backgroundColor: 'transparent',
+                      },
+                    }}
+                  >
+                    <PlusCircle size={16} />
                     {addNewLabel}
-                  </Flex>
+                  </Button>
                 </SelectItem>
               )}
               {onCreateNew && addNewLabel && options.length > 0 && <SelectSeparator />}
