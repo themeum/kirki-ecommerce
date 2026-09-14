@@ -25,7 +25,7 @@ $has_filters = !empty(request()->text('search'))
 
 <div class="kecom-products-empty">
     <div class="kecom-products-empty-icon">
-        <img src="<?php echo esc_url(Assets::get_url('images/empty-wishlist.svg')); ?>" alt="<?php esc_attr_e('No products found', 'kirki-ecommerce'); ?>" width="88" height="88">
+        <img src="<?php echo esc_url(Assets::get_url('images/empty-product.svg')); ?>" alt="<?php esc_attr_e('No products found', 'kirki-ecommerce'); ?>" width="88" height="88">
     </div>
 
     <?php if ($has_filters) : ?>
