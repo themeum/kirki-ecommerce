@@ -1,4 +1,4 @@
-import { Ban, MoreVertical } from 'lucide-react';
+import { Ban, CircleCheck, MoreVertical } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -21,11 +21,17 @@ const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
 type ShippingZoneActionsProps = {
   item: ShippingZone;
+  isSaving?: boolean;
   onToggle: (item: ShippingZone) => void;
   onDelete: (item: ShippingZone) => void;
 };
 
-const ShippingZoneActions = ({ item, onToggle, onDelete }: ShippingZoneActionsProps) => {
+const ShippingZoneActions = ({
+  item,
+  isSaving = false,
+  onToggle,
+  onDelete,
+}: ShippingZoneActionsProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const navigate = useNavigate();
 
@@ -72,15 +78,18 @@ const ShippingZoneActions = ({ item, onToggle, onDelete }: ShippingZoneActionsPr
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => onToggle(item)}>
-            <Ban size={16} />
+          <DropdownMenuItem disabled={isSaving} onClick={() => onToggle(item)}>
+            {item?.is_enabled ? <Ban size={16} /> : <CircleCheck size={16} />}
             <span>
               {item?.is_enabled
                 ? __('Deactivate', 'kirki-ecommerce')
                 : __('Activate', 'kirki-ecommerce')}
             </span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleEditAndDelete('delete', item)}>
+          <DropdownMenuItem
+            cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
+            onClick={() => handleEditAndDelete('delete', item)}
+          >
             <TrashIcon />
             <span>{__('Delete', 'kirki-ecommerce')}</span>
           </DropdownMenuItem>

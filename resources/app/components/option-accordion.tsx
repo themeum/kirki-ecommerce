@@ -14,6 +14,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { CSSObject } from '@emotion/react';
 
 type OptionAccordionProps = {
   header?: ReactNode;
@@ -26,6 +27,7 @@ type OptionAccordionProps = {
   enabled?: boolean;
   disabled?: boolean;
   open?: boolean;
+  cssOverride?: CSSObject;
 };
 
 const OptionAccordion = (props: OptionAccordionProps) => {
@@ -40,10 +42,15 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     enabled = true,
     disabled = false,
     open = false,
+    cssOverride,
   } = props;
 
   return (
-    <div css={scoped(mergeCss(styles.wrapper, variant === 'shipping' && styles.shippingWrapper))}>
+    <div
+      css={scoped(
+        mergeCss(styles.wrapper, variant === 'shipping' && styles.shippingWrapper, cssOverride),
+      )}
+    >
       <Accordion
         cssOverride={styles.accordion}
         hideSeparator={true}

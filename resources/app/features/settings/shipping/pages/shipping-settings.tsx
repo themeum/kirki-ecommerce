@@ -49,6 +49,7 @@ const ShippingSettings = () => {
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,
+    isSaving,
     getShippingMethodData,
     handleToggleMethod,
     handleEditMethod,
@@ -113,6 +114,11 @@ const ShippingSettings = () => {
                             key={item?.id}
                             header={item.title}
                             subHeader={getShippingZoneSummary(item)}
+                            cssOverride={mergeCss(
+                              !item.is_enabled && {
+                                backgroundColor: theme.colors.background.surfaceAlt,
+                              },
+                            )}
                             titleAdornment={
                               regionTags.length > 0 && (
                                 <Flex gap={1} align="center">
@@ -132,6 +138,7 @@ const ShippingSettings = () => {
                             rightActions={
                               <ShippingZoneActions
                                 item={item}
+                                isSaving={isSaving}
                                 onToggle={handleToggleZoneItem}
                                 onDelete={handleDeleteItem}
                               />
@@ -184,7 +191,7 @@ const ShippingSettings = () => {
                                           variant="outline"
                                           size="icon-sm"
                                           aria-label={__('Delete', 'kirki-ecommerce')}
-                                          cssOverride={styles.actionButton}
+                                          cssOverride={styles.deleteButton}
                                           onClick={() => handleDeleteMethod(method)}
                                         >
                                           <TrashIcon />
@@ -200,7 +207,8 @@ const ShippingSettings = () => {
                                         </Button>
                                         <Switch
                                           checked={method.is_enabled ?? true}
-                                          onCheckedChange={() => handleToggleMethod(method)}
+                                          disabled={isSaving}
+                                          onCheckedChange={() => void handleToggleMethod(method)}
                                           aria-label={__(
                                             'Enable shipping method',
                                             'kirki-ecommerce',
@@ -271,5 +279,11 @@ const styles = defineStyles({
   },
   actionButton: {
     padding: theme.spacing[1],
+  },
+  deleteButton: {
+    padding: theme.spacing[1],
+    '& svg': {
+      color: theme.colors.icon.critical,
+    },
   },
 });

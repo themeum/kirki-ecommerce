@@ -18,6 +18,7 @@ import {
 import Text from '@/components/ui/text';
 import { shippingKeys } from '@/features/settings';
 import { CreateProfilePopup } from '@/features/settings/shipping/pages/shipping-profile/create-profile-dialog';
+import { CreateProfilePopover } from '@/features/settings/shipping/pages/shipping-profile/create-profile-popover';
 import type { ShippingProfile as ShippingProfileType } from '@/features/settings/shipping/schemas/catalog/shipping';
 import {
   deleteShippingProfile,
@@ -34,7 +35,7 @@ import { __ } from '@/wpi18n';
 const SHIPPING_PROFILES_PARAMS = { limit: -1 };
 
 const ShippingProfile = () => {
-  const [showPopup, setShowPopup] = useState(false);
+  const [showAddPopover, setShowAddPopover] = useState(false);
   const [editProfileIndex, setEditProfileIndex] = useState<number | null>(null);
 
   const { data: shippingProfiles = [] } = useShippingProfilesQuery(SHIPPING_PROFILES_PARAMS);
@@ -50,7 +51,6 @@ const ShippingProfile = () => {
 
   const handleEditShippingProfile = (item: ShippingProfileType) => {
     setEditProfileIndex(item?.id);
-    setShowPopup(true);
   };
 
   const handleDeleteShippingProfile = async (item: ShippingProfileType) => {
@@ -84,15 +84,20 @@ const ShippingProfile = () => {
         cssOverride={cardStyles.formCard}
       >
         <CardContent>
-          <HeaderActionsCard
-            header={__('Shipping Profiles', 'kirki-ecommerce')}
-            subHeader={__(
-              'Rate groups for products that ship differently, such as bulky or heavy items.',
-              'kirki-ecommerce',
-            )}
-            buttonText={__('Add', 'kirki-ecommerce')}
-            onAdd={() => setShowPopup(true)}
-          />
+          <CreateProfilePopover
+            isOpen={showAddPopover}
+            onClose={() => setShowAddPopover(false)}
+          >
+            <HeaderActionsCard
+              header={__('Shipping Profiles', 'kirki-ecommerce')}
+              subHeader={__(
+                'Rate groups for products that ship differently, such as bulky or heavy items.',
+                'kirki-ecommerce',
+              )}
+              buttonText={__('Add', 'kirki-ecommerce')}
+              onAdd={() => setShowAddPopover(true)}
+            />
+          </CreateProfilePopover>
 
           {!shippingProfileList?.length ? (
             <EmptyState
@@ -121,7 +126,7 @@ const ShippingProfile = () => {
                           variant="outline"
                           size="icon-sm"
                           aria-label={__('Delete', 'kirki-ecommerce')}
-                          cssOverride={styles.actionButton}
+                          cssOverride={styles.deleteButton}
                           onClick={() => void handleDeleteShippingProfile(item)}
                         >
                           <TrashIcon />
@@ -145,11 +150,8 @@ const ShippingProfile = () => {
         </CardContent>
       </Card>
       <CreateProfilePopup
-        isOpen={showPopup}
-        onClose={() => {
-          setShowPopup(false);
-          setEditProfileIndex(null);
-        }}
+        isOpen={editProfileIndex !== null}
+        onClose={() => setEditProfileIndex(null)}
         shippingProfileList={shippingProfileList}
         editIndex={editProfileIndex}
       />
@@ -164,5 +166,11 @@ export default ShippingProfile;
 const styles = defineStyles({
   actionButton: {
     padding: theme.spacing[1],
+  },
+  deleteButton: {
+    padding: theme.spacing[1],
+    '& svg': {
+      color: theme.colors.icon.critical,
+    },
   },
 });
