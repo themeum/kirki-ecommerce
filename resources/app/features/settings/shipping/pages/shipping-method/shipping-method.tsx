@@ -1,4 +1,4 @@
-import { BoxIcon } from 'lucide-react';
+import { Box } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -18,7 +18,12 @@ import {
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, shippingMethodIconMap } from '@/features/settings/shipping/lib/utils';
+import {
+  getShippingMethodRightText,
+  getShippingMethodSubText,
+  saveShippingZones,
+  shippingMethodIconMap,
+} from '@/features/settings/shipping/lib/utils';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
@@ -102,7 +107,7 @@ export const ShippingMethod = ({
   return (
     <div>
       <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <HeaderActionsCard
             header={__('Shipping Methods', 'kirki-ecommerce')}
             subHeader={__(
@@ -114,15 +119,15 @@ export const ShippingMethod = ({
           />
 
           {!shippingMethodList?.length ? (
-            <Card data-search-skip="true" cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}>
+            <Card
+              data-search-skip="true"
+              cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}
+            >
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
-                  <BoxIcon size={24} />
+                  <Box size={24} color={theme.colors.icon.disabled} />
                   <span css={scoped(styles.emptyStateText)}>
-                    {__(
-                      'Added shipping methods will appear here',
-                      'kirki-ecommerce',
-                    )}
+                    {__('Added shipping methods will appear here', 'kirki-ecommerce')}
                   </span>
                 </Flex>
               </CardContent>
@@ -131,7 +136,11 @@ export const ShippingMethod = ({
             <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingMethodListWithIcon.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
-                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                  {item.icon && (
+                    <StackedItemMedia cssOverride={{ color: theme.colors.icon.disabled }}>
+                      {item.icon}
+                    </StackedItemMedia>
+                  )}
                   <StackedItemContent>
                     <StackedItemTitle>
                       <Text variant="small" weight="medium">
@@ -143,9 +152,7 @@ export const ShippingMethod = ({
                         </Text>
                       )}
                       {item.is_enabled === false && (
-                        <Badge variant="destructive">
-                          {__('Inactive', 'kirki-ecommerce')}
-                        </Badge>
+                        <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                       )}
                     </StackedItemTitle>
                   </StackedItemContent>
