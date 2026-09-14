@@ -184,7 +184,11 @@ export const AvailableCurrencyList = () => {
   const { mutate: syncRates, isPending: isSyncing } = useSyncCurrencyRatesMutation();
 
   return (
-    <Card cssOverride={{ ...cardStyles.innerCard }}>
+    <Card
+      data-search-id="currency.available-currencies"
+      data-search-keywords="multi currency, usd, eur, gbp, exchange"
+      cssOverride={{ ...cardStyles.innerCard }}
+    >
       <CardContent cssOverride={styles.innerCardContent}>
         <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
           <Text weight="semibold">{__('Available Currencies', 'kirki-ecommerce')}</Text>

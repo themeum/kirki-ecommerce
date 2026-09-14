@@ -57,12 +57,12 @@ const SellingLocation = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="general.selling-locations" data-search-keywords="territory, region, market, geography, ship to countries" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'Select the countries where you want to sell your products.',
+              'Countries and territories your store sells to.',
               'kirki-ecommerce',
             )}
           </CardDescription>

@@ -12,12 +12,12 @@ import { __ } from '@/wpi18n';
 const LegalInfo = () => {
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="checkout.legal-information" data-search-keywords="gdpr, consent, disclaimer, cookie policy, legal page" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Legal Information', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'show or hide your terms & conditions and privacy policy on the checkout page',
+              'Terms, conditions and privacy policy links shown on the checkout page.',
               'kirki-ecommerce',
             )}
           </CardDescription>

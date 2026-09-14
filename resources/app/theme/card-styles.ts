@@ -31,7 +31,6 @@ const cardStyles = defineStyles({
     padding: theme.spacing[5],
   },
   sectionHeader: {
-    gap: theme.spacing[2],
     paddingInline: theme.spacing[5],
   },
   innerCard: {

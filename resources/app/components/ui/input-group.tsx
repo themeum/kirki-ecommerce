@@ -341,7 +341,7 @@ const styles = defineStyles({
     background: 'transparent',
     outline: 'none',
     boxShadow: 'none',
-    ...theme.typography.small(),
+    ...theme.typography.small('medium'),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
@@ -362,7 +362,8 @@ const styles = defineStyles({
     },
   },
   input: {
-    minHeight: '36px',
+    minHeight: '32px',
+    maxHeight: '32px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     '&[type="number"]': {
       MozAppearance: 'textfield',
