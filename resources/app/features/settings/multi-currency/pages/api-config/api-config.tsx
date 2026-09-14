@@ -98,7 +98,15 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
               value={apiProvider ?? undefined}
               onValueChange={(value) => setValue('api_provider', value, { shouldDirty: true })}
             >
-              <SelectTrigger id="api-provider-select">
+              <SelectTrigger
+                id="api-provider-select"
+                showClear={Boolean(isApiProviderSelected)}
+                onClear={
+                  isApiProviderSelected
+                    ? () => setValue('api_provider', null, { shouldDirty: true })
+                    : undefined
+                }
+              >
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
               </SelectTrigger>
               <SelectContent>

@@ -11,7 +11,13 @@ import {
 import { apiClient } from '@/libs/api';
 import { settingsKeys } from '@/libs/query-keys';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
@@ -39,7 +45,9 @@ const getAllCurrencies = (params: ListQueryParams = {}) => {
 const getCurrencyExchangeProviders = () => {
   return apiClient
     .get(endpoints.CURRENCY_EXCHANGE_PROVIDERS)
-    .then((response) => parseData(ResourceCollectionSchema(CurrencyExchangeProviderSchema), response));
+    .then((response) =>
+      parseData(ResourceCollectionSchema(CurrencyExchangeProviderSchema), response),
+    );
 };
 
 const createCurrency = (data: CurrencyBulkPayload) => {
@@ -55,9 +63,7 @@ const updateCurrency = (data: CurrencyBulkPayload) => {
 };
 
 const deleteCurrency = (id: number) => {
-  return apiClient
-    .delete(endpoints.CURRENCY(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.CURRENCY(id)).then((response) => parseMessage(response));
 };
 
 const syncCurrencyRates = () => {
@@ -66,19 +72,21 @@ const syncCurrencyRates = () => {
     .then((response) => parseMessage(response));
 };
 
-const useAvailableCurrenciesQuery = (params: ListQueryParams = {}) => {
+const useAvailableCurrenciesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: currencyKeys.list(params),
     queryFn: () => getAvailableCurrencies(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 
-const useAllCurrenciesQuery = (params: ListQueryParams = {}) => {
+const useAllCurrenciesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: currencyKeys.options(params),
     queryFn: () => getAllCurrencies(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 
@@ -95,8 +103,7 @@ const useCreateCurrencyMutation = () => {
     mutationFn: createCurrency,
     onSuccess(response) {
       toastMutationSuccess(
-        response.message ||
-        __('Currency created successfully.', 'kirki-ecommerce'),
+        response.message || __('Currency created successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
@@ -113,8 +120,7 @@ const useUpdateCurrencyMutation = () => {
     mutationFn: updateCurrency,
     onSuccess(response) {
       toastMutationSuccess(
-        response.message ||
-        __('Currency updated successfully.', 'kirki-ecommerce'),
+        response.message || __('Currency updated successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
@@ -131,8 +137,7 @@ const useDeleteCurrencyMutation = () => {
     mutationFn: deleteCurrency,
     onSuccess(response) {
       toastMutationSuccess(
-        response.message ||
-        __('Currency deleted successfully.', 'kirki-ecommerce'),
+        response.message || __('Currency deleted successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
@@ -149,8 +154,7 @@ const useSyncCurrencyRatesMutation = () => {
     mutationFn: syncCurrencyRates,
     onSuccess(response) {
       toastMutationSuccess(
-        response.message ||
-        __('Exchange rates synced successfully.', 'kirki-ecommerce'),
+        response.message || __('Exchange rates synced successfully.', 'kirki-ecommerce'),
       );
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: settingsKeys.section('currency') });
@@ -162,6 +166,19 @@ const useSyncCurrencyRatesMutation = () => {
 };
 
 export {
-  createCurrency, type CurrencyBulkPayload,
-deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, syncCurrencyRates, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useSyncCurrencyRatesMutation, useUpdateCurrencyMutation};
-
+  createCurrency,
+  type CurrencyBulkPayload,
+  deleteCurrency,
+  getAllCurrencies,
+  getAvailableCurrencies,
+  getCurrencyExchangeProviders,
+  syncCurrencyRates,
+  updateCurrency,
+  useAllCurrenciesQuery,
+  useAvailableCurrenciesQuery,
+  useCreateCurrencyMutation,
+  useCurrencyExchangeProvidersQuery,
+  useDeleteCurrencyMutation,
+  useSyncCurrencyRatesMutation,
+  useUpdateCurrencyMutation,
+};

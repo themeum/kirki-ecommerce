@@ -9,7 +9,7 @@ import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import { toCurrencyDraft } from '@/features/settings/multi-currency/lib/currency-list';
-import AddCurrencyPopup from '@/features/settings/multi-currency/pages/add-currency-dialog';
+import AddCurrencyPopup from '@/features/settings/multi-currency/pages/add-currency-dialog/add-currency-dialog';
 import ApiConfig from '@/features/settings/multi-currency/pages/api-config/api-config';
 import { AvailableCurrencyList } from '@/features/settings/multi-currency/pages/available-currency-list';
 import CurrencyFormatSettings from '@/features/settings/multi-currency/pages/currency-format-settings';
@@ -21,6 +21,7 @@ import {
 } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
 import {
   useAvailableCurrenciesQuery,
+  useCreateCurrencyMutation,
   useUpdateCurrencyMutation,
 } from '@/features/settings/multi-currency/services/currency';
 import MultiCurrencySettingsSkeleton from '@/features/settings/multi-currency/skeletons/multi-currency-settings-skeleton';
@@ -36,9 +37,10 @@ import { __ } from '@/wpi18n';
 
 const MultiCurrencySettings = () => {
   const { data: currencySettingsData, isLoading } = useSettingsQuery('currency');
-  const { data: rawCurrencies = [] } = useAvailableCurrenciesQuery();
+  const { data: rawCurrencies = [] } = useAvailableCurrenciesQuery({ limit: -1 });
   const { mutateAsync: saveSettings, isPending: isSaving } =
     useUpdateSettingsMutation<'currency'>();
+  const { mutateAsync: createCurrencies } = useCreateCurrencyMutation();
   const { mutateAsync: updateCurrencies } = useUpdateCurrencyMutation();
 
   const form = useForm<MultiCurrencySettingsFormInput, unknown, MultiCurrencySettingsFormPayload>({
@@ -67,6 +69,11 @@ const MultiCurrencySettings = () => {
   const handleSaveData = async (payload: MultiCurrencySettingsFormPayload) => {
     try {
       const editedCurrencies = form.getValues('currencies') ?? [];
+
+      const newItems = editedCurrencies
+        .filter((currency) => currency.id === undefined)
+        .map(toCurrencyDraft);
+
       const changedItems = editedCurrencies.flatMap<CurrencyDraft>((currency) => {
         const original = rawCurrencies.find((row) => row.id === currency.id);
         if (!original) {
@@ -91,6 +98,7 @@ const MultiCurrencySettings = () => {
 
       await Promise.all([
         saveSettings({ key: 'currency', data: payload }),
+        newItems.length ? createCurrencies({ items: newItems }) : Promise.resolve(),
         changedItems.length ? updateCurrencies({ items: changedItems }) : Promise.resolve(),
       ]);
 
