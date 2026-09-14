@@ -27,9 +27,13 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: 
             toastManager.success(__('Item removed from wishlist successfully.', 'kirki-ecommerce'));
             this.isWishlisted = false;
             this.wishlistedVariants[variantId] = false;
+            
             if (context === 'account') {
               const wishlistCard = document.getElementById(`${variantId}`);
               const wishlistCount = document.querySelector('.kecom-wishlist-count');
+              if (0 === result.data.count) {
+                window.location.reload();
+              }
               if (wishlistCard) {
                 wishlistCard.parentElement?.remove();
                 if (wishlistCount) {

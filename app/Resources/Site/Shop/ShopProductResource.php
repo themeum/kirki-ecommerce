@@ -38,7 +38,8 @@ class ShopProductResource extends Resource
     public function to_array(): array
     {
         $variants = $this->variants;
-        $variant  = $variants->first();
+        $variant  = $variants ? $variants->first() : null;
+        $variant  = $this->variant ? $this->variant : $variant;
 
         if (! $variant) {
             return [];
@@ -140,10 +141,11 @@ class ShopProductResource extends Resource
      */
     private function resolve_image_url(): string
     {
-        $media = $this->media->first();
+        $media    = is_object($this->media) ? $this->media->first() : null;
+        $media_id = is_object($media) ? $media->ID : $this->media;
 
-        return $media
-            ? (wp_get_attachment_image_url($media->ID, 'large') ?: '')
+        return $media_id
+            ? (wp_get_attachment_image_url($media_id, 'large') ?: '')
             : Url::get_product_fallback_image();
     }
 
