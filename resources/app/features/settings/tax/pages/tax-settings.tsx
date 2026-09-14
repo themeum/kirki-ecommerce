@@ -11,9 +11,9 @@ import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import TaxRegions from '@/features/settings/tax/components/tax-region-list';
 import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
 import TaxProfile from '@/features/settings/tax/shared/components/tax-profile/tax-profile';
+import TaxRegions from '@/features/settings/tax/shared/components/tax-region-list';
 import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import {
   type TaxSettingsFormInput,

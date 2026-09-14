@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import EmptyState from '@/components/ui/empty-state';
@@ -108,6 +109,11 @@ const ShippingProfile = () => {
                         <Text variant="small" weight="medium">
                           {item.name}
                         </Text>
+                        {item.is_default && (
+                          <Badge variant="secondary">
+                            {__('Default', 'kirki-ecommerce')}
+                          </Badge>
+                        )}
                       </StackedItemTitle>
                     </StackedItemContent>
                     <StackedItemActions>
