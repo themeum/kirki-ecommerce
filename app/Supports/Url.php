@@ -104,7 +104,6 @@ class Url
     public static function get_checkout_url()
     {
         return Route::site_url('checkout');
-        //return 'https://4a51-103-203-95-212.ngrok-free.app';
     }
 
     /**

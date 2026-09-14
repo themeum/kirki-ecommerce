@@ -37,6 +37,14 @@ class WebhookController
         ], $result ? Response::OK : Response::BAD_REQUEST);
     }
 
+    /**
+     * Handle a customer returning from a hosted payment page.
+     *
+     * @param Request $request     The return request, carrying whatever the gateway appended.
+     * @param mixed   $provider_id The payment provider identifier from the route.
+     * @return \Illuminate\Http\JsonResponse
+     * @throws NotFoundException If no provider matches the identifier.
+     */
     public function handle_return(Request $request, $provider_id)
     {
         $provider = Payment::get_provider($provider_id);
@@ -44,8 +52,6 @@ class WebhookController
         throw_if(!$provider, __('Invalid payment gateway', 'kirki-ecommerce'), NotFoundException::class);
 
         $result = $provider->handle_return($request);
-
-        // REST routes don't dispatch RedirectResponse like site routes do, so send it here.
         if ($result instanceof RedirectResponse) {
             $result->send();
         }
