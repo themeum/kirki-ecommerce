@@ -17,9 +17,13 @@ class WishlistResource extends ShopProductResource
         if (!$this->resource) {
             return [];
         }
-
+       
         $variant = $this->variant;
         $product = $variant ? $variant->product : null;
+
+        $this->title = $product ? $product->title : '';
+        $this->slug  = $product ? $product->slug : '';
+
 
         $this->media = $variant->media ?? $product->media;
         $this->categories = $product ? $product->categories : null;
@@ -29,13 +33,12 @@ class WishlistResource extends ShopProductResource
         $sale_price    = $variant ? (int) $variant->base_sale_price : 0;
         $in_sale       = $sale_price > 0 && $sale_price < $regular_price;
 
+        $paren_data = parent::to_array();
 
         $pricing = $this->resolve_pricing($regular_price, $sale_price, $in_sale);
-        $this->title = $product ? $product->title : '';
-        $this->slug = $product ? $product->slug : '';
 
         return array_merge(
-            parent::to_array(),
+            $paren_data,
             [
                 'variant_id' => $this->variant_id,
                 'product_id' => $product ? $product->id : ($variant ? $variant->product_id : null),
