@@ -10,7 +10,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import SingleTaxRate from '@/features/settings/tax/shared/components/single-tax-rate';
 import TaxRules from '@/features/settings/tax/shared/components/tax-rules/tax-rules';
@@ -28,6 +27,7 @@ import {
   TaxRegionStateFormSchema,
 } from '@/features/settings/tax/strategies/general/schemas/forms/tax-region-state-form';
 import GeneralTaxRegionStateSkeleton from '@/features/settings/tax/strategies/general/skeletons/general-tax-region-state-skeleton';
+import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults } from '@/libs/zod';
@@ -87,10 +87,6 @@ const GeneralEditRegionState = () => {
     });
   }, [currentState, form]);
 
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
-
   const backToRegion = useCallback(
     () =>
       navigate(
@@ -143,7 +139,22 @@ const GeneralEditRegionState = () => {
     <Container size="sm">
       <Form {...form}>
         <Flex direction="column" gap={4}>
-          <SettingsPageHeader title={stateName} onBack={backToRegion} />
+          <SettingsPageHeader
+            icon={<TaxIcon />}
+            title={stateName}
+            breadcrumbs={[
+              {
+                label: __('Tax', 'kirki-ecommerce'),
+                to: RouteConfig.Settings.get('TaxSettings').buildLink(),
+              },
+              {
+                label: country?.name ?? code ?? '',
+                to: RouteConfig.Settings.get('TaxSettings')
+                  .get('EditTaxRegion')
+                  .buildLink({ code: code ?? '' }),
+              },
+            ]}
+          />
 
           <Card cssOverride={mergeCss(cardStyles.formCard)}>
             <CardContent>

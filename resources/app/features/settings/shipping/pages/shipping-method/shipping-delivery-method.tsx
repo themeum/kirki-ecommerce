@@ -12,7 +12,7 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
+import type { SettingsBreadcrumb } from '@/features/settings/pages/settings-page-header';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import FlatRateSettings from '@/features/settings/shipping/pages/shipping-method/flat-rate-settings';
 import LocalPickupSettings from '@/features/settings/shipping/pages/shipping-method/local-pickup-settings';
@@ -25,6 +25,7 @@ import {
 } from '@/features/settings/shipping/schemas/forms/shipping-method-form';
 import ShippingDeliveryMethodSkeleton from '@/features/settings/shipping/skeletons/shipping-delivery-method-skeleton';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import { TruckIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { queryClient } from '@/libs/query-client';
@@ -83,6 +84,20 @@ const ShippingDeliveryMethod = () => {
   const { isDirty } = form.formState;
   const methodType = useWatch({ control: form.control, name: 'type' }) ?? 'flat_rate';
 
+  const parentZone = shippingZones.find((zone) => String(zone.id) === String(zoneIdParam));
+
+  const breadcrumbs: SettingsBreadcrumb[] = [
+    { label: __('Shipping', 'kirki-ecommerce'), to: ShippingRoutes.buildLink() },
+    ...(isDefined(zoneIdParam)
+      ? [
+          {
+            label: parentZone?.title ?? __('Zone', 'kirki-ecommerce'),
+            to: ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: zoneIdParam }),
+          },
+        ]
+      : []),
+  ];
+
   useEffect(() => {
     if (!editingMethod) {
       return;
@@ -90,10 +105,6 @@ const ShippingDeliveryMethod = () => {
     form.reset(pickFormValues(ShippingMethodFormSchema, editingMethod));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the method id so the form only reloads when a different method is opened; depending on the whole object would discard edits on every keystroke upstream
   }, [editingMethod?.id]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSave = async (payload: ShippingMethodFormPayload) => {
     const shippingMethod: ShippingMethodData = {
@@ -160,14 +171,9 @@ const ShippingDeliveryMethod = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader
+            icon={<TruckIcon />}
             title={methodTypeTitles[methodType] ?? ''}
-            onBack={() =>
-              navigate(
-                isDefined(zoneIdParam)
-                  ? ShippingRoutes.get('ShippingZone').buildLink({ zone_Id: zoneIdParam })
-                  : ShippingRoutes.buildLink(),
-              )
-            }
+            breadcrumbs={breadcrumbs}
           />
           <Card cssOverride={cardStyles.formCard}>
             <CardContent>

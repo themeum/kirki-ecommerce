@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 
 type DataTableItem = {
   id: string | number;
@@ -20,7 +20,7 @@ type DataTableBulkAction = {
 
 type DataTableRowEditAction = {
   label?: string;
-  onClick: () => void;
+  onClick: (event: MouseEvent<HTMLButtonElement>) => void;
   cssOverride?: CSSObject;
 };
 

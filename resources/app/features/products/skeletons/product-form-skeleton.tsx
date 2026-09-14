@@ -1,9 +1,8 @@
 import PageHeadingSkeleton from '@/components/skeletons/page-heading-skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import Page from '@/components/ui/page';
+import { Page, PageContent } from '@/components/ui/page';
 import Skeleton from '@/components/ui/skeleton';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -67,7 +66,7 @@ const ProductFormSkeleton = () => {
         <Skeleton width={72} height={32} />
         <Skeleton width={72} height={32} />
       </PageHeadingSkeleton>
-      <Container>
+      <PageContent>
         <Flex gap={4} cssOverride={styles.row}>
           <Flex direction="column" gap={4} cssOverride={styles.mainColumn}>
             <BasicCardSkeleton />
@@ -79,7 +78,7 @@ const ProductFormSkeleton = () => {
             <CardSkeleton fields={3} />
           </Flex>
         </Flex>
-      </Container>
+      </PageContent>
     </Page>
   );
 };

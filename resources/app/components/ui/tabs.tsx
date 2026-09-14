@@ -14,13 +14,11 @@ type TabsListProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TabsList = forwardRef<ElementRef<typeof TabsPrimitive.List>, TabsListProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const TabsList = forwardRef<ElementRef<typeof TabsPrimitive.List>, TabsListProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return <TabsPrimitive.List ref={ref} css={scopedMerge(styles.list, cssOverride)} {...rest} />;
-  },
-);
+  return <TabsPrimitive.List ref={ref} css={scopedMerge(styles.list, cssOverride)} {...rest} />;
+});
 
 TabsList.displayName = 'TabsList';
 
@@ -31,14 +29,15 @@ type TabsTriggerProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TabsTrigger = forwardRef<
-  ElementRef<typeof TabsPrimitive.Trigger>,
-  TabsTriggerProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const TabsTrigger = forwardRef<ElementRef<typeof TabsPrimitive.Trigger>, TabsTriggerProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return <TabsPrimitive.Trigger ref={ref} css={scopedMerge(styles.trigger, cssOverride)} {...rest} />;
-});
+    return (
+      <TabsPrimitive.Trigger ref={ref} css={scopedMerge(styles.trigger, cssOverride)} {...rest} />
+    );
+  },
+);
 
 TabsTrigger.displayName = 'TabsTrigger';
 
@@ -49,14 +48,15 @@ type TabsContentProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const TabsContent = forwardRef<
-  ElementRef<typeof TabsPrimitive.Content>,
-  TabsContentProps
->((props, ref) => {
-  const { cssOverride, ...rest } = props;
+const TabsContent = forwardRef<ElementRef<typeof TabsPrimitive.Content>, TabsContentProps>(
+  (props, ref) => {
+    const { cssOverride, ...rest } = props;
 
-  return <TabsPrimitive.Content ref={ref} css={scopedMerge(styles.content, cssOverride)} {...rest} />;
-});
+    return (
+      <TabsPrimitive.Content ref={ref} css={scopedMerge(styles.content, cssOverride)} {...rest} />
+    );
+  },
+);
 
 TabsContent.displayName = 'TabsContent';
 
@@ -66,27 +66,29 @@ const styles = defineStyles({
   list: {
     display: 'flex',
     alignItems: 'center',
-    backgroundColor: theme.colors.background.surfaceSecondary,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing[1],
-    minHeight: '36px',
+    backgroundColor: theme.colors.background.surfaceAlt,
+    borderRadius: theme.radius.lg,
+    padding: 2,
+    minHeight: '28px',
+    maxHeight: '28px',
     color: theme.colors.text.secondary,
   },
   trigger: {
     flex: 1,
     height: '100%',
-    minHeight: '28px',
+    minHeight: '24px',
+    maxHeight: '24px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     border: 'none',
-    borderRadius: theme.radius.sm,
+    borderRadius: theme.radius.md,
     backgroundColor: 'transparent',
     ...theme.typography.small('medium'),
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.subdued,
     cursor: 'pointer',
     ...flexCenter(),
     whiteSpace: 'nowrap',
     '&[data-state="active"]': {
-      backgroundColor: theme.colors.background.fill,
+      backgroundColor: theme.colors.background.surface,
       color: theme.colors.text.primary,
       boxShadow: theme.shadow.sm,
     },
