@@ -1,42 +1,30 @@
 import { z } from 'zod';
 
 import { prepareFormSchema } from '@/libs/zod';
+import { MediaRefSchema } from '@/schemas/shared/media';
 
 export const EmailTemplateColorsSchema = z.object({
-  background: z.string().nullish().default(''),
-  text: z.string().nullish().default(''),
-  link: z.string().nullish().default(''),
-  label: z.string().nullish().default(''),
-  button: z.string().nullish().default(''),
-  button_bg: z.string().nullish().default(''),
+  background: z.string().nullish(),
+  text: z.string().nullish(),
+  link: z.string().nullish(),
+  label: z.string().nullish(),
+  button: z.string().nullish(),
+  button_bg: z.string().nullish(),
 });
 
-type LogoValue = string | { id?: string | number; url?: string } | null | undefined;
-
-const resolveLogoUrl = (logo: LogoValue): string => {
-  if (!logo) {
-    return '';
-  }
-  if (typeof logo === 'string') {
-    return logo;
-  }
-  return String(logo.url ?? '');
-};
 
 const EmailTemplateFormShape = z.object({
-  logo: z
-    .union([z.string(), z.object({ id: z.union([z.string(), z.number()]).optional(), url: z.string().optional() }).passthrough(), z.null()])
-    .nullish()
-    .default(''),
+  logo: MediaRefSchema
+    .nullish(),
   height: z.coerce.number().nullish().default(50),
   position: z.string().nullish().default('start'),
   colors: EmailTemplateColorsSchema.default({}),
 });
 
 export const EmailTemplateFormSchema = prepareFormSchema(EmailTemplateFormShape).transform((values) => ({
-  logo: resolveLogoUrl(values.logo),
-  height: `${values.height ?? 50}px`,
-  position: values.position || 'start',
+  logo: values.logo?.id ?? null,
+  height: values.height ?? 50,
+  position: values.position || 'center',
   colors: {
     background: values.colors.background || null,
     text: values.colors.text || null,

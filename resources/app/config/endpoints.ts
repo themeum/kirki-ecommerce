@@ -62,6 +62,8 @@ export const endpoints = {
   SETTINGS: '/settings',
   SETTINGS_SECTION: (key: string) => `/settings/${key}`,
   SETTINGS_BY_KEY: (key: string) => `/settings/${key}`,
+  EMAIL_TEMPLATE_PREVIEW: '/settings/email/preview',
+  EMAIL_TEMPLATE_SEND_TEST_MAIL: '/settings/email/preview/test-mail',
   APP_CONFIG: '/app-config',
 
   SHIPPING_PROFILES: '/shipping-profiles',

@@ -5,7 +5,7 @@ import { EmailTemplateFormSchema } from '@/features/settings/email/schemas/forms
 describe('EmailTemplateFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {
     const result = EmailTemplateFormSchema.parse({
-      logo: 'https://x/logo.png',
+      logo: { id: 5, url: 'https://x/logo.png' },
       height: 75,
       position: 'center',
       colors: {
@@ -18,29 +18,31 @@ describe('EmailTemplateFormSchema', () => {
       },
     });
 
-    expect(result.logo).toBe('https://x/logo.png');
-    expect(result.height).toBe('75px');
+    expect(result.logo).toBe(5);
+    expect(result.height).toBe(75);
     expect(result.position).toBe('center');
     expect(result.colors.background).toBe('#fff');
   });
 
-  it('suffixes height with px and defaults to 50 when blank', () => {
-    const result = EmailTemplateFormSchema.parse({ logo: '', height: null, position: '', colors: {} });
-    expect(result.height).toBe('50px');
+  it('defaults the height to 50 and the position to center when blank', () => {
+    const result = EmailTemplateFormSchema.parse({ logo: null, height: null, position: '', colors: {} });
+    expect(result.height).toBe(50);
+    expect(result.position).toBe('center');
   });
 
-  it('extracts the url from a media object logo', () => {
+  it('extracts the id from a media object logo', () => {
     const result = EmailTemplateFormSchema.parse({
       logo: { id: 5, url: 'https://x/media.png' },
       height: 50,
       position: 'start',
       colors: {},
     });
-    expect(result.logo).toBe('https://x/media.png');
+    expect(result.logo).toBe(5);
   });
 
-  it('sends null for blank color fields', () => {
-    const result = EmailTemplateFormSchema.parse({ logo: '', height: 50, position: 'start', colors: {} });
+  it('sends null for a missing logo and for blank color fields', () => {
+    const result = EmailTemplateFormSchema.parse({ logo: null, height: 50, position: 'start', colors: {} });
+    expect(result.logo).toBeNull();
     expect(result.colors.background).toBeNull();
   });
 });

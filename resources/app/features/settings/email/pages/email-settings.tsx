@@ -144,7 +144,11 @@ const EmailSettings = () => {
       <Form {...form}>
         <Flex direction="column" gap={4}>
           <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
-          <Card data-search-id="email.default-template" data-search-keywords="branding, header, footer, from name, sender address" cssOverride={styles.roundedCard}>
+          <Card
+            data-search-id="email.default-template"
+            data-search-keywords="branding, header, footer, from name, sender address"
+            cssOverride={styles.roundedCard}
+          >
             <CardContent>
               <Flex justify="space-between" align="center">
                 <Flex direction="column" gap={2} align="flex-start">
@@ -168,7 +172,6 @@ const EmailSettings = () => {
                         .buildLink(),
                     );
                   }}
-                  disabled // @todo: will be implemented in the future
                 >
                   {__('Edit', 'kirki-ecommerce')}
                 </Button>

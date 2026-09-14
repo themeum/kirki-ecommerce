@@ -110,10 +110,6 @@ const settingsRoutes: RouteObject[] = [
         element: withSuspense(CheckoutSettings, <CheckoutSettingsSkeleton />),
       },
       {
-        path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
-        element: withSuspense(EditTemplate, <EditTemplateSkeleton />),
-      },
-      {
         path: SettingsRoutes.get('EssentialsSettings').template,
         element: withSuspense(EssentialsSettings, <EssentialsSettingsSkeleton />),
       },
@@ -130,6 +126,10 @@ const settingsRoutes: RouteObject[] = [
         element: withSuspense(AdvancedSettings, <AdvancedSettingsSkeleton />),
       },
     ],
+  },
+  {
+    path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
+    element: withSuspense(EditTemplate, <EditTemplateSkeleton />),
   },
 ];
 

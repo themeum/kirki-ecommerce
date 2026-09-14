@@ -50,14 +50,19 @@ describe('positionToTabIndex / tabIndexToPosition', () => {
 });
 
 describe('resolveTemplateFormOverrides', () => {
-  it('resolves the logo url and parses the height as an integer', () => {
-    const result = resolveTemplateFormOverrides({ logo: 'https://example.test/logo.png', height: '64' });
+  it('includes the logo override when a full media ref is already available', () => {
+    const logo = { id: 5, url: 'https://example.test/logo.png' };
+    const result = resolveTemplateFormOverrides({ logo, height: '64' });
 
-    expect(result).toEqual({ logo: 'https://example.test/logo.png', height: 64 });
+    expect(result).toEqual({ logo, height: 64 });
+  });
+
+  it('omits the logo override when only a bare attachment id is saved', () => {
+    expect(resolveTemplateFormOverrides({ logo: '5', height: '64' })).toEqual({ height: 64 });
   });
 
   it('defaults the height to 50 when it does not parse', () => {
-    expect(resolveTemplateFormOverrides({ logo: null, height: 'tall' })).toEqual({ logo: '', height: 50 });
+    expect(resolveTemplateFormOverrides({ logo: null, height: 'tall' })).toEqual({ height: 50 });
   });
 });
 
@@ -67,8 +72,8 @@ describe('buildEmailTemplatePayload', () => {
     customer_emails: { order_notifications: {}, user_notifications: {}, inventory_notifications: {} },
   };
   const payload: EmailTemplateFormPayload = {
-    logo: 'https://example.test/logo.png',
-    height: '64px',
+    logo: '5',
+    height: 64,
     position: 'center',
     colors: { background: '#fff', text: null, link: null, label: null, button: null, button_bg: null },
   };
