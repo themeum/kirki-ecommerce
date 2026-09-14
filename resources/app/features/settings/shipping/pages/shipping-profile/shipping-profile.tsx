@@ -19,7 +19,10 @@ import Text from '@/components/ui/text';
 import { shippingKeys } from '@/features/settings';
 import { CreateProfilePopup } from '@/features/settings/shipping/pages/shipping-profile/create-profile-dialog';
 import type { ShippingProfile as ShippingProfileType } from '@/features/settings/shipping/schemas/catalog/shipping';
-import { deleteShippingProfile, useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
+import {
+  deleteShippingProfile,
+  useShippingProfilesQuery,
+} from '@/features/settings/shipping/services/shipping';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { theme } from '@/theme';
@@ -34,9 +37,7 @@ const ShippingProfile = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [editProfileIndex, setEditProfileIndex] = useState<number | null>(null);
 
-  const { data: shippingProfiles = [] } = useShippingProfilesQuery(
-    SHIPPING_PROFILES_PARAMS,
-  );
+  const { data: shippingProfiles = [] } = useShippingProfilesQuery(SHIPPING_PROFILES_PARAMS);
 
   const shippingProfileList = useMemo(() => {
     return shippingProfiles.map((profile) => {
@@ -56,8 +57,7 @@ const ShippingProfile = () => {
     const queryKey = shippingKeys.profiles.list(SHIPPING_PROFILES_PARAMS);
 
     await queryClient.cancelQueries({ queryKey });
-    const previousProfiles =
-      queryClient.getQueryData<ShippingProfileType[]>(queryKey);
+    const previousProfiles = queryClient.getQueryData<ShippingProfileType[]>(queryKey);
 
     queryClient.setQueryData<ShippingProfileType[]>(queryKey, (profiles) =>
       (profiles ?? []).filter((profile) => profile.id !== item.id),
@@ -78,7 +78,11 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card data-search-id="shipping.profiles" data-search-keywords="rate, postage, carrier, courier, delivery charge" cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="shipping.profiles"
+        data-search-keywords="rate, postage, carrier, courier, delivery charge"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}
@@ -86,17 +90,14 @@ const ShippingProfile = () => {
               'Rate groups for products that ship differently, such as bulky or heavy items.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Create Profile', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={() => setShowPopup(true)}
           />
 
           {!shippingProfileList?.length ? (
             <EmptyState
               icon={<BoxOpenIcon />}
-              text={__(
-                'Added shipping profiles will appear here',
-                'kirki-ecommerce',
-              )}
+              text={__('Added shipping profiles will appear here', 'kirki-ecommerce')}
             />
           ) : (
             <div css={scoped({ marginTop: theme.spacing[5] })}>
@@ -110,9 +111,7 @@ const ShippingProfile = () => {
                           {item.name}
                         </Text>
                         {item.is_default && (
-                          <Badge variant="secondary">
-                            {__('Default', 'kirki-ecommerce')}
-                          </Badge>
+                          <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
                         )}
                       </StackedItemTitle>
                     </StackedItemContent>

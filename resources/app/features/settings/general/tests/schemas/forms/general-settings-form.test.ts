@@ -44,6 +44,28 @@ describe('GeneralSettingsFormSchema', () => {
     expect(result.store_address.address_line_2).toBeNull();
   });
 
+  it('accepts a completely blank store address', () => {
+    const result = GeneralSettingsFormSchema.parse({
+      ...base,
+      store_address: {
+        address_line_1: '',
+        address_line_2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+        country: '',
+      },
+    });
+    expect(result.store_address).toEqual({
+      address_line_1: null,
+      address_line_2: null,
+      city: null,
+      state: null,
+      postal_code: null,
+      country: null,
+    });
+  });
+
   it('collapses a media object store_logo to its numeric id', () => {
     const result = GeneralSettingsFormSchema.parse({
       ...base,

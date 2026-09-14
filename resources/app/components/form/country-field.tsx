@@ -13,8 +13,8 @@ type CountryFieldProps<
   name: TName;
   label?: string;
   description?: ReactNode;
-    cssOverride?: CSSObject;
-  disabled?: boolean
+  cssOverride?: CSSObject;
+  disabled?: boolean;
 };
 
 const CountryField = <

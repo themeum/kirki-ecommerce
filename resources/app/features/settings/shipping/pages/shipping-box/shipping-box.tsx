@@ -183,7 +183,11 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card data-search-id="shipping.boxes" data-search-keywords="parcel, package, dimensions, carton, packaging" cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="shipping.boxes"
+        data-search-keywords="parcel, package, dimensions, carton, packaging"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Box', 'kirki-ecommerce')}
@@ -191,7 +195,7 @@ const ShippingBox = () => {
               'Parcel dimensions and package weight used to rate shipments.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Create Box', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={openCreatePopup}
           />
           {isLoading && <StackedListSkeleton cssOverride={{ marginTop: theme.spacing[5] }} />}

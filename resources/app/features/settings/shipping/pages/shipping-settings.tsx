@@ -52,7 +52,11 @@ const ShippingSettings = () => {
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader icon={<TruckIcon />} title={__('Shipping', 'kirki-ecommerce')} />
-              <Card data-search-id="shipping.zones" data-search-keywords="destination, country, delivery area, coverage" cssOverride={cardStyles.formCard}>
+              <Card
+                data-search-id="shipping.zones"
+                data-search-keywords="destination, country, delivery area, coverage"
+                cssOverride={cardStyles.formCard}
+              >
                 <CardContent
                   cssOverride={{ display: 'flex', flexDirection: 'column', gap: theme.spacing[5] }}
                 >
@@ -62,7 +66,7 @@ const ShippingSettings = () => {
                       'Destination regions you deliver to and the delivery methods offered in each.',
                       'kirki-ecommerce',
                     )}
-                    buttonText={__('Create Zone', 'kirki-ecommerce')}
+                    buttonText={__('Add', 'kirki-ecommerce')}
                     onAdd={() => setShowCreateZonePopup(true)}
                   />
 
