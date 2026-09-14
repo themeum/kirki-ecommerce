@@ -28,4 +28,9 @@ export const ENDPOINTS = {
     orders: '/account/orders',
     resendVerificationEmail: '/account/resend-verification-email',
   },
+  wishlist: {
+    root: '/account/wishlist',
+    remove: (id: number) => `/account/wishlist/${id}`,
+    empty: '/account/wishlist/empty',
+  }
 } as const;
