@@ -48,7 +48,7 @@ class Tax
          * A simple toggle would allow users to disable tax for testing while
          * keeping their existing tax configuration intact.
          */
-        return count(self::get_tax_regions()) > 0;
+        return count(static::get_tax_regions()) > 0;
     }
 
     /**
