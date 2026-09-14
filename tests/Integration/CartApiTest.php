@@ -19,6 +19,7 @@ use Kirki\Ecommerce\App\Models\Coupon as CouponModel;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -391,7 +392,7 @@ class CartApiTest extends RestTestCase
 
         // $10 fixed off product A ($1000) + 10% off the $140 remaining
         // ($90 + $50) = $1000 + $1400 = $2400 total discount.
-        $this->assertEquals(2400, round($applied['data']['pricing']['base_discount_total_money_object']['raw'] * 100));
+        $this->assertEquals(2400, round($applied['data']['pricing']['display_discount_total_money_object']['raw'] * 100));
     }
 
     public function test_removing_one_of_several_applied_coupons_keeps_the_rest(): void
@@ -500,13 +501,13 @@ class CartApiTest extends RestTestCase
         );
 
         $items_discount_sum = array_sum(array_map(
-            fn($item) => round($item['base_discount_amount_money_object']['raw'] * 100),
+            fn($item) => round($item['display_discount_amount_money_object']['raw'] * 100),
             $applied['data']['items']
         ));
 
         $coupon = $this->find_coupon_in_response($applied['data'], $code);
-        $coupon_discount = round($coupon['base_discount_amount_money_object']['raw'] * 100);
-        $cart_discount_total = round($applied['data']['pricing']['base_discount_total_money_object']['raw'] * 100);
+        $coupon_discount = round($coupon['display_discount_amount_money_object']['raw'] * 100);
+        $cart_discount_total = round($applied['data']['pricing']['display_discount_total_money_object']['raw'] * 100);
 
         $this->assertEquals(1000, $coupon_discount);
         $this->assertEquals($coupon_discount, $items_discount_sum);
@@ -640,8 +641,8 @@ class CartApiTest extends RestTestCase
         $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
         $item = $applied['data']['items'][0];
 
-        // The order coupon still discounts the item's combined base_discount_amount...
-        $this->assertGreaterThan(0, $item['base_discount_amount_money_object']['raw']);
+        // The order coupon still discounts the item's combined discount amount...
+        $this->assertGreaterThan(0, $item['display_discount_amount_money_object']['raw']);
         // ...but never changes its display price or strikethrough.
         $this->assertNull($item['display_strikethrough_price_money_object']);
         $this->assertEquals(50.0, $item['display_line_price_money_object']['raw']);
@@ -798,7 +799,7 @@ class CartApiTest extends RestTestCase
 
         $expired = $this->raw_cart([
             'cart_token' => uuid(),
-            'expires_at' => date('Y-m-d H:i:s', time() - DAY_IN_SECONDS),
+            'expires_at' => gmdate('Y-m-d H:i:s', time() - DAY_IN_SECONDS),
         ]);
 
         $expired_payload = $this->with_cart_cookie($expired->cart_token, function () {
@@ -1034,7 +1035,7 @@ class CartApiTest extends RestTestCase
     protected function with_cart_cookie(string $token, callable $callback)
     {
         $had_cookie = array_key_exists(Cart::COOKIE_TOKEN, $_COOKIE);
-        $previous = $_COOKIE[Cart::COOKIE_TOKEN] ?? null;
+        $previous = Superglobals::cookie(Cart::COOKIE_TOKEN);
         $_COOKIE[Cart::COOKIE_TOKEN] = $token;
 
         try {

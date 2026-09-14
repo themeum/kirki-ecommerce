@@ -7,14 +7,14 @@ use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Coupon;
-use Kirki\Ecommerce\App\Resources\Concerns\FormatsCouponResults;
+use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 use function Kirki\Ecommerce\Framework\app;
 
-class FormatsCouponResultsTest extends TestCase
+class OrderCalculationResourceCouponFormattingTest extends TestCase
 {
-    use FormatsCouponResults;
+    protected OrderCalculationResource $resource;
 
     protected function setUp(): void
     {
@@ -22,6 +22,8 @@ class FormatsCouponResultsTest extends TestCase
 
         $this->bind_money_dependencies();
         app()->alias('money', MoneyManager::class);
+
+        $this->resource = new OrderCalculationResource([]);
     }
 
     // Every helper call below passes null for $display_currency: a real target
@@ -57,6 +59,15 @@ class FormatsCouponResultsTest extends TestCase
         return $result;
     }
 
+    protected function call(string $method, ...$arguments)
+    {
+        $reflection = new \ReflectionClass(OrderCalculationResource::class);
+        $method_reflection = $reflection->getMethod($method);
+        $method_reflection->setAccessible(true);
+
+        return $method_reflection->invoke($this->resource, ...$arguments);
+    }
+
     // get_product_coupon_discount_for_item
 
     public function test_sums_only_product_scoped_coupon_discounts_for_the_item(): void
@@ -69,7 +80,7 @@ class FormatsCouponResultsTest extends TestCase
             $this->make_coupon_result($order_coupon, [101 => 300]),
         ];
 
-        $this->assertSame(500, $this->get_product_coupon_discount_for_item($coupon_results, 101));
+        $this->assertSame(500, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
     }
 
     public function test_sums_multiple_stacked_product_coupons_on_the_same_item(): void
@@ -82,7 +93,7 @@ class FormatsCouponResultsTest extends TestCase
             $this->make_coupon_result($coupon_b, [101 => 150]),
         ];
 
-        $this->assertSame(350, $this->get_product_coupon_discount_for_item($coupon_results, 101));
+        $this->assertSame(350, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
     }
 
     public function test_returns_zero_when_only_an_order_scoped_coupon_discounts_the_item(): void
@@ -90,7 +101,7 @@ class FormatsCouponResultsTest extends TestCase
         $order_coupon = $this->make_coupon('ORDER10', DiscountTarget::ORDER);
         $coupon_results = [$this->make_coupon_result($order_coupon, [101 => 300])];
 
-        $this->assertSame(0, $this->get_product_coupon_discount_for_item($coupon_results, 101));
+        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
     }
 
     public function test_returns_zero_when_item_has_no_discount_at_all(): void
@@ -98,7 +109,7 @@ class FormatsCouponResultsTest extends TestCase
         $product_coupon = $this->make_coupon('PRODUCT10', DiscountTarget::PRODUCTS);
         $coupon_results = [$this->make_coupon_result($product_coupon, [999 => 500])];
 
-        $this->assertSame(0, $this->get_product_coupon_discount_for_item($coupon_results, 101));
+        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', $coupon_results, 101));
     }
 
     public function test_ignores_free_shipping_coupon_results_which_carry_no_item_discounts(): void
@@ -109,12 +120,12 @@ class FormatsCouponResultsTest extends TestCase
         $result->shipping_discount = 500;
         $result->total_discount = 500;
 
-        $this->assertSame(0, $this->get_product_coupon_discount_for_item([$result], 101));
+        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', [$result], 101));
     }
 
     public function test_returns_zero_for_an_empty_coupon_results_list(): void
     {
-        $this->assertSame(0, $this->get_product_coupon_discount_for_item([], 101));
+        $this->assertSame(0, $this->call('get_product_coupon_discount_for_item', [], 101));
     }
 
     // get_applied_product_coupons_for_item
@@ -124,7 +135,7 @@ class FormatsCouponResultsTest extends TestCase
         $coupon = $this->make_coupon('SAVE5', DiscountTarget::PRODUCTS);
         $coupon_results = [$this->make_coupon_result($coupon, [101 => 500])];
 
-        $applied = $this->get_applied_product_coupons_for_item($coupon_results, 101, 'USD', null);
+        $applied = $this->call('get_applied_product_coupons_for_item', $coupon_results, 101, 'USD', null);
 
         $this->assertCount(1, $applied);
         $this->assertSame('SAVE5', $applied[0]['code']);
@@ -137,7 +148,7 @@ class FormatsCouponResultsTest extends TestCase
         $order_coupon = $this->make_coupon('ORDER10', DiscountTarget::ORDER);
         $coupon_results = [$this->make_coupon_result($order_coupon, [101 => 300])];
 
-        $this->assertSame([], $this->get_applied_product_coupons_for_item($coupon_results, 101, 'USD', null));
+        $this->assertSame([], $this->call('get_applied_product_coupons_for_item', $coupon_results, 101, 'USD', null));
     }
 
     public function test_excludes_product_coupons_that_did_not_discount_this_item(): void
@@ -145,7 +156,7 @@ class FormatsCouponResultsTest extends TestCase
         $coupon = $this->make_coupon('SAVE5', DiscountTarget::PRODUCTS);
         $coupon_results = [$this->make_coupon_result($coupon, [999 => 500])];
 
-        $this->assertSame([], $this->get_applied_product_coupons_for_item($coupon_results, 101, 'USD', null));
+        $this->assertSame([], $this->call('get_applied_product_coupons_for_item', $coupon_results, 101, 'USD', null));
     }
 
     public function test_excludes_a_product_coupon_clamped_down_to_zero_for_this_item(): void
@@ -153,7 +164,7 @@ class FormatsCouponResultsTest extends TestCase
         $coupon = $this->make_coupon('CLAMPED', DiscountTarget::PRODUCTS);
         $coupon_results = [$this->make_coupon_result($coupon, [101 => 0])];
 
-        $this->assertSame([], $this->get_applied_product_coupons_for_item($coupon_results, 101, 'USD', null));
+        $this->assertSame([], $this->call('get_applied_product_coupons_for_item', $coupon_results, 101, 'USD', null));
     }
 
     public function test_lists_multiple_stacked_product_coupons_as_separate_entries(): void
@@ -165,7 +176,7 @@ class FormatsCouponResultsTest extends TestCase
             $this->make_coupon_result($coupon_b, [101 => 150]),
         ];
 
-        $applied = $this->get_applied_product_coupons_for_item($coupon_results, 101, 'USD', null);
+        $applied = $this->call('get_applied_product_coupons_for_item', $coupon_results, 101, 'USD', null);
 
         $this->assertCount(2, $applied);
         $this->assertEqualsCanonicalizing(['A', 'B'], array_column($applied, 'code'));
@@ -181,7 +192,7 @@ class FormatsCouponResultsTest extends TestCase
             TaxLineDTO::from_array(['name' => 'IST', 'rate' => 5, 'base_amount' => 30]),
         ];
 
-        $breakdown = $this->format_tax_breakdown($tax_items, 'USD', null);
+        $breakdown = $this->call('format_tax_breakdown', $tax_items, 'USD', null);
 
         $this->assertCount(2, $breakdown);
 
@@ -201,12 +212,12 @@ class FormatsCouponResultsTest extends TestCase
             TaxLineDTO::from_array(['name' => 'Tax', 'rate' => 0, 'base_amount' => 0]),
         ];
 
-        $this->assertSame([], $this->format_tax_breakdown($tax_items, 'USD', null));
+        $this->assertSame([], $this->call('format_tax_breakdown', $tax_items, 'USD', null));
     }
 
     public function test_returns_empty_array_for_no_tax_items(): void
     {
-        $this->assertSame([], $this->format_tax_breakdown([], 'USD', null));
+        $this->assertSame([], $this->call('format_tax_breakdown', [], 'USD', null));
     }
 
     public function test_keeps_shipping_and_product_tax_lines_independent_when_formatted_separately(): void
@@ -214,8 +225,8 @@ class FormatsCouponResultsTest extends TestCase
         $product_tax = [TaxLineDTO::from_array(['name' => 'VAT', 'rate' => 20, 'base_amount' => 1000])];
         $shipping_tax = [TaxLineDTO::from_array(['name' => 'VAT', 'rate' => 20, 'base_amount' => 100])];
 
-        $product_breakdown = $this->format_tax_breakdown($product_tax, 'USD', null);
-        $shipping_breakdown = $this->format_tax_breakdown($shipping_tax, 'USD', null);
+        $product_breakdown = $this->call('format_tax_breakdown', $product_tax, 'USD', null);
+        $shipping_breakdown = $this->call('format_tax_breakdown', $shipping_tax, 'USD', null);
 
         $this->assertSame(10.0, $product_breakdown[0]['display_amount_money_object']->raw);
         $this->assertSame(1.0, $shipping_breakdown[0]['display_amount_money_object']->raw);
