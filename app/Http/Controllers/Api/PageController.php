@@ -36,7 +36,7 @@ class PageController
         Utils::generate_site_pages();
 
         return response()->json([
-            'message' => __('Pages generated successfully.', 'kirki-ecommerce'),
+            'message' => __('Store pages generated', 'kirki-ecommerce'),
         ]);
     }
 }

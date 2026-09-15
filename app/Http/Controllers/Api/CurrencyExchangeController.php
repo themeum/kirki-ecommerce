@@ -60,7 +60,7 @@ class CurrencyExchangeController
                 'next_sync_at' => $currency_settings->get('next_sync_at'),
                 'usage' => $currency_settings->get('usage'),
             ],
-            'message' => __('Exchange rates synced successfully.', 'kirki-ecommerce'),
+            'message' => __('Exchange rates synced', 'kirki-ecommerce'),
         ]);
     }
 }

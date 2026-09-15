@@ -8,7 +8,13 @@ import { CouponListItemSchema, CouponSchema } from '@/features/coupons/schemas/c
 import type { CouponFormPayload } from '@/features/coupons/schemas/forms/coupon-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -26,9 +32,7 @@ const useCouponsQuery = (params: ListParams<CouponListFilter> = {}) =>
   });
 
 const getCoupon = (id: string | number) => {
-  return apiClient
-    .get(endpoints.COUPON(id))
-    .then((response) => parseData(CouponSchema, response));
+  return apiClient.get(endpoints.COUPON(id)).then((response) => parseData(CouponSchema, response));
 };
 
 const useCouponQuery = (id: string | number, enabled = true) => {
@@ -56,10 +60,7 @@ const useCreateCouponMutation = () => {
   return useMutation({
     mutationFn: createCoupon,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Coupon created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Coupon created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
     },
     onError(error) {
@@ -73,10 +74,7 @@ const useUpdateCouponMutation = () => {
   return useMutation({
     mutationFn: updateCoupon,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Coupon updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Coupon updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: couponKeys.detail(variables.id),
@@ -88,23 +86,24 @@ const useUpdateCouponMutation = () => {
   });
 };
 
-const couponAction = ({ id, action }: { id: number; action: 'activate' | 'deactivate' | 'duplicate' }) => {
-  return apiClient
-    .patch(endpoints.COUPON_ACTION(id), { action })
-    .then((response) => {
-      return parseResponse(CouponSchema, response);
-    });
-}
+const couponAction = ({
+  id,
+  action,
+}: {
+  id: number;
+  action: 'activate' | 'deactivate' | 'duplicate';
+}) => {
+  return apiClient.patch(endpoints.COUPON_ACTION(id), { action }).then((response) => {
+    return parseResponse(CouponSchema, response);
+  });
+};
 
 const useCouponActionMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: couponAction,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Coupon updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Coupon updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: couponKeys.detail(variables.id),
@@ -114,23 +113,18 @@ const useCouponActionMutation = () => {
       toastMutationError(error);
     },
   });
-}
+};
 
 const deleteCoupon = (id: number) => {
-  return apiClient
-    .delete(endpoints.COUPON(id))
-    .then((response) => parseMessage(response));
-}
+  return apiClient.delete(endpoints.COUPON(id)).then((response) => parseMessage(response));
+};
 
 const useDeleteCouponMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteCoupon,
     onSuccess(response, id) {
-      toastMutationSuccess(
-        response.message ||
-        __('Coupon deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Coupon deleted', 'kirki-ecommerce'));
 
       void queryClient.invalidateQueries({ queryKey: couponKeys.detail(id) });
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
@@ -139,12 +133,9 @@ const useDeleteCouponMutation = () => {
       toastMutationError(error);
     },
   });
-}
+};
 
-const bulkDeleteCoupons = ({
-  action = 'delete',
-  ids = [],
-}: BulkActionParams = {}) => {
+const bulkDeleteCoupons = ({ action = 'delete', ids = [] }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.COUPONS_BULK, { action, ids })
     .then((response) => parseMessage(response));
@@ -155,10 +146,7 @@ const useBulkDeleteCouponsMutation = () => {
   return useMutation({
     mutationFn: bulkDeleteCoupons,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Coupons deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Coupons deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: couponKeys.lists() });
     },
     onError(error) {
@@ -196,9 +184,13 @@ const useGenerateNewCodeQuery = () =>
   });
 
 export {
-  useBulkDeleteCouponsMutation, useCouponActionMutation, useCouponQuery,
+  useBulkDeleteCouponsMutation,
+  useCouponActionMutation,
+  useCouponQuery,
   useCouponsQuery,
-  useCreateCouponMutation, useDeleteCouponMutation, useGenerateNewCodeQuery, useUpdateCouponMutation,
+  useCreateCouponMutation,
+  useDeleteCouponMutation,
+  useGenerateNewCodeQuery,
+  useUpdateCouponMutation,
   useValidateQuery,
 };
-

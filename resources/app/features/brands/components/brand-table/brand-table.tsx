@@ -10,9 +10,13 @@ import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dia
 import BrandTableFilters from '@/features/brands/components/brand-table/brand-table-filters';
 import { brandColumns } from '@/features/brands/components/brand-table/columns';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
-import { useBrandsQuery, useBulkDeleteBrandsMutation, useDeleteBrandMutation } from '@/features/brands/services/brand';
+import {
+  useBrandsQuery,
+  useBulkDeleteBrandsMutation,
+  useDeleteBrandMutation,
+} from '@/features/brands/services/brand';
 import { brandListOptions } from '@/features/brands/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
@@ -27,6 +31,7 @@ const BrandTable = () => {
   const { data, isFetching } = useBrandsQuery(params);
   const deleteMutation = useDeleteBrandMutation();
   const bulkDeleteMutation = useBulkDeleteBrandsMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
   const [editingItem, setEditingItem] = useState<Brand | null>(null);
 
   const handleBulkApply = useCallback(
@@ -35,9 +40,24 @@ const BrandTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected brands?', 'kirki-ecommerce'),
+          description: __(
+            'The selected brands will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const columns = useMemo<ColumnDef<Brand>[]>(
@@ -55,14 +75,24 @@ const BrandTable = () => {
                 label: __('Delete', 'kirki-ecommerce'),
                 icon: <Trash2 size={16} />,
                 destructive: true,
-                onClick: () => deleteMutation.mutate(row.original.id),
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete brand?', 'kirki-ecommerce'),
+                      description: __(
+                        'This brand will be permanently deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
               },
             ]}
           />
         ),
       },
     ],
-    [deleteMutation],
+    [confirmDelete, deleteMutation],
   );
 
   return (
@@ -86,8 +116,13 @@ const BrandTable = () => {
         density="compact"
         toolbar={<BrandTableFilters />}
       />
+      {deleteConfirmation}
       {editingItem && (
-        <BrandAddEditPopover key={editingItem.id} brand={editingItem} onClose={() => setEditingItem(null)} />
+        <BrandAddEditPopover
+          key={editingItem.id}
+          brand={editingItem}
+          onClose={() => setEditingItem(null)}
+        />
       )}
     </>
   );

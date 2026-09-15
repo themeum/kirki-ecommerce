@@ -39,6 +39,7 @@ const primitiveColors = {
   red1: 'rgba(212, 0, 0, 0.08)',
   red2: 'rgba(212, 0, 0, 0.16)',
   red3: 'rgba(212, 0, 0, 1.0)',
+  red4: 'rgba(204, 0, 0, 1.0)',
   violet1: 'rgba(90, 18, 255, 0.20)',
   violet2: 'rgba(90, 18, 255, 1.0)',
   violet3: 'rgba(90, 18, 255, 0.12)',
@@ -102,6 +103,7 @@ const PRIMITIVE_CSS_VAR_KEYS: Record<PrimitiveColorKey, string> = {
   red1: 'color-red-1',
   red2: 'color-red-2',
   red3: 'color-red-3',
+  red4: 'color-red-4',
   violet1: 'color-violet-1',
   violet2: 'color-violet-2',
   violet3: 'color-violet-3',
@@ -200,6 +202,7 @@ const theme = {
       fillCaution: cssVar('yellow2'),
       fillCautionSecondary: cssVar('yellow1'),
       fillCritical: cssVar('red3'),
+      fillCriticalHover: cssVar('red4'),
       fillCriticalSecondary: cssVar('red1'),
       fillDisabled: cssVar('gray11'),
       fillHover: cssVar('gray2'),
@@ -397,7 +400,9 @@ const theme = {
       0px 4px 12px 0px rgba(0, 0, 0, 0.08),
       0px 2px 4px -2px rgba(0, 0, 0, 0.08),
       0px 1.5px 0px 0px rgba(255, 255, 255, 0.08) inset`,
+    card: `0px -1px 1px 0.5px rgba(0, 0, 0, 0.1) inset, 0px 0.5px 1px 0px rgba(0, 0, 0, 0.1) inset`,
   },
+
   // WordPress's own chrome sits at #adminmenu(back) z-index 9990 and
   // #wpadminbar z-index 99999. Every layer here that renders position:fixed
   // (dropdown/tooltip/toast) is calculated to clear the admin bar so wp-admin's

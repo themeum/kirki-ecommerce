@@ -57,7 +57,7 @@ class ShippingProfileController
 
         return response()->json([
             'data' => ShippingProfileResource::make($shipping_profile),
-            'message' => __('Shipping profile created successfully.', 'kirki-ecommerce'),
+            'message' => __('Shipping profile created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +79,7 @@ class ShippingProfileController
 
         return response()->json([
             'data' => ShippingProfileResource::make($shipping_profile),
-            'message' => __('Shipping profile updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Shipping profile updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +89,7 @@ class ShippingProfileController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Shipping profile deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Shipping profile deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +105,14 @@ class ShippingProfileController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Shipping profiles deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Shipping profiles deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All shipping profiles deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All shipping profiles deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

@@ -3,10 +3,14 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
 class SettingsApiTest extends RestTestCase
 {
+    use SeedsTestCurrency;
+
     /**
      * Get product settings returns resource.
      *
@@ -475,5 +479,130 @@ class SettingsApiTest extends RestTestCase
 
         $data = $this->assert_validation_error($response);
         $this->assertStringContainsString('pages', wp_json_encode($data['errors']));
+    }
+
+    /**
+     * Shipping method payload carrying every field the update rules require,
+     * so tests can focus on the money fields.
+     *
+     * @param array $overrides
+     *
+     * @return array
+     */
+    protected function shipping_settings_payload(array $overrides = []): array
+    {
+        return [
+            'key' => OptionKeys::SHIPPING_SETTINGS,
+            'data' => [
+                'shipping_zones' => [
+                    [
+                        'id' => 'zone-1',
+                        'is_enabled' => true,
+                        'title' => 'Zone 1',
+                        'regions' => [
+                            ['country' => 'BD', 'states' => []],
+                        ],
+                        'shipping_methods' => [
+                            array_merge([
+                                'id' => 'method-1',
+                                'is_enabled' => true,
+                                'name' => 'Rate by Weight',
+                                'type' => 'weight',
+                                'is_taxable' => false,
+                                'base_amount' => 30,
+                                'is_free_shipping_enabled' => false,
+                                'base_free_shipping_min_amount' => 250,
+                                'ranges' => [
+                                    ['from' => 0, 'to' => 5, 'base_amount' => 15],
+                                    ['from' => 5, 'to' => 10, 'base_amount' => 25],
+                                ],
+                            ], $overrides),
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * A weight method's amounts come back in major units, including the
+     * method-level base_amount that sits alongside its ranges.
+     *
+     * @return void
+     */
+    public function test_update_shipping_settings_weight_method_amounts_round_trip(): void
+    {
+        $this->seed_base_currency();
+
+        $response = $this->request('PUT', 'settings', $this->shipping_settings_payload());
+
+        $payload = $this->assert_api_success($response);
+        $method = $payload['data']['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertSame(30.0, (float) $method['base_amount']);
+        $this->assertSame(250.0, (float) $method['base_free_shipping_min_amount']);
+        $this->assertSame(15.0, (float) $method['ranges'][0]['base_amount']);
+        $this->assertSame(25.0, (float) $method['ranges'][1]['base_amount']);
+    }
+
+    /**
+     * Saving the settings the API just returned, unchanged, must not change
+     * the stored amounts. Any money field converted to minor units on write
+     * but not back on read is multiplied by 100 on every save until it
+     * overflows the integer range and the request 500s.
+     *
+     * @return void
+     */
+    public function test_update_shipping_settings_amounts_are_stable_across_repeated_saves(): void
+    {
+        $this->seed_base_currency();
+
+        $response = $this->request('PUT', 'settings', $this->shipping_settings_payload());
+        $data = $this->assert_api_success($response)['data'];
+
+        for ($save = 0; $save < 5; $save++) {
+            $response = $this->request('PUT', 'settings', [
+                'key' => OptionKeys::SHIPPING_SETTINGS,
+                'data' => $data,
+            ]);
+
+            $data = $this->assert_api_success($response)['data'];
+        }
+
+        $method = $data['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertSame(30.0, (float) $method['base_amount']);
+        $this->assertSame(250.0, (float) $method['base_free_shipping_min_amount']);
+        $this->assertSame(15.0, (float) $method['ranges'][0]['base_amount']);
+
+        $stored = Option::get(OptionKeys::SHIPPING_SETTINGS);
+        $stored_method = $stored['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertSame(3000, (int) $stored_method['base_amount']);
+        $this->assertSame(25000, (int) $stored_method['base_free_shipping_min_amount']);
+        $this->assertSame(1500, (int) $stored_method['ranges'][0]['base_amount']);
+    }
+
+    /**
+     * Free shipping is off and carries no minimum, which the client sends as
+     * null. Reading it back must leave the empty value alone rather than
+     * trying to convert it.
+     *
+     * @return void
+     */
+    public function test_update_shipping_settings_handles_an_empty_free_shipping_minimum(): void
+    {
+        $this->seed_base_currency();
+
+        $response = $this->request('PUT', 'settings', $this->shipping_settings_payload([
+            'is_free_shipping_enabled' => false,
+            'base_free_shipping_min_amount' => null,
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $method = $payload['data']['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertNull($method['base_free_shipping_min_amount']);
+        $this->assertSame(30.0, (float) $method['base_amount']);
     }
 }

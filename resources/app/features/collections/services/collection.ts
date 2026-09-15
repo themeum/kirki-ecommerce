@@ -6,7 +6,13 @@ import { CollectionSchema } from '@/features/collections/schemas/catalog/collect
 import type { CollectionFormPayload } from '@/features/collections/schemas/forms/collection-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -14,9 +20,7 @@ import { __ } from '@/wpi18n';
 const getCollections = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.COLLECTIONS, { params })
-    .then((response) =>
-      parseData(PaginatedDataSchema(CollectionSchema), response),
-    );
+    .then((response) => parseData(PaginatedDataSchema(CollectionSchema), response));
 };
 
 const getCollection = (id: number) => {
@@ -30,36 +34,23 @@ const getCollection = (id: number) => {
  * but the inline "create collection" affordance in `CollectionsField` only
  * ever sends `title` — the backend derives the rest server-side.
  */
-const createCollection = (
-  data: CollectionFormPayload | Pick<CollectionFormPayload, 'title'>,
-) => {
+const createCollection = (data: CollectionFormPayload | Pick<CollectionFormPayload, 'title'>) => {
   return apiClient
     .post(endpoints.COLLECTIONS, data)
     .then((response) => parseResponse(CollectionSchema, response));
 };
 
-const updateCollection = ({
-  id,
-  data,
-}: {
-  id: number;
-  data: CollectionFormPayload;
-}) => {
+const updateCollection = ({ id, data }: { id: number; data: CollectionFormPayload }) => {
   return apiClient
     .put(endpoints.COLLECTION(id), data)
     .then((response) => parseResponse(CollectionSchema, response));
 };
 
 const deleteCollection = (id: number) => {
-  return apiClient
-    .delete(endpoints.COLLECTION(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.COLLECTION(id)).then((response) => parseMessage(response));
 };
 
-const bulkDeleteCollections = ({
-  action = 'delete',
-  ids = [],
-}: BulkActionParams = {}) => {
+const bulkDeleteCollections = ({ action = 'delete', ids = [] }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.COLLECTIONS_BULK, { action, ids })
     .then((response) => parseMessage(response));
@@ -86,10 +77,7 @@ const useCreateCollectionMutation = () => {
   return useMutation({
     mutationFn: createCollection,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Collection created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Collection created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {
@@ -103,10 +91,7 @@ const useUpdateCollectionMutation = () => {
   return useMutation({
     mutationFn: updateCollection,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Collection updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Collection updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: collectionKeys.detail(variables.id),
@@ -123,10 +108,7 @@ const useDeleteCollectionMutation = () => {
   return useMutation({
     mutationFn: deleteCollection,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Collection deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Collection deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {
@@ -140,10 +122,7 @@ const useBulkDeleteCollectionsMutation = () => {
   return useMutation({
     mutationFn: bulkDeleteCollections,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Collections deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Collections deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: collectionKeys.lists() });
     },
     onError(error) {
@@ -153,6 +132,16 @@ const useBulkDeleteCollectionsMutation = () => {
 };
 
 export {
-  bulkDeleteCollections, createCollection, deleteCollection, getCollection, getCollections, updateCollection, useBulkDeleteCollectionsMutation, useCollectionQuery, useCollectionsQuery, useCreateCollectionMutation, useDeleteCollectionMutation, useUpdateCollectionMutation,
+  bulkDeleteCollections,
+  createCollection,
+  deleteCollection,
+  getCollection,
+  getCollections,
+  updateCollection,
+  useBulkDeleteCollectionsMutation,
+  useCollectionQuery,
+  useCollectionsQuery,
+  useCreateCollectionMutation,
+  useDeleteCollectionMutation,
+  useUpdateCollectionMutation,
 };
-

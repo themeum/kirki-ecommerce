@@ -41,7 +41,7 @@ class OfflinePaymentController
 
         return response()->json([
             'data' => OfflinePaymentResource::make($offline_payment),
-            'message' => __('Payment method created successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment method created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -63,7 +63,7 @@ class OfflinePaymentController
 
         return response()->json([
             'data' => OfflinePaymentResource::make($offline_payment),
-            'message' => __('Payment method updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment method updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -73,7 +73,7 @@ class OfflinePaymentController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Payment method deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment method deleted', 'kirki-ecommerce'),
         ]);
     }
 }
