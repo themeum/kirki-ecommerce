@@ -1,9 +1,10 @@
 import { type CSSObject } from '@emotion/react';
-import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { CheckIcon, ChevronDownIcon, Cross2Icon } from '@radix-ui/react-icons';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import type { ComponentRef } from 'react';
 import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
+import Button from '@/components/ui/button';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
 import {
@@ -30,11 +31,21 @@ type SelectTriggerProps = Omit<
   variant?: SelectTriggerVariant;
   error?: boolean;
   cssOverride?: CSSObject;
+  showClear?: boolean;
+  onClear?: () => void;
 };
 
 const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, SelectTriggerProps>(
   (props, ref) => {
-    const { cssOverride, variant = 'default', error, children, ...rest } = props;
+    const {
+      cssOverride,
+      variant = 'default',
+      error,
+      children,
+      showClear = false,
+      onClear,
+      ...rest
+    } = props;
 
     return (
       <SelectPrimitive.Trigger
@@ -50,11 +61,27 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         {...rest}
       >
         <span css={scoped(styles.value)}>{children}</span>
-        <SelectPrimitive.Icon asChild>
-          <span css={scoped(styles.chevron)}>
-            <ChevronDownIcon width={16} height={16} />
-          </span>
-        </SelectPrimitive.Icon>
+        {showClear ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            cssOverride={styles.chevron}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClear?.();
+            }}
+          >
+            <Cross2Icon width={12} height={12} />
+          </Button>
+        ) : (
+          <SelectPrimitive.Icon asChild>
+            <span css={scoped(styles.chevron)}>
+              <ChevronDownIcon width={16} height={16} />
+            </span>
+          </SelectPrimitive.Icon>
+        )}
       </SelectPrimitive.Trigger>
     );
   },

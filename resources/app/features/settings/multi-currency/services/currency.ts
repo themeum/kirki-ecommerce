@@ -72,19 +72,21 @@ const syncCurrencyRates = () => {
     .then((response) => parseMessage(response));
 };
 
-const useAvailableCurrenciesQuery = (params: ListQueryParams = {}) => {
+const useAvailableCurrenciesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: currencyKeys.list(params),
     queryFn: () => getAvailableCurrencies(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 
-const useAllCurrenciesQuery = (params: ListQueryParams = {}) => {
+const useAllCurrenciesQuery = (params: ListQueryParams = {}, enabled = true) => {
   return useQuery({
     queryKey: currencyKeys.options(params),
     queryFn: () => getAllCurrencies(params),
     placeholderData: keepPreviousData,
+    enabled,
   });
 };
 

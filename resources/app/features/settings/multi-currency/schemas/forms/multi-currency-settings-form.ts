@@ -39,15 +39,16 @@ const MultiCurrencySettingsFormShape = z.object({
 export const MultiCurrencySettingsFormSchema = prepareFormSchema(
   MultiCurrencySettingsFormShape,
 ).transform((values) => ({
-  // is_automatic_update_enabled: values.is_automatic_update_enabled ?? false, // @todo: will be handled later.
   is_automatic_update_enabled: false,
   api_provider: values.api_provider || null,
-  api_config: {
-    api_key: values.api_config?.api_key || null,
-    update_frequency: values.api_config?.update_frequency || null,
-    fallback_behaviour: values.api_config?.fallback_behaviour || null,
-    is_cache_enabled: values.api_config?.is_cache_enabled,
-  },
+  api_config: values.api_provider
+    ? {
+        api_key: values.api_config?.api_key || null,
+        update_frequency: values.api_config?.update_frequency || null,
+        fallback_behaviour: values.api_config?.fallback_behaviour || null,
+        is_cache_enabled: values.api_config?.is_cache_enabled,
+      }
+    : null,
   currency_format: values.currency_format || null,
   currency_position: values.currency_position || null,
   thousand_separator: values.thousand_separator || null,

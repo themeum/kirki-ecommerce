@@ -7,9 +7,7 @@ import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { dimensionUnitList, weightUnitList } from '@/features/settings/lib/utils';
-import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 export const StandardUnit = () => {
@@ -86,10 +84,3 @@ export const StandardUnit = () => {
 };
 
 StandardUnit.displayName = 'StandardUnit';
-
-const styles = defineStyles({
-  optionCard: {
-    borderRadius: theme.radius.lg,
-    border: `1px solid ${theme.colors.border.default}`,
-  },
-});
