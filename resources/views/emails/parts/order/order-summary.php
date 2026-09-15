@@ -1,24 +1,30 @@
 <?php
 
+use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
+
 use function Kirki\Ecommerce\Framework\include_view;
 
 defined('ABSPATH') || exit;
 
 $items = $data['items'] ?? [];
 $totals = $data['totals'] ?? [];
-$text_color = $data['colors']['text'] ?? '#111111';
-$label_color = $data['colors']['label'] ?? '#666666';
+$body_color = $data['colors']['typography']['body'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_BODY;
+$headings_color = $data['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
+$muted_color = $data['colors']['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
+$exceptions_color = $data['colors']['typography']['exceptions'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_EXCEPTIONS;
+$info_cards_color = $data['colors']['background']['info_cards'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_INFO_CARDS;
+$divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
 ?>
 <tr>
-    <td style="padding: 48px 0 48px 0;">
-        <p data-email-part="colors.label" style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($label_color); ?>;">
+    <td style="padding: 32px 0 32px 0;">
+        <p data-email-part="colors.typography.headings" style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>;">
             <?php echo esc_html__('Order summary', 'kirki-ecommerce'); ?>
         </p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
             <?php foreach ($items as $item) : ?>
                 <tr>
                     <td style="padding-bottom: 16px; vertical-align: top; width: 56px;">
-                        <div style="width: 48px; height: 48px; border-radius: 8px; background-color: #f2f2f2;">
+                        <div data-email-part="colors.background.info_cards" style="width: 48px; height: 48px; border-radius: 8px; background-color: <?php echo esc_attr($info_cards_color); ?>;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none">
                                 <path fill="#858b93" d="M15 18a5 5 0 1 1 10 0 5 5 0 0 1-10 0m5-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6" />
                                 <path fill="#858b93"
@@ -27,7 +33,7 @@ $label_color = $data['colors']['label'] ?? '#666666';
                         </div>
                     </td>
                     <td style="padding-left:14px; padding-bottom: 16px; vertical-align: top;">
-                        <p data-email-part="colors.text" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($text_color); ?>;">
+                        <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($body_color); ?>;">
                             <?php
                             echo esc_html(
                                 sprintf(
@@ -40,13 +46,13 @@ $label_color = $data['colors']['label'] ?? '#666666';
                             ?>
                         </p>
                         <?php if (!empty($item['variant_name'])) : ?>
-                            <p data-email-part="colors.label" style="margin: 4px 0 0 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
+                            <p data-email-part="colors.typography.muted" style="margin: 4px 0 0 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                                 <?php echo esc_html($item['variant_name']); ?>
                             </p>
                         <?php endif; ?>
                         <?php if (!empty($item['discount_note'])) : ?>
-                            <p data-email-part="colors.label" style="margin: 4px 0 0 0; font-size: 11px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
-                                <svg data-email-part="colors.label" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px; color: <?php echo esc_attr($label_color); ?>;">
+                            <p data-email-part="colors.typography.exceptions" style="margin: 4px 0 0 0; font-size: 11px; font-weight: 400; color: <?php echo esc_attr($exceptions_color); ?>;">
+                                <svg data-email-part="colors.typography.exceptions" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px; color: <?php echo esc_attr($exceptions_color); ?>;">
                                     <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
                                     <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
                                 </svg>
@@ -55,11 +61,11 @@ $label_color = $data['colors']['label'] ?? '#666666';
                         <?php endif; ?>
                     </td>
                     <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: top; text-align: right; white-space: nowrap;">
-                        <p data-email-part="colors.text" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($text_color); ?>;">
+                        <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($body_color); ?>;">
                             <?php echo esc_html($item['invoiced_total_display'] ?? ''); ?>
                         </p>
                         <?php if (!empty($item['invoiced_price_display']) && $item['invoiced_price_display'] !== $item['invoiced_total_display']) : ?>
-                            <p data-email-part="colors.label" style="margin: 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>; text-decoration: line-through;">
+                            <p data-email-part="colors.typography.muted" style="margin: 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>; text-decoration: line-through;">
                                 <?php echo esc_html($item['invoiced_price_display']); ?>
                             </p>
                         <?php endif; ?>
@@ -67,48 +73,48 @@ $label_color = $data['colors']['label'] ?? '#666666';
                 </tr>
             <?php endforeach; ?>
         </table>
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 8px; padding-top: 24px; border-top: 1px solid #E6E6E6;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" data-email-part="colors.background.divider" style="margin-top: 8px; padding-top: 24px; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
             <tr>
                 <td style="width: 170px;"></td>
-                <td data-email-part="colors.label" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
+                <td data-email-part="colors.typography.muted" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                     <?php echo esc_html__('Subtotal', 'kirki-ecommerce'); ?>
                 </td>
-                <td data-email-part="colors.text" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($text_color); ?>; text-align: right;">
+                <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
                     <?php echo esc_html($totals['invoiced_subtotal_display'] ?? ''); ?>
                 </td>
             </tr>
             <?php if (!empty($totals['invoiced_discount_display'])) : ?>
                 <tr>
                     <td style="width: 170px;"></td>
-                    <td data-email-part="colors.label" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
+                    <td data-email-part="colors.typography.muted" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                         <?php echo esc_html__('Discount', 'kirki-ecommerce'); ?>
                     </td>
-                    <td data-email-part="colors.text" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($text_color); ?>; text-align: right;">
+                    <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
                         -<?php echo esc_html($totals['invoiced_discount_display']); ?>
                     </td>
                 </tr>
             <?php endif; ?>
             <tr>
                 <td style="width: 170px;"></td>
-                <td data-email-part="colors.label" style="padding: 8px 0; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>; border-top: 1px solid #e5e5e5;">
+                <td data-email-part="colors.typography.muted colors.background.divider" style="padding: 8px 0; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
                     <?php echo esc_html__('Total', 'kirki-ecommerce'); ?>
                 </td>
-                <td data-email-part="colors.text" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($text_color); ?>; text-align: right; border-top: 1px solid #e5e5e5;">
+                <td data-email-part="colors.typography.body colors.background.divider" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
                     <?php echo esc_html($totals['invoiced_total_before_shipping_display'] ?? ''); ?>
                 </td>
             </tr>
             <tr>
                 <td style="width: 170px;"></td>
-                <td data-email-part="colors.label" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
+                <td data-email-part="colors.typography.muted" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                     <?php echo esc_html__('Shipping', 'kirki-ecommerce'); ?>
                 </td>
-                <td data-email-part="colors.text" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($text_color); ?>; text-align: right;">
+                <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
                     <?php echo esc_html($totals['invoiced_shipping_display'] ?? ''); ?>
                 </td>
             </tr>
             <tr>
                 <td style="width: 170px;"></td>
-                <td data-email-part="colors.label" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
+                <td data-email-part="colors.typography.muted" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                     <?php
                     echo esc_html(
                         sprintf(
@@ -119,17 +125,17 @@ $label_color = $data['colors']['label'] ?? '#666666';
                     );
                     ?>
                 </td>
-                <td data-email-part="colors.text" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($text_color); ?>; text-align: right;">
+                <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
                     <?php echo esc_html($totals['invoiced_tax_display'] ?? ''); ?>
                 </td>
             </tr>
             <tr>
                 <td style="width: 170px;"></td>
-                <td data-email-part="colors.text" style="padding: 12px 0 2px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($text_color); ?>; border-top: 1px solid #e5e5e5;">
+                <td data-email-part="colors.typography.headings colors.background.divider" style="padding: 12px 0 2px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
                     <?php echo esc_html__('Total Amount', 'kirki-ecommerce'); ?>
                 </td>
-                <td data-email-part="colors.text" style="padding: 12px 0 2px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($text_color); ?>; text-align: right; border-top: 1px solid #e5e5e5;">
-                    <span data-email-part="colors.label" style="font-weight: 400; font-size: 12px; color: <?php echo esc_attr($label_color); ?>;">
+                <td data-email-part="colors.typography.headings colors.background.divider" style="padding: 12px 0 2px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>; text-align: right; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
+                    <span data-email-part="colors.typography.muted" style="font-weight: 400; font-size: 12px; color: <?php echo esc_attr($muted_color); ?>;">
                         <?php echo esc_html($data['currency_code'] ?? ''); ?>
                     </span>
                     <?php echo esc_html($totals['invoiced_total_display'] ?? ''); ?>
@@ -138,7 +144,7 @@ $label_color = $data['colors']['label'] ?? '#666666';
             <?php if (!empty($totals['base_tax_display'])) : ?>
                 <tr>
                     <td style="width: 170px;"></td>
-                    <td colspan="2" data-email-part="colors.label" style="font-size: 12px; font-weight: 400; color: <?php echo esc_attr($label_color); ?>;">
+                    <td colspan="2" data-email-part="colors.typography.muted" style="font-size: 12px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                         <?php
                         echo esc_html(
                             sprintf(

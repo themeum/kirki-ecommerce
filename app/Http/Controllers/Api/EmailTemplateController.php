@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Http\Requests\Settings\SendTestEmailRequest;
 use Kirki\Ecommerce\App\Services\EmailService;
@@ -76,7 +77,7 @@ class EmailTemplateController
     {
         $sample = json_decoded_data(resource_path('data/emails/order-confirmation-sample.json')) ?? [];
         $currency_code = $sample['currency_code'] ?? '';
-        $colors = array_merge($this->default_colors(), array_filter((array) ($branding['colors'] ?? [])));
+        $colors = $this->merge_colors($branding['colors'] ?? []);
 
         $items = array_map(function ($item) use ($currency_code) {
             $item['invoiced_price_display'] = Money::prepare_amount_object_from_minor($item['invoiced_price'], $currency_code)->display;
@@ -104,9 +105,11 @@ class EmailTemplateController
             'items' => $items,
             'totals' => $totals,
             'logo_url' => $logo_id ? (wp_get_attachment_image_url($logo_id, 'full') ?: '') : '',
-            'height' => $branding['height'] ?? '30px',
-            'position' => $branding['position'] ?? 'center',
+            'height' => $branding['height'] ?? EmailDefaultTemplate::HEIGHT,
+            'position' => $branding['position'] ?? EmailDefaultTemplate::POSITION,
             'colors' => $colors,
+            'additional_description' => $branding['additional_description'] ?? '',
+            'footer' => $branding['footer'] ?? '',
         ]);
     }
 
@@ -116,12 +119,39 @@ class EmailTemplateController
     protected function default_colors()
     {
         return [
-            'background' => '#000000',
-            'text' => '#ffffff',
-            'link' => '#f2f2f2',
-            'label' => '#111111',
-            'button' => '#ffffff',
-            'button_bg' => '#000000',
+            'background' => [
+                'email_body' => EmailDefaultTemplate::BACKGROUND_COLOR_EMAIL_BODY,
+                'outer_area' => EmailDefaultTemplate::BACKGROUND_COLOR_OUTER_AREA,
+                'info_cards' => EmailDefaultTemplate::BACKGROUND_COLOR_INFO_CARDS,
+                'divider' => EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER,
+            ],
+            'typography' => [
+                'headings' => EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS,
+                'body' => EmailDefaultTemplate::TYPOGRAPHY_COLOR_BODY,
+                'muted' => EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED,
+                'link' => EmailDefaultTemplate::TYPOGRAPHY_COLOR_LINK,
+                'exceptions' => EmailDefaultTemplate::TYPOGRAPHY_COLOR_EXCEPTIONS,
+            ],
+            'button' => [
+                'background' => EmailDefaultTemplate::BUTTON_COLOR_BACKGROUND,
+                'text' => EmailDefaultTemplate::BUTTON_COLOR_TEXT,
+            ],
         ];
+    }
+
+    /**
+     * @param array $branding_colors
+     *
+     * @return array
+     */
+    protected function merge_colors(array $branding_colors)
+    {
+        $colors = $this->default_colors();
+
+        foreach (['background', 'typography', 'button'] as $group) {
+            $colors[$group] = array_merge($colors[$group], array_filter((array) ($branding_colors[$group] ?? [])));
+        }
+
+        return $colors;
     }
 }

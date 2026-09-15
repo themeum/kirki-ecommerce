@@ -1,5 +1,5 @@
 import { keyframes } from '@emotion/react';
-import { BrushIcon } from 'lucide-react';
+import { PaintbrushIcon } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -26,7 +26,7 @@ const EmailTemplateLayout = (props: PropsWithChildren) => {
         <PageHeading
           hasBack
           onBack={handleBack}
-          leftIcon={<BrushIcon />}
+          leftIcon={<PaintbrushIcon />}
           text={__('Email Template', 'kirki-ecommerce')}
           buttonProps={{ disabled: isSaving }}
           actions={

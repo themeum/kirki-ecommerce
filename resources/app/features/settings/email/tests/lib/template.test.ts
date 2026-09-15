@@ -75,7 +75,13 @@ describe('buildEmailTemplatePayload', () => {
     logo: '5',
     height: 64,
     position: 'center',
-    colors: { background: '#fff', text: null, link: null, label: null, button: null, button_bg: null },
+    colors: {
+      background: { email_body: '#fff', outer_area: '#DBDBE5', info_cards: '#F5F5F5', divider: '#E0E0E0' },
+      typography: { headings: '#000000', body: '#000000', muted: '#474747', link: '#167BFF', exceptions: '#0078CE' },
+      button: { background: '#167BFF', text: '#FFFFFF' },
+    },
+    additional_description: null,
+    footer: null,
   };
 
   it('merges the edited template fields over the existing default_template', () => {

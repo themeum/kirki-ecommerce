@@ -16,15 +16,17 @@ const POSITION_TO_ALIGN: Record<string, string> = {
 
 /**
  * Every element the preview needs to patch live carries a
- * `data-email-part="<field path>"` attribute, mirrored 1:1 to
- * EmailTemplateFormSchema's field paths (see resources/views/emails/parts/).
+ * `data-email-part="<field path> [<field path> ...]"` attribute (a
+ * space-separated list when an element is driven by more than one field),
+ * mirrored 1:1 to EmailTemplateFormSchema's field paths (see
+ * resources/views/emails/parts/) and matched with the `~=` word selector.
  * This hook applies the current form values to the already-rendered iframe
  * document in place — no preview request is ever re-issued after mount.
  */
 const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) => {
   const logoUrl = resolveLogoUrl(values.logo);
   if (logoUrl) {
-    doc.querySelectorAll<HTMLElement>('[data-email-part="logo"]').forEach((el) => {
+    doc.querySelectorAll<HTMLElement>('[data-email-part~="logo"]').forEach((el) => {
       if (el.tagName === 'IMG') {
         (el as HTMLImageElement).src = logoUrl;
         return;
@@ -40,36 +42,100 @@ const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) =>
   }
 
   if (values.height) {
-    doc.querySelectorAll<HTMLElement>('[data-email-part="logo"]').forEach((el) => {
+    doc.querySelectorAll<HTMLElement>('[data-email-part~="logo"]').forEach((el) => {
       el.style.height = `${values.height}px`;
     });
   }
 
   const align = POSITION_TO_ALIGN[values.position ?? 'center'] ?? 'center';
-  doc.querySelectorAll<HTMLElement>('[data-email-part="position"]').forEach((el) => {
+  doc.querySelectorAll<HTMLElement>('[data-email-part~="position"]').forEach((el) => {
     el.style.textAlign = align;
   });
 
   const colors = values.colors ?? {};
   const colorApplicators: {
-    key: keyof NonNullable<EmailTemplateFormInput['colors']>;
+    path: string;
+    value: string | null | undefined;
     apply: (el: HTMLElement, value: string) => void;
   }[] = [
-    { key: 'background', apply: (el, value) => (el.style.backgroundColor = value) },
-    { key: 'text', apply: (el, value) => (el.style.color = value) },
-    { key: 'link', apply: (el, value) => (el.style.color = value) },
-    { key: 'label', apply: (el, value) => (el.style.color = value) },
-    { key: 'button', apply: (el, value) => (el.style.color = value) },
-    { key: 'button_bg', apply: (el, value) => (el.style.backgroundColor = value) },
+    {
+      path: 'colors.background.email_body',
+      value: colors.background?.email_body,
+      apply: (el, value) => (el.style.backgroundColor = value),
+    },
+    {
+      path: 'colors.background.outer_area',
+      value: colors.background?.outer_area,
+      apply: (el, value) => (el.style.backgroundColor = value),
+    },
+    {
+      path: 'colors.background.info_cards',
+      value: colors.background?.info_cards,
+      apply: (el, value) => (el.style.backgroundColor = value),
+    },
+    {
+      path: 'colors.background.divider',
+      value: colors.background?.divider,
+      apply: (el, value) => (el.style.borderColor = value),
+    },
+    {
+      path: 'colors.typography.headings',
+      value: colors.typography?.headings,
+      apply: (el, value) => (el.style.color = value),
+    },
+    {
+      path: 'colors.typography.body',
+      value: colors.typography?.body,
+      apply: (el, value) => (el.style.color = value),
+    },
+    {
+      path: 'colors.typography.muted',
+      value: colors.typography?.muted,
+      apply: (el, value) => (el.style.color = value),
+    },
+    {
+      path: 'colors.typography.link',
+      value: colors.typography?.link,
+      apply: (el, value) => (el.style.color = value),
+    },
+    {
+      path: 'colors.typography.exceptions',
+      value: colors.typography?.exceptions,
+      apply: (el, value) => (el.style.color = value),
+    },
+    {
+      path: 'colors.button.background',
+      value: colors.button?.background,
+      apply: (el, value) => (el.style.backgroundColor = value),
+    },
+    {
+      path: 'colors.button.text',
+      value: colors.button?.text,
+      apply: (el, value) => (el.style.color = value),
+    },
   ];
 
-  colorApplicators.forEach(({ key, apply }) => {
-    const value = colors[key];
+  colorApplicators.forEach(({ path, value, apply }) => {
     if (!value) {
       return;
     }
-    doc.querySelectorAll<HTMLElement>(`[data-email-part="colors.${key}"]`).forEach((el) => {
+    doc.querySelectorAll<HTMLElement>(`[data-email-part~="${path}"]`).forEach((el) => {
       apply(el, value);
+    });
+  });
+
+  const contentApplicators: { path: 'additional_description' | 'footer'; value: string | null | undefined }[] = [
+    { path: 'additional_description', value: values.additional_description },
+    { path: 'footer', value: values.footer },
+  ];
+
+  contentApplicators.forEach(({ path, value }) => {
+    doc.querySelectorAll<HTMLElement>(`[data-email-part~="${path}"]`).forEach((el) => {
+      el.innerHTML = value ?? '';
+      const row = el.closest('tr');
+      if (row) {
+        row.style.display = value ? '' : 'none';
+      }
     });
   });
 };

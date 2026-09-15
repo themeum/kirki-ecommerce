@@ -1,13 +1,13 @@
-import { keyframes } from '@emotion/react';
-
 import ColorPickerField from '@/components/form/color-picker-field';
 import MediaField from '@/components/form/media-field';
 import ProgressBarField from '@/components/form/progress-bar-field';
+import RichTextField from '@/components/form/rich-text-field';
 import TabsField from '@/components/form/tabs-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import Grid from '@/components/ui/grid';
 import Text from '@/components/ui/text';
 import EmailTemplatePreview from '@/features/settings/email/components/email-template-preview/email-template-preview';
 import EmailTemplateLayout from '@/features/settings/email/components/layouts/email-template-layout';
@@ -21,6 +21,7 @@ import {
 import { useSendTestEmailMutation } from '@/features/settings/email/services/email-template-preview';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import { AlignCenterIcon, AlignLeftIcon, SendIcon } from '@/icons';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -87,27 +88,102 @@ const EditTemplateContent = () => {
             cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
           >
             <CardContent>
-              <Flex direction="column" gap={2}>
-                <Text weight="semibold">{__('Colors', 'kirki-ecommerce')}</Text>
-                <Text color="secondary">
-                  {__('Style how the emails will look', 'kirki-ecommerce')}
-                </Text>
+              <Flex direction="column" gap={4}>
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold">{__('Colors', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">
+                    {__('Style how the emails will look', 'kirki-ecommerce')}
+                  </Text>
+                </Flex>
+
+                <Flex direction="column" gap={3}>
+                  <Text variant="small" weight="semibold">
+                    {__('Background', 'kirki-ecommerce')}
+                  </Text>
+                  <Grid columns={2} cssOverride={styles.colorGrid}>
+                    <ColorPickerField
+                      name="colors.background.email_body"
+                      label={__('Email Body', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.background.outer_area"
+                      label={__('Outer Area', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.background.info_cards"
+                      label={__('Info Cards', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.background.divider"
+                      label={__('Divider', 'kirki-ecommerce')}
+                    />
+                  </Grid>
+                </Flex>
+
+                <Flex direction="column" gap={3}>
+                  <Text variant="small" weight="semibold">
+                    {__('Typography', 'kirki-ecommerce')}
+                  </Text>
+                  <Grid columns={2} cssOverride={styles.colorGrid}>
+                    <ColorPickerField
+                      name="colors.typography.headings"
+                      label={__('Headings', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.typography.body"
+                      label={__('Body', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.typography.muted"
+                      label={__('Muted', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.typography.link"
+                      label={__('Link', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.typography.exceptions"
+                      label={__('Exceptions', 'kirki-ecommerce')}
+                    />
+                  </Grid>
+                </Flex>
+
+                <Flex direction="column" gap={3}>
+                  <Text variant="small" weight="semibold">
+                    {__('Button', 'kirki-ecommerce')}
+                  </Text>
+                  <Grid columns={2} cssOverride={styles.colorGrid}>
+                    <ColorPickerField
+                      name="colors.button.background"
+                      label={__('Background', 'kirki-ecommerce')}
+                    />
+                    <ColorPickerField
+                      name="colors.button.text"
+                      label={__('Text', 'kirki-ecommerce')}
+                    />
+                  </Grid>
+                </Flex>
               </Flex>
-              <ColorPickerField
-                name="colors.background"
-                label={__('Background', 'kirki-ecommerce')}
-              />
-              <ColorPickerField name="colors.text" label={__('Text', 'kirki-ecommerce')} />
-              <ColorPickerField name="colors.link" label={__('Link', 'kirki-ecommerce')} />
-              <ColorPickerField name="colors.label" label={__('Label', 'kirki-ecommerce')} />
-              <ColorPickerField
-                name="colors.button"
-                label={__('Button Color', 'kirki-ecommerce')}
-              />
-              <ColorPickerField
-                name="colors.button_bg"
-                label={__('Button BG', 'kirki-ecommerce')}
-              />
+            </CardContent>
+          </Card>
+          <Card
+            data-search-skip="true"
+            cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
+          >
+            <CardContent>
+              <Flex direction="column" gap={4}>
+                <Flex direction="column" gap={2}>
+                  <Text weight="semibold">{__('Content', 'kirki-ecommerce')}</Text>
+                  <Text color="secondary">
+                    {__('Manage your email default contents.', 'kirki-ecommerce')}
+                  </Text>
+                </Flex>
+                <RichTextField
+                  name="additional_description"
+                  label={__('Additional Description', 'kirki-ecommerce')}
+                />
+                <RichTextField name="footer" label={__('Footer', 'kirki-ecommerce')} />
+              </Flex>
             </CardContent>
           </Card>
         </Flex>
@@ -147,22 +223,16 @@ EditTemplate.displayName = 'EditTemplate';
 
 export default EditTemplate;
 
-const shake = keyframes({
-  '0%, 100%': { transform: 'translateX(0)' },
-  '20%': { transform: 'translateX(-10px)' },
-  '40%': { transform: 'translateX(10px)' },
-  '60%': { transform: 'translateX(-6px)' },
-  '80%': { transform: 'translateX(6px)' },
-});
-
 const styles = defineStyles({
-  shaking: {
-    animation: `${shake} 0.3s ease-in-out 0.2s 1`,
-  },
   previewCard: {
     padding: 0,
   },
   previewCardContent: {
     paddingInline: 0,
+  },
+  colorGrid: {
+    backgroundColor: theme.colors.background.surfaceAlt,
+    padding: theme.spacing[3],
+    borderRadius: theme.radius.xl,
   },
 });

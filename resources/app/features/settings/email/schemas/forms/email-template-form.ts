@@ -1,39 +1,36 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
+import { EmailTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
 import { prepareFormSchema } from '@/libs/zod';
-import { MediaRefSchema } from '@/schemas/shared/media';
 
-export const EmailTemplateColorsSchema = z.object({
-  background: z.string().nullish(),
-  text: z.string().nullish(),
-  link: z.string().nullish(),
-  label: z.string().nullish(),
-  button: z.string().nullish(),
-  button_bg: z.string().nullish(),
-});
-
-
-const EmailTemplateFormShape = z.object({
-  logo: MediaRefSchema
-    .nullish(),
-  height: z.coerce.number().nullish().default(50),
-  position: z.string().nullish().default('start'),
-  colors: EmailTemplateColorsSchema.default({}),
-});
-
-export const EmailTemplateFormSchema = prepareFormSchema(EmailTemplateFormShape).transform((values) => ({
-  logo: values.logo?.id ?? null,
-  height: values.height ?? 50,
-  position: values.position || 'center',
-  colors: {
-    background: values.colors.background || null,
-    text: values.colors.text || null,
-    link: values.colors.link || null,
-    label: values.colors.label || null,
-    button: values.colors.button || null,
-    button_bg: values.colors.button_bg || null,
-  },
-}));
+export const EmailTemplateFormSchema = prepareFormSchema(EmailTemplateShape).transform(
+  (values) => ({
+    logo: values.logo?.id ?? null,
+    height: values.height ?? 50,
+    position: values.position || 'center',
+    colors: {
+      background: {
+        email_body: values.colors.background.email_body || '#FFFFFF',
+        outer_area: values.colors.background.outer_area || '#DBDBE5',
+        info_cards: values.colors.background.info_cards || '#F5F5F5',
+        divider: values.colors.background.divider || '#E0E0E0',
+      },
+      typography: {
+        headings: values.colors.typography.headings || '#000000',
+        body: values.colors.typography.body || '#000000',
+        muted: values.colors.typography.muted || '#474747',
+        link: values.colors.typography.link || '#167BFF',
+        exceptions: values.colors.typography.exceptions || '#0078CE',
+      },
+      button: {
+        background: values.colors.button.background || '#167BFF',
+        text: values.colors.button.text || '#FFFFFF',
+      },
+    },
+    additional_description: values.additional_description || null,
+    footer: values.footer || null,
+  }),
+);
 
 export type EmailTemplateFormInput = z.input<typeof EmailTemplateFormSchema>;
 

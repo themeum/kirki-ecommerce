@@ -15,6 +15,8 @@ import { z } from 'zod';
  * and is deferred with the rest of the `services/settings.ts` split.
  */
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { EmailTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
@@ -139,7 +141,7 @@ export const EmailNotificationGroupSchema = z.record(EmailNotificationSchema);
 
 export const EmailSettingsSchema = z
   .object({
-    default_template: z.record(z.unknown()).nullish(),
+    default_template: EmailTemplateShape,
     customer_emails: z
       .object({
         order_notifications: EmailNotificationGroupSchema.nullish(),
