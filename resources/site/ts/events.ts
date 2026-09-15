@@ -46,6 +46,9 @@ export const EVENTS = {
 
   /** Fired when the shop product list is refreshed. */
   SHOP_PRODUCTS_UPDATED: 'kecom:shop:products-updated',
+
+  /** Fired when the account wishlist is refreshed. */
+  ACCOUNT_WISHLIST_REMOVED: 'kecom:account:wishlist-removed',
 } as const;
 
 export type Events = {
@@ -85,6 +88,9 @@ export type Events = {
     pagination_html?: string;
     filters?: unknown;
   };
+
+  /** Fired when the account wishlist is refreshed. */
+  [EVENTS.ACCOUNT_WISHLIST_REMOVED]: void;
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

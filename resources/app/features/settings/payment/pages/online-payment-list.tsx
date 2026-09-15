@@ -17,6 +17,7 @@ import {
   getOnlinePayment,
   useSetEnabledOnlinePaymentMutation,
 } from '@/features/settings/payment/services/payment';
+import { useConfirmDelete } from '@/hooks';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
@@ -35,6 +36,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
   const [openPopup, setOpenPopup] = useState(false);
 
   const { mutate: setEnabledOnlinePayment } = useSetEnabledOnlinePaymentMutation();
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   const handleToggleOnlinePayment = (item: OnlinePayment) => {
     if (item.id === undefined) {
@@ -50,10 +52,21 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
     item: OnlinePayment,
   ) => {
     if (action === 'delete') {
-      dispatchToastMessage('delete', {
-        title: __('Payment gateway deleted', 'kirki-ecommerce'),
-        duration: 5000,
-      });
+      confirmDelete(
+        {
+          title: __('Delete payment gateway?', 'kirki-ecommerce'),
+          description: __(
+            'This gateway will be removed from your store and can no longer process payments. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        },
+        () => {
+          dispatchToastMessage('delete', {
+            title: __('Payment gateway deleted', 'kirki-ecommerce'),
+            duration: 5000,
+          });
+        },
+      );
       return;
     }
 
@@ -69,16 +82,20 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="payments.online"
+        data-search-keywords="stripe, paypal, credit card, processor"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <Flex direction="column" gap={4}>
             <HeaderActionsCard
-              header={__('Payment gateways', 'kirki-ecommerce')}
+              header={__('Payment Gateways', 'kirki-ecommerce')}
               subHeader={__(
-                "Set up and manage your online store's payment options.",
+                'Online providers that process card and digital wallet payments.',
                 'kirki-ecommerce',
               )}
-              buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
+              buttonText={__('Payment Methods', 'kirki-ecommerce')}
               onAdd={() => setIsEditPopupOpen(true)}
             />
 
@@ -159,6 +176,7 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
       {isEditPopupOpen && (
         <OnlinePaymentPopup openPopup={isEditPopupOpen} setOpenPopup={setIsEditPopupOpen} />
       )}
+      {deleteConfirmation}
     </>
   );
 };

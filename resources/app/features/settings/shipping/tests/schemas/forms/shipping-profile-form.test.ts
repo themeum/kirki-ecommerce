@@ -4,7 +4,16 @@ import { ShippingProfileFormSchema } from '@/features/settings/shipping/schemas/
 
 describe('ShippingProfileFormSchema', () => {
   it('produces the exact payload', () => {
-    expect(ShippingProfileFormSchema.parse({ name: 'Fragile' })).toEqual({ name: 'Fragile' });
+    expect(ShippingProfileFormSchema.parse({ name: 'Fragile' })).toEqual({
+      name: 'Fragile',
+      is_default: false,
+    });
+  });
+
+  it('passes is_default through', () => {
+    expect(
+      ShippingProfileFormSchema.parse({ name: 'Fragile', is_default: true }),
+    ).toEqual({ name: 'Fragile', is_default: true });
   });
 
   it('rejects a blank required name', () => {

@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Support;
 
 use Kirki\Ecommerce\App\Services\ShippingService;
+use Kirki\Ecommerce\Framework\Facade;
 use WP_UnitTestCase;
 
 use function Kirki\Ecommerce\Framework\migrator;
@@ -34,6 +35,38 @@ abstract class RestTestCase extends WP_UnitTestCase
     {
         parent::setUp();
         $this->login_as_admin();
+    }
+
+    /**
+     * Clean up state after each test.
+     *
+     * Clears the Facade's process-wide static instance cache so a facade
+     * resolved here against real WP-backed data (e.g. Settings) can't leak
+     * into a later test in the same PHPUnit run that expects its own
+     * container binding to be resolved fresh.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function tearDown(): void
+    {
+        $this->reset_facade_cache();
+
+        parent::tearDown();
+    }
+
+    /**
+     * Reset the Facade base class's static resolved-instance cache.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function reset_facade_cache(): void
+    {
+        $reflection = new \ReflectionClass(Facade::class);
+        $property = $reflection->getProperty('resolved_instance');
+        $property->setAccessible(true);
+        $property->setValue(null, []);
     }
 
     /**

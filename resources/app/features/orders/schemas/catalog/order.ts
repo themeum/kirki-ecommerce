@@ -84,6 +84,36 @@ export const ShippingTypeSchema = z.enum(['flat_rate', 'local_pickup', 'weight']
 
 export type ShippingType = z.infer<typeof ShippingTypeSchema>;
 
+export const OrderTaxLineSchema = z.object({
+  name: z.string(),
+  rate: z.number(),
+  invoiced_amount: MoneyAmountSchema,
+  invoiced_amount_money_object: MoneyObjectSchema,
+  base_amount: MoneyAmountSchema,
+  base_amount_money_object: MoneyObjectSchema,
+});
+
+export type OrderTaxLine = z.infer<typeof OrderTaxLineSchema>;
+
+export const CalculatedTaxLineSchema = z.object({
+  name: z.string(),
+  rate: z.number(),
+  base_amount: MoneyAmountSchema,
+  base_amount_money_object: MoneyObjectSchema,
+  display_amount: MoneyAmountSchema,
+  display_amount_money_object: MoneyObjectSchema,
+});
+
+export type CalculatedTaxLine = z.infer<typeof CalculatedTaxLineSchema>;
+
+export const AggregatedTaxLineSchema = z.object({
+  name: z.string(),
+  rate: z.number(),
+  display_amount_money_object: MoneyObjectSchema,
+});
+
+export type AggregatedTaxLine = z.infer<typeof AggregatedTaxLineSchema>;
+
 export const OrderItemSchema = z.object({
   id: z.number(),
   uuid: z.string().nullish(),
@@ -112,6 +142,10 @@ export const OrderItemSchema = z.object({
     invoiced_tax_money_object: MoneyObjectSchema,
     base_tax: MoneyAmountSchema,
     base_tax_money_object: MoneyObjectSchema,
+    invoiced_shipping_tax: MoneyAmountSchema,
+    invoiced_shipping_tax_money_object: MoneyObjectSchema,
+    base_shipping_tax: MoneyAmountSchema,
+    base_shipping_tax_money_object: MoneyObjectSchema,
     invoiced_total: MoneyAmountSchema,
     invoiced_total_money_object: MoneyObjectSchema,
     base_total: MoneyAmountSchema,
@@ -141,19 +175,15 @@ export const OrderItemSchema = z.object({
     invoiced_total_money_object: MoneyObjectSchema,
     base_total: MoneyAmountSchema,
     base_total_money_object: MoneyObjectSchema,
-    tax_rate: z.number().nullish(),
     invoiced_tax_total: MoneyAmountSchema,
     invoiced_tax_total_money_object: MoneyObjectSchema,
     base_tax_total: MoneyAmountSchema,
     base_tax_total_money_object: MoneyObjectSchema,
-    tax_breakdown: z.array(z.object({
-      name: z.string(),
-      rate: z.number(),
-      base_amount: z.number(),
-    })).nullish(),
+    tax_lines: z.array(OrderTaxLineSchema).nullish(),
     sku: z.string().nullish(),
     image: MediaRefSchema.nullish(),
   })),
+  shipping_tax_lines: z.array(OrderTaxLineSchema).nullish(),
   shipping_address: CustomerAddressSchema.nullish(),
   is_billing_same_as_shipping: z.boolean().nullish(),
   billing_address: CustomerAddressSchema.nullish(),
@@ -231,6 +261,8 @@ export const OrderCalculationSchema = z.object({
     base_total_money_object: MoneyObjectSchema,
     display_total: MoneyAmountSchema,
     display_total_money_object: MoneyObjectSchema,
+    tax_lines: z.array(AggregatedTaxLineSchema),
+    shipping_tax_lines: z.array(AggregatedTaxLineSchema),
   }),
   items_count: z.number(),
   items: z.array(z.object({
@@ -240,19 +272,11 @@ export const OrderCalculationSchema = z.object({
     base_subtotal_money_object: MoneyObjectSchema,
     display_subtotal: MoneyAmountSchema,
     display_subtotal_money_object: MoneyObjectSchema,
-    tax_rate: z.number().nullish(),
     base_tax_amount: MoneyAmountSchema,
     base_tax_amount_money_object: MoneyObjectSchema,
     display_tax_amount: MoneyAmountSchema,
     display_tax_amount_money_object: MoneyObjectSchema,
-    tax_breakdown: z.array(z.object({
-      name: z.string(),
-      rate: z.number(),
-      base_amount: MoneyAmountSchema,
-      base_amount_money_object: MoneyObjectSchema,
-      display_amount: MoneyAmountSchema,
-      display_amount_money_object: MoneyObjectSchema,
-    })),
+    tax_lines: z.array(CalculatedTaxLineSchema),
     base_discount_amount: MoneyAmountSchema,
     base_discount_amount_money_object: MoneyObjectSchema,
     display_discount_amount: MoneyAmountSchema,

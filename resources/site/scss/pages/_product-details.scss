@@ -75,11 +75,11 @@
   }
 
   .kecom-product-nav-prev {
-    left: $spacing-8;
+    inset-inline-start: $spacing-8;
   }
 
   .kecom-product-nav-next {
-    right: $spacing-8;
+    inset-inline-end: $spacing-8;
   }
 
   .kecom-product-thumbnails {
@@ -128,6 +128,17 @@
 
     @include breakpoint-down(md) {
       gap: $spacing-9;
+    }
+
+    &-button-group {
+      @include flex(column, stretch, start);
+      gap: $spacing-4;
+      .kecom-product-wishlist.active {
+        svg {
+          color: $icon-primary;
+          fill: $icon-primary;
+        }
+      }
     }
   }
 
@@ -333,8 +344,8 @@
         content: '';
         position: absolute;
         bottom: -1px;
-        left: 0;
-        right: 0;
+        inset-inline-start: 0;
+        inset-inline-end: 0;
         height: 2px;
         background-color: $border-inverse;
       }

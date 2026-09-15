@@ -88,9 +88,7 @@ const useCreateOrderMutation = () => {
   return useMutation({
     mutationFn: createOrder,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Order created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Order created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
     },
     onError(error) {
@@ -120,9 +118,7 @@ const useUpdateOrderMutation = () => {
   return useMutation({
     mutationFn: updateOrder,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Order updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: orderKeys.detail(variables.id),
@@ -140,9 +136,7 @@ const useOrderActionMutation = () => {
   return useMutation({
     mutationFn: performOrderAction,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Action performed successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Order updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: orderKeys.detail(variables.id),

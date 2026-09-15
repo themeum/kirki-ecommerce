@@ -17,7 +17,7 @@ const TaxServices = () => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent>
           <Flex direction="column" gap={2}>
             <Flex align="center">
@@ -32,7 +32,7 @@ const TaxServices = () => {
 
           <Flex direction="column">
             {[1, 2, 3].map((_item, index) => (
-              <Card
+              <Card data-search-skip="true"
                 key={index}
                 data-box-card
                 cssOverride={mergeCss(

@@ -11,13 +11,13 @@
     margin-top: $value;
   }
   .kecom-mr-#{$key} {
-    margin-right: $value;
+    margin-inline-end: $value;
   }
   .kecom-mb-#{$key} {
     margin-bottom: $value;
   }
   .kecom-ml-#{$key} {
-    margin-left: $value;
+    margin-inline-start: $value;
   }
   .kecom-mx-#{$key} {
     margin-inline: $value;
@@ -34,13 +34,13 @@
     padding-top: $value;
   }
   .kecom-pr-#{$key} {
-    padding-right: $value;
+    padding-inline-end: $value;
   }
   .kecom-pb-#{$key} {
     padding-bottom: $value;
   }
   .kecom-pl-#{$key} {
-    padding-left: $value;
+    padding-inline-start: $value;
   }
   .kecom-px-#{$key} {
     padding-inline: $value;
@@ -75,8 +75,8 @@
   margin-bottom: auto;
 }
 .kecom-ml-auto {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 .kecom-mr-auto {
-  margin-right: auto;
+  margin-inline-end: auto;
 }

@@ -30,22 +30,22 @@
 
   &-bottom-end {
     top: calc(100% + 4px);
-    right: 0;
+    inset-inline-end: 0;
   }
 
   &-bottom-start {
     top: calc(100% + 4px);
-    left: 0;
+    inset-inline-start: 0;
   }
 
   &-top-end {
     bottom: calc(100% + 4px);
-    right: 0;
+    inset-inline-end: 0;
   }
 
   &-top-start {
     bottom: calc(100% + 4px);
-    left: 0;
+    inset-inline-start: 0;
   }
 }
 
@@ -55,7 +55,7 @@
   align-items: center;
   gap: $spacing-2;
   width: 100%;
-  text-align: left;
+  text-align: start;
   padding: $spacing-3 $spacing-4;
   @include typography(base, normal, $text-primary);
   cursor: pointer;

@@ -6,7 +6,13 @@ import { TaxProfileSchema } from '@/features/settings/tax/shared/schemas/catalog
 import type { TaxProfileFormPayload } from '@/features/settings/tax/shared/schemas/forms/tax-profile-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
@@ -23,22 +29,14 @@ const createTaxProfile = (data: TaxProfileFormPayload) => {
     .then((response) => parseResponse(TaxProfileSchema, response));
 };
 
-const updateTaxProfile = ({
-  id,
-  data,
-}: {
-  id: string | number;
-  data: TaxProfileFormPayload;
-}) => {
+const updateTaxProfile = ({ id, data }: { id: string | number; data: TaxProfileFormPayload }) => {
   return apiClient
     .put(endpoints.TAX_PROFILE(id), data)
     .then((response) => parseResponse(TaxProfileSchema, response));
 };
 
 const deleteTaxProfile = (id: string | number) => {
-  return apiClient
-    .delete(endpoints.TAX_PROFILE(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.TAX_PROFILE(id)).then((response) => parseMessage(response));
 };
 
 const useTaxProfilesQuery = (params: ListQueryParams = {}) => {
@@ -54,10 +52,7 @@ const useCreateTaxProfileMutation = () => {
   return useMutation({
     mutationFn: createTaxProfile,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Tax profile created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tax profile created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {
@@ -71,10 +66,7 @@ const useUpdateTaxProfileMutation = () => {
   return useMutation({
     mutationFn: updateTaxProfile,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Tax profile updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tax profile updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {
@@ -88,10 +80,7 @@ const useDeleteTaxProfileMutation = () => {
   return useMutation({
     mutationFn: deleteTaxProfile,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Tax profile deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tax profile deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: taxKeys.all });
     },
     onError(error) {
@@ -101,6 +90,12 @@ const useDeleteTaxProfileMutation = () => {
 };
 
 export {
-  createTaxProfile, deleteTaxProfile, getTaxProfiles, updateTaxProfile, useCreateTaxProfileMutation, useDeleteTaxProfileMutation, useTaxProfilesQuery, useUpdateTaxProfileMutation,
+  createTaxProfile,
+  deleteTaxProfile,
+  getTaxProfiles,
+  updateTaxProfile,
+  useCreateTaxProfileMutation,
+  useDeleteTaxProfileMutation,
+  useTaxProfilesQuery,
+  useUpdateTaxProfileMutation,
 };
-

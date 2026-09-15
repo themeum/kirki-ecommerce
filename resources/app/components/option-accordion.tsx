@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { type ReactNode } from 'react';
 
 import {
@@ -17,6 +18,7 @@ import { __ } from '@/wpi18n';
 
 type OptionAccordionProps = {
   header?: ReactNode;
+  titleAdornment?: ReactNode;
   subHeader?: string;
   leftIcon?: ReactNode;
   children?: ReactNode;
@@ -24,12 +26,15 @@ type OptionAccordionProps = {
   variant?: 'shipping' | 'inactive';
   enabled?: boolean;
   disabled?: boolean;
+  expandable?: boolean;
   open?: boolean;
+  cssOverride?: CSSObject;
 };
 
 const OptionAccordion = (props: OptionAccordionProps) => {
   const {
     header,
+    titleAdornment = null,
     subHeader,
     leftIcon,
     children,
@@ -37,20 +42,33 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     variant,
     enabled = true,
     disabled = false,
+    expandable = true,
     open = false,
+    cssOverride,
   } = props;
 
+  const isOpen = open && expandable;
+
   return (
-    <div css={scoped(styles.wrapper)}>
+    <div
+      css={scoped(
+        mergeCss(styles.wrapper, variant === 'shipping' && styles.shippingWrapper, cssOverride),
+      )}
+    >
       <Accordion
         cssOverride={styles.accordion}
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
-        defaultValue={open ? 'option-item' : undefined}
+        defaultValue={isOpen ? 'option-item' : undefined}
       >
-        <AccordionItem value={open ? 'option-item' : undefined}>
-          <AccordionTrigger cssOverride={styles.trigger} gap={4} disabled={disabled}>
+        <AccordionItem value={isOpen ? 'option-item' : undefined}>
+          <AccordionTrigger
+            cssOverride={mergeCss(styles.trigger, variant === 'shipping' && styles.shippingTrigger)}
+            gap={4}
+            disabled={disabled || !expandable}
+            hideChevron={!expandable}
+          >
             <Flex gap={4} align="center">
               {leftIcon}
               <Flex direction="column" gap={2}>
@@ -58,6 +76,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   <Text weight="semibold" variant="heading6" color="primary">
                     {header}
                   </Text>
+                  {titleAdornment}
                   {!enabled && (
                     <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                   )}
@@ -70,18 +89,26 @@ const OptionAccordion = (props: OptionAccordionProps) => {
               </Flex>
             </Flex>
           </AccordionTrigger>
-          <AccordionContent>
-            <Card cssOverride={mergeCss(cardStyles.darkCard, styles.contentCard)}>
-              <CardContent
+          {expandable && (
+            <AccordionContent>
+              <Card
                 cssOverride={mergeCss(
-                  cardStyles.innerCardContent,
-                  variant === 'shipping' && styles.shippingContent,
+                  cardStyles.darkCard,
+                  styles.contentCard,
+                  variant === 'shipping' && styles.shippingCard,
                 )}
               >
-                {children}
-              </CardContent>
-            </Card>
-          </AccordionContent>
+                <CardContent
+                  cssOverride={mergeCss(
+                    cardStyles.innerCardContent,
+                    variant === 'shipping' && styles.shippingContent,
+                  )}
+                >
+                  {children}
+                </CardContent>
+              </Card>
+            </AccordionContent>
+          )}
         </AccordionItem>
       </Accordion>
     </div>
@@ -105,10 +132,32 @@ const styles = defineStyles({
     borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
     display: 'flex',
     flexDirection: 'column',
+    boxShadow: 'none',
   },
   shippingContent: {
     display: 'flex',
     flexDirection: 'column',
-    gap: theme.spacing[3],
+    padding: theme.spacing[0],
+  },
+  shippingWrapper: {
+    borderColor: theme.colors.border.secondary,
+    overflow: 'hidden',
+  },
+  shippingCard: {
+    backgroundColor: 'transparent',
+    border: 'none',
+    borderRadius: theme.radius.none,
+  },
+  shippingTrigger: {
+    '&:has(button[data-state="open"])': {
+      borderBottom: `1px solid ${theme.colors.border.secondary}`,
+    },
+    '& button[data-state="open"] [data-accordion-chevron]': {
+      visibility: 'hidden',
+    },
+    '&:hover button[data-state="open"] [data-accordion-chevron], &:focus-within button[data-state="open"] [data-accordion-chevron]':
+      {
+        visibility: 'visible',
+      },
   },
 });

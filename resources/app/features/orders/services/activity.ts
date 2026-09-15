@@ -42,9 +42,7 @@ const useCreateOrderActivityMutation = () => {
   return useMutation({
     mutationFn: createOrderActivity,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Comment added successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Comment added', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.orderId) });
     },
     onError(error) {
@@ -70,9 +68,7 @@ const useDeleteOrderActivityMutation = () => {
   return useMutation({
     mutationFn: deleteOrderActivity,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Comment deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Comment deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.orderId) });
     },
     onError(error) {

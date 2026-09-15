@@ -89,7 +89,7 @@ class VariantController
 
         return response()->json([
             'data' => VariantResource::make($variant),
-            'message' => __('Variant updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Variant updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -101,7 +101,7 @@ class VariantController
 
         return response()->json([
             'data' => VariantResource::collection($updated_variants),
-            'message' => __('Inventory updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Inventory updated', 'kirki-ecommerce'),
         ]);
     }
 }

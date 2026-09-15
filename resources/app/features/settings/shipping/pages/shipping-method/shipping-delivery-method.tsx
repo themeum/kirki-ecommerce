@@ -145,7 +145,7 @@ const ShippingDeliveryMethod = () => {
       toast.success(
         methodExists
           ? __('Shipping method updated', 'kirki-ecommerce')
-          : __('New shipping method created', 'kirki-ecommerce'),
+          : __('Shipping method created', 'kirki-ecommerce'),
       );
       form.reset(payload);
       void navigate(
@@ -175,7 +175,7 @@ const ShippingDeliveryMethod = () => {
             title={methodTypeTitles[methodType] ?? ''}
             breadcrumbs={breadcrumbs}
           />
-          <Card cssOverride={cardStyles.formCard}>
+          <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
             <CardContent>
               <Flex direction="column" gap={4}>
                 <TextField
