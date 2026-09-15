@@ -150,7 +150,12 @@ class Paymongo extends PaymentProvider
                 return false;
             }
 
-            $order_uuid = $event->data->attributes->reference_number ?? '';
+            if (in_array($event->type, [PayMongoConstant::EVENT_PAYMENT_PAID, PayMongoConstant::EVENT_PAYMENT_FAILED,], true)) {
+                $order_uuid = $payload->data->attributes->data->attributes->metadata->order_id ?? '';
+            } else {
+                $order_uuid = $event->data->attributes->reference_number ?? '';
+            }
+
             if (!$order_uuid) {
                 throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-paymongo'));
             }
@@ -164,7 +169,7 @@ class Paymongo extends PaymentProvider
                 return false;
             }
 
-            $this->handle_transaction_response($order, $event->data->attributes);
+            $this->handle_transaction_response($order, $event);
 
             return true;
         } catch (\Throwable $th) {
@@ -205,21 +210,19 @@ class Paymongo extends PaymentProvider
      */
     protected function handle_transaction_response(Order $order, object $payload): void
     {
-        $status = $payload->payments[0]->attributes->status;
-
         DB::begin_transaction();
 
         try {
-            switch ($status) {
-                case PaymentStatus::PAID:
-                    $this->record_transaction($order, $payload);
+            switch ($payload->type) {
+                case PayMongoConstant::EVENT_CHECKOUT_PAYMENT_PAID:
+                    $this->record_transaction($order, $payload->data->attributes);
                     OrderManager::mark_payment_as_paid($order->id);
-                    if (!empty($payload->payments[0]->fee)) {
-                        OrderManager::set_payment_provider_fee($order->id, $payload->payments[0]->attributes->fee);
+                    if (!empty($payload->data->attributes->payments[0]->fee)) {
+                        OrderManager::set_payment_provider_fee($order->id, $payload->data->attributes->payments[0]->attributes->fee);
                     }
                     break;
 
-                case PaymentStatus::FAILED:
+                case PayMongoConstant::EVENT_PAYMENT_FAILED:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_failed($order->id);
                     break;
@@ -240,7 +243,7 @@ class Paymongo extends PaymentProvider
 
     protected function record_transaction(Order $order, object $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->payments[0]->id);
+        OrderManager::set_transaction_id($order->id, $payload->payments[0]->id ?? $payload->data->id);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 

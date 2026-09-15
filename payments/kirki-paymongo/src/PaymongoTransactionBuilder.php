@@ -41,10 +41,13 @@ class PaymongoTransactionBuilder
                     ],
                     'cancel_url' => Url::get_checkout_failed_url($this->order->uuid),
                     'customer_email' => $this->order->customer_email ?? null,
+                    'metadata' => [
+                        'order_id' => $this->order->uuid,
+                    ],
                     'line_items' => $this->get_line_items(),
                     'payment_method_types' => PayMongoConstant::ALLOWED_PAYMENT_METHODS,
                     'reference_number' => $this->order->uuid,
-                    'success_url' => Url::get_checkout_success_url($this->order->uuid) ,
+                    'success_url' => Url::get_checkout_success_url($this->order->uuid),
                     'send_email_receipt' => true,
                     'show_description' => true,
                     'show_line_items' => true,
@@ -86,19 +89,31 @@ class PaymongoTransactionBuilder
         $total_tax = 0;
         foreach ($this->order->items as $item) {
             $total_tax += (int) $item->invoiced_tax_total ?? 0;
+            $net = $item->invoiced_total - $item->invoiced_tax_total;
 
+            if (0 === $net % $item->quantity) {
+                $line_items[] = [
+                    'amount'   => intdiv($net, $item->quantity),
+                    'quantity' => $item->quantity,
+                    'name'     => $item->product_name,
+                    'currency' => 'PHP', //$this->order->currency_code,
+                ];
+                continue;
+            }
+
+            // Not divisible: send the line as one unit.
             $line_items[] = [
-                'amount' => (int) $item->invoiced_price - (int) $item->invoiced_discount_amount ?? 0,
-                'currency' => 'PHP',//$this->order->currency_code,
-                'name' => $item->product_name,
-                'quantity' => (int) $item->quantity,
+                'amount'   => $net,
+                'quantity' => 1,
+                'name'     => sprintf('%s x %d', $item->product_name, $item->quantity),
+                'currency' => 'PHP', //$this->order->currency_code,
             ];
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
             $line_items[] = [
                 'amount' => (int) $this->order->invoiced_shipping_total,
-                'currency' => 'PHP',//$this->order->currency_code,
+                'currency' => 'PHP', //$this->order->currency_code,
                 'name' => __('Shipping Charge', 'kirki-ecommerce-paymongo'),
                 'quantity' => 1,
             ];
@@ -107,7 +122,7 @@ class PaymongoTransactionBuilder
         if ($total_tax > 0) {
             $line_items[] = [
                 'amount' => (int) $total_tax,
-                'currency' => 'PHP',//$this->order->currency_code,
+                'currency' => 'PHP', //$this->order->currency_code,
                 'name' => __('Tax', 'kirki-ecommerce-paymongo'),
                 'quantity' => 1,
             ];
