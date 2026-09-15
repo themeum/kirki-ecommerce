@@ -49,6 +49,9 @@ use function Kirki\Ecommerce\Framework\response;
 Route::set_namespace('kirki/ecommerce/v1');
 
 Route::post('/payment/webhook/{provider_id}', [WebhookController::class, 'handle']);
+Route::get('/payment/webhook/{provider_id}', function (Request $request) {
+    return response()->json(['success' => true]);
+});
 
 Route::group(['middleware' => AuthMiddleware::class], function () {
     // Test route
