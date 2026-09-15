@@ -2,10 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+use Kirki\Ecommerce\App\Constants\ConsentLocations;
+use Kirki\Ecommerce\App\Services\LegalConsentService;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
 
 class OrderCreateRequest extends Request
 {
@@ -40,6 +43,31 @@ class OrderCreateRequest extends Request
             'items' => 'required|array|min:1',
             'items.*.variant_id' => 'required|integer',
             'items.*.quantity' => 'required|integer|min:1',
+
+            /**
+             * A closure rather than required_if: a non-wildcard closure runs
+             * even when the key is absent from the payload, so a storefront
+             * bundle that predates consents is still rejected instead of
+             * skipping the check. Admin-created orders are exempt - no
+             * shopper is present to accept anything.
+             */
+            'consents' => function ($value, $key, $data) {
+                if (!empty($data['is_manual'])) {
+                    return true;
+                }
+
+                $accepted = is_array($value) ? array_map('strval', $value) : [];
+                $missing = array_diff(
+                    app(LegalConsentService::class)->get_mandatory_ids(ConsentLocations::CHECKOUT),
+                    $accepted
+                );
+
+                if (!empty($missing)) {
+                    return __('Please accept the required terms to continue.', 'kirki-ecommerce');
+                }
+
+                return true;
+            },
 
             'currency_code' => 'nullable|string',
             'payment_provider' => 'required_if:is_manual,0|nullable|string',
@@ -88,6 +116,9 @@ class OrderCreateRequest extends Request
             'items' => Sanitizer::ARRAY,
             'items.*.variant_id' => Sanitizer::INT,
             'items.*.quantity' => Sanitizer::INT,
+
+            'consents' => Sanitizer::ARRAY,
+            'consents.*' => Sanitizer::TEXT,
 
             'currency_code' => Sanitizer::TEXT,
             'payment_provider' => Sanitizer::TEXT,

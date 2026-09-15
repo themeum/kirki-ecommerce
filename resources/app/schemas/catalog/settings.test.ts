@@ -258,7 +258,7 @@ describe('PaymentSettingsSchema', () => {
 });
 
 describe('SettingsSchemaMap', () => {
-  it('has exactly the eight sections with a real endpoint and caller', () => {
+  it('has exactly the nine sections with a real endpoint and caller', () => {
     expect(Object.keys(SettingsSchemaMap).sort()).toEqual(
       [
         'checkout',
@@ -270,6 +270,7 @@ describe('SettingsSchemaMap', () => {
         'shipping',
         'tax',
         'advance',
+        'legal',
       ].sort(),
     );
   });

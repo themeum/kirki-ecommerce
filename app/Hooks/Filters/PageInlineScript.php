@@ -177,6 +177,18 @@ class PageInlineScript extends BaseHook
         $config['countries'] = $data->countries ?? [];
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
 
+        // Only the id and method travel: the rendered message is already in
+        // the DOM, and repeating it here would double the inline payload.
+        $config['checkout_consents'] = array_map(
+            function ($consent) {
+                return [
+                    'id'     => $consent['id'],
+                    'method' => $consent['method'],
+                ];
+            },
+            $data->consents ?? []
+        );
+
         if (is_user_logged_in()) {
             $current_user = wp_get_current_user();
             $config['current_user'] = [
