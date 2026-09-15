@@ -48,6 +48,18 @@ class Tax
          * A simple toggle would allow users to disable tax for testing while
          * keeping their existing tax configuration intact.
          */
+        return true && static::is_tax_configured();
+    }
+
+    /**
+     * Check if tax is configured.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public static function is_tax_configured()
+    {
         return count(static::get_tax_regions()) > 0;
     }
 
@@ -85,8 +97,8 @@ class Tax
      */
     public static function should_show_incl_tax_on_shop_page()
     {
-        return self::is_tax_enabled()
-            && self::is_tax_inclusive()
+        return static::is_tax_enabled()
+            && static::is_tax_inclusive()
             && (bool) Settings::get('tax.is_enabled_display_inclusive_taxed_price', false);
     }
 }
