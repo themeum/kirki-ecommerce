@@ -145,7 +145,7 @@ const ShippingDeliveryMethod = () => {
       toast.success(
         methodExists
           ? __('Shipping method updated', 'kirki-ecommerce')
-          : __('New shipping method created', 'kirki-ecommerce'),
+          : __('Shipping method created', 'kirki-ecommerce'),
       );
       form.reset(payload);
       void navigate(

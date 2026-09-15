@@ -11,10 +11,14 @@ import { RouteConfig } from '@/config/route-config';
 import { customerColumns } from '@/features/customers/components/customer-table/columns';
 import CustomerTableFilters from '@/features/customers/components/customer-table/customer-table-filters';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
-import { useBulkDeleteCustomersMutation, useCustomersQuery, useDeleteCustomerMutation } from '@/features/customers/services/customer';
+import {
+  useBulkDeleteCustomersMutation,
+  useCustomersQuery,
+  useDeleteCustomerMutation,
+} from '@/features/customers/services/customer';
 import type { CustomerListFilter } from '@/features/customers/types';
 import { customerListOptions } from '@/features/customers/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
@@ -30,6 +34,7 @@ const CustomerTable = () => {
   const { data, isFetching } = useCustomersQuery(params);
   const deleteMutation = useDeleteCustomerMutation();
   const bulkDeleteMutation = useBulkDeleteCustomersMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
 
   const handleBulkApply = useCallback(
     async (action: string, { selectedIds, isAllMatchingSelected }: DataTableSelectionState) => {
@@ -37,9 +42,24 @@ const CustomerTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected customers?', 'kirki-ecommerce'),
+          description: __(
+            'The selected customers and their WordPress user accounts will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const handleRowClick = useCallback(
@@ -65,7 +85,17 @@ const CustomerTable = () => {
                   label: __('Delete', 'kirki-ecommerce'),
                   icon: <Trash2 size={16} />,
                   destructive: true,
-                  onClick: () => deleteMutation.mutate(row.original.id),
+                  onClick: () =>
+                    confirmDelete(
+                      {
+                        title: __('Delete customer?', 'kirki-ecommerce'),
+                        description: __(
+                          'This customer and their WordPress user account will be permanently deleted. This cannot be undone.',
+                          'kirki-ecommerce',
+                        ),
+                      },
+                      () => deleteMutation.mutate(row.original.id),
+                    ),
                 },
               ]}
             />
@@ -73,29 +103,32 @@ const CustomerTable = () => {
         ),
       },
     ],
-    [deleteMutation, handleRowClick],
+    [confirmDelete, deleteMutation, handleRowClick],
   );
 
   return (
-    <DataTable
-      tableId="customers"
-      data={data?.results ?? []}
-      columns={columns}
-      total={data?.total}
-      pageCount={data?.last_page ?? 0}
-      pagination={pagination}
-      onPaginationChange={onPaginationChange}
-      sorting={sorting}
-      onSortingChange={onSortingChange}
-      isLoading={isFetching}
-      enableRowSelection
-      selectionResetKey={selectionResetKey}
-      bulkActions={customerBulkActions}
-      onBulkApply={handleBulkApply}
-      columnPinning={{ right: ['actions'] }}
-      onRowClick={handleRowClick}
-      toolbar={<CustomerTableFilters />}
-    />
+    <>
+      <DataTable
+        tableId="customers"
+        data={data?.results ?? []}
+        columns={columns}
+        total={data?.total}
+        pageCount={data?.last_page ?? 0}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+        isLoading={isFetching}
+        enableRowSelection
+        selectionResetKey={selectionResetKey}
+        bulkActions={customerBulkActions}
+        onBulkApply={handleBulkApply}
+        columnPinning={{ right: ['actions'] }}
+        onRowClick={handleRowClick}
+        toolbar={<CustomerTableFilters />}
+      />
+      {deleteConfirmation}
+    </>
   );
 };
 

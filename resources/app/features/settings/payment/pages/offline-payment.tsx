@@ -15,6 +15,7 @@ import {
   useDeleteOfflinePaymentMutation,
   useUpdateOfflinePaymentMutation,
 } from '@/features/settings/payment/services/payment';
+import { useConfirmDelete } from '@/hooks';
 import { BankIconLarge, CashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -47,18 +48,30 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
   const [editingMethod, setEditingMethod] = useState<OfflinePayment | null>(null);
 
   const { mutate: deleteOfflinePayment } = useDeleteOfflinePaymentMutation();
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
   const { mutate: updateOfflinePayment } = useUpdateOfflinePaymentMutation();
 
   const handleAction = (action: string | number | (string | number)[], item: OfflinePayment) => {
     if (action === 'delete') {
-      dispatchToastMessage('delete', {
-        title: __('Payment method deleted', 'kirki-ecommerce'),
-        duration: 5000,
-        undoAction: () => refetch(),
-        onSuccess: () => {
-          deleteOfflinePayment(item.id, { onSuccess: () => refetch() });
+      confirmDelete(
+        {
+          title: __('Delete payment method?', 'kirki-ecommerce'),
+          description: __(
+            'Customers will no longer be able to choose this method at checkout. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
         },
-      });
+        () => {
+          dispatchToastMessage('delete', {
+            title: __('Payment method deleted', 'kirki-ecommerce'),
+            duration: 5000,
+            undoAction: () => refetch(),
+            onSuccess: () => {
+              deleteOfflinePayment(item.id, { onSuccess: () => refetch() });
+            },
+          });
+        },
+      );
     }
 
     if (action === 'edit') {
@@ -174,6 +187,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
         editingMethod={editingMethod}
         setEditingMethod={setEditingMethod}
       />
+      {deleteConfirmation}
     </>
   );
 };

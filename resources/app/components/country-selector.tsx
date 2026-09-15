@@ -26,7 +26,7 @@ const CountrySelector = ({
 
   const options = countries.map((country) => ({
     value: country.code,
-    label: country.name,
+    label: `${country.flag} ${country.name}`,
   }));
 
   return (

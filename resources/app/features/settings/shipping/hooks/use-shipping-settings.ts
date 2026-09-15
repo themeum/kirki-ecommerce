@@ -45,11 +45,12 @@ type UseShippingSettingsResult = {
   showCreateZonePopup: boolean;
   setShowCreateZonePopup: (open: boolean) => void;
   popupErrors: FormErrors;
+  isSaving: boolean;
   getShippingMethodData: (zoneId: string | number) => ShippingMethodData[];
-  handleToggleMethod: (method: ShippingMethodData) => void;
+  handleToggleMethod: (method: ShippingMethodData) => Promise<void>;
   handleEditMethod: (method: ShippingMethodData) => void;
   handleDeleteMethod: (method: ShippingMethodData) => void;
-  handleToggleZoneItem: (item: ShippingZone) => void;
+  handleToggleZoneItem: (item: ShippingZone) => Promise<void>;
   handleDeleteItem: (item: ShippingZone) => Promise<void>;
   handleCreateZone: (values: RegionsDialogFormPayload) => Promise<void>;
 };
@@ -105,6 +106,30 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     });
   };
 
+  /**
+   * Activating or deactivating a zone or a method is a single discrete action,
+   * so it persists on its own instead of waiting for the page's save button.
+   * The zone list is updated locally first and rolled back if the request
+   * fails, keeping the switch honest about what is actually stored.
+   */
+  const commitZones = async (updater: (prev: ShippingZone[]) => ShippingZone[]) => {
+    const previousZones = (form.getValues('shipping_zones') as ShippingZone[]) || [];
+    const updatedZones = updater(previousZones);
+
+    setShippingZonesObj(updatedZones);
+
+    try {
+      await updateSettings({
+        key: 'shipping',
+        data: { shipping_zones: updatedZones },
+      });
+      form.reset(form.getValues());
+    } catch (error) {
+      setShippingZonesObj(previousZones);
+      applyServerErrors(form, error as ErrorResponse);
+    }
+  };
+
   const handleDeleteItem = async (item: ShippingZone) => {
     const updatedZones = removeZone(shippingZonesObj, item.id);
     setShippingZonesObj(updatedZones, { shouldDirty: false });
@@ -126,16 +151,8 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   const getShippingMethodData = (zoneId: string | number): ShippingMethodData[] =>
     getZoneShippingMethods(shippingZonesObj, zoneId);
 
-  const handleToggleMethod = (method: ShippingMethodData) => {
-    setShippingZonesObj(
-      (prev) => {
-        if (!Array.isArray(prev)) {
-          return prev;
-        }
-        return toggleMethod(prev, method.zoneId!, method.id);
-      },
-      { shouldDirty: true },
-    );
+  const handleToggleMethod = async (method: ShippingMethodData) => {
+    await commitZones((prev) => toggleMethod(prev, method.zoneId!, method.id));
   };
 
   const handleEditMethod = (method: ShippingMethodData) => {
@@ -186,16 +203,10 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     });
   };
 
-  const handleToggleZoneItem = (item: ShippingZone) => {
-    setShippingZonesObj(
-      (prev) => {
-        if (!Array.isArray(prev)) {
-          return prev;
-        }
-        const newValue = !item.is_enabled;
-        return prev.map((zone) => (zone.id === item.id ? { ...zone, is_enabled: newValue } : zone));
-      },
-      { shouldDirty: true },
+  const handleToggleZoneItem = async (item: ShippingZone) => {
+    const newValue = !item.is_enabled;
+    await commitZones((prev) =>
+      prev.map((zone) => (zone.id === item.id ? { ...zone, is_enabled: newValue } : zone)),
     );
   };
 
@@ -260,6 +271,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
     showCreateZonePopup,
     setShowCreateZonePopup,
     popupErrors,
+    isSaving,
     getShippingMethodData,
     handleToggleMethod,
     handleEditMethod,

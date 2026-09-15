@@ -19,11 +19,19 @@ window.wp = {
     _x: (text) => text,
     _n: (single, plural, number) => (number === 1 ? single : plural),
     _nx: (single, plural, number) => (number === 1 ? single : plural),
-    sprintf: (format, ...args) =>
-      args.reduce<string>(
-        (result, arg) => result.replace('%s', String(arg)),
-        format,
-      ),
+    // WordPress ships sprintf-js, which resolves both sequential `%s` and
+    // numbered `%1$s` placeholders. Strings with more than one placeholder
+    // number them, so a `%s`-only stub renders them verbatim and hides what
+    // the browser would actually show.
+    sprintf: (format, ...args) => {
+      let nextArgIndex = 0;
+
+      return String(format).replace(/%(?:(\d+)\$)?s/g, (placeholder, position: string) => {
+        const arg = position ? args[Number(position) - 1] : args[nextArgIndex++];
+
+        return arg === undefined ? placeholder : String(arg);
+      });
+    },
     setLocaleData: () => undefined,
     getLocaleData: () => ({}),
   },

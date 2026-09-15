@@ -1,3 +1,5 @@
+import { isDefined } from '@/utils/object';
+
 export const toDisplayString = (value: unknown): string => {
   if (typeof value === 'string') {
     return value;
@@ -6,4 +8,25 @@ export const toDisplayString = (value: unknown): string => {
     return String(value);
   }
   return '';
+};
+
+export const incrementString = (value: string | undefined, by?: string | number): string => {
+  if (!isDefined(value)) {
+    return '';
+  }
+
+  if (isDefined(by)) {
+    return value.slice(0, -1) + by;
+  }
+
+  const match = value.match(/^(\D*)(\d*)$/);
+  if (!match) return value;
+
+  const [, prefix, digits] = match;
+  if (!digits) return `${value}1`;
+
+  const incremented = (BigInt(digits) + 1n).toString();
+  const padded = incremented.padStart(digits.length, '0');
+
+  return prefix + padded;
 };

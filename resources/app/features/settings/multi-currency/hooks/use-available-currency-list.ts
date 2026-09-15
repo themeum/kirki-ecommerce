@@ -32,7 +32,7 @@ export const useAvailableCurrencyList = (): UseAvailableCurrencyListResult => {
   const settings = useWatch<MultiCurrencySettingsFormInput>();
   const currencies = useWatch<MultiCurrencySettingsFormInput, 'currencies'>({ name: 'currencies' });
 
-  const { refetch } = useAvailableCurrenciesQuery();
+  const { refetch } = useAvailableCurrenciesQuery({ limit: -1 }, false);
   const { mutate: updateCurrencyMutate } = useUpdateCurrencyMutation();
   const { mutate: deleteCurrencyMutate } = useDeleteCurrencyMutation();
 

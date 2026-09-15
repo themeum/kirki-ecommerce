@@ -158,7 +158,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card data-search-id="tax.regions" data-search-keywords="vat, gst, jurisdiction, nexus, levy" cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="tax.regions"
+        data-search-keywords="vat, gst, jurisdiction, nexus, levy"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
@@ -234,6 +238,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
                                   title: __('Delete', 'kirki-ecommerce'),
                                   value: 'delete',
                                   icon: <TrashIcon />,
+                                  cssOverride: {
+                                    '& svg': { color: theme.colors.icon.critical },
+                                  },
                                 },
                               ]}
                               onOptionToggle={(value) => {

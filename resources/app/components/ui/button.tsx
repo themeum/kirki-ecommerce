@@ -151,7 +151,7 @@ const styles = defineStyles({
       backgroundColor: theme.colors.background.fillCritical,
       color: theme.colors.text.light,
       '&:hover': {
-        backgroundColor: theme.colors.border.critical,
+        backgroundColor: theme.colors.background.fillCriticalHover,
         color: theme.colors.text.light,
       },
     },

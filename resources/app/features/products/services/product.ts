@@ -4,11 +4,21 @@ import { endpoints } from '@/config/endpoints';
 import { inventoryKeys } from '@/features/inventory';
 import type { ProductListFilter } from '@/features/products';
 import { productKeys } from '@/features/products';
-import { ProductListItemSchema, ProductListItemWithVariantsSchema, ProductSchema } from '@/features/products/schemas/catalog/product';
+import {
+  ProductListItemSchema,
+  ProductListItemWithVariantsSchema,
+  ProductSchema,
+} from '@/features/products/schemas/catalog/product';
 import type { ProductFormPayload } from '@/features/products/schemas/forms/product-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -16,9 +26,7 @@ import { __ } from '@/wpi18n';
 const getProducts = (params: ListParams<ProductListFilter> = {}) => {
   return apiClient
     .get(endpoints.PRODUCTS, { params })
-    .then((response) =>
-      parseData(PaginatedDataSchema(ProductListItemSchema), response),
-    );
+    .then((response) => parseData(PaginatedDataSchema(ProductListItemSchema), response));
 };
 
 const getProductsWithVariants = (params: ListParams<ProductListFilter> = {}) => {
@@ -41,13 +49,7 @@ const createProduct = (data: ProductFormPayload) => {
     .then((response) => parseResponse(ProductSchema, response));
 };
 
-const updateProduct = ({
-  id,
-  data,
-}: {
-  id: string | number;
-  data: ProductFormPayload;
-}) => {
+const updateProduct = ({ id, data }: { id: string | number; data: ProductFormPayload }) => {
   return apiClient
     .put(endpoints.PRODUCT(id), data)
     .then((response) => parseResponse(ProductSchema, response));
@@ -98,7 +100,10 @@ const useProductsQuery = (params: ListParams<ProductListFilter> = {}, enabled = 
   });
 };
 
-const useProductsWithVariantsQuery = (params: ListParams<ProductListFilter> = {}, enabled = true) => {
+const useProductsWithVariantsQuery = (
+  params: ListParams<ProductListFilter> = {},
+  enabled = true,
+) => {
   return useQuery({
     queryKey: productKeys.withVariantsList(params),
     queryFn: () => getProductsWithVariants(params),
@@ -120,10 +125,7 @@ const useCreateProductMutation = () => {
   return useMutation({
     mutationFn: createProduct,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Product created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Product created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
@@ -135,10 +137,7 @@ const useUpdateProductMutation = () => {
   return useMutation({
     mutationFn: updateProduct,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Product updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Product updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
       void queryClient.invalidateQueries({
@@ -154,10 +153,7 @@ const useDuplicateProductMutation = () => {
   return useMutation({
     mutationFn: duplicateProduct,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Product duplicated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Product duplicated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
@@ -173,8 +169,8 @@ const useBulkDeleteProductsMutation = () => {
     mutationFn: bulkDeleteProducts,
     onSuccess(response) {
       toastMutationSuccess(
-        response.message ||
-        __('Products deleted successfully.', 'kirki-ecommerce'),
+        response.message || __('Products deleted permanently', 'kirki-ecommerce'),
+        { description: __('This cannot be undone.', 'kirki-ecommerce') },
       );
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
@@ -190,10 +186,9 @@ const useBulkTrashProductsMutation = () => {
   return useMutation({
     mutationFn: bulkTrashProducts,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Products trashed successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Products moved to trash', 'kirki-ecommerce'), {
+        description: __('Restore them any time from the Trashed filter.', 'kirki-ecommerce'),
+      });
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
@@ -208,10 +203,7 @@ const useBulkRestoreProductsMutation = () => {
   return useMutation({
     mutationFn: bulkTrashProducts,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Products restored successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Products restored', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: productKeys.withVariantsLists() });
     },
@@ -222,7 +214,21 @@ const useBulkRestoreProductsMutation = () => {
 };
 
 export {
-  bulkDeleteProducts, bulkRestoreProducts, bulkTrashProducts, createProduct, duplicateProduct, getProduct, getProducts, updateProduct, useBulkDeleteProductsMutation, useBulkRestoreProductsMutation,
-  useBulkTrashProductsMutation, useCreateProductMutation, useDuplicateProductMutation, useProductQuery, useProductsQuery, useProductsWithVariantsQuery, useUpdateProductMutation,
+  bulkDeleteProducts,
+  bulkRestoreProducts,
+  bulkTrashProducts,
+  createProduct,
+  duplicateProduct,
+  getProduct,
+  getProducts,
+  updateProduct,
+  useBulkDeleteProductsMutation,
+  useBulkRestoreProductsMutation,
+  useBulkTrashProductsMutation,
+  useCreateProductMutation,
+  useDuplicateProductMutation,
+  useProductQuery,
+  useProductsQuery,
+  useProductsWithVariantsQuery,
+  useUpdateProductMutation,
 };
-

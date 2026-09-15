@@ -3,12 +3,22 @@ import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
 import { paymentKeys } from '@/features/settings';
-import { OfflinePaymentSchema, OnlinePaymentListSchema, OnlinePaymentSchema } from '@/features/settings/payment/schemas/catalog/payment';
+import {
+  OfflinePaymentSchema,
+  OnlinePaymentListSchema,
+  OnlinePaymentSchema,
+} from '@/features/settings/payment/schemas/catalog/payment';
 import type { OfflinePaymentFormPayload } from '@/features/settings/payment/schemas/forms/offline-payment-form';
 import type { OnlinePaymentEditFormPayload } from '@/features/settings/payment/schemas/forms/online-payment-form';
 import { apiClient } from '@/libs/api';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import { __ } from '@/wpi18n';
 
 const getInstallableOnlinePayments = () => {
@@ -84,9 +94,7 @@ const updateOfflinePayment = ({
 };
 
 const deleteOfflinePayment = (id: string | number) => {
-  return apiClient
-    .delete(endpoints.OFFLINE_PAYMENT(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.OFFLINE_PAYMENT(id)).then((response) => parseMessage(response));
 };
 
 const useInstallableOnlinePaymentsQuery = () => {
@@ -123,10 +131,7 @@ const useInstallOnlinePaymentMutation = () => {
   return useMutation({
     mutationFn: installOnlinePayment,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Payment gateway installed successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Payment gateway installed', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
       void queryClient.invalidateQueries({
         queryKey: paymentKeys.installableOnline(),
@@ -143,10 +148,7 @@ const useUpdateOnlinePaymentMutation = () => {
   return useMutation({
     mutationFn: updateOnlinePayment,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Payment gateway updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
       void queryClient.invalidateQueries({
         queryKey: paymentKeys.onlineDetail(variables.id),
@@ -163,10 +165,7 @@ const useSetEnabledOnlinePaymentMutation = () => {
   return useMutation({
     mutationFn: setEnabledOnlinePayment,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Payment gateway updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Payment gateway updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.online.all });
     },
     onError(error) {
@@ -180,10 +179,7 @@ const useCreateOfflinePaymentMutation = () => {
   return useMutation({
     mutationFn: createOfflinePayment,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Payment method created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Payment method created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
     },
     onError(error) {
@@ -197,10 +193,7 @@ const useUpdateOfflinePaymentMutation = () => {
   return useMutation({
     mutationFn: updateOfflinePayment,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Payment method updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Payment method updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
     },
     onError(error) {
@@ -214,10 +207,7 @@ const useDeleteOfflinePaymentMutation = () => {
   return useMutation({
     mutationFn: deleteOfflinePayment,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Payment method deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Payment method deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: paymentKeys.offline.all });
     },
     onError(error) {
@@ -227,6 +217,24 @@ const useDeleteOfflinePaymentMutation = () => {
 };
 
 export {
-  createOfflinePayment, deleteOfflinePayment, getInstallableOnlinePayments, getOfflinePayments, getOnlinePayment, getOnlinePayments, installOnlinePayment, setEnabledOnlinePayment, updateOfflinePayment, updateOnlinePayment, useCreateOfflinePaymentMutation, useDeleteOfflinePaymentMutation, useInstallableOnlinePaymentsQuery, useInstallOnlinePaymentMutation, useOfflinePaymentsQuery, useOnlinePaymentQuery, useOnlinePaymentsQuery, useSetEnabledOnlinePaymentMutation, useUpdateOfflinePaymentMutation, useUpdateOnlinePaymentMutation,
+  createOfflinePayment,
+  deleteOfflinePayment,
+  getInstallableOnlinePayments,
+  getOfflinePayments,
+  getOnlinePayment,
+  getOnlinePayments,
+  installOnlinePayment,
+  setEnabledOnlinePayment,
+  updateOfflinePayment,
+  updateOnlinePayment,
+  useCreateOfflinePaymentMutation,
+  useDeleteOfflinePaymentMutation,
+  useInstallableOnlinePaymentsQuery,
+  useInstallOnlinePaymentMutation,
+  useOfflinePaymentsQuery,
+  useOnlinePaymentQuery,
+  useOnlinePaymentsQuery,
+  useSetEnabledOnlinePaymentMutation,
+  useUpdateOfflinePaymentMutation,
+  useUpdateOnlinePaymentMutation,
 };
-

@@ -283,6 +283,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
               type="button"
               aria-label={__('Remove image', 'kirki-ecommerce')}
               disabled={isBusy}
+              cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
               onClick={handleRemove}
             >
               <Trash2 size={16} aria-hidden="true" />
@@ -319,7 +320,9 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
           <CloudUpload />
           {btnText}
         </Button>
-        <Text variant="small" color="secondary">{placeholder}</Text>
+        <Text variant="small" color="secondary">
+          {placeholder}
+        </Text>
       </Flex>
       {isUploading && (
         <div css={scopedMerge(styles.uploadOverlay)}>
