@@ -78,6 +78,7 @@ type DataTableProps<T extends DataTableItem> = {
   columnPinning?: ColumnPinningState;
   columnVisibility?: VisibilityState;
   enableColumnVisibility?: boolean;
+  noCardShadown?: boolean;
 };
 
 const EMPTY_COLUMN_PINNING: ColumnPinningState = {};
@@ -125,6 +126,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     columnPinning = EMPTY_COLUMN_PINNING,
     columnVisibility,
     enableColumnVisibility = true,
+    noCardShadown = false,
   } = props;
 
   const [storedColumnVisibility, toggleColumnVisibility] = useTableColumnVisibility(tableId);
@@ -274,7 +276,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
 
   return (
     <Flex direction="column" gap={4}>
-      <Card cssOverride={cardStyles.tableCard}>
+      <Card cssOverride={mergeCss(cardStyles.tableCard, noCardShadown && { boxShadow: 'none' })}>
         <CardContent cssOverride={cardStyles.tableContent}>
           {hasSelection ? (
             <DataTableSelectionBar

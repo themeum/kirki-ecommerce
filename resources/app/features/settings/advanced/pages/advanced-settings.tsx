@@ -14,7 +14,7 @@ import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const AlertMessage = () => {
@@ -55,7 +55,7 @@ const AdvancedSettings = () => {
         <Card
           data-search-id="advanced.pages"
           data-search-keywords="cart page, my account page, thank you page, shop page, page assignment, permalink, endpoint"
-          cssOverride={cardStyles.formCard}
+          cssOverride={mergeCss(cardStyles.formCard)}
         >
           <CardContent>
             <Flex direction="column" gap={2}>

@@ -91,7 +91,7 @@ const PageTable = ({ pages }: PageTableProps) => {
     () => [
       {
         id: 'id',
-        header: __('Id', 'kirki-ecommerce'),
+        header: __('ID', 'kirki-ecommerce'),
         enableSorting: false,
         cell: ({ row }) => (
           <Text variant="tiny" color="secondary">
@@ -183,6 +183,7 @@ const PageTable = ({ pages }: PageTableProps) => {
       sorting={[]}
       onSortingChange={noop}
       cssOverride={styles.tableCss}
+      noCardShadown
     />
   );
 };
@@ -193,6 +194,9 @@ export default PageTable;
 
 const styles = defineStyles({
   tableCss: {
+    '& [data-table-card="true"]': {
+      boxShadow: 'none',
+    },
     '& thead th': { height: '40px' },
     '& tbody td': { height: '56px' },
     '& [data-hover-show]': { display: 'none' },

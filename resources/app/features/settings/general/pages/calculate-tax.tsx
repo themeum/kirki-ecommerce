@@ -27,10 +27,7 @@ const CalculateTax = () => {
               {__('Calculate tax', 'kirki-ecommerce')}
             </Text>
             <Text color="secondary">
-              {__(
-                'Activating this option allows you to configure and manage taxes',
-                'kirki-ecommerce',
-              )}
+              {__('Activating this option allows you to collect tax.', 'kirki-ecommerce')}
             </Text>
           </Flex>
           <ActionGroup>

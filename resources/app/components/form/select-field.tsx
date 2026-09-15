@@ -84,8 +84,10 @@ const SelectField = <
                 <SelectValue placeholder={placeholder}>
                   {selectedOption ? (
                     <Flex align="center" gap={2}>
-                      <span css={scoped({ fontSize: 16 })}>{selectedOption.icon}</span>
-                      <span>{selectedOption.label}</span>
+                      {selectedOption.icon && (
+                        <span css={scoped({ fontSize: 16 })}>{selectedOption.icon}</span>
+                      )}
+                      {selectedOption.label}
                     </Flex>
                   ) : null}
                 </SelectValue>
@@ -98,8 +100,8 @@ const SelectField = <
                     disabled={option.disabled}
                   >
                     <Flex align="center" gap={2}>
-                      <span css={scoped({ fontSize: 16 })}>{option.icon}</span>
-                      <span>{option.label}</span>
+                      {option.icon && <span css={scoped({ fontSize: 16 })}>{option.icon}</span>}
+                      {option.label}
                     </Flex>
                   </SelectItem>
                 ))}
