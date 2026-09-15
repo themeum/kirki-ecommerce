@@ -82,9 +82,8 @@ export type CartItem = {
     available_quantity: number;
   };
   subtotal: string;
-  tax_rate: number;
   tax_amount: string;
-  tax_breakdown: any[];
+  tax_lines: any[];
   discount_amount: string;
   total: string;
   total_formatted: string;

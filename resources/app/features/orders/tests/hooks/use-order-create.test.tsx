@@ -36,7 +36,7 @@ const PRICING_KEYS = [
 const buildCalculationResponse = (itemsCount: number) => ({
   pricing: PRICING_KEYS.reduce(
     (acc, key) => ({ ...acc, ...amountPair(key) }),
-    { discount_details: null },
+    { discount_details: null, tax_lines: [], shipping_tax_lines: [] },
   ),
   items_count: itemsCount,
   items: [
@@ -45,10 +45,9 @@ const buildCalculationResponse = (itemsCount: number) => ({
       quantity: 1,
       ...amountPair('base_subtotal'),
       ...amountPair('display_subtotal'),
-      tax_rate: null,
       ...amountPair('base_tax_amount'),
       ...amountPair('display_tax_amount'),
-      tax_breakdown: [],
+      tax_lines: [],
       ...amountPair('base_discount_amount'),
       ...amountPair('display_discount_amount'),
       discount_details: null,
