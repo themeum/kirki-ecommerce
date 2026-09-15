@@ -145,12 +145,12 @@ class Paymongo extends PaymentProvider
                 PayMongoConstant::EVENT_PAYMENT_FAILED,
             ];
 
-            $event = $payload->type ?? '';
-            if (!in_array($event, $allowed_event_types, true)) {
+            $event = $payload->data->attributes ?? '';
+            if (!in_array($event->type, $allowed_event_types, true)) {
                 return false;
             }
 
-            $order_uuid = $payload->reference_number ?? '';
+            $order_uuid = $event->data->attributes->reference_number ?? '';
             if (!$order_uuid) {
                 throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-paymongo'));
             }
@@ -164,7 +164,7 @@ class Paymongo extends PaymentProvider
                 return false;
             }
 
-            $this->handle_transaction_response($order, $payload);
+            $this->handle_transaction_response($order, $event->data->attributes);
 
             return true;
         } catch (\Throwable $th) {
@@ -205,17 +205,7 @@ class Paymongo extends PaymentProvider
      */
     protected function handle_transaction_response(Order $order, object $payload): void
     {
-        if (empty($payload->operations)) {
-            throw new Exception(__('QuickPay payload data not found.', 'kirki-ecommerce-quickpay'));
-        }
-
-        $operation = end($payload->operations);
-
-        if (QuickpayConstant::PAYMENT_CAPTURE !== $operation->type) {
-            return;
-        }
-
-        $status = $this->get_status($operation);
+        $status = $payload->payments[0]->attributes->status;
 
         DB::begin_transaction();
 
@@ -224,8 +214,8 @@ class Paymongo extends PaymentProvider
                 case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
-                    if (!empty($payload->fee)) {
-                        OrderManager::set_payment_provider_fee($order->id, $payload->fee);
+                    if (!empty($payload->payments[0]->fee)) {
+                        OrderManager::set_payment_provider_fee($order->id, $payload->payments[0]->attributes->fee);
                     }
                     break;
 
@@ -250,7 +240,7 @@ class Paymongo extends PaymentProvider
 
     protected function record_transaction(Order $order, object $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->id);
+        OrderManager::set_transaction_id($order->id, $payload->payments[0]->id);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 

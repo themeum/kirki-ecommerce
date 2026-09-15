@@ -85,33 +85,30 @@ class PaymongoTransactionBuilder
         $line_items = [];
 
         foreach ($this->order->items as $item) {
+            $tax = (int) $item->invoiced_tax_total ?? 0;
+            $product_name = sprintf(
+                '%s (Qty: %s%s)',
+                $item->product_name,
+                $item->quantity,
+                $tax > 0 ? __(' | Incl. Tax', 'kirki-ecommerce-twocheckout') : ''
+            );
+
             $line_items[] = [
-                'amount' => (int) $item->invoiced_price,
+                'amount' => (int) $item->invoiced_total,
                 'currency' => 'PHP',//$this->order->currency_code,
-                'name' => $item->product_name,
-                'quantity' => $item->quantity,
+                'name' => $product_name,
+                'quantity' => 1,
             ];
         }
 
-        // if (!empty($this->order->invoiced_shipping_total)) {
-        //     $line_items[] = [
-        //         'item_no' => 'shipping',
-        //         'item_name' => __('Shipping Charge', 'kirki-ecommerce-quickpay'),
-        //         'qty' => 1,
-        //         'item_price' => (int) $this->order->invoiced_shipping_total,
-        //         'vat_rate' => 0
-        //     ];
-        // }
-
-        // if (!empty($this->order->invoiced_tax_total)) {
-        //     $line_items[] = [
-        //         'item_no' => 'tax',
-        //         'item_name' => __('Tax', 'kirki-ecommerce-quickpay'),
-        //         'qty' => 1,
-        //         'item_price' => (int) $this->order->invoiced_tax_total,
-        //         'vat_rate' => 0
-        //     ];
-        // }
+        if (!empty($this->order->invoiced_shipping_total)) {
+            $line_items[] = [
+                'amount' => (int) $this->order->invoiced_shipping_total,
+                'currency' => 'PHP',//$this->order->currency_code,
+                'name' => __('Shipping Charge', 'kirki-ecommerce-paymongo'),
+                'quantity' => 1,
+            ];
+        }
 
         return $line_items;
     }
