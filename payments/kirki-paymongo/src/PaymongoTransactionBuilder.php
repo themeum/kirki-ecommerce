@@ -8,15 +8,14 @@ use Kirki\Ecommerce\App\Supports\Url;
 defined('ABSPATH') || exit;
 
 /**
- * Builds QuickPay request payloads and interprets transaction status.
- *
+ * Builds PayMongo checkout session request payloads for an order.
  */
 class PaymongoTransactionBuilder
 {
     protected Order $order;
 
     /**
-     * @param Order $order The order to build QuickPay payloads for.
+     * @param Order $order The order to build PayMongo payloads for.
      */
     public function __construct(Order $order)
     {
@@ -24,7 +23,7 @@ class PaymongoTransactionBuilder
     }
 
     /**
-     * Build the QuickPay payments request payload for an order.
+     * Build the PayMongo checkout session request payload for the order.
      *
      * @return array
      */
@@ -34,10 +33,10 @@ class PaymongoTransactionBuilder
             'data' => [
                 'attributes' => [
                     'billing' => [
-                        'address' => $this->format_address('billing'),
+                        'address' => $this->get_billing_address(),
                         'email' => $this->order->billing_email ?? '',
-                        'name' => $this->order->billing_first_name . ' ' . $this->order->billing_last_name,
-                        'phone' => $this->order->billing_phone ?? ''
+                        'name' => trim($this->order->billing_first_name . ' ' . $this->order->billing_last_name),
+                        'phone' => $this->order->billing_phone ?? '',
                     ],
                     'cancel_url' => Url::get_checkout_failed_url($this->order->uuid),
                     'customer_email' => $this->order->customer_email ?? null,
@@ -45,7 +44,7 @@ class PaymongoTransactionBuilder
                         'order_id' => $this->order->uuid,
                     ],
                     'line_items' => $this->get_line_items(),
-                    'payment_method_types' => PayMongoConstant::ALLOWED_PAYMENT_METHODS,
+                    'payment_method_types' => PaymongoConstant::ALLOWED_PAYMENT_METHODS,
                     'reference_number' => $this->order->uuid,
                     'success_url' => Url::get_checkout_success_url($this->order->uuid),
                     'send_email_receipt' => true,
@@ -57,77 +56,86 @@ class PaymongoTransactionBuilder
     }
 
     /**
-     * Build a QuickPay address array for the order's billing or shipping address.
+     * Build the PayMongo address array for the order's billing address.
      *
-     * @param string $type Either 'billing' or 'shipping'.
-     * @return array An empty array if the order has no address of that type.
+     * PayMongo checkout sessions only accept a billing address, never a shipping one.
+     *
+     * @return array An empty array if the order has no billing address.
      */
-    protected function format_address(string $type)
+    protected function get_billing_address(): array
     {
-        if (empty($this->order->{$type . '_address_line1'})) {
+        if (empty($this->order->billing_address_line1)) {
             return [];
         }
 
         return [
-            'city' => $this->order->{$type . '_city'},
-            'country' => $this->order->{$type . '_country'},
-            'line1'  => $this->order->{$type . '_address_line1'} ?? '',
-            'line2' => $this->order->{$type . '_address_line2'} ?? '',
-            'postal_code' => (string) $this->order->{$type . '_postal_code'} ?? '',
-            'state' => $this->order->{$type . '_state'} ?? '',
+            'city' => $this->order->billing_city ?? '',
+            'country' => $this->order->billing_country ?? '',
+            'line1' => $this->order->billing_address_line1,
+            'line2' => $this->order->billing_address_line2 ?? '',
+            'postal_code' => (string) $this->order->billing_postal_code,
+            'state' => $this->order->billing_state ?? '',
         ];
     }
 
     /**
-     * Build QuickPay order_lines entries for the order's items, shipping charge and tax.
+     * Build PayMongo line_items entries for the order's items, shipping charge and tax.
+     *
+     * Item amounts are sent net of tax; the order's total tax is appended as its own line.
      *
      * @return array
      */
-    public function get_line_items(): array
+    protected function get_line_items(): array
     {
         $line_items = [];
         $total_tax = 0;
-        foreach ($this->order->items as $item) {
-            $total_tax += (int) $item->invoiced_tax_total ?? 0;
-            $net = $item->invoiced_total - $item->invoiced_tax_total;
 
-            if (0 === $net % $item->quantity) {
-                $line_items[] = [
-                    'amount'   => intdiv($net, $item->quantity),
-                    'quantity' => $item->quantity,
-                    'name'     => $item->product_name,
-                    'currency' => 'PHP', //$this->order->currency_code,
-                ];
+        foreach ($this->order->items as $item) {
+            $total_tax += (int) $item->invoiced_tax_total;
+            $net_total = (int) $item->invoiced_total - (int) $item->invoiced_tax_total;
+            $quantity = (int) $item->quantity;
+
+            if ($quantity > 1 && 0 !== $net_total % $quantity) {
+                // Not divisible by the quantity: send the whole line as a single unit.
+                $line_items[] = $this->make_line_item(
+                    sprintf('%s x %d', $item->product_name, $quantity),
+                    $net_total
+                );
                 continue;
             }
 
-            // Not divisible: send the line as one unit.
-            $line_items[] = [
-                'amount'   => $net,
-                'quantity' => 1,
-                'name'     => sprintf('%s x %d', $item->product_name, $item->quantity),
-                'currency' => 'PHP', //$this->order->currency_code,
-            ];
+            $line_items[] = $this->make_line_item($item->product_name, intdiv($net_total, max($quantity, 1)), $quantity);
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
-            $line_items[] = [
-                'amount' => (int) $this->order->invoiced_shipping_total,
-                'currency' => 'PHP', //$this->order->currency_code,
-                'name' => __('Shipping Charge', 'kirki-ecommerce-paymongo'),
-                'quantity' => 1,
-            ];
+            $line_items[] = $this->make_line_item(
+                __('Shipping Charge', 'kirki-ecommerce-paymongo'),
+                (int) $this->order->invoiced_shipping_total
+            );
         }
 
         if ($total_tax > 0) {
-            $line_items[] = [
-                'amount' => (int) $total_tax,
-                'currency' => 'PHP', //$this->order->currency_code,
-                'name' => __('Tax', 'kirki-ecommerce-paymongo'),
-                'quantity' => 1,
-            ];
+            $line_items[] = $this->make_line_item(__('Tax', 'kirki-ecommerce-paymongo'), $total_tax);
         }
 
         return $line_items;
+    }
+
+    /**
+     * Build a single PayMongo line_items entry.
+     *
+     * @param string $name The line description shown on the checkout page.
+     * @param int $amount The per-unit amount, in minor units.
+     * @param int $quantity The number of units.
+     * @return array
+     */
+    protected function make_line_item(string $name, int $amount, int $quantity = 1): array
+    {
+        return [
+            'amount' => $amount,
+            'currency' => PaymongoConstant::CURRENCY,
+            'name' => $name,
+            'quantity' => $quantity,
+        ];
     }
 }

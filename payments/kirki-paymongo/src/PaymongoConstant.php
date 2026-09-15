@@ -4,10 +4,12 @@ namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+defined('ABSPATH') || exit;
+
 /**
- * Constants for the QuickPay Payments API integration.
+ * Constants for the PayMongo Payments API integration.
  */
-class PayMongoConstant
+class PaymongoConstant
 {
     use HasConstants;
 
@@ -16,6 +18,13 @@ class PayMongoConstant
 
     const GET_METHOD = 'get';
     const POST_METHOD = 'post';
+
+    /**
+     * The only currency PayMongo settles in.
+     */
+    const CURRENCY = 'PHP';
+
+    const SIGNATURE_HEADER = 'HTTP_PAYMONGO_SIGNATURE';
 
     const ALLOWED_PAYMENT_METHODS = [
         'card',
@@ -36,4 +45,17 @@ class PayMongoConstant
     const EVENT_CHECKOUT_PAYMENT_PAID = 'checkout_session.payment.paid';
     const EVENT_PAYMENT_PAID = 'payment.paid';
     const EVENT_PAYMENT_FAILED = 'payment.failed';
+
+    const PAID_EVENTS = [
+        self::EVENT_CHECKOUT_PAYMENT_PAID,
+        self::EVENT_PAYMENT_PAID,
+    ];
+
+    const HANDLED_EVENTS = [
+        self::EVENT_CHECKOUT_PAYMENT_PAID,
+        self::EVENT_PAYMENT_PAID,
+        self::EVENT_PAYMENT_FAILED,
+    ];
+
+    const RESOURCE_PAYMENT = 'payment';
 }

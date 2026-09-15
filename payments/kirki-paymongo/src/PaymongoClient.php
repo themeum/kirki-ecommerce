@@ -9,7 +9,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 defined('ABSPATH') || exit;
 
 /**
- * HTTP client for the QuickPay Payments API.
+ * HTTP client for the PayMongo Payments API.
  */
 class PaymongoClient
 {
@@ -18,9 +18,9 @@ class PaymongoClient
     protected bool $sandbox;
 
     /**
-     * @param string $secret_key PayMongo API secret_key.
-     * @param string $webhook_secret_key PayMongo WebHook secret_key.
-     * @param bool $sandbox Whether to use the sandbox API endpoints.
+     * @param string $secret_key PayMongo API secret key, used as the HTTP Basic Auth username.
+     * @param string $webhook_secret_key PayMongo webhook signing secret.
+     * @param bool $sandbox True when the account is in test mode.
      */
     public function __construct(string $secret_key, string $webhook_secret_key, bool $sandbox = false)
     {
@@ -30,62 +30,72 @@ class PaymongoClient
     }
 
     /**
-     * Verify a webhook payload against QuickPay's HMAC-SHA256 checksum header.
+     * Verify a webhook payload against PayMongo's HMAC-SHA256 signature header.
      *
      * @param string $raw_payload The raw webhook request body.
      * @return bool
      */
     public function is_verified(string $raw_payload): bool
     {
-        $header = $_SERVER['HTTP_PAYMONGO_SIGNATURE'] ?? '';
-        if (!$header) {
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.
+        $header = $_SERVER[PaymongoConstant::SIGNATURE_HEADER] ?? '';
+
+        if (empty($raw_payload) || empty($header)) {
             return false;
         }
 
-        // Header looks like: t=TIMESTAMP,te=HASH  (test)  OR  t=TIMESTAMP,li=HASH (live)
-        $parts = [];
-        foreach (array_map('trim', explode(',', $header)) as $pair) {
-            [$key, $value] = array_pad(explode('=', $pair, 2), 2, '');
-            $parts[$key] = $value;
+        // Header looks like: t=TIMESTAMP,te=HASH (test) OR t=TIMESTAMP,li=HASH (live).
+        $segments = [];
+        foreach (explode(',', $header) as $segment) {
+            [$key, $value] = array_pad(explode('=', trim($segment), 2), 2, '');
+            $segments[$key] = $value;
         }
 
-        $timestamp = $parts['t'] ?? '';
-        $give_signature = $this->sandbox ? ($parts['te'] ?? '') : ($parts['li'] ?? '');
+        $timestamp = $segments['t'] ?? '';
+        $given_signature = $this->sandbox ? ($segments['te'] ?? '') : ($segments['li'] ?? '');
 
-        if (!$timestamp || !$give_signature) {
+        if (empty($timestamp) || empty($given_signature)) {
             return false;
         }
 
-        $signed = $timestamp . '.' . $raw_payload;
-        $computed_signature = hash_hmac('sha256', $signed, $this->webhook_secret_key);
+        $expected_signature = hash_hmac('sha256', $timestamp . '.' . $raw_payload, $this->webhook_secret_key);
 
-        return hash_equals($give_signature, $computed_signature);
-    }
-
-    public function create_checkout_session_url(array $payload, array $headers): array
-    {
-        return $this->send(PayMongoConstant::POST_METHOD, PayMongoConstant::API_CHECKOUT_SESSIONS_URL, $payload, $headers);
+        return hash_equals($expected_signature, $given_signature);
     }
 
     /**
-     * Send a request to the QuickPay API and decode the JSON response.
+     * Create a PayMongo checkout session for an order.
      *
-     * @param string $method One of QuickpayConstant::POST_METHOD, ::PUT_METHOD or ::GET_METHOD.
+     * @param array $payload The checkout session request payload.
+     * @param string $idempotency_key Key PayMongo uses to collapse retries of the same request.
+     * @return array The decoded JSON response, including the session's checkout_url.
+     * @throws Exception If the API request fails.
+     */
+    public function create_checkout_session(array $payload, string $idempotency_key): array
+    {
+        return $this->send(
+            PaymongoConstant::POST_METHOD,
+            PaymongoConstant::API_CHECKOUT_SESSIONS_URL,
+            $payload,
+            ['Idempotency-Key' => $idempotency_key]
+        );
+    }
+
+    /**
+     * Send a request to the PayMongo API and decode the JSON response.
+     *
+     * @param string $method One of PaymongoConstant::POST_METHOD or ::GET_METHOD.
      * @param string $url The full request URL.
-     * @param array $payload The request payload.
-     * @param array $headers The request headers.
+     * @param array $payload The request payload, for 'post' requests.
+     * @param array $headers Extra request headers.
      * @return array The decoded JSON response.
      * @throws Exception If the API request fails.
      */
     protected function send(string $method, string $url, array $payload = [], array $headers = []): array
     {
-        $request = Http::with_token($this->get_auth(), 'Basic');
+        $request = Http::with_token($this->get_auth(), 'Basic')->with_headers($headers);
 
-        if(!empty($headers)){
-            $request = $request->with_headers($headers);
-        }
-
-        if (PayMongoConstant::GET_METHOD !== $method) {
+        if (PaymongoConstant::GET_METHOD !== $method) {
             $request = $request->with_body(wp_json_encode($payload));
         }
 
@@ -101,8 +111,8 @@ class PaymongoClient
     /**
      * Build the HTTP Basic Auth token from the configured credentials.
      *
-     * @return string Base64-encoded "username:".
-     * @throws InvalidArgumentException If the username is missing.
+     * @return string Base64-encoded "secret_key:", PayMongo sends no password.
+     * @throws InvalidArgumentException If the secret key is missing.
      */
     protected function get_auth(): string
     {
