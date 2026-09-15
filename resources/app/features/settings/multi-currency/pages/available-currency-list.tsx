@@ -166,7 +166,10 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={handleDelete}
-            cssOverride={{ color: theme.colors.text.critical }}
+            cssOverride={{
+              color: theme.colors.text.critical,
+              '& svg': { color: theme.colors.icon.critical },
+            }}
           >
             <Trash2 size="16" />
             <Text variant="small">{__('Delete', 'kirki-ecommerce')}</Text>

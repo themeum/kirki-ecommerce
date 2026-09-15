@@ -56,7 +56,7 @@ class TagController
 
         return response()->json([
             'data' => TagResource::make($tag),
-            'message' => __('Tag created successfully.', 'kirki-ecommerce'),
+            'message' => __('Tag created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -78,7 +78,7 @@ class TagController
 
         return response()->json([
             'data' => TagResource::make($tag),
-            'message' => __('Tag updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Tag updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -88,7 +88,7 @@ class TagController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Tag deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Tag deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,13 +105,13 @@ class TagController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Tag deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Tag deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All tags deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All tags deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

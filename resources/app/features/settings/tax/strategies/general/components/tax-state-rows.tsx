@@ -67,7 +67,8 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
         const stateLabel = stateNameById[id] ?? row?.name ?? id;
 
         return (
-          <Card data-search-skip="true"
+          <Card
+            data-search-skip="true"
             key={field.id}
             cssOverride={mergeCss(cardStyles.innerCard, styles.stateRow)}
             role="button"
@@ -105,6 +106,7 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
                     size="icon-sm"
                     data-state-row="remove"
                     aria-label={__('Remove state', 'kirki-ecommerce')}
+                    cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                     onClick={(event) => {
                       event.stopPropagation();
                       remove(index);

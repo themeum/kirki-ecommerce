@@ -1,3 +1,4 @@
+export { default as useConfirmDelete } from '@/hooks/use-confirm-delete';
 export { default as useDataTableParams } from '@/hooks/use-data-table-params';
 export { default as useDebounce } from '@/hooks/use-debounce';
 export { default as useFilterDraft } from '@/hooks/use-filter-draft';

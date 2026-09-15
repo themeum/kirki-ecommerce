@@ -72,8 +72,9 @@ const styles = defineStyles({
     paddingBlock: theme.spacing[4],
     borderRadius: theme.radius.xl,
     border: `1px solid ${theme.colors.border.secondary}`,
-    backgroundColor: theme.colors.background.fill,
+    backgroundColor: theme.colors.background.surface,
     color: theme.colors.text.primary,
+    boxShadow: theme.shadow.card,
   },
   header: {
     display: 'flex',

@@ -112,9 +112,7 @@ const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
   return useMutation({
     mutationFn: (variables: { key: K; data: SettingsPayloadMap[K] }) => updateSettings(variables),
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Settings updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Settings saved', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({
         queryKey: settingsKeys.section(variables.key),
       });

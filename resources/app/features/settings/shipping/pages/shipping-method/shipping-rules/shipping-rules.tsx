@@ -18,7 +18,11 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import { actionOptionsArray, conditionOptions, saveShippingZones } from '@/features/settings/shipping/lib/utils';
+import {
+  actionOptionsArray,
+  conditionOptions,
+  saveShippingZones,
+} from '@/features/settings/shipping/lib/utils';
 import ShippingRuleFormCard from '@/features/settings/shipping/pages/shipping-method/shipping-rules/shipping-rule-form-card';
 import type { ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
 import { LighteningIcon } from '@/icons';
@@ -131,7 +135,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   return (
     <div>
       <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <HeaderActionsCard
             header={__('Shipping Rules', 'kirki-ecommerce')}
             subHeader={__(
@@ -170,10 +174,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                         <RuleItemBadge>
                           <LighteningIcon />
                           <Text variant="small">
-                            {sprintf(
-                              __('Rule %s', 'kirki-ecommerce'),
-                              index + 1,
-                            )}
+                            {sprintf(__('Rule %s', 'kirki-ecommerce'), index + 1)}
                           </Text>
                         </RuleItemBadge>
                         <RuleItemConditions>
@@ -187,7 +188,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                             </Text>
                             <Text variant="small" weight="medium" cssOverride={styles.accentText}>
                               {item?.conditions[0]?.type === 'destination_region'
-                                ? ((item?.conditions[0]?.value as { country?: string })?.country ?? '')
+                                ? ((item?.conditions[0]?.value as { country?: string })?.country ??
+                                  '')
                                 : toDisplayString(item?.conditions[0]?.value)}
                             </Text>
                           </RuleItemCondition>
@@ -201,10 +203,10 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                           </Text>
                           {(item?.action?.type === 'set_shipping_cost' ||
                             item?.action?.type === 'add_shipping_cost') && (
-                              <Text variant="small" weight="medium" cssOverride={styles.accentText}>
-                                {toDisplayString(item?.action?.value)}
-                              </Text>
-                            )}
+                            <Text variant="small" weight="medium" cssOverride={styles.accentText}>
+                              {toDisplayString(item?.action?.value)}
+                            </Text>
+                          )}
                         </RuleItemAction>
                       </RuleItemContent>
                       <RuleItemActions>
@@ -212,6 +214,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                           <Button
                             variant="outline"
                             size="icon-sm"
+                            cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                             onClick={() => handleDeleteRules(index)}
                           >
                             <Trash2 />

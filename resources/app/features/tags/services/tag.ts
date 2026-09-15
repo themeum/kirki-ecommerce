@@ -6,7 +6,13 @@ import { TagSchema } from '@/features/tags/schemas/catalog/tag';
 import type { TagFormPayload } from '@/features/tags/schemas/forms/tag-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -35,15 +41,10 @@ const updateTag = ({ id, data }: { id: number; data: TagFormPayload }) => {
 };
 
 const deleteTag = (id: number) => {
-  return apiClient
-    .delete(endpoints.TAG(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.TAG(id)).then((response) => parseMessage(response));
 };
 
-const bulkDeleteTags = ({
-  action = 'delete',
-  ids = [],
-}: BulkActionParams = {}) => {
+const bulkDeleteTags = ({ action = 'delete', ids = [] }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.TAGS_BULK, { action, ids })
     .then((response) => parseMessage(response));
@@ -62,9 +63,7 @@ const useCreateTagMutation = () => {
   return useMutation({
     mutationFn: createTag,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Tag created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tag created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
@@ -78,9 +77,7 @@ const useUpdateTagMutation = () => {
   return useMutation({
     mutationFn: updateTag,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Tag updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tag updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
@@ -94,9 +91,7 @@ const useDeleteTagMutation = () => {
   return useMutation({
     mutationFn: deleteTag,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Tag deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tag deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
@@ -110,9 +105,7 @@ const useBulkDeleteTagsMutation = () => {
   return useMutation({
     mutationFn: bulkDeleteTags,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Tags deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Tags deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: tagKeys.lists() });
     },
     onError(error) {
@@ -122,6 +115,14 @@ const useBulkDeleteTagsMutation = () => {
 };
 
 export {
-  bulkDeleteTags, createTag, deleteTag, getTags, updateTag, useBulkDeleteTagsMutation, useCreateTagMutation, useDeleteTagMutation, useTagsQuery, useUpdateTagMutation,
+  bulkDeleteTags,
+  createTag,
+  deleteTag,
+  getTags,
+  updateTag,
+  useBulkDeleteTagsMutation,
+  useCreateTagMutation,
+  useDeleteTagMutation,
+  useTagsQuery,
+  useUpdateTagMutation,
 };
-

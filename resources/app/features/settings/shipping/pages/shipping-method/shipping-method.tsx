@@ -1,4 +1,4 @@
-import { BoxIcon } from 'lucide-react';
+import { Box } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -18,8 +18,14 @@ import {
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
-import { getShippingMethodRightText, getShippingMethodSubText, saveShippingZones, shippingMethodIconMap } from '@/features/settings/shipping/lib/utils';
+import {
+  getShippingMethodRightText,
+  getShippingMethodSubText,
+  saveShippingZones,
+  shippingMethodIconMap,
+} from '@/features/settings/shipping/lib/utils';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import { useConfirmDelete } from '@/hooks';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
@@ -56,33 +62,46 @@ export const ShippingMethod = ({
     }));
   }, [shippingMethodList]);
 
-  const handleDeleteMethodItem = (item: ShippingMethodData) => {
-    const originalZones = [...shippingZonesObj];
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
-    const updatedZones = shippingZonesObj.map((zone) => {
-      if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
-        return zone;
-      }
-      return {
-        ...zone,
-        shipping_methods: zone.shipping_methods.filter((m) => m.id !== item.id),
-      };
-    });
-    setShippingZonesObj(updatedZones);
-    dispatchToastMessage('delete', {
-      title: __('Shipping method deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        setShippingZonesObj(originalZones);
+  const handleDeleteMethodItem = (item: ShippingMethodData) => {
+    confirmDelete(
+      {
+        title: __('Delete shipping method?', 'kirki-ecommerce'),
+        description: __(
+          'This method will be removed from the zone and will no longer be offered at checkout. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
       },
-      onSuccess: async () => {
-        await saveShippingZones({
-          zones: updatedZones,
-          from: 'delete',
-          shippingSettingsData,
+      () => {
+        const originalZones = [...shippingZonesObj];
+
+        const updatedZones = shippingZonesObj.map((zone) => {
+          if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
+            return zone;
+          }
+          return {
+            ...zone,
+            shipping_methods: zone.shipping_methods.filter((m) => m.id !== item.id),
+          };
+        });
+        setShippingZonesObj(updatedZones);
+        dispatchToastMessage('delete', {
+          title: __('Shipping method deleted', 'kirki-ecommerce'),
+          duration: 5000,
+          undoAction: () => {
+            setShippingZonesObj(originalZones);
+          },
+          onSuccess: async () => {
+            await saveShippingZones({
+              zones: updatedZones,
+              from: 'delete',
+              shippingSettingsData,
+            });
+          },
         });
       },
-    });
+    );
   };
 
   const handleEditDeliveryMethod = (item: ShippingMethodData) => {
@@ -102,7 +121,7 @@ export const ShippingMethod = ({
   return (
     <div>
       <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
-        <CardContent >
+        <CardContent>
           <HeaderActionsCard
             header={__('Shipping Methods', 'kirki-ecommerce')}
             subHeader={__(
@@ -114,15 +133,15 @@ export const ShippingMethod = ({
           />
 
           {!shippingMethodList?.length ? (
-            <Card data-search-skip="true" cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}>
+            <Card
+              data-search-skip="true"
+              cssOverride={{ ...cardStyles.innerDarkCard, marginTop: theme.spacing[5] }}
+            >
               <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyState)}>
                 <Flex direction="column" gap={2} align="center">
-                  <BoxIcon size={24} />
+                  <Box size={24} color={theme.colors.icon.disabled} />
                   <span css={scoped(styles.emptyStateText)}>
-                    {__(
-                      'Added shipping methods will appear here',
-                      'kirki-ecommerce',
-                    )}
+                    {__('Added shipping methods will appear here', 'kirki-ecommerce')}
                   </span>
                 </Flex>
               </CardContent>
@@ -131,7 +150,11 @@ export const ShippingMethod = ({
             <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingMethodListWithIcon.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
-                  {item.icon && <StackedItemMedia>{item.icon}</StackedItemMedia>}
+                  {item.icon && (
+                    <StackedItemMedia cssOverride={{ color: theme.colors.icon.disabled }}>
+                      {item.icon}
+                    </StackedItemMedia>
+                  )}
                   <StackedItemContent>
                     <StackedItemTitle>
                       <Text variant="small" weight="medium">
@@ -143,9 +166,7 @@ export const ShippingMethod = ({
                         </Text>
                       )}
                       {item.is_enabled === false && (
-                        <Badge variant="destructive">
-                          {__('Inactive', 'kirki-ecommerce')}
-                        </Badge>
+                        <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                       )}
                     </StackedItemTitle>
                   </StackedItemContent>
@@ -155,7 +176,9 @@ export const ShippingMethod = ({
                         variant="outline"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
+                        cssOverride={mergeCss(styles.actionButton, {
+                          '& svg': { color: theme.colors.icon.critical },
+                        })}
                         onClick={() => handleDeleteMethodItem(item)}
                       >
                         <TrashIcon />
@@ -177,6 +200,7 @@ export const ShippingMethod = ({
           )}
         </CardContent>
       </Card>
+      {deleteConfirmation}
     </div>
   );
 };

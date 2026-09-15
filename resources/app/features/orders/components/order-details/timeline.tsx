@@ -112,6 +112,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
                           size="icon-sm"
                           aria-label={__('Delete comment', 'kirki-ecommerce')}
                           data-action-group="true"
+                          cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                           onClick={() => setPendingDeleteId(entry.id)}
                         >
                           <Trash2 size={12} />

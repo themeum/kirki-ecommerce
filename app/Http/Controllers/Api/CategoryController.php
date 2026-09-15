@@ -56,7 +56,7 @@ class CategoryController
 
         return response()->json([
             'data' => CategoryResource::make($category),
-            'message' => __('Category created successfully.', 'kirki-ecommerce'),
+            'message' => __('Category created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -78,7 +78,7 @@ class CategoryController
 
         return response()->json([
             'data' => CategoryResource::make($category),
-            'message' => __('Category updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Category updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -88,7 +88,7 @@ class CategoryController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Category deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Category deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -104,14 +104,14 @@ class CategoryController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Category deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Category deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All categories deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All categories deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

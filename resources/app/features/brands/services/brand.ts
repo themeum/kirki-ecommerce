@@ -6,7 +6,13 @@ import { BrandSchema } from '@/features/brands/schemas/catalog/brand';
 import type { BrandFormPayload } from '@/features/brands/schemas/forms/brand-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -30,15 +36,10 @@ const updateBrand = ({ id, data }: { id: number; data: BrandFormPayload }) => {
 };
 
 const deleteBrand = (id: number) => {
-  return apiClient
-    .delete(endpoints.BRAND(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.BRAND(id)).then((response) => parseMessage(response));
 };
 
-const bulkDeleteBrands = ({
-  action = 'delete',
-  ids = [],
-}: BulkActionParams = {}) => {
+const bulkDeleteBrands = ({ action = 'delete', ids = [] }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.BRANDS_BULK, { action, ids })
     .then((response) => parseMessage(response));
@@ -57,9 +58,7 @@ const useCreateBrandMutation = () => {
   return useMutation({
     mutationFn: createBrand,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Brand created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Brand created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
@@ -73,9 +72,7 @@ const useUpdateBrandMutation = () => {
   return useMutation({
     mutationFn: updateBrand,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Brand updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Brand updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
@@ -89,9 +86,7 @@ const useDeleteBrandMutation = () => {
   return useMutation({
     mutationFn: deleteBrand,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Brand deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Brand deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
@@ -105,9 +100,7 @@ const useBulkDeleteBrandsMutation = () => {
   return useMutation({
     mutationFn: bulkDeleteBrands,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Brands deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Brands deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: brandKeys.lists() });
     },
     onError(error) {
@@ -117,6 +110,14 @@ const useBulkDeleteBrandsMutation = () => {
 };
 
 export {
-  bulkDeleteBrands, createBrand, deleteBrand, getBrands, updateBrand, useBrandsQuery, useBulkDeleteBrandsMutation, useCreateBrandMutation, useDeleteBrandMutation, useUpdateBrandMutation,
+  bulkDeleteBrands,
+  createBrand,
+  deleteBrand,
+  getBrands,
+  updateBrand,
+  useBrandsQuery,
+  useBulkDeleteBrandsMutation,
+  useCreateBrandMutation,
+  useDeleteBrandMutation,
+  useUpdateBrandMutation,
 };
-
