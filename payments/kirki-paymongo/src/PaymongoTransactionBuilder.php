@@ -83,21 +83,15 @@ class PaymongoTransactionBuilder
     public function get_line_items(): array
     {
         $line_items = [];
-
+        $total_tax = 0;
         foreach ($this->order->items as $item) {
-            $tax = (int) $item->invoiced_tax_total ?? 0;
-            $product_name = sprintf(
-                '%s (Qty: %s%s)',
-                $item->product_name,
-                $item->quantity,
-                $tax > 0 ? __(' | Incl. Tax', 'kirki-ecommerce-twocheckout') : ''
-            );
+            $total_tax += (int) $item->invoiced_tax_total ?? 0;
 
             $line_items[] = [
-                'amount' => (int) $item->invoiced_total,
+                'amount' => (int) $item->invoiced_price - (int) $item->invoiced_discount_amount ?? 0,
                 'currency' => 'PHP',//$this->order->currency_code,
-                'name' => $product_name,
-                'quantity' => 1,
+                'name' => $item->product_name,
+                'quantity' => (int) $item->quantity,
             ];
         }
 
@@ -106,6 +100,15 @@ class PaymongoTransactionBuilder
                 'amount' => (int) $this->order->invoiced_shipping_total,
                 'currency' => 'PHP',//$this->order->currency_code,
                 'name' => __('Shipping Charge', 'kirki-ecommerce-paymongo'),
+                'quantity' => 1,
+            ];
+        }
+
+        if ($total_tax > 0) {
+            $line_items[] = [
+                'amount' => (int) $total_tax,
+                'currency' => 'PHP',//$this->order->currency_code,
+                'name' => __('Tax', 'kirki-ecommerce-paymongo'),
                 'quantity' => 1,
             ];
         }
