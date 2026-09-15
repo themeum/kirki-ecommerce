@@ -27,9 +27,8 @@ const TaxSettingsFormShape = z.object({
 export const TaxSettingsFormSchema = prepareFormSchema(TaxSettingsFormShape).transform(
   (values) => ({
     is_tax_inclusive_price: values.is_tax_inclusive_price,
-    is_enabled_display_inclusive_taxed_price: !values.is_tax_inclusive_price
-      ? values.is_enabled_display_inclusive_taxed_price
-      : true,
+    is_enabled_display_inclusive_taxed_price:
+      values.is_tax_inclusive_price && values.is_enabled_display_inclusive_taxed_price,
     is_shipping_tax_enabled: values.is_tax_inclusive_price && values.is_shipping_tax_enabled,
     tax_regions: values.tax_regions,
     tax_services: values.tax_services,

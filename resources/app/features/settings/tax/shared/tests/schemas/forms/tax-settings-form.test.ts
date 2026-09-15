@@ -39,12 +39,28 @@ describe('TaxSettingsFormSchema', () => {
 
     expect(result).toEqual({
       is_tax_inclusive_price: true,
-      is_enabled_display_inclusive_taxed_price: true,
+      is_enabled_display_inclusive_taxed_price: false,
       is_shipping_tax_enabled: true,
       tax_regions: [{ ...regions[0], type: 'general' }, regions[1]],
       tax_services: [],
       tax_ids: [],
     });
+  });
+
+  it('keeps is_enabled_display_inclusive_taxed_price as true when checked', () => {
+    const result = TaxSettingsFormSchema.parse({
+      is_tax_inclusive_price: true,
+      is_enabled_display_inclusive_taxed_price: true,
+    });
+    expect(result.is_enabled_display_inclusive_taxed_price).toBe(true);
+  });
+
+  it('forces is_enabled_display_inclusive_taxed_price to false when is_tax_inclusive_price is false', () => {
+    const result = TaxSettingsFormSchema.parse({
+      is_tax_inclusive_price: false,
+      is_enabled_display_inclusive_taxed_price: true,
+    });
+    expect(result.is_enabled_display_inclusive_taxed_price).toBe(false);
   });
 
   it('defaults booleans to false and arrays to empty', () => {
