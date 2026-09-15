@@ -26,6 +26,7 @@ type OptionAccordionProps = {
   variant?: 'shipping' | 'inactive';
   enabled?: boolean;
   disabled?: boolean;
+  expandable?: boolean;
   open?: boolean;
   cssOverride?: CSSObject;
 };
@@ -41,9 +42,12 @@ const OptionAccordion = (props: OptionAccordionProps) => {
     variant,
     enabled = true,
     disabled = false,
+    expandable = true,
     open = false,
     cssOverride,
   } = props;
+
+  const isOpen = open && expandable;
 
   return (
     <div
@@ -56,13 +60,14 @@ const OptionAccordion = (props: OptionAccordionProps) => {
         hideSeparator={true}
         hasBottomSpace={false}
         rightActions={rightActions}
-        defaultValue={open ? 'option-item' : undefined}
+        defaultValue={isOpen ? 'option-item' : undefined}
       >
-        <AccordionItem value={open ? 'option-item' : undefined}>
+        <AccordionItem value={isOpen ? 'option-item' : undefined}>
           <AccordionTrigger
             cssOverride={mergeCss(styles.trigger, variant === 'shipping' && styles.shippingTrigger)}
             gap={4}
-            disabled={disabled}
+            disabled={disabled || !expandable}
+            hideChevron={!expandable}
           >
             <Flex gap={4} align="center">
               {leftIcon}
@@ -84,24 +89,26 @@ const OptionAccordion = (props: OptionAccordionProps) => {
               </Flex>
             </Flex>
           </AccordionTrigger>
-          <AccordionContent>
-            <Card
-              cssOverride={mergeCss(
-                cardStyles.darkCard,
-                styles.contentCard,
-                variant === 'shipping' && styles.shippingCard,
-              )}
-            >
-              <CardContent
+          {expandable && (
+            <AccordionContent>
+              <Card
                 cssOverride={mergeCss(
-                  cardStyles.innerCardContent,
-                  variant === 'shipping' && styles.shippingContent,
+                  cardStyles.darkCard,
+                  styles.contentCard,
+                  variant === 'shipping' && styles.shippingCard,
                 )}
               >
-                {children}
-              </CardContent>
-            </Card>
-          </AccordionContent>
+                <CardContent
+                  cssOverride={mergeCss(
+                    cardStyles.innerCardContent,
+                    variant === 'shipping' && styles.shippingContent,
+                  )}
+                >
+                  {children}
+                </CardContent>
+              </Card>
+            </AccordionContent>
+          )}
         </AccordionItem>
       </Accordion>
     </div>

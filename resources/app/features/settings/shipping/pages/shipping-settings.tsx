@@ -145,6 +145,7 @@ const ShippingSettings = () => {
                             }
                             variant="shipping"
                             enabled={item?.is_enabled}
+                            expandable={zoneMethods.length > 0}
                             open
                           >
                             {zoneMethods.length > 0 && (

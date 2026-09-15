@@ -190,3 +190,29 @@ describe('ShippingSettings zone menu', () => {
     expect(activateIcon).not.toHaveClass('lucide-ban');
   });
 });
+
+const zoneTrigger = (title: string) =>
+  screen.getByText(title).closest('button[data-state]')!;
+
+describe('ShippingSettings zone expansion', () => {
+  it('does not offer expansion for a zone with no shipping methods', async () => {
+    storedZones = [{ ...initialZones()[0], shipping_methods: [] }];
+    useHandlers();
+    renderPage();
+
+    await screen.findByText('Domestic');
+
+    expect(zoneTrigger('Domestic')).toBeDisabled();
+    expect(document.querySelector('[data-accordion-chevron]')).toBeNull();
+  });
+
+  it('keeps the zone expandable while it still has shipping methods', async () => {
+    useHandlers();
+    renderPage();
+
+    await screen.findByRole('switch', { name: 'Enable shipping method' });
+
+    expect(zoneTrigger('Domestic')).toBeEnabled();
+    expect(document.querySelector('[data-accordion-chevron]')).not.toBeNull();
+  });
+});
