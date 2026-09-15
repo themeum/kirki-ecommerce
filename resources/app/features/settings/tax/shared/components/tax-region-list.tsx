@@ -158,12 +158,16 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="tax.regions"
+        data-search-keywords="vat, gst, jurisdiction, nexus, levy"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
             subHeader={__(
-              'Define tax regions where you collect sales tax. Each shopper is matched to one region based on their address.',
+              'Places where you are registered to collect sales tax, matched by shopper address.',
               'kirki-ecommerce',
             )}
             buttonText={__('Add Region', 'kirki-ecommerce')}
@@ -234,6 +238,9 @@ const TaxRegions = (props: TaxRegionsProps) => {
                                   title: __('Delete', 'kirki-ecommerce'),
                                   value: 'delete',
                                   icon: <TrashIcon />,
+                                  cssOverride: {
+                                    '& svg': { color: theme.colors.icon.critical },
+                                  },
                                 },
                               ]}
                               onOptionToggle={(value) => {

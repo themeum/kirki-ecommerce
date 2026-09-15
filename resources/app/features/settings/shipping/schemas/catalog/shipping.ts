@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const ShippingProfileSchema = z.object({
   id: z.number(),
   name: z.string(),
+  is_default: z.boolean().nullish(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),
 });

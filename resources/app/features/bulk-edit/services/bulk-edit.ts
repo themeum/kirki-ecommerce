@@ -7,27 +7,25 @@ import { productKeys } from '@/features/products';
 import { VariantSchema } from '@/features/products';
 import { apiClient } from '@/libs/api';
 import { ResourceCollectionSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
-const getBulkVariants = (
-  ids: (string | number)[],
-  params: ListQueryParams = {},
-) => {
+const getBulkVariants = (ids: (string | number)[], params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.VARIANTS_BULK_BY_IDS(ids), { params })
-    .then((response) =>
-      parseData(ResourceCollectionSchema(VariantSchema), response),
-    );
+    .then((response) => parseData(ResourceCollectionSchema(VariantSchema), response));
 };
 
 const updateBulkVariants = (data: Record<string, unknown>) => {
   return apiClient
     .put(endpoints.VARIANTS_BULK, data)
-    .then((response) =>
-      parseResponse(ResourceCollectionSchema(VariantSchema), response),
-    );
+    .then((response) => parseResponse(ResourceCollectionSchema(VariantSchema), response));
 };
 
 const useBulkVariantsQuery = (
@@ -48,10 +46,7 @@ const useUpdateBulkVariantsMutation = () => {
   return useMutation({
     mutationFn: updateBulkVariants,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Variants updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Variants updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: bulkEditKeys.all });
       void queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() });
@@ -62,10 +57,4 @@ const useUpdateBulkVariantsMutation = () => {
   });
 };
 
-export {
-  getBulkVariants,
-  updateBulkVariants,
-  useBulkVariantsQuery,
-  useUpdateBulkVariantsMutation,
-};
-
+export { getBulkVariants, updateBulkVariants, useBulkVariantsQuery, useUpdateBulkVariantsMutation };

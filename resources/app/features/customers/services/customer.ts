@@ -3,12 +3,21 @@ import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
 import { customerKeys } from '@/features/customers';
-import { CustomerListItemSchema, CustomerSchema } from '@/features/customers/schemas/catalog/customer';
+import {
+  CustomerListItemSchema,
+  CustomerSchema,
+} from '@/features/customers/schemas/catalog/customer';
 import type { CustomerFormPayload } from '@/features/customers/schemas/forms/customer-form';
 import type { CustomerListFilter } from '@/features/customers/types';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -35,9 +44,7 @@ const useCustomerLocationsQuery = (country?: string) => {
 const getCustomers = (params: ListParams<CustomerListFilter> = {}) => {
   return apiClient
     .get(endpoints.CUSTOMERS, { params })
-    .then((response) =>
-      parseData(PaginatedDataSchema(CustomerListItemSchema), response),
-    );
+    .then((response) => parseData(PaginatedDataSchema(CustomerListItemSchema), response));
 };
 
 const getCustomer = (id: number) => {
@@ -52,28 +59,17 @@ const createCustomer = (data: CustomerFormPayload) => {
     .then((response) => parseResponse(CustomerSchema, response));
 };
 
-const updateCustomer = ({
-  id,
-  data,
-}: {
-  id: number;
-  data: CustomerFormPayload;
-}) => {
+const updateCustomer = ({ id, data }: { id: number; data: CustomerFormPayload }) => {
   return apiClient
     .put(endpoints.CUSTOMER(id), data)
     .then((response) => parseResponse(CustomerSchema, response));
 };
 
 const deleteCustomer = (id: number) => {
-  return apiClient
-    .delete(endpoints.CUSTOMER(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.CUSTOMER(id)).then((response) => parseMessage(response));
 };
 
-const bulkDeleteCustomers = ({
-  action = 'delete',
-  ids = [],
-}: BulkActionParams = {}) => {
+const bulkDeleteCustomers = ({ action = 'delete', ids = [] }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.CUSTOMERS_BULK, { action, ids })
     .then((response) => parseMessage(response));
@@ -101,10 +97,7 @@ const useCreateCustomerMutation = () => {
   return useMutation({
     mutationFn: createCustomer,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Customer created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Customer created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {
@@ -118,10 +111,7 @@ const useUpdateCustomerMutation = () => {
   return useMutation({
     mutationFn: updateCustomer,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Customer updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Customer updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       void queryClient.invalidateQueries({
         queryKey: customerKeys.detail(variables.id),
@@ -138,10 +128,7 @@ const useDeleteCustomerMutation = () => {
   return useMutation({
     mutationFn: deleteCustomer,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Customer deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Customer deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {
@@ -155,10 +142,7 @@ const useBulkDeleteCustomersMutation = () => {
   return useMutation({
     mutationFn: bulkDeleteCustomers,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Customers deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Customers deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
     },
     onError(error) {
@@ -168,6 +152,18 @@ const useBulkDeleteCustomersMutation = () => {
 };
 
 export {
-  bulkDeleteCustomers, createCustomer, deleteCustomer, getCustomer, getCustomerLocations, getCustomers, updateCustomer, useBulkDeleteCustomersMutation, useCreateCustomerMutation, useCustomerLocationsQuery, useCustomerQuery, useCustomersQuery, useDeleteCustomerMutation, useUpdateCustomerMutation,
+  bulkDeleteCustomers,
+  createCustomer,
+  deleteCustomer,
+  getCustomer,
+  getCustomerLocations,
+  getCustomers,
+  updateCustomer,
+  useBulkDeleteCustomersMutation,
+  useCreateCustomerMutation,
+  useCustomerLocationsQuery,
+  useCustomerQuery,
+  useCustomersQuery,
+  useDeleteCustomerMutation,
+  useUpdateCustomerMutation,
 };
-

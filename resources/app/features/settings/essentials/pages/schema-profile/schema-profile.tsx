@@ -23,6 +23,7 @@ import {
   useSchemasQuery,
 } from '@/features/settings/essentials/services/schema';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
+import { useConfirmDelete } from '@/hooks';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -54,18 +55,31 @@ const SchemaProfileComponent = () => {
     [schemaList, removedIds],
   );
 
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
+
   const handleDeleteSchema = (item: SchemaListItem) => {
-    setRemovedIds((prev) => [...prev, item.id]);
-    dispatchToastMessage('delete', {
-      title: __('Schema deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+    confirmDelete(
+      {
+        title: __('Delete schema?', 'kirki-ecommerce'),
+        description: __(
+          'This schema will be permanently deleted. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
       },
-      onSuccess: () => {
-        deleteSchema(item.id, { onSuccess: () => refetch() });
+      () => {
+        setRemovedIds((prev) => [...prev, item.id]);
+        dispatchToastMessage('delete', {
+          title: __('Schema deleted', 'kirki-ecommerce'),
+          duration: 5000,
+          undoAction: () => {
+            setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+          },
+          onSuccess: () => {
+            deleteSchema(item.id, { onSuccess: () => refetch() });
+          },
+        });
       },
-    });
+    );
   };
 
   const handleEditSchema = (item: SchemaListItem) => {
@@ -79,15 +93,19 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card
+      data-search-id="essentials.schema-profile"
+      data-search-keywords="seo, json ld, rich snippet, google, metadata"
+      cssOverride={cardStyles.formCard}
+    >
       <CardContent>
         <HeaderActionsCard
-          header={__('Schemas', 'kirki-ecommerce')}
+          header={__('Product Schemas', 'kirki-ecommerce')}
           subHeader={__(
-            'Define structured data properties that products use for richer search results.',
+            'Structured data properties attached to products for richer search listings.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Add Schema', 'kirki-ecommerce')}
+          buttonText={__('Schema', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>
@@ -127,7 +145,9 @@ const SchemaProfileComponent = () => {
                         variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
+                        cssOverride={mergeCss(styles.actionButton, {
+                          '& svg': { color: theme.colors.icon.critical },
+                        })}
                         onClick={() => handleDeleteSchema(item)}
                       >
                         <TrashIcon />
@@ -157,6 +177,7 @@ const SchemaProfileComponent = () => {
           />
         )}
       </CardContent>
+      {deleteConfirmation}
     </Card>
   );
 };

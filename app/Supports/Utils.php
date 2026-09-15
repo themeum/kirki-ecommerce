@@ -121,6 +121,16 @@ class Utils
                 'callback'  => [AccountController::class, 'orders'],
                 'is_menu'   => true,
             ],
+            'wishlist' => [
+                'title'     => __('Wishlist', 'kirki-ecommerce'),
+                'icon'      => 'heart',
+                'url'       => Url::get_account_url('wishlist'),
+                'is_active' => Route::is('account.wishlist'),
+                'route_path' => $account_page_slug . '/wishlist',
+                'route_name' => 'account.wishlist',
+                'callback'  => [AccountController::class, 'wishlist'],
+                'is_menu'   => true,
+            ],
             'orders.show' => [
                 'title'     => __('Order Details', 'kirki-ecommerce'),
                 'route_path' => $account_page_slug . '/orders/{uuid}',

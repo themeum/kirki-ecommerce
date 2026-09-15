@@ -6,16 +6,20 @@ import { SchemaProfileSchema } from '@/features/settings/essentials/schemas/cata
 import type { SchemaProfileFormPayload } from '@/features/settings/essentials/schemas/forms/schema-profile-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getSchemas = async (params: ListQueryParams = {}) => {
   const data = await apiClient
     .get(endpoints.PRODUCT_SCHEMAS, { params })
-    .then((response) =>
-      parseData(PaginatedDataSchema(SchemaProfileSchema), response),
-    );
+    .then((response) => parseData(PaginatedDataSchema(SchemaProfileSchema), response));
   return data.results;
 };
 
@@ -25,22 +29,14 @@ const createSchema = (data: SchemaProfileFormPayload) => {
     .then((response) => parseResponse(SchemaProfileSchema, response));
 };
 
-const updateSchema = ({
-  id,
-  data,
-}: {
-  id: number;
-  data: SchemaProfileFormPayload;
-}) => {
+const updateSchema = ({ id, data }: { id: number; data: SchemaProfileFormPayload }) => {
   return apiClient
     .put(endpoints.PRODUCT_SCHEMA(id), data)
     .then((response) => parseResponse(SchemaProfileSchema, response));
 };
 
 const deleteSchema = (id: number) => {
-  return apiClient
-    .delete(endpoints.PRODUCT_SCHEMA(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.PRODUCT_SCHEMA(id)).then((response) => parseMessage(response));
 };
 
 const useSchemasQuery = (params: ListQueryParams = {}) => {
@@ -56,10 +52,7 @@ const useCreateSchemaMutation = () => {
   return useMutation({
     mutationFn: createSchema,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Schema created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Schema created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: schemaProfileKeys.lists() });
     },
     onError(error) {
@@ -73,10 +66,7 @@ const useUpdateSchemaMutation = () => {
   return useMutation({
     mutationFn: updateSchema,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Schema updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Schema updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: schemaProfileKeys.lists() });
     },
     onError(error) {
@@ -90,10 +80,7 @@ const useDeleteSchemaMutation = () => {
   return useMutation({
     mutationFn: deleteSchema,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Schema deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Schema deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: schemaProfileKeys.lists() });
     },
     onError(error) {
@@ -103,6 +90,12 @@ const useDeleteSchemaMutation = () => {
 };
 
 export {
-  createSchema, deleteSchema, getSchemas, updateSchema, useCreateSchemaMutation, useDeleteSchemaMutation, useSchemasQuery, useUpdateSchemaMutation,
+  createSchema,
+  deleteSchema,
+  getSchemas,
+  updateSchema,
+  useCreateSchemaMutation,
+  useDeleteSchemaMutation,
+  useSchemasQuery,
+  useUpdateSchemaMutation,
 };
-

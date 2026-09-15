@@ -10,7 +10,7 @@ const CurrencyOptionList = () => {
   const { filteredCurrency, formSelected, handleSelectCurrencies } = useAddCurrencyDialogContext();
 
   return (
-    <Flex direction="column" gap={3} cssOverride={{ height: '200px', overflowX: 'scroll' }}>
+    <Flex direction="column" gap={3} cssOverride={{ height: '200px', overflowX: 'auto' }}>
       {filteredCurrency?.length > 0 &&
         filteredCurrency.map((currency, index) => (
           <Label htmlFor={`add-currency-checkbox-${index}`} key={index}>

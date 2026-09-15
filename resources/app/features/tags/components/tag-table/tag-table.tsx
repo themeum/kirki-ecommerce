@@ -10,9 +10,13 @@ import TagAddEditDialog from '@/features/tags/components/tag-add-edit-dialog';
 import { tagColumns } from '@/features/tags/components/tag-table/columns';
 import TagTableFilters from '@/features/tags/components/tag-table/tag-table-filters';
 import type { Tag } from '@/features/tags/schemas/catalog/tag';
-import { useBulkDeleteTagsMutation, useDeleteTagMutation, useTagsQuery } from '@/features/tags/services/tag';
+import {
+  useBulkDeleteTagsMutation,
+  useDeleteTagMutation,
+  useTagsQuery,
+} from '@/features/tags/services/tag';
 import { tagListOptions } from '@/features/tags/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
@@ -27,6 +31,7 @@ const TagTable = () => {
   const { data, isFetching } = useTagsQuery(params);
   const deleteMutation = useDeleteTagMutation();
   const bulkDeleteMutation = useBulkDeleteTagsMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
   const [editingItem, setEditingItem] = useState<Tag | null>(null);
 
   const handleBulkApply = useCallback(
@@ -35,9 +40,24 @@ const TagTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected tags?', 'kirki-ecommerce'),
+          description: __(
+            'The selected tags will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const columns = useMemo<ColumnDef<Tag>[]>(
@@ -55,14 +75,24 @@ const TagTable = () => {
                 label: __('Delete', 'kirki-ecommerce'),
                 icon: <Trash2 size={16} />,
                 destructive: true,
-                onClick: () => deleteMutation.mutate(row.original.id),
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete tag?', 'kirki-ecommerce'),
+                      description: __(
+                        'This tag will be permanently deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
               },
             ]}
           />
         ),
       },
     ],
-    [deleteMutation],
+    [confirmDelete, deleteMutation],
   );
 
   return (
@@ -85,8 +115,14 @@ const TagTable = () => {
         columnPinning={{ right: ['actions'] }}
         toolbar={<TagTableFilters />}
       />
+      {deleteConfirmation}
       {editingItem && (
-        <TagAddEditDialog key={editingItem.id} tag={editingItem} open onClose={() => setEditingItem(null)} />
+        <TagAddEditDialog
+          key={editingItem.id}
+          tag={editingItem}
+          open
+          onClose={() => setEditingItem(null)}
+        />
       )}
     </>
   );

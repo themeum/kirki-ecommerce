@@ -148,7 +148,7 @@ const AddStatesPopup = (props: AddStatesPopupProps) => {
               />
             </Flex>
 
-            <Card cssOverride={cardStyles.tableCardRounded}>
+            <Card data-search-skip="true" cssOverride={cardStyles.tableCardRounded}>
               <CardContent cssOverride={mergeCss(cardStyles.tableContent, styles.cardContent)}>
                 <Flex gap={2} align="center">
                   <Checkbox
@@ -200,7 +200,7 @@ const AddStatesPopup = (props: AddStatesPopupProps) => {
                     );
                   })
                 ) : (
-                  <Card cssOverride={styles.emptyStatesCard}>
+                  <Card data-search-skip="true" cssOverride={styles.emptyStatesCard}>
                     <CardContent>
                       <Flex direction="column" gap={2} align="center">
                         <Text weight="medium">{__('No states available')}</Text>

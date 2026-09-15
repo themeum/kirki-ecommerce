@@ -13,11 +13,17 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
+use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
+use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
+use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 

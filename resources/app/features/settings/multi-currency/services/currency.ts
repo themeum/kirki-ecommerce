@@ -102,9 +102,7 @@ const useCreateCurrencyMutation = () => {
   return useMutation({
     mutationFn: createCurrency,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Currency created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Currency added', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -119,9 +117,7 @@ const useUpdateCurrencyMutation = () => {
   return useMutation({
     mutationFn: updateCurrency,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Currency updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Currency updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -136,9 +132,7 @@ const useDeleteCurrencyMutation = () => {
   return useMutation({
     mutationFn: deleteCurrency,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Currency deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Currency removed', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -153,9 +147,7 @@ const useSyncCurrencyRatesMutation = () => {
   return useMutation({
     mutationFn: syncCurrencyRates,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message || __('Exchange rates synced successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Exchange rates synced', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: settingsKeys.section('currency') });
     },

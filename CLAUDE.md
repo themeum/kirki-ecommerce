@@ -488,4 +488,4 @@ commit message that is good enough for PR title and description and also push on
 ## 8. Grilling behavior
 
 When using the /grill-me skill ask me questions one by one and use the graphical interface
-so that I can select my answer graphically.
+so that I can select my answer graphically. Always mention your recommendation while questioning.

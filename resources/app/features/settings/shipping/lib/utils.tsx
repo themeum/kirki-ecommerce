@@ -72,6 +72,26 @@ export const getShippingMethodSubText = (method: ShippingMethodData): string | u
   method.description || undefined;
 
 export const getShippingMethodRightText = (method: ShippingMethodData): string | undefined => {
+  if (method.type === 'weight') {
+    const rangeAmounts = (method.ranges ?? [])
+      .filter((range) => !isEmptyAmount(range.base_amount))
+      .map((range) => Number(range.base_amount))
+      .filter((amount) => Number.isFinite(amount));
+
+    if (!rangeAmounts.length) {
+      return undefined;
+    }
+
+    const lowestAmount = Math.min(...rangeAmounts);
+    const highestAmount = Math.max(...rangeAmounts);
+
+    if (lowestAmount === highestAmount) {
+      return sprintf(__('$%s', 'kirki-ecommerce'), lowestAmount);
+    }
+
+    return sprintf(__('$%1$s - $%2$s', 'kirki-ecommerce'), lowestAmount, highestAmount);
+  }
+
   const showsAmount =
     (method.type === 'flat_rate' || (method.type === 'local_pickup' && method.has_fee)) &&
     !isEmptyAmount(method.base_amount);

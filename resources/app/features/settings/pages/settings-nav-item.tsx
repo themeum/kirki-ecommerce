@@ -1,4 +1,3 @@
-import type { CSSObject } from '@emotion/react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -18,18 +17,9 @@ type SettingsNavItemRowProps = {
 };
 
 const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
-  const {
-    link,
-    header,
-    icon,
-    isActive = false,
-    disabled = false,
-    isFirst = false,
-    isLast = false,
-  } = props;
+  const { link, header, icon, isActive = false, disabled = false } = props;
   const navigate = useNavigate();
   const isDisabled = disabled || !link;
-  const isOnly = isFirst && isLast;
 
   const handleClick = () => {
     if (isDisabled) {
@@ -50,7 +40,7 @@ const SettingsNavItemRow = (props: SettingsNavItemRowProps) => {
 
   return (
     <div
-      css={scopedMerge(styles.row, isOnly && styles.rowOnly, isDisabled && styles.rowDisabled)}
+      css={scopedMerge(styles.row, isDisabled && styles.rowDisabled)}
       data-active={isActive ? 'true' : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -75,26 +65,6 @@ SettingsNavItemRow.displayName = 'SettingsNavItemRow';
 
 export { SettingsNavItemRow };
 
-const highlightedRow = defineStyles({
-  backgroundColor: theme.colors.background.fillSecondary,
-  '& svg': {
-    color: theme.colors.background.fillBrand,
-  },
-});
-
-const highlightedHeading = defineStyles({
-  color: theme.colors.background.fillBrand,
-});
-
-const highlightedIcon = defineStyles({
-  color: theme.colors.background.fillBrand,
-});
-
-const showHighlightedAffordances: CSSObject = {
-  opacity: 1,
-  visibility: 'visible',
-};
-
 const styles = defineStyles({
   row: {
     position: 'relative',
@@ -108,16 +78,22 @@ const styles = defineStyles({
     cursor: 'pointer',
     backgroundColor: theme.colors.background.fill,
     borderRadius: theme.radius.lg,
-    '&:hover, &:focus-visible, &[data-active="true"]': highlightedRow,
-    '&:hover [data-settings-heading], &:focus-visible [data-settings-heading], &[data-active="true"] [data-settings-heading]':
-      highlightedHeading,
-    '&:hover [data-settings-icon], &:focus-visible [data-settings-icon], &[data-active="true"] [data-settings-icon]':
-      highlightedIcon,
-    '&:hover [data-settings-identifier], &:focus-visible [data-settings-identifier], &[data-active="true"] [data-settings-identifier]':
-      showHighlightedAffordances,
-  },
-  rowOnly: {
-    borderRadius: theme.radius.xl,
+    '&:hover, &:focus-visible': {
+      backgroundColor: theme.colors.background.surfaceAlt,
+      color: theme.colors.text.primary,
+      '& svg': {
+        color: theme.colors.text.primary,
+      },
+    },
+    '&[data-active="true"]': {
+      backgroundColor: theme.colors.background.fillSecondary,
+      '& [data-settings-heading]': {
+        color: theme.colors.background.fillBrand,
+      },
+      '& svg': {
+        color: theme.colors.background.fillBrand,
+      },
+    },
   },
   rowDisabled: {
     cursor: 'default',
@@ -131,7 +107,6 @@ const styles = defineStyles({
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    color: theme.colors.icon.primary,
     transition: 'color 0.2s ease',
     '& svg': {
       width: 16,

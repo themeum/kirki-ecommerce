@@ -41,9 +41,7 @@ const usePageRunFixMutation = () => {
   return useMutation({
     mutationFn: fixPages,
     onSuccess(response) {
-      toastMutationSuccess(
-        response?.message ?? __('Pages updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response?.message ?? __('Store pages generated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({
         queryKey: settingsKeys.section('advance'),
       });

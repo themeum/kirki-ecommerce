@@ -190,7 +190,7 @@ const GeneralEditRegion = () => {
                 ]}
               />
 
-              <Card cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}>
+              <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard, styles.statesCard)}>
                 <CardContent>
                   <HeaderActionsCard
                     header={__('State & Rates', 'kirki-ecommerce')}

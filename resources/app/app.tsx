@@ -22,9 +22,14 @@ const App = () => {
         <Init>
           <Toaster
             richColors
-            position="bottom-right"
+            position="top-right"
             toastOptions={{
-              style: { padding: theme.spacing[2] },
+              style: {
+                padding: theme.spacing[4],
+                backgroundColor: theme.colors.background.fill,
+                color: theme.colors.text.primary,
+                border: `1px solid ${theme.colors.border.default}`,
+              },
             }}
           />
           <RouterProvider router={router} />
@@ -93,9 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkActiveSubmenu(ecommerceAdminMenu);
 
   const menuItems = [
-    ...ecommerceAdminMenu.querySelectorAll(
-      '& > ul > li:not(:has(.gf-menu-separator))',
-    ),
+    ...ecommerceAdminMenu.querySelectorAll('& > ul > li:not(:has(.gf-menu-separator))'),
   ];
 
   for (const menuItem of menuItems) {

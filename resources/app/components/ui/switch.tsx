@@ -12,17 +12,15 @@ type SwitchProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const Switch = forwardRef<ElementRef<typeof SwitchPrimitive.Root>, SwitchProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <SwitchPrimitive.Root ref={ref} css={scopedMerge(styles.root, cssOverride)} {...rest}>
-        <SwitchPrimitive.Thumb css={scoped(styles.thumb)} />
-      </SwitchPrimitive.Root>
-    );
-  },
-);
+  return (
+    <SwitchPrimitive.Root ref={ref} css={scopedMerge(styles.root, cssOverride)} {...rest}>
+      <SwitchPrimitive.Thumb css={scoped(styles.thumb)} />
+    </SwitchPrimitive.Root>
+  );
+});
 
 Switch.displayName = 'Switch';
 
@@ -33,8 +31,10 @@ const styles = defineStyles({
     position: 'relative',
     display: 'inline-flex',
     alignItems: 'center',
-    width: '36px',
-    height: '20px',
+    width: '32px',
+    height: '16px',
+    maxWidth: '32px',
+    maxHeight: '16px',
     flexShrink: 0,
     cursor: 'pointer',
     padding: 0,
@@ -60,8 +60,8 @@ const styles = defineStyles({
   },
   thumb: {
     display: 'block',
-    width: '16px',
-    height: '16px',
+    width: '12px',
+    height: '12px',
     borderRadius: theme.radius.full,
     backgroundColor: theme.colors.background.fill,
     transform: 'translateX(2px)',
