@@ -134,7 +134,7 @@ const ShippingZonePage = () => {
                   },
                 ]}
               />
-              <Card cssOverride={cardStyles.formCard}>
+              <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
                 <CardContent>
                   <Flex direction="column" gap={4}>
                     <TextField

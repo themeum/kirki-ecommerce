@@ -31,9 +31,7 @@ const CountrySelector = ({
 
   return (
     <Field data-invalid={error ? true : undefined}>
-      <FieldLabel>
-        {label || __('Country / Region', 'kirki-ecommerce')}
-      </FieldLabel>
+      <FieldLabel>{label || __('Country / Region', 'kirki-ecommerce')}</FieldLabel>
       <Combobox
         options={options}
         value={value}
@@ -41,9 +39,9 @@ const CountrySelector = ({
         error={Boolean(error)}
         multiple={multiple}
         listCss={styles.wrapper}
-        searchInputCss={styles.searchInput}
         disabled={disabled}
       />
+
       {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
       {typeof error === 'string' && <FieldError>{error}</FieldError>}
     </Field>
@@ -56,7 +54,7 @@ export default CountrySelector;
 
 const styles = defineStyles({
   wrapper: {
-    height: '220px',
+    maxHeight: '220px',
     overflowY: 'scroll',
     overflowX: 'hidden',
     borderTop: `1px solid ${theme.colors.border.muted}`,

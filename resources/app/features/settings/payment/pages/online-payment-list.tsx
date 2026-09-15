@@ -69,16 +69,20 @@ const OnlinePaymentList = (props: OnlinePaymentProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="payments.online"
+        data-search-keywords="stripe, paypal, credit card, processor"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <Flex direction="column" gap={4}>
             <HeaderActionsCard
-              header={__('Payment gateways', 'kirki-ecommerce')}
+              header={__('Payment Gateways', 'kirki-ecommerce')}
               subHeader={__(
-                "Set up and manage your online store's payment options.",
+                'Online providers that process card and digital wallet payments.',
                 'kirki-ecommerce',
               )}
-              buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
+              buttonText={__('Payment Methods', 'kirki-ecommerce')}
               onAdd={() => setIsEditPopupOpen(true)}
             />
 

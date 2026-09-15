@@ -207,13 +207,21 @@ foreach ($media as $media_item) {
                 </div>
 
                 <!-- Add to Cart Button -->
-                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
+                <div class="kecom-product-info-button-group" x-data="wishlist(selectedVariant?.is_wishlisted || false,variants)" x-init="$watch('selectedVariantId', (val) => {
+                    isWishlisted = wishlistedVariants[val];
+                })">
+                    <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
                     imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">
-                    <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
-                        <?php Icon::render('cart'); ?>
-                        <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
-                    </button>
+                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
+                            <?php Icon::render('cart'); ?>
+                            <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
+                        </button>
+                    </div>
+                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url( Url::get_login_url() ) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': wishlistedVariants[selectedVariantId] }">
+                        <?php Icon::render('heart'); ?>
+                        <?php esc_html_e('Add to Wishlist', 'kirki-ecommerce'); ?>
+                    </a>
                 </div>
             </div>
         </div>
