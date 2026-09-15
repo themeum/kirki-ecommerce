@@ -86,8 +86,8 @@ class PaymongoTransactionBuilder
 
         foreach ($this->order->items as $item) {
             $line_items[] = [
-                'amount'   => $item->invoiced_price,
-                'currency' => $this->order->currency_code,
+                'amount' => (int) $item->invoiced_price,
+                'currency' => 'PHP',//$this->order->currency_code,
                 'name' => $item->product_name,
                 'quantity' => $item->quantity,
             ];

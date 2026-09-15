@@ -14,6 +14,7 @@ http:
       {
         "data": {
           "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+          "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
           "sandbox": true
         }
       }
@@ -38,6 +39,7 @@ examples:
           {
             "data": {
               "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+               "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
               "sandbox": true
             }
           }
@@ -60,6 +62,7 @@ examples:
               "description": "QuickPay payment gateway",
               "settings": {
                 "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+                 "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
                 "sandbox": true
               },
               "fields": [
@@ -96,6 +99,7 @@ examples:
           {
            "data": {
               "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+              "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
               "sandbox": true
             }
           }

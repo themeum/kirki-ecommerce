@@ -27,10 +27,13 @@ class PayMongoConstant
         'google_pay_card',
         'dob',
         'dob_ubp',
-        'billease',
         'brankas_bdo',
         'brankas_landbank',
         'brankas_metrobank',
         'brankas_rcbc',
     ];
+
+    const EVENT_CHECKOUT_PAYMENT_PAID = 'checkout_session.payment.paid';
+    const EVENT_PAYMENT_PAID = 'payment.paid';
+    const EVENT_PAYMENT_FAILED = 'payment.failed';
 }

@@ -43,6 +43,12 @@ class Paymongo extends PaymentProvider
                 'required' => true,
             ],
             [
+                'name' => 'webhook_secret_key',
+                'label' => __('Webhook Secret Key', 'kirki-ecommerce-paymongo'),
+                'type' => 'password',
+                'required' => true,
+            ],
+            [
                 'name' => 'sandbox',
                 'label' => __('Sandbox Mode', 'kirki-ecommerce-paymongo'),
                 'type' => 'checkbox',
@@ -67,11 +73,15 @@ class Paymongo extends PaymentProvider
             $this->client = $this->get_client();
             $builder = new PaymongoTransactionBuilder($order);
             $payload = $builder->create_checkout_session_payload();
-            $response = $this->client->create_checkout_session_url($payload);
+            $response = $this->client->create_checkout_session_url($payload, ['Idempotency-Key' => $order->uuid]);
+
+            if (empty($response['data']['attributes']['checkout_url'])) {
+                throw new Exception((__('PayMongo Checkout Url Not Found.', 'kirki-ecommerce-paymongo')));
+            }
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => '',//$payment_link['url'],
+                'value' => $response['data']['attributes']['checkout_url'],
             ]);
         } catch (Exception $e) {
             throw new Exception(sprintf(__('PayMongo Payment Error: %s', 'kirki-ecommerce-paymongo'), $e->getMessage()));
@@ -90,6 +100,7 @@ class Paymongo extends PaymentProvider
 
         Validator::make($settings, [
             'secret_key' => 'sometimes|string',
+            'webhook_secret_key' => 'sometimes|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 
@@ -108,6 +119,7 @@ class Paymongo extends PaymentProvider
 
         $data = Sanitizer::make($settings, [
             'secret_key' => Sanitizer::TEXT,
+            'webhook_secret_key' => Sanitizer::TEXT,
             'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
@@ -122,12 +134,23 @@ class Paymongo extends PaymentProvider
      */
     public function webhook()
     {
-        $payload = $this->verify_and_parse_notification();
-
         http_response_code(200);
 
         try {
-            $order_uuid = $payload->variables->order_uuid ?? '';
+            $payload = $this->verify_and_parse_notification();
+
+            $allowed_event_types = [
+                PayMongoConstant::EVENT_CHECKOUT_PAYMENT_PAID,
+                PayMongoConstant::EVENT_PAYMENT_PAID,
+                PayMongoConstant::EVENT_PAYMENT_FAILED,
+            ];
+
+            $event = $payload->type ?? '';
+            if (!in_array($event, $allowed_event_types, true)) {
+                return false;
+            }
+
+            $order_uuid = $payload->reference_number ?? '';
             if (!$order_uuid) {
                 throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-paymongo'));
             }
@@ -162,13 +185,14 @@ class Paymongo extends PaymentProvider
         }
 
         $secret_key = $this->settings['secret_key'] ?? '';
+        $webhook_secret_key = $this->settings['webhook_secret_key'] ?? '';
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
-        if (empty($secret_key)) {
+        if (empty($secret_key) || empty($webhook_secret_key)) {
             throw new Exception(__('PayMongo credentials are missing.', 'kirki-ecommerce-paymongo'));
         }
 
-        return new PaymongoClient($secret_key, $sandbox);
+        return new PaymongoClient($secret_key, $webhook_secret_key, $sandbox);
     }
 
     /**
@@ -241,14 +265,10 @@ class Paymongo extends PaymentProvider
         $raw_payload = file_get_contents('php://input');
         $this->client = $this->get_client();
 
-        // Respond with a 200 status code to acknowledge the notification.
-        http_response_code(200);
-
         if (empty($raw_payload) || ! $this->client->is_verified($raw_payload)) {
-            throw new Exception(__('Invalid Payload From QuickPay.', 'kirki-ecommerce-quickpay'));
+            throw new Exception(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-quickpay'));
         }
 
         return json_decode($raw_payload);
     }
-
 }
