@@ -582,10 +582,9 @@ class PaymentProvider
     /**
      * Handle a GET request to the webhook URL.
      *
-     * Gateways that send the customer back to the webhook URL after payment
-     * override this to confirm the payment and return where to send them. The
-     * default returns null, which the controller answers with a plain 200 —
-     * enough for gateways that only ping the URL to check it is reachable.
+     * Gateways that return the customer to this URL after payment override this
+     * to confirm the result and return where to send them next. Returning null
+     * gives a plain 200, which is enough for gateways that only check the URL is reachable.
      *
      * @param Request $request
      * @return RedirectResponse|null
