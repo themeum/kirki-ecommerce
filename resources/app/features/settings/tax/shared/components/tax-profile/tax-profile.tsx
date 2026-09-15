@@ -19,6 +19,7 @@ import {
 import Text from '@/components/ui/text';
 import { taxKeys } from '@/features/settings';
 import { TaxProfilePopup } from '@/features/settings/tax/shared/components/tax-profile/tax-profile-dialog';
+import { TaxProfilePopover } from '@/features/settings/tax/shared/components/tax-profile/tax-profile-popover';
 import type { TaxProfile as TaxProfileType } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { deleteTaxProfile, useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
 import { useConfirmDelete } from '@/hooks';
@@ -103,15 +104,17 @@ const TaxProfile = () => {
         cssOverride={cardStyles.formCard}
       >
         <CardContent>
-          <HeaderActionsCard
-            header={__('Tax Profiles', 'kirki-ecommerce')}
-            subHeader={__(
-              'Rate groups for products taxed differently, such as food, books or digital goods.',
-              'kirki-ecommerce',
-            )}
-            buttonText={__('Create Profile', 'kirki-ecommerce')}
-            onAdd={() => setShowPopup(true)}
-          />
+          <TaxProfilePopover isOpen={showPopup} onClose={() => setShowPopup(false)}>
+            <HeaderActionsCard
+              header={__('Tax Profiles', 'kirki-ecommerce')}
+              subHeader={__(
+                'Rate groups for products taxed differently, such as food, books or digital goods.',
+                'kirki-ecommerce',
+              )}
+              buttonText={__('Add', 'kirki-ecommerce')}
+              onAdd={() => setShowPopup(true)}
+            />
+          </TaxProfilePopover>
 
           <div css={scoped({ marginTop: theme.spacing[5] })}>
             {!taxProfileList?.length ? (
@@ -171,7 +174,6 @@ const TaxProfile = () => {
           </div>
         </CardContent>
       </Card>
-      {showPopup && <TaxProfilePopup isOpen={showPopup} onClose={() => setShowPopup(false)} />}
       {editingProfile && (
         <TaxProfilePopup
           isOpen={editingProfile}

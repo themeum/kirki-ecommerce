@@ -59,23 +59,27 @@ const AdvancedSettings = () => {
         >
           <CardContent>
             <Flex direction="column" gap={2}>
-              <Flex justify="space-between" align="center">
-                <Text weight="semibold">{__('Pages', 'kirki-ecommerce')}</Text>
+              <Flex justify="space-between" align="flex-start">
+                <Flex direction="column">
+                  <Text weight="semibold">{__('Pages', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">
+                    {__(
+                      'Which WordPress pages your storefront uses, and repairing missing ones.',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
+                </Flex>
                 <Button
                   onClick={() => void runFixMutation.mutate()}
                   loading={runFixMutation.isPending}
                   disabled={!hasPageError || runFixMutation.isPending}
+                  size="sm"
                 >
                   <Hammer size="12" />
                   {__('Run Fix', 'kirki-ecommerce')}
                 </Button>
               </Flex>
-              <Text variant="small" color="secondary">
-                {__(
-                  'Which WordPress pages your storefront uses, and repairing missing ones.',
-                  'kirki-ecommerce',
-                )}
-              </Text>
+
               <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>
                 {hasPageError && <Alert type="warning" text={<AlertMessage />} hasHighlight />}
                 <PageTable pages={pages} />

@@ -3,8 +3,9 @@ import type { TaxRegionStrategy } from '@/features/settings/tax/shared/contracts
 import {
   buildGeneralRegionEditLink,
   createGeneralRegion,
+  resolveGeneralRegionBadges,
   resolveGeneralRegionMeta,
-  resolveGeneralRegionSummary,
+  resolveGeneralRegionRateLabel,
 } from './lib/region-display';
 import { generalRoutes } from './routes';
 
@@ -12,7 +13,8 @@ export const generalTaxRegionStrategy: TaxRegionStrategy = {
   key: 'DEFAULT',
   createRegion: createGeneralRegion,
   resolveMeta: resolveGeneralRegionMeta,
-  resolveSummary: resolveGeneralRegionSummary,
+  resolveBadges: resolveGeneralRegionBadges,
+  resolveRateLabel: resolveGeneralRegionRateLabel,
   buildEditLink: buildGeneralRegionEditLink,
   routes: generalRoutes,
 };

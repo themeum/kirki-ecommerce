@@ -77,7 +77,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
           </Button>
         ) : (
           <SelectPrimitive.Icon asChild>
-            <span css={scoped(styles.chevron)}>
+            <span data-slot="select-icon" css={scoped(styles.chevron)}>
               <ChevronDownIcon width={16} height={16} />
             </span>
           </SelectPrimitive.Icon>
@@ -251,6 +251,9 @@ const styles = defineStyles({
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
+    '&[data-placeholder]': {
+      color: theme.colors.text.secondary,
+    },
   },
   variants: {
     default: {},
@@ -340,7 +343,7 @@ const styles = defineStyles({
     cursor: 'pointer',
     position: 'relative',
     outline: 'none',
-    ...theme.typography.small(),
+    ...theme.typography.small('medium'),
     maxHeight: '32px',
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,

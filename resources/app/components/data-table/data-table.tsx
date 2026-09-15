@@ -133,6 +133,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     ? columnVisibility
     : storedColumnVisibility;
   const showColumnVisibilityMenu = enableColumnVisibility && !isColumnVisibilityControlled;
+  const showToolbarRow = Boolean(toolbar) || showColumnVisibilityMenu;
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isAllMatchingSelected, setIsAllMatchingSelected] = useState(false);
@@ -287,12 +288,14 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
               cssOverride={styles.toolbar}
             />
           ) : (
-            <Flex align="center" gap={2} cssOverride={styles.toolbarRow}>
-              <div css={scoped(styles.toolbarContent)}>{toolbar}</div>
-              {showColumnVisibilityMenu && (
-                <DataTableColumnVisibility table={table} onToggle={toggleColumnVisibility} />
-              )}
-            </Flex>
+            showToolbarRow && (
+              <Flex align="center" gap={2} cssOverride={styles.toolbarRow}>
+                <div css={scoped(styles.toolbarContent)}>{toolbar}</div>
+                {showColumnVisibilityMenu && (
+                  <DataTableColumnVisibility table={table} onToggle={toggleColumnVisibility} />
+                )}
+              </Flex>
+            )
           )}
           <Table
             ref={tableRef}

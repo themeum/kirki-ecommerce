@@ -10,27 +10,15 @@ import {
 import { theme } from '@/theme';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 
-type RuleItemsElementProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type RuleItemsElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const RuleItems = forwardRef<HTMLDivElement, RuleItemsElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const RuleItems = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <StackedItems
-        ref={ref}
-        data-slot="rule-items"
-        cssOverride={cssOverride}
-        {...rest}
-      />
-    );
-  },
-);
+  return <StackedItems ref={ref} data-slot="rule-items" cssOverride={cssOverride} {...rest} />;
+});
 
 RuleItems.displayName = 'RuleItems';
 
@@ -72,71 +60,63 @@ const RuleItemContent = forwardRef<
 
 RuleItemContent.displayName = 'RuleItemContent';
 
-const RuleItemBadge = forwardRef<HTMLDivElement, RuleItemsElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const RuleItemBadge = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="rule-item-badge"
-        css={mergeCss(styles.badge, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="rule-item-badge"
+      css={mergeCss(styles.badge, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 RuleItemBadge.displayName = 'RuleItemBadge';
 
-const RuleItemConditions = forwardRef<HTMLDivElement, RuleItemsElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const RuleItemConditions = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="rule-item-conditions"
-        css={mergeCss(styles.conditions, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="rule-item-conditions"
+      css={mergeCss(styles.conditions, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 RuleItemConditions.displayName = 'RuleItemConditions';
 
-const RuleItemCondition = forwardRef<HTMLDivElement, RuleItemsElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const RuleItemCondition = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="rule-item-condition"
-        css={mergeCss(styles.line, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="rule-item-condition"
+      css={mergeCss(styles.line, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 RuleItemCondition.displayName = 'RuleItemCondition';
 
-const RuleItemAction = forwardRef<HTMLDivElement, RuleItemsElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const RuleItemAction = forwardRef<HTMLDivElement, RuleItemsElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="rule-item-action"
-        css={mergeCss(styles.line, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="rule-item-action"
+      css={mergeCss(styles.line, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 RuleItemAction.displayName = 'RuleItemAction';
 
@@ -163,6 +143,7 @@ export type { RuleItemProps, RuleItemsElementProps };
 const styles = defineStyles({
   item: {
     paddingBlock: theme.spacing[4],
+    height: 'auto',
   },
   content: {
     gap: theme.spacing[4],
