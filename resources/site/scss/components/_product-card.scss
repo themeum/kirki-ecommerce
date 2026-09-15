@@ -49,6 +49,16 @@
     border-radius: $radius-full;
     border: 0;
     cursor: pointer;
+
+    &:focus,
+    &:focus-visible{
+      outline: none;
+    }
+
+    svg{
+      color: $icon-primary;
+    }
+
     &.active {
       svg{
         color: $icon-primary;

@@ -13,14 +13,14 @@ type ItemsResponse = {
   };
 };
 
-export function pagination(apiUrl: string,itemsGrid?:string, paginationContainer?:string, headerClass?: string) {
+export function pagination(apiUrl: string,itemsGrid:string, paginationContainer:string, headerClass:string) {
   const { __ } = window.wp.i18n;
 
   return {
     isLoading: false,
-    itemsGrid: itemsGrid || 'kecom-products-grid',
-    paginationContainer: paginationContainer || 'kecom-pagination-container',
-    headerClass: headerClass || 'kecom-breadcrumb-list',
+    itemsGrid: itemsGrid,
+    paginationContainer: paginationContainer,
+    headerClass: headerClass,
     apiUrl: apiUrl,
 
     init() {
