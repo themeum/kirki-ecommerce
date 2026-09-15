@@ -1,0 +1,199 @@
+// Currency Switcher Dropdown
+// Base: .kecom-currency-switcher
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-currency-switcher {
+  position: relative;
+  display: inline-block;
+  font-family: inherit;
+
+  // Trigger Button
+  &-trigger {
+    @include button-reset;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    background-color: $background-fill;
+    border: 1px solid $border-default;
+    border-radius: $radius-lg;
+    color: $text-primary;
+    @include typography(sm, medium, $text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+
+    &:hover {
+      background-color: $background-surface-secondary;
+      border-color: $border-hover;
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: $border-ring;
+      box-shadow: 0 0 0 2px rgba(var(--kecom-brand-rgb, 59, 130, 246), 0.2);
+    }
+  }
+
+  &-current-symbol {
+    font-weight: 600;
+    color: $text-secondary;
+  }
+
+  &-current-code {
+    font-weight: 600;
+    letter-spacing: 0.025em;
+  }
+
+  &-arrow {
+    width: 14px;
+    height: 14px;
+    color: $icon-secondary;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+
+    &.is-open {
+      transform: rotate(180deg);
+    }
+  }
+
+  // Dropdown Panel
+  &-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 220px;
+    max-height: 320px;
+    overflow-y: auto;
+    background-color: $background-fill;
+    border: 1px solid $border-default;
+    border-radius: $radius-xl;
+    box-shadow: $shadow-lg;
+    padding: $spacing-1;
+    z-index: 100;
+
+    @include scrollbar();
+
+    &[x-cloak] {
+      display: none !important;
+    }
+  }
+
+  // List
+  &-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  // List Item
+  &-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+    user-select: none;
+
+    &:hover {
+      background-color: $background-option-hover;
+    }
+
+    &.is-active {
+      background-color: $background-fill-secondary;
+      color: $text-brand;
+
+      .kecom-currency-switcher-item-code {
+        font-weight: 600;
+        color: $text-brand;
+      }
+
+      .kecom-currency-switcher-item-symbol {
+        color: $text-brand;
+      }
+    }
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      overflow: hidden;
+    }
+
+    &-symbol {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: $text-secondary;
+    }
+
+    &-code {
+      font-size: 13px;
+      font-weight: 500;
+      color: $text-primary;
+      letter-spacing: 0.025em;
+    }
+
+    &-name {
+      font-size: 12px;
+      color: $text-subdued;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 110px;
+    }
+
+    &-check {
+      color: $icon-brand;
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      margin-left: $spacing-2;
+    }
+  }
+}
+
+// Transitions
+.kecom-currency-switcher-enter {
+  transition:
+    opacity 0.15s ease-out,
+    transform 0.15s ease-out;
+}
+
+.kecom-currency-switcher-enter-start {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}
+
+.kecom-currency-switcher-enter-end {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.kecom-currency-switcher-leave {
+  transition:
+    opacity 0.1s ease-in,
+    transform 0.1s ease-in;
+}
+
+.kecom-currency-switcher-leave-start {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.kecom-currency-switcher-leave-end {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+}
