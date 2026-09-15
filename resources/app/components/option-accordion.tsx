@@ -1,3 +1,4 @@
+import type { CSSObject } from '@emotion/react';
 import { type ReactNode } from 'react';
 
 import {
@@ -14,7 +15,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { CSSObject } from '@emotion/react';
 
 type OptionAccordionProps = {
   header?: ReactNode;
