@@ -2,7 +2,8 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Tax;
 
-use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\Tax\Strategies\DefaultTaxStrategy;
 use Kirki\Ecommerce\Tests\Support\BindsTaxDependencies;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
@@ -26,9 +27,12 @@ class DefaultTaxStrategyTest extends TestCase
     public function test_per_state_rates_are_matched_by_state_id(): void
     {
         $strategy = $this->make_strategy(['state' => '771'], $this->per_state_region());
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(2000, $strategy->calculate_product_tax($this->tax_context())->base_total);
-        $this->assertSame(500, $strategy->calculate_shipping_tax(10000)->base_total);
+        $this->assertSame(2000, $result->items[1][0]->base_amount);
+        $this->assertSame(1, $result->items[1][0]->item_id);
+        $this->assertSame(500, $result->shipping[0]->base_amount);
+        $this->assertNull($result->shipping[0]->item_id);
     }
 
     /**
@@ -39,9 +43,10 @@ class DefaultTaxStrategyTest extends TestCase
     public function test_unconfigured_state_is_taxed_at_zero(): void
     {
         $strategy = $this->make_strategy(['state' => '999'], $this->per_state_region());
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(0, $strategy->calculate_product_tax($this->tax_context())->base_total);
-        $this->assertSame(0, $strategy->calculate_shipping_tax(10000)->base_total);
+        $this->assertSame(0, $result->items[1][0]->base_amount);
+        $this->assertSame(0, $result->shipping[0]->base_amount);
     }
 
     /**
@@ -62,8 +67,9 @@ class DefaultTaxStrategyTest extends TestCase
         ];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(1500, $strategy->calculate_product_tax($this->tax_context())->base_total);
+        $this->assertSame(1500, $result->items[1][0]->base_amount);
     }
 
     /**
@@ -77,8 +83,9 @@ class DefaultTaxStrategyTest extends TestCase
         $region['states'][0]['rules'] = [$this->set_product_tax_rate_rule('digital', 7)];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(700, $strategy->calculate_product_tax($this->tax_context())->base_total);
+        $this->assertSame(700, $result->items[1][0]->base_amount);
     }
 
     /**
@@ -92,8 +99,9 @@ class DefaultTaxStrategyTest extends TestCase
         $region['rules'] = [$this->set_product_tax_rate_rule('digital', 7)];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(2000, $strategy->calculate_product_tax($this->tax_context())->base_total);
+        $this->assertSame(2000, $result->items[1][0]->base_amount);
     }
 
     /**
@@ -114,8 +122,9 @@ class DefaultTaxStrategyTest extends TestCase
         ];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(700, $strategy->calculate_product_tax($this->tax_context())->base_total);
+        $this->assertSame(700, $result->items[1][0]->base_amount);
     }
 
     /**
@@ -131,8 +140,9 @@ class DefaultTaxStrategyTest extends TestCase
         ];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(900, $strategy->calculate_product_tax($this->tax_context())->base_total);
+        $this->assertSame(900, $result->items[1][0]->base_amount);
     }
 
     /**
@@ -148,9 +158,10 @@ class DefaultTaxStrategyTest extends TestCase
         ];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(1200, $strategy->calculate_shipping_tax(10000)->base_total);
-        $this->assertSame(1500, $strategy->calculate_product_tax($this->tax_context())->base_total);
+        $this->assertSame(1200, $result->shipping[0]->base_amount);
+        $this->assertSame(1500, $result->items[1][0]->base_amount);
     }
 
     /**
@@ -166,8 +177,47 @@ class DefaultTaxStrategyTest extends TestCase
         ];
 
         $strategy = $this->make_strategy(['state' => '771'], $region);
+        $result = $strategy->calculate($this->tax_context());
 
-        $this->assertSame(500, $strategy->calculate_shipping_tax(10000)->base_total);
+        $this->assertSame(500, $result->shipping[0]->base_amount);
+    }
+
+    /**
+     * Untaxed shipping produces no shipping tax line.
+     *
+     * @return void
+     */
+    public function test_non_taxable_shipping_produces_no_line(): void
+    {
+        $strategy = $this->make_strategy(['state' => '771'], $this->per_state_region());
+
+        $context = $this->tax_context();
+        $context->is_shipping_taxable = false;
+
+        $result = $strategy->calculate($context);
+
+        $this->assertSame([], $result->shipping);
+    }
+
+    /**
+     * Tax-inclusive pricing extracts the tax from the item's and the
+     * shipping's base amount instead of adding it on top.
+     *
+     * @return void
+     */
+    public function test_tax_inclusive_pricing_extracts_the_tax(): void
+    {
+        $region = $this->country_wide_region();
+        $strategy = new DefaultTaxStrategy(['country' => 'BD', 'state' => '771'], $region, true, true);
+
+        $context = $this->tax_context();
+        $context->items[0]->taxable_amount = 11500;
+        $context->shipping_fee = 10500;
+
+        $result = $strategy->calculate($context);
+
+        $this->assertSame(1500, $result->items[1][0]->base_amount);
+        $this->assertSame(500, $result->shipping[0]->base_amount);
     }
 
     /**
@@ -231,16 +281,23 @@ class DefaultTaxStrategyTest extends TestCase
     }
 
     /**
-     * @return ProductTaxContextDTO
+     * @return TaxCalculationContextDTO
      */
-    protected function tax_context(): ProductTaxContextDTO
+    protected function tax_context(): TaxCalculationContextDTO
     {
-        return ProductTaxContextDTO::from_array([
+        return TaxCalculationContextDTO::from_array([
             'shipping_address' => ['country' => 'BD', 'state' => '771'],
             'billing_address' => [],
-            'base_product_price' => 10000,
-            'product_categories' => [],
-            'tax_profile' => 'digital',
+            'shipping_fee' => 10000,
+            'is_shipping_taxable' => true,
+            'items' => [
+                TaxableItemDTO::from_array([
+                    'item_id' => 1,
+                    'taxable_amount' => 10000,
+                    'tax_profile_id' => 'digital',
+                    'product_categories' => [],
+                ]),
+            ],
         ]);
     }
 }

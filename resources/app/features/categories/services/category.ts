@@ -6,7 +6,13 @@ import { CategorySchema } from '@/features/categories/schemas/catalog/category';
 import type { CategoryFormPayload } from '@/features/categories/schemas/forms/category-form';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { BulkActionParams } from '@/types/api/result';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
@@ -14,9 +20,7 @@ import { __ } from '@/wpi18n';
 const getCategories = (params: ListQueryParams = {}) => {
   return apiClient
     .get(endpoints.CATEGORIES, { params })
-    .then((response) =>
-      parseData(PaginatedDataSchema(CategorySchema), response),
-    );
+    .then((response) => parseData(PaginatedDataSchema(CategorySchema), response));
 };
 
 /**
@@ -32,28 +36,17 @@ const createCategory = (
     .then((response) => parseResponse(CategorySchema, response));
 };
 
-const updateCategory = ({
-  id,
-  data,
-}: {
-  id: number;
-  data: CategoryFormPayload;
-}) => {
+const updateCategory = ({ id, data }: { id: number; data: CategoryFormPayload }) => {
   return apiClient
     .put(endpoints.CATEGORY(id), data)
     .then((response) => parseResponse(CategorySchema, response));
 };
 
 const deleteCategory = (id: number) => {
-  return apiClient
-    .delete(endpoints.CATEGORY(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.CATEGORY(id)).then((response) => parseMessage(response));
 };
 
-const bulkDeleteCategories = ({
-  action = 'delete',
-  ids = [],
-}: BulkActionParams = {}) => {
+const bulkDeleteCategories = ({ action = 'delete', ids = [] }: BulkActionParams = {}) => {
   return apiClient
     .post(endpoints.CATEGORIES_BULK, { action, ids })
     .then((response) => parseMessage(response));
@@ -73,10 +66,7 @@ const useCreateCategoryMutation = () => {
   return useMutation({
     mutationFn: createCategory,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Category created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Category created', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
@@ -90,10 +80,7 @@ const useUpdateCategoryMutation = () => {
   return useMutation({
     mutationFn: updateCategory,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Category updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Category updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
@@ -107,10 +94,7 @@ const useDeleteCategoryMutation = () => {
   return useMutation({
     mutationFn: deleteCategory,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Category deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Category deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
@@ -124,10 +108,7 @@ const useBulkDeleteCategoriesMutation = () => {
   return useMutation({
     mutationFn: bulkDeleteCategories,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Categories deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Categories deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
     },
     onError(error) {
@@ -137,7 +118,14 @@ const useBulkDeleteCategoriesMutation = () => {
 };
 
 export {
-  bulkDeleteCategories, createCategory, deleteCategory, getCategories, updateCategory, useBulkDeleteCategoriesMutation, useCategoriesQuery,
-  useCreateCategoryMutation, useDeleteCategoryMutation, useUpdateCategoryMutation,
+  bulkDeleteCategories,
+  createCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory,
+  useBulkDeleteCategoriesMutation,
+  useCategoriesQuery,
+  useCreateCategoryMutation,
+  useDeleteCategoryMutation,
+  useUpdateCategoryMutation,
 };
-

@@ -61,7 +61,7 @@ class OrderActivityController
 
         return response()->json([
             'data' => OrderActivityResource::make($activity),
-            'message' => __('Comment added successfully.', 'kirki-ecommerce'),
+            'message' => __('Comment added', 'kirki-ecommerce'),
         ], 201);
     }
 
@@ -71,7 +71,7 @@ class OrderActivityController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Comment deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Comment deleted', 'kirki-ecommerce'),
         ]);
     }
 }

@@ -31,7 +31,6 @@ const cardStyles = defineStyles({
     padding: theme.spacing[5],
   },
   sectionHeader: {
-    gap: theme.spacing[2],
     paddingInline: theme.spacing[5],
   },
   innerCard: {
@@ -47,7 +46,7 @@ const cardStyles = defineStyles({
   },
   innerDarkCard: {
     borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     border: 'none',
     padding: theme.spacing[0],
   },

@@ -43,7 +43,8 @@ class OrderCreateRequest extends Request
 
             'currency_code' => 'nullable|string',
             'payment_provider' => 'required_if:is_manual,0|nullable|string',
-            'coupon_code' => 'nullable|string',
+            'coupon_codes' => 'nullable|array',
+            'coupon_codes.*' => 'string',
 
             'shipping_method' => 'required|string',
             'shipping_id' => 'nullable|numeric',
@@ -91,7 +92,8 @@ class OrderCreateRequest extends Request
 
             'currency_code' => Sanitizer::TEXT,
             'payment_provider' => Sanitizer::TEXT,
-            'coupon_code' => Sanitizer::TEXT,
+            'coupon_codes' => Sanitizer::ARRAY,
+            'coupon_codes.*' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
 
@@ -107,6 +109,8 @@ class OrderCreateRequest extends Request
             'shipping_phone' => Sanitizer::TEXT,
             'shipping_email' => Sanitizer::EMAIL,
             'shipping_company' => Sanitizer::TEXT,
+
+            'is_billing_same_as_shipping' => Sanitizer::BOOL,
 
             'billing_id' => Sanitizer::INT,
             'billing_first_name' => Sanitizer::TEXT,

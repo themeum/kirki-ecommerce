@@ -15,7 +15,7 @@ import {
   useDeleteCategoryMutation,
 } from '@/features/categories/services/category';
 import { categoryListOptions } from '@/features/categories/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
@@ -30,6 +30,7 @@ const CategoryTable = () => {
   const { data, isFetching } = useCategoriesQuery(params);
   const deleteMutation = useDeleteCategoryMutation();
   const bulkDeleteMutation = useBulkDeleteCategoriesMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
   const [editingItem, setEditingItem] = useState<Category | null>(null);
 
   const handleBulkApply = useCallback(
@@ -38,11 +39,24 @@ const CategoryTable = () => {
         return;
       }
 
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected categories?', 'kirki-ecommerce'),
+          description: __(
+            'The selected categories will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
       await bulkDeleteMutation.mutateAsync(
         resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
       );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const columns = useMemo<ColumnDef<Category>[]>(
@@ -60,14 +74,24 @@ const CategoryTable = () => {
                 label: __('Delete', 'kirki-ecommerce'),
                 icon: <Trash2 size={16} />,
                 destructive: true,
-                onClick: () => deleteMutation.mutate(row.original.id),
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete category?', 'kirki-ecommerce'),
+                      description: __(
+                        'This category will be permanently deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
               },
             ]}
           />
         ),
       },
     ],
-    [deleteMutation],
+    [confirmDelete, deleteMutation],
   );
 
   return (
@@ -91,6 +115,7 @@ const CategoryTable = () => {
         density="compact"
         toolbar={<CategoryTableFilters />}
       />
+      {deleteConfirmation}
       {editingItem && (
         <CategoryAddEditPopover
           key={editingItem.id}

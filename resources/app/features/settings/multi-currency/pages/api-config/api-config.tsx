@@ -98,7 +98,15 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
               value={apiProvider ?? undefined}
               onValueChange={(value) => setValue('api_provider', value, { shouldDirty: true })}
             >
-              <SelectTrigger id="api-provider-select">
+              <SelectTrigger
+                id="api-provider-select"
+                showClear={Boolean(isApiProviderSelected)}
+                onClear={
+                  isApiProviderSelected
+                    ? () => setValue('api_provider', null, { shouldDirty: true })
+                    : undefined
+                }
+              >
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
               </SelectTrigger>
               <SelectContent>
@@ -119,7 +127,12 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                   currencySettings={currencySettings}
                 />
               ) : (
-                <Card cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}>
+                <Card
+                  data-search-id="currency.api-configuration"
+                  data-search-keywords="api key, conversion rate, exchange rate provider, automatic rates"
+                  data-search-title={__('Exchange Rate API Configuration', 'kirki-ecommerce')}
+                  cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}
+                >
                   <CardContent cssOverride={cardStyles.innerContent}>
                     <Flex justify="space-between" align="center">
                       <Flex direction="column" gap={2}>
@@ -129,7 +142,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                         </Flex>
                         <Text variant="small" color="secondary">
                           {__(
-                            'Configure your API key and connection settings for ExchangeRate API',
+                            'API key and connection details used to fetch live conversion rates.',
                             'kirki-ecommerce',
                           )}
                         </Text>

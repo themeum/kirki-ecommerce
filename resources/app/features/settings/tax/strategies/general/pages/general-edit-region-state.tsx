@@ -156,7 +156,7 @@ const GeneralEditRegionState = () => {
             ]}
           />
 
-          <Card cssOverride={mergeCss(cardStyles.formCard)}>
+          <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.formCard)}>
             <CardContent>
               <Flex direction="column" gap={2}>
                 <SingleTaxRate<TaxRegionStateFormInput>

@@ -80,20 +80,16 @@ class TwocheckoutTransactionBuilder
         }
 
         $item_names = $item_quantities = $item_prices = $item_references = $item_types = array();
+        $total_tax = 0;
 
-        foreach ($this->order->items as $item) {
+        foreach ($this->order->items as $item) {        
+            $total_tax += $item->invoiced_tax_total ?? 0;
+
             $item_names[] = html_entity_decode($item->product_name);
-            $item_quantities[] = $item->quantity;
+            $item_quantities[] = (int) $item->quantity;
             $item_prices[] = PaymentProvider::format_amount($item->invoiced_price, $this->order->currency_code);
             $item_references[] = $item->variant_id;
             $item_types[] = TwocheckoutConstant::TYPE_PRODUCT;
-        }
-
-        if (!empty($this->order->invoiced_tax_total)) {
-            $item_names[] = TwocheckoutConstant::TAX;
-            $item_quantities[] = 1;
-            $item_prices[] = PaymentProvider::format_amount($this->order->invoiced_tax_total, $this->order->currency_code);
-            $item_types[] = TwocheckoutConstant::TYPE_TAX;
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
@@ -109,6 +105,14 @@ class TwocheckoutTransactionBuilder
             $item_prices[]     = PaymentProvider::format_amount($this->order->invoiced_discount_total, $this->order->currency_code);
             $item_references[] = '';
             $item_types[]      = TwocheckoutConstant::TYPE_COUPON;
+        }
+
+        if($total_tax > 0){
+            $item_names[] = TwocheckoutConstant::TAX;
+            $item_quantities[] = 1;
+            $item_prices[] = PaymentProvider::format_amount($total_tax, $this->order->currency_code);
+            $item_references[] = '';
+            $item_types[] = TwocheckoutConstant::TYPE_TAX;
         }
 
         return [

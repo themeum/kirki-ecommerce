@@ -8,7 +8,11 @@ import Button from '@/components/ui/button';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
-const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTableRowActionsConfig) => {
+const DataTableRowActions = ({
+  edit,
+  actions = [],
+  actionCssOverride,
+}: DataTableRowActionsConfig) => {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!edit && actions.length === 0) {
@@ -39,14 +43,17 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
             'type' in action && action.type === 'separator'
               ? { value: `separator-${index}`, title: '', type: 'separator' as const }
               : {
-                value: index,
-                title: action.label,
-                icon: action.icon,
-                style: {
-                  ...(action.destructive ? { color: theme.colors.text.critical } : {}),
-                  ...action.cssOverride,
+                  value: index,
+                  title: action.label,
+                  icon: action.icon,
+                  style: action.cssOverride,
+                  cssOverride: action.destructive
+                    ? {
+                        color: theme.colors.text.critical,
+                        '& svg': { color: theme.colors.icon.critical },
+                      }
+                    : undefined,
                 },
-              },
           )}
           onOptionSelect={(actionIndex) => {
             const action = actions[Number(actionIndex)];

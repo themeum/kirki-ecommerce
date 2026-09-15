@@ -108,7 +108,7 @@ const AdminEmail = (props: AdminEmailProps) => {
 
   return (
     <>
-      <Card cssOverride={styles.roundedCard}>
+      <Card data-search-id="email.admin-emails" data-search-keywords="notification, alert, recipient, store owner, staff" cssOverride={styles.roundedCard}>
         <CardContent>
 
           <Flex direction="column" gap={4}>
@@ -120,7 +120,10 @@ const AdminEmail = (props: AdminEmailProps) => {
                 </Text>
               </Flex>
               <Text color="secondary">
-                {__('Manage admin emails here', 'kirki-ecommerce')}
+                {__(
+                  'Order and account alerts sent to store administrators.',
+                  'kirki-ecommerce',
+                )}
               </Text>
             </Flex>
 

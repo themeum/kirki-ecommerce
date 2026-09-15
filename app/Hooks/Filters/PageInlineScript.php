@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -144,7 +145,7 @@ class PageInlineScript extends BaseHook
         $cart    = $data->cart ?? null;
         $pricing = $cart['pricing'] ?? [];
 
-        $discount_details = $pricing['discount_details'] ?? null;
+        $coupons = $pricing['coupons'] ?? [];
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
@@ -152,13 +153,15 @@ class PageInlineScript extends BaseHook
             'shipping_address'            => $cart['shipping_address'] ?? null,
             'billing_address'             => $cart['billing_address'] ?? null,
             'pricing'                     => [
-                'discount_details'                   => $discount_details ? [
-                    'code'                       => $discount_details['code'] ?? null,
-                    'title'                      => $discount_details['title'] ?? null,
-                    'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
-                    'discount_amount_percentage' => $discount_details['discount_amount_percentage'] ?? null,
-                    'base_discount_amount_fixed' => $discount_details['base_discount_amount_fixed'] ?? null,
-                ] : null,
+                'coupons'                             => array_map(function ($coupon) {
+                    return [
+                        'code'                       => $coupon['code'] ?? null,
+                        'title'                      => $coupon['title'] ?? null,
+                        'discount_value_type'        => $coupon['discount_value_type'] ?? null,
+                        'discount_amount_percentage' => $coupon['discount_amount_percentage'] ?? null,
+                        'base_discount_amount_fixed' => $coupon['base_discount_amount_fixed'] ?? null,
+                    ];
+                }, $coupons),
                 'display_subtotal_money_object'      => $pricing['display_subtotal_money_object'] ?? null,
                 'display_tax_total_money_object'     => $pricing['display_tax_total_money_object'] ?? null,
                 'display_discount_total_money_object' => $pricing['display_discount_total_money_object'] ?? null,
@@ -248,6 +251,7 @@ class PageInlineScript extends BaseHook
             $max_per_order       = $has_limit_per_order ? intval($variant['max_per_order'] ?? 0) : null;
             $track_inventory     = (bool) ($variant['track_inventory'] ?? false);
             $image               = $variant['media']['url'] ?? null;
+            $is_wishlisted       = app(WishlistService::class)->is_wishlisted($variant_id);
 
             $variant_attrs = [];
             foreach ($variant['attribute_values'] ?? [] as $attr_value_id) {
@@ -270,6 +274,7 @@ class PageInlineScript extends BaseHook
                 'max_per_order'       => $max_per_order,
                 'track_inventory'     => $track_inventory,
                 'image'               => $image,
+                'is_wishlisted'       => $is_wishlisted,
             ];
         }
 

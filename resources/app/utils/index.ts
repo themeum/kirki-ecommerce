@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 
-import { sprintf } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 export const uuid = () => {
   // Generates a UUID v4 string
@@ -29,9 +29,9 @@ export async function copyToClipboard(content: string) {
   if (typeof navigator.clipboard !== 'undefined' && window.isSecureContext) {
     try {
       await navigator.clipboard.writeText(content);
-      toast.success('Copied to clipboard');
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error copying into clipboard');
+      toast.success(__('Copied to clipboard', 'kirki-ecommerce'));
+    } catch {
+      toast.error(__('Could not copy to clipboard', 'kirki-ecommerce'));
       return false;
     }
     return true;
@@ -49,9 +49,9 @@ export async function copyToClipboard(content: string) {
   try {
     // Legacy fallback for insecure contexts / browsers without the Clipboard API; deprecated but intentional.
     document.execCommand('copy');
-    toast.success('Copied to clipboard');
-  } catch (err) {
-    toast.error(err instanceof Error ? err.message : 'Error coping into clipboard');
+    toast.success(__('Copied to clipboard', 'kirki-ecommerce'));
+  } catch {
+    toast.error(__('Could not copy to clipboard', 'kirki-ecommerce'));
     return false;
   } finally {
     document.body.removeChild(element);

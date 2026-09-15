@@ -15,6 +15,7 @@ import {
   useCouponActionMutation,
   useDeleteCouponMutation,
 } from '@/features/coupons/services/coupon';
+import { useConfirmDelete } from '@/hooks';
 import { DATE_FORMATS } from '@/libs/date';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -44,45 +45,60 @@ const CouponRowActionsCell = ({ item }: { item: CouponListItem }) => {
   const navigate = useNavigate();
   const couponActionMutation = useCouponActionMutation();
   const deleteMutation = useDeleteCouponMutation();
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   return (
-    <DataTableRowActions
-      edit={{
-        onClick: () => navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id })),
-      }}
-      actions={[
-        {
-          label: __('Duplicate', 'kirki-ecommerce'),
-          icon: <Copy size={16} />,
-          onClick: () => {
-            void couponActionMutation.mutateAsync({
-              id: item.id,
-              action: 'duplicate',
-            });
+    <>
+      <DataTableRowActions
+        edit={{
+          onClick: () => navigate(RouteConfig.Coupons.get('EditCoupon').buildLink({ id: item.id })),
+        }}
+        actions={[
+          {
+            label: __('Duplicate', 'kirki-ecommerce'),
+            icon: <Copy size={16} />,
+            onClick: () => {
+              void couponActionMutation.mutateAsync({
+                id: item.id,
+                action: 'duplicate',
+              });
+            },
           },
-        },
-        {
-          label: item?.is_active
-            ? __('Deactivate', 'kirki-ecommerce')
-            : __('Activate', 'kirki-ecommerce'),
-          icon: <Ban size={16} />,
-          onClick: () => {
-            void couponActionMutation.mutateAsync({
-              id: item.id,
-              action: item?.is_active ? 'deactivate' : 'activate',
-            });
+          {
+            label: item?.is_active
+              ? __('Deactivate', 'kirki-ecommerce')
+              : __('Activate', 'kirki-ecommerce'),
+            icon: <Ban size={16} />,
+            onClick: () => {
+              void couponActionMutation.mutateAsync({
+                id: item.id,
+                action: item?.is_active ? 'deactivate' : 'activate',
+              });
+            },
           },
-        },
-        { label: '', type: 'separator' },
-        {
-          label: __('Delete', 'kirki-ecommerce'),
-          icon: <Trash2 size={16} />,
-          onClick: () => {
-            void deleteMutation.mutateAsync(item.id);
+          { label: '', type: 'separator' },
+          {
+            label: __('Delete', 'kirki-ecommerce'),
+            icon: <Trash2 size={16} />,
+            destructive: true,
+            onClick: () =>
+              confirmDelete(
+                {
+                  title: __('Delete coupon?', 'kirki-ecommerce'),
+                  description: __(
+                    'This coupon will be permanently deleted and can no longer be redeemed at checkout. This cannot be undone.',
+                    'kirki-ecommerce',
+                  ),
+                },
+                () => {
+                  void deleteMutation.mutateAsync(item.id);
+                },
+              ),
           },
-        },
-      ]}
-    />
+        ]}
+      />
+      {deleteConfirmation}
+    </>
   );
 };
 

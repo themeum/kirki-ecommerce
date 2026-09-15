@@ -19,10 +19,13 @@ use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Models\Wishlist;
 use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
@@ -69,10 +72,40 @@ class WishlistController
             ]);
         }
 
-        $data = $this->wishlist_service->paginated($user_id, $params);
+        $format = $request->string('format', 'json');
+        $params->page = $request->int('current_page', 1);
+        $params->limit = 9;
+        $wishlist = $this->wishlist_service->paginated($user_id, $params);
+        $wishlists_resource = new Collection(WishlistResource::collection($wishlist->items()->all()));
+
+        if ( 'html' === $format ) {
+            ob_start();
+            foreach( $wishlists_resource as $wishlist_item ) {
+               include_view('site.shop.parts.product-card', ['product' => $wishlist_item , 'context' => 'account']);
+            }
+
+            $items_html = ob_get_clean();
+
+            ob_start();
+            Template::render_pagination($wishlist);
+            $pagination_html = ob_get_clean();
+
+            $data = [
+                'items' => $items_html,
+                'pagination' => $pagination_html
+            ];
+        } else {
+            $pagination = $wishlist->to_array();
+            unset($pagination['results']);
+
+            $data = [
+                'items' => $wishlists_resource,
+                'pagination' => $pagination
+            ];
+        }
 
         return response()->json([
-            'data'    => WishlistResource::paginated($data),
+            'data'    => $data,
             'message' => __('Wishlist retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -135,7 +168,7 @@ class WishlistController
     public function remove_item(Request $request)
     {
         $user_id = (int) user()->get_id();
-        $variant_id = $request->int('variant_id');
+        $variant_id = $request->int('id');
 
         $wishlist = Wishlist::where(['user_id' => $user_id, 'variant_id' => $variant_id])->first();
 

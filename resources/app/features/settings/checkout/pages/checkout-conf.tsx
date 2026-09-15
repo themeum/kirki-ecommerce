@@ -17,12 +17,12 @@ const CheckoutConf = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="checkout.configuration" data-search-keywords="billing fields, required fields, optional fields, customer information form" cssOverride={cardStyles.formCard}>
         <CardHeader cssOverride={cardStyles.sectionHeader}>
           <CardTitle>{__('Checkout Configuration', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'Customize your checkout process to suit your preferences.',
+              'Which billing fields shoppers fill in, and whether coupon codes are accepted.',
               'kirki-ecommerce',
             )}
           </CardDescription>

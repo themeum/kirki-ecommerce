@@ -24,16 +24,17 @@ describe('MultiCurrencySettingsFormSchema', () => {
     const result = MultiCurrencySettingsFormSchema.parse({
       ...base,
       is_automatic_update_enabled: true,
+      api_provider: 'exchangerate-api',
       api_config: { ...base.api_config, api_key: 'secret-key' },
     });
     expect(result.is_automatic_update_enabled).toBe(false);
-    expect(result.api_config.api_key).toBe('secret-key');
+    expect(result.api_config?.api_key).toBe('secret-key');
   });
 
   it('sends null for blank api_provider and format fields', () => {
     const result = MultiCurrencySettingsFormSchema.parse(base);
     expect(result.api_provider).toBeNull();
-    expect(result.api_config.api_key).toBeNull();
+    expect(result.api_config).toBeNull();
   });
 
   it('defaults is_automatic_update_enabled to false', () => {

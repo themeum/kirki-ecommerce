@@ -57,7 +57,7 @@ class ProductSchemaController
 
         return response()->json([
             'data' => ProductSchemaResource::make($product_schema),
-            'message' => __('Product schema created successfully.', 'kirki-ecommerce'),
+            'message' => __('Schema created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +79,7 @@ class ProductSchemaController
 
         return response()->json([
             'data' => ProductSchemaResource::make($product_schema),
-            'message' => __('Product schema updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Schema updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +89,7 @@ class ProductSchemaController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Product schema deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Schema deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +105,14 @@ class ProductSchemaController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Product schemas deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Schemas deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All product schemas deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All schemas deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

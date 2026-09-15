@@ -133,7 +133,7 @@ const EditRegionEU = () => {
                 ]}
               />
 
-              <Card cssOverride={cardStyles.formCard}>
+              <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
                 <CardContent>
                   <Text weight="semibold">
                     {__('How would you like to collect VAT?', 'kirki-ecommerce')}

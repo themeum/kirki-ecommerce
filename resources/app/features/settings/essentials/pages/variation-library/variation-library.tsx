@@ -21,6 +21,7 @@ import type { Attribute } from '@/features/products';
 import { useAttributesQuery, useDeleteAttributeMutation } from '@/features/products';
 import AddVariationPopover from '@/features/settings/essentials/pages/variation-library/add-variation-popover';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
+import { useConfirmDelete } from '@/hooks';
 import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -62,18 +63,31 @@ const VariationList = () => {
     [attributeList, removedIds],
   );
 
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
+
   const handleDeleteVariation = (item: AttributeListItem) => {
-    setRemovedIds((prev) => [...prev, item.id]);
-    dispatchToastMessage('delete', {
-      title: __('Attribute deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+    confirmDelete(
+      {
+        title: __('Delete attribute?', 'kirki-ecommerce'),
+        description: __(
+          'This attribute will be permanently deleted. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
       },
-      onSuccess: () => {
-        deleteAttribute(item.id, { onSuccess: () => refetch() });
+      () => {
+        setRemovedIds((prev) => [...prev, item.id]);
+        dispatchToastMessage('delete', {
+          title: __('Attribute deleted', 'kirki-ecommerce'),
+          duration: 5000,
+          undoAction: () => {
+            setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+          },
+          onSuccess: () => {
+            deleteAttribute(item.id, { onSuccess: () => refetch() });
+          },
+        });
       },
-    });
+    );
   };
 
   const handleEditVariation = (item: AttributeListItem) => {
@@ -81,7 +95,11 @@ const VariationList = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card
+      data-search-id="essentials.variation-library"
+      data-search-keywords="size, swatch, option set, attribute term"
+      cssOverride={cardStyles.formCard}
+    >
       <CardContent>
         <CardTitle>
           <Flex align="center" justify="space-between">
@@ -142,7 +160,9 @@ const VariationList = () => {
                         variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
+                        cssOverride={mergeCss(styles.actionButton, {
+                          '& svg': { color: theme.colors.icon.critical },
+                        })}
                         onClick={() => handleDeleteVariation(item)}
                       >
                         <TrashIcon />
@@ -164,6 +184,7 @@ const VariationList = () => {
           )}
         </div>
       </CardContent>
+      {deleteConfirmation}
     </Card>
   );
 };

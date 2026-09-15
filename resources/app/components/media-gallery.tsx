@@ -29,7 +29,7 @@ import { useMediaLibrary } from '@/hooks';
 import { MoveIcon, PlusIcon } from '@/icons';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
+import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -152,7 +152,7 @@ const SortableItem = ({
               onClick={onDeleteImage}
               cssOverride={{ backgroundColor: theme.colors.background.fill }}
             >
-              <Trash2Icon color={theme.colors.text.critical} />
+              <Trash2Icon color={theme.colors.icon.critical} />
             </Button>
           )}
         </div>
@@ -266,7 +266,9 @@ const MediaGallery = ({
           <Button
             variant="ghost"
             size="sm"
-            cssOverride={styles.deleteButton}
+            cssOverride={mergeCss(styles.deleteButton, {
+              '& svg': { color: theme.colors.icon.critical },
+            })}
             onClick={handleDeleteSelectedImages}
           >
             <Trash2 />
