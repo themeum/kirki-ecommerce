@@ -154,7 +154,7 @@ class UpdateOrderAction
         $order_dto->id = $order->id;
         $order_dto->uuid = $order->uuid;
         $order_dto->order_number = $order->order_number;
-        $order_dto->customer_id = $context->customer_id;
+        $order_dto->customer_id = $context->customer_id ?: null;
         $order_dto->is_manual = $dto->is_manual;
 
         $order_dto->currency_code = $dto->currency_code;

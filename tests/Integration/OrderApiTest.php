@@ -278,6 +278,36 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * Editing a guest order without submitting `customer_id` must not
+     * default it to `0` - `orders.customer_id` has no row with id `0`, so
+     * persisting `0` violates its FK constraint. Omitting `customer_id`
+     * should keep the order's guest (null) customer as-is.
+     *
+     * @return void
+     */
+    public function test_update_order_without_customer_id_keeps_guest_order_null(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $this->assertNull($order['customer_id']);
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'admin_notes' => 'Guest order edit',
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertNull($payload['data']['customer_id']);
+    }
+
+    /**
      * Create order persists order item product data and tax lines.
      *
      * `product_data` is not exposed through the order resource, so this
