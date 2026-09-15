@@ -234,7 +234,7 @@ class OrderService
      */
     public function find_order_by_uuid($uuid)
     {
-        return Order::with('items', 'refunds', 'coupons.item_attributions')->where('uuid', $uuid)->first();
+        return Order::with('items.taxes', 'refunds', 'order_coupons.order_item_coupons', 'shipping_taxes')->where('uuid', $uuid)->first();
     }
 
     /**
@@ -256,7 +256,7 @@ class OrderService
      */
     public function find_order($id)
     {
-        return Order::with('items', 'refunds', 'coupons.item_attributions')->find($id);
+        return Order::with('items.taxes', 'refunds', 'order_coupons.order_item_coupons', 'shipping_taxes')->find($id);
     }
 
     /**

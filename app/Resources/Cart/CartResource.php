@@ -80,6 +80,7 @@ class CartResource extends Resource
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
                 'coupons' => $this->format_coupon_results($result->coupon_results, $this->base_currency_code, $display_currency),
                 'display_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($shipping_amount, $this->base_currency_code, $display_currency),
+                'display_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_subtotal, $this->base_currency_code, $display_currency),
                 'display_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total, $this->base_currency_code, $display_currency),
                 'tax_lines' => $this->format_tax_breakdown(
                     array_merge($this->flatten_item_tax_lines($result), $result->shipping_tax_lines),
@@ -177,6 +178,7 @@ class CartResource extends Resource
                 'discount_value_type' => $coupon->discount_value_type,
                 'discount_amount_percentage' => $coupon->discount_amount_percentage,
                 'base_discount_amount_fixed' => $coupon->base_discount_amount_fixed,
+                'display_discount_amount_fixed_money_object' => !empty($coupon->base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($coupon->base_discount_amount_fixed, $base_currency_code, $display_currency) : null,
                 'display_discount_amount_money_object' => Money::prepare_amount_object_from_minor($coupon_result->total_discount, $base_currency_code, $display_currency),
             ];
         }, $coupon_results);
@@ -286,6 +288,7 @@ class CartResource extends Resource
                 'discount_value_type' => $coupon->discount_value_type,
                 'discount_amount_percentage' => $coupon->discount_amount_percentage,
                 'base_discount_amount_fixed' => $coupon->base_discount_amount_fixed,
+                'display_discount_amount_fixed_money_object' => !empty($coupon->base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($coupon->base_discount_amount_fixed, $base_currency_code, $display_currency) : null,
                 'display_discount_amount_money_object' => Money::prepare_amount_object_from_minor($discount_amount, $base_currency_code, $display_currency),
             ];
         }

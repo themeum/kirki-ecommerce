@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
@@ -39,6 +40,7 @@ class UpdateOrderAction
     protected $order_service;
     protected $inventory_service;
     protected $shipping_service;
+    protected $coupon_service;
     protected $variants_map = [];
     protected $base_currency_code;
 
@@ -47,13 +49,15 @@ class UpdateOrderAction
         VariantService $variant_service,
         OrderService $order_service,
         InventoryService $inventory_service,
-        ShippingService $shippingService
+        ShippingService $shippingService,
+        CouponService $coupon_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
         $this->variant_service = $variant_service;
         $this->order_service = $order_service;
         $this->inventory_service = $inventory_service;
         $this->shipping_service = $shippingService;
+        $this->coupon_service = $coupon_service;
         $this->base_currency_code = base_currency()->code;
     }
 
@@ -83,7 +87,7 @@ class UpdateOrderAction
 
             DB::commit();
 
-            return $order->fresh('items', 'order_coupons.item_attributions');
+            return $order->fresh('items', 'order_coupons.order_item_coupons');
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;

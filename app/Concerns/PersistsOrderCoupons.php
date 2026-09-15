@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemCouponDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
+use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Exception;
 
 use function Kirki\Ecommerce\Framework\collection;
@@ -24,12 +25,21 @@ use function Kirki\Ecommerce\Framework\throw_if;
  * - an `$order_service` property (OrderService), which owns all persistence
  *   for order_coupons/order_item_coupons, matching how order_items are only
  *   ever touched through OrderService.
+ * - a `$coupon_service` property (CouponService), for adjusting
+ *   `coupons.current_usage_count` as coupons are added to or removed from
+ *   an order by this sync.
  */
 trait PersistsOrderCoupons
 {
     /**
      * Replace an order's coupon-attribution rows with a fresh set built from
-     * the given calculation result.
+     * the given calculation result, keeping `coupons.current_usage_count` and
+     * each row's `usage_reversed_at` consistent with what actually changed:
+     * a coupon present before and after this sync keeps its prior usage
+     * state untouched, a newly-applied coupon increments usage (or, if the
+     * order is currently cancelled, is recorded as already-reversed so it
+     * never counted), and a coupon that's no longer applied decrements
+     * usage unless it was already reversed.
      *
      * @param Order $order
      * @param CalculationResultDTO $calculated_result
@@ -39,6 +49,12 @@ trait PersistsOrderCoupons
      */
     protected function sync_order_coupons(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
     {
+        $existing_order_coupons_by_coupon_id = [];
+
+        foreach ($order->order_coupons as $existing_order_coupon) {
+            $existing_order_coupons_by_coupon_id[$existing_order_coupon->coupon_id] = $existing_order_coupon;
+        }
+
         $this->order_service->delete_order_coupons($order->id);
 
         $order_items_by_variant_id = [];
@@ -48,9 +64,12 @@ trait PersistsOrderCoupons
         }
 
         $order_coupons = [];
+        $synced_coupon_ids = [];
 
         foreach ($calculated_result->coupon_results as $coupon_result) {
             $coupon = $coupon_result->coupon;
+            $synced_coupon_ids[] = $coupon->id;
+            $existing_order_coupon = $existing_order_coupons_by_coupon_id[$coupon->id] ?? null;
 
             $order_coupon_dto = new CreateOrderCouponDTO();
             $order_coupon_dto->order_id = $order->id;
@@ -64,12 +83,29 @@ trait PersistsOrderCoupons
             $order_coupon_dto->invoiced_discount_amount = $this->convert_amount($coupon_result->total_discount, $currency_code, $exchange_rate);
             $order_coupon_dto->base_discount_amount = $coupon_result->total_discount;
 
+            if ($existing_order_coupon) {
+                $order_coupon_dto->usage_reversed_at = $existing_order_coupon->usage_reversed_at;
+            } elseif (!empty($order->cancelled_at)) {
+                $order_coupon_dto->usage_reversed_at = Date::now();
+            } else {
+                $this->coupon_service->increment($coupon->id, 'current_usage_count');
+            }
+
             $order_coupon = $this->order_service->create_order_coupon($order_coupon_dto);
 
             foreach ($coupon_result->item_discounts as $variant_id => $amount) {
-                if (empty($amount) || empty($order_items_by_variant_id[$variant_id])) {
+                if (empty($amount)) {
                     continue;
                 }
+
+                throw_if(
+                    empty($order_items_by_variant_id[$variant_id]),
+                    sprintf(
+                        /* translators: %s: variant ID */
+                        __('Order coupon attribution failed: no order item found for variant %s.', 'kirki-ecommerce'),
+                        $variant_id
+                    )
+                );
 
                 $item_coupon_dto = new CreateOrderItemCouponDTO();
                 $item_coupon_dto->order_item_id = $order_items_by_variant_id[$variant_id]->id;
@@ -83,27 +119,66 @@ trait PersistsOrderCoupons
             $order_coupons[] = $order_coupon;
         }
 
-        $this->assert_order_coupons_reconcile($order_coupons, $calculated_result->base_discount_total);
+        foreach ($existing_order_coupons_by_coupon_id as $coupon_id => $existing_order_coupon) {
+            if (in_array($coupon_id, $synced_coupon_ids, true) || !empty($existing_order_coupon->usage_reversed_at)) {
+                continue;
+            }
+
+            $this->coupon_service->decrement($coupon_id, 'current_usage_count');
+        }
+
+        $this->assert_order_coupons_reconcile(
+            $order_coupons,
+            $calculated_result->base_discount_total,
+            $this->convert_amount($calculated_result->base_discount_total, $currency_code, $exchange_rate)
+        );
 
         return $order_coupons;
     }
 
     /**
+     * The base-currency sum is checked for exact equality: `base_discount_amount`
+     * is never independently rounded (it's the discount engine's own minor-unit
+     * total, copied as-is), so it must match exactly.
+     *
+     * The invoiced-currency sum allows a small tolerance instead: each
+     * order-coupon's `invoiced_discount_amount` is converted independently via
+     * `convert_amount()`, so summing several already-rounded per-coupon amounts
+     * can legitimately land a few minor units away from converting the
+     * pre-summed base total in one shot - that's expected rounding behavior,
+     * not a lost/invented cent. A tolerance of one minor unit per order-coupon
+     * still catches a genuinely wrong or missing invoiced amount (which is off
+     * by far more than that) without failing on ordinary rounding.
+     *
      * @param OrderCoupon[] $order_coupons
-     * @param int $expected_total
+     * @param int $expected_base_total
+     * @param int $expected_invoiced_total
      * @throws Exception
      */
-    protected function assert_order_coupons_reconcile(array $order_coupons, int $expected_total)
+    protected function assert_order_coupons_reconcile(array $order_coupons, int $expected_base_total, int $expected_invoiced_total)
     {
-        $sum = collection($order_coupons)->sum(fn(OrderCoupon $order_coupon) => $order_coupon->base_discount_amount);
+        $base_sum = collection($order_coupons)->sum(fn(OrderCoupon $order_coupon) => $order_coupon->base_discount_amount);
 
         throw_if(
-            $sum !== $expected_total,
+            $base_sum !== $expected_base_total,
             sprintf(
                 /* translators: 1: Sum of order coupons, 2: Expected discount total. */
                 __('Order coupon discount reconciliation failed: order_coupons sum to %1$d but the order\'s discount total is %2$d.', 'kirki-ecommerce'),
-                $sum,
-                $expected_total
+                $base_sum,
+                $expected_base_total
+            )
+        );
+
+        $invoiced_sum = collection($order_coupons)->sum(fn(OrderCoupon $order_coupon) => $order_coupon->invoiced_discount_amount);
+        $invoiced_tolerance = count($order_coupons);
+
+        throw_if(
+            abs($invoiced_sum - $expected_invoiced_total) > $invoiced_tolerance,
+            sprintf(
+                /* translators: 1: Invoiced sum of order coupons, 2: Expected invoiced discount total. */
+                __('Order coupon discount reconciliation failed: order_coupons invoiced sum to %1$d but the order\'s invoiced discount total is %2$d.', 'kirki-ecommerce'),
+                $invoiced_sum,
+                $expected_invoiced_total
             )
         );
     }

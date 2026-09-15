@@ -62,7 +62,7 @@ class OrderResource extends Resource
                     'base_discount_amount' => Money::prepare_amount_from_minor($order_coupon->base_discount_amount),
                     'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->base_discount_amount),
                     'usage_reversed_at' => $order_coupon->usage_reversed_at,
-                    'item_attributions' => empty($order_coupon->item_attributions) ? [] : $order_coupon->item_attributions->map(function ($attribution) {
+                    'item_attributions' => empty($order_coupon->order_item_coupons) ? [] : $order_coupon->order_item_coupons->map(function ($attribution) {
                         return [
                             'order_item_id' => $attribution->order_item_id,
                             'invoiced_discount_amount' => Money::prepare_amount_from_minor($attribution->invoiced_discount_amount, $this->currency_code),

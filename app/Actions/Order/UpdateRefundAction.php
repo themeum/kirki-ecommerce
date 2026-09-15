@@ -46,7 +46,7 @@ class UpdateRefundAction
 
             DB::commit();
 
-            return $order->fresh('refunds', 'items', 'order_coupons.item_attributions');
+            return $order->fresh('refunds', 'items', 'order_coupons.order_item_coupons');
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;

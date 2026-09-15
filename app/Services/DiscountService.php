@@ -177,9 +177,7 @@ class DiscountService
      */
     protected function validate_against_other_applied_coupons(Coupon $coupon, array $already_applied_coupon_codes)
     {
-        if (in_array($coupon->code, $already_applied_coupon_codes, true)) {
-            throw new ValidationException(esc_html__('This coupon is already applied.', 'kirki-ecommerce'));
-        }
+        throw_if(in_array($coupon->code, $already_applied_coupon_codes, true), __('This coupon is already applied.', 'kirki-ecommerce'), ValidationException::class);
 
         if ($coupon->discount_type === DiscountType::FREE_SHIPPING && !empty($already_applied_coupon_codes)) {
             $has_existing_free_shipping = Coupon::query()
@@ -187,9 +185,7 @@ class DiscountService
                 ->where('discount_type', DiscountType::FREE_SHIPPING)
                 ->exists();
 
-            if ($has_existing_free_shipping) {
-                throw new ValidationException(esc_html__('A free shipping coupon is already applied.', 'kirki-ecommerce'));
-            }
+            throw_if($has_existing_free_shipping, __('A free shipping coupon is already applied.', 'kirki-ecommerce'), ValidationException::class);
         }
     }
 
@@ -218,9 +214,7 @@ class DiscountService
 
         foreach ($coupons as $coupon) {
             try {
-                if ($coupon->discount_type === DiscountType::FREE_SHIPPING && $has_free_shipping_applied) {
-                    throw new ValidationException(esc_html__('A free shipping coupon is already applied.', 'kirki-ecommerce'));
-                }
+                throw_if($coupon->discount_type === DiscountType::FREE_SHIPPING && $has_free_shipping_applied, __('A free shipping coupon is already applied.', 'kirki-ecommerce'), ValidationException::class);
 
                 $this->validate_coupon($coupon, $context, $already_applied_codes);
                 $valid_coupons[] = $coupon;

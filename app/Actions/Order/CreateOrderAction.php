@@ -133,12 +133,8 @@ class CreateOrderAction
 
             $order_with_items = $order->fresh('items');
 
-            $order_coupons = $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
+            $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
             $this->sync_order_taxes($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
-
-            foreach ($order_coupons as $order_coupon) {
-                $this->coupon_service->increment($order_coupon->coupon_id, 'current_usage_count');
-            }
 
             if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
@@ -148,7 +144,7 @@ class CreateOrderAction
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
 
-            $order = $order->fresh('items', 'order_coupons.item_attributions');
+            $order = $order->fresh('items', 'order_coupons.order_item_coupons');
 
             OrderActivity::log($order, OrderActivityType::ORDER_PLACED);
 

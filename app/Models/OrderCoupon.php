@@ -47,7 +47,7 @@ class OrderCoupon extends Model
         return $this->belongs_to(Customer::class, 'customer_id');
     }
 
-    public function item_attributions()
+    public function order_item_coupons()
     {
         return $this->has_many(OrderItemCoupon::class, 'order_coupon_id');
     }

@@ -35,4 +35,7 @@ class CreateOrderCouponDTO extends DTO
 
     /** @var int */
     public $base_discount_amount;
+
+    /** @var string|null */
+    public $usage_reversed_at;
 }

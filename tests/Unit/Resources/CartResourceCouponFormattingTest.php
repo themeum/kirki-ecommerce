@@ -141,6 +141,7 @@ class CartResourceCouponFormattingTest extends TestCase
         $this->assertSame('SAVE5', $applied[0]['code']);
         $this->assertSame('SAVE5 Title', $applied[0]['title']);
         $this->assertSame(5.0, $applied[0]['display_discount_amount_money_object']->raw);
+        $this->assertSame(5.0, $applied[0]['display_discount_amount_fixed_money_object']->raw);
     }
 
     public function test_excludes_order_scoped_coupons_from_the_applied_list(): void
