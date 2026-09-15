@@ -97,6 +97,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   styles.contentCard,
                   variant === 'shipping' && styles.shippingCard,
                 )}
+                data-option-accordion-card="true"
               >
                 <CardContent
                   cssOverride={mergeCss(

@@ -63,6 +63,7 @@ export const GeneralSettingsSchema = z
         reset_sequence_every_year: z.boolean().nullish(),
       })
       .nullish(),
+    is_tax_calculation_enabled: z.boolean().nullish(),
   })
   .passthrough();
 

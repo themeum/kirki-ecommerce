@@ -21,6 +21,7 @@ const relevant: [query: string, expected: string[]][] = [
   ['tax regions', ['tax.regions']],
   ['store address', ['general.store-address']],
   ['invoice id', ['general.invoice-id']],
+  ['calculate tax', ['general.calculate-tax']],
   ['barcode', ['essentials.barcode-generation']],
   ['reviews', ['products.reviews']],
   ['payment gateways', ['payments.online']],
@@ -75,6 +76,7 @@ const keyworded: [query: string, expected: string[]][] = [
   ['upc', ['essentials.barcode-generation']],
   ['seo', ['essentials.schema-profile']],
   ['cash on delivery', ['payments.offline']],
+  ['turn off tax', ['general.calculate-tax']],
 ];
 
 const literal: [query: string, expected: string[]][] = [
