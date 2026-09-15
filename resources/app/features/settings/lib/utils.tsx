@@ -178,7 +178,7 @@ export const advancedSettings: SettingsNavItem[] = [
     subHeader: __('Advanced settings of your store', 'kirki-ecommerce'),
   },
   {
-    link: RouteConfig.Settings.get('AdvancedSettings').buildLink(),
+    link: RouteConfig.Settings.get('LegalSettings').buildLink(),
     icon: <Scale {...navIconProps} />,
     header: __('Legal', 'kirki-ecommerce'),
     subHeader: __('Store policies and compliance', 'kirki-ecommerce'),

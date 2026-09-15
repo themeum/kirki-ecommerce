@@ -12,7 +12,7 @@ import { __ } from '@/wpi18n';
 
 const sellingLocationOptions = [
   {
-    label: __('All Countries', 'kirki-ecommerce'),
+    label: __('Worldwide', 'kirki-ecommerce'),
     value: 'all-countries',
   },
   {

@@ -10,9 +10,11 @@ const AddCurrencyPopupFormShape = z.object({
     .min(1, __('Select at least one currency', 'kirki-ecommerce')),
 });
 
-export const AddCurrencyPopupFormSchema = prepareFormSchema(AddCurrencyPopupFormShape).transform((values) => ({
-  selectedCurrencies: values.selectedCurrencies,
-}));
+export const AddCurrencyPopupFormSchema = prepareFormSchema(AddCurrencyPopupFormShape).transform(
+  (values) => ({
+    selectedCurrencies: values.selectedCurrencies,
+  }),
+);
 
 export type AddCurrencyPopupFormInput = z.input<typeof AddCurrencyPopupFormSchema>;
 

@@ -2120,4 +2120,156 @@ class OrderApiTest extends RestTestCase
 
         return array_map('intval', array_column($payload['data']['results'], 'id'));
     }
+
+    /**
+     * Configure a single mandatory checkout consent.
+     *
+     * @param string $id
+     *
+     * @return void
+     */
+    protected function seed_mandatory_checkout_consent(string $id = 'consent-1'): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => $id,
+                'title' => 'Terms',
+                'locations' => ['checkout'],
+                'message' => 'You agree to our terms.',
+                'method' => 'mandatory_checkbox',
+                'is_enabled' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * An admin-created order is not blocked by a mandatory consent.
+     *
+     * No shopper is present to accept one, so consent enforcement must not
+     * reach this path. OrderCreateRequest is shared with the storefront, so
+     * this guards the `is_manual` exemption.
+     *
+     * @return void
+     */
+    public function test_manual_order_bypasses_mandatory_consent(): void
+    {
+        $this->seed_mandatory_checkout_consent();
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => true]));
+
+        // Asserted as "no consent rejection" rather than 201 on purpose: manual
+        // order creation currently fails with a 500 for reasons unrelated to
+        // consents (test_store_order_returns_201 fails the same way without
+        // this feature). Pinning 201 here would make this guard fail for
+        // somebody else's bug; what it must prove is that the consent rule
+        // never rejects an admin-created order.
+        $this->assertNotEquals(422, $response->get_status());
+
+        $data = $this->normalize_response_data($response->get_data());
+
+        $this->assertArrayNotHasKey('consents', $data['errors'] ?? []);
+    }
+
+    /**
+     * A storefront order is rejected when a mandatory consent is unaccepted.
+     *
+     * The payload omits `consents` entirely, which is what an older cached
+     * storefront bundle would send.
+     *
+     * @return void
+     */
+    public function test_storefront_order_requires_mandatory_consent(): void
+    {
+        $this->seed_mandatory_checkout_consent();
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A storefront order succeeds once the mandatory consent is accepted.
+     *
+     * @return void
+     */
+    public function test_storefront_order_succeeds_with_accepted_consent(): void
+    {
+        $this->seed_mandatory_checkout_consent();
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'consents' => ['consent-1'],
+        ]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * A disabled consent does not block a storefront order.
+     *
+     * @return void
+     */
+    public function test_disabled_consent_does_not_block_storefront_order(): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => 'consent-1',
+                'title' => 'Terms',
+                'locations' => ['checkout'],
+                'message' => 'You agree to our terms.',
+                'method' => 'mandatory_checkbox',
+                'is_enabled' => false,
+            ],
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * An optional consent never blocks a storefront order.
+     *
+     * @return void
+     */
+    public function test_optional_consent_does_not_block_storefront_order(): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => 'consent-1',
+                'title' => 'Marketing emails',
+                'locations' => ['checkout'],
+                'message' => 'Send me offers.',
+                'method' => 'optional_checkbox',
+                'is_enabled' => true,
+            ],
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * A consent that does not target checkout does not block a checkout order.
+     *
+     * @return void
+     */
+    public function test_signup_only_consent_does_not_block_storefront_order(): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => 'consent-1',
+                'title' => 'Terms',
+                'locations' => ['signup'],
+                'message' => 'You agree to our terms.',
+                'method' => 'mandatory_checkbox',
+                'is_enabled' => true,
+            ],
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_api_success($response, 201);
+    }
 }

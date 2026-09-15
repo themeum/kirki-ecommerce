@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import Flex from '@/components/ui/flex';
 import {
   Select,
   SelectContent,
@@ -10,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 
 type SelectFieldOption = {
@@ -81,10 +83,12 @@ const SelectField = <
               >
                 <SelectValue placeholder={placeholder}>
                   {selectedOption ? (
-                    <>
-                      {selectedOption.icon}
+                    <Flex align="center" gap={2}>
+                      {selectedOption.icon && (
+                        <span css={scoped({ fontSize: 16 })}>{selectedOption.icon}</span>
+                      )}
                       {selectedOption.label}
-                    </>
+                    </Flex>
                   ) : null}
                 </SelectValue>
               </SelectTrigger>
@@ -95,8 +99,10 @@ const SelectField = <
                     value={String(option.value)}
                     disabled={option.disabled}
                   >
-                    {option.icon}
-                    {option.label}
+                    <Flex align="center" gap={2}>
+                      {option.icon && <span css={scoped({ fontSize: 16 })}>{option.icon}</span>}
+                      {option.label}
+                    </Flex>
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -38,19 +38,18 @@ const TaxCollectionOptions = () => {
 
   return (
     <div>
-      <Separator cssOverride={styles.separator} />
-      {isTaxInclusivePrice ? (
-        <CheckboxField
-          name="is_shipping_tax_enabled"
-          label={__('Charge shipping tax', 'kirki-ecommerce')}
-          infoText={__('Set charge for shipping tax', 'kirki-ecommerce')}
-        />
-      ) : (
-        <CheckboxField
-          name="is_enabled_display_inclusive_taxed_price"
-          label={__('Display prices inclusive tax', 'kirki-ecommerce')}
-          infoText={__('Tax value will be included inside the product price', 'kirki-ecommerce')}
-        />
+      {isTaxInclusivePrice && (
+        <>
+          <Separator cssOverride={styles.separator} />
+          <CheckboxField
+            name="is_enabled_display_inclusive_taxed_price"
+            label={__('Display prices inclusive tax to the product list', 'kirki-ecommerce')}
+            infoText={__(
+              'Show tax-included prices on shop and collection listing pages.',
+              'kirki-ecommerce',
+            )}
+          />
+        </>
       )}
     </div>
   );
