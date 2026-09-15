@@ -17,7 +17,7 @@
 
     &-count{
         top: -6px;
-        left: calc(100% - 10px);
+        inset-inline-start: calc(100% - 10px);
         position: absolute;
         background: $background-inverse;
         color: $text-light;

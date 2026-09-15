@@ -173,22 +173,22 @@
     @include flex-center;
 
     &-left {
-      left: $spacing-3;
+      inset-inline-start: $spacing-3;
       ~ .kecom-input {
-        padding-left: $spacing-8;
+        padding-inline-start: $spacing-8;
       }
     }
     &-right {
-      right: $spacing-3;
+      inset-inline-end: $spacing-3;
       ~ .kecom-input {
-        padding-right: $spacing-8;
+        padding-inline-end: $spacing-8;
       }
     }
   }
 
   .kecom-input-icon-btn {
     position: absolute;
-    right: $spacing-3;
+    inset-inline-end: $spacing-3;
     background: transparent;
     border: none;
     padding: 0;
@@ -203,7 +203,7 @@
   }
 
   &:has(.kecom-input-icon-btn) .kecom-input {
-    padding-right: $spacing-8;
+    padding-inline-end: $spacing-8;
   }
 }
 
@@ -238,8 +238,12 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none'%3E%3Cpath fill='%234a4852' fill-rule='evenodd' d='M4.46 6.594a.48.48 0 0 1 .68 0L8 9.454l2.86-2.86a.48.48 0 0 1 .68.679l-3.2 3.2a.48.48 0 0 1-.68 0l-3.2-3.2a.48.48 0 0 1 0-.68' clip-rule='evenodd'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right $spacing-4 center;
-  padding-right: $spacing-8;
+  padding-inline-end: $spacing-8;
   cursor: pointer;
+
+  [dir='rtl'] & {
+    background-position: left $spacing-4 center;
+  }
 }
 
 // ── Checkbox ─────────────────────────────────────────────────────────────────
