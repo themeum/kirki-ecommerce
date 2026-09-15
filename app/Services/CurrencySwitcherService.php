@@ -72,6 +72,7 @@ class CurrencySwitcherService
         $current_symbol = $current_currency ? $current_currency->symbol : '$';
 
         ob_start();
+        // TODO: markup and design will be updated.
         ?>
         <div
             class="kecom-currency-switcher <?php echo esc_attr($attributes['class']); ?>"
