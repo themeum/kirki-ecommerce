@@ -244,27 +244,27 @@ class OrderCalculationResource extends Resource
      */
     protected function format_tax_breakdown(array $tax_lines, $base_currency_code, $display_currency)
     {
-        $totals_by_name = [];
+        $totals_by_key = [];
 
         foreach ($tax_lines as $tax_line) {
             if (empty($tax_line->base_amount)) {
                 continue;
             }
 
-            $name = $tax_line->name;
+            $key = $tax_line->name . '|' . $tax_line->rate;
 
-            if (!isset($totals_by_name[$name])) {
-                $totals_by_name[$name] = ['rate' => $tax_line->rate, 'amount' => 0];
+            if (!isset($totals_by_key[$key])) {
+                $totals_by_key[$key] = ['name' => $tax_line->name, 'rate' => $tax_line->rate, 'amount' => 0];
             }
 
-            $totals_by_name[$name]['amount'] += $tax_line->base_amount;
+            $totals_by_key[$key]['amount'] += $tax_line->base_amount;
         }
 
         $breakdown = [];
 
-        foreach ($totals_by_name as $name => $entry) {
+        foreach ($totals_by_key as $entry) {
             $breakdown[] = [
-                'name' => $name,
+                'name' => $entry['name'],
                 'rate' => $entry['rate'],
                 'display_amount_money_object' => Money::prepare_amount_object_from_minor($entry['amount'], $base_currency_code, $display_currency),
             ];

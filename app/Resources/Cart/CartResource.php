@@ -47,13 +47,9 @@ class CartResource extends Resource
         $recalculate_action = app()->make(RecalculateCartAction::class);
         $result = $recalculate_action->execute($context);
 
-        $this->base_subtotal = $result->base_subtotal;
         $this->base_tax_total = $result->base_tax_total;
-        $this->base_discount_total = $result->base_discount_total;
         $this->base_shipping_subtotal = $result->base_shipping_subtotal;
-        $this->base_shipping_tax = $result->base_shipping_tax;
         $this->base_shipping_discount = $result->base_shipping_discount;
-        $this->base_shipping_total = $result->base_shipping_total;
         $this->base_total = $result->base_total;
         $this->items_count = $result->items_count;
 
@@ -61,6 +57,10 @@ class CartResource extends Resource
         $shipping_options = $shipping_service->get_final_available_shipping_options($context);
 
         $display_currency = Money::resolve_display_currency();
+
+        $items_subtotal = $this->get_items_subtotal($result->items, $result->coupon_results);
+        $order_discount = $this->get_order_coupon_discount($result->coupon_results);
+        $shipping_amount = $this->base_shipping_subtotal - $this->base_shipping_discount;
 
         return [
             'id' => $this->id,
@@ -74,22 +74,18 @@ class CartResource extends Resource
             ],
 
             'pricing' => [
-                'display_subtotal_money_object' => Money::prepare_amount_object_from_minor($this->base_subtotal, $this->base_currency_code, $display_currency),
+                'display_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal, $this->base_currency_code, $display_currency),
+                'display_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount, $this->base_currency_code, $display_currency),
+                'display_order_total_money_object' => Money::prepare_amount_object_from_minor($items_subtotal - $order_discount, $this->base_currency_code, $display_currency),
                 'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total, $this->base_currency_code, $display_currency),
                 'coupons' => $this->format_coupon_results($result->coupon_results, $this->base_currency_code, $display_currency),
-                'display_discount_total_money_object' => Money::prepare_amount_object_from_minor($this->base_discount_total, $this->base_currency_code, $display_currency),
-                'display_shipping_subtotal_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_subtotal, $this->base_currency_code, $display_currency),
-                'display_shipping_tax_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_tax, $this->base_currency_code, $display_currency),
-                'display_shipping_discount_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_discount, $this->base_currency_code, $display_currency),
-                'display_shipping_total_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_total, $this->base_currency_code, $display_currency),
+                'display_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($shipping_amount, $this->base_currency_code, $display_currency),
                 'display_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total, $this->base_currency_code, $display_currency),
-                'display_total_after_discount_money_object' => Money::prepare_amount_object_from_minor(
-                    $this->base_subtotal - ($this->base_discount_total - $this->base_shipping_discount),
+                'tax_lines' => $this->format_tax_breakdown(
+                    array_merge($this->flatten_item_tax_lines($result), $result->shipping_tax_lines),
                     $this->base_currency_code,
                     $display_currency
                 ),
-                'tax_lines' => $this->format_tax_breakdown($this->flatten_item_tax_lines($result), $this->base_currency_code, $display_currency),
-                'shipping_tax_lines' => $this->format_tax_breakdown($result->shipping_tax_lines, $this->base_currency_code, $display_currency),
             ],
 
             'items_count' => $this->items_count,
@@ -156,13 +152,7 @@ class CartResource extends Resource
                         'has_limit_per_order' => (bool) $item->variant->has_limit_per_order,
                         'max_per_order'       => $item->variant->has_limit_per_order ? (int) $item->variant->max_per_order : null,
                     ],
-                    'display_product_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_product_total, $this->base_currency_code, $display_currency),
-                    'display_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal, $this->base_currency_code, $display_currency),
-                    'display_tax_amount_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_tax_amount, $this->base_currency_code, $display_currency),
-                    'tax_lines' => $calculated_item->tax_lines,
-                    'display_discount_amount_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_discount_amount, $this->base_currency_code, $display_currency),
-                    'display_total_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_total, $this->base_currency_code, $display_currency),
-                    'display_line_price_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal - $product_coupon_discount, $this->base_currency_code, $display_currency),
+                    'display_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal - $product_coupon_discount, $this->base_currency_code, $display_currency),
                     'display_strikethrough_price_money_object' => $this->prepare_strikethrough_price($calculated_item, $product_coupon_discount, $this->base_currency_code, $display_currency),
                     'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id, $this->base_currency_code, $display_currency),
                     'created_at' => $item->created_at,
@@ -211,6 +201,53 @@ class CartResource extends Resource
             }
 
             $discount += $coupon_result->item_discounts[$variant_id] ?? 0;
+        }
+
+        return $discount;
+    }
+
+    /**
+     * Sum every item's own subtotal, net of only that item's product-scoped
+     * coupon - an order-wide coupon's allocation is excluded so the root
+     * items subtotal matches the sum of what each item's own display
+     * subtotal shows.
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Keyed by variant_id
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results
+     * @return int
+     */
+    protected function get_items_subtotal(array $calculated_items, array $coupon_results)
+    {
+        $subtotal = 0;
+
+        foreach ($calculated_items as $variant_id => $calculated_item) {
+            $subtotal += $calculated_item->base_subtotal - $this->get_product_coupon_discount_for_item($coupon_results, $variant_id);
+        }
+
+        return $subtotal;
+    }
+
+    /**
+     * Sum the discount from order-wide ("order") coupons against the items
+     * subtotal only. Product-scoped coupons are excluded since they're
+     * already reflected inside each item's own subtotal. A coupon's own
+     * shipping-discount portion (e.g. an order-scoped free-shipping coupon)
+     * is also excluded from `total_discount` here - that portion belongs to
+     * the shipping discount, not the items subtotal.
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results
+     * @return int
+     */
+    protected function get_order_coupon_discount(array $coupon_results)
+    {
+        $discount = 0;
+
+        foreach ($coupon_results as $coupon_result) {
+            if ($coupon_result->coupon->discount_target !== DiscountTarget::ORDER) {
+                continue;
+            }
+
+            $discount += $coupon_result->total_discount - $coupon_result->shipping_discount;
         }
 
         return $discount;
@@ -269,27 +306,27 @@ class CartResource extends Resource
      */
     protected function format_tax_breakdown(array $tax_lines, $base_currency_code, $display_currency)
     {
-        $totals_by_name = [];
+        $totals_by_key = [];
 
         foreach ($tax_lines as $tax_line) {
             if (empty($tax_line->base_amount)) {
                 continue;
             }
 
-            $name = $tax_line->name;
+            $key = $tax_line->name . '|' . $tax_line->rate;
 
-            if (!isset($totals_by_name[$name])) {
-                $totals_by_name[$name] = ['rate' => $tax_line->rate, 'amount' => 0];
+            if (!isset($totals_by_key[$key])) {
+                $totals_by_key[$key] = ['name' => $tax_line->name, 'rate' => $tax_line->rate, 'amount' => 0];
             }
 
-            $totals_by_name[$name]['amount'] += $tax_line->base_amount;
+            $totals_by_key[$key]['amount'] += $tax_line->base_amount;
         }
 
         $breakdown = [];
 
-        foreach ($totals_by_name as $name => $entry) {
+        foreach ($totals_by_key as $entry) {
             $breakdown[] = [
-                'name' => $name,
+                'name' => $entry['name'],
                 'rate' => $entry['rate'],
                 'display_amount_money_object' => Money::prepare_amount_object_from_minor($entry['amount'], $base_currency_code, $display_currency),
             ];

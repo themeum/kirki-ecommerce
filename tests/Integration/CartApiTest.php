@@ -392,7 +392,11 @@ class CartApiTest extends RestTestCase
 
         // $10 fixed off product A ($1000) + 10% off the $140 remaining
         // ($90 + $50) = $1000 + $1400 = $2400 total discount.
-        $this->assertEquals(2400, round($applied['data']['pricing']['display_discount_total_money_object']['raw'] * 100));
+        $coupon_discount_sum = array_sum(array_map(
+            fn($coupon) => round($coupon['display_discount_amount_money_object']['raw'] * 100),
+            $applied['data']['pricing']['coupons']
+        ));
+        $this->assertEquals(2400, $coupon_discount_sum);
     }
 
     public function test_removing_one_of_several_applied_coupons_keeps_the_rest(): void
@@ -500,18 +504,12 @@ class CartApiTest extends RestTestCase
             $this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers)
         );
 
-        $items_discount_sum = array_sum(array_map(
-            fn($item) => round($item['display_discount_amount_money_object']['raw'] * 100),
-            $applied['data']['items']
-        ));
-
         $coupon = $this->find_coupon_in_response($applied['data'], $code);
         $coupon_discount = round($coupon['display_discount_amount_money_object']['raw'] * 100);
-        $cart_discount_total = round($applied['data']['pricing']['display_discount_total_money_object']['raw'] * 100);
+        $order_discount = round($applied['data']['pricing']['display_order_discount_money_object']['raw'] * 100);
 
         $this->assertEquals(1000, $coupon_discount);
-        $this->assertEquals($coupon_discount, $items_discount_sum);
-        $this->assertEquals($coupon_discount, $cart_discount_total);
+        $this->assertEquals($coupon_discount, $order_discount);
     }
 
     public function test_display_price_has_no_strikethrough_without_sale_or_product_coupon(): void
@@ -521,7 +519,7 @@ class CartApiTest extends RestTestCase
         $item = $cart['items'][0];
 
         $this->assertNull($item['display_strikethrough_price_money_object']);
-        $this->assertEquals(29.99, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(29.99, $item['display_subtotal_money_object']['raw']);
         $this->assertSame([], $item['applied_product_coupons']);
     }
 
@@ -543,7 +541,7 @@ class CartApiTest extends RestTestCase
         $cart = $this->add_cart_item(1);
         $item = $cart['items'][0];
 
-        $this->assertEquals(25.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(25.0, $item['display_subtotal_money_object']['raw']);
         $this->assertEquals(50.0, $item['display_strikethrough_price_money_object']['raw']);
         $this->assertSame([], $item['applied_product_coupons']);
     }
@@ -578,7 +576,7 @@ class CartApiTest extends RestTestCase
         $item = $applied['data']['items'][0];
 
         // Sale-adjusted price ($25) minus the $10 product coupon.
-        $this->assertEquals(15.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(15.0, $item['display_subtotal_money_object']['raw']);
         // Strikethrough is the sale price ($25), not the original regular price ($50).
         $this->assertEquals(25.0, $item['display_strikethrough_price_money_object']['raw']);
         $this->assertCount(1, $item['applied_product_coupons']);
@@ -614,7 +612,7 @@ class CartApiTest extends RestTestCase
         $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
         $item = $applied['data']['items'][0];
 
-        $this->assertEquals(40.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(40.0, $item['display_subtotal_money_object']['raw']);
         $this->assertEquals(50.0, $item['display_strikethrough_price_money_object']['raw']);
     }
 
@@ -641,11 +639,11 @@ class CartApiTest extends RestTestCase
         $applied = $this->assert_api_success($this->request('POST', 'cart/coupon', ['code' => $code], $this->cart_headers));
         $item = $applied['data']['items'][0];
 
-        // The order coupon still discounts the item's combined discount amount...
-        $this->assertGreaterThan(0, $item['display_discount_amount_money_object']['raw']);
-        // ...but never changes its display price or strikethrough.
+        // The order coupon still discounts the root order discount...
+        $this->assertGreaterThan(0, $applied['data']['pricing']['display_order_discount_money_object']['raw']);
+        // ...but never changes the item's own display price or strikethrough.
         $this->assertNull($item['display_strikethrough_price_money_object']);
-        $this->assertEquals(50.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(50.0, $item['display_subtotal_money_object']['raw']);
         $this->assertSame([], $item['applied_product_coupons']);
     }
 
@@ -687,7 +685,7 @@ class CartApiTest extends RestTestCase
         $item = $applied['data']['items'][0];
 
         // Both discounts summed into one tier: $100 - $10 - $15 = $75.
-        $this->assertEquals(75.0, $item['display_line_price_money_object']['raw']);
+        $this->assertEquals(75.0, $item['display_subtotal_money_object']['raw']);
         $this->assertEquals(100.0, $item['display_strikethrough_price_money_object']['raw']);
         $this->assertCount(2, $item['applied_product_coupons']);
         $this->assertEqualsCanonicalizing(
@@ -746,17 +744,17 @@ class CartApiTest extends RestTestCase
         $pricing = $applied['data']['pricing'];
 
         // $100 subtotal - $10 amount-off coupon, unaffected by the shipping waiver.
-        $this->assertEquals(90.0, $pricing['display_total_after_discount_money_object']['raw']);
+        $this->assertEquals(90.0, $pricing['display_order_total_money_object']['raw']);
 
         // Grand total still reconciles: pre-shipping total + shipping (waived) + tax.
         $expected_total = round(
-            $pricing['display_total_after_discount_money_object']['raw']
-            + $pricing['display_shipping_total_money_object']['raw']
+            $pricing['display_order_total_money_object']['raw']
+            + $pricing['display_shipping_amount_money_object']['raw']
             + $pricing['display_tax_total_money_object']['raw'],
             2
         );
         $this->assertEquals($expected_total, round($pricing['display_total_money_object']['raw'], 2));
-        $this->assertEquals(0.0, $pricing['display_shipping_total_money_object']['raw']);
+        $this->assertEquals(0.0, $pricing['display_shipping_amount_money_object']['raw']);
     }
 
     /**

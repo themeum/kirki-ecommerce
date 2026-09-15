@@ -52,7 +52,7 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
 
         return [
             TaxLineDTO::from_array([
-                'name' => 'Tax',
+                'name' => 'Shipping Tax',
                 'rate' => $rate,
                 'base_amount' => $this->calculate_tax_amount($rate, $context->shipping_fee),
             ]),
