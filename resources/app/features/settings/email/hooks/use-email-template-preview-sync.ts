@@ -69,8 +69,8 @@ const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) =>
       apply: (el, value) => (el.style.backgroundColor = value),
     },
     {
-      path: 'colors.background.info_cards',
-      value: colors.background?.info_cards,
+      path: 'colors.background.info_cads',
+      value: colors.background?.info_cads,
       apply: (el, value) => (el.style.backgroundColor = value),
     },
     {
@@ -124,7 +124,10 @@ const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) =>
     });
   });
 
-  const contentApplicators: { path: 'additional_description' | 'footer'; value: string | null | undefined }[] = [
+  const contentApplicators: {
+    path: 'additional_description' | 'footer';
+    value: string | null | undefined;
+  }[] = [
     { path: 'additional_description', value: values.additional_description },
     { path: 'footer', value: values.footer },
   ];

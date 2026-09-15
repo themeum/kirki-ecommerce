@@ -8,10 +8,11 @@ use function Kirki\Ecommerce\Framework\view_data;
 
 $shared = view_data();
 
-$data = $shared['data'] ?? [];
+$data = $shared['default_template'] ?? [];
 
 start_section('email-content');
 include_view('emails.parts.order.order-content', $data);
+include_view('emails.parts.info', $data);
 include_view('emails.parts.order.view-order-button', $data);
 include_view('emails.parts.order.order-summary', $data);
 include_view('emails.parts.order.customer-note', $data);

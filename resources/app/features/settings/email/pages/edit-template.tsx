@@ -110,7 +110,7 @@ const EditTemplateContent = () => {
                       label={__('Outer Area', 'kirki-ecommerce')}
                     />
                     <ColorPickerField
-                      name="colors.background.info_cards"
+                      name="colors.background.info_cads"
                       label={__('Info Cards', 'kirki-ecommerce')}
                     />
                     <ColorPickerField

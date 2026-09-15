@@ -5,7 +5,7 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 export const EmailTemplateBackgroundColorsSchema = z.object({
   email_body: z.string().default('#FFFFFF'),
   outer_area: z.string().default('#DBDBE5'),
-  info_cards: z.string().default('#F5F5F5'),
+  info_cads: z.string().default('#F5F5F5'),
   divider: z.string().default('#E0E0E0'),
 });
 

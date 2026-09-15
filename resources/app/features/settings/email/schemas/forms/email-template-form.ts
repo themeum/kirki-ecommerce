@@ -12,7 +12,7 @@ export const EmailTemplateFormSchema = prepareFormSchema(EmailTemplateShape).tra
       background: {
         email_body: values.colors.background.email_body || '#FFFFFF',
         outer_area: values.colors.background.outer_area || '#DBDBE5',
-        info_cards: values.colors.background.info_cards || '#F5F5F5',
+        info_cads: values.colors.background.info_cads || '#F5F5F5',
         divider: values.colors.background.divider || '#E0E0E0',
       },
       typography: {

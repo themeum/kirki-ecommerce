@@ -23,7 +23,7 @@ class EmailTemplateController
         $branding = Settings::get('email')->get('default_template') ?? [];
         $data = $this->build_view_data($branding);
 
-        template_engine()->share('data', $data);
+        template_engine()->share('default_template', $data);
 
         return response()->json([
             'data' => ['html' => view('emails.order-confirmation')->layout('emails.layouts.email-layout')->__toString()],
@@ -110,6 +110,8 @@ class EmailTemplateController
             'colors' => $colors,
             'additional_description' => $branding['additional_description'] ?? '',
             'footer' => $branding['footer'] ?? '',
+            'title' => __('A note has been added to your order', 'kirki-ecommerce'),
+            'main_content' => __('<p>Hi Michale Max,</p><p>The following note has been added to your order:</p>', 'kirki-ecommerce'),
         ]);
     }
 
@@ -122,7 +124,7 @@ class EmailTemplateController
             'background' => [
                 'email_body' => EmailDefaultTemplate::BACKGROUND_COLOR_EMAIL_BODY,
                 'outer_area' => EmailDefaultTemplate::BACKGROUND_COLOR_OUTER_AREA,
-                'info_cards' => EmailDefaultTemplate::BACKGROUND_COLOR_INFO_CARDS,
+                'info_cads' => EmailDefaultTemplate::BACKGROUND_COLOR_INFO_CADS,
                 'divider' => EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER,
             ],
             'typography' => [

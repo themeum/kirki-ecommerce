@@ -12,7 +12,6 @@ $body_color = $data['colors']['typography']['body'] ?? EmailDefaultTemplate::TYP
 $headings_color = $data['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
 $muted_color = $data['colors']['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
 $exceptions_color = $data['colors']['typography']['exceptions'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_EXCEPTIONS;
-$info_cards_color = $data['colors']['background']['info_cards'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_INFO_CARDS;
 $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
 ?>
 <tr>
@@ -24,7 +23,7 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
             <?php foreach ($items as $item) : ?>
                 <tr>
                     <td style="padding-bottom: 16px; vertical-align: top; width: 56px;">
-                        <div data-email-part="colors.background.info_cards" style="width: 48px; height: 48px; border-radius: 8px; background-color: <?php echo esc_attr($info_cards_color); ?>;">
+                        <div style="width: 48px; height: 48px; border-radius: 8px; background-color: #F5F5F5;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none">
                                 <path fill="#858b93" d="M15 18a5 5 0 1 1 10 0 5 5 0 0 1-10 0m5-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6" />
                                 <path fill="#858b93"
@@ -46,13 +45,13 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                             ?>
                         </p>
                         <?php if (!empty($item['variant_name'])) : ?>
-                            <p data-email-part="colors.typography.muted" style="margin: 4px 0 0 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
+                            <p data-email-part="colors.typography.headings" style="margin: 4px 0 0 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($headings_color); ?>;">
                                 <?php echo esc_html($item['variant_name']); ?>
                             </p>
                         <?php endif; ?>
                         <?php if (!empty($item['discount_note'])) : ?>
-                            <p data-email-part="colors.typography.exceptions" style="margin: 4px 0 0 0; font-size: 11px; font-weight: 400; color: <?php echo esc_attr($exceptions_color); ?>;">
-                                <svg data-email-part="colors.typography.exceptions" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px; color: <?php echo esc_attr($exceptions_color); ?>;">
+                            <p data-email-part="colors.typography.muted" style="margin: 4px 0 0 0; font-size: 11px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
+                                <svg data-email-part="colors.typography.muted" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 4px; color: <?php echo esc_attr($muted_color); ?>;">
                                     <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
                                     <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none" />
                                 </svg>

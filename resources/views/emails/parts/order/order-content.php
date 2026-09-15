@@ -8,7 +8,8 @@ $exceptions_color = $colors['typography']['exceptions'] ?? EmailDefaultTemplate:
 $headings_color = $colors['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
 $body_color = $colors['typography']['body'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_BODY;
 
-$customer_name = $data['customer_name'] ?? '';
+$title = $data['title'] ?? '';
+$main_content = $data['main_content'] ?? '';
 ?>
 <tr>
     <td style="padding-top: 32px;">
@@ -23,24 +24,19 @@ $customer_name = $data['customer_name'] ?? '';
             );
             ?>
         </p>
+    </td>
+</tr>
+<tr>
+    <td>
         <p
             data-email-part="colors.typography.headings"
-            style="margin: 0 0 12px 0; font-size: 30px; font-weight: 600; color: <?php echo esc_attr($headings_color); ?>;">
-            <?php esc_html_e('A note has been added to your order', 'kirki-ecommerce'); ?>
+            style="margin: 0 0 8px 0; font-size: 30px; font-weight: 600; color: <?php echo esc_attr($headings_color); ?>;">
+            <?php echo esc_html($title); ?>
         </p>
-        <p data-email-part="colors.typography.body" style="margin: 0 0 12px 0; font-size: 14px; color: <?php echo esc_attr($body_color); ?>;">
-            <?php
-            echo esc_html(
-                sprintf(
-                    /* translators: %s: customer name */
-                    __('Hi %s,', 'kirki-ecommerce'),
-                    $customer_name
-                )
-            );
-            ?>
-        </p>
-        <p data-email-part="colors.typography.body" style="margin: 0 0 24px 0; font-size: 14px; line-height: 20px; color: <?php echo esc_attr($body_color); ?>;">
-            <?php esc_html_e("The following note has been added to your order:", 'kirki-ecommerce'); ?>
-        </p>
+    </td>
+</tr>
+<tr>
+    <td data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>;">
+        <?php echo wp_kses_post($main_content); ?>
     </td>
 </tr>

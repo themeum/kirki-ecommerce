@@ -9,7 +9,7 @@ use function Kirki\Ecommerce\Framework\template_engine;
 
 $shared = template_engine()->get_shared();
 
-$data = $shared['data'] ?? [];
+$data = $shared['default_template'] ?? [];
 
 $outer_area_color = $data['colors']['background']['outer_area'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_OUTER_AREA;
 $email_body_color = $data['colors']['background']['email_body'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_EMAIL_BODY;
