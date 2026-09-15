@@ -117,6 +117,7 @@ const SettingsSidebar = () => {
           value={searchQuery}
           onChange={handleSearchChange}
           cssOverride={styles.searchbox}
+          clearable
         />
         {isSearching ? (
           <SearchResults results={results} isLoading={isLoading} />
@@ -132,15 +133,13 @@ const SettingsSidebar = () => {
                 {section.title}
               </Text>
               <Flex direction="column" gap={1}>
-                {section.items.map((item, index) => (
+                {section.items.map((item) => (
                   <SettingsNavItemRow
                     key={item.header}
                     link={item.link}
                     header={item.header}
                     icon={item.icon}
                     disabled={item.disabled}
-                    isFirst={index === 0}
-                    isLast={index === section.items.length - 1}
                     isActive={isSettingsRouteActive(location.pathname, item.link)}
                   />
                 ))}

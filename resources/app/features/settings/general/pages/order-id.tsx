@@ -4,12 +4,11 @@ import TextField from '@/components/form/text-field';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import type { GeneralSettingsFormInput } from '@/features/settings/general/schemas/forms/general-settings-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderId = () => {
@@ -23,12 +22,18 @@ const OrderId = () => {
     name: 'order_number.suffix',
   });
 
-  const orderID = sprintf('%s000001%s', orderIdPrefix || '', orderIdSuffix || '');
+  const orderID = [1, 2, 3]
+    .map((id) => sprintf('%s00000%s%s', orderIdPrefix || '', id, orderIdSuffix || ''))
+    .join(', ');
 
   return (
     <div>
-      <Card data-search-id="general.order-id" data-search-keywords="order number, reference number, numbering" cssOverride={cardStyles.formCard}>
-        <CardHeader cssOverride={cardStyles.sectionHeader}>
+      <Card
+        data-search-id="general.order-id"
+        data-search-keywords="order number, reference number, numbering"
+        cssOverride={cardStyles.formCard}
+      >
+        <CardHeader>
           <CardTitle>{__('Order ID', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -37,44 +42,37 @@ const OrderId = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent cssOverride={cardStyles.largeContent}>
-          <Card cssOverride={cardStyles.innerCard}>
-            <CardContent cssOverride={cardStyles.innerCardContent}>
-              <Flex direction="column" gap={4}>
-                <Grid>
-                  <TextField
-                    name="order_number.prefix"
-                    label={__('Prefix', 'kirki-ecommerce')}
-                    placeholder={__('#ORD-', 'kirki-ecommerce')}
-                    infoText={__('Set order id prefix', 'kirki-ecommerce')}
-                  />
+        <CardContent>
+          <Flex direction="column" gap={4}>
+            <Grid>
+              <TextField
+                name="order_number.prefix"
+                label={__('Prefix', 'kirki-ecommerce')}
+                placeholder={__('#ORD-', 'kirki-ecommerce')}
+                infoText={__('Set order id prefix', 'kirki-ecommerce')}
+              />
 
-                  <TextField
-                    name="order_number.suffix"
-                    label={__('Suffix', 'kirki-ecommerce')}
-                    placeholder={__('f', 'kirki-ecommerce')}
-                    infoText={__('Set order id suffix', 'kirki-ecommerce')}
-                  />
-                </Grid>
+              <TextField
+                name="order_number.suffix"
+                label={__('Suffix', 'kirki-ecommerce')}
+                placeholder={__('f', 'kirki-ecommerce')}
+                infoText={__('Set order id suffix', 'kirki-ecommerce')}
+              />
+            </Grid>
 
-                <Card cssOverride={mergeCss(cardStyles.innerDarkCard, styles.previewCard)}>
-                  <CardContent cssOverride={styles.previewCardContent}>
-                    <Flex direction="column" gap={2}>
-                      <Label htmlFor="order-id-preview">
-                        {__('Order IDs will look like:', 'kirki-ecommerce')}
-                      </Label>
-                      <Input
-                        id="order-id-preview"
-                        value={orderID}
-                        readOnly
-                        cssOverride={styles.previewInput}
-                      />
-                    </Flex>
-                  </CardContent>
-                </Card>
+            <Card cssOverride={mergeCss(cardStyles.innerDarkCard)}>
+              <CardContent cssOverride={styles.previewCardContent}>
+                <Flex direction="column" gap={2}>
+                  <Label htmlFor="order-id-preview">
+                    {__('Next order IDs will look like:', 'kirki-ecommerce')}
+                  </Label>
+                  <div css={scoped(styles.previewCard)}>{orderID}</div>
+                </Flex>
+              </CardContent>
+            </Card>
 
-                {/* @todo: will implement later */}
-                {/* <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
+            {/* @todo: will implement later */}
+            {/* <Card cssOverride={mergeCss(cardStyles.formCard, styles.resetCard)}>
                   <CardContent>
                     <Flex direction="column" gap={3}>
                       <Flex align="center">
@@ -95,9 +93,7 @@ const OrderId = () => {
                     </Flex>
                   </CardContent>
                 </Card> */}
-              </Flex>
-            </CardContent>
-          </Card>
+          </Flex>
         </CardContent>
       </Card>
     </div>
@@ -109,14 +105,16 @@ OrderId.displayName = 'OrderId';
 export default OrderId;
 
 const styles = defineStyles({
-  previewCard: {},
   previewCardContent: {
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
   },
-  previewInput: {
+  previewCard: {
     padding: theme.spacing[2],
     textAlign: 'center',
+    borderRadius: theme.radius.sm,
+    ...theme.typography.small(),
     color: theme.colors.text.special3,
+    backgroundColor: theme.colors.background.surface,
   },
   resetCard: {
     borderRadius: theme.radius.lg,

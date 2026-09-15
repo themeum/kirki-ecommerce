@@ -21,6 +21,7 @@ config/policies.cache.php
 .phpunit.result.cache
 .phpcs-wporg-cache
 .wp-tests/
+.phpcs-cache
 
 # IDE files
 .idea/

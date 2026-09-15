@@ -11,7 +11,13 @@ import {
 import { apiClient } from '@/libs/api';
 import { settingsKeys } from '@/libs/query-keys';
 import { PaginatedDataSchema, ResourceCollectionSchema } from '@/schemas/shared/api';
-import { parseData, parseMessage, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseMessage,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
@@ -39,7 +45,9 @@ const getAllCurrencies = (params: ListQueryParams = {}) => {
 const getCurrencyExchangeProviders = () => {
   return apiClient
     .get(endpoints.CURRENCY_EXCHANGE_PROVIDERS)
-    .then((response) => parseData(ResourceCollectionSchema(CurrencyExchangeProviderSchema), response));
+    .then((response) =>
+      parseData(ResourceCollectionSchema(CurrencyExchangeProviderSchema), response),
+    );
 };
 
 const createCurrency = (data: CurrencyBulkPayload) => {
@@ -55,9 +63,7 @@ const updateCurrency = (data: CurrencyBulkPayload) => {
 };
 
 const deleteCurrency = (id: number) => {
-  return apiClient
-    .delete(endpoints.CURRENCY(id))
-    .then((response) => parseMessage(response));
+  return apiClient.delete(endpoints.CURRENCY(id)).then((response) => parseMessage(response));
 };
 
 const syncCurrencyRates = () => {
@@ -94,10 +100,7 @@ const useCreateCurrencyMutation = () => {
   return useMutation({
     mutationFn: createCurrency,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Currency created successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Currency added', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -112,10 +115,7 @@ const useUpdateCurrencyMutation = () => {
   return useMutation({
     mutationFn: updateCurrency,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Currency updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Currency updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -130,10 +130,7 @@ const useDeleteCurrencyMutation = () => {
   return useMutation({
     mutationFn: deleteCurrency,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Currency deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Currency removed', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: currencyKeys.optionsAll });
     },
@@ -148,10 +145,7 @@ const useSyncCurrencyRatesMutation = () => {
   return useMutation({
     mutationFn: syncCurrencyRates,
     onSuccess(response) {
-      toastMutationSuccess(
-        response.message ||
-        __('Exchange rates synced successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Exchange rates synced', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: currencyKeys.all });
       void queryClient.invalidateQueries({ queryKey: settingsKeys.section('currency') });
     },
@@ -162,6 +156,19 @@ const useSyncCurrencyRatesMutation = () => {
 };
 
 export {
-  createCurrency, type CurrencyBulkPayload,
-deleteCurrency, getAllCurrencies, getAvailableCurrencies, getCurrencyExchangeProviders, syncCurrencyRates, updateCurrency, useAllCurrenciesQuery, useAvailableCurrenciesQuery, useCreateCurrencyMutation, useCurrencyExchangeProvidersQuery, useDeleteCurrencyMutation, useSyncCurrencyRatesMutation, useUpdateCurrencyMutation};
-
+  createCurrency,
+  type CurrencyBulkPayload,
+  deleteCurrency,
+  getAllCurrencies,
+  getAvailableCurrencies,
+  getCurrencyExchangeProviders,
+  syncCurrencyRates,
+  updateCurrency,
+  useAllCurrenciesQuery,
+  useAvailableCurrenciesQuery,
+  useCreateCurrencyMutation,
+  useCurrencyExchangeProvidersQuery,
+  useDeleteCurrencyMutation,
+  useSyncCurrencyRatesMutation,
+  useUpdateCurrencyMutation,
+};

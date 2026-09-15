@@ -120,13 +120,14 @@ type AccordionTriggerProps = Omit<
 > & {
   cssOverride?: CSSObject;
   gap?: number;
+  hideChevron?: boolean;
 };
 
 const AccordionTrigger = forwardRef<
   ComponentRef<typeof AccordionPrimitive.Trigger>,
   AccordionTriggerProps
 >((props, ref) => {
-  const { children, cssOverride, gap = 2, style, ...rest } = props;
+  const { children, cssOverride, gap = 2, style, hideChevron = false, ...rest } = props;
   const { rightActions } = useContext(AccordionContext);
 
   return (
@@ -139,9 +140,11 @@ const AccordionTrigger = forwardRef<
     >
       <AccordionPrimitive.Trigger ref={ref} css={scoped(styles.trigger)} {...rest}>
         <div css={scoped(styles.title)}>{children}</div>
-        <span css={scoped(styles.chevron)} data-accordion-chevron="">
-          <ChevronDown size={16} aria-hidden="true" />
-        </span>
+        {!hideChevron && (
+          <span css={scoped(styles.chevron)} data-accordion-chevron="">
+            <ChevronDown size={16} aria-hidden="true" />
+          </span>
+        )}
       </AccordionPrimitive.Trigger>
       {rightActions ? <div css={scoped(styles.rightActions)}>{rightActions}</div> : null}
     </AccordionPrimitive.Header>
@@ -215,6 +218,9 @@ const styles = defineStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    '&:disabled': {
+      cursor: 'default',
+    },
     ...theme.typography.paragraph('medium'),
     '&:focus-visible': {
       outline: `2px solid ${theme.colors.background.fillBrand}`,

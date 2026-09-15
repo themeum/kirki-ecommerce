@@ -13,7 +13,9 @@ namespace Kirki\Ecommerce\App\Resources\Site\Shop;
 
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Resource;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -36,7 +38,7 @@ class ShopProductResource extends Resource
     public function to_array(): array
     {
         $variants = $this->variants;
-        $variant  = $variants->first();
+        $variant  = $this->variant ? $this->variant : $this->resolve_default_variant($variants);
 
         if (! $variant) {
             return [];
@@ -46,6 +48,7 @@ class ShopProductResource extends Resource
         $variant_id   = intval($variant->id);
         $out_of_stock = $this->resolve_stock_status($variant_id);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
+        $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 
         return [
             'id'                      => $this->id,
@@ -62,7 +65,23 @@ class ShopProductResource extends Resource
             'has_variants'            => $has_variants,
             'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
+            'is_wishlisted'           => $is_wishlisted,
         ];
+    }
+
+    /**
+     * Resolve the default variant from the variants collection.
+     *
+     * @param Collection $variants
+     *
+     * @return \Kirki\Ecommerce\App\Models\Variant|null
+     */
+    private function resolve_default_variant($variants)
+    {
+        if ( ! $variants ) {
+            return null;
+        }
+        return $variants->filter(fn($variant) => 1 == $variant->is_default)->first();
     }
 
     /**
@@ -136,10 +155,15 @@ class ShopProductResource extends Resource
      */
     private function resolve_image_url(): string
     {
-        $media = $this->media->first();
+        if ( is_int($this->media)) {
+            $media_id = $this->media;
+        } else {
+            $media = is_object($this->media) ? $this->media->first() : null;
+            $media_id = $media && is_object($media) ? $media->ID : 0;
+        }
 
-        return $media
-            ? (wp_get_attachment_image_url($media->ID, 'large') ?: '')
+        return $media_id
+            ? (wp_get_attachment_image_url($media_id, 'large') ?: '')
             : Url::get_product_fallback_image();
     }
 

@@ -8,16 +8,19 @@ import type { InventoryListFilter } from '@/features/inventory/types';
 import { InventoryVariantSchema, productKeys, VariantSchema } from '@/features/products';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 const getInventory = (params: ListParams<InventoryListFilter> = {}) => {
   return apiClient
     .get(endpoints.VARIANTS, { params })
-    .then((response) =>
-      parseData(PaginatedDataSchema(InventoryVariantSchema), response),
-    );
+    .then((response) => parseData(PaginatedDataSchema(InventoryVariantSchema), response));
 };
 
 const getVariant = (id: number) => {
@@ -54,9 +57,7 @@ const useUpdateVariantMutation = () => {
   return useMutation({
     mutationFn: updateVariant,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Variant updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Variant updated', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: inventoryKeys.detail(variables.id) });
       void queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: bulkEditKeys.all });

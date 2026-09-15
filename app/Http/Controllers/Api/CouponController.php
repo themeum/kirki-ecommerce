@@ -59,7 +59,7 @@ class CouponController
 
         return response()->json([
             'data' => CouponResource::make($coupon),
-            'message' => __('Coupon created successfully.', 'kirki-ecommerce'),
+            'message' => __('Coupon created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +79,7 @@ class CouponController
 
         return response()->json([
             'data' => CouponResource::make($coupon),
-            'message' => __('Coupon updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Coupon updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +89,7 @@ class CouponController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Coupon deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Coupon deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +105,14 @@ class CouponController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Coupons deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Coupons deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = CouponFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All coupons deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All coupons deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([
@@ -128,7 +128,7 @@ class CouponController
 
         return response()->json([
             'data' => $code,
-            'message' => __('Coupon code generated successfully.', 'kirki-ecommerce'),
+            'message' => __('Coupon code generated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -147,15 +147,15 @@ class CouponController
         switch ($request->string('action')) {
             case 'duplicate':
                 $coupon = $duplicate_action->execute($request->int('id'));
-                $message = __('Coupon duplicated successfully.', 'kirki-ecommerce');
+                $message = __('Coupon duplicated', 'kirki-ecommerce');
                 break;
             case 'activate':
                 $coupon = $this->service->change_activation_state($request->int('id'), true);
-                $message = __('Coupon activated successfully.', 'kirki-ecommerce');
+                $message = __('Coupon activated', 'kirki-ecommerce');
                 break;
             case 'deactivate':
                 $coupon = $this->service->change_activation_state($request->int('id'), false);
-                $message = __('Coupon deactivated successfully.', 'kirki-ecommerce');
+                $message = __('Coupon deactivated', 'kirki-ecommerce');
                 break;
             default:
                 return response()->json([

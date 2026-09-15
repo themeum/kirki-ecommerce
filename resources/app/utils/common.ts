@@ -80,7 +80,7 @@ export const dispatchToastMessage = (
     },
   };
 
-  if (variant === 'error' || variant === 'delete') {
+  if (variant === 'error') {
     toast.error(message, options);
     return;
   }
@@ -90,7 +90,7 @@ export const dispatchToastMessage = (
     return;
   }
 
-  if (variant === 'success') {
+  if (variant === 'success' || variant === 'delete') {
     toast.success(message, options);
     return;
   }
