@@ -9,6 +9,7 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: 
   return {
     isWishlisted: wishlisted,
     wishlistedVariants: {} as Record<number,boolean>,
+    wishlistCount: 0,
 
     init() {
         if (variantList) {
@@ -16,6 +17,8 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: 
                 this.wishlistedVariants[variant.id] = variant.is_wishlisted;
             });
         }
+
+        this.wishlistCount = Number(document.querySelector('.kecom-wishlist-count')?.textContent.replace('(', '').replace(')', ''))
     },
 
     async wishlistItem(variantId: number) {
@@ -31,17 +34,17 @@ export function wishlist(wishlisted: boolean,variantList?: Variant[], context?: 
             if (context === 'account') {
               const wishlistCard = document.getElementById(`${variantId}`);
               const wishlistCount = document.querySelector('.kecom-wishlist-count');
-              if (0 === result.data.count) {
+              if (0 === this.wishlistCount) {
                 window.location.reload();
               }
               if (wishlistCard) {
                 wishlistCard.parentElement?.remove();
                 if (wishlistCount) {
-                  wishlistCount.textContent = `(${result.data.count})`;
+                  wishlistCount.textContent = `(${this.wishlistCount - 1})`;
                 }
               }
             }
-            emit(EVENTS.ACCOUNT_WISHLIST_REMOVED,result.data);
+            emit(EVENTS.ACCOUNT_WISHLIST_REMOVED);
           } else {
             throw new Error(
               result?.message ||
