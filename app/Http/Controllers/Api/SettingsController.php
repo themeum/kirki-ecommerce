@@ -44,7 +44,7 @@ class SettingsController
                 'key' => $key,
                 'settings' => $settings->to_array(),
             ]),
-            'message' => __('Settings updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Settings saved', 'kirki-ecommerce'),
         ]);
     }
 }

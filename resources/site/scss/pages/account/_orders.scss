@@ -24,7 +24,7 @@
   // Column 1: Thumbnail
   .kecom-orders-table-col-thumb {
     width: 70px;
-    padding-right: $spacing-3;
+    padding-inline-end: $spacing-3;
   }
 
   .kecom-account-order-thumb-wrap {
@@ -124,7 +124,7 @@
 
   // Column 5: Action Buttons (Pay, View)
   .kecom-orders-table-col-actions {
-    text-align: right;
+    text-align: end;
   }
 
   .kecom-account-order-actions-wrap {
@@ -173,7 +173,7 @@
       grid-column: 1;
       grid-row: 1;
       width: auto;
-      padding-right: 0;
+      padding-inline-end: 0;
     }
 
     .kecom-orders-table-col-info {
@@ -193,13 +193,13 @@
       grid-column: 1 / 3;
       grid-row: 2;
       min-width: 0;
-      text-align: left;
+      text-align: start;
     }
 
     .kecom-orders-table-col-actions {
       grid-column: 3;
       grid-row: 2;
-      text-align: right;
+      text-align: end;
     }
   }
 }

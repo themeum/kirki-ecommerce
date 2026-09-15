@@ -23,7 +23,11 @@ import {
   getDestinationDisplayValue,
   resolveConditionDisplayValue,
 } from '@/features/settings/tax/shared/lib/tax-rules/helper';
-import type { SelectOption, TaxRegionState, TaxRule } from '@/features/settings/tax/shared/lib/utils';
+import type {
+  SelectOption,
+  TaxRegionState,
+  TaxRule,
+} from '@/features/settings/tax/shared/lib/utils';
 import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
 import { useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
 import { theme } from '@/theme';
@@ -79,7 +83,7 @@ const TaxRules = (props: TaxRulesProps) => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Rules', 'kirki-ecommerce')}
@@ -166,7 +170,11 @@ const TaxRules = (props: TaxRulesProps) => {
                               : `Then ${item?.action?.type}`}
                           </Text>
                           {item?.action?.type === 'set_product_tax_rate' && (
-                            <Text variant="small" weight="medium" cssOverride={styles.conditionValue}>
+                            <Text
+                              variant="small"
+                              weight="medium"
+                              cssOverride={styles.conditionValue}
+                            >
                               {item?.action?.value as string}
                             </Text>
                           )}
@@ -177,6 +185,7 @@ const TaxRules = (props: TaxRulesProps) => {
                           <Button
                             variant="outline"
                             size="icon-sm"
+                            cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                             onClick={() => handleDeleteRules(item, index)}
                           >
                             <Trash2 />

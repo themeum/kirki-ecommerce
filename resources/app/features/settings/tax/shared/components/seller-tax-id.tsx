@@ -11,7 +11,7 @@ import { __ } from '@/wpi18n';
 const SellerTaxID = () => {
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent >
           <Flex direction="column" gap={2}>
             <Flex align="center">

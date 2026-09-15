@@ -185,7 +185,9 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            cssOverride={styles.conditionActions}
+            cssOverride={mergeCss(styles.conditionActions, {
+              '& svg': { color: theme.colors.icon.critical },
+            })}
             data-tax-rule-condition-action
           >
             <TrashIcon />

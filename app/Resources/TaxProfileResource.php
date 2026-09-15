@@ -16,6 +16,7 @@ class TaxProfileResource extends Resource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'is_default' => (bool) $this->is_default,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

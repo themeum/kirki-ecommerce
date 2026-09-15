@@ -21,6 +21,7 @@ config/policies.cache.php
 .phpunit.result.cache
 .phpcs-wporg-cache
 .wp-tests/
+.phpcs-cache
 
 # IDE files
 .idea/
@@ -42,6 +43,9 @@ temp/
 # Vite build output (resources/app npm run build)
 assets/css
 assets/js
+
+# Settings search index (resources/app npm run search:index)
+resources/app/features/settings/search/settings-search-index.json
 
 # Backup files
 *.bak

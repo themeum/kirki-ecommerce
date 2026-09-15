@@ -10,11 +10,11 @@ import { __ } from '@/wpi18n';
 
 export const Review = () => {
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card data-search-id="products.reviews" data-search-keywords="rating, feedback, testimonial, comment" cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={cardStyles.sectionHeader}>
         <CardTitle>{__('Reviews', 'kirki-ecommerce')}</CardTitle>
         <CardDescription>
-          {__('Configure how customers can submit reviews for your products', 'kirki-ecommerce')}
+          {__('Let shoppers post product reviews and star ratings.', 'kirki-ecommerce')}
         </CardDescription>
       </CardHeader>
       <CardContent cssOverride={cardStyles.largeContent}>

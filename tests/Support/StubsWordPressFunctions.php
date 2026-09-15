@@ -7,6 +7,13 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('esc_html__')) {
+    function esc_html__($text, $domain = 'default')
+    {
+        return $text;
+    }
+}
+
 if (!function_exists('_e')) {
     function _e($text, $domain = 'default')
     {

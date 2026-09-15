@@ -173,7 +173,7 @@ const ShippingBoxFieldView = ({
 
   return (
     <Field data-invalid={invalid || undefined}>
-      <Card cssOverride={mergeCss(cardStyles.innerCard, styles.fieldsetCard)}>
+      <Card data-search-skip="true" cssOverride={mergeCss(cardStyles.innerCard, styles.fieldsetCard)}>
         <CardContent cssOverride={styles.fieldsetContent}>
           <Flex cssOverride={styles.legendRow}>
             <span css={scoped(styles.labelBackground)}>

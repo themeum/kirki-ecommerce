@@ -57,7 +57,7 @@ class ShippingBoxController
 
         return response()->json([
             'data' => ShippingBoxResource::make($shipping_box),
-            'message' => __('Shipping box created successfully.', 'kirki-ecommerce'),
+            'message' => __('Shipping box created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +79,7 @@ class ShippingBoxController
 
         return response()->json([
             'data' => ShippingBoxResource::make($shipping_box),
-            'message' => __('Shipping box updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Shipping box updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +89,7 @@ class ShippingBoxController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Shipping box deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Shipping box deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +105,14 @@ class ShippingBoxController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Shipping boxes deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Shipping boxes deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All shipping boxes deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All shipping boxes deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

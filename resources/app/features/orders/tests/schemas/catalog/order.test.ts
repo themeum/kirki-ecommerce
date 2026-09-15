@@ -206,6 +206,10 @@ describe('OrderItemSchema', () => {
       invoiced_tax_money_object: invoicedMoney(0),
       base_tax: 0,
       base_tax_money_object: baseMoney(0),
+      invoiced_shipping_tax: 0,
+      invoiced_shipping_tax_money_object: invoicedMoney(0),
+      base_shipping_tax: 0,
+      base_shipping_tax_money_object: baseMoney(0),
       invoiced_total: 7435.14,
       invoiced_total_money_object: invoicedMoney(7435.14),
       base_total: 89.28,
@@ -236,16 +240,16 @@ describe('OrderItemSchema', () => {
         invoiced_total_money_object: invoicedMoney(2123.14),
         base_total: 25.28,
         base_total_money_object: baseMoney(25.28),
-        tax_rate: 0,
         invoiced_tax_total: 0,
         invoiced_tax_total_money_object: invoicedMoney(0),
         base_tax_total: 0,
         base_tax_total_money_object: baseMoney(0),
-        tax_breakdown: [],
+        tax_lines: [],
         sku: 'T-SHIRT-1-4',
         image: null,
       },
     ],
+    shipping_tax_lines: [],
     shipping_address: {
       first_name: 'Sunny',
       last_name: 'Doe',
@@ -324,14 +328,22 @@ describe('OrderItemSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts a persisted tax breakdown, whose base_amount is raw minor units', () => {
+  it('accepts a persisted set of tax lines, each with its own invoiced and base money objects', () => {
     const result = OrderItemSchema.safeParse({
       ...documentedOrder,
       items: [
         {
           ...documentedOrder.items[0],
-          tax_rate: 7.5,
-          tax_breakdown: [{ name: 'Tax', rate: 7.5, base_amount: 237 }],
+          tax_lines: [
+            {
+              name: 'Tax',
+              rate: 7.5,
+              invoiced_amount: 19.9,
+              invoiced_amount_money_object: invoicedMoney(19.9),
+              base_amount: 237,
+              base_amount_money_object: baseMoney(237),
+            },
+          ],
         },
       ],
     });
@@ -465,6 +477,8 @@ describe('OrderCalculationSchema', () => {
       base_total_money_object: displayMoney(9559.11),
       display_total: 9559.11,
       display_total_money_object: displayMoney(9559.11),
+      tax_lines: [],
+      shipping_tax_lines: [],
     },
     items_count: 4,
     items: [
@@ -475,12 +489,11 @@ describe('OrderCalculationSchema', () => {
         base_subtotal_money_object: displayMoney(5308.68),
         display_subtotal: 5308.68,
         display_subtotal_money_object: displayMoney(5308.68),
-        tax_rate: 0,
         base_tax_amount: 0,
         base_tax_amount_money_object: displayMoney(0),
         display_tax_amount: 0,
         display_tax_amount_money_object: displayMoney(0),
-        tax_breakdown: [],
+        tax_lines: [],
         base_discount_amount: 12.79,
         base_discount_amount_money_object: displayMoney(12.79),
         display_discount_amount: 12.79,
@@ -537,14 +550,13 @@ describe('OrderCalculationSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts a per-item tax breakdown carrying both base and display amounts', () => {
+  it('accepts a per-item tax lines list carrying both base and display amounts', () => {
     const result = OrderCalculationSchema.safeParse({
       ...documentedCalculation,
       items: [
         {
           ...documentedCalculation.items[0],
-          tax_rate: 7.5,
-          tax_breakdown: [
+          tax_lines: [
             {
               name: 'VAT',
               rate: 7.5,

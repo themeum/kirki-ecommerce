@@ -7,15 +7,16 @@ use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\DiscountService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
-use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\Supports\Tax;
-use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
-use Throwable;
 
 use function Kirki\Ecommerce\Framework\collection;
 
@@ -40,147 +41,52 @@ class RecalculateCartAction
 
     public function execute(CalculationContextDTO $context): CalculationResultDTO
     {
-        $result = new CalculationResultDTO();
+        $context->shipping_subtotal = $this->get_shipping_total($context);
 
-        // Initialize totals as Money zero
-        $total_subtotal_money = Money::zero();
-        $total_tax_money = Money::zero();
-        $total_discount_money = Money::zero();
-        $total_grand_money = Money::zero();
-        $total_product_amount_money = Money::zero();
-
-        // Calculate Coupons & Discounts
         $discount_result = $this->get_discount_result($context);
+        $tax_result = $this->get_tax_result($context, $discount_result);
+        $is_inclusive_tax = $this->is_tax_inclusive_price();
 
-        // Get Tax Settings & Strategy
-        $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
-        $is_inclusive_tax = $tax_settings->get('is_tax_inclusive_price') ?? false;
-        $tax_strategy = $context->should_calculate_tax ? Tax::get_tax_strategy($context->shipping_address) : null;
+        $items = [];
+        $items_count = 0;
 
-        // Iterate Items and Calculate Item Totals
         foreach ($context->items as $item) {
-            $item_result = clone $item;
-
-            $unit_price_money = Money::of_minor($item->base_unit_price);
-            $unit_product_money = Money::of_minor($item->base_product_total);
-            $item_net_total_money = $unit_price_money->multipliedBy($item->quantity);
-            $item_product_total_money = $unit_product_money->multipliedBy($item->quantity);
-
-            $item_discount_minor = $discount_result->item_discounts[$item->variant_id] ?? 0;
-            $item_discount_money = Money::of_minor($item_discount_minor);
-
-            // Cap discount at subtotal
-            if ($item_discount_money->isGreaterThan($item_net_total_money)) {
-                $item_discount_money = $item_net_total_money;
-            }
-
-            $item_total_money = $item_net_total_money->minus($item_discount_money);
-
-            // Calculate Tax
-            $tax_breakdown = [];
-            $item_tax_amount_money = Money::zero();
-            $tax_rate = 0;
-
-            if ($tax_strategy) {
-                $tax_context = new ProductTaxContextDTO([
-                    'shipping_address' => $context->shipping_address,
-                    'base_product_price' => $item_total_money->getMinorAmount()->toInt(),
-                    'product_categories' => $item->product_categories,
-                    'tax_profile' => $item->tax_profile_id
-                ]);
-
-                $tax_result = $tax_strategy->calculate_product_tax($tax_context);
-                $item_tax_amount_money = Money::of_minor($tax_result->base_total);
-                $tax_breakdown = $tax_result->breakdown;
-                $tax_rate = collection($tax_result->breakdown)->sum(fn($item) => $item->rate);
-            }
-
-            if (!$is_inclusive_tax) {
-                $item_total_money = $item_total_money->plus($item_tax_amount_money);
-            }
-
-            // Populate Item Result
-            $item_result->base_subtotal = $item_net_total_money->getMinorAmount()->toInt();
-            $item_result->base_tax_amount = $item_tax_amount_money->getMinorAmount()->toInt();
-            $item_result->tax_rate = $tax_rate;
-            $item_result->tax_breakdown = $tax_breakdown;
-            $item_result->base_discount_amount = $item_discount_money->getMinorAmount()->toInt();
-            $item_result->base_total = $item_total_money->getMinorAmount()->toInt();
-            $item_result->base_product_total = $item_product_total_money->getMinorAmount()->toInt();
-
-            // Aggregate Cart Totals
-            $result->items[$item->variant_id] = $item_result;
-
-            $total_subtotal_money = $total_subtotal_money->plus($item_net_total_money);
-            $total_tax_money = $total_tax_money->plus($item_tax_amount_money);
-            $total_discount_money = $total_discount_money->plus($item_discount_money);
-            $total_grand_money = $total_grand_money->plus($item_total_money);
-            $total_product_amount_money = $total_product_amount_money->plus($item_product_total_money);
-
-            $result->items_count += $item->quantity;
+            $items[$item->variant_id] = $this->build_item_result($item, $discount_result, $tax_result, $is_inclusive_tax);
+            $items_count += $item->quantity;
         }
 
-        // Calculate Shipping
-        $shipping_subtotal_int = $this->get_shipping_total($context);
-        $shipping_subtotal_money = Money::of_minor($shipping_subtotal_int);
+        $shipping = $this->build_shipping_result($context, $discount_result, $tax_result, $is_inclusive_tax);
 
-        $shipping_discount_money = $discount_result->is_free_shipping ? $shipping_subtotal_money : Money::zero();
-
-        $total_discount_money = $total_discount_money->plus($shipping_discount_money);
-
-        // Calculate Shipping Tax
-        $shipping_tax_money = Money::zero();
-
-        if ($tax_strategy && $this->is_shipping_method_taxable($context)) {
-            $shipping_taxable_money = $shipping_subtotal_money->minus($shipping_discount_money);
-            $shipping_tax_result = $tax_strategy->calculate_shipping_tax($shipping_taxable_money->getMinorAmount()->toInt());
-            $shipping_tax_money = Money::of_minor($shipping_tax_result->base_total);
-        }
-
-        // Shipping Total
-        $shipping_total_money = $shipping_subtotal_money->minus($shipping_discount_money);
-
-        if (!$is_inclusive_tax) {
-            $shipping_total_money = $shipping_total_money->plus($shipping_tax_money);
-        }
-
-        $total_tax_money = $total_tax_money->plus($shipping_tax_money);
-        $total_grand_money = $total_grand_money->plus($shipping_total_money);
-
-        if ($total_grand_money->isLessThan(0)) {
-            $total_grand_money = Money::zero();
-        }
-
-        // Set DTO values (convert back to int)
-        $result->base_subtotal = $total_subtotal_money->getMinorAmount()->toInt();
-        $result->base_tax_total = $total_tax_money->getMinorAmount()->toInt();
-        $result->base_discount_total = $total_discount_money->getMinorAmount()->toInt();
-        $result->discount_details = $discount_result->discount_details;
-        $result->base_total = $total_grand_money->getMinorAmount()->toInt();
-
-        $result->base_shipping_subtotal = $shipping_subtotal_money->getMinorAmount()->toInt();
-        $result->base_shipping_discount = $shipping_discount_money->getMinorAmount()->toInt();
-        $result->base_shipping_tax = $shipping_tax_money->getMinorAmount()->toInt();
-        $result->base_shipping_total = $shipping_total_money->getMinorAmount()->toInt();
-        $result->base_product_total = $total_product_amount_money->getMinorAmount()->toInt();
-
-        return $result;
+        return $this->aggregate($items, $items_count, $shipping, $discount_result);
     }
 
-    protected function get_discount_result(CalculationContextDTO $context)
+    protected function get_discount_result(CalculationContextDTO $context): DiscountCalculationResultDTO
     {
-        try {
-            $coupon_code = $context->coupon ?? null;
-            $coupon = $coupon_code ? $this->coupon_service->find_by_code($coupon_code) : null;
+        $coupons = $this->resolve_coupons($context->coupon_codes);
 
-            return $this->discount_service->calculate($context, $coupon);
-        } catch (Throwable $e) {
-            if ($context->cart_id) {
-                $this->cart_service->partial_update($context->cart_id, ['discount_details' => null]);
-            }
+        $discount_result = $this->discount_service->calculate($context, $coupons);
 
-            return new DiscountCalculationResultDTO();
+        if ($context->cart_id && !empty($discount_result->invalid_coupons)) {
+            $invalid_coupon_ids = collection($discount_result->invalid_coupons)->pluck('id')->to_array();
+
+            $this->cart_service->remove_coupons($context->cart_id, $invalid_coupon_ids);
         }
+
+        return $discount_result;
+    }
+
+    /**
+     * Resolve coupon codes to Coupon models in a single query, silently
+     * skipping codes that don't resolve to a coupon (e.g. an ad-hoc code
+     * submitted for an order preview that doesn't exist) rather than failing
+     * the whole calculation.
+     *
+     * @param string[] $codes
+     * @return \Kirki\Ecommerce\App\Models\Coupon[]
+     */
+    protected function resolve_coupons(array $codes)
+    {
+        return $this->coupon_service->find_by_codes($codes)->all();
     }
 
     protected function get_shipping_total(CalculationContextDTO $context)
@@ -191,7 +97,7 @@ class RecalculateCartAction
 
         return $this->shipping_service->calculate($context);
     }
-    
+
     protected function is_shipping_method_taxable(CalculationContextDTO $context)
     {
         if (empty($context->shipping_address) || empty($context->shipping_method_id)) {
@@ -199,5 +105,179 @@ class RecalculateCartAction
         }
 
         return $this->shipping_service->get_selected_shipping_method($context)['is_taxable'] ?? false;
+    }
+
+    protected function is_tax_inclusive_price(): bool
+    {
+        $tax_settings = Settings::get(OptionKeys::TAX_SETTINGS);
+
+        return $tax_settings->get('is_tax_inclusive_price') ?? false;
+    }
+
+    /**
+     * Calculate every tax line the cart accrues - per item and for shipping -
+     * in one call, so a country's tax strategy always sees the whole cart.
+     * Falls back to an empty result (every line zero) when tax isn't being
+     * calculated at all, so callers never need to null-check it.
+     */
+    protected function get_tax_result(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result): TaxCalculationResultDTO
+    {
+        if (!$context->should_calculate_tax) {
+            return new TaxCalculationResultDTO();
+        }
+
+        $tax_strategy = Tax::get_tax_strategy($context->shipping_address);
+
+        if (!$tax_strategy) {
+            return new TaxCalculationResultDTO();
+        }
+
+        return $tax_strategy->calculate($this->build_tax_context($context, $discount_result));
+    }
+
+    protected function build_tax_context(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result): TaxCalculationContextDTO
+    {
+        $shipping_taxable_money = Money::of_minor($context->shipping_subtotal)
+            ->minus(Money::of_minor($discount_result->shipping_discount));
+
+        $items = [];
+
+        foreach ($context->items as $item) {
+            $items[] = TaxableItemDTO::from_array([
+                'item_id' => $item->variant_id,
+                'taxable_amount' => $this->calculate_item_taxable_amount($item, $discount_result)->getMinorAmount()->toInt(),
+                'tax_profile_id' => $item->tax_profile_id,
+                'product_categories' => $item->product_categories,
+            ]);
+        }
+
+        return TaxCalculationContextDTO::from_array([
+            'shipping_address' => $context->shipping_address,
+            'billing_address' => $context->billing_address,
+            'shipping_fee' => $shipping_taxable_money->getMinorAmount()->toInt(),
+            'is_shipping_taxable' => $this->is_shipping_method_taxable($context),
+            'items' => $items,
+        ]);
+    }
+
+    protected function calculate_item_net_total(CalculationItemDTO $item)
+    {
+        return Money::of_minor($item->base_unit_price)->multipliedBy($item->quantity);
+    }
+
+    /**
+     * An item's discount, capped at its own subtotal so a discount can never
+     * push an item's total below zero.
+     */
+    protected function calculate_item_discount(CalculationItemDTO $item, $item_net_total_money, DiscountCalculationResultDTO $discount_result)
+    {
+        $item_discount_money = Money::of_minor($discount_result->item_discounts[$item->variant_id] ?? 0);
+
+        if ($item_discount_money->isGreaterThan($item_net_total_money)) {
+            return $item_net_total_money;
+        }
+
+        return $item_discount_money;
+    }
+
+    protected function calculate_item_taxable_amount(CalculationItemDTO $item, DiscountCalculationResultDTO $discount_result)
+    {
+        $net_total_money = $this->calculate_item_net_total($item);
+        $discount_money = $this->calculate_item_discount($item, $net_total_money, $discount_result);
+
+        return $net_total_money->minus($discount_money);
+    }
+
+    /**
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines
+     */
+    protected function sum_tax_amount(array $tax_lines)
+    {
+        $total = Money::zero();
+
+        foreach ($tax_lines as $tax_line) {
+            $total = $total->plus(Money::of_minor($tax_line->base_amount));
+        }
+
+        return $total;
+    }
+
+    protected function build_item_result(CalculationItemDTO $item, DiscountCalculationResultDTO $discount_result, TaxCalculationResultDTO $tax_result, bool $is_inclusive_tax): CalculationItemDTO
+    {
+        $item_result = clone $item;
+
+        $net_total_money = $this->calculate_item_net_total($item);
+        $discount_money = $this->calculate_item_discount($item, $net_total_money, $discount_result);
+        $product_total_money = Money::of_minor($item->base_product_total)->multipliedBy($item->quantity);
+
+        $tax_lines = $tax_result->items[$item->variant_id] ?? [];
+        $tax_amount_money = $this->sum_tax_amount($tax_lines);
+
+        $item_total_money = $net_total_money->minus($discount_money);
+
+        if (!$is_inclusive_tax) {
+            $item_total_money = $item_total_money->plus($tax_amount_money);
+        }
+
+        $item_result->base_subtotal = $net_total_money->getMinorAmount()->toInt();
+        $item_result->base_tax_amount = $tax_amount_money->getMinorAmount()->toInt();
+        $item_result->tax_lines = $tax_lines;
+        $item_result->base_discount_amount = $discount_money->getMinorAmount()->toInt();
+        $item_result->base_total = $item_total_money->getMinorAmount()->toInt();
+        $item_result->base_product_total = $product_total_money->getMinorAmount()->toInt();
+
+        return $item_result;
+    }
+
+    /**
+     * @return array{subtotal: int, discount: int, tax: int, tax_lines: \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[], total: int}
+     */
+    protected function build_shipping_result(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result, TaxCalculationResultDTO $tax_result, bool $is_inclusive_tax): array
+    {
+        $subtotal_money = Money::of_minor($context->shipping_subtotal);
+        $discount_money = Money::of_minor($discount_result->shipping_discount);
+        $tax_lines = $tax_result->shipping;
+        $tax_money = $this->sum_tax_amount($tax_lines);
+
+        $total_money = $subtotal_money->minus($discount_money);
+
+        if (!$is_inclusive_tax) {
+            $total_money = $total_money->plus($tax_money);
+        }
+
+        return [
+            'subtotal' => $subtotal_money->getMinorAmount()->toInt(),
+            'discount' => $discount_money->getMinorAmount()->toInt(),
+            'tax' => $tax_money->getMinorAmount()->toInt(),
+            'tax_lines' => $tax_lines,
+            'total' => $total_money->getMinorAmount()->toInt(),
+        ];
+    }
+
+    /**
+     * @param array<int, CalculationItemDTO> $items
+     * @param array{subtotal: int, discount: int, tax: int, tax_lines: \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[], total: int} $shipping
+     */
+    protected function aggregate(array $items, int $items_count, array $shipping, DiscountCalculationResultDTO $discount_result): CalculationResultDTO
+    {
+        $result = new CalculationResultDTO();
+
+        $result->items = $items;
+        $result->items_count = $items_count;
+
+        $result->base_subtotal = array_sum(array_column($items, 'base_subtotal'));
+        $result->base_product_total = array_sum(array_column($items, 'base_product_total'));
+        $result->base_discount_total = array_sum(array_column($items, 'base_discount_amount')) + $shipping['discount'];
+        $result->base_tax_total = array_sum(array_column($items, 'base_tax_amount')) + $shipping['tax'];
+        $result->coupon_results = $discount_result->coupon_results;
+        $result->base_total = max(array_sum(array_column($items, 'base_total')) + $shipping['total'], 0);
+
+        $result->base_shipping_subtotal = $shipping['subtotal'];
+        $result->base_shipping_discount = $shipping['discount'];
+        $result->base_shipping_tax = $shipping['tax'];
+        $result->shipping_tax_lines = $shipping['tax_lines'];
+        $result->base_shipping_total = $shipping['total'];
+
+        return $result;
     }
 }

@@ -5,6 +5,8 @@ import FloatingBar from '@/components/floating-bar/floating-bar';
 import Button from '@/components/ui/button';
 import { Page, PAGE_HEADING_STICKY_TOP, PageContent } from '@/components/ui/page';
 import SettingsSidebar from '@/features/settings/pages/settings-sidebar';
+import { SettingsSearchProvider } from '@/features/settings/search/settings-search-context';
+import SettingsSearchHighlighter from '@/features/settings/search/settings-search-highlighter';
 import type { SettingsOutletContext, SettingsPageActionsInput } from '@/features/settings/types';
 import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import { theme } from '@/theme';
@@ -27,7 +29,7 @@ type SettingsLayoutOutletContext = RootOutletContext & {
   registerActions: (actions: SettingsPageActionsInput | null) => void;
 };
 
-const SettingsLayout = () => {
+const SettingsLayoutShell = () => {
   const { pathname } = useLocation();
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   const [actions, setActions] = useState<SettingsPageActionsInput | null>(null);
@@ -86,6 +88,17 @@ const SettingsLayout = () => {
         </Button>
       </FloatingBar>
     </Page>
+  );
+};
+
+SettingsLayoutShell.displayName = 'SettingsLayoutShell';
+
+const SettingsLayout = () => {
+  return (
+    <SettingsSearchProvider>
+      <SettingsSearchHighlighter />
+      <SettingsLayoutShell />
+    </SettingsSearchProvider>
   );
 };
 

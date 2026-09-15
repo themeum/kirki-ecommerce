@@ -16,7 +16,7 @@ const renderPopover = () => {
     </QueryClientProvider>,
   );
 
-  return { onClose, trigger: screen.getByRole('button', { name: 'Add Variation' }) };
+  return { onClose, trigger: screen.getByRole('button', { name: 'Variation' }) };
 };
 
 const openMenu = (trigger: HTMLElement) => {
