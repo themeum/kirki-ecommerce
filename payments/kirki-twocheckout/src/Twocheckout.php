@@ -311,11 +311,11 @@ class Twocheckout extends PaymentProvider
      */
     protected function get_status($status): string
     {
-        $statuses = array(
+        $statuses = [
             TwocheckoutConstant::ORDER_STATUS_COMPLETE => PaymentStatus::PAID,
             TwocheckoutConstant::ORDER_STATUS_PENDING => PaymentStatus::UNPAID,
             TwocheckoutConstant::ORDER_STATUS_CANCELED => PaymentStatus::CANCELLED,
-        );
+        ];
 
         return $statuses[$status] ?? PaymentStatus::UNPAID;
     }
