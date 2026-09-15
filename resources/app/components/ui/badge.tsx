@@ -18,22 +18,14 @@ type BadgeVariant =
   | 'info'
   | 'requested';
 
-type BadgeProps = Omit<
-  ComponentPropsWithoutRef<'span'>,
-  'className' | 'css'
-> & {
+type BadgeProps = Omit<ComponentPropsWithoutRef<'span'>, 'className' | 'css'> & {
   variant?: BadgeVariant;
   asChild?: boolean;
   cssOverride?: CSSObject;
 };
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>((props, ref) => {
-  const {
-    cssOverride,
-    variant = 'default',
-    asChild = false,
-    ...rest
-  } = props;
+  const { cssOverride, variant = 'default', asChild = false, ...rest } = props;
 
   const Comp = asChild ? Slot : 'span';
   return (
@@ -169,4 +161,3 @@ const styles = defineStyles({
 
 export default Badge;
 export type { BadgeProps, BadgeVariant };
-

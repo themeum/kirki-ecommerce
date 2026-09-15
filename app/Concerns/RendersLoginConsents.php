@@ -45,7 +45,7 @@ trait RendersLoginConsents
             return;
         }
 
-        echo '<style>.kecom-login-consent{margin-bottom:16px;display:block;font-size:13px;line-height:1.5}.kecom-login-consent input{margin-right:6px}.kecom-login-consent-required{color:#d63638}</style>';
+        echo '<style>.kecom-login-consent{margin-bottom:16px;display:block;font-size:13px;line-height:1.5}.kecom-login-consent input{margin-right:6px}</style>';
 
         foreach ($consents as $consent) {
             if (!in_array($consent['method'], ConsentMethods::get_checkbox_methods(), true)) {
@@ -54,16 +54,11 @@ trait RendersLoginConsents
                 continue;
             }
 
-            $required = $consent['method'] === ConsentMethods::MANDATORY_CHECKBOX
-                ? '<span class="kecom-login-consent-required" aria-hidden="true">*</span>'
-                : '';
-
             printf(
-                '<label class="kecom-login-consent"><input type="checkbox" name="%1$s[]" value="%2$s" /><span>%3$s%4$s</span></label>',
+                '<label class="kecom-login-consent"><input type="checkbox" name="%1$s[]" value="%2$s" /><span>%3$s</span></label>',
                 esc_attr(static::$consent_field),
                 esc_attr($consent['id']),
-                wp_kses_post($consent['html']),
-                wp_kses_post($required)
+                wp_kses_post($consent['html'])
             );
         }
     }

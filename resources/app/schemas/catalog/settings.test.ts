@@ -102,10 +102,6 @@ describe('CheckoutSettingsSchema', () => {
         vat_identification_number_validation: 'optional',
         has_apply_coupon_code: true,
       },
-      is_terms_and_conditions_visible: true,
-      terms_and_conditions_content: 'Terms',
-      is_privacy_policy_visible: true,
-      privacy_policy_content: 'Privacy',
     });
     expect(result.success).toBe(true);
   });

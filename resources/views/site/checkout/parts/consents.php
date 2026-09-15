@@ -35,9 +35,6 @@ if (empty($consents)) {
                     x-model="consents['<?php echo esc_attr($consent['id']); ?>']">
                 <span class="kecom-checkbox-label">
                     <?php echo wp_kses_post($consent['html']); ?>
-                    <?php if ($consent['method'] === ConsentMethods::MANDATORY_CHECKBOX) : ?>
-                        <span class="kecom-consent-required" aria-hidden="true">*</span>
-                    <?php endif; ?>
                 </span>
             </label>
         <?php endif; ?>

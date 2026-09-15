@@ -187,7 +187,7 @@ const styles = defineStyles({
       {
         visibility: 'hidden',
       },
-    '& button': {
+    '& button:not([role="switch"])': {
       width: '24px',
       height: '24px',
 

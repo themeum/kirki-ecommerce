@@ -115,10 +115,6 @@ export const CheckoutSettingsSchema = z
   .object({
     is_allowed_guest_checkout: z.boolean().nullish(),
     checkout_configuration: CheckoutConfigurationSchema.nullish(),
-    is_terms_and_conditions_visible: z.boolean().nullish(),
-    terms_and_conditions_content: z.string().nullish(),
-    is_privacy_policy_visible: z.boolean().nullish(),
-    privacy_policy_content: z.string().nullish(),
   })
   .passthrough();
 

@@ -1,5 +1,5 @@
 import { ScaleIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
@@ -40,7 +40,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { uuid } from '@/utils';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const LegalSettings = () => {
@@ -49,15 +48,13 @@ const LegalSettings = () => {
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   const [consents, setConsents] = useState<Consent[]>([]);
-  const [removedIds, setRemovedIds] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingConsent, setEditingConsent] = useState<Consent | null>(null);
 
   /**
-   * The delete flow's `onSuccess` fires after the undo window closes, well
-   * after the render that scheduled it. Reading previous state from a ref
-   * rather than a closed-over value is what stops that late write from
-   * resurrecting a consent the merchant toggled in the meantime.
+   * Each commit reads the previous list from a ref rather than state so that
+   * two actions fired before React re-renders (toggle then delete, say) build
+   * on each other instead of the second overwriting the first.
    */
   const consentsRef = useRef<Consent[]>([]);
 
@@ -87,15 +84,10 @@ const LegalSettings = () => {
     [updateSettings],
   );
 
-  const visibleConsents = useMemo(
-    () => consents.filter((consent) => !removedIds.includes(consent.id)),
-    [consents, removedIds],
-  );
-
   const locationLabels = consentLocationLabels();
 
   const showRegistrationWarning =
-    legalSettings?.is_registration_enabled === false && hasEnabledSignupConsent(visibleConsents);
+    legalSettings?.is_registration_enabled === false && hasEnabledSignupConsent(consents);
 
   const handleAdd = () => {
     setEditingConsent(null);
@@ -137,19 +129,7 @@ const LegalSettings = () => {
         ),
       },
       () => {
-        setRemovedIds((previous) => [...previous, consent.id]);
-
-        dispatchToastMessage('delete', {
-          title: __('Consent deleted', 'kirki-ecommerce'),
-          duration: 5000,
-          undoAction: () => {
-            setRemovedIds((previous) => previous.filter((id) => id !== consent.id));
-          },
-          onSuccess: () => {
-            void commit((previous) => removeConsent(previous, consent.id));
-            setRemovedIds((previous) => previous.filter((id) => id !== consent.id));
-          },
-        });
+        void commit((previous) => removeConsent(previous, consent.id));
       },
     );
   };
@@ -157,7 +137,7 @@ const LegalSettings = () => {
   return (
     <Container size="sm">
       <Flex direction="column" gap={4}>
-        <SettingsPageHeader icon={<ScaleIcon />} title={__('Legal', 'kirki-ecommerce')} />
+        <SettingsPageHeader icon={<ScaleIcon size={16} />} title={__('Legal', 'kirki-ecommerce')} />
 
         <Card
           data-search-id="legal.consents"
@@ -185,16 +165,16 @@ const LegalSettings = () => {
 
               {isLoading && <StackedListSkeleton rowCount={2} actionCount={3} />}
 
-              {!isLoading && visibleConsents.length === 0 && (
+              {!isLoading && consents.length === 0 && (
                 <EmptyState
                   icon={<ScaleIcon size={20} />}
-                  text={__('Consents will be shown here', 'kirki-ecommerce')}
+                  text={__('Legal consents will be shown here', 'kirki-ecommerce')}
                 />
               )}
 
-              {!isLoading && visibleConsents.length > 0 && (
+              {!isLoading && consents.length > 0 && (
                 <StackedItems>
-                  {visibleConsents.map((consent) => {
+                  {consents.map((consent) => {
                     const isEnabled = consent.is_enabled ?? true;
                     const locations = sortLocations(consent.locations ?? []);
 
@@ -213,25 +193,22 @@ const LegalSettings = () => {
                             <Text variant="small" weight="medium">
                               {consent.title}
                             </Text>
-                            {!isEnabled && (
-                              <Badge variant="secondary">
-                                {__('Disabled', 'kirki-ecommerce')}
+                            {locations.map((location) => (
+                              <Badge
+                                key={location}
+                                variant="secondary"
+                                cssOverride={{ padding: `${theme.spacing[1]} ${theme.spacing[2]}` }}
+                              >
+                                {locationLabels[location]}
                               </Badge>
+                            ))}
+                            {!isEnabled && (
+                              <Badge variant="secondary">{__('Disabled', 'kirki-ecommerce')}</Badge>
                             )}
                           </StackedItemTitle>
                         </StackedItemContent>
 
                         <StackedItemActions>
-                          {locations.length > 0 && (
-                            <Flex gap={1} align="center" data-right-text="true">
-                              {locations.map((location) => (
-                                <Badge key={location} variant="secondary">
-                                  {locationLabels[location]}
-                                </Badge>
-                              ))}
-                            </Flex>
-                          )}
-
                           <ActionGroup>
                             <Button
                               variant="outline"
