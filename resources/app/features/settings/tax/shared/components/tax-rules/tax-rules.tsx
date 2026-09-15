@@ -21,7 +21,10 @@ import Text from '@/components/ui/text';
 import TaxRuleFormCard from '@/features/settings/tax/shared/components/tax-rules/tax-rule-form-card';
 import {
   getDestinationDisplayValue,
+  resolveActionLabel,
   resolveConditionDisplayValue,
+  resolveConditionTypeLabel,
+  resolveOperatorLabel,
 } from '@/features/settings/tax/shared/lib/tax-rules/helper';
 import type {
   SelectOption,
@@ -141,13 +144,13 @@ const TaxRules = (props: TaxRulesProps) => {
                                   {conditionIndex === 0
                                     ? sprintf(
                                         __('IF %1$s %2$s', 'kirki-ecommerce'),
-                                        condition?.type ?? '',
-                                        condition?.operator ?? '',
+                                        resolveConditionTypeLabel(condition?.type),
+                                        resolveOperatorLabel(condition?.operator),
                                       )
                                     : sprintf(
                                         __('AND IF %1$s %2$s', 'kirki-ecommerce'),
-                                        condition?.type ?? '',
-                                        condition?.operator ?? '',
+                                        resolveConditionTypeLabel(condition?.type),
+                                        resolveOperatorLabel(condition?.operator),
                                       )}
                                 </Text>
                                 <Text
@@ -167,9 +170,10 @@ const TaxRules = (props: TaxRulesProps) => {
                           </RuleItemConditions>
                           <RuleItemAction>
                             <Text variant="small" weight="medium">
-                              {item?.action?.type === 'set_product_tax_rate'
-                                ? `Then ${item?.action?.type}:`
-                                : `Then ${item?.action?.type}`}
+                              {sprintf(
+                                __('Then %s', 'kirki-ecommerce'),
+                                resolveActionLabel(item?.action?.type),
+                              )}
                             </Text>
                             {item?.action?.type === 'set_product_tax_rate' && (
                               <Text
