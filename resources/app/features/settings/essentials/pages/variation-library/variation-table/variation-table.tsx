@@ -3,32 +3,22 @@ import { Trash2 } from 'lucide-react';
 import { type Dispatch, type MouseEvent, type SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router';
 
-import type { DataTableBulkAction } from '@/components/data-table';
-import type { DataTableSelectionState } from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import type { Attribute, AttributeValue } from '@/features/products';
-import { useBulkDeleteAttributeValuesMutation, useDeleteAttributeValueMutation } from '@/features/products';
+import {
+  useBulkDeleteAttributeValuesMutation,
+  useDeleteAttributeValueMutation,
+} from '@/features/products';
 import { getVariationColumns } from '@/features/settings/essentials/pages/variation-library/variation-table/columns';
 import VariantTableFilters from '@/features/settings/essentials/pages/variation-library/variation-table/variant-table-filters';
 import VariationValuePopover from '@/features/settings/essentials/pages/variation-library/variation-value-popover';
 import { getSearchedValue, setUnsavedDataStatus } from '@/features/settings/lib/utils';
-import type { ConfirmationVariant } from '@/types/components/common';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { __ } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
-
-type SettingsOutletContext = {
-  confirmAction: (params: {
-    action?: () => void;
-    otherProps?: {
-      variant?: ConfirmationVariant;
-      force?: boolean;
-      title?: string;
-      subtitle?: string;
-    };
-  }) => void;
-};
 
 type VariationTableProps = {
   results?: AttributeValue[];
@@ -40,11 +30,7 @@ const variationBulkActions: DataTableBulkAction[] = [
   { value: 'delete', title: __('Delete', 'kirki-ecommerce'), destructive: true },
 ];
 
-const VariationTable = ({
-  results = [],
-  selectedItem,
-  updateDataList,
-}: VariationTableProps) => {
+const VariationTable = ({ results = [], selectedItem, updateDataList }: VariationTableProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
   // `useMutation` hands back a fresh object every render, so depending on it
   // rebuilds `columns`, and a new cell renderer remounts every cell — taking
@@ -172,14 +158,14 @@ const VariationTable = ({
         enableRowSelection
         bulkActions={variationBulkActions}
         onBulkApply={handleBulkApply}
-        toolbar={(
+        toolbar={
           <VariantTableFilters
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             dataList={filteredList}
             updateDataList={updateDataList}
           />
-        )}
+        }
       />
       <VariationValuePopover
         isOpen={Boolean(editingItem)}

@@ -183,12 +183,12 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="shipping.boxes" data-search-keywords="parcel, package, dimensions, carton, packaging" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Box', 'kirki-ecommerce')}
             subHeader={__(
-              'Configure box sizes for accurate shipping cost calculations.',
+              'Parcel dimensions and package weight used to rate shipments.',
               'kirki-ecommerce',
             )}
             buttonText={__('Create Box', 'kirki-ecommerce')}

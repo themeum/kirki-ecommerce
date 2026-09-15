@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import EmptyState from '@/components/ui/empty-state';
@@ -77,12 +78,12 @@ const ShippingProfile = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="shipping.profiles" data-search-keywords="rate, postage, carrier, courier, delivery charge" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Profiles', 'kirki-ecommerce')}
             subHeader={__(
-              'Used to create shipping rates for different product groups, like heavy items needing higher fees.',
+              'Rate groups for products that ship differently, such as bulky or heavy items.',
               'kirki-ecommerce',
             )}
             buttonText={__('Create Profile', 'kirki-ecommerce')}
@@ -108,6 +109,11 @@ const ShippingProfile = () => {
                         <Text variant="small" weight="medium">
                           {item.name}
                         </Text>
+                        {item.is_default && (
+                          <Badge variant="secondary">
+                            {__('Default', 'kirki-ecommerce')}
+                          </Badge>
+                        )}
                       </StackedItemTitle>
                     </StackedItemContent>
                     <StackedItemActions>

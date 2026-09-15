@@ -130,7 +130,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
         <CardContent >
           <HeaderActionsCard
             header={__('Shipping Rules', 'kirki-ecommerce')}

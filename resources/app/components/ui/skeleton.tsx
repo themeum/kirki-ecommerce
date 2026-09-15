@@ -6,10 +6,7 @@ import { defineStyles, scopedMerge } from '@/theme/mixins';
 
 type SkeletonRadius = keyof typeof theme.radius;
 
-type SkeletonProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type SkeletonProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   width?: string | number;
   height?: string | number;
   radius?: SkeletonRadius;
@@ -35,7 +32,7 @@ const Skeleton = forwardRef<HTMLDivElement, SkeletonProps>((props, ref) => {
       data-slot="skeleton"
       aria-hidden="true"
       style={skeletonStyle}
-      css={scopedMerge(styles.root, styles.radii[radius], cssOverride)}
+      css={scopedMerge(styles.root, radiusStyles[radius], cssOverride)}
       {...rest}
     />
   );
@@ -61,16 +58,16 @@ const radiusStyles = defineStyles({
   md: { borderRadius: theme.radius.md },
   lg: { borderRadius: theme.radius.lg },
   xl: { borderRadius: theme.radius.xl },
+  xxl: { borderRadius: theme.radius.xxl },
   full: { borderRadius: theme.radius.full },
 });
 
 const styles = defineStyles({
   root: {
     flexShrink: 0,
-    backgroundColor: theme.colors.background.surfaceTertiary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     width: 'var(--skeleton-width, 100%)',
     height: 'var(--skeleton-height, 1rem)',
     animation: `${skeletonPulse} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite`,
   },
-  radii: radiusStyles,
 });

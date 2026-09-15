@@ -15,6 +15,7 @@ import Text from '@/components/ui/text';
 import { resolveTaxRegionStrategy } from '@/features/settings/tax/registry';
 import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
 import type { Country } from '@/schemas/reference/country';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
@@ -23,10 +24,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-type SettingsOutletContext = {
-  confirmAction: (opts: { action: () => void; otherProps?: Record<string, unknown> }) => void;
-};
 
 type TaxRegionsProps = {
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;
@@ -161,12 +158,12 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
+      <Card data-search-id="tax.regions" data-search-keywords="vat, gst, jurisdiction, nexus, levy" cssOverride={cardStyles.formCard}>
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
             subHeader={__(
-              'Define tax regions where you collect sales tax. Each shopper is matched to one region based on their address.',
+              'Places where you are registered to collect sales tax, matched by shopper address.',
               'kirki-ecommerce',
             )}
             buttonText={__('Add Region', 'kirki-ecommerce')}

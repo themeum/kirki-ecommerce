@@ -1,3 +1,4 @@
+import { Code } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -28,7 +29,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
-import { Code } from 'lucide-react';
 
 type SchemaListItem = SchemaProfile & {
   badge1?: string;
@@ -79,15 +79,15 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
+    <Card data-search-id="essentials.schema-profile" data-search-keywords="seo, json ld, rich snippet, google, metadata" cssOverride={cardStyles.formCard}>
       <CardContent>
         <HeaderActionsCard
-          header={__('Schemas', 'kirki-ecommerce')}
+          header={__('Product Schemas', 'kirki-ecommerce')}
           subHeader={__(
-            'Define structured data properties that products use for richer search results.',
+            'Structured data properties attached to products for richer search listings.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Add Schema', 'kirki-ecommerce')}
+          buttonText={__('Schema', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>
