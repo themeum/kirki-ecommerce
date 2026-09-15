@@ -68,8 +68,8 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 <button
                     type="button"
                     class="kecom-btn kecom-btn-destructive kecom-btn-lg kecom-btn-block"
-                    :class="{ 'kecom-btn-loading': loading }"
-                    :disabled="loading"
+                    :class="{ 'kecom-btn-loading': isLoading }"
+                    :disabled="isLoading"
                     @click="emptyWishlist"
                 >
                     <?php esc_html_e('Clear', 'kirki-ecommerce'); ?>

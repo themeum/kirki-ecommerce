@@ -16,13 +16,15 @@ export function accountWishlist() {
         headerClass: 'kecom-account-panel-header',
 
         init() {
-            listen(EVENTS.ACCOUNT_WISHLIST_REMOVED, (pagination) => {
+            listen(EVENTS.ACCOUNT_WISHLIST_REMOVED, () => {
+                const totalItems = document.querySelectorAll('.kecom-product-card')?.length;
+                
                 const params = new URLSearchParams(window.location.search);
                 const currentPage = params.get('current_page') ?? 1;
 
-                if (Number(currentPage) > Number(pagination?.last_page)) {
-                params.set('current_page', pagination?.last_page?.toString() ?? '');
-                window.location.search = params.toString();
+                if (0 === totalItems) {
+                    params.set('current_page', (Number(currentPage) - 1).toString());
+                    window.location.search = params.toString();
                 }
 
                 void fetchItems(this.apiUrl, this.itemsGrid, this.paginationContainer, this.headerClass, false, this.isLoading);
