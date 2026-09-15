@@ -155,8 +155,12 @@ class ShopProductResource extends Resource
      */
     private function resolve_image_url(): string
     {
-        $media    = is_object($this->media) ? $this->media->first() : null;
-        $media_id = is_object($media) ? $media->ID : $this->media;
+        if ( is_int($this->media)) {
+            $media_id = $this->media;
+        } else {
+            $media = is_object($this->media) ? $this->media->first() : null;
+            $media_id = $media && is_object($media) ? $media->ID : 0;
+        }
 
         return $media_id
             ? (wp_get_attachment_image_url($media_id, 'large') ?: '')

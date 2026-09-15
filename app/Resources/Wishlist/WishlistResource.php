@@ -26,7 +26,12 @@ class WishlistResource extends ShopProductResource
         $this->slug  = $product ? $product->slug : '';
 
 
-        $this->media = $variant->media ?? $product->media;
+        if ($variant && !empty($variant->media)) {
+            $this->media = is_object($variant->media) ? ($variant->media->ID ?? $variant->media->id) : $variant->media;
+        } elseif ($product && $product->media && $product->media->first()) {
+            $media = $product->media->first();
+            $this->media = $media->ID ?? $media->id;
+        }
         $this->categories = $product ? $product->categories : null;
         $this->ribbon = $product ? $product->ribbon : '';
 
