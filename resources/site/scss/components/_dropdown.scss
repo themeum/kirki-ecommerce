@@ -1,0 +1,209 @@
+// Dropdown Component
+// Base: .kecom-dropdown
+
+@use '../tokens' as *;
+@use '../mixins' as *;
+
+.kecom-dropdown {
+  position: relative;
+  display: inline-flex;
+  font-family: inherit;
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+
+  // Trigger Button
+  &-trigger {
+    @include button-reset;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $radius-lg;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    user-select: none;
+
+    &:hover {
+      background-color: $background-surface-secondary;
+    }
+
+    &:focus-visible {
+      outline: none;
+      background-color: $background-surface-secondary;
+    }
+
+    br {
+      display: none;
+    }
+  }
+
+  &-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+    letter-spacing: 0.01em;
+  }
+
+  &-sublabel {
+    font-size: 14px;
+    font-weight: 400;
+    color: $text-secondary;
+  }
+
+  &-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: $text-primary;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+
+    &.is-open {
+      transform: rotate(180deg);
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  }
+
+  // Dropdown Menu
+  &-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    inset-inline-start: 0;
+    min-width: 260px;
+    max-width: min(360px, calc(100vw - 32px));
+    max-height: 360px;
+    overflow-y: auto;
+    background-color: $background-fill;
+    border-radius: $radius-lg;
+    box-shadow:
+      0px 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+    padding: $spacing-2;
+    z-index: 200;
+    transform-origin: top left;
+
+    @include scrollbar();
+
+    &[x-cloak] {
+      display: none !important;
+    }
+
+    &-end,
+    &.is-align-end {
+      inset-inline-start: auto;
+      inset-inline-end: 0;
+      transform-origin: top right;
+    }
+  }
+
+  &.is-align-end &-menu,
+  &.align-end &-menu,
+  &.align-right &-menu {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    transform-origin: top right;
+  }
+
+  // List
+  &-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  // List Item
+  &-item {
+    @include flex-between();
+    padding: $spacing-3 $spacing-4;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+    user-select: none;
+
+    &:hover,
+    &.is-focused {
+      background-color: $background-surface-alt;
+    }
+
+    &-content {
+      display: flex;
+      align-items: baseline;
+      gap: $spacing-4;
+      overflow: hidden;
+
+      br {
+        display: none;
+      }
+    }
+
+    &-label {
+      @include typography(base, normal, $text-primary);
+      line-height: 22px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-sublabel {
+      @include typography(base, normal, $text-subdued);
+      line-height: 22px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    &-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-primary;
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin-inline-start: $spacing-4;
+
+      svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    }
+  }
+}
+
+// Transitions (Fade)
+.kecom-dropdown-enter {
+  transition: opacity 0.15s ease-out;
+}
+
+.kecom-dropdown-enter-start {
+  opacity: 0;
+}
+
+.kecom-dropdown-enter-end {
+  opacity: 1;
+}
+
+.kecom-dropdown-leave {
+  transition: opacity 0.1s ease-in;
+}
+
+.kecom-dropdown-leave-start {
+  opacity: 1;
+}
+
+.kecom-dropdown-leave-end {
+  opacity: 0;
+}
