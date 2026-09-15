@@ -70,6 +70,7 @@ describe('buildEmailTemplatePayload', () => {
   const currentEmailSettings = {
     admin_emails: { order_notifications: {}, user_notifications: {}, inventory_notifications: {} },
     customer_emails: { order_notifications: {}, user_notifications: {}, inventory_notifications: {} },
+    mail_configuration: null,
   };
   const payload: EmailTemplateFormPayload = {
     logo: '5',
@@ -94,6 +95,7 @@ describe('buildEmailTemplatePayload', () => {
     expect(result).toEqual({
       admin_emails: currentEmailSettings.admin_emails,
       customer_emails: currentEmailSettings.customer_emails,
+      mail_configuration: currentEmailSettings.mail_configuration,
       default_template: { ...payload, unrelated_field: 'kept' },
     });
   });

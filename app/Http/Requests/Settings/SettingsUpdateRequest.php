@@ -6,6 +6,8 @@ use Kirki\Ecommerce\App\Constants\CurrencyFormat;
 use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
 use Kirki\Ecommerce\App\Constants\DecimalSeparator;
+use Kirki\Ecommerce\App\Constants\MailEncryption;
+use Kirki\Ecommerce\App\Constants\Mailer;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Constants\SellingLocationType;
@@ -841,6 +843,18 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.user_notifications.new_customer_registered_email.heading' => 'nullable|string',
             'data.admin_emails.user_notifications.new_customer_registered_email.message' => 'nullable|string',
             'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => 'nullable|array',
+
+            // Mail server configuration
+            'data.mail_configuration' => 'nullable|array',
+            'data.mail_configuration.from_email' => 'nullable|email',
+            'data.mail_configuration.from_name' => 'nullable|string',
+            'data.mail_configuration.mailer' => 'nullable|string|in:' . Mailer::join(),
+            'data.mail_configuration.host' => 'nullable|string',
+            'data.mail_configuration.port' => 'nullable|integer',
+            'data.mail_configuration.encryption' => 'nullable|string|in:' . MailEncryption::join(),
+            'data.mail_configuration.is_authentication_enabled' => 'nullable|boolean',
+            'data.mail_configuration.username' => 'nullable|string',
+            'data.mail_configuration.password' => 'nullable|string',
         ];
     }
 
@@ -1016,6 +1030,18 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
             'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
+
+            // Mail server configuration
+            'data.mail_configuration' => Sanitizer::ARRAY,
+            'data.mail_configuration.from_email' => Sanitizer::EMAIL,
+            'data.mail_configuration.from_name' => Sanitizer::TEXT,
+            'data.mail_configuration.mailer' => Sanitizer::TEXT,
+            'data.mail_configuration.host' => Sanitizer::TEXT,
+            'data.mail_configuration.port' => Sanitizer::INT,
+            'data.mail_configuration.encryption' => Sanitizer::TEXT,
+            'data.mail_configuration.is_authentication_enabled' => Sanitizer::BOOL,
+            'data.mail_configuration.username' => Sanitizer::TEXT,
+            'data.mail_configuration.password' => Sanitizer::TEXT,
         ];
     }
 

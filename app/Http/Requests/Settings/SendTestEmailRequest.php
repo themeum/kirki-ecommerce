@@ -10,7 +10,7 @@ class SendTestEmailRequest extends Request
     public function rules()
     {
         return [
-            'logo' => 'nullable|string',
+            'logo' => 'nullable|integer',
             'height' => 'nullable|integer',
             'position' => 'nullable|string',
             'colors' => 'nullable|array',
@@ -36,7 +36,7 @@ class SendTestEmailRequest extends Request
     public function filters()
     {
         return [
-            'logo' => Sanitizer::TEXT,
+            'logo' => Sanitizer::INT,
             'height' => Sanitizer::INT,
             'position' => Sanitizer::TEXT,
             'colors' => Sanitizer::ARRAY,

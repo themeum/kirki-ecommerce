@@ -10,13 +10,14 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import AdminEmail from '@/features/settings/email/components/admin-email';
+import CustomerEmail from '@/features/settings/email/components/customer-email';
+import MailConfiguration from '@/features/settings/email/components/mail-configuration/mail-configuration';
 import {
   buildTogglePayload,
   EMAIL_CONFIG,
   findEmailKeyByName,
 } from '@/features/settings/email/lib/utils';
-import AdminEmail from '@/features/settings/email/pages/admin-email';
-import CustomerEmail from '@/features/settings/email/pages/customer-email';
 import {
   type EmailSettingsFormInput,
   type EmailSettingsFormPayload,
@@ -178,6 +179,7 @@ const EmailSettings = () => {
               </Flex>
             </CardContent>
           </Card>
+          <MailConfiguration />
           <CustomerEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
           <AdminEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
         </Flex>

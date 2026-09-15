@@ -17,6 +17,11 @@ import { z } from 'zod';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { EmailTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import {
+  EncryptionOptions,
+  MailerOptions,
+} from '@/features/settings/email/schemas/forms/mail-configuration-form';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
@@ -155,6 +160,20 @@ export const EmailSettingsSchema = z
         order_notifications: EmailNotificationGroupSchema.nullish(),
         user_notifications: EmailNotificationGroupSchema.nullish(),
         inventory_notifications: EmailNotificationGroupSchema.nullish(),
+      })
+      .passthrough()
+      .nullish(),
+    mail_configuration: z
+      .object({
+        from_email: z.string().nullish(),
+        from_name: z.string().nullish(),
+        mailer: z.enum(MailerOptions).nullish(),
+        host: z.string().nullish(),
+        port: z.number().nullish(),
+        encryption: z.enum(EncryptionOptions).nullish(),
+        is_authentication_enabled: z.boolean().nullish(),
+        username: z.string().nullish(),
+        password: z.string().nullish(),
       })
       .passthrough()
       .nullish(),

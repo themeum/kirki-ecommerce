@@ -48,16 +48,29 @@ class EmailTemplateController
             get_bloginfo('name')
         );
 
+        template_engine()->share('default_template', $this->build_view_data($branding));
+
+        $mail_error = '';
+
+        add_action('wp_mail_failed', function ($error) use (&$mail_error) {
+            $mail_error = $error->get_error_message();
+        });
+
         $sent = (new EmailService())->send_html_email(
             $to,
             $subject,
             'emails.order-confirmation',
-            $this->build_view_data($branding)
         );
 
         if (!$sent) {
             return response()->json([
-                'message' => __('The test email could not be sent.', 'kirki-ecommerce'),
+                'message' => $mail_error !== ''
+                    ? sprintf(
+                        /* translators: %s: underlying mail error message */
+                        __('The test email could not be sent: %s', 'kirki-ecommerce'),
+                        $mail_error
+                    )
+                    : __('The test email could not be sent.', 'kirki-ecommerce'),
             ], 500);
         }
 

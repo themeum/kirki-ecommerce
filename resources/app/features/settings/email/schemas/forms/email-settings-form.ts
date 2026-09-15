@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MailConfigurationShape } from '@/features/settings/email/schemas/forms/mail-configuration-form';
 import { prepareFormSchema } from '@/libs/zod';
 
 /**
@@ -27,17 +28,14 @@ const EmailRootFormShape = z
 const EmailSettingsFormShape = z.object({
   admin_emails: EmailRootFormShape.default({}),
   customer_emails: EmailRootFormShape.default({}),
-  /**
-   * Owned by the separate branding editor (`edit-template.tsx`); this page
-   * only toggles notifications, so `default_template` passes through
-   * whatever was last saved rather than being edited here.
-   */
+  mail_configuration: MailConfigurationShape.nullish(),
   default_template: z.record(z.any()).nullish(),
 });
 
 export const EmailSettingsFormSchema = prepareFormSchema(EmailSettingsFormShape).transform((values) => ({
   admin_emails: values.admin_emails,
   customer_emails: values.customer_emails,
+  mail_configuration: values.mail_configuration ?? null,
   default_template: values.default_template ?? null,
 }));
 

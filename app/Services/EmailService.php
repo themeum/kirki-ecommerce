@@ -2,10 +2,9 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Exception;
 use Kirki\Ecommerce\App\Wordpress\User;
 
-use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\view;
 
 class EmailService
 {
@@ -28,14 +27,12 @@ class EmailService
             return false;
         }
 
-        ob_start();
-        include_view($template, $data);
-        $message = ob_get_clean();
+        $message = view($template)->layout('emails.layouts.email-layout')->__toString();
 
         $default_headers = ['Content-Type: text/html; charset=UTF-8'];
         $headers = !empty($headers) ? $headers : $default_headers;
 
-        return (bool) wp_mail($to, $subject, $message, $headers);
+        return wp_mail($to, $subject, $message, $headers);
     }
 
     /**

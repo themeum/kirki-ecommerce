@@ -200,7 +200,13 @@ const EditTemplateContent = () => {
               {__('Send Test Mail', 'kirki-ecommerce')}
             </Button>
           </Flex>
-          <Card cssOverride={mergeCss(emailTemplateStyles.squareCard, styles.previewCard)}>
+          <Card
+            cssOverride={mergeCss(
+              cardStyles.innerCard,
+              emailTemplateStyles.squareCard,
+              styles.previewCard,
+            )}
+          >
             <CardContent cssOverride={styles.previewCardContent}>
               <EmailTemplatePreview form={form} />
             </CardContent>

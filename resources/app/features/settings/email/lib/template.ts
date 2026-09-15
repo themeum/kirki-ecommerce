@@ -53,13 +53,17 @@ export const resolveTemplateFormOverrides = (
  */
 export const buildEmailTemplatePayload = (
   emailSettingsData: { default_template?: unknown },
-  currentEmailSettings: Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails'>,
+  currentEmailSettings: Pick<
+    EmailSettingsFormPayload,
+    'admin_emails' | 'customer_emails' | 'mail_configuration'
+  >,
   payload: EmailTemplateFormPayload,
-): Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails'> & {
+): Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails' | 'mail_configuration'> & {
   default_template: Record<string, unknown>;
 } => ({
   admin_emails: currentEmailSettings.admin_emails,
   customer_emails: currentEmailSettings.customer_emails,
+  mail_configuration: currentEmailSettings.mail_configuration,
   default_template: {
     ...((emailSettingsData.default_template as Record<string, unknown>) ?? {}),
     ...payload,
