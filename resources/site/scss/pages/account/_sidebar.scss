@@ -10,6 +10,7 @@
   padding: $spacing-14 $spacing-12;
   border-inline-end: 1px solid $border-default;
   height: 100%;
+  z-index: 10;
 
   @include breakpoint-down(md) {
     background-color: $background-surface-alt;
