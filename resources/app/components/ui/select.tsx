@@ -15,6 +15,7 @@ import {
   scopedMerge,
   uiFocusRing,
 } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const Select = SelectPrimitive.Root;
 
@@ -47,7 +48,7 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
       ...rest
     } = props;
 
-    return (
+    const trigger = (
       <SelectPrimitive.Trigger
         ref={ref}
         data-slot="select-trigger"
@@ -55,27 +56,14 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         css={scopedMerge(
           styles.trigger,
           styles.variants[variant],
+          showClear && styles.triggerWithClear,
           error && styles.error,
           cssOverride,
         )}
         {...rest}
       >
         <span css={scoped(styles.value)}>{children}</span>
-        {showClear ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            cssOverride={styles.chevron}
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={(event) => {
-              event.stopPropagation();
-              onClear?.();
-            }}
-          >
-            <Cross2Icon width={12} height={12} />
-          </Button>
-        ) : (
+        {!showClear && (
           <SelectPrimitive.Icon asChild>
             <span data-slot="select-icon" css={scoped(styles.chevron)}>
               <ChevronDownIcon width={16} height={16} />
@@ -83,6 +71,26 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
           </SelectPrimitive.Icon>
         )}
       </SelectPrimitive.Trigger>
+    );
+
+    if (!showClear) {
+      return trigger;
+    }
+
+    return (
+      <span css={scoped(styles.triggerWrapper)}>
+        {trigger}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={__('Clear selection', 'kirki-ecommerce')}
+          cssOverride={styles.clear}
+          onClick={onClear}
+        >
+          <Cross2Icon width={12} height={12} />
+        </Button>
+      </span>
     );
   },
 );
@@ -293,6 +301,21 @@ const styles = defineStyles({
   chevron: {
     ...flexCenter(),
     flexShrink: 0,
+  },
+  triggerWrapper: {
+    position: 'relative',
+    display: 'block',
+    width: '100%',
+    paddingRight: theme.spacing[1],
+  },
+  triggerWithClear: {
+    paddingRight: theme.spacing[1],
+  },
+  clear: {
+    position: 'absolute',
+    right: theme.spacing[3],
+    top: '50%',
+    transform: 'translateY(-50%)',
   },
   content: {
     padding: `${theme.spacing[1]} 0`,
