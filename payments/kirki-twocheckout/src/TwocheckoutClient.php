@@ -96,16 +96,16 @@ class TwocheckoutClient
      */
     protected function generate_token()
     {
-        $header = array(
+        $header = [
             'alg' => TwocheckoutConstant::ALGO,
             'typ' => TwocheckoutConstant::TOKEN_TYPE
-        );
+        ];
 
-        $claims = array(
+        $claims = [
             'sub' => $this->merchant_code,
             'iat' => time(),
             'exp' => time() + TwocheckoutConstant::JWT_EXPIRE_TIME,
-        );
+        ];
 
         $encoded_string = $this->encode_string($header) . '.' . $this->encode_string($claims);
         $signature      = $this->base64_url_encode(
