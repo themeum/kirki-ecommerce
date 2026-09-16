@@ -50,7 +50,7 @@ class OrderNumberGenerator
         }
 
         $next = static::increment_last_invoice_number((int) $starting_sequence);
-        $year_prefix = $apply_year_prefix ? date('y') . '-' : '';
+        $year_prefix = $apply_year_prefix ? gmdate('y') . '-' : '';
 
         return ($settings['prefix'] ?? '')
             . $year_prefix
@@ -67,7 +67,7 @@ class OrderNumberGenerator
      */
     protected static function maybe_reset_yearly_counter(int $starting_sequence)
     {
-        $current_year = (int) date('Y');
+        $current_year = (int) gmdate('Y');
         $reset_year = (int) Option::get(OptionKeys::LAST_INVOICE_NUMBER_RESET_YEAR, 0);
 
         if ($reset_year === $current_year) {

@@ -27,7 +27,6 @@
  *                                    ]
  *                                  - Or a standalone divider:
  *                                    ['type' => 'divider'] or ['is_divider' => true] or 'divider'
- * @var string      $slot           Optional raw HTML content inside the popover panel.
  */
 
 defined('ABSPATH') || exit;
@@ -128,6 +127,5 @@ $items         = $data['items'] ?? [];
                 <?php endif; ?>
             <?php endforeach; ?>
         <?php endif; ?>
-
     </div>
 </div>
