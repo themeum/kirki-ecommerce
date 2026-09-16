@@ -61,6 +61,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
             <?php endif; ?>
             <div class="kecom-order-details-title-wrap">
                 <div class="kecom-order-details-heading-row">
+                    <?php /* translators: %s: order number */ ?>
                     <h1 class="kecom-order-details-title"><?php printf(esc_html__('Order #%s', 'kirki-ecommerce'), esc_html($order['order_number'] ?? '')); ?></h1>
                 </div>
                 <div class="kecom-order-details-placed">
@@ -237,7 +238,8 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                 </div>
                 <?php if (count($items) > 3) : ?>
                     <div class="kecom-expand-button" x-show="!expanded" x-cloak>
-                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php printf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3); ?>'"></button>
+                        <?php /* translators: %d: number of additional items */ ?>
+                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php echo esc_js(sprintf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3)); ?>'"></button>
                     </div>
                 <?php endif; ?>
                 <!-- Summary Totals Breakdown -->
