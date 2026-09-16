@@ -33,15 +33,13 @@ import VariantGroup from './variant-group';
 
 const VariantsTable = () => {
   const { control, getValues, setValue } = useFormContext<ProductFormInput>();
-  const baseCurrencySymbol = useBaseCurrencySymbol();
   const watchedAttributes = useWatch({ control, name: 'attributes' });
   const attributes = useMemo<NonNullable<typeof watchedAttributes>>(
     () => watchedAttributes ?? [],
     [watchedAttributes],
   );
   const variants = useWatch({ control, name: 'variants' }) ?? [];
-  const currency = useWatch({ control, name: 'currency' });
-  const currencySymbol = currency?.symbol || baseCurrencySymbol;
+  const currencySymbol = useBaseCurrencySymbol();
   const { data: productSettings } = useSettingsQuery('product');
   const storeDefaultThreshold = Number(productSettings?.low_stock_threshold ?? 0);
   const [showBy, setShowBy] = useState<number | null>(null);

@@ -1,4 +1,4 @@
-export { default as useBaseCurrencySymbol } from '@/hooks/use-base-currency-symbol';
+export { default as useBaseCurrency, useBaseCurrencySymbol } from '@/hooks/use-base-currency';
 export { default as useConfirmDelete } from '@/hooks/use-confirm-delete';
 export { default as useDataTableParams } from '@/hooks/use-data-table-params';
 export { default as useDebounce } from '@/hooks/use-debounce';

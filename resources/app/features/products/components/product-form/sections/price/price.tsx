@@ -26,13 +26,11 @@ const Price = () => {
   const { control, setValue } = useFormContext<ProductFormInput>();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
-  const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const showUnitPrice = Boolean(useWatch({ control, name: 'variants.0.show_unit_price' }));
   const chargeTaxes = Boolean(useWatch({ control, name: 'variants.0.charge_taxes' }));
-  const currency = useWatch({ control, name: 'currency' });
   const variant = useWatch({ control, name: 'variants.0' });
-  const currencySymbol = currency?.symbol || baseCurrencySymbol;
+  const currencySymbol = useBaseCurrencySymbol();
 
   const taxProfileList = (taxProfiles ?? []).map((item) => ({
     value: item?.id,
