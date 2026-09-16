@@ -90,32 +90,31 @@ class PaymongoTransactionBuilder
         $line_items = [];
 
         foreach ($this->order->items as $item) {
-            // $total_tax += (int) $item->invoiced_tax_total;
-            // $net_total = (int) $item->invoiced_total - (int) $item->invoiced_tax_total;
-            // $quantity = (int) $item->quantity;
+            $net_total = (int) $item->invoiced_total - (int) $item->invoiced_tax_total;
+            $quantity = (int) $item->quantity;
 
-            // if ($quantity > 1 && 0 !== $net_total % $quantity) {
-            //     // Not divisible by the quantity: send the whole line as a single unit.
-            //     $line_items[] = $this->make_line_item(
-            //         sprintf('%s x %d', $item->product_name, $quantity),
-            //         $net_total
-            //     );
-            //     continue;
-            // }
+            if ($quantity > 1 && 0 !== $net_total % $quantity) {
+                // Not divisible by the quantity: send the whole line as a single unit.
+                $line_items[] = $this->make_line_item(
+                    sprintf('%s x %d', $item->product_name, $quantity),
+                    $net_total
+                );
+                continue;
+            }
 
-            $line_items[] = $this->make_line_item($item->product_name, $item->invoiced_price, $item->quantity);
+            $line_items[] = $this->make_line_item($item->product_name, intdiv($net_total, max($quantity, 1)), $quantity);
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
-            $shipping_charge = $this->order->invoiced_shipping_total - $this->order->invoiced_shipping_tax_amount ?? 0;
             $line_items[] = $this->make_line_item(
                 __('Shipping Charge', 'kirki-ecommerce-paymongo'),
-                (int) $shipping_charge
+                (int) $this->order->invoiced_shipping_total
             );
         }
 
         if (!empty($this->order->invoiced_tax_total)) {
-            $line_items[] = $this->make_line_item(__('Total Tax', 'kirki-ecommerce-paymongo'), $this->order->invoiced_tax_total);
+            $tax_without_shipping = $this->order->invoiced_tax_total - $this->order->invoiced_shipping_tax_amount ?? 0;
+            $line_items[] = $this->make_line_item(__('Tax', 'kirki-ecommerce-paymongo'), (int) $tax_without_shipping);
         }
 
         return $line_items;
