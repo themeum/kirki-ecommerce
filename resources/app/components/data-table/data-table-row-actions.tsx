@@ -23,7 +23,7 @@ const DataTableRowActions = ({
     <ActionGroup cssOverride={{ visibility: isOpen ? 'visible' : undefined }}>
       {edit && (
         <Button
-          variant="secondary"
+          variant="ghost"
           size="icon-sm"
           cssOverride={edit.cssOverride}
           aria-label={edit.label ?? __('Edit', 'kirki-ecommerce')}
@@ -36,7 +36,7 @@ const DataTableRowActions = ({
       {actions.length > 0 && (
         <DropdownButton
           buttonProps={{
-            variant: 'secondary',
+            variant: 'ghost',
             cssOverride: actionCssOverride,
           }}
           options={actions.map((action, index) =>

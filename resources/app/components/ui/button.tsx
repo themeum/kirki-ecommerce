@@ -112,7 +112,12 @@ const styles = defineStyles({
     margin: 0,
     appearance: 'none',
     WebkitAppearance: 'none',
-    transition: 'all 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+    // `all` also transitions `visibility`, which rows inherit to reveal their
+    // action buttons on hover — the buttons then linger for the full duration
+    // after the pointer leaves.
+    transitionProperty: 'color, background-color, border-color, box-shadow, opacity, transform',
+    transitionDuration: '150ms',
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
     borderRadius: theme.radius.lg,
     '& svg': {
       flexShrink: 0,

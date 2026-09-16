@@ -11,7 +11,7 @@ const ConsentFormShape = z.object({
   title: required(z.string().default(''), __('Consent title is required', 'kirki-ecommerce')),
   show_on_signup: z.boolean().default(false),
   show_on_login: z.boolean().default(false),
-  show_on_checkout: z.boolean().default(true),
+  show_on_checkout: z.boolean().default(false),
   message: required(z.string().default(''), __('Consent message is required', 'kirki-ecommerce')),
   method: z.enum(CONSENT_METHODS).default('mandatory_checkbox'),
 });

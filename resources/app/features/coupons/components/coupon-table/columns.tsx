@@ -4,6 +4,7 @@ import { Ban, Copy, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 import type { DataTableBulkAction } from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
@@ -151,6 +152,7 @@ const couponColumns: ColumnDef<CouponListItem>[] = [
     id: 'actions',
     header: '',
     enableSorting: false,
+    meta: actionsColumnMeta,
     cell: ({ row }) => <CouponRowActionsCell item={row.original} />,
   },
 ];

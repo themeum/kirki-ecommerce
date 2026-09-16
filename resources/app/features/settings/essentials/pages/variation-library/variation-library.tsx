@@ -1,5 +1,5 @@
 import { Box } from 'lucide-react';
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -26,7 +26,6 @@ import { BoxIcon, ColorPaletteIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type AttributeListItem = Attribute & {
@@ -46,21 +45,18 @@ const getVariationEditLink = (item: AttributeListItem) => {
 
 const VariationList = () => {
   const navigate = useNavigate();
-  const [removedIds, setRemovedIds] = useState<number[]>([]);
 
   const { data: attributeList = [], isLoading, refetch } = useAttributesQuery({ limit: -1 });
   const { mutate: deleteAttribute } = useDeleteAttributeMutation();
 
   const attributeListArr = useMemo<AttributeListItem[]>(
     () =>
-      attributeList
-        .filter((item) => !removedIds.includes(item.id))
-        .map((item) => ({
-          ...item,
-          badge1: `${item.values?.length ?? 0} values`,
-          icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
-        })),
-    [attributeList, removedIds],
+      attributeList.map((item) => ({
+        ...item,
+        badge1: `${item.values?.length ?? 0} values`,
+        icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
+      })),
+    [attributeList],
   );
 
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
@@ -75,17 +71,7 @@ const VariationList = () => {
         ),
       },
       () => {
-        setRemovedIds((prev) => [...prev, item.id]);
-        dispatchToastMessage('delete', {
-          title: __('Attribute deleted', 'kirki-ecommerce'),
-          duration: 5000,
-          undoAction: () => {
-            setRemovedIds((prev) => prev.filter((id) => id !== item.id));
-          },
-          onSuccess: () => {
-            deleteAttribute(item.id, { onSuccess: () => refetch() });
-          },
-        });
+        deleteAttribute(item.id, { onSuccess: () => refetch() });
       },
     );
   };

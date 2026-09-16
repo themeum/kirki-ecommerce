@@ -15,6 +15,7 @@ import type { UnitPriceValue } from '@/features/products';
 import BaseUnitPopover from '@/features/products/components/product-form/sections/price/base-unit-popover';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
@@ -28,9 +29,8 @@ const Price = () => {
 
   const showUnitPrice = Boolean(useWatch({ control, name: 'variants.0.show_unit_price' }));
   const chargeTaxes = Boolean(useWatch({ control, name: 'variants.0.charge_taxes' }));
-  const currency = useWatch({ control, name: 'currency' });
   const variant = useWatch({ control, name: 'variants.0' });
-  const currencySymbol = currency?.symbol || '$';
+  const currencySymbol = useBaseCurrencySymbol();
 
   const taxProfileList = (taxProfiles ?? []).map((item) => ({
     value: item?.id,

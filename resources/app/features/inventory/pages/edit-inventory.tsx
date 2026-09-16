@@ -166,7 +166,7 @@ const EditInventory = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
-                      variant="ghost"
+                      variant="tertiary"
                       size="icon"
                       aria-label={__('More options', 'kirki-ecommerce')}
                     >
@@ -183,7 +183,7 @@ const EditInventory = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              <Button variant="ghost" onClick={handleBack} disabled={isSubmitting}>
+              <Button variant="tertiary" onClick={handleBack} disabled={isSubmitting}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
               <Button variant="primary" onClick={handleSave} loading={isSubmitting}>

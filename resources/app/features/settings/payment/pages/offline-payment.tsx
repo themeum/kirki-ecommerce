@@ -20,7 +20,6 @@ import { BankIconLarge, CashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 type OfflinePaymentProps = {
@@ -62,14 +61,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
           ),
         },
         () => {
-          dispatchToastMessage('delete', {
-            title: __('Payment method deleted', 'kirki-ecommerce'),
-            duration: 5000,
-            undoAction: () => refetch(),
-            onSuccess: () => {
-              deleteOfflinePayment(item.id, { onSuccess: () => refetch() });
-            },
-          });
+          deleteOfflinePayment(item.id, { onSuccess: () => refetch() });
         },
       );
     }

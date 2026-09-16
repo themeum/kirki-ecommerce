@@ -104,7 +104,6 @@ const getActionArray = (box: ShippingBoxListItem): BoxAction[] => {
 
 const ShippingBox = () => {
   const [openPopup, setOpenPopup] = useState(false);
-  const [removedIds, setRemovedIds] = useState<number[]>([]);
   const [editedItem, setEditedItem] = useState<ShippingBoxListItem | null>(null);
 
   const { data: shippingBoxes = [], isLoading, refetch } = useShippingBoxesQuery({ limit: -1 });
@@ -114,21 +113,19 @@ const ShippingBox = () => {
 
   const shippingBoxList = useMemo<ShippingBoxListItem[]>(
     () =>
-      shippingBoxes
-        .filter((box) => !removedIds.includes(box.id))
-        .map((box) => ({
-          ...box,
-          subText: sprintf(
-            __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
-            box.length ?? 0,
-            box.width ?? 0,
-            box.height ?? 0,
-            box.unit ?? '',
-          ),
-          is_action_disabled: (box as ShippingBoxListItem).is_default === true,
-          actionsArray: getActionArray(box as ShippingBoxListItem),
-        })) as ShippingBoxListItem[],
-    [shippingBoxes, removedIds],
+      shippingBoxes.map((box) => ({
+        ...box,
+        subText: sprintf(
+          __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
+          box.length ?? 0,
+          box.width ?? 0,
+          box.height ?? 0,
+          box.unit ?? '',
+        ),
+        is_action_disabled: (box as ShippingBoxListItem).is_default === true,
+        actionsArray: getActionArray(box as ShippingBoxListItem),
+      })) as ShippingBoxListItem[],
+    [shippingBoxes],
   );
 
   const openCreatePopup = () => {
@@ -157,19 +154,8 @@ const ShippingBox = () => {
           ),
         },
         () => {
-          setRemovedIds((prev) => [...prev, item.id]);
-
-          dispatchToastMessage('delete', {
-            title: __('Shipping box deleted', 'kirki-ecommerce'),
-            duration: 5000,
-            undoAction: () => {
-              setRemovedIds((prev) => prev.filter((id) => id !== item.id));
-            },
-            onSuccess: () => {
-              deleteBox(item?.id, {
-                onSuccess: () => refetch(),
-              });
-            },
+          deleteBox(item?.id, {
+            onSuccess: () => refetch(),
           });
         },
       );

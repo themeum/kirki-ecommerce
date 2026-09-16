@@ -11,10 +11,10 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import { useAppConfig } from '@/contexts/app-config-context';
 import type { VariantFormInput } from '@/features/inventory/schemas/forms/variant-form';
 import { BaseUnitPopover, type UnitPriceValue } from '@/features/products';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
@@ -25,12 +25,11 @@ const Price = () => {
   const { control, setValue } = useFormContext<VariantFormInput>();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
-  const { settings } = useAppConfig();
 
   const showUnitPrice = Boolean(useWatch({ control, name: 'show_unit_price' }));
   const chargeTaxes = Boolean(useWatch({ control, name: 'charge_taxes' }));
   const variant = useWatch({ control });
-  const currencySymbol = settings?.base_currency?.symbol || '$';
+  const currencySymbol = useBaseCurrencySymbol();
 
   const taxProfileList = (taxProfiles ?? []).map((item) => ({
     value: item?.id,
