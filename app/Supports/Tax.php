@@ -38,7 +38,7 @@ class Tax
      */
     public static function is_tax_enabled()
     {
-        return Settings::get('general.is_tax_calculation_enabled', true) && static::is_tax_configured();
+        return Settings::get('general.is_tax_calculation_enabled', true);
     }
 
     /**
@@ -79,6 +79,18 @@ class Tax
     }
 
     /**
+     * Check if should calculate tax.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public static function should_calculate_tax()
+    {
+        return static::is_tax_enabled() && static::is_tax_configured();
+    }
+
+    /**
      * Check if should show incl tax on shop page.
      *
      * @since 1.0.0
@@ -87,7 +99,7 @@ class Tax
      */
     public static function should_show_incl_tax_on_shop_page()
     {
-        return static::is_tax_enabled()
+        return static::should_calculate_tax()
             && static::is_tax_inclusive()
             && (bool) Settings::get('tax.is_enabled_display_inclusive_taxed_price', false);
     }
