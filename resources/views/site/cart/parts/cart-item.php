@@ -32,16 +32,12 @@ if (! empty($product['has_limit_per_order']) && ! empty($product['max_per_order'
 
 // 'undefined' means no cap (Alpine quantitySelector treats undefined as unlimited).
 $max_quantity = empty($limits) ? 'undefined' : min($limits);
-$unit_price = $product['base_sale_price'] > 0
-    ? $product['base_sale_price_money_object']->display
-    : $product['base_price_money_object']->display;
-
 ?>
 
 <div class="kecom-cart-item" id="<?php echo esc_html($item['id']); ?>" x-data="<?php echo esc_attr(sprintf('quantitySelector({ min:1, max:%s, initial:%d, onChange: (q) => update(%d,q) })', $max_quantity, $quantity, $item['id'])); ?>">
     <?php include_view('site.cart.parts.item.image', ['media' => $media, 'product' => $product]); ?>
     <div class="kecom-cart-item-container">
-        <?php include_view('site.cart.parts.item.info', ['product' => $product, 'item' => $item, 'unit_price' => $unit_price]); ?>
+        <?php include_view('site.cart.parts.item.info', ['product' => $product, 'item' => $item]); ?>
         <?php include_view('site.cart.parts.item.quantity', ['item' => $item, 'max_quantity' => $max_quantity]); ?>
     </div>
 </div>

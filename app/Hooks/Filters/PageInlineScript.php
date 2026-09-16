@@ -102,27 +102,10 @@ class PageInlineScript extends BaseHook
     protected function set_cart_page_data($view_data, $config)
     {
         $cart = $view_data['cart'];
-        $pricing = $cart['pricing'] ?? [];
-        $items = $cart['items'] ?? [];
         $cart_config = array(
             'items_count' => $cart['items_count'] ?? 0,
-            'pricing' => (object) array(
-                'display_subtotal_money_object' => (object) array(
-                    'display' => $pricing['display_subtotal_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-                'display_total_money_object' =>  (object) array(
-                    'display' => $pricing['display_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-            ),
-            'items' => array_map(fn($item) => (object) array(
-                'id' => $item['id'],
-                'display_product_total_money_object' => (object) array(
-                    'display' => $item['display_product_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-                'display_total_money_object' => (object) array(
-                    'display' => $item['display_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-            ), $items),
+            'pricing' => $cart['pricing'] ?? [],
+            'items' => $cart['items'] ?? [],
         );
         $config['cart'] = $cart_config;
 
