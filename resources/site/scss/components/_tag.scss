@@ -1,0 +1,84 @@
+// Component - Tag
+// Base: .kecom-tag
+// Container: .kecom-tags
+
+@use '../tokens' as *;
+
+.kecom-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-2 $spacing-4;
+  background-color: $background-surface-subdued;
+  color: $text-primary;
+  font-family: $font-family;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 500;
+  border-radius: $radius-sm;
+  white-space: nowrap;
+  user-select: none;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  .kecom-tag-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  .kecom-tag-text {
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .kecom-tag-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.75;
+    line-height: 1;
+    position: relative;
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    transition: opacity 0.15s ease;
+
+    &:hover:not(:disabled) {
+      opacity: 1;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
+
+    &.kecom-btn-loading {
+      opacity: 1;
+      color: transparent !important;
+      pointer-events: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 12px;
+        height: 12px;
+        border: 2px solid var(--kecom-tag-color, #27272a);
+        border-inline-end-color: transparent;
+        border-radius: 50%;
+        animation: kecom-spin 0.65s linear infinite;
+      }
+    }
+  }
+}

@@ -75,6 +75,36 @@
     }
   }
 
+  .kecom-product-coupons {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+  }
+
+  .kecom-product-coupon {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    @include typography(xs, regular, $text-secondary);
+
+    .kecom-product-coupon-icon {
+      display: inline-flex;
+      align-items: center;
+      color: $text-secondary;
+      flex-shrink: 0;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .kecom-product-coupon-text {
+      color: $text-secondary;
+      line-height: $line-height-xs;
+    }
+  }
+
   .kecom-product-price-wrapper {
     flex-shrink: 0;
     display: flex;

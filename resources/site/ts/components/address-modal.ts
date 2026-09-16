@@ -96,7 +96,6 @@ export interface AddressModalOptions {
 
 export function createAddressModal(options: AddressModalOptions = {}) {
   const { __ } = window.wp.i18n;
-  const initialCountries = (config?.countries ?? []) as CountryItem[];
 
   return {
     modalOpen: false,
@@ -110,7 +109,7 @@ export function createAddressModal(options: AddressModalOptions = {}) {
       first_name: '',
       last_name: '',
       company: '',
-      country: initialCountries[0]?.code || '',
+      country: '',
       address_line1: '',
       address_line2: '',
       city: '',
@@ -235,9 +234,7 @@ export function createAddressModal(options: AddressModalOptions = {}) {
         this.activeMenuId = null;
       }
       this.errors = {};
-      const countriesList: CountryItem[] =
-        this.countries ?? (config?.countries as CountryItem[]) ?? [];
-      const defaultCountry = countriesList[0]?.code || '';
+      const defaultCountry = '';
       const addressList = this.addresses ?? this.savedAddresses ?? [];
       const isFirst = addressList.length === 0;
 
@@ -276,9 +273,7 @@ export function createAddressModal(options: AddressModalOptions = {}) {
         resolvedType = 'other';
       }
 
-      const countriesList: CountryItem[] =
-        this.countries ?? (config?.countries as CountryItem[]) ?? [];
-      const defaultCountry = countriesList[0]?.code || '';
+      const defaultCountry = '';
 
       this.formData = {
         type: resolvedType,
