@@ -9,7 +9,6 @@
  * @since 1.0.0
  */
 
-
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Assets;
@@ -112,7 +111,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             <?php esc_html_e('Contact Information', 'kirki-ecommerce'); ?>
                         </h4>
                         <div class="kecom-order-info-content">
-                            <?php if (empty( $customer ) || !$customer['id']) : ?>
+                            <?php if (empty($customer) || !$customer['id']) : ?>
                                 <p class="kecom-order-info-text"><?php esc_html_e('N/A', 'kirki-ecommerce') ?></p>
                             <?php else : ?>
                                 <p class="kecom-order-info-text"><?php echo esc_html($first_name . ' ' . $last_name) ?></p>
@@ -200,7 +199,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                 <div class="kecom-product-list-wrapper" x-ref="list_wrapper" :class="expanded ? 'scrollable': ''" @scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
                     <div class="kecom-product-list">
                             <?php foreach ($items as $key => $item) :
-                                $base_price_obj = $item['base_price_money_object'] ?? null;
+                                $inv_price_obj = $item['invoiced_price_money_object'] ?? null;
                                 $item_product = $items_product_data[$key]['product'] ?? [];
                                 $categories = $item_product['categories'] ?? [];
                                 $product_image = $item_product['media'][0] ?? [];
@@ -226,7 +225,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                 </div>
 
                                 <div class="kecom-product-price-wrapper">
-                                    <span class="kecom-product-price"><?php echo esc_html($base_price_obj->display ?? ''); ?></span>
+                                    <span class="kecom-product-price"><?php echo esc_html($inv_price_obj->display ?? ''); ?></span>
                                 </div>
                             </div>
                             <?php endforeach; ?>
