@@ -38,17 +38,7 @@ class Tax
      */
     public static function is_tax_enabled()
     {
-        /**
-         * TODO: Add a dedicated `is_tax_enabled` setting.
-         *
-         * Currently, if a user has configured tax countries/regions and wants to
-         * test the system without tax, they have to delete their existing tax
-         * region configuration first, which is inconvenient.
-         *
-         * A simple toggle would allow users to disable tax for testing while
-         * keeping their existing tax configuration intact.
-         */
-        return true && static::is_tax_configured();
+        return Settings::get('general.is_tax_calculation_enabled', false) && static::is_tax_configured();
     }
 
     /**
