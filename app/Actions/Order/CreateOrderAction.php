@@ -217,9 +217,6 @@ class CreateOrderAction
         if (empty($dto->billing_id) && $dto->is_billing_same_as_shipping) {
             $dto->billing_id = $dto->shipping_id;
         }
-
-        $this->address_service->set_default_without_transaction($dto->shipping_id, AddressPurpose::SHIPPING);
-        $this->address_service->set_default_without_transaction($dto->billing_id, AddressPurpose::BILLING);
     }
 
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
@@ -265,11 +262,13 @@ class CreateOrderAction
         }
 
         try {
-            $customer = $this->create_customer_action->execute(
-                $this->prepare_checkout_customer_dto($dto),
-                $this->prepare_checkout_address_dto($dto, AddressPurpose::SHIPPING),
-                $this->prepare_checkout_address_dto($dto, AddressPurpose::BILLING)
-            );
+            $customer_payload = $this->prepare_checkout_customer_dto($dto);
+            $customer_payload->addresses = $this->prepare_checkout_customer_addresses($dto);
+
+            $customer = $this->create_customer_action->execute($customer_payload);
+
+            $dto->shipping_id = $customer->shipping_address->id ?? null;
+            $dto->billing_id = $customer->billing_address->id ?? null;
 
             return $customer->id;
         } catch (UniqueConstraintViolationException $e) {
@@ -281,6 +280,27 @@ class CreateOrderAction
 
             return $customer->id;
         }
+    }
+
+    /**
+     * Build the address(es) to provision the checkout customer with: a
+     * single address covering both defaults when billing is the same as
+     * shipping, otherwise a separate address for each.
+     *
+     * @param CreateOrderPayloadDTO $dto
+     * @return CreateAddressDTO[]
+     */
+    protected function prepare_checkout_customer_addresses(CreateOrderPayloadDTO $dto)
+    {
+        $shipping_address = $this->prepare_checkout_address_dto($dto, AddressPurpose::SHIPPING);
+
+        if ($dto->is_billing_same_as_shipping) {
+            $shipping_address->is_default_billing = true;
+
+            return [$shipping_address];
+        }
+
+        return [$shipping_address, $this->prepare_checkout_address_dto($dto, AddressPurpose::BILLING)];
     }
 
     /**

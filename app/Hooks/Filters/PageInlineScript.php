@@ -17,6 +17,8 @@ use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -126,41 +128,21 @@ class PageInlineScript extends BaseHook
     {
         $data    = (object) $view_data;
         $cart    = $data->cart ?? null;
-        $pricing = $cart['pricing'] ?? [];
-
-        $coupons = $pricing['coupons'] ?? [];
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
             'is_billing_same_as_shipping' => (bool) ($cart['is_billing_same_as_shipping'] ?? false),
             'shipping_address'            => $cart['shipping_address'] ?? null,
             'billing_address'             => $cart['billing_address'] ?? null,
-            'pricing'                     => [
-                'coupons'                             => array_map(function ($coupon) {
-                    return [
-                        'code'                       => $coupon['code'] ?? null,
-                        'title'                      => $coupon['title'] ?? null,
-                        'discount_value_type'        => $coupon['discount_value_type'] ?? null,
-                        'discount_amount_percentage' => $coupon['discount_amount_percentage'] ?? null,
-                        'base_discount_amount_fixed' => $coupon['base_discount_amount_fixed'] ?? null,
-                    ];
-                }, $coupons),
-                'display_subtotal_money_object'      => $pricing['display_subtotal_money_object'] ?? null,
-                'display_tax_total_money_object'     => $pricing['display_tax_total_money_object'] ?? null,
-                'display_discount_total_money_object' => $pricing['display_discount_total_money_object'] ?? null,
-                'display_shipping_subtotal_money_object' => $pricing['display_shipping_subtotal_money_object'] ?? null,
-                'display_shipping_tax_money_object'  => $pricing['display_shipping_tax_money_object'] ?? null,
-                'display_shipping_discount_money_object' => $pricing['display_shipping_discount_money_object'] ?? null,
-                'display_shipping_total_money_object' => $pricing['display_shipping_total_money_object'] ?? null,
-                'display_total_money_object'         => $pricing['display_total_money_object'] ?? null,
-            ],
+            'pricing'                     => $cart['pricing'] ?? [],
             'available_shipping_methods'  => $cart['available_shipping_methods'] ?? [],
             'shipping_method'             => $cart['shipping_method'] ?? null,
         ];
 
-        $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
+
+        $config['is_tax_inclusive_price'] = Tax::is_tax_inclusive();
 
         // Only the id and method travel: the rendered message is already in
         // the DOM, and repeating it here would double the inline payload.

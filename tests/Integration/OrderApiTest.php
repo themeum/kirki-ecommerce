@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Actions\Order\UpdateOrderAction;
+use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
@@ -842,15 +843,15 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * When the checkout request's billing fields already match its shipping
-     * fields (e.g. because the shopper checked "same as shipping" in the
-     * UI), the provisioned customer's two default addresses end up with the
-     * same field values - the backend does not do any copying itself, it
-     * just persists whatever billing fields were submitted.
+     * When the checkout request's billing is the same as shipping (e.g.
+     * because the shopper checked "same as shipping" in the UI, the default
+     * `order_payload()` state), the provisioned customer gets a single
+     * `Address` record serving as both default shipping and default
+     * billing - not two duplicate rows with identical field values.
      *
      * @return void
      */
-    public function test_checkout_duplicates_billing_address_from_shipping_when_same(): void
+    public function test_checkout_creates_single_address_when_billing_same_as_shipping(): void
     {
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
@@ -862,14 +863,51 @@ class OrderApiTest extends RestTestCase
         $this->order_id = $payload['data']['id'];
 
         $customer = Customer::where('user_id', $user_id)->first();
+        $addresses = Address::where('customer_id', $customer->id)->get();
+
+        $this->assertCount(1, $addresses);
+        $this->assertTrue($addresses->first()->is_default_shipping);
+        $this->assertTrue($addresses->first()->is_default_billing);
+        $this->assertEquals('123 Main St', $addresses->first()->address_line1);
+    }
+
+    /**
+     * When the checkout request's billing differs from shipping, the
+     * provisioned customer gets two separate `Address` records - one
+     * default shipping, one default billing.
+     *
+     * @return void
+     */
+    public function test_checkout_creates_separate_addresses_when_billing_differs_from_shipping(): void
+    {
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
+            'billing_first_name' => 'Fallback',
+            'billing_last_name' => 'Billing',
+            'billing_address_line1' => '456 Other Ave',
+        ]));
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $customer = Customer::where('user_id', $user_id)->first();
+        $addresses = Address::where('customer_id', $customer->id)->get();
+
+        $this->assertCount(2, $addresses);
 
         $shipping_address = Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->first();
         $billing_address = Address::where('customer_id', $customer->id)->where('is_default_billing', true)->first();
 
         $this->assertNotNull($shipping_address);
         $this->assertNotNull($billing_address);
-        $this->assertEquals($shipping_address->address_line1, $billing_address->address_line1);
+        $this->assertNotEquals($shipping_address->id, $billing_address->id);
+        $this->assertFalse($shipping_address->is_default_billing);
+        $this->assertFalse($billing_address->is_default_shipping);
         $this->assertEquals('123 Main St', $shipping_address->address_line1);
+        $this->assertEquals('456 Other Ave', $billing_address->address_line1);
     }
 
     /**
@@ -1681,6 +1719,7 @@ class OrderApiTest extends RestTestCase
         $customer_payload->email = 'existing-' . $unique . '@example.com';
 
         $address_payload = new CreateAddressDTO();
+        $address_payload->type = AddressType::HOME;
         $address_payload->first_name = 'Existing';
         $address_payload->last_name = 'Customer';
         $address_payload->address_line1 = '456 Existing Ave';
@@ -1690,7 +1729,9 @@ class OrderApiTest extends RestTestCase
         $address_payload->postal_code = '10001';
         $address_payload->email = $customer_payload->email;
 
-        return app()->make(CreateCustomerAction::class)->execute($customer_payload, $address_payload, $address_payload);
+        $customer_payload->addresses = [$address_payload];
+
+        return app()->make(CreateCustomerAction::class)->execute($customer_payload);
     }
 
     /**

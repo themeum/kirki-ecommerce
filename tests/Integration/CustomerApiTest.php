@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
-use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
@@ -116,6 +115,65 @@ class CustomerApiTest extends RestTestCase
         $fetched = $this->request('GET', 'customers/' . $this->customer_id);
         $fetched_payload = $this->assert_api_success($fetched);
         $this->assertEquals([], $fetched_payload['data']['tags']);
+    }
+
+    /**
+     * A customer can be created with no shipping_address and no
+     * billing_address submitted at all - addresses are no longer required
+     * up front, since they can be added to the address book later.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_without_any_address_persists(): void
+    {
+        $response = $this->request('POST', 'customers', [
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+            'email' => 'no-address-' . wp_generate_password(8, false) . '@example.com',
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertNull($payload['data']['shipping_address']);
+        $this->assertNull($payload['data']['billing_address']);
+
+        $this->customer_id = $payload['data']['id'];
+    }
+
+    /**
+     * A customer created with only a shipping_address submitted (no
+     * billing_address) gets that one address as the default for both
+     * purposes, not just shipping.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_with_only_shipping_address_defaults_both_purposes(): void
+    {
+        $unique = wp_generate_password(8, false);
+
+        $response = $this->request('POST', 'customers', [
+            'first_name' => 'Jane',
+            'last_name' => 'Smith',
+            'email' => 'shipping-only-' . $unique . '@example.com',
+            'shipping_address' => [
+                'first_name' => 'Jane',
+                'last_name' => 'Smith',
+                'email' => 'shipping-only-' . $unique . '@example.com',
+                'phone' => '5550100',
+                'address_line1' => '123 Main St',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country' => 'US',
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->assertNotNull($payload['data']['shipping_address']);
+        $this->assertEquals($payload['data']['shipping_address']['id'], $payload['data']['billing_address']['id']);
+
+        $this->customer_id = $payload['data']['id'];
     }
 
     /**
@@ -495,23 +553,23 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
-     * Create a customer and then remove its addresses.
-     *
-     * Creating a customer through the API always writes a default shipping
-     * address, so the only way to reach the no-address case is to delete the
-     * rows afterwards - which is exactly what happens in the wild when a
-     * merchant removes a customer's address.
+     * Create a customer with no shipping_address/billing_address submitted.
      *
      * @return int
      * @since 1.0.0
      */
     protected function create_customer_without_addresses(): int
     {
-        $customer = $this->create_customer();
+        $unique = wp_generate_password(8, false);
 
-        Address::query()->where('customer_id', $customer['id'])->delete();
+        $response = $this->request('POST', 'customers', [
+            'first_name' => 'No',
+            'last_name' => 'Address',
+            'email' => 'no-address-' . $unique . '@example.com',
+        ]);
+        $payload = $this->assert_api_success($response, 201);
 
-        return (int) $customer['id'];
+        return (int) $payload['data']['id'];
     }
 
     /**

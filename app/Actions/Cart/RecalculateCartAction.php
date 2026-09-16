@@ -122,7 +122,9 @@ class RecalculateCartAction
      */
     protected function get_tax_result(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result): TaxCalculationResultDTO
     {
-        if (!$context->should_calculate_tax) {
+        $should_calculate_tax = Tax::should_calculate_tax() && $context->should_calculate_tax;
+
+        if (!$should_calculate_tax) {
             return new TaxCalculationResultDTO();
         }
 
