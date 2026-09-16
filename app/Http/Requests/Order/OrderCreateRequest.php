@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -29,7 +30,8 @@ class OrderCreateRequest extends Request
             'is_billing_same_as_shipping' => $this->input('is_billing_same_as_shipping') ?? true,
             'customer_id' => $customer->get_customer_id() ?? 0,
             'is_manual' => $this->input('is_manual') ?? false,
-            'is_guest' => !$customer->is_logged_in()
+            'is_guest' => !$customer->is_logged_in(),
+            'currency_code' => $this->input('currency_code') ?? Money::resolve_display_currency(),
         ]);
     }
 
