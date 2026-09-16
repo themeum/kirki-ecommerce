@@ -25,12 +25,12 @@ import {
 } from '@/features/settings/shipping/lib/utils';
 import ShippingRuleFormCard from '@/features/settings/shipping/pages/shipping-method/shipping-rules/shipping-rule-form-card';
 import type { ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
+import { useConfirmDelete } from '@/hooks';
 import { LighteningIcon } from '@/icons';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { toDisplayString } from '@/utils/string';
 import { __, sprintf } from '@/wpi18n';
 
@@ -66,6 +66,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
 
   const [rulesObj, setRulesObj] = useState<ShippingRule[]>([]);
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   useEffect(() => {
     if (!shippingSettingsData?.shipping_zones || !methodId) {
@@ -91,45 +92,46 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   }, [shippingSettingsData, methodId]);
 
   const handleDeleteRules = (index: number) => {
-    const originalZones = [...rulesObj];
-    const updatedRules = rulesObj.filter((_, idx) => idx !== index);
-    setRulesObj(updatedRules);
+    confirmDelete(
+      {
+        title: __('Delete shipping rule?', 'kirki-ecommerce'),
+        description: __(
+          'This rule will no longer adjust shipping prices for this method. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
+      },
+      () => {
+        const updatedRules = rulesObj.filter((_, idx) => idx !== index);
+        setRulesObj(updatedRules);
 
-    const zones = shippingSettingsData?.shipping_zones as ShippingZone[];
-    const updatedShippingZones = zones?.map((zone) => {
-      if (String(zone.id) !== String(zoneId)) {
-        return zone;
-      }
-
-      return {
-        ...zone,
-        shipping_methods: zone?.shipping_methods.map((method) => {
-          if (method.id !== methodId) {
-            return method;
+        const zones = shippingSettingsData?.shipping_zones as ShippingZone[];
+        const updatedShippingZones = zones?.map((zone) => {
+          if (String(zone.id) !== String(zoneId)) {
+            return zone;
           }
 
           return {
-            ...method,
-            shipping_rules: updatedRules,
-          };
-        }),
-      };
-    });
+            ...zone,
+            shipping_methods: zone?.shipping_methods.map((method) => {
+              if (method.id !== methodId) {
+                return method;
+              }
 
-    dispatchToastMessage('delete', {
-      title: __('Shipping rule deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        setRulesObj(originalZones);
-      },
-      onSuccess: async () => {
-        await saveShippingZones({
+              return {
+                ...method,
+                shipping_rules: updatedRules,
+              };
+            }),
+          };
+        });
+
+        void saveShippingZones({
           zones: updatedShippingZones,
-          from: 'delete',
           shippingSettingsData,
+          toastMessage: __('Shipping rule deleted', 'kirki-ecommerce'),
         });
       },
-    });
+    );
   };
 
   return (
@@ -237,6 +239,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
           )}
         </CardContent>
       </Card>
+      {deleteConfirmation}
     </div>
   );
 };

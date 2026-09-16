@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dialog';
 import BrandTableFilters from '@/features/brands/components/brand-table/brand-table-filters';
@@ -67,6 +68,7 @@ const BrandTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <DataTableRowActions
             edit={{ onClick: () => setEditingItem(row.original) }}

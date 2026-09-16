@@ -1,0 +1,193 @@
+================================================================================
+Kirki eCommerce - Changelog for 1.0.0-alpha.4
+================================================================================
+
+Compared:  origin/main..origin/dev
+Merge base: 08f1520bdf0ea9ab2f1454cac9d18c8e08a71fe3
+Head:       a881cd17 (2026-09-16)
+Scope:      267 commits ahead (200 non-merge), 34 merged pull requests
+Dates:      2026-08-31 -> 2026-09-16
+Migrations: 14 new
+
+
+--------------------------------------------------------------------------------
+CHANGELOG ENTRY (readme.txt format)
+--------------------------------------------------------------------------------
+
+= 1.0.0-alpha.4 =
+
+* Adds Multiple coupon support: several coupons can now be applied to one cart, combining a product specific coupon with a store wide one, with each coupon's share of the discount recorded per item
+* Adds Wishlist for customer accounts, with save actions on the shop and product pages and a dedicated wishlist page
+* Adds Address book: customers can save multiple addresses, label them, and choose a default for billing and shipping
+* Adds Multiple address selection on the checkout page, kept in sync with the cart when an address changes
+* Adds Multi currency settings with currency formatting and exchange rates entered manually or synced from a rate provider
+* Adds Legal settings page for managing consent statements, with page link tokens and control over where each consent appears
+* Adds Region based tax settings with per country strategies, a single rate option, VAT collection, and an inline tax rules editor
+* Adds Per line tax records on orders, so orders with several tax rates keep each rate separate, and shipping tax is now stored on the order
+* Adds Order tracking page for looking up an order by its reference
+* Adds Invoice number to orders
+* Adds Settings search across the settings panel, matching on both keywords and meaning, with highlighted results
+* Adds Advanced settings page for page assignment, including a repair action for missing pages
+* Adds Filters to the products, inventory, customers, coupons, and orders lists
+* Adds Sorting, bulk actions, and column visibility controls to the data tables
+* Adds Single variant editing from the product variants list
+* Adds Rate limiting across the plugin, including a cooldown before a verification email can be resent
+* Adds Unsaved changes bar so edits are not lost when navigating away
+* Adds Default profile selection for tax and shipping profiles
+* Adds Right to left language support to the storefront styles
+* Adds Loading skeletons to every settings page
+* Updates the admin interface to the new design system, covering form fields, dropdowns, media gallery, colors, badges, and page layouts
+* Updates the order details screen with a redesigned summary, activity timeline, and payment status badge
+* Updates the checkout order summary with a clearer price breakdown separating item discounts, order discounts, shipping, and tax
+* Updates the storefront to use the native WordPress login and registration pages
+* Updates the shipping zone list with a new design and an empty state
+* Updates the terms and privacy consents, which moved from Checkout settings to the new Legal settings page
+* Improves security with stricter input sanitization, output escaping, and secure redirects for WordPress.org compliance
+* Fixes a money precision issue in amount calculations
+* Fixes guest checkout failing when saving an address, and guest orders failing to save when edited
+* Fixes coupon usage counts drifting out of sync when an order was edited or cancelled
+* Fixes two tax rates that share a name, such as EU VAT at different percentages, collapsing into a single incorrect row
+* Fixes order quantity limits not being applied when adding to cart
+* Fixes variant details not showing when a variant is selected on a product
+* Fixes state options not refreshing when the country is changed
+* Fixes an error when adding a new currency
+* Fixes theme style conflicts on storefront pages
+* Fixes lag when opening the tax region dialog
+* Fixes accidental quantity changes from mouse wheel scrolling
+* Fixes broken product and fallback image URLs
+
+
+--------------------------------------------------------------------------------
+BREAKING CHANGES
+--------------------------------------------------------------------------------
+
+Coupons
+  - orders.coupon_code and orders.discount_details dropped, replaced by the
+    order_coupons relation.
+  - carts.discount_details dropped, replaced by the cart_coupons join table.
+  - coupon_usage table dropped; order_coupons takes over usage tracking with a
+    denormalised customer_id. Cancelling an order now marks usage reversed
+    instead of deleting the record.
+  - Request field coupon_code replaced by coupon_codes (array) across order
+    calculate, create and update requests.
+  - CartResource / OrderResource replace discount_details with a coupons array.
+  - remove_coupon now requires a coupon identifier.
+  - Relations renamed: Order::coupons() -> Order::order_coupons(),
+    OrderItem::coupons() -> OrderItem::order_item_coupons().
+    Cart::coupons() keeps its name (returns Coupon[] via the pivot).
+
+Tax
+  - order_items.tax_rate and order_items.tax_breakdown (JSON) removed, replaced
+    by the order_taxes table (one row per tax line, scoped to an order item or
+    to shipping).
+  - orders gains base_shipping_tax_amount / invoiced_shipping_tax_amount.
+
+Cart pricing
+  - CartResource (storefront) trimmed to money-object-only fields; the bare
+    base_* / display_* duplicates were removed.
+  - pricing.display_shipping_tax_money_object removed; shipping amount is now
+    reported net of its own discount.
+
+Addresses
+  - PUT /account/addresses (update_addresses) removed. Use the
+    /account/addresses CRUD endpoints instead.
+  - postcode renamed to postal_code across all address payloads.
+  - is_billing_same_as_shipping dropped from the orders and customers tables.
+  - config.addresses must always be an array; the legacy single-address shape
+    is no longer accepted.
+
+Auth
+  - Plugin-owned login and registration routes and pages removed; the site now
+    uses native WordPress login and registration.
+
+No backfill: existing carts and orders are not migrated into the new coupon or
+tax tables. Alpha stage, no production data to preserve.
+
+
+--------------------------------------------------------------------------------
+DATABASE MIGRATIONS
+--------------------------------------------------------------------------------
+
+CreateWishlistTable
+AlterAddressesTableForAddressBook
+DropIsBillingSameAsShippingFromCustomersTable
+DropIsBillingSameAsShippingFromOrdersTable
+AddInvoiceNumberToOrdersTable
+CreateCartCouponsTable
+CreateOrderCouponsTable
+CreateOrderItemCouponsTable
+DropCouponUsageTable
+AlterCartsDropDiscountDetails
+AlterOrdersDropLegacyCouponColumns
+CreateOrderTaxesTable
+AlterOrdersAddShippingTaxColumns
+AlterOrderItemsDropTaxColumns
+
+
+--------------------------------------------------------------------------------
+API SURFACE
+--------------------------------------------------------------------------------
+
+Added (admin)
+  GET    /customers/locations
+  GET    /shipping-methods
+  GET    /variants/{id}
+  PUT    /variants/{id}
+  POST   /currency-exchange/sync
+  POST   /pages/fix
+
+Added (site, authenticated account group)
+  GET    /account/addresses
+  GET    /account/addresses/{id}
+  POST   /account/addresses
+  PUT    /account/addresses/{id}
+  DELETE /account/addresses/{id}
+  PATCH  /account/addresses/{id}/set-default
+  GET    /account/wishlist
+  POST   /account/wishlist
+  DELETE /account/wishlist/{id}
+  DELETE /account/wishlist/empty
+
+Added (site, public)
+  GET    /kirki-ecommerce-order/{uuid}        order tracking page
+
+Removed
+  PUT    /account/addresses                   replaced by the CRUD endpoints
+  Site login / register routes                replaced by native WP auth
+
+Moved
+  Existing /account/* routes regrouped under an authenticated route group.
+  design-system route now registered only in dev mode.
+
+
+--------------------------------------------------------------------------------
+INTERNAL / NOT USER FACING
+--------------------------------------------------------------------------------
+
+* Framework package relocated from libraries/framework to vendor.
+* ExceptionThrower replaced by throw_if / throw_anyway helpers.
+* Superglobal access centralised behind the Superglobals and Request classes.
+* Emotion CSS class name labelling for easier debugging.
+* Frontend restructured from pages/ to features/.
+* Tax calculation moved behind a unified strategy contract so a country's
+  behaviour lives entirely inside its own strategy.
+* New docs: docs/legal-consents.md, docs/data-table.md, docs/settings-search.md.
+* API docs added for wishlist, address book, resend-verification-email
+  (including 200 and 429 examples) and currency-exchange sync.
+
+
+--------------------------------------------------------------------------------
+VERSION NUMBERING - NEEDS A DECISION
+--------------------------------------------------------------------------------
+
+These three disagree and should be reconciled before release:
+
+  kirki-ecommerce.php header      1.0.0-alpha.3   -> needs bump to alpha.4
+  readme.txt Stable tag           1.0.0-beta.1    -> inconsistent
+  readme.txt last entry heading   1.0.0-beta.1    -> likely mislabelled alpha.3
+  config/migrations.php comment   1.0.0-alpha.4   -> matches this release
+
+Note that alpha.4 sorts below beta.1 in semver, so correcting the stable tag
+reads as a downgrade unless the existing beta.1 entry is relabelled first.
+
+================================================================================

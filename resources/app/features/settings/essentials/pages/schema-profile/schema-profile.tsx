@@ -28,7 +28,6 @@ import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 type SchemaListItem = SchemaProfile & {
@@ -39,20 +38,17 @@ type SchemaListItem = SchemaProfile & {
 const SchemaProfileComponent = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [editedItem, setEditedItem] = useState<SchemaProfile | null>(null);
-  const [removedIds, setRemovedIds] = useState<number[]>([]);
 
   const { data: schemaList = [], isLoading, refetch } = useSchemasQuery();
   const { mutate: deleteSchema } = useDeleteSchemaMutation();
 
   const schemaProfileList = useMemo<SchemaListItem[]>(
     () =>
-      schemaList
-        .filter((schema) => !removedIds.includes(schema.id))
-        .map((schema) => ({
-          ...schema,
-          badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
-        })),
-    [schemaList, removedIds],
+      schemaList.map((schema) => ({
+        ...schema,
+        badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
+      })),
+    [schemaList],
   );
 
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
@@ -67,17 +63,7 @@ const SchemaProfileComponent = () => {
         ),
       },
       () => {
-        setRemovedIds((prev) => [...prev, item.id]);
-        dispatchToastMessage('delete', {
-          title: __('Schema deleted', 'kirki-ecommerce'),
-          duration: 5000,
-          undoAction: () => {
-            setRemovedIds((prev) => prev.filter((id) => id !== item.id));
-          },
-          onSuccess: () => {
-            deleteSchema(item.id, { onSuccess: () => refetch() });
-          },
-        });
+        deleteSchema(item.id, { onSuccess: () => refetch() });
       },
     );
   };
