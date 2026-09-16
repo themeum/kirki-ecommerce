@@ -38,7 +38,7 @@ class Tax
      */
     public static function is_tax_enabled()
     {
-        return Settings::get('general.is_tax_calculation_enabled', false) && static::is_tax_configured();
+        return Settings::get('general.is_tax_calculation_enabled', true) && static::is_tax_configured();
     }
 
     /**
