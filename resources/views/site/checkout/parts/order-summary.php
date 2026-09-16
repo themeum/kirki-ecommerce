@@ -19,17 +19,23 @@ defined('ABSPATH') || exit;
         <span><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
         <span class="kecom-summary-value" x-text="cartData.pricing?.display_items_subtotal_money_object?.display"></span>
     </div>
-    <div class="kecom-summary-row" x-show="discount !== null">
+    <div class="kecom-summary-row kecom-discount-row" x-show="discount !== null">
         <span><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
         <span class="kecom-summary-value" x-text="'-' + discount"></span>
     </div>
-    <div class="kecom-summary-row">
+    <div class="kecom-summary-row" x-show="discount !== null">
         <span><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
         <span class="kecom-summary-value" x-text="cartData.pricing?.display_order_total_money_object?.display"></span>
     </div>
     <div class="kecom-summary-row">
         <span><?php esc_html_e('Shipping', 'kirki-ecommerce'); ?></span>
-        <span class="kecom-summary-value" x-text="cartData.pricing?.display_shipping_amount_money_object?.display"></span>
+        <span class="kecom-summary-value">
+            <span x-text="cartData.pricing?.display_shipping_amount_money_object?.display"></span>
+            <span class="kecom-summary-discount"
+                x-show="Boolean(cartData.pricing?.display_shipping_strikethrough_money_object?.raw > cartData.pricing?.display_shipping_amount_money_object?.raw)"
+                x-text="cartData.pricing?.display_shipping_strikethrough_money_object?.display"
+                x-cloak></span>
+        </span>
     </div>
     <template x-for="tax_line in cartData.pricing.tax_lines">
         <div class="kecom-summary-row">

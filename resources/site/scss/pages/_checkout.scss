@@ -279,6 +279,12 @@
     justify-content: space-between;
     @include typography(base, regular, $text-secondary);
 
+    &.kecom-discount-row {
+      padding-bottom: $spacing-6;
+      margin-bottom: $spacing-2;
+      border-bottom: 1px solid $border-default;
+    }
+
     &.kecom-total-row {
       font-weight: 700;
       color: $text-primary;
@@ -291,10 +297,19 @@
   .kecom-summary-value {
     font-weight: 500;
     color: $text-primary;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
 
     &.kecom-total-value {
       font-weight: 700;
     }
+  }
+
+  .kecom-summary-discount {
+    @include typography(sm, regular, $text-secondary);
+    text-decoration: line-through;
+    font-weight: 400;
   }
 
   // Address Section

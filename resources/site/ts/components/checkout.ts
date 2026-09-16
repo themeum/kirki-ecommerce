@@ -7,7 +7,7 @@ import { buildCartApi } from '../api/cart';
 import { checkoutApi } from '../api/checkout';
 import { emit, EVENTS, listen, waitForEvent } from '../events';
 import { toastManager } from '../services/toast/runtime';
-import type { CartCoupon, CheckoutRequest, ShippingMethod } from '../types';
+import type { CartCoupon, CartPricing, CheckoutRequest, ShippingMethod } from '../types';
 import { config } from '../utils';
 import { debounce } from '../utils/debounce';
 import { scrollToFirstError } from '../utils/dom';
@@ -45,6 +45,17 @@ type AlpineContext = {
 export type CheckoutConfig = {
   cartTotal?: number;
 };
+
+function getOrderDiscountDisplay(
+  pricing?: CartPricing,
+  coupons: CartCoupon[] = [],
+): string | null {
+  if (!coupons.length) {
+    return null;
+  }
+  const orderDiscount = pricing?.display_order_discount_money_object;
+  return Number(orderDiscount?.raw) > 0 ? orderDiscount?.display || null : null;
+}
 
 export function checkout(componentConfig: CheckoutConfig = {}) {
   const { __ } = window.wp.i18n;
@@ -189,10 +200,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       // Initialize discount state from cart data
       if (this.cartData?.pricing?.coupons && Array.isArray(this.cartData?.pricing?.coupons)) {
         this.appliedCoupons = this.cartData.pricing?.coupons ?? [];
-        this.discount =
-          this.appliedCoupons.length > 0
-            ? this.cartData.pricing.display_order_discount_money_object?.display || null
-            : null;
+        this.discount = getOrderDiscountDisplay(this.cartData.pricing, this.appliedCoupons);
       }
 
       // Debounced cart update — prevents hammering the API on rapid field changes
@@ -332,10 +340,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         if (response.data?.pricing?.coupons && Array.isArray(response.data?.pricing?.coupons)) {
           const coupons = response.data.pricing?.coupons ?? [];
           this.appliedCoupons = coupons;
-          this.discount =
-            coupons.length > 0
-              ? response.data.pricing?.display_order_discount_money_object?.display || null
-              : null;
+          this.discount = getOrderDiscountDisplay(response.data.pricing, coupons);
         }
       } catch (caughtError: unknown) {
         this.handleApiErrors(
@@ -365,10 +370,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.cartData = response.data;
         const coupons = response.data.pricing?.coupons ?? [];
         this.appliedCoupons = coupons;
-        this.discount =
-          coupons.length > 0
-            ? response.data.pricing?.display_order_discount_money_object?.display || null
-            : null;
+        this.discount = getOrderDiscountDisplay(response.data.pricing, coupons);
         this.couponCode = '';
         toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
       } catch (caughtError: unknown) {
@@ -399,10 +401,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.cartData = response.data;
         const coupons = response.data.pricing?.coupons ?? [];
         this.appliedCoupons = coupons;
-        this.discount =
-          coupons.length > 0
-            ? response.data.pricing?.display_order_discount_money_object?.display || null
-            : null;
+        this.discount = getOrderDiscountDisplay(response.data.pricing, coupons);
         this.couponCode = '';
         toastManager.success(__('Coupon removed successfully!', 'kirki-ecommerce'));
       } catch (caughtError: unknown) {
