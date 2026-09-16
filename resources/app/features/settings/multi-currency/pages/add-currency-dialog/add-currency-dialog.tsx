@@ -61,7 +61,7 @@ const AddCurrencyDialogPanel = () => {
                   variant="primary"
                   disabled={!formSelected || formSelected.length === 0}
                 >
-                  {__('Next', 'kirki-ecommerce')}
+                  {__('Done', 'kirki-ecommerce')}
                 </Button>
               </DialogFooter>
             </form>

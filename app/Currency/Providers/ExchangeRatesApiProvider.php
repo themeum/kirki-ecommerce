@@ -13,7 +13,7 @@ use function Kirki\Ecommerce\Framework\throw_if;
 
 class ExchangeRatesApiProvider implements CurrencyProvider
 {
-    const API_URL = 'http://api.exchangeratesapi.io/v1';
+    const API_URL = 'https://v6.exchangerate-api.com/v6';
 
     protected array $config = [];
 
@@ -79,11 +79,7 @@ class ExchangeRatesApiProvider implements CurrencyProvider
         $api_key = $this->config['api_key'] ?? '';
 
         throw_if(empty($api_key), __('Exchange Rates API access key is missing.', 'kirki-ecommerce'));
-        $response = Http::get(static::API_URL . '/latest', [
-            'access_key' => $api_key,
-            'base' => $base_currency,
-            'symbols' => implode(',', $symbols),
-        ]);
+        $response = Http::get(static::API_URL . '/' . $api_key . '/latest/' . $base_currency);
 
         throw_if($response->status() === Response::UNAUTHORIZED, __('Invalid API key.', 'kirki-ecommerce'));
 
@@ -91,13 +87,13 @@ class ExchangeRatesApiProvider implements CurrencyProvider
 
         $data = $response->json();
 
-        throw_if(empty($data['success']) || !$data['success'], $data['error']['info'] ?? __('Unknown error from Exchange Rates API.', 'kirki-ecommerce'));
+        throw_if($data['result'] !== 'success', __('Unknown error from Exchange Rates API.', 'kirki-ecommerce'));
 
         return ExchangeRateDTO::from_array([
             'provider_id' => $this->get_id(),
-            'base_currency' => $data['base'],
-            'rates' => $data['rates'],
-            'timestamp' => $data['timestamp']
+            'base_currency' => $data['base_code'],
+            'rates' => $data['conversion_rates'],
+            'timestamp' => $data['time_next_update_unix']
         ]);
     }
 

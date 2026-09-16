@@ -157,7 +157,15 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     availableShippingMethods: [] as ShippingMethod[],
     shippingMethodError: null as string | null,
 
+    consents: {} as Record<string, boolean>,
+    consentError: null as string | null,
+
     init() {
+      // Seed a key per consent so x-model binds to a reactive property.
+      for (const consent of config.checkout_consents ?? []) {
+        this.consents[consent.id] = false;
+      }
+
       // Pre-select the first payment method
       const firstPaymentRadio = document.querySelector<HTMLInputElement>(
         'input[name="payment_provider"]',
@@ -434,6 +442,21 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           return;
         }
 
+        this.consentError = null;
+
+        const unacceptedConsents = (config.checkout_consents ?? []).filter(
+          (consent) => consent.method === 'mandatory_checkbox' && !this.consents[consent.id],
+        );
+
+        if (unacceptedConsents.length > 0) {
+          this.consentError = __(
+            'Please accept the required terms to continue.',
+            'kirki-ecommerce',
+          );
+          scrollToFirstError();
+          return;
+        }
+
         if (!this.cartData?.items?.length) {
           toastManager.error(__('Your cart is empty', 'kirki-ecommerce'));
           return;
@@ -472,6 +495,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           customer_email: customerEmail,
           customer_phone: customerPhone,
           customer_notes: null,
+          consents: Object.keys(this.consents).filter((id) => this.consents[id]),
         };
 
         // Create order
@@ -526,6 +550,9 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
           hasFieldErrors = true;
         } else if (key === 'shipping_method') {
           onShippingMethodError?.(rawMessage);
+          hasFieldErrors = true;
+        } else if (key === 'consents') {
+          this.consentError = rawMessage;
           hasFieldErrors = true;
         } else if (key.startsWith('shipping_')) {
           const field = key.replace('shipping_', '');

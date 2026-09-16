@@ -190,7 +190,7 @@ export const AvailableCurrencyList = () => {
     <Card
       data-search-id="currency.available-currencies"
       data-search-keywords="multi currency, usd, eur, gbp, exchange"
-      cssOverride={{ ...cardStyles.innerCard }}
+      cssOverride={mergeCss(cardStyles.innerCard, { border: 'none', overflow: 'hidden' })}
     >
       <CardContent cssOverride={styles.innerCardContent}>
         <Flex justify="space-between" cssOverride={{ paddingBottom: theme.spacing[3] }}>
@@ -229,7 +229,7 @@ export const AvailableCurrencyList = () => {
                     )}
                   </StackedItemTitle>
                 </StackedItemContent>
-                <StackedItemActions>
+                <StackedItemActions cssOverride={{ paddingRight: theme.spacing[3] }}>
                   {item.is_base ? (
                     <Text variant="small" color="subdued">
                       {__('1.00', 'kirki-ecommerce')}

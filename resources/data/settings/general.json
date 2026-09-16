@@ -24,5 +24,6 @@
     "sequence": "000001",
     "apply_year_prefix": false,
     "reset_sequence_every_year": false
-  }
+  },
+  "is_tax_calculation_enabled": true
 }

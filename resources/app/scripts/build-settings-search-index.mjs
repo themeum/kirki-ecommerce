@@ -22,6 +22,7 @@ const SETTINGS_PAGES = {
   checkout: { route: '/settings/checkout', pageTitle: 'Checkout', routeKey: 'CheckoutSettings' },
   email: { route: '/settings/email', pageTitle: 'Emails', routeKey: 'EmailSettings' },
   advanced: { route: '/settings/advanced', pageTitle: 'Advanced', routeKey: 'AdvancedSettings' },
+  legal: { route: '/settings/legal', pageTitle: 'Legal', routeKey: 'LegalSettings' },
 };
 
 const NAV_ITEM_ARRAYS = [
