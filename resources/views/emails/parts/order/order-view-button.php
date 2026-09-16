@@ -1,7 +1,11 @@
 <?php
 defined('ABSPATH') || exit;
 
-$colors = $data['colors'] ?? [];
+use function Kirki\Ecommerce\Framework\view_data;
+
+$data = view_data();
+$default_template = $data['default_template'] ?? [];
+$colors = $default_template['colors'] ?? [];
 $button_text_color = $colors['button']['text'] ?? '#ffffff';
 $button_bg_color = $colors['button']['background'] ?? '#000000';
 ?>

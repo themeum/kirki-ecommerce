@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Page;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
@@ -185,11 +186,16 @@ class SettingResource extends Resource
     protected function get_email_settings($data)
     {
         $header_logo = MediaAttachment::make($data['default_template']['logo'] ?? null);
+        $order_confirmation_shortcodes = Settings::get(OptionKeys::EMAIL_SETTINGS)->get_default('customer_emails.order_notifications.order_confirmation') ?? [];
 
-        return array_merge($data ?? [], [
+        $data = array_merge($data ?? [], [
             'default_template' => array_merge($data['default_template'] ?? [], [
                 'logo' => $header_logo
             ])
         ]);
+
+        $data['customer_emails']['order_notifications']['order_confirmation']['shortcodes'] = $order_confirmation_shortcodes;
+
+        return $data;
     }
 }

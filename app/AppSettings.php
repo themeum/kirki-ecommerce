@@ -63,12 +63,29 @@ abstract class AppSettings
     }
 
     /**
+     * Get default settings
+     * @param string|null $key
+     * @param mixed $default
+     * @return array
+     */
+    public function get_default($key = null, $default = null)
+    {
+        $default_settings = json_decoded_data(resource_path('data/settings/' . $this->get_option_key() . '.json')) ?? [];
+
+        if (is_null($key)) {
+            return $default_settings;
+        }
+
+        return $this->deep_get($default_settings, $key, $default);
+    }
+
+    /**
      * Refresh settings values
      * @return static
      */
     public function refresh()
     {
-        $default_settings = json_decoded_data(resource_path('data/settings/' . $this->get_option_key() . '.json')) ?? [];
+        $default_settings = $this->get_default();
         $current_settings = Option::get($this->get_option_key());
 
         if (is_null($current_settings)) {

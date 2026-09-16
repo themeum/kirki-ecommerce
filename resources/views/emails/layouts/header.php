@@ -3,18 +3,20 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
 
-$logo_url = $data['logo_url'] ?? '';
-$height = $data['height'] ?? EmailDefaultTemplate::HEIGHT;
+$default_template = $data['default_template'] ?? [];
+
+$logo_url = $default_template['logo_url'] ?? '';
+$height = $default_template['height'] ?? EmailDefaultTemplate::HEIGHT;
 $height = $height . 'px';
-$position = $data['position'] ?? EmailDefaultTemplate::POSITION;
+$position = $default_template['position'] ?? EmailDefaultTemplate::POSITION;
 $align_map = [
     'start' => 'left',
     'center' => 'center',
     'end' => 'right',
 ];
 $align = $align_map[$position] ?? 'center';
-$divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
-$headings_color = $data['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
+$divider_color = $default_template['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
+$headings_color = $default_template['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
 ?>
 <tr>
     <td

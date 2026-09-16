@@ -3,11 +3,21 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
 
-$headings_color = $data['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
-$muted_color = $data['colors']['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
-$divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
-$billing_address = $data['billing_address'] ?? [];
-$shipping_address = $data['shipping_address'] ?? [];
+use function Kirki\Ecommerce\Framework\view_data;
+
+$data = view_data();
+$order = $data['order'] ?? [];
+$default_template = $data['default_template'] ?? [];
+$colors = $default_template['colors'] ?? [];
+
+$headings_color = $colors['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
+$muted_color = $colors['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
+$divider_color = $colors['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
+$billing_address = $order['billing_address'] ?? [];
+$shipping_address = $order['shipping_address'] ?? [];
+
+$order_date = $order['created_at'] ?? null;
+$order_date_display = $order_date instanceof DateTimeInterface ? $order_date->format('F j, Y') : (string) $order_date;
 
 $format_address = function (array $address) {
     $lines = array_filter([
@@ -33,7 +43,7 @@ $format_address = function (array $address) {
                         <?php echo esc_html__('Order number', 'kirki-ecommerce'); ?>
                     </p>
                     <p data-email-part="colors.typography.muted" style="margin: 0; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
-                        <?php echo esc_html($data['order_number'] ?? ''); ?>
+                        <?php echo esc_html($order['order_number'] ?? ''); ?>
                     </p>
                 </td>
                 <td style="padding-left: 12px; width: 50%; vertical-align: top;">
@@ -41,7 +51,7 @@ $format_address = function (array $address) {
                         <?php echo esc_html__('Order date', 'kirki-ecommerce'); ?>
                     </p>
                     <p data-email-part="colors.typography.muted" style="margin: 0; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
-                        <?php echo esc_html($data['order_date_display'] ?? ''); ?>
+                        <?php echo esc_html($order_date_display); ?>
                     </p>
                 </td>
             </tr>
@@ -51,7 +61,7 @@ $format_address = function (array $address) {
                         <?php echo esc_html__('Shipping method', 'kirki-ecommerce'); ?>
                     </p>
                     <p data-email-part="colors.typography.muted" style="margin: 0; font-size: 13px; color: <?php echo esc_attr($muted_color); ?>;">
-                        <?php echo esc_html($data['shipping_method_name'] ?? ''); ?>
+                        <?php echo esc_html($order['shipping_method_name'] ?? ''); ?>
                     </p>
                 </td>
                 <td style="padding-left: 12px; padding-top: 24px; width: 50%; vertical-align: top;">
@@ -59,7 +69,7 @@ $format_address = function (array $address) {
                         <?php echo esc_html__('Payment Method', 'kirki-ecommerce'); ?>
                     </p>
                     <p data-email-part="colors.typography.muted" style="margin: 0; font-size: 13px; color: <?php echo esc_attr($muted_color); ?>;">
-                        <?php echo esc_html($data['payment_provider_name'] ?? ''); ?>
+                        <?php echo esc_html($order['payment_provider_name'] ?? ''); ?>
                     </p>
                 </td>
             </tr>

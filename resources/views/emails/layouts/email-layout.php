@@ -4,15 +4,13 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
 
 use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\render_section;
-use function Kirki\Ecommerce\Framework\template_engine;
+use function Kirki\Ecommerce\Framework\view_data;
 
-$shared = template_engine()->get_shared();
+$data = view_data();
+$default_template = $data['default_template'] ?? [];
 
-$data = $shared['default_template'] ?? [];
-
-$outer_area_color = $data['colors']['background']['outer_area'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_OUTER_AREA;
-$email_body_color = $data['colors']['background']['email_body'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_EMAIL_BODY;
+$outer_area_color = $default_template['colors']['background']['outer_area'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_OUTER_AREA;
+$email_body_color = $default_template['colors']['background']['email_body'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_EMAIL_BODY;
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo esc_attr(get_locale()); ?>">
@@ -37,7 +35,8 @@ $email_body_color = $data['colors']['background']['email_body'] ?? EmailDefaultT
                     style="max-width: 560px; padding: 24px 48px 48px 48px; background-color: <?php echo esc_attr($email_body_color); ?>; border-radius: 8px; overflow: hidden;">
                     <?php
                     include_view('emails.layouts.header', $data);
-                    render_section('email-content');
+                    include_view('emails.layouts.heading', $data);
+                    include_view('emails.layouts.body', $data);
                     include_view('emails.layouts.footer', $data);
                     ?>
                 </table>

@@ -1,18 +1,31 @@
 <?php
 
 use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
+use Kirki\Ecommerce\App\Facades\Money;
 
-use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\view_data;
 
 defined('ABSPATH') || exit;
 
-$items = $data['items'] ?? [];
-$totals = $data['totals'] ?? [];
-$body_color = $data['colors']['typography']['body'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_BODY;
-$headings_color = $data['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
-$muted_color = $data['colors']['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
-$exceptions_color = $data['colors']['typography']['exceptions'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_EXCEPTIONS;
-$divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
+$data = view_data();
+$order = $data['order'] ?? [];
+$default_template = $data['default_template'] ?? [];
+
+$items = $order['items'] ?? [];
+$totals = $order['totals'] ?? [];
+$currency_code = $order['currency_code'] ?? '';
+$body_color = $default_template['colors']['typography']['body'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_BODY;
+$headings_color = $default_template['colors']['typography']['headings'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_HEADINGS;
+$muted_color = $default_template['colors']['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
+$exceptions_color = $default_template['colors']['typography']['exceptions'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_EXCEPTIONS;
+$divider_color = $default_template['colors']['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
+
+$total_before_shipping_display = Money::prepare_amount_object_from_minor(
+    ($totals['invoiced_subtotal'] ?? 0) - ($totals['invoiced_discount'] ?? 0),
+    $currency_code
+)->display;
+
+$tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
 ?>
 <tr>
     <td style="padding: 32px 0 32px 0;">
@@ -60,12 +73,16 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                         <?php endif; ?>
                     </td>
                     <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: top; text-align: right; white-space: nowrap;">
+                        <?php
+                        $item_total_display = $item['invoiced_total_money_object']->display ?? '';
+                        $item_price_display = $item['invoiced_price_money_object']->display ?? '';
+                        ?>
                         <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($body_color); ?>;">
-                            <?php echo esc_html($item['invoiced_total_display'] ?? ''); ?>
+                            <?php echo esc_html($item_total_display); ?>
                         </p>
-                        <?php if (!empty($item['invoiced_price_display']) && $item['invoiced_price_display'] !== $item['invoiced_total_display']) : ?>
+                        <?php if (!empty($item['invoiced_price']) && $item_price_display !== $item_total_display) : ?>
                             <p data-email-part="colors.typography.muted" style="margin: 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>; text-decoration: line-through;">
-                                <?php echo esc_html($item['invoiced_price_display']); ?>
+                                <?php echo esc_html($item_price_display); ?>
                             </p>
                         <?php endif; ?>
                     </td>
@@ -79,17 +96,17 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                     <?php echo esc_html__('Subtotal', 'kirki-ecommerce'); ?>
                 </td>
                 <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
-                    <?php echo esc_html($totals['invoiced_subtotal_display'] ?? ''); ?>
+                    <?php echo esc_html($totals['invoiced_subtotal_money_object']->display ?? ''); ?>
                 </td>
             </tr>
-            <?php if (!empty($totals['invoiced_discount_display'])) : ?>
+            <?php if (!empty($totals['invoiced_discount'])) : ?>
                 <tr>
                     <td style="width: 170px;"></td>
                     <td data-email-part="colors.typography.muted" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
                         <?php echo esc_html__('Discount', 'kirki-ecommerce'); ?>
                     </td>
                     <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
-                        -<?php echo esc_html($totals['invoiced_discount_display']); ?>
+                        -<?php echo esc_html($totals['invoiced_discount_money_object']->display ?? ''); ?>
                     </td>
                 </tr>
             <?php endif; ?>
@@ -99,7 +116,7 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                     <?php echo esc_html__('Total', 'kirki-ecommerce'); ?>
                 </td>
                 <td data-email-part="colors.typography.body colors.background.divider" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
-                    <?php echo esc_html($totals['invoiced_total_before_shipping_display'] ?? ''); ?>
+                    <?php echo esc_html($total_before_shipping_display); ?>
                 </td>
             </tr>
             <tr>
@@ -108,7 +125,7 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                     <?php echo esc_html__('Shipping', 'kirki-ecommerce'); ?>
                 </td>
                 <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
-                    <?php echo esc_html($totals['invoiced_shipping_display'] ?? ''); ?>
+                    <?php echo esc_html($totals['invoiced_shipping_money_object']->display ?? ''); ?>
                 </td>
             </tr>
             <tr>
@@ -119,13 +136,13 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                         sprintf(
                             /* translators: %s: tax rate, e.g. 10% */
                             __('VAT %s', 'kirki-ecommerce'),
-                            $totals['tax_rate'] ?? '0%'
+                            $tax_rate_display
                         )
                     );
                     ?>
                 </td>
                 <td data-email-part="colors.typography.body" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($body_color); ?>; text-align: right;">
-                    <?php echo esc_html($totals['invoiced_tax_display'] ?? ''); ?>
+                    <?php echo esc_html($totals['invoiced_tax_money_object']->display ?? ''); ?>
                 </td>
             </tr>
             <tr>
@@ -135,12 +152,12 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                 </td>
                 <td data-email-part="colors.typography.headings colors.background.divider" style="padding: 12px 0 2px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>; text-align: right; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
                     <span data-email-part="colors.typography.muted" style="font-weight: 400; font-size: 12px; color: <?php echo esc_attr($muted_color); ?>;">
-                        <?php echo esc_html($data['currency_code'] ?? ''); ?>
+                        <?php echo esc_html($currency_code); ?>
                     </span>
-                    <?php echo esc_html($totals['invoiced_total_display'] ?? ''); ?>
+                    <?php echo esc_html($totals['invoiced_total_money_object']->display ?? ''); ?>
                 </td>
             </tr>
-            <?php if (!empty($totals['base_tax_display'])) : ?>
+            <?php if (!empty($totals['base_tax'])) : ?>
                 <tr>
                     <td style="width: 170px;"></td>
                     <td colspan="2" data-email-part="colors.typography.muted" style="font-size: 12px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">
@@ -149,7 +166,7 @@ $divider_color = $data['colors']['background']['divider'] ?? EmailDefaultTemplat
                             sprintf(
                                 /* translators: %s: base-currency VAT amount, e.g. €19.63 */
                                 __('Including %s VAT', 'kirki-ecommerce'),
-                                $totals['base_tax_display']
+                                $totals['base_tax_money_object']->display ?? ''
                             )
                         );
                         ?>
