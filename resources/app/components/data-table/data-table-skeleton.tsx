@@ -32,6 +32,7 @@ const DataTableSkeleton = <T extends DataTableItem>(props: DataTableSkeletonProp
             return (
               <TableCell
                 key={column.id}
+                data-pinned={column.getIsPinned() || undefined}
                 onlyCheckbox={isSelectColumn}
                 alignment={meta?.alignment}
                 cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(column, false))}

@@ -1,4 +1,4 @@
-import { Package } from 'lucide-react';
+import { Box, Package } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -25,7 +25,7 @@ import {
   useShippingProfilesQuery,
 } from '@/features/settings/shipping/services/shipping';
 import { useConfirmDelete } from '@/hooks';
-import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
+import { EditPenIcon, TrashIcon } from '@/icons';
 import { queryClient } from '@/libs/query-client';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -114,8 +114,9 @@ const ShippingProfile = () => {
 
           {!shippingProfileList?.length ? (
             <EmptyState
-              icon={<BoxOpenIcon />}
+              icon={<Box color={theme.colors.icon.secondary} />}
               text={__('Added shipping profiles will appear here', 'kirki-ecommerce')}
+              cssOverride={{ marginTop: theme.spacing[3] }}
             />
           ) : (
             <div css={scoped({ marginTop: theme.spacing[5] })}>

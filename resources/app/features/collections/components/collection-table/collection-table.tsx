@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import { RouteConfig } from '@/config/route-config';
 import CollectionTableFilters from '@/features/collections/components/collection-table/collection-table-filters';
@@ -75,6 +76,7 @@ const CollectionTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <div role="presentation" onClick={(event) => event.stopPropagation()}>
             <DataTableRowActions

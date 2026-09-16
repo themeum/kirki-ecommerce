@@ -24,7 +24,6 @@ const CustomerTableFilters = () => {
           clearable
         />
       </div>
-      <FilterPopup />
 
       <ActionGroup>
         <FilterPopup />
