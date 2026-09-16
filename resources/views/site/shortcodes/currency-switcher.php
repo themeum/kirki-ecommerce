@@ -11,6 +11,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Supports\Icon;
 
 $items_json    = $data['item_json'] ?? [];
@@ -31,8 +32,7 @@ $current_flag   = $data['current_flag'] ?? '';
             const maxAge = 30 * 24 * 60 * 60;
             const encoded = encodeURIComponent(item.value);
             const opts = ';path=/;max-age=' + maxAge + ';SameSite=Lax';
-            document.cookie = 'kirki_ecommerce_currency=' + encoded + opts;
-            document.cookie = 'kirki-ecommerce-currency-code=' + encoded + opts;
+            document.cookie = '<?php echo esc_js(CookieNames::CURRENCY); ?>=' + encoded + opts;
             window.location.reload();
         },
     })"

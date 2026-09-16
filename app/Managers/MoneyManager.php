@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Managers;
 use BadMethodCallException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Money;
+use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
@@ -27,24 +28,17 @@ use function Kirki\Ecommerce\Framework\throw_if;
  * @method static \Brick\Money\Money of(mixed $amount, mixed $currency = null, ?\Brick\Money\Context $context = null, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
  * @method static \Brick\Money\Money of_minor(mixed $minorAmount, mixed $currency = null, ?\Brick\Money\Context $context = null, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
  * @method static \Brick\Money\Money zero(mixed $currency = null, ?\Brick\Money\Context $context = null)
- * 
+ *
  * @see \Brick\Money\Money
  */
 class MoneyManager
 {
     /**
-     * Name of the cookie used by visitors to request a display currency.
-     *
-     * @var string
-     */
-    const DISPLAY_CURRENCY_COOKIE = 'kirki_ecommerce_currency';
-
-    /**
      * Name of the header used by API clients to request a display currency.
      *
      * @var string
      */
-    const DISPLAY_CURRENCY_HEADER = 'HTTP_X_CURRENCY';
+    public const DISPLAY_CURRENCY_HEADER = 'HTTP_X_CURRENCY';
 
     /**
      * Base currency for the application.
@@ -135,7 +129,7 @@ class MoneyManager
      */
     protected function get_requested_currency_code()
     {
-        $cookie_value = Superglobals::cookie(static::DISPLAY_CURRENCY_COOKIE);
+        $cookie_value = Superglobals::cookie(CookieNames::CURRENCY);
         $header_value = Superglobals::server(static::DISPLAY_CURRENCY_HEADER);
         $code = $cookie_value ?? $header_value;
 
@@ -159,7 +153,7 @@ class MoneyManager
      */
     public static function to_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -179,7 +173,7 @@ class MoneyManager
      */
     public static function from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -232,7 +226,7 @@ class MoneyManager
      */
     public function format_from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -253,7 +247,7 @@ class MoneyManager
      */
     public function format_from_decimal($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();

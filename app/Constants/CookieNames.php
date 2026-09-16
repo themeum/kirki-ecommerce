@@ -9,6 +9,15 @@ class CookieNames
     use HasConstants;
 
     /**
+     * Cookie name for the currency.
+     *
+     * @since 1.0.0
+     *
+     * @var string
+     */
+    public const CURRENCY = 'kirki_ecommerce_currency';
+
+    /**
      * Header name for the currency code.
      *
      * @since 1.0.0
