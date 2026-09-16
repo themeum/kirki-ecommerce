@@ -78,7 +78,7 @@ class ShopProductResource extends Resource
      */
     private function resolve_default_variant($variants)
     {
-        if ( ! $variants ) {
+        if (! $variants) {
             return null;
         }
         return $variants->filter(fn($variant) => 1 == $variant->is_default)->first();
@@ -102,11 +102,12 @@ class ShopProductResource extends Resource
         $sale_price    = $variant->base_sale_price;
         $in_sale       = $sale_price > 0 && $sale_price < $regular_price;
 
-        $formatted_regular_price = Money::format_from_minor($regular_price);
-        $display_price           = $in_sale ? Money::format_from_minor($sale_price) : $formatted_regular_price;
+        $display_currency = Money::resolve_display_currency();
+        $formatted_regular_price = Money::prepare_amount_object_from_minor($regular_price, null, $display_currency)->display;
+        $display_price           = $in_sale ? Money::prepare_amount_object_from_minor($sale_price, null, $display_currency)->display : $formatted_regular_price;
 
         if ($has_variants) {
-            [$display_price, $in_sale] = $this->resolve_variant_price_range($variants);
+            [$display_price, $in_sale] = $this->resolve_variant_price_range($variants, $display_currency);
         }
 
         return compact('display_price', 'formatted_regular_price', 'in_sale');
@@ -122,15 +123,15 @@ class ShopProductResource extends Resource
      *
      * @return array{ 0: string, 1: bool }
      */
-    private function resolve_variant_price_range($variants): array
+    private function resolve_variant_price_range($variants, $display_currency = null): array
     {
         $lowest_price  = $variants->min(fn($v) => $v->base_price);
         $highest_price = $variants->max(fn($v) => $v->base_price);
 
-        $display_price = Money::format_from_minor($lowest_price);
+        $display_price = Money::prepare_amount_object_from_minor($lowest_price, null, $display_currency)->display;
 
         if ($lowest_price !== $highest_price) {
-            $display_price .= ' - ' . Money::format_from_minor($highest_price);
+            $display_price .= ' - ' . Money::prepare_amount_object_from_minor($highest_price, null, $display_currency)->display;
         }
 
         return [$display_price, false];
@@ -155,7 +156,7 @@ class ShopProductResource extends Resource
      */
     private function resolve_image_url(): string
     {
-        if ( is_int($this->media)) {
+        if (is_int($this->media)) {
             $media_id = $this->media;
         } else {
             $media = is_object($this->media) ? $this->media->first() : null;
