@@ -14,7 +14,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Supports\Icon;
 
-$items_json    = $data['item_json'] ?? [];
+$items_json    = $data['items_json'] ?? [];
 $selected_json = $data['selected_json'] ?? '';
 $attributes    = $data['attributes'] ?? [];
 $current_code   = $data['current_code'] ?? '';

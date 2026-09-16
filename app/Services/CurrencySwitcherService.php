@@ -111,7 +111,7 @@ class CurrencySwitcherService
         include_view(
             'site.shortcodes.currency-switcher',
             [
-                'item_json'      => $items_json,
+                'items_json'     => $items_json,
                 'selected_json'  => $selected_json,
                 'attributes'     => $attributes,
                 'current_code'   => $current_code,
