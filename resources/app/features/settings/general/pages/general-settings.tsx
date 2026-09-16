@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import CalculateTax from '@/features/settings/general/pages/calculate-tax';
 import InvoiceId from '@/features/settings/general/pages/invoice-id';
 import OrderId from '@/features/settings/general/pages/order-id';
 import SellingLocation from '@/features/settings/general/pages/selling-location';
@@ -93,6 +94,7 @@ const GeneralSettings = () => {
           <SellingLocation />
           <OrderId />
           <InvoiceId />
+          <CalculateTax />
         </Flex>
       </Form>
     </div>

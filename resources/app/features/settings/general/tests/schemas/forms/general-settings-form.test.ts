@@ -66,6 +66,19 @@ describe('GeneralSettingsFormSchema', () => {
     });
   });
 
+  it('defaults is_tax_calculation_enabled to true when the form omits it', () => {
+    const result = GeneralSettingsFormSchema.parse(base);
+    expect(result.is_tax_calculation_enabled).toBe(true);
+  });
+
+  it('passes a disabled is_tax_calculation_enabled through', () => {
+    const result = GeneralSettingsFormSchema.parse({
+      ...base,
+      is_tax_calculation_enabled: false,
+    });
+    expect(result.is_tax_calculation_enabled).toBe(false);
+  });
+
   it('collapses a media object store_logo to its numeric id', () => {
     const result = GeneralSettingsFormSchema.parse({
       ...base,

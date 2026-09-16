@@ -1,3 +1,4 @@
+import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
 import type { TaxProfile, TaxRuleCondition } from '@/features/settings/tax/shared/schemas/catalog/tax';
 import { __ } from '@/wpi18n';
 
@@ -57,4 +58,55 @@ export const resolveConditionDisplayValue = (
   }
 
   return String(value);
+};
+
+/**
+ * Read-only label for a rule condition's type. The stored value is the
+ * decision engine's condition key (`tax_profile`); the preview shows the same
+ * wording the rule editor offers for it.
+ */
+export const resolveConditionTypeLabel = (type: string | null | undefined): string =>
+  taxRuleConditionOptions.find((option) => option.value === type)?.title ?? type ?? '';
+
+/**
+ * Read-only label for a rule condition's operator. The stored value is the
+ * comparison symbol the decision engine evaluates (`Condition::compare`); the
+ * preview reads it as part of a sentence, so `=` becomes `is`.
+ */
+export const resolveOperatorLabel = (operator: string | null | undefined): string => {
+  switch (operator) {
+    case '!=':
+      return __('is not', 'kirki-ecommerce');
+    case '>':
+      return __('is greater than', 'kirki-ecommerce');
+    case '<':
+      return __('is less than', 'kirki-ecommerce');
+    case '>=':
+      return __('is at least', 'kirki-ecommerce');
+    case '<=':
+      return __('is at most', 'kirki-ecommerce');
+    case 'in':
+      return __('is one of', 'kirki-ecommerce');
+    case '!in':
+      return __('is not one of', 'kirki-ecommerce');
+    default:
+      return __('is', 'kirki-ecommerce');
+  }
+};
+
+/**
+ * Read-only label for a rule's action. The rule editor offers imperative
+ * titles ("Set Tax Rate"); the preview continues the sentence after "Then",
+ * and `set_product_tax_rate` is followed by the rate itself.
+ */
+export const resolveActionLabel = (type: string | null | undefined): string => {
+  if (type === 'set_product_tax_rate') {
+    return __('product tax rate is', 'kirki-ecommerce');
+  }
+
+  if (type === 'set_product_tax_exempt') {
+    return __('product tax is exempt', 'kirki-ecommerce');
+  }
+
+  return type ?? '';
 };

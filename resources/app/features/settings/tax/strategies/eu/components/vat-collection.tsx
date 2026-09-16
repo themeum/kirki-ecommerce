@@ -10,7 +10,7 @@ import type { CountryTaxRate, TaxRegionState } from '@/features/settings/tax/sha
 import VatCollectionPopup from '@/features/settings/tax/strategies/eu/components/vat-collection-dialog';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
@@ -104,7 +104,7 @@ export const VatCollection = (props: VatCollectionProps) => {
                   <CardContent cssOverride={mergeCss(cardStyles.innerContent, styles.vatRow)}>
                     <Flex justify="space-between" cssOverride={{ width: '100%' }}>
                       <Flex gap={2} align="center">
-                        {meta.flag}
+                        <span css={scoped({ fontSize: 16 })}>{meta.flag}</span>
                         <Text variant="small" weight="semibold">
                           {meta.name}
                         </Text>

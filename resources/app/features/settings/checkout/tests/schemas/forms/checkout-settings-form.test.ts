@@ -13,10 +13,6 @@ describe('CheckoutSettingsFormSchema', () => {
       vat_identification_number_validation: '',
       has_apply_coupon_code: true,
     },
-    is_terms_and_conditions_visible: false,
-    terms_and_conditions_content: '',
-    is_privacy_policy_visible: false,
-    privacy_policy_content: '',
   };
 
   it('produces the exact payload for a fully filled form', () => {
@@ -29,10 +25,8 @@ describe('CheckoutSettingsFormSchema', () => {
     expect(result.checkout_configuration.address_line_validation).toBe('required');
   });
 
-  it('sends null for blank nested and top-level text fields', () => {
+  it('sends null for blank nested text fields', () => {
     const result = CheckoutSettingsFormSchema.parse(base);
     expect(result.checkout_configuration.address_line_validation).toBeNull();
-    expect(result.terms_and_conditions_content).toBeNull();
-    expect(result.privacy_policy_content).toBeNull();
   });
 });

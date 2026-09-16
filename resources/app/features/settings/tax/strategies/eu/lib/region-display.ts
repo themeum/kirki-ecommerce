@@ -1,4 +1,6 @@
 import { RouteConfig } from '@/config/route-config';
+import type { TaxRegionBadge } from '@/features/settings/tax/shared/contracts/tax-region-strategy';
+import { formatTaxRateLabel } from '@/features/settings/tax/shared/lib/rate-label';
 import type { EuTaxRegion, TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import type { Country } from '@/schemas/reference/country';
 import { __, _n, sprintf } from '@/wpi18n';
@@ -8,21 +10,33 @@ export const resolveEuRegionMeta = (_region: TaxRegion, _countryList: Country[])
   flag: '🇪🇺',
 });
 
-export const resolveEuRegionSummary = (region: TaxRegion) => {
+export const resolveEuRegionBadges = (region: TaxRegion): TaxRegionBadge[] => {
   const euRegion = region as EuTaxRegion;
   const countryCount = euRegion.countries?.length ?? 0;
-  const type =
+  const scheme =
     euRegion.type === 'micro_business'
       ? __('Micro business', 'kirki-ecommerce')
       : euRegion.type === 'oss'
         ? 'OSS'
         : '';
-  /* translators: %s: region type, %d: number of member countries */
-  return sprintf(
-    _n('%s%d Country', '%s%d Countries', countryCount, 'kirki-ecommerce'),
-    `${type ? `${type}, ` : ''}`,
-    countryCount,
-  );
+
+  return [
+    ...(scheme ? [{ label: scheme, variant: 'info' as const }] : []),
+    {
+      /* translators: %d: number of member countries */
+      label: sprintf(
+        _n('%d Country', '%d Countries', countryCount, 'kirki-ecommerce'),
+        countryCount,
+      ),
+      variant: 'default' as const,
+    },
+  ];
+};
+
+export const resolveEuRegionRateLabel = (region: TaxRegion) => {
+  const euRegion = region as EuTaxRegion;
+
+  return formatTaxRateLabel((euRegion.countries ?? []).map((country) => country.rate));
 };
 
 export const buildEuRegionEditLink = () =>
