@@ -190,8 +190,12 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
         this.isAlignEnd = true;
       } else if (this.align === 'auto') {
         const rect = this.$el.getBoundingClientRect();
-        const menuEl = this.$refs.menu ?? this.$el.querySelector('.kecom-dropdown-menu');
-        const menuWidth = menuEl?.offsetWidth || 280;
+        const menuEl =
+          this.$refs.menu ?? this.$el.querySelector<HTMLElement>('.kecom-dropdown-menu');
+        // The menu is still hidden when this runs, so an unlaid-out element
+        // measures 0 rather than undefined — fall back to the default width.
+        const measuredMenuWidth = menuEl?.offsetWidth ?? 0;
+        const menuWidth = measuredMenuWidth > 0 ? measuredMenuWidth : 280;
         this.isAlignEnd = rect.left + menuWidth > window.innerWidth - 16;
       } else {
         this.isAlignEnd = false;
@@ -216,7 +220,7 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
         this.$nextTick(() => {
           const trigger =
             this.$refs.trigger ??
-            this.$el.querySelector(
+            this.$el.querySelector<HTMLElement>(
               '.kecom-dropdown-trigger, .kecom-currency-switcher-trigger, button',
             );
           trigger?.focus();
