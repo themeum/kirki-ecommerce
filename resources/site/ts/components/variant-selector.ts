@@ -30,6 +30,8 @@ export type Variant = {
   max_per_order: number | null;
   track_inventory?: boolean;
   is_wishlisted: boolean;
+  show_unit_price?: boolean;
+  display_unit_price?: string | null;
 };
 
 export type VariantSelectorConfig = {

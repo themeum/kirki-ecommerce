@@ -12,12 +12,10 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
-use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
@@ -221,6 +219,8 @@ class PageInlineScript extends BaseHook
             $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
                 ? round((1 - ($display_sale_price / $display_price)) * 100)
                 : null;
+            $show_unit_price     = (bool) ($variant['show_unit_price'] ?? false);
+            $display_unit_price  = $variant['display_unit_price'] ?? null;
             $stock               = intval($variant['available_quantity'] ?? 0);
             $available           = $inventory_service->has_stock($variant_id, 1);
             $allow_back_order    = (bool) ($variant['allow_back_order'] ?? false);
@@ -242,6 +242,8 @@ class PageInlineScript extends BaseHook
                 'product_id'          => $product_id,
                 'price'               => $price,
                 'sale_price'          => $sale_price,
+                'show_unit_price'     => $show_unit_price,
+                'display_unit_price'  => $display_unit_price,
                 'discount_percentage' => $discount_percentage,
                 'stock'               => $stock,
                 'attributes'          => $variant_attrs,

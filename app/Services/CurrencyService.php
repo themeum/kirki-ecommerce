@@ -54,6 +54,19 @@ class CurrencyService
     }
 
     /**
+     * Get currency symbols keyed by currency code (uppercase).
+     *
+     * @return array<string, string>
+     */
+    public function get_symbol_map()
+    {
+        return array_change_key_case(
+            Currency::query()->pluck('symbol', 'code')->all(),
+            CASE_UPPER
+        );
+    }
+
+    /**
      * Set base currency.
      *
      * @param string $code
