@@ -57,6 +57,7 @@ export const RouteConfig = {
       ListVariation: defineRoute('/list/:id'),
     }),
     AdvancedSettings: defineRoute('/advanced'),
+    LegalSettings: defineRoute('/legal'),
     LicenseSettings: defineRoute('/license'),
   }),
 };

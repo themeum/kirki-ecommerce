@@ -37,6 +37,9 @@ class SettingResource extends Resource
             case OptionKeys::ADVANCE_SETTINGS:
                 $data = $this->get_advanced_settings($data);
                 break;
+            case OptionKeys::LEGAL_SETTINGS:
+                $data = $this->get_legal_settings($data);
+                break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
             default:
@@ -171,5 +174,24 @@ class SettingResource extends Resource
                 'reset_at' =>  $data['usage']['reset_at'] ?? null,
             ] : null
         ];
+    }
+
+    /**
+     * Get the legal settings.
+     *
+     * Consents are re-indexed so they serialise as a JSON array rather than an
+     * object, and the store's registration flag is surfaced so the admin can
+     * warn when a signup consent cannot be displayed.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    protected function get_legal_settings($data)
+    {
+        $data['consents'] = array_values($data['consents'] ?? []);
+        $data['is_registration_enabled'] = (bool) Utils::registration_enabled();
+
+        return $data;
     }
 }

@@ -15,6 +15,8 @@ import { z } from 'zod';
  * and is deferred with the rest of the `services/settings.ts` split.
  */
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { LegalSettingsSchema } from '@/features/settings/legal/schemas/catalog/legal';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { ShippingZoneSchema } from '@/features/settings/shipping/schemas/catalog/shipping';
@@ -63,6 +65,7 @@ export const GeneralSettingsSchema = z
         reset_sequence_every_year: z.boolean().nullish(),
       })
       .nullish(),
+    is_tax_calculation_enabled: z.boolean().nullish(),
   })
   .passthrough();
 
@@ -112,10 +115,6 @@ export const CheckoutSettingsSchema = z
   .object({
     is_allowed_guest_checkout: z.boolean().nullish(),
     checkout_configuration: CheckoutConfigurationSchema.nullish(),
-    is_terms_and_conditions_visible: z.boolean().nullish(),
-    terms_and_conditions_content: z.string().nullish(),
-    is_privacy_policy_visible: z.boolean().nullish(),
-    privacy_policy_content: z.string().nullish(),
   })
   .passthrough();
 
@@ -261,6 +260,7 @@ export const SettingsSchemaMap = {
   currency: CurrencySettingsSchema,
   payment: PaymentSettingsSchema,
   advance: AdvanceSettingsSchema,
+  legal: LegalSettingsSchema,
 } as const;
 
 export type SettingsSectionKey = keyof typeof SettingsSchemaMap;

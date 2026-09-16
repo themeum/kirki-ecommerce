@@ -42,10 +42,9 @@ export type UseAddCurrencyDialogProps = {
 export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   const [openPopup, setOpenPopup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
-  const [filteredCurrency, setFilteredCurrency] = useState<CurrencyOption[]>([]);
 
-  const { data: availableCurrencies = [] } = useAvailableCurrenciesQuery({ limit: -1 });
-  const { data: allCurrenciesData = [] } = useAllCurrenciesQuery({}, openPopup);
+  const { data: availableCurrencies } = useAvailableCurrenciesQuery({ limit: -1 });
+  const { data: allCurrenciesData } = useAllCurrenciesQuery({}, openPopup);
 
   const parentForm = useFormContext<MultiCurrencySettingsFormInput>();
   const { append } = useFieldArray({ control: parentForm.control, name: 'currencies' });
@@ -72,15 +71,15 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   }, [openPopup, form]);
 
   const allCurrency = useMemo(() => {
-    return filterUnaddedCurrencies(allCurrenciesData, [
-      ...availableCurrencies,
+    return filterUnaddedCurrencies(allCurrenciesData ?? [], [
+      ...(availableCurrencies ?? []),
       ...(formCurrencies ?? []),
     ]);
   }, [availableCurrencies, allCurrenciesData, formCurrencies]);
 
-  useEffect(() => {
-    setFilteredCurrency(allCurrency);
-  }, [allCurrency]);
+  const filteredCurrency = useMemo(() => {
+    return getSearchedValue(searchValue, allCurrency);
+  }, [searchValue, allCurrency]);
 
   const handleSelectCurrencies = (currency: CurrencyOption) => {
     const next = toggleCurrencySelection(form.getValues('selectedCurrencies'), currency);
@@ -88,14 +87,7 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   };
 
   const handleSearchCurrency = (event: unknown) => {
-    const value = resolveSearchInputValue(event);
-    setSearchValue(value);
-
-    if (!value) {
-      setFilteredCurrency(allCurrency);
-      return;
-    }
-    setFilteredCurrency(getSearchedValue(value, allCurrency));
+    setSearchValue(resolveSearchInputValue(event));
   };
 
   const handleClosePopup = () => {
