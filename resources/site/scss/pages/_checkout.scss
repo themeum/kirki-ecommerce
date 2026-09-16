@@ -250,7 +250,7 @@
   // Coupon Form
   .kecom-coupon-form {
     @include flex();
-    gap: $spacing-6;
+    gap: $spacing-4;
     align-items: start;
 
     .kecom-field {
@@ -258,36 +258,11 @@
     }
   }
 
-  .kecom-applied-coupon {
-    @include flex-column();
+  .kecom-applied-coupons {
+    display: flex;
+    align-items: center;
     gap: $spacing-4;
-
-    .kecom-applied-coupon-info {
-      @include flex-between();
-      border: 1px solid $icon-brand;
-      border-radius: $radius-lg;
-      padding: $spacing-3 $spacing-3 $spacing-3 $spacing-6;
-
-      .kecom-applied-coupon-code-wrapper {
-        @include flex-center();
-        gap: $spacing-4;
-      }
-
-      .kecom-coupon-code {
-        @include typography(base, medium);
-        text-transform: uppercase;
-      }
-
-      .kecom-coupon-discount {
-        text-transform: uppercase;
-      }
-
-      button {
-        height: 24px;
-        width: 24px;
-        @include flex-center();
-      }
-    }
+    margin-top: $spacing-6;
   }
 
   // Order Summary

@@ -126,24 +126,31 @@ export type MoneyObject = {
   };
 };
 
-export type DiscountDetails = {
-  code: string | null;
-  title: string | null;
-  discount_value_type: string | null;
-  discount_amount_percentage: number | null;
-  base_discount_amount_fixed: number | null;
+export type CartCoupon = {
+  code: string;
+  title: string;
+  discount_type?: string;
+  discount_target?: string;
+  discount_value_type?: string;
+  discount_amount_percentage?: number;
+  base_discount_amount_fixed?: number;
+  display_discount_amount_fixed_money_object?: MoneyObject | null;
+  display_discount_amount_money_object?: MoneyObject;
 };
 
 export type CartPricing = {
-  display_subtotal_money_object: MoneyObject;
-  display_tax_total_money_object: MoneyObject;
-  discount_details: DiscountDetails | null;
-  display_discount_total_money_object: MoneyObject;
-  display_shipping_subtotal_money_object: MoneyObject;
-  display_shipping_tax_money_object: MoneyObject;
-  display_shipping_discount_money_object: MoneyObject;
-  display_shipping_total_money_object: MoneyObject;
+  display_items_subtotal_money_object: MoneyObject;
+  display_order_discount_money_object: MoneyObject;
+  display_order_total_money_object: MoneyObject;
+  display_shipping_amount_money_object: MoneyObject;
+  display_shipping_strikethrough_money_object: MoneyObject;
   display_total_money_object: MoneyObject;
+  tax_lines: {
+    name: string;
+    rate: number;
+    display_amount_money_object: MoneyObject;
+  }
+  coupons: CartCoupon[];
 };
 
 export type Cart = {
@@ -183,9 +190,8 @@ export type OrderItem = {
 export type CheckoutRequest = {
   consents?: string[];
   items: OrderItem[];
-  currency_code: string;
   payment_provider: string;
-  coupon_code?: string;
+  coupon_codes?: string[];
   shipping_method?: string;
   is_billing_same_as_shipping?: boolean;
   shipping_id?: string | number;

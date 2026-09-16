@@ -1,19 +1,13 @@
 /**
  * Alpine component: checkout
  * Handles checkout form interactions and order submission.
- *
- * PHP usage:
- *   <div x-data="checkout({
- *     cartTotal: <?= $cart->total ?>,
- *     currency: '<?= $currency ?>'
- *   })">
  */
 
 import { buildCartApi } from '../api/cart';
 import { checkoutApi } from '../api/checkout';
 import { emit, EVENTS, listen, waitForEvent } from '../events';
 import { toastManager } from '../services/toast/runtime';
-import type { CheckoutRequest, ShippingMethod } from '../types';
+import type { CartCoupon, CheckoutRequest, ShippingMethod } from '../types';
 import { config } from '../utils';
 import { debounce } from '../utils/debounce';
 import { scrollToFirstError } from '../utils/dom';
@@ -87,7 +81,6 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
   return {
     cartTotal: componentConfig.cartTotal ?? 0,
-    currency: config.currency ?? 'USD',
     cartData: initialCartData,
     countries: config.countries ?? [],
 
@@ -146,12 +139,14 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     selectedPaymentMethod: '',
     selectedShippingMethod: '',
     couponCode: '',
-    appliedCouponCode: '' as string,
+    appliedCoupons: [] as CartCoupon[],
     discount: null as string | null,
     billingSameAsShipping: Boolean(initialCartData?.is_billing_same_as_shipping),
 
     loading: false,
     couponLoading: false,
+    isApplyingCoupon: false,
+    removingCouponCode: null as string | null,
     error: null as string | null,
 
     availableShippingMethods: [] as ShippingMethod[],
@@ -192,9 +187,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       }
 
       // Initialize discount state from cart data
-      if (this.cartData?.pricing?.discount_details) {
-        this.discount = this.cartData.pricing.display_discount_total_money_object.display || null;
-        this.appliedCouponCode = this.cartData.pricing.discount_details?.code ?? '';
+      if (this.cartData?.pricing?.coupons && Array.isArray(this.cartData?.pricing?.coupons)) {
+        this.appliedCoupons = this.cartData.pricing?.coupons ?? [];
+        this.discount =
+          this.appliedCoupons.length > 0
+            ? this.cartData.pricing.display_order_discount_money_object?.display || null
+            : null;
       }
 
       // Debounced cart update — prevents hammering the API on rapid field changes
@@ -331,10 +329,13 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         }
 
         // Keep discount state in sync with the refreshed cart
-        if (response.data?.pricing?.discount_details) {
+        if (response.data?.pricing?.coupons && Array.isArray(response.data?.pricing?.coupons)) {
+          const coupons = response.data.pricing?.coupons ?? [];
+          this.appliedCoupons = coupons;
           this.discount =
-            response.data.pricing?.display_discount_total_money_object.display || null;
-          this.appliedCouponCode = response.data.pricing?.discount_details?.code ?? '';
+            coupons.length > 0
+              ? response.data.pricing?.display_order_discount_money_object?.display || null
+              : null;
         }
       } catch (caughtError: unknown) {
         this.handleApiErrors(
@@ -355,14 +356,19 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     },
 
     async applyCoupon() {
+      this.isApplyingCoupon = true;
       this.couponLoading = true;
       this.error = null;
 
       try {
         const response = await cartApi.applyCoupon(this.couponCode);
         this.cartData = response.data;
-        this.discount = response.data.pricing.display_discount_total_money_object.display || null;
-        this.appliedCouponCode = this.couponCode;
+        const coupons = response.data.pricing?.coupons ?? [];
+        this.appliedCoupons = coupons;
+        this.discount =
+          coupons.length > 0
+            ? response.data.pricing?.display_order_discount_money_object?.display || null
+            : null;
         this.couponCode = '';
         toastManager.success(__('Coupon applied successfully!', 'kirki-ecommerce'));
       } catch (caughtError: unknown) {
@@ -373,20 +379,31 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.error = error;
         toastManager.error(error);
       } finally {
+        this.isApplyingCoupon = false;
         this.couponLoading = false;
       }
     },
 
-    async removeCoupon() {
+    async removeCoupon(couponOrCode?: CartCoupon | string) {
+      const code =
+        typeof couponOrCode === 'object' && couponOrCode !== null
+          ? couponOrCode.code
+          : (couponOrCode ?? this.appliedCoupons[0]?.code);
+
+      this.removingCouponCode = code ?? '';
       this.couponLoading = true;
       this.error = null;
 
       try {
-        const response = await cartApi.removeCoupon();
+        const response = await cartApi.removeCoupon(code);
         this.cartData = response.data;
+        const coupons = response.data.pricing?.coupons ?? [];
+        this.appliedCoupons = coupons;
+        this.discount =
+          coupons.length > 0
+            ? response.data.pricing?.display_order_discount_money_object?.display || null
+            : null;
         this.couponCode = '';
-        this.appliedCouponCode = '';
-        this.discount = null;
         toastManager.success(__('Coupon removed successfully!', 'kirki-ecommerce'));
       } catch (caughtError: unknown) {
         const error =
@@ -396,6 +413,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
         this.error = error;
         toastManager.error(error);
       } finally {
+        this.removingCouponCode = null;
         this.couponLoading = false;
       }
     },
@@ -485,9 +503,8 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
             variant_id: item.product.variant_id,
             quantity: item.quantity,
           })),
-          currency_code: this.currency,
           payment_provider: this.selectedPaymentMethod,
-          coupon_code: this.appliedCouponCode || undefined,
+          coupon_codes: this.appliedCoupons?.map((coupon) => coupon.code) || undefined,
           shipping_method: this.selectedShippingMethod || undefined,
           is_billing_same_as_shipping: this.billingSameAsShipping,
           ...shippingFields,
