@@ -6457,7 +6457,7 @@
     "column": 17,
     "type": "WARNING",
     "code": "WordPress.Security.ValidatedSanitizedInput.MissingUnslash",
-    "message": "$_COOKIE[static::DISPLAY_CURRENCY_COOKIE] not unslashed before sanitization. Use wp_unslash() or similar",
+    "message": "$_COOKIE[CookieNames::CURRENCY] not unslashed before sanitization. Use wp_unslash() or similar",
     "docs": "",
     "file": "app/Managers/MoneyManager.php"
   },
@@ -6466,7 +6466,7 @@
     "column": 17,
     "type": "WARNING",
     "code": "WordPress.Security.ValidatedSanitizedInput.InputNotSanitized",
-    "message": "Detected usage of a non-sanitized input variable: $_COOKIE[static::DISPLAY_CURRENCY_COOKIE]",
+    "message": "Detected usage of a non-sanitized input variable: $_COOKIE[CookieNames::CURRENCY]",
     "docs": "",
     "file": "app/Managers/MoneyManager.php"
   },

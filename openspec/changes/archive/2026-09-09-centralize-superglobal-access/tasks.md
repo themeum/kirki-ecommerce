@@ -35,7 +35,7 @@
 
 ## 6. `app/Managers/MoneyManager.php`
 
-- [x] 6.1 Convert `isset($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) ? wp_unslash(...) : null` to `Superglobals::cookie(static::DISPLAY_CURRENCY_COOKIE)`.
+- [x] 6.1 Convert `isset($_COOKIE[CookieNames::CURRENCY]) ? wp_unslash(...) : null` to `Superglobals::cookie(CookieNames::CURRENCY)`.
 - [x] 6.2 Convert `isset($_SERVER[static::DISPLAY_CURRENCY_HEADER]) ? wp_unslash(...) : null` to `Superglobals::server(static::DISPLAY_CURRENCY_HEADER)`.
 - [x] 6.3 Leave the existing `sanitize_text_field()`/`is_string()`/`empty()` guard below these two lines unchanged (see design.md Decision 3 — it's now redundant but harmless, and out of scope to trim here).
 - [x] 6.4 Add the `Superglobals` `use` import.
