@@ -263,6 +263,7 @@
   .kecom-applied-coupons {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: $spacing-4;
     margin-top: $spacing-6;
   }
