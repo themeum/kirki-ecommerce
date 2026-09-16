@@ -26,18 +26,21 @@
     transition: background-color 0.15s ease;
     user-select: none;
 
-    &:hover {
-      background-color: $background-surface-secondary;
-    }
-
     &:focus-visible {
       outline: none;
-      background-color: $background-surface-secondary;
     }
 
     br {
       display: none;
     }
+  }
+
+  &-flag {
+    font-size: 16px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 
   &-label {
@@ -140,13 +143,22 @@
 
     &-content {
       display: flex;
-      align-items: baseline;
-      gap: $spacing-4;
+      align-items: center;
+      gap: $spacing-2;
       overflow: hidden;
 
       br {
         display: none;
       }
+    }
+
+    &-flag {
+      font-size: 16px;
+      line-height: 22px;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      margin-inline-end: $spacing-2;
     }
 
     &-label {

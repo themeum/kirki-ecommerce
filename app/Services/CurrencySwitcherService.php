@@ -7,6 +7,8 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\json_decoded_data;
+use function Kirki\Ecommerce\Framework\resource_path;
 
 /**
  * Class CurrencySwitcherService
@@ -19,6 +21,20 @@ class CurrencySwitcherService
      * @var CurrencyService
      */
     protected $currency_service;
+
+    /**
+     * Loaded countries data.
+     *
+     * @var array|null
+     */
+    protected $countries = null;
+
+    /**
+     * Cache for currency code to flag mapping.
+     *
+     * @var array
+     */
+    protected $currency_flags = [];
 
     /**
      * Constructor
@@ -72,17 +88,21 @@ class CurrencySwitcherService
         }
 
         $current_code   = $current_currency ? $current_currency->code : $current_code;
+        $current_symbol = $current_currency ? $current_currency->symbol : '$';
+        $current_flag   = $this->get_currency_flag($current_code);
 
         ob_start();
-        ?>
-        <?php
+
         // Build items JSON for the dropdown component
         $items = [];
         foreach ($currencies as $currency) {
             $items[] = [
                 'value'    => $currency->code,
+                'code'     => $currency->code,
+                'symbol'   => $currency->symbol ?? '',
                 'label'    => ! empty($currency->name) ? $currency->name : $currency->code,
                 'sublabel' => '(' . $currency->code . ' ' . $currency->symbol . ')',
+                'flag'     => $this->get_currency_flag($currency->code),
             ];
         }
         $items_json    = esc_attr(wp_json_encode($items));
@@ -90,9 +110,71 @@ class CurrencySwitcherService
 
         include_view(
             'site.shortcodes.currency-switcher',
-            ['item_json' => $items_json, 'selected_json' => $selected_json, 'attributes' => $attributes, 'current_code' => $current_code]
+            [
+                'item_json'      => $items_json,
+                'selected_json'  => $selected_json,
+                'attributes'     => $attributes,
+                'current_code'   => $current_code,
+                'current_symbol' => $current_symbol,
+                'current_flag'   => $current_flag,
+            ]
         );
 
         return ob_get_clean();
+    }
+
+    /**
+     * Get flag emoji for a given currency code.
+     *
+     * @since 1.0.0
+     *
+     * @param string $currency_code Currency code.
+     *
+     * @return string Flag emoji or empty string.
+     */
+    protected function get_currency_flag(string $currency_code): string
+    {
+        $code = strtoupper($currency_code);
+
+        if (isset($this->currency_flags[$code])) {
+            return $this->currency_flags[$code];
+        }
+
+        if ($code === 'EUR') {
+            return $this->currency_flags[$code] = '🇪🇺';
+        }
+
+        if ($this->countries === null) {
+            $this->countries = json_decoded_data(resource_path('data/countries.json')) ?? [];
+        }
+
+        $alpha2 = substr($code, 0, 2);
+
+        // Match country code directly if it uses this currency (e.g. US -> USD, GB -> GBP, CA -> CAD)
+        foreach ($this->countries as $country) {
+            if (
+                isset($country['code'], $country['currency'])
+                && strtoupper($country['code']) === $alpha2
+                && strtoupper($country['currency']) === $code
+            ) {
+                return $this->currency_flags[$code] = $country['flag'] ?? '';
+            }
+        }
+
+        // Match country code directly (e.g. US)
+        foreach ($this->countries as $country) {
+            if (isset($country['code']) && strtoupper($country['code']) === $alpha2) {
+                return $this->currency_flags[$code] = $country['flag'] ?? '';
+            }
+        }
+
+        // Fallback: match any country using this currency
+        foreach ($this->countries as $country) {
+            if (isset($country['currency']) && strtoupper($country['currency']) === $code) {
+                return $this->currency_flags[$code] = $country['flag'] ?? '';
+            }
+        }
+
+        return $this->currency_flags[$code] = '';
     }
 }

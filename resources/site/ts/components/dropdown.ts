@@ -54,6 +54,12 @@ export interface DropdownItem {
   label: string;
   /** Optional secondary label shown muted next to the primary (e.g. "(EUR €)") */
   sublabel?: string;
+  /** Optional flag emoji or symbol */
+  flag?: string;
+  /** Optional currency code */
+  code?: string;
+  /** Optional currency symbol */
+  symbol?: string;
   /** Whether this item is disabled */
   disabled?: boolean;
   /** Arbitrary extra data callers can attach and read back from onChange */

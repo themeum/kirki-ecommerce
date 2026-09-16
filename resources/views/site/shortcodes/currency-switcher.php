@@ -13,17 +13,19 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
 
-$items_json = $data['item_json'] ?? [];
+$items_json    = $data['item_json'] ?? [];
 $selected_json = $data['selected_json'] ?? '';
-$attributes = $data['attributes'] ?? [];
-$current_code = $data['current_code'] ?? '';
+$attributes    = $data['attributes'] ?? [];
+$current_code   = $data['current_code'] ?? '';
+$current_symbol = $data['current_symbol'] ?? '';
+$current_flag   = $data['current_flag'] ?? '';
 
 ?>
 <div
     class="kecom-dropdown kecom-currency-switcher <?php echo esc_attr($attributes['class']); ?>"
     x-data="dropdown({
-        items: <?php echo $items_json; ?>,
-        selected: <?php echo $selected_json; ?>,
+        items: <?php echo $items_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped via esc_attr(wp_json_encode()) in service. ?>,
+        selected: <?php echo $selected_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped via esc_attr(wp_json_encode()) in service. ?>,
         align: '<?php echo esc_js($attributes['align']); ?>',
         onChange(item) {
             const maxAge = 30 * 24 * 60 * 60;
@@ -46,8 +48,9 @@ $current_code = $data['current_code'] ?? '';
         :aria-expanded="isOpen"
         aria-haspopup="listbox"
     >
-        <span class="kecom-dropdown-label" x-text="selectedLabel || '<?php echo esc_js($current_code); ?>'"></span>
-        <span class="kecom-dropdown-sublabel" x-show="selectedSublabel" x-text="selectedSublabel"></span>
+        <span class="kecom-dropdown-flag" x-text="selectedItem?.flag" x-show="selectedItem?.flag"><?php echo esc_html($current_flag); ?></span>
+        <span class="kecom-dropdown-label" x-text="selectedItem?.code || '<?php echo esc_js($current_code); ?>'"><?php echo esc_html($current_code); ?></span>
+        <span class="kecom-dropdown-sublabel" x-show="selectedItem?.symbol" x-text="selectedItem?.symbol ? `${selectedItem.symbol}` : ''"><?php echo esc_html($current_symbol ? "{$current_symbol}" : ''); ?></span>
         <span class="kecom-dropdown-arrow" :class="{ 'is-open': isOpen }">
             <?php Icon::render('chevron-down', ['size' => 16]); ?>
         </span>
@@ -82,7 +85,7 @@ $current_code = $data['current_code'] ?? '';
                     @mouseenter="focusedIndex = filteredItems.indexOf(item)"
                 >
                     <div class="kecom-dropdown-item-content">
-                        <span class="kecom-dropdown-item-flag"></span>
+                        <span class="kecom-dropdown-item-flag" x-text="item.flag" x-show="item.flag"></span>
                         <span class="kecom-dropdown-item-label" x-text="item.label"></span>
                         <span class="kecom-dropdown-item-sublabel" x-text="item.sublabel"></span>
                     </div>
