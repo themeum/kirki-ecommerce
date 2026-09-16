@@ -38,7 +38,7 @@ class MoneyManager
      *
      * @var string
      */
-    public const DISPLAY_CURRENCY_HEADER = 'HTTP_X_CURRENCY';
+    public const DISPLAY_CURRENCY_HEADER = 'HTTP_X_KECOM_CURRENCY';
 
     /**
      * Base currency for the application.
