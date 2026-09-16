@@ -3,29 +3,38 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
-import type { DataTableSelectionState } from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import { RouteConfig } from '@/config/route-config';
 import { customerColumns } from '@/features/customers/components/customer-table/columns';
 import CustomerTableFilters from '@/features/customers/components/customer-table/customer-table-filters';
 import type { CustomerListItem } from '@/features/customers/schemas/catalog/customer';
-import { useBulkDeleteCustomersMutation, useCustomersQuery, useDeleteCustomerMutation } from '@/features/customers/services/customer';
+import {
+  useBulkDeleteCustomersMutation,
+  useCustomersQuery,
+  useDeleteCustomerMutation,
+} from '@/features/customers/services/customer';
+import type { CustomerListFilter } from '@/features/customers/types';
 import { customerListOptions } from '@/features/customers/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const customerBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const customerBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const CustomerTable = () => {
   const navigate = useNavigate();
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
-    useDataTableParams(customerListOptions);
+    useDataTableParams<CustomerListFilter>(customerListOptions);
 
   const { data, isFetching } = useCustomersQuery(params);
   const deleteMutation = useDeleteCustomerMutation();
   const bulkDeleteMutation = useBulkDeleteCustomersMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
 
   const handleBulkApply = useCallback(
     async (action: string, { selectedIds, isAllMatchingSelected }: DataTableSelectionState) => {
@@ -33,9 +42,24 @@ const CustomerTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected customers?', 'kirki-ecommerce'),
+          description: __(
+            'The selected customers and their WordPress user accounts will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const handleRowClick = useCallback(
@@ -52,6 +76,7 @@ const CustomerTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <div role="presentation" onClick={(event) => event.stopPropagation()}>
             <DataTableRowActions
@@ -61,7 +86,17 @@ const CustomerTable = () => {
                   label: __('Delete', 'kirki-ecommerce'),
                   icon: <Trash2 size={16} />,
                   destructive: true,
-                  onClick: () => deleteMutation.mutate(row.original.id),
+                  onClick: () =>
+                    confirmDelete(
+                      {
+                        title: __('Delete customer?', 'kirki-ecommerce'),
+                        description: __(
+                          'This customer and their WordPress user account will be permanently deleted. This cannot be undone.',
+                          'kirki-ecommerce',
+                        ),
+                      },
+                      () => deleteMutation.mutate(row.original.id),
+                    ),
                 },
               ]}
             />
@@ -69,28 +104,32 @@ const CustomerTable = () => {
         ),
       },
     ],
-    [deleteMutation, handleRowClick],
+    [confirmDelete, deleteMutation, handleRowClick],
   );
 
   return (
-    <DataTable
-      data={data?.results ?? []}
-      columns={columns}
-      total={data?.total}
-      pageCount={data?.last_page ?? 0}
-      pagination={pagination}
-      onPaginationChange={onPaginationChange}
-      sorting={sorting}
-      onSortingChange={onSortingChange}
-      isLoading={isFetching}
-      enableRowSelection
-      selectionResetKey={selectionResetKey}
-      bulkActionOptions={customerBulkActions}
-      onBulkApply={handleBulkApply}
-      columnPinning={{ right: ['actions'] }}
-      onRowClick={handleRowClick}
-      toolbar={<CustomerTableFilters />}
-    />
+    <>
+      <DataTable
+        tableId="customers"
+        data={data?.results ?? []}
+        columns={columns}
+        total={data?.total}
+        pageCount={data?.last_page ?? 0}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        sorting={sorting}
+        onSortingChange={onSortingChange}
+        isLoading={isFetching}
+        enableRowSelection
+        selectionResetKey={selectionResetKey}
+        bulkActions={customerBulkActions}
+        onBulkApply={handleBulkApply}
+        columnPinning={{ right: ['actions'] }}
+        onRowClick={handleRowClick}
+        toolbar={<CustomerTableFilters />}
+      />
+      {deleteConfirmation}
+    </>
   );
 };
 

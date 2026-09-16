@@ -1,0 +1,66 @@
+info:
+  name: wishlist/empty
+  type: http
+  seq: 3
+  tags:
+    - wishlist
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/account/wishlist/empty"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success - All wishlist items cleared for the user
+    request:
+      url: "{{baseUrl}}/wishlist/empty"
+      method: DELETE
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": true,
+            "message": "Wishlist cleared successfully."
+          }
+  - name: 401 Response
+    description: Failure - Not logged in
+    request:
+      url: "{{baseUrl}}/wishlist/empty"
+      method: DELETE
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "code": "rest_forbidden",
+            "message": "You have to be logged in.",
+            "data": {
+              "status": 401
+            }
+          }
+
+docs: |-
+  ## Empty Wishlist
+
+  Clears all wishlist items belonging to the currently authenticated user.
+
+  - Scoped exclusively to the current user's records.

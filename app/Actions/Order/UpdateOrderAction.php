@@ -3,8 +3,11 @@
 namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
@@ -20,20 +23,24 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Throwable;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class UpdateOrderAction
 {
+    use PersistsOrderCoupons;
+    use PersistsOrderTaxes;
+
     protected $recalculate_cart_action;
     protected $variant_service;
     protected $order_service;
     protected $inventory_service;
     protected $shipping_service;
+    protected $coupon_service;
     protected $variants_map = [];
     protected $base_currency_code;
 
@@ -42,13 +49,15 @@ class UpdateOrderAction
         VariantService $variant_service,
         OrderService $order_service,
         InventoryService $inventory_service,
-        ShippingService $shippingService
+        ShippingService $shippingService,
+        CouponService $coupon_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
         $this->variant_service = $variant_service;
         $this->order_service = $order_service;
         $this->inventory_service = $inventory_service;
         $this->shipping_service = $shippingService;
+        $this->coupon_service = $coupon_service;
         $this->base_currency_code = base_currency()->code;
     }
 
@@ -58,9 +67,7 @@ class UpdateOrderAction
         $order = $this->order_service->find_order_or_fail($dto->id);
         $context = $this->prepare_calculation_context_dto($dto);
 
-        if (!$this->shipping_service->has_valid_shipping_method($context)) {
-            throw new Exception(__('Invalid shipping method', 'kirki-ecommerce'));
-        }
+        throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
 
         $calculated_result = $this->recalculate_cart_action->execute($context);
 
@@ -72,11 +79,15 @@ class UpdateOrderAction
 
             $order_dto = $this->prepare_update_order_dto($order, $calculated_result, $dto, $context, $exchange_rate);
             $this->order_service->update_order($order_dto);
-            $order->fresh('items');
+
+            $order_with_items = $order->fresh('items');
+
+            $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $exchange_rate);
+            $this->sync_order_taxes($order_with_items, $calculated_result, $dto->currency_code, $exchange_rate);
 
             DB::commit();
 
-            return $order->fresh('items');
+            return $order->fresh('items', 'order_coupons.order_item_coupons');
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
@@ -107,9 +118,8 @@ class UpdateOrderAction
                     continue;
                 }
 
-                if ($diff > 0 && !$this->inventory_service->has_stock($variant_id, $diff)) {
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
-                }
+                /* translators: %s: variant ID */
+                throw_if($diff > 0 && !$this->inventory_service->has_stock($variant_id, $diff), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
 
                 if ($diff < 0) {
                     $this->inventory_service->release_reserved_stock($variant_id, abs($diff));
@@ -121,9 +131,8 @@ class UpdateOrderAction
 
                 $this->order_service->update_order_item($item_update_dto);
             } else {
-                if (!$this->inventory_service->has_stock($variant_id, $calculated_item->quantity)) {
-                    throw new Exception(sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
-                }
+                /* translators: %s: variant ID */
+                throw_if(!$this->inventory_service->has_stock($variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant_id));
 
                 $item_create_dto = $this->prepare_order_item_dto($order->id, $calculated_item, $currency_code, $exchange_rate);
                 $this->order_service->create_order_item($item_create_dto);
@@ -145,7 +154,7 @@ class UpdateOrderAction
         $order_dto->id = $order->id;
         $order_dto->uuid = $order->uuid;
         $order_dto->order_number = $order->order_number;
-        $order_dto->customer_id = $context->customer_id;
+        $order_dto->customer_id = $context->customer_id ?: null;
         $order_dto->is_manual = $dto->is_manual;
 
         $order_dto->currency_code = $dto->currency_code;
@@ -160,10 +169,12 @@ class UpdateOrderAction
 
         $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_discount_total = $calculated_result->base_discount_total;
-        $order_dto->discount_details = $calculated_result->discount_details;
 
         $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_tax_total = $calculated_result->base_tax_total;
+
+        $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $dto->currency_code, $order_dto->exchange_rate);
+        $order_dto->base_shipping_tax_amount = $calculated_result->base_shipping_tax;
 
         $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_total = $calculated_result->base_total;
@@ -179,39 +190,22 @@ class UpdateOrderAction
         $order_dto->shipping_city = $dto->shipping_city;
         $order_dto->shipping_state = $dto->shipping_state;
         $order_dto->shipping_country = $dto->shipping_country;
-        $order_dto->shipping_postal_code = $dto->shipping_postcode;
+        $order_dto->shipping_postal_code = $dto->shipping_postal_code;
         $order_dto->shipping_phone = $dto->shipping_phone;
         $order_dto->shipping_email = $dto->shipping_email;
         $order_dto->shipping_company = $dto->shipping_company;
 
-        $is_billing_same_as_shipping = Sanitizer::apply_rule($dto->is_billing_same_as_shipping, Sanitizer::BOOL);
-        $order_dto->is_billing_same_as_shipping = $is_billing_same_as_shipping;
-
-        if ($is_billing_same_as_shipping) {
-            $order_dto->billing_first_name = $dto->shipping_first_name;
-            $order_dto->billing_last_name = $dto->shipping_last_name;
-            $order_dto->billing_address_line1 = $dto->shipping_address_line1;
-            $order_dto->billing_address_line2 = $dto->shipping_address_line2;
-            $order_dto->billing_city = $dto->shipping_city;
-            $order_dto->billing_state = $dto->shipping_state;
-            $order_dto->billing_country = $dto->shipping_country;
-            $order_dto->billing_postal_code = $dto->shipping_postcode;
-            $order_dto->billing_phone = $dto->shipping_phone;
-            $order_dto->billing_email = $dto->shipping_email;
-            $order_dto->billing_company = $dto->shipping_company;
-        } else {
-            $order_dto->billing_first_name = $dto->billing_first_name;
-            $order_dto->billing_last_name = $dto->billing_last_name;
-            $order_dto->billing_address_line1 = $dto->billing_address_line1;
-            $order_dto->billing_address_line2 = $dto->billing_address_line2;
-            $order_dto->billing_city = $dto->billing_city;
-            $order_dto->billing_state = $dto->billing_state;
-            $order_dto->billing_country = $dto->billing_country;
-            $order_dto->billing_postal_code = $dto->billing_postcode;
-            $order_dto->billing_phone = $dto->billing_phone;
-            $order_dto->billing_email = $dto->billing_email;
-            $order_dto->billing_company = $dto->billing_company;
-        }
+        $order_dto->billing_first_name = $dto->billing_first_name;
+        $order_dto->billing_last_name = $dto->billing_last_name;
+        $order_dto->billing_address_line1 = $dto->billing_address_line1;
+        $order_dto->billing_address_line2 = $dto->billing_address_line2;
+        $order_dto->billing_city = $dto->billing_city;
+        $order_dto->billing_state = $dto->billing_state;
+        $order_dto->billing_country = $dto->billing_country;
+        $order_dto->billing_postal_code = $dto->billing_postal_code;
+        $order_dto->billing_phone = $dto->billing_phone;
+        $order_dto->billing_email = $dto->billing_email;
+        $order_dto->billing_company = $dto->billing_company;
 
         $order_dto->customer_email = $dto->customer_email;
         $order_dto->customer_phone = $dto->customer_phone;
@@ -232,10 +226,20 @@ class UpdateOrderAction
             'address_line2' => $dto->shipping_address_line2,
             'city' => $dto->shipping_city,
             'state' => $dto->shipping_state,
-            'postcode' => $dto->shipping_postcode,
+            'postal_code' => $dto->shipping_postal_code,
             'country' => $dto->shipping_country,
         ];
-        $context->coupon = $dto->coupon_code ?? null;
+        $context->billing_address = [
+            'first_name' => $dto->billing_first_name,
+            'last_name' => $dto->billing_last_name,
+            'address_line1' => $dto->billing_address_line1,
+            'address_line2' => $dto->billing_address_line2,
+            'city' => $dto->billing_city,
+            'state' => $dto->billing_state,
+            'postal_code' => $dto->billing_postal_code,
+            'country' => $dto->billing_country,
+        ];
+        $context->coupon_codes = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
         $context->items = $this->prepare_context_items($dto);
@@ -250,9 +254,8 @@ class UpdateOrderAction
         foreach ($dto->items as $item_data) {
             $variant = $this->variant_service->find($item_data['variant_id']);
 
-            if (!$variant) {
-                throw new Exception("Variant not found for item: " . Arr::json_encode($item_data));
-            }
+            /* translators: %s: JSON-encoded item data */
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
 
             $product = $variant->product->load('categories');
 
@@ -301,7 +304,6 @@ class UpdateOrderAction
 
         $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
         $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-        $item_dto->tax_rate = $calculated_item->tax_rate;
 
         $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
         $item_dto->base_total = $calculated_item->base_total;
@@ -344,7 +346,6 @@ class UpdateOrderAction
 
         $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
         $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-        $item_dto->tax_rate = $calculated_item->tax_rate;
 
         $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
         $item_dto->base_total = $calculated_item->base_total;

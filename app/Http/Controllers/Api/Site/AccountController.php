@@ -11,16 +11,19 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
-use Kirki\Ecommerce\App\Actions\Account\UpdateAccountAddressesAction;
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
-use Kirki\Ecommerce\App\DTO\Account\UpdateAddressPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
-use Kirki\Ecommerce\App\Http\Requests\Account\AddressUpdateRequest;
+use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\PasswordChangeRequest;
 use Kirki\Ecommerce\App\Http\Requests\Account\ProfileUpdateRequest;
+use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
 use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
+use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
 use Kirki\Ecommerce\App\Services\UserService;
 use Kirki\Ecommerce\App\Services\OrderService;
+use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Template;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 
@@ -87,29 +90,6 @@ class AccountController
         return response()->json([
             'data' => true,
             'message' => __('Password changed successfully.', 'kirki-ecommerce'),
-        ]);
-    }
-
-    /**
-     * Update addresses.
-     *
-     * @since 1.0.0
-     *
-     * @param AddressUpdateRequest $request Request.
-     * @param UpdateAccountAddressesAction $action Action.
-     *
-     * @return Response response.
-     */
-    public function update_addresses(AddressUpdateRequest $request, UpdateAccountAddressesAction $action)
-    {
-        $address_payload = UpdateAddressPayloadDTO::from_array($request->sanitized());
-        $address_payload->user_id = user()->get_id();
-
-        $customer = $action->execute($address_payload);
-
-        return response()->json([
-            'data' => CustomerResource::make($customer),
-            'message' => __('Address updated successfully.', 'kirki-ecommerce'),
         ]);
     }
 

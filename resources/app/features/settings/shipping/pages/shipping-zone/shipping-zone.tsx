@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 import RegionsField from '@/components/form/regions-field';
 import TextField from '@/components/form/text-field';
@@ -11,7 +11,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { RouteConfig } from '@/config/route-config';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { ShippingMethod } from '@/features/settings/shipping/pages/shipping-method/shipping-method';
 import {
@@ -21,31 +20,41 @@ import {
 } from '@/features/settings/shipping/schemas/forms/shipping-zone-form';
 import ShippingZoneSkeleton from '@/features/settings/shipping/skeletons/shipping-zone-skeleton';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
+import { TruckIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { cardStyles } from '@/theme/card-styles';
+import { mergeRegionsByCountry } from '@/utils/region';
 import { __ } from '@/wpi18n';
 
 const ShippingZonePage = () => {
-  const navigate = useNavigate();
-
   const { zone_Id } = useParams();
   const zoneId = zone_Id;
 
   const [shippingZonesObj, setShippingZonesObj] = useState<ShippingZone[]>([]);
 
   const { data: shippingSettingsData, isLoading } = useSettingsQuery('shipping');
-  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'shipping'>();
+  const { mutateAsync: saveSettings, isPending: isSaving } =
+    useUpdateSettingsMutation<'shipping'>();
 
-  const loaded = !isLoading && Boolean(shippingSettingsData);
   const zones = useMemo(
     () => (shippingSettingsData?.shipping_zones as ShippingZone[] | undefined) ?? [],
     [shippingSettingsData?.shipping_zones],
   );
 
   const activeZone = zones.find((zone) => String(zone.id) === String(zoneId));
+
+  const disabledRegions = useMemo(
+    () =>
+      mergeRegionsByCountry(
+        zones
+          .filter((zone) => String(zone.id) !== String(zoneId))
+          .flatMap((zone) => zone.regions ?? []),
+      ),
+    [zones, zoneId],
+  );
 
   const form = useForm<ShippingZoneFormInput, unknown, ShippingZoneFormPayload>({
     resolver: zodResolver(ShippingZoneFormSchema),
@@ -55,9 +64,7 @@ const ShippingZonePage = () => {
   const { isDirty } = form.formState;
 
   const shippingMethodList = useMemo(() => {
-    return shippingZonesObj.reduce<
-      Record<string | number, ShippingMethodData[]>
-    >((acc, zone) => {
+    return shippingZonesObj.reduce<Record<string | number, ShippingMethodData[]>>((acc, zone) => {
       acc[zone.id] = (zone.shipping_methods || []).map((method) => ({
         ...method,
         zoneId: zone.id,
@@ -80,10 +87,6 @@ const ShippingZonePage = () => {
     form.reset(pickFormValues(ShippingZoneFormSchema, activeZone));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the zone id so the form only reloads when a different zone is opened; depending on the whole object would discard edits as the zone list refetches
   }, [activeZone?.id]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSaveZone = async (payload: ShippingZoneFormPayload) => {
     const updatedZones = shippingZonesObj.map((zone) =>
@@ -117,15 +120,21 @@ const ShippingZonePage = () => {
 
   return (
     <>
-      <Container size="sm">
-        {loaded ? (
+      {!isLoading ? (
+        <Container size="sm">
           <Form {...form}>
             <Flex direction="column" gap={4}>
               <SettingsPageHeader
+                icon={<TruckIcon />}
                 title={__('Set Zone Details', 'kirki-ecommerce')}
-                onBack={() => navigate(RouteConfig.Settings.get('ShippingSettings').buildLink())}
+                breadcrumbs={[
+                  {
+                    label: __('Shipping', 'kirki-ecommerce'),
+                    to: RouteConfig.Settings.get('ShippingSettings').buildLink(),
+                  },
+                ]}
               />
-              <Card cssOverride={cardStyles.formCard}>
+              <Card data-search-skip="true" cssOverride={cardStyles.formCard}>
                 <CardContent>
                   <Flex direction="column" gap={4}>
                     <TextField
@@ -133,28 +142,28 @@ const ShippingZonePage = () => {
                       label={__('Title', 'kirki-ecommerce')}
                       placeholder={__('Zone 2- South Asia', 'kirki-ecommerce')}
                     />
-                    <RegionsField name="regions" label={__('Regions', 'kirki-ecommerce')} />
+                    <RegionsField
+                      name="regions"
+                      label={__('Regions', 'kirki-ecommerce')}
+                      disabledRegions={disabledRegions}
+                    />
                   </Flex>
                 </CardContent>
               </Card>
 
               <ShippingMethod
                 shippingSettingsData={shippingSettingsData}
-                shippingMethodList={
-                  activeZone
-                    ? shippingMethodList[activeZone.id] || []
-                    : []
-                }
+                shippingMethodList={activeZone ? shippingMethodList[activeZone.id] || [] : []}
                 shippingZonesObj={shippingZonesObj}
                 setShippingZonesObj={setShippingZonesObj}
                 zoneId={zoneId}
               />
             </Flex>
           </Form>
-        ) : (
-          <ShippingZoneSkeleton />
-        )}
-      </Container>
+        </Container>
+      ) : (
+        <ShippingZoneSkeleton />
+      )}
     </>
   );
 };

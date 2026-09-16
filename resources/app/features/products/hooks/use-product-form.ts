@@ -1,10 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
-import { useUnsavedNavigationGuard } from '@/features/products/components/product-form/use-unsaved-navigation-guard';
 import { resolveSaveFailure, resolveSaveSuccess, type SaveResult } from '@/features/products/lib/save-result';
 import { shouldShowSimpleVariantSections } from '@/features/products/lib/variant-sections';
 import {
@@ -13,8 +11,8 @@ import {
   type ProductFormPayload,
   ProductFormSchema,
 } from '@/features/products/schemas/forms/product-form';
+import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import type { ErrorResponse } from '@/libs/api';
-import { setUnsavedDataStatus } from '@/libs/unsaved-store';
 import { getDefaults } from '@/libs/zod';
 
 type UseProductFormOptions = {
@@ -62,21 +60,15 @@ export const useProductForm = ({
 
   const { isDirty } = form.formState;
 
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-    return () => setUnsavedDataStatus(false);
-  }, [isDirty]);
+  const { isBlocked, cancelNavigation, markSaving, shakeSignal } =
+    useUnsavedNavigationGuard(isDirty);
 
-  const {
-    isBlocked,
-    discardChanges: proceedBlockedNavigation,
-    markSaving,
-    shakeSignal,
-  } = useUnsavedNavigationGuard(isDirty);
-
+  // Discarding reverts the form and stays put; any navigation that was blocked
+  // is abandoned rather than completed, so the merchant keeps the page they
+  // are looking at.
   const discardChanges = () => {
     form.reset();
-    proceedBlockedNavigation();
+    cancelNavigation();
   };
 
   const handleSave = async ({

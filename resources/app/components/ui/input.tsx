@@ -4,24 +4,14 @@ import { type ComponentPropsWithoutRef, forwardRef } from 'react';
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge, uiFocusRing } from '@/theme/mixins';
 
-type InputProps = Omit<
-  ComponentPropsWithoutRef<'input'>,
-  'className' | 'css'
-> & {
+type InputProps = Omit<ComponentPropsWithoutRef<'input'>, 'className' | 'css'> & {
   error?: boolean;
   invisible?: boolean;
   cssOverride?: CSSObject;
 };
 
 const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-  const {
-    cssOverride,
-    error,
-    invisible,
-    type = 'text',
-    value,
-    ...rest
-  } = props;
+  const { cssOverride, error, invisible, type = 'text', value, ...rest } = props;
 
   return (
     <input
@@ -29,6 +19,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       type={type}
       data-error={error ? 'true' : undefined}
       css={scopedMerge(styles.base, invisible && styles.invisible, cssOverride)}
+      onFocus={(event) => event.target.select()}
       {...rest}
       {...('value' in props ? { value: value ?? '' } : {})}
     />
@@ -42,29 +33,29 @@ export default Input;
 const styles = defineStyles({
   base: {
     margin: 0,
-    minHeight: '36px',
+    minHeight: '32px',
     width: '100%',
     backgroundColor: theme.colors.background.fill,
-    border: `1px solid ${theme.colors.border.default}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
     borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
+    ...theme.typography.small('medium'),
     color: theme.colors.text.primary,
-    ...theme.typography.small(),
     cursor: 'text',
     '&::placeholder': {
       color: theme.colors.text.secondary,
       opacity: 0.8,
     },
     '&:focus-visible': {
-      borderColor: theme.colors.border.default,
+      borderColor: theme.colors.background.fillBrand,
       ...uiFocusRing(theme),
     },
     '&[data-error="true"]': {
-      border: `1px solid ${theme.colors.border.critical}`,
+      border: `1px solid ${theme.colors.background.fillCritical}`,
       boxShadow: 'none',
       '&:focus-visible': {
-        borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme, theme.colors.border.critical),
+        borderColor: theme.colors.background.fillCritical,
+        ...uiFocusRing(theme, theme.colors.background.fillCriticalSecondary),
       },
     },
     '&:disabled': {
@@ -88,10 +79,10 @@ const styles = defineStyles({
       WebkitAppearance: 'none',
       appearance: 'none',
       '&::-webkit-search-cancel-button, &::-webkit-search-decoration, &::-webkit-search-results-button, &::-webkit-search-results-decoration':
-      {
-        display: 'none',
-        WebkitAppearance: 'none',
-      },
+        {
+          display: 'none',
+          WebkitAppearance: 'none',
+        },
     },
   },
   invisible: {

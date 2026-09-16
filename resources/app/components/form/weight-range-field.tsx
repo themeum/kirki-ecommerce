@@ -1,5 +1,12 @@
 import type { CSSObject } from '@emotion/react';
-import { Controller, type FieldArrayPath, type FieldPath, type FieldValues, useFieldArray, useFormContext } from 'react-hook-form';
+import {
+  Controller,
+  type FieldArrayPath,
+  type FieldPath,
+  type FieldValues,
+  useFieldArray,
+  useFormContext,
+} from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Field, FieldError } from '@/components/ui/field';
@@ -8,7 +15,7 @@ import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import { PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type WeightRangeFieldProps<
@@ -38,7 +45,8 @@ const WeightRangeField = <
     | { from?: RowErrorMessage; to?: RowErrorMessage; base_amount?: RowErrorMessage }[]
     | undefined;
   const arrayLevelMessage = Array.isArray(arrayError) ? undefined : arrayError?.message;
-  const rowErrorFor = (index: number) => (Array.isArray(arrayError) ? arrayError[index] : undefined);
+  const rowErrorFor = (index: number) =>
+    Array.isArray(arrayError) ? arrayError[index] : undefined;
 
   return (
     <Field cssOverride={cssOverride}>
@@ -63,7 +71,9 @@ const WeightRangeField = <
                   disabled={disabled}
                   error={Boolean(fieldState.error)}
                   aria-invalid={fieldState.invalid}
-                  onChange={(event) => fromField.onChange(event.target.value === '' ? null : event.target.value)}
+                  onChange={(event) =>
+                    fromField.onChange(event.target.value === '' ? null : event.target.value)
+                  }
                   onBlur={fromField.onBlur}
                   ref={fromField.ref}
                 />
@@ -80,7 +90,9 @@ const WeightRangeField = <
                   disabled={disabled}
                   error={Boolean(fieldState.error)}
                   aria-invalid={fieldState.invalid}
-                  onChange={(event) => toField.onChange(event.target.value === '' ? null : event.target.value)}
+                  onChange={(event) =>
+                    toField.onChange(event.target.value === '' ? null : event.target.value)
+                  }
                   onBlur={toField.onBlur}
                   ref={toField.ref}
                 />
@@ -99,18 +111,24 @@ const WeightRangeField = <
                       disabled={disabled}
                       error={Boolean(fieldState.error)}
                       aria-invalid={fieldState.invalid}
-                      onChange={(event) => amountField.onChange(event.target.value === '' ? null : event.target.value)}
+                      onChange={(event) =>
+                        amountField.onChange(event.target.value === '' ? null : event.target.value)
+                      }
                       onBlur={amountField.onBlur}
                       ref={amountField.ref}
                     />
-                    {fieldState.invalid && <FieldError>{rowError?.base_amount?.message}</FieldError>}
+                    {fieldState.invalid && (
+                      <FieldError>{rowError?.base_amount?.message}</FieldError>
+                    )}
                   </Field>
                 )}
               />
               {fields.length > 1 && (
                 <Button
                   variant="secondary"
-                  cssOverride={styles.deleteButton}
+                  cssOverride={mergeCss(styles.deleteButton, {
+                    '& svg': { color: theme.colors.icon.critical },
+                  })}
                   data-hover-reveal
                   disabled={disabled}
                   onClick={() => remove(index)}

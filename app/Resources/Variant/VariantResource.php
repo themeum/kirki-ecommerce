@@ -8,11 +8,25 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\UnitPrice;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
 class VariantResource extends Resource
 {
+    /**
+     * Public preview URL of the variant's product, when one is available.
+     *
+     * @var ?string
+     */
+    protected $preview_url;
+
+    public function __construct($variant, ?string $preview_url = null)
+    {
+        $this->preview_url = $preview_url;
+        parent::__construct($variant);
+    }
+
     /**
      * Convert the product resource to an array.
      *
@@ -31,6 +45,8 @@ class VariantResource extends Resource
 
         return [
             'id' => $this->id,
+            'product_id' => $this->product_id,
+            'preview_url' => $this->preview_url,
             'name' => $this->product->title,
             'media' => MediaAttachment::make($this->media ?: ($this->product->media ?? collection())->first()),
             'sku' => $this->sku,
@@ -39,6 +55,7 @@ class VariantResource extends Resource
             'base_price_money_object' => Money::prepare_amount_object_from_minor($this->base_price),
             'display_price' => Money::prepare_amount_from_minor($this->base_price, null, $display_currency),
             'display_price_money_object' => Money::prepare_amount_object_from_minor($this->base_price, null, $display_currency),
+            'display_unit_price' => UnitPrice::make($this->resource, $display_currency),
             'show_unit_price' => (bool) $this->show_unit_price,
             'base_unit' => $this->base_unit,
             'base_unit_amount' => $this->base_unit_amount,

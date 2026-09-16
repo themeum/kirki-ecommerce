@@ -5,17 +5,22 @@ namespace Kirki\Ecommerce\App\Managers;
 use BadMethodCallException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Money;
+use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\CurrencyDTO;
 use Kirki\Ecommerce\App\DTO\MoneyDTO;
 use Kirki\Ecommerce\App\Models\Currency as CurrencyModel;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Str;
 use InvalidArgumentException;
 use NumberFormatter;
 
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\settings;
+use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
@@ -25,24 +30,17 @@ use function Kirki\Ecommerce\App\settings;
  * @method static \Brick\Money\Money of(mixed $amount, mixed $currency = null, ?\Brick\Money\Context $context = null, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
  * @method static \Brick\Money\Money of_minor(mixed $minorAmount, mixed $currency = null, ?\Brick\Money\Context $context = null, int $roundingMode = \Brick\Math\RoundingMode::UNNECESSARY)
  * @method static \Brick\Money\Money zero(mixed $currency = null, ?\Brick\Money\Context $context = null)
- * 
+ *
  * @see \Brick\Money\Money
  */
 class MoneyManager
 {
     /**
-     * Name of the cookie used by visitors to request a display currency.
-     *
-     * @var string
-     */
-    const DISPLAY_CURRENCY_COOKIE = 'kirki_ecommerce_currency';
-
-    /**
      * Name of the header used by API clients to request a display currency.
      *
      * @var string
      */
-    const DISPLAY_CURRENCY_HEADER = 'HTTP_X_CURRENCY';
+    public const DISPLAY_CURRENCY_HEADER = 'HTTP_X_KECOM_CURRENCY';
 
     /**
      * Base currency for the application.
@@ -58,6 +56,14 @@ class MoneyManager
      * @var string|null|false
      */
     protected $display_currency = false;
+
+    /**
+     * Currency symbols keyed by currency code (uppercase), cached for the
+     * current request.
+     *
+     * @var array<string, string>|null
+     */
+    protected static $currency_symbols;
 
     public function __construct()
     {
@@ -133,8 +139,9 @@ class MoneyManager
      */
     protected function get_requested_currency_code()
     {
-        // phpcs:ignore Framework.NamingConventions.SnakeCaseVariable.NotSnakeCase
-        $code = $_COOKIE[static::DISPLAY_CURRENCY_COOKIE] ?? $_SERVER[static::DISPLAY_CURRENCY_HEADER] ?? null;
+        $cookie_value = Superglobals::cookie(CookieNames::CURRENCY);
+        $header_value = Superglobals::server(static::DISPLAY_CURRENCY_HEADER);
+        $code = $cookie_value ?? $header_value;
 
         if (empty($code) || !is_string($code)) {
             return null;
@@ -156,7 +163,7 @@ class MoneyManager
      */
     public static function to_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -176,7 +183,7 @@ class MoneyManager
      */
     public static function from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -229,7 +236,7 @@ class MoneyManager
      */
     public function format_from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -250,7 +257,7 @@ class MoneyManager
      */
     public function format_from_decimal($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
-        $instance = new static;
+        $instance = new static();
 
         if (empty($currency)) {
             $currency = $instance->get_base_currency();
@@ -263,11 +270,27 @@ class MoneyManager
     /**
      * Get the currency symbol.
      *
+     * Prefers the symbol stored against the currency in the database, since
+     * it reflects the actual symbol for that currency (e.g. BDT's ৳) rather
+     * than ICU's `en_US` locale data, which only has symbols for currencies
+     * commonly used/displayed in the US and otherwise falls back to the
+     * plain currency code.
+     *
      * @param string $code
      * @return string
      */
     public static function get_currency_symbol($code)
     {
+        $code = strtoupper($code);
+
+        if (static::$currency_symbols === null) {
+            static::$currency_symbols = app(CurrencyService::class)->get_symbol_map();
+        }
+
+        if (!empty(static::$currency_symbols[$code])) {
+            return static::$currency_symbols[$code];
+        }
+
         return (new NumberFormatter('en_US@currency=' . $code, NumberFormatter::CURRENCY))
             ->getSymbol(NumberFormatter::CURRENCY_SYMBOL);
     }
@@ -374,13 +397,9 @@ class MoneyManager
     {
         $method = Str::camel($method);
 
-        if (!method_exists(Money::class, $method)) {
-            throw new BadMethodCallException("Method {$method} does not exist on " . Money::class);
-        }
+        throw_if(!method_exists(Money::class, $method), "Method {$method} does not exist on " . Money::class, BadMethodCallException::class);
 
-        if (empty($parameters)) {
-            throw new InvalidArgumentException("Money {$method} method requires at least one parameter.");
-        }
+        throw_if(empty($parameters), "Money {$method} method requires at least one parameter.", InvalidArgumentException::class);
 
         if (empty($parameters[1])) {
             $parameters[1] = $this->get_base_currency();

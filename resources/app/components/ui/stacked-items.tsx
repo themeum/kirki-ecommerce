@@ -16,12 +16,9 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 
-type StackedItemsElementProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type StackedItemsElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
   variant?: 'outline' | 'card';
 };
@@ -33,23 +30,25 @@ type StackedItemsContextValue = {
 
 const StackedItemsContext = createContext<StackedItemsContextValue | null>(null);
 
-const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>(
-  (props, ref) => {
-    const { cssOverride, variant = 'outline', ...rest } = props;
-    const [openId, setOpenId] = useState<string | null>(null);
+const StackedItems = forwardRef<HTMLDivElement, StackedItemsElementProps>((props, ref) => {
+  const { cssOverride, variant = 'outline', ...rest } = props;
+  const [openId, setOpenId] = useState<string | null>(null);
 
-    return (
-      <StackedItemsContext.Provider value={{ openId, setOpenId }}>
-        <ItemGroup
-          ref={ref}
-          data-slot="stacked-items"
-          cssOverride={mergeCss(styles.container, variant === 'card' && styles.cardContainer, cssOverride)}
-          {...rest}
-        />
-      </StackedItemsContext.Provider>
-    );
-  },
-);
+  return (
+    <StackedItemsContext.Provider value={{ openId, setOpenId }}>
+      <ItemGroup
+        ref={ref}
+        data-slot="stacked-items"
+        cssOverride={mergeCss(
+          styles.container,
+          variant === 'card' && styles.cardContainer,
+          cssOverride,
+        )}
+        {...rest}
+      />
+    </StackedItemsContext.Provider>
+  );
+});
 
 StackedItems.displayName = 'StackedItems';
 
@@ -89,48 +88,46 @@ const StackedItem = forwardRef<HTMLDivElement, StackedItemProps>((props, ref) =>
 
   return (
     <StackedItemContext.Provider value={{ isOpen, setOpen }}>
-      <Item
-        ref={ref}
-        role="listitem"
-        size="sm"
-        data-slot="stacked-item"
-        data-actions-open={isOpen ? 'true' : undefined}
-        cssOverride={mergeCss(styles.row, cssOverride)}
-        {...rest}
-      >
-        {children}
-      </Item>
+      <div css={scoped(styles.stackedItem)}>
+        <Item
+          ref={ref}
+          role="listitem"
+          size="sm"
+          data-slot="stacked-item"
+          data-actions-open={isOpen ? 'true' : undefined}
+          cssOverride={mergeCss(styles.row, cssOverride)}
+          {...rest}
+        >
+          {children}
+        </Item>
+      </div>
     </StackedItemContext.Provider>
   );
 });
 
 StackedItem.displayName = 'StackedItem';
 
-const StackedItemMedia = forwardRef<
-  HTMLDivElement,
-  ComponentPropsWithoutRef<typeof ItemMedia>
->((props, ref) => <ItemMedia ref={ref} {...props} />);
+const StackedItemMedia = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<typeof ItemMedia>>(
+  (props, ref) => <ItemMedia ref={ref} {...props} />,
+);
 
 StackedItemMedia.displayName = 'StackedItemMedia';
 
-const StackedItemContent = forwardRef<
-  HTMLDivElement,
-  ComponentPropsWithoutRef<typeof ItemContent>
->((props, ref) => <ItemContent ref={ref} {...props} />);
+const StackedItemContent = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<typeof ItemContent>>(
+  (props, ref) => <ItemContent ref={ref} {...props} />,
+);
 
 StackedItemContent.displayName = 'StackedItemContent';
 
-const StackedItemTitle = forwardRef<
-  HTMLDivElement,
-  ComponentPropsWithoutRef<typeof ItemTitle>
->((props, ref) => <ItemTitle ref={ref} {...props} />);
+const StackedItemTitle = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<typeof ItemTitle>>(
+  (props, ref) => <ItemTitle ref={ref} {...props} />,
+);
 
 StackedItemTitle.displayName = 'StackedItemTitle';
 
-const StackedItemActions = forwardRef<
-  HTMLDivElement,
-  ComponentPropsWithoutRef<typeof ItemActions>
->((props, ref) => <ItemActions ref={ref} {...props} />);
+const StackedItemActions = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<typeof ItemActions>>(
+  (props, ref) => <ItemActions ref={ref} {...props} />,
+);
 
 StackedItemActions.displayName = 'StackedItemActions';
 
@@ -149,8 +146,9 @@ export type { StackedItemProps, StackedItemsElementProps };
 const styles = defineStyles({
   container: {
     overflow: 'hidden',
-    border: `1px solid ${theme.colors.border.alt}`,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.xl,
+    backgroundColor: 'transparent',
+    border: `1px solid ${theme.colors.border.secondary}`,
   },
   cardContainer: {
     borderColor: theme.colors.border.secondary,
@@ -158,38 +156,45 @@ const styles = defineStyles({
       backgroundColor: theme.colors.background.fill,
     },
   },
+  stackedItem: {
+    padding: 0,
+    '&:not(:last-of-type)': {
+      borderBottom: `1px solid ${theme.colors.border.secondary}`,
+    },
+  },
   row: {
     position: 'relative',
-    minHeight: '44px',
-    borderRadius: theme.radius.none,
-    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
-    '&:not(:last-of-type)': {
-      borderBottom: `1px solid ${theme.colors.border.default}`,
-    },
-    '&:first-of-type': {
-      borderTopLeftRadius: theme.radius.md,
-      borderTopRightRadius: theme.radius.md,
-    },
-    '&:last-of-type': {
-      borderBottomLeftRadius: theme.radius.md,
-      borderBottomRightRadius: theme.radius.md,
+    height: '34px',
+    padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
+
+    '&:hover': {
+      backgroundColor: theme.colors.background.surfaceAlt,
     },
     '& [data-action-group="true"]': {
       position: 'absolute',
-      right: theme.spacing[4],
+      right: theme.spacing[3],
       top: '50%',
       transform: 'translateY(-50%)',
-      opacity: 0,
       pointerEvents: 'none',
+      opacity: 0,
     },
     '&:hover [data-action-group="true"], &:focus-within [data-action-group="true"], &[data-actions-open="true"] [data-action-group="true"]':
-    {
-      opacity: 1,
-      pointerEvents: 'auto',
-    },
+      {
+        opacity: 1,
+        pointerEvents: 'auto',
+      },
     '&:hover [data-right-text="true"], &:focus-within [data-right-text="true"], &[data-actions-open="true"] [data-right-text="true"]':
-    {
-      visibility: 'hidden',
+      {
+        visibility: 'hidden',
+      },
+    '& button:not([role="switch"])': {
+      width: '24px',
+      height: '24px',
+
+      '& svg': {
+        width: '16px',
+        height: '16px',
+      },
     },
   },
 });

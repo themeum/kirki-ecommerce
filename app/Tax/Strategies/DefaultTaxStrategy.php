@@ -2,69 +2,85 @@
 
 namespace Kirki\Ecommerce\App\Tax\Strategies;
 
-use Brick\Math\RoundingMode;
-use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
-use Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO;
-use Kirki\Ecommerce\App\DTO\Tax\TaxResultDTO;
-use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 
 class DefaultTaxStrategy extends AbstractTaxStrategy
 {
-    public function calculate_product_tax(ProductTaxContextDTO $tax_context): TaxResultDTO
+    public function calculate(TaxCalculationContextDTO $context): TaxCalculationResultDTO
     {
-        return $this->calculate_tax('product_tax', $tax_context->all(), $tax_context->base_product_price);
-    }
+        $result = new TaxCalculationResultDTO();
 
-    public function calculate_shipping_tax(int $shipping_cost): TaxResultDTO
-    {
-        if (!$this->is_shipping_tax_enabled) {
-            return new TaxResultDTO();
+        foreach ($context->items as $item) {
+            $result->items[$item->item_id] = [$this->calculate_item_tax($item, $context)];
         }
 
-        return $this->calculate_tax('shipping_tax', [], $shipping_cost);
-    }
-
-    public function calculate_tax(string $type, array $context_data, int $amount): TaxResultDTO
-    {
-        $result = new TaxResultDTO();
-
-        $rate = $this->get_rate($type);
-        $amount = Money::from_minor($amount);
-
-        if (!empty($this->settings['rules']) && !empty($context_data)) {
-            $context_data[$type] = $rate;
-            $context = $this->prepare_decision_context($context_data);
-            $context = $this->apply_rules($context, $this->settings['rules']);
-
-            $rate = $context->get($type);
-        }
-
-        if ($this->is_tax_inclusive_price) {
-            $tax_amount = $amount->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100 + $rate, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
-            $result->breakdown = [
-                TaxItemResultDTO::from_array([
-                    'name' => 'Tax',
-                    'rate' => $rate,
-                    'base_amount' => $tax_amount
-                ])
-            ];
-            $result->base_total = $tax_amount;
-
-            return $result;
-        }
-
-        $tax_amount = $amount->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
-
-        $result->breakdown = [
-            TaxItemResultDTO::from_array([
-                'name' => 'Tax',
-                'rate' => $rate,
-                'base_amount' => $tax_amount
-            ])
-        ];
-        $result->base_total = $tax_amount;
+        $result->shipping = $this->calculate_shipping_tax($context);
 
         return $result;
+    }
+
+    protected function calculate_item_tax($item, TaxCalculationContextDTO $context): TaxLineDTO
+    {
+        $rate = $this->resolve_rate('product_tax', [
+            'shipping_address' => $this->address,
+            'billing_address' => $context->billing_address,
+            'base_product_price' => $item->taxable_amount,
+            'product_categories' => $item->product_categories,
+            'tax_profile' => $item->tax_profile_id,
+        ]);
+
+        return TaxLineDTO::from_array([
+            'name' => 'Tax',
+            'rate' => $rate,
+            'base_amount' => $this->calculate_tax_amount($rate, $item->taxable_amount),
+            'item_id' => $item->item_id,
+        ]);
+    }
+
+    /**
+     * @return TaxLineDTO[]
+     */
+    protected function calculate_shipping_tax(TaxCalculationContextDTO $context): array
+    {
+        if (!$this->is_shipping_tax_enabled || !$context->is_shipping_taxable) {
+            return [];
+        }
+
+        $rate = $this->resolve_rate('shipping_tax', ['shipping_address' => $this->address]);
+
+        return [
+            TaxLineDTO::from_array([
+                'name' => 'Shipping Tax',
+                'rate' => $rate,
+                'base_amount' => $this->calculate_tax_amount($rate, $context->shipping_fee),
+            ]),
+        ];
+    }
+
+    /**
+     * Resolve a rate for the given tax type, letting any matching decision
+     * rules override the base configured rate.
+     *
+     * @param string $type 'product_tax' or 'shipping_tax'
+     * @param array $context_data
+     * @return float
+     */
+    protected function resolve_rate(string $type, array $context_data): float
+    {
+        $rate = $this->get_rate($type);
+        $rules = $this->get_rules();
+
+        if (empty($rules)) {
+            return $rate;
+        }
+
+        $context_data[$type] = $rate;
+        $context = $this->prepare_decision_context($context_data);
+        $context = $this->apply_rules($context, $rules);
+
+        return (float) $context->get($type);
     }
 
     /**
@@ -75,26 +91,63 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
      */
     protected function get_rate(string $type): float
     {
-        $is_central_tax_enabled = $this->settings['is_central_tax_enabled'] ?? false;
-
-        if ($is_central_tax_enabled) {
+        if (!empty($this->settings['is_central_tax_enabled'])) {
             $central_key = $type === 'product_tax' ? 'central_product_tax' : 'central_shipping_tax';
-            return $this->settings[$central_key] ?? 0;
+            return (float) ($this->settings[$central_key] ?? 0);
         }
 
-        $rates = $this->settings[$type] ?? [];
-        $state = $this->address['state'] ?? null;
+        $state = $this->get_matched_state();
 
         if (empty($state)) {
             return 0;
         }
 
-        foreach ($rates as $rate_config) {
-            if ($state === $rate_config['state']) {
-                return (float) $rate_config['rate'];
+        $rate_key = $type === 'product_tax' ? 'product_tax_rate' : 'shipping_tax_rate';
+
+        return (float) ($state[$rate_key] ?? 0);
+    }
+
+    /**
+     * The configured state matching the shipping address, keyed by state id.
+     * Always null in central tax mode, where no state is consulted.
+     *
+     * @return array|null
+     */
+    protected function get_matched_state()
+    {
+        if (!empty($this->settings['is_central_tax_enabled'])) {
+            return null;
+        }
+
+        $address_state = (string) ($this->address['state'] ?? '');
+
+        if ($address_state === '') {
+            return null;
+        }
+
+        foreach ($this->settings['states'] ?? [] as $state) {
+            if (is_array($state) && (string) ($state['id'] ?? '') === $address_state) {
+                return $state;
             }
         }
 
-        return 0;
+        return null;
+    }
+
+    /**
+     * The rule set that applies to this address: the region's own rules in central
+     * tax mode, the matched state's rules otherwise. Never both.
+     *
+     * @return array
+     */
+    protected function get_rules(): array
+    {
+        if (!empty($this->settings['is_central_tax_enabled'])) {
+            return $this->settings['rules'] ?? [];
+        }
+
+        $state = $this->get_matched_state();
+
+        return $state['rules'] ?? [];
     }
 }

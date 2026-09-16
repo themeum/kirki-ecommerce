@@ -18,11 +18,18 @@ class CreateOrderPayloadDTO extends DTO
     /** @var string */
     public $payment_provider;
 
-    /** @var string|null */
-    public $coupon_code;
+    /**
+     * @var string[] Coupon codes to apply. Populated either from the checkout
+     *      cart's applied coupons (resolve_checkout_cart()) or, for a manual/
+     *      direct order, directly from the request's `coupon_codes` field.
+     */
+    public $coupon_codes = [];
 
     /** @var string|null */
     public $shipping_method;
+
+    /** @var int|null */
+    public $shipping_id;
 
     /** @var string|null */
     public $shipping_first_name;
@@ -43,7 +50,7 @@ class CreateOrderPayloadDTO extends DTO
     public $shipping_state;
 
     /** @var string|null */
-    public $shipping_postcode;
+    public $shipping_postal_code;
 
     /** @var string|null */
     public $shipping_country;
@@ -58,7 +65,10 @@ class CreateOrderPayloadDTO extends DTO
     public $shipping_company;
 
     /** @var bool */
-    public $is_billing_same_as_shipping = false;
+    public $is_billing_same_as_shipping = true;
+
+    /** @var int|null */
+    public $billing_id;
 
     /** @var string|null */
     public $billing_first_name;
@@ -79,7 +89,7 @@ class CreateOrderPayloadDTO extends DTO
     public $billing_state;
 
     /** @var string|null */
-    public $billing_postcode;
+    public $billing_postal_code;
 
     /** @var string|null */
     public $billing_country;

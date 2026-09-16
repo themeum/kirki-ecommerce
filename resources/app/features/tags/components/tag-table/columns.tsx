@@ -20,7 +20,7 @@ const tagColumns: ColumnDef<Tag>[] = [
   {
     id: 'description',
     header: __('Description', 'kirki-ecommerce'),
-    enableSorting: true,
+    enableSorting: false,
     meta: { cssOverride: styles.descriptionCell },
     cell: ({ row }) => {
       const description = row.original?.description;

@@ -9,7 +9,7 @@ return [
     'finders' => [
         Finder::create()
             ->files()
-            ->in(__DIR__ . '/vendor/themeum/framework/src')
+            ->in(__DIR__ . '/vendor/libraries/framework/src')
             ->exclude(['test', 'tests', 'Tests'])
             ->name(['*.php', '*.stub'])
     ],
@@ -25,7 +25,8 @@ return [
         function (string $filePath, string $prefix, string $contents): string {
             $currentPrefix = str_replace('\\', '\\\\', '\\Framework\\');
             $newPrefix = str_replace('\\', '\\\\', $prefix . '\\Framework\\');
-            $pattern = '/(@(?:method|property|param|return|var|type|see|throws|deprecated)\s+([^@\n]*?))' . $currentPrefix . '/';
+            $alreadyPrefixed = str_replace('\\', '\\\\', $prefix);
+            $pattern = '/(@(?:method|property|param|return|var|type|see|throws|deprecated)\s+([^@\n]*?))(?<!' . $alreadyPrefixed . ')' . $currentPrefix . '/';
 
             return preg_replace(
                 $pattern,

@@ -13,6 +13,7 @@ class OrderListResource extends Resource
             'id' => $this->id,
             'uuid' => $this->uuid,
             'order_number' => $this->order_number,
+            'invoice_number' => $this->invoice_number,
             'customer_id' => $this->customer_id,
             'customer_name' => $this->resolve_customer_name(),
             'customer_email' => $this->customer_email,

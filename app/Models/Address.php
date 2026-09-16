@@ -13,6 +13,8 @@ class Address extends Model
     protected $casts = [
         'id' => 'integer',
         'customer_id' => 'integer',
+        'is_default_shipping' => 'boolean',
+        'is_default_billing' => 'boolean',
     ];
 
     protected $fillable = [
@@ -27,7 +29,10 @@ class Address extends Model
         'postal_code',
         'phone',
         'email',
-        'type'
+        'type',
+        'label',
+        'is_default_shipping',
+        'is_default_billing'
     ];
 
     public function customer()

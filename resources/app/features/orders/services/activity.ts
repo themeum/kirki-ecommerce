@@ -1,6 +1,9 @@
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { endpoints } from '@/config/endpoints';
-import { Activity, ActivitySchema } from '@/features/orders/schemas/catalog/activity';
-import { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
+import type { Activity } from '@/features/orders/schemas/catalog/activity';
+import { ActivitySchema } from '@/features/orders/schemas/catalog/activity';
+import type { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
 import { orderKeys } from '@/features/orders/services/query-keys';
 import { apiClient } from '@/libs/api';
 import { PaginatedDataSchema } from '@/schemas/shared/api';
@@ -11,9 +14,8 @@ import {
   toastMutationSuccess,
   unwrapResponse,
 } from '@/services/helpers';
-import { ListParams } from '@/types/list-state';
+import type { ListParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const ACTIVITIES_PAGE_SIZE = 10;
 
@@ -40,9 +42,7 @@ const useCreateOrderActivityMutation = () => {
   return useMutation({
     mutationFn: createOrderActivity,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Comment added successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Comment added', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.orderId) });
     },
     onError(error) {
@@ -68,9 +68,7 @@ const useDeleteOrderActivityMutation = () => {
   return useMutation({
     mutationFn: deleteOrderActivity,
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message || __('Comment deleted successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Comment deleted', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({ queryKey: orderKeys.activities(variables.orderId) });
     },
     onError(error) {

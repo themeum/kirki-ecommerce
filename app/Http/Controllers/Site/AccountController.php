@@ -11,13 +11,20 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\DTO\ListFilterDTO;
+use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource;
+use Kirki\Ecommerce\App\Resources\Wishlist\WishlistResource;
+use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\UserService;
+use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Route;
@@ -177,18 +184,22 @@ class AccountController
      * @since 1.0.0
      *
      * @param Request $request Request.
+     * @param AddressService $address_service Address service.
      *
      * @return Response response.
      */
-    public function addresses(Request $request)
+    public function addresses(Request $request, AddressService $address_service)
     {
-        $customer = customer();
-        $billing_address = $customer ? $customer->get_billing_address() : null;
+        $customer         = customer();
+        $customer_id      = $customer ? $customer->get_customer_id() : null;
+        $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
+        $billing_address  = $customer ? $customer->get_billing_address() : null;
         $shipping_address = $customer ? $customer->get_shipping_address() : null;
-        $countries = Utils::get_countries();
+        $countries        = Utils::get_countries();
 
         $data = [
             'customer'         => $customer,
+            'addresses'        => $addresses,
             'billing_address'  => $billing_address,
             'shipping_address' => $shipping_address,
             'countries'        => $countries,
@@ -217,5 +228,31 @@ class AccountController
         ];
 
         return view('site.account.account-details', $data)->layout(false);
+    }
+
+    /**
+     * Wishlist page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Request.
+     * @param WishlistService $wishlist_service Wishlist service.
+     *
+     * @return Response response.
+     */
+    public function wishlist(WishlistFilterRequest $request, WishlistService $wishlist_service)
+    {
+        $sanitized_input = $request->sanitized();
+        $filters = ListFilterDTO::from_array($sanitized_input);
+        $filters->page = intval($sanitized_input['current_page'] ?? 1);
+        $filters->limit = 9;
+        $user_id   = user()->get_id();
+        $wishlists = $wishlist_service->paginated($user_id,$filters);
+        $wishlists_resource = new Collection(WishlistResource::collection($wishlists->items()->all()));
+        $data = [
+            'wishlists' => new Paginator($wishlists_resource, $wishlists->total(),$wishlists->get_per_page(),$wishlists->get_current_page()),
+        ];
+
+        return view('site.account.wishlist', $data)->layout(false);
     }
 }

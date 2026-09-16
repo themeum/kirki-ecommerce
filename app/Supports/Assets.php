@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\Framework\Http\Superglobals;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -74,13 +76,11 @@ class Assets
             return false;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen detection.
-        if (!isset($_GET['page'])) {
+        $page = Superglobals::query('page', null, Sanitizer::TEXT);
+
+        if ($page === null) {
             return false;
         }
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen detection.
-        $page = sanitize_text_field(wp_unslash($_GET['page']));
 
         return static::ADMIN_PAGE === $page;
     }

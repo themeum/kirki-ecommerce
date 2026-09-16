@@ -8,8 +8,9 @@ use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CreateProductAction
 {
@@ -44,17 +45,13 @@ class CreateProductAction
 
             $product = $this->product_service->create($product_payload);
 
-            if (empty($product)) {
-                throw new Exception(__('Product could not be created.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($product), __('Product could not be created.', 'kirki-ecommerce'));
 
             foreach ($variants as $variant) {
                 $variant->product_id = $product->id;
                 $variant_model = $this->variant_service->create($variant);
 
-                if (empty($variant_model)) {
-                    throw new Exception(__('Product variant could not be created.', 'kirki-ecommerce'));
-                }
+                throw_if(empty($variant_model), __('Product variant could not be created.', 'kirki-ecommerce'));
             }
 
             DB::commit();

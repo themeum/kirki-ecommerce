@@ -1,3 +1,5 @@
+import { Copy, Eye } from 'lucide-react';
+
 import SelectField from '@/components/form/select-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,7 +17,6 @@ import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
-import { Copy, Eye } from 'lucide-react';
 
 type RightPanelProps = {
   product?: Product;

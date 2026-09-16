@@ -5,8 +5,8 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
+use Kirki\Ecommerce\App\Models\ShippingProfile;
 
-use Kirki\Ecommerce\App\Supports\Tax;
 use function Kirki\Ecommerce\App\decision_engine;
 
 class ShippingService
@@ -127,6 +127,47 @@ class ShippingService
         }
 
         return $available_methods;
+    }
+
+    /**
+     * Get every enabled shipping method defined across the enabled zones.
+     *
+     * Zones scope a method to a region, so the same method can be defined in
+     * more than one zone. Orders store only the method id, so the list is
+     * deduplicated by id and carries just what a filter control needs.
+     *
+     * @return array<int, array{id: string, name: string, type: string}>
+     */
+    public function get_all_shipping_methods()
+    {
+        $zones = $this->shipping_settings['shipping_zones'] ?? [];
+        $methods = [];
+
+        foreach ($zones as $zone) {
+            if (!($zone['is_enabled'] ?? false)) {
+                continue;
+            }
+
+            foreach ($zone['shipping_methods'] ?? [] as $method) {
+                if (($method['is_enabled'] ?? false) !== true) {
+                    continue;
+                }
+
+                $id = $method['id'] ?? null;
+
+                if (empty($id) || isset($methods[$id])) {
+                    continue;
+                }
+
+                $methods[$id] = [
+                    'id' => (string) $id,
+                    'name' => $method['name'] ?? '',
+                    'type' => $method['type'] ?? '',
+                ];
+            }
+        }
+
+        return array_values($methods);
     }
 
     /**
@@ -302,13 +343,18 @@ class ShippingService
         $shipping_profiles = [];
         $product_categories = [];
 
-        $context->items->each(function ($item) use (&$cart_weight, &$shipping_profiles, &$product_categories) {
+        $default_profile = ShippingProfile::where('is_default', true)->first();
+        $default_profile_id = $default_profile ? $default_profile->id : null;
+
+        $context->items->each(function ($item) use (&$cart_weight, &$shipping_profiles, &$product_categories, $default_profile_id) {
             if ($item->weight) {
                 $cart_weight += $item->weight * $item->quantity;
             }
 
-            if ($item->shipping_profile_id) {
-                $shipping_profiles[] = $item->shipping_profile_id;
+            $profile_id = $item->shipping_profile_id ? $item->shipping_profile_id : $default_profile_id;
+
+            if ($profile_id) {
+                $shipping_profiles[] = $profile_id;
             }
 
             if ($item->product_categories) {

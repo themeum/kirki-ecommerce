@@ -30,7 +30,12 @@ type AddressFormValues = z.infer<typeof AddressFormShape>;
  */
 const buildAddressPayload = (
   address: AddressFormValues,
-  identity: { first_name: string; last_name: string | null; email: string; phone: string | null } | null,
+  identity: {
+    first_name: string;
+    last_name: string | null;
+    email: string;
+    phone: string | null;
+  } | null,
 ) => ({
   id: address.id,
   customer_id: address.customer_id,
@@ -57,7 +62,7 @@ const CustomerFormShape = z.object({
   photo: mediaId(),
   shipping_address: AddressFormShape.default({}),
   billing_address: AddressFormShape.default({}),
-  is_billing_same_as_shipping: z.boolean().default(false),
+  is_billing_same_as_shipping: z.boolean().nullish().default(false),
   tags: z.array(z.string()).default([]),
 });
 

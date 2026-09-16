@@ -2,31 +2,65 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Models\OrderItemCoupon;
+use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\Order\OrderListFilterDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemCouponDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
+use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
+use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
 class OrderService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'uuid' => 'uuid',
+            'order_number' => 'order_number',
+            'customer_id' => 'customer_id',
+            'order_status' => 'order_status',
+            'status' => 'order_status',
+            'quantity' => 'items_count',
+            'sub_total' => 'sub_total',
+            'invoiced_total' => 'invoiced_total',
+            'payment_provider' => 'payment_provider',
+            'created_by' => 'created_by',
+            'updated_by' => 'updated_by',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Get all orders with optional search and sorting.
      *
@@ -85,6 +119,11 @@ class OrderService
     {
         $order = Order::create($dto->to_array());
 
+        $order->update([
+            'order_number' => OrderNumberGenerator::generate_order_number($order->id),
+            'invoice_number' => OrderNumberGenerator::generate_invoice_number(),
+        ]);
+
         return $this->find_order($order->id);
     }
 
@@ -129,6 +168,65 @@ class OrderService
     }
 
     /**
+     * Create an order-coupon attribution row.
+     *
+     * @param CreateOrderCouponDTO $dto
+     * @return OrderCoupon
+     */
+    public function create_order_coupon(CreateOrderCouponDTO $dto)
+    {
+        return OrderCoupon::create($dto->to_array());
+    }
+
+    /**
+     * Create an order-item-coupon attribution row.
+     *
+     * @param CreateOrderItemCouponDTO $dto
+     * @return OrderItemCoupon
+     */
+    public function create_order_item_coupon(CreateOrderItemCouponDTO $dto)
+    {
+        return OrderItemCoupon::create($dto->to_array());
+    }
+
+    /**
+     * Delete every coupon attribution row for an order (cascades to their
+     * order_item_coupon rows), so they can be recreated from a fresh
+     * calculation.
+     *
+     * @param int $order_id
+     * @return bool
+     */
+    public function delete_order_coupons(int $order_id)
+    {
+        return (bool) OrderCoupon::query()->where('order_id', $order_id)->delete();
+    }
+
+    /**
+     * Create one order tax line, scoped to an order item or to the order's
+     * shipping.
+     *
+     * @param CreateOrderTaxDTO $dto
+     * @return OrderTax
+     */
+    public function create_order_tax(CreateOrderTaxDTO $dto)
+    {
+        return OrderTax::create($dto->to_array());
+    }
+
+    /**
+     * Delete every tax line for an order, so they can be recreated from a
+     * fresh calculation.
+     *
+     * @param int $order_id
+     * @return bool
+     */
+    public function delete_order_taxes(int $order_id)
+    {
+        return (bool) OrderTax::query()->where('order_id', $order_id)->delete();
+    }
+
+    /**
      * Find an order by UUID.
      *
      * @param string $uuid
@@ -136,7 +234,7 @@ class OrderService
      */
     public function find_order_by_uuid($uuid)
     {
-        return Order::with('items', 'refunds')->where('uuid', $uuid)->first();
+        return Order::with('items.taxes', 'refunds', 'order_coupons.order_item_coupons', 'shipping_taxes')->where('uuid', $uuid)->first();
     }
 
     /**
@@ -158,7 +256,7 @@ class OrderService
      */
     public function find_order($id)
     {
-        return Order::with('items', 'refunds')->find($id);
+        return Order::with('items.taxes', 'refunds', 'order_coupons.order_item_coupons', 'shipping_taxes')->find($id);
     }
 
     /**
@@ -173,9 +271,7 @@ class OrderService
     {
         $order = $this->find_order($id);
 
-        if (!$order) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$order, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $order;
     }
@@ -240,9 +336,7 @@ class OrderService
 
         $order = Order::find($id);
 
-        if (empty($order)) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($order), __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         $is_updated = (bool) $order->update([
             'order_status' => $target_status,
@@ -250,9 +344,7 @@ class OrderService
             'payment_status' => $target_state['payment_status'],
         ]);
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$is_updated, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $is_updated;
     }
@@ -301,9 +393,7 @@ class OrderService
     {
         $result = $this->delete_order($id);
 
-        if (!$result) {
-            throw new NotFoundException(__('Order not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$result, __('Order not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         return $result;
     }
@@ -317,15 +407,11 @@ class OrderService
      */
     public function bulk_delete(array $ids)
     {
-        if (empty($ids)) {
-            throw new NotFoundException(__('No orders selected.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(empty($ids), __('No orders selected.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         $is_deleted = (bool) Order::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Orders could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Orders could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -349,7 +435,7 @@ class OrderService
      */
     protected function list_query(OrderListFilterDTO $filters)
     {
-        return Order::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = Order::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where_any(
                 ['order_number', 'customer_email', 'shipping_first_name', 'shipping_last_name'],
                 'like',
@@ -361,7 +447,7 @@ class OrderService
             })
             ->filter_with_datetime_range($filters->from_date, $filters->to_date)
             ->when(!empty($filters->status), function (QueryBuilder $query) use ($filters) {
-                return $query->where('order_status', $filters->status);
+                return $query->apply_status_filter($filters->status);
             })
             ->when(!empty($filters->fulfillment_status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('fulfillment_status', $filters->fulfillment_status);
@@ -369,11 +455,11 @@ class OrderService
             ->when(!empty($filters->payment_status), function (QueryBuilder $query) use ($filters) {
                 return $query->where('payment_status', $filters->payment_status);
             })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
+            ->when(!empty($filters->shipping_method), function (QueryBuilder $query) use ($filters) {
+                return $query->where('shipping_method', $filters->shipping_method);
             });
+
+        return $this->apply_sorting($query, $filters);
     }
 
     /**

@@ -46,7 +46,7 @@ examples:
             "success": true,
             "data": {
               "id": "15",
-              "customer_id": 2,
+              "user_id": 2,
               "cart_token": "38c51e6c-e936-472c-9cc3-5d90587f9cf6",
               "currency": {
                 "code": "USD",
@@ -54,39 +54,26 @@ examples:
                 "display_code": "USD"
               },
               "pricing": {
-                "base_subtotal": 31.98,
-                "base_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
-                "display_subtotal": 31.98,
-                "display_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
-                "base_tax_total": 0,
-                "base_tax_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "display_tax_total": 0,
+                "display_items_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                "display_order_discount_money_object": { "raw": 5.00, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_order_total_money_object": { "raw": 26.98, "display": "$26.98", "currency": { "code": "USD", "symbol": "$" } },
                 "display_tax_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "discount_details": null,
-                "base_discount_total": 0,
-                "base_discount_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "display_discount_total": 0,
-                "display_discount_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "base_shipping_subtotal": 64,
-                "base_shipping_subtotal_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
-                "display_shipping_subtotal": 64,
-                "display_shipping_subtotal_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
-                "base_shipping_tax": 0,
-                "base_shipping_tax_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "display_shipping_tax": 0,
-                "display_shipping_tax_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "base_shipping_discount": 0,
-                "base_shipping_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "display_shipping_discount": 0,
-                "display_shipping_discount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                "base_shipping_total": 64,
-                "base_shipping_total_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
-                "display_shipping_total": 64,
-                "display_shipping_total_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
-                "base_total": 95.98,
-                "base_total_money_object": { "raw": 95.98, "display": "$95.98", "currency": { "code": "USD", "symbol": "$" } },
-                "display_total": 95.98,
-                "display_total_money_object": { "raw": 95.98, "display": "$95.98", "currency": { "code": "USD", "symbol": "$" } }
+                "coupons": [
+                  {
+                    "code": "WINTER20",
+                    "title": "Winter Sale",
+                    "discount_type": "order",
+                    "discount_target": "order",
+                    "discount_value_type": "fixed",
+                    "discount_amount_percentage": null,
+                    "base_discount_amount_fixed": 500,
+                    "display_discount_amount_fixed_money_object": { "raw": 5.00, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } },
+                    "display_discount_amount_money_object": { "raw": 5.00, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } }
+                  }
+                ],
+                "display_shipping_amount_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "display_total_money_object": { "raw": 90.98, "display": "$90.98", "currency": { "code": "USD", "symbol": "$" } },
+                "tax_lines": []
               },
               "items_count": 2,
               "items": [
@@ -99,34 +86,21 @@ examples:
                     "variant_id": 1,
                     "title": "Classic Cotton T-Shirt",
                     "slug": "classic-cotton-t-shirt",
-                    "base_price": 19.99,
-                    "base_price_money_object": { "raw": 19.99, "display": "$19.99", "currency": { "code": "USD", "symbol": "$" } },
-                    "display_price": 19.99,
                     "display_price_money_object": { "raw": 19.99, "display": "$19.99", "currency": { "code": "USD", "symbol": "$" } },
-                    "base_sale_price": 15.99,
-                    "base_sale_price_money_object": { "raw": 15.99, "display": "$15.99", "currency": { "code": "USD", "symbol": "$" } },
-                    "display_sale_price": 15.99,
                     "display_sale_price_money_object": { "raw": 15.99, "display": "$15.99", "currency": { "code": "USD", "symbol": "$" } },
-                    "media": null
+                    "media": null,
+                    "categories": [],
+                    "attributes": [],
+                    "available_quantity": 48,
+                    "in_stock": true,
+                    "track_inventory": true,
+                    "allow_back_order": false,
+                    "has_limit_per_order": false,
+                    "max_per_order": null
                   },
-                  "base_subtotal": 31.98,
-                  "base_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_subtotal": 31.98,
                   "display_subtotal_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
-                  "tax_rate": 0,
-                  "base_tax_amount": 0,
-                  "base_tax_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_tax_amount": 0,
-                  "display_tax_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "tax_breakdown": [],
-                  "base_discount_amount": 0,
-                  "base_discount_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_discount_amount": 0,
-                  "display_discount_amount_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "base_total": 31.98,
-                  "base_total_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_total": 31.98,
-                  "display_total_money_object": { "raw": 31.98, "display": "$31.98", "currency": { "code": "USD", "symbol": "$" } },
+                  "display_strikethrough_price_money_object": null,
+                  "applied_product_coupons": [],
                   "created_at": "2025-12-22 07:09:23",
                   "updated_at": "2025-12-22 07:19:16"
                 }
@@ -155,32 +129,24 @@ examples:
                 "postal_code": "90001",
                 "country": "US"
               },
+              "is_billing_same_as_shipping": false,
               "available_shipping_methods": [
                 {
                   "id": "fsdfdsfsdfsdf343432jh4",
                   "name": "Standard Delivery",
                   "type": "flat_rate",
-                  "base_cost": 64,
-                  "base_cost_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_cost": 64,
                   "display_cost_money_object": { "raw": 64, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } }
                 },
                 {
                   "id": "fsdfdsfsd56df343432jh4",
                   "name": "Local Pickup",
                   "type": "local_pickup",
-                  "base_cost": 9,
-                  "base_cost_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_cost": 9,
                   "display_cost_money_object": { "raw": 9, "display": "$9.00", "currency": { "code": "USD", "symbol": "$" } }
                 },
                 {
                   "id": "f12fdsfsdfsdf343432jh4",
                   "name": "Rate by Weight",
                   "type": "weight",
-                  "base_cost": 5,
-                  "base_cost_money_object": { "raw": 5, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } },
-                  "display_cost": 5,
                   "display_cost_money_object": { "raw": 5, "display": "$5.00", "currency": { "code": "USD", "symbol": "$" } }
                 }
               ],
@@ -196,7 +162,7 @@ examples:
               "created_at": "2025-12-19 11:01:50",
               "updated_at": "2025-12-22 07:19:16"
             },
-            "message": "Cart updated successfully."
+            "message": "Coupon applied successfully."
           }
   - name: 404 Response
     description: Failure
@@ -226,4 +192,8 @@ examples:
 
 docs: |-
   # Apply coupon
-  Apply coupon to cart
+  Apply a coupon to the cart by `code`. More than one coupon can be applied
+  to the same cart at once - applying a second, different coupon adds it
+  alongside any coupon(s) already applied rather than replacing them. Each
+  applied coupon appears as its own entry in the response's
+  `pricing.coupons` array.

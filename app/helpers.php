@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\AppSettings;
 use Kirki\Ecommerce\App\Decisions\DecisionEngine;
 use Kirki\Ecommerce\App\Models\Currency;

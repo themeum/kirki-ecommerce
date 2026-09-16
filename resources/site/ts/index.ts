@@ -14,15 +14,20 @@ import { accountDetails } from './components/account-details';
 import { addToCart } from './components/add-to-cart';
 import { cart } from './components/cart';
 import { checkout, stateField } from './components/checkout';
+import { dropdown } from './components/dropdown';
 import { form } from './components/form';
 import { imageSlider } from './components/image-slider';
 import { miniCart } from './components/mini-cart';
 import { modal } from './components/modal';
+import { popover } from './components/popover';
 import { productFilter } from './components/product-filter';
 import { quantitySelector } from './components/quantity-selector';
 import { shop } from './components/shop';
+import { wishlist } from './components/wishlist';
 import { tabs } from './components/tabs';
 import { variantSelector } from './components/variant-selector';
+import { pagination } from './components/pagination';
+import { accountWishlist } from './components/account-wishlist';
 
 import { accountOrders } from './components/account-orders';
 import { registerLocalTimeDirective } from './directives/local-time';
@@ -49,11 +54,16 @@ Alpine.data('variantSelector', variantSelector);
 Alpine.data('quantitySelector', quantitySelector);
 Alpine.data('tabs', tabs);
 Alpine.data('checkout', checkout);
+Alpine.data('dropdown', dropdown);
 Alpine.data('modal', modal);
+Alpine.data('popover', popover);
 Alpine.data('form', form);
 Alpine.data('stateField', stateField);
 Alpine.data('shop', shop);
 Alpine.data('miniCart', miniCart);
+Alpine.data('wishlist', wishlist);
+Alpine.data('pagination', pagination);
+Alpine.data('accountWishlist', accountWishlist);
 
 // Initialize Alpine
 window.Alpine = Alpine;

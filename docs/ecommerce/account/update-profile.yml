@@ -1,7 +1,7 @@
 info:
   name: Update Profile
   type: http
-  seq: 1
+  seq: 2
   tags:
     - account
 
@@ -22,6 +22,7 @@ settings:
   timeout: 0
   followRedirects: true
   maxRedirects: 5
+  forwardAuthorizationHeader: true
 
 examples:
   - name: 200 Response
@@ -69,11 +70,12 @@ examples:
                 "postal_code": "90210",
                 "email": "sarah.johnson@example.com",
                 "phone": "+1-555-0101",
-                "type": "shipping",
+                "type": "home",
+                "is_default_shipping": true,
+                "is_default_billing": false,
                 "created_at": "2026-08-18 10:19:28",
                 "updated_at": "2026-08-19 10:09:05"
               },
-              "is_billing_same_as_shipping": true,
               "billing_address": {
                 "id": 2,
                 "customer_id": 1,
@@ -87,7 +89,9 @@ examples:
                 "postal_code": "90210",
                 "email": "sarah.johnson@example.com",
                 "phone": "+1-555-0101",
-                "type": "billing",
+                "type": "home",
+                "is_default_shipping": false,
+                "is_default_billing": true,
                 "created_at": "2026-08-18 10:19:28",
                 "updated_at": "2026-08-19 10:09:05"
               },

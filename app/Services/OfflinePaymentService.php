@@ -13,6 +13,8 @@ use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 use function Kirki\Ecommerce\Framework\collection;
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class OfflinePaymentService
 {
@@ -65,9 +67,7 @@ class OfflinePaymentService
     {
         $provider = $this->find($id);
 
-        if (!$provider) {
-            throw new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$provider, __('Payment method not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $provider;
     }
@@ -139,6 +139,6 @@ class OfflinePaymentService
             }
         }
 
-        throw new NotFoundException(__('Payment method not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        throw_anyway(__('Payment method not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
     }
 }

@@ -30,16 +30,17 @@ type CommandInputProps = Omit<
   'className' | 'css'
 > & {
   cssOverride?: CSSObject;
+  wrapperCss?: CSSObject;
 };
 
 const CommandInput = forwardRef<
   ElementRef<typeof CommandPrimitive.Input>,
   CommandInputProps
 >((props, ref) => {
-  const { cssOverride, ...rest } = props;
+  const { cssOverride, wrapperCss, ...rest } = props;
 
   return (
-    <div css={scoped(styles.inputWrapper)}>
+    <div css={scopedMerge(styles.inputWrapper, wrapperCss)}>
       <Search size={16} css={scoped(styles.searchIcon)} />
       <CommandPrimitive.Input ref={ref} css={scopedMerge(styles.input, cssOverride)} {...rest} />
     </div>

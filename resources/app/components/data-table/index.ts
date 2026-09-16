@@ -5,6 +5,7 @@ export { default as DataTableEmptyState } from '@/components/data-table/data-tab
 export { default as DataTableRowActions } from '@/components/data-table/data-table-row-actions';
 export { default as DataTableSkeleton } from '@/components/data-table/data-table-skeleton';
 export type {
+  DataTableBulkAction,
   DataTableItem,
   DataTableRowAction,
   DataTableRowActionsConfig,

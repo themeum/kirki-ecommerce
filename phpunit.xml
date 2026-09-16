@@ -14,7 +14,7 @@
     <coverage processUncoveredFiles="true">
          <include>
             <directory suffix=".php">./app</directory>
-            <directory suffix=".php">./libraries/framework</directory>
+            <directory suffix=".php">./vendor/libraries/framework/src</directory>
         </include>
     </coverage>
 </phpunit>

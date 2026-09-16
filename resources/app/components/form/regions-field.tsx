@@ -28,6 +28,7 @@ type RegionsFieldProps<
   placeholder?: string;
   emptyText?: string;
   disabled?: boolean;
+  disabledRegions?: Region[];
   cssOverride?: CSSObject;
 };
 
@@ -43,6 +44,7 @@ const RegionsField = <
   placeholder = __('Select destinations..', 'kirki-ecommerce'),
   emptyText = __('Added destinations will appear here', 'kirki-ecommerce'),
   disabled,
+  disabledRegions,
   cssOverride,
 }: RegionsFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
@@ -118,6 +120,7 @@ const RegionsField = <
               onOpenChange={setIsDialogOpen}
               countries={countryList}
               defaultValue={dialogDefaultValue}
+              disabledRegions={disabledRegions}
               from="edit"
               onDone={(values) => {
                 field.onChange(values.regions);

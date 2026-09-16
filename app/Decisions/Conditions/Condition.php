@@ -3,7 +3,8 @@
 namespace Kirki\Ecommerce\App\Decisions\Conditions;
 
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
-use Exception;
+
+use function Kirki\Ecommerce\Framework\throw_anyway;
 
 abstract class Condition
 {
@@ -52,7 +53,7 @@ abstract class Condition
             case '!in':
                 return !(is_array($value1) && is_array($value2) ? !empty(array_intersect($value1, $value2)) : in_array($value1, $value2));
             default:
-                throw new Exception(__('Invalid operator', 'kirki-ecommerce'));
+                throw_anyway(__('Invalid operator', 'kirki-ecommerce'));
         }
     }
 }

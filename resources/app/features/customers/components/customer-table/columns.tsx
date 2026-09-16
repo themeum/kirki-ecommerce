@@ -34,32 +34,32 @@ const customerColumns: ColumnDef<CustomerListItem>[] = [
   {
     id: 'orders_count',
     header: __('Orders', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- a customer with 0 orders renders as '--' like the other empty cells in this row; ?? would print 0
     cell: ({ row }) => row.original?.orders_count || '--',
   },
   {
     id: 'base_amount_spent',
     header: __('Amount Spent', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => displayMoney('base_amount_spent', row.original),
   },
   {
     id: 'location',
     header: __('Location', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => row.original?.location || '--',
   },
   {
     id: 'last_order_date',
     header: __('Last Order', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => isDefined(row.original.last_order_date) ? formatDateValue(new Date(row.original.last_order_date), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
   },
   {
     id: 'created_at',
     header: __('Joined at', 'kirki-ecommerce'),
-    enableSorting: false,
+    enableSorting: true,
     cell: ({ row }) => isDefined(row.original.created_at) ? formatDateValue(new Date(row.original.created_at), DATE_FORMATS.HUMAN_READABLE_SHORT) : '--',
   },
 ];

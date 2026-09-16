@@ -1,3 +1,4 @@
+import { Code } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -10,19 +11,23 @@ import {
   StackedItem,
   StackedItemActions,
   StackedItemContent,
+  StackedItemMedia,
   StackedItems,
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
 import AddSchemaPopup from '@/features/settings/essentials/pages/schema-profile/add-schema-dialog';
 import type { SchemaProfile } from '@/features/settings/essentials/schemas/catalog/schema-profile';
-import { useDeleteSchemaMutation, useSchemasQuery } from '@/features/settings/essentials/services/schema';
+import {
+  useDeleteSchemaMutation,
+  useSchemasQuery,
+} from '@/features/settings/essentials/services/schema';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
+import { useConfirmDelete } from '@/hooks';
 import { BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 type SchemaListItem = SchemaProfile & {
@@ -33,34 +38,34 @@ type SchemaListItem = SchemaProfile & {
 const SchemaProfileComponent = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [editedItem, setEditedItem] = useState<SchemaProfile | null>(null);
-  const [removedIds, setRemovedIds] = useState<number[]>([]);
 
   const { data: schemaList = [], isLoading, refetch } = useSchemasQuery();
   const { mutate: deleteSchema } = useDeleteSchemaMutation();
 
   const schemaProfileList = useMemo<SchemaListItem[]>(
     () =>
-      schemaList
-        .filter((schema) => !removedIds.includes(schema.id))
-        .map((schema) => ({
-          ...schema,
-          badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
-        })),
-    [schemaList, removedIds],
+      schemaList.map((schema) => ({
+        ...schema,
+        badge1: `${Object.keys(schema?.schema)?.length} Schemas`,
+      })),
+    [schemaList],
   );
 
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
+
   const handleDeleteSchema = (item: SchemaListItem) => {
-    setRemovedIds((prev) => [...prev, item.id]);
-    dispatchToastMessage('delete', {
-      title: __('Schema deleted', 'kirki-ecommerce'),
-      duration: 5000,
-      undoAction: () => {
-        setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+    confirmDelete(
+      {
+        title: __('Delete schema?', 'kirki-ecommerce'),
+        description: __(
+          'This schema will be permanently deleted. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
       },
-      onSuccess: () => {
+      () => {
         deleteSchema(item.id, { onSuccess: () => refetch() });
       },
-    });
+    );
   };
 
   const handleEditSchema = (item: SchemaListItem) => {
@@ -74,15 +79,19 @@ const SchemaProfileComponent = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.formCard}>
-      <CardContent >
+    <Card
+      data-search-id="essentials.schema-profile"
+      data-search-keywords="seo, json ld, rich snippet, google, metadata"
+      cssOverride={cardStyles.formCard}
+    >
+      <CardContent>
         <HeaderActionsCard
-          header={__('Schema Profile', 'kirki-ecommerce')}
+          header={__('Product Schemas', 'kirki-ecommerce')}
           subHeader={__(
-            'Used to create tax rates for different product groups, like heavy items needing higher fees.',
+            'Structured data properties attached to products for richer search listings.',
             'kirki-ecommerce',
           )}
-          buttonText={__('Add Profile', 'kirki-ecommerce')}
+          buttonText={__('Schema', 'kirki-ecommerce')}
           onAdd={() => setShowPopup(true)}
         />
         <div css={scoped({ marginTop: theme.spacing[5] })}>
@@ -103,31 +112,34 @@ const SchemaProfileComponent = () => {
             <StackedItems>
               {schemaProfileList.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
+                  <StackedItemMedia>
+                    <Code size={16} />
+                  </StackedItemMedia>
                   <StackedItemContent>
                     <StackedItemTitle>
                       <Text variant="small" weight="medium">
                         {item.name}
                       </Text>
                       {item.is_default && (
-                        <Badge variant="secondary">
-                          {__('Default', 'kirki-ecommerce')}
-                        </Badge>
+                        <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
                       )}
                     </StackedItemTitle>
                   </StackedItemContent>
                   <StackedItemActions>
                     <ActionGroup>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={styles.actionButton}
+                        cssOverride={mergeCss(styles.actionButton, {
+                          '& svg': { color: theme.colors.icon.critical },
+                        })}
                         onClick={() => handleDeleteSchema(item)}
                       >
                         <TrashIcon />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="tertiary"
                         size="icon-sm"
                         aria-label={__('Edit', 'kirki-ecommerce')}
                         cssOverride={styles.actionButton}
@@ -151,6 +163,7 @@ const SchemaProfileComponent = () => {
           />
         )}
       </CardContent>
+      {deleteConfirmation}
     </Card>
   );
 };

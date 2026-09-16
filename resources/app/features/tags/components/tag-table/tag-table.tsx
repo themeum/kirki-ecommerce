@@ -2,20 +2,28 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import TagAddEditDialog from '@/features/tags/components/tag-add-edit-dialog';
 import { tagColumns } from '@/features/tags/components/tag-table/columns';
 import TagTableFilters from '@/features/tags/components/tag-table/tag-table-filters';
 import type { Tag } from '@/features/tags/schemas/catalog/tag';
-import { useBulkDeleteTagsMutation, useDeleteTagMutation, useTagsQuery } from '@/features/tags/services/tag';
+import {
+  useBulkDeleteTagsMutation,
+  useDeleteTagMutation,
+  useTagsQuery,
+} from '@/features/tags/services/tag';
 import { tagListOptions } from '@/features/tags/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const tagBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const tagBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const TagTable = () => {
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
@@ -24,6 +32,7 @@ const TagTable = () => {
   const { data, isFetching } = useTagsQuery(params);
   const deleteMutation = useDeleteTagMutation();
   const bulkDeleteMutation = useBulkDeleteTagsMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
   const [editingItem, setEditingItem] = useState<Tag | null>(null);
 
   const handleBulkApply = useCallback(
@@ -32,9 +41,24 @@ const TagTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected tags?', 'kirki-ecommerce'),
+          description: __(
+            'The selected tags will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const columns = useMemo<ColumnDef<Tag>[]>(
@@ -44,6 +68,7 @@ const TagTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <DataTableRowActions
             edit={{ onClick: () => setEditingItem(row.original) }}
@@ -52,19 +77,30 @@ const TagTable = () => {
                 label: __('Delete', 'kirki-ecommerce'),
                 icon: <Trash2 size={16} />,
                 destructive: true,
-                onClick: () => deleteMutation.mutate(row.original.id),
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete tag?', 'kirki-ecommerce'),
+                      description: __(
+                        'This tag will be permanently deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
               },
             ]}
           />
         ),
       },
     ],
-    [deleteMutation],
+    [confirmDelete, deleteMutation],
   );
 
   return (
     <>
       <DataTable
+        tableId="tags"
         data={data?.results ?? []}
         columns={columns}
         total={data?.total}
@@ -76,13 +112,19 @@ const TagTable = () => {
         isLoading={isFetching}
         enableRowSelection
         selectionResetKey={selectionResetKey}
-        bulkActionOptions={tagBulkActions}
+        bulkActions={tagBulkActions}
         onBulkApply={handleBulkApply}
         columnPinning={{ right: ['actions'] }}
         toolbar={<TagTableFilters />}
       />
+      {deleteConfirmation}
       {editingItem && (
-        <TagAddEditDialog key={editingItem.id} tag={editingItem} open onClose={() => setEditingItem(null)} />
+        <TagAddEditDialog
+          key={editingItem.id}
+          tag={editingItem}
+          open
+          onClose={() => setEditingItem(null)}
+        />
       )}
     </>
   );

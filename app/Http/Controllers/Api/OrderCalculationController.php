@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
-use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationeRequest;
+use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
 
 use Kirki\Ecommerce\App\Services\VariantService;
@@ -24,7 +24,7 @@ class OrderCalculationController
         $this->variant_service = $variant_service;
     }
 
-    public function get(OrderCalculationeRequest $request, RecalculateCartAction $action)
+    public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
     {
         $context = $this->prepare_context_dto($request->all());
 
@@ -50,11 +50,23 @@ class OrderCalculationController
                 'address_line2' => $data['shipping_address_line2'],
                 'city' => $data['shipping_city'],
                 'state' => $data['shipping_state'],
-                'postal_code' => $data['shipping_postcode'],
+                'postal_code' => $data['shipping_postal_code'],
                 'country' => $data['shipping_country']
             ],
+            'billing_address' => [
+                'first_name' => $data['billing_first_name'] ?? null,
+                'last_name' => $data['billing_last_name'] ?? null,
+                'email' => $data['billing_email'] ?? null,
+                'phone' => $data['billing_phone'] ?? null,
+                'address_line1' => $data['billing_address_line1'] ?? null,
+                'address_line2' => $data['billing_address_line2'] ?? null,
+                'city' => $data['billing_city'] ?? null,
+                'state' => $data['billing_state'] ?? null,
+                'postal_code' => $data['billing_postal_code'] ?? null,
+                'country' => $data['billing_country'] ?? null
+            ],
             'customer_id' => $data['customer_id'],
-            'coupon' => $data['coupon_code'] ?? null,
+            'coupon_codes' => $data['coupon_codes'] ?? [],
             'shipping_method_id' => $data['shipping_method'] ?? null,
             'customer_order_count' => 0,
         ]);
@@ -78,6 +90,7 @@ class OrderCalculationController
 
             $item_dto->product_id = $variant->product_id;
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
+            $item_dto->base_product_total = $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $variant->product->tax_profile_id;

@@ -1,10 +1,16 @@
 import type { CSSObject } from '@emotion/react';
 import type { ChangeEvent, FocusEvent, ReactNode } from 'react';
-import { Controller, type FieldPath, type FieldValues, useFormContext, useWatch } from 'react-hook-form';
+import {
+  Controller,
+  type FieldPath,
+  type FieldValues,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import NumberInput from '@/components/ui/number-input';
-import { isDefined } from '@/utils/object';
+import { clampValue } from '@/utils/number';
 
 type NumberFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -19,8 +25,9 @@ type NumberFieldProps<
   cssOverride?: CSSObject;
   min?: number | null;
   max?: number | null;
-  readOnly?: boolean
+  readOnly?: boolean;
   showError?: boolean;
+  'aria-label'?: string;
 };
 
 const NumberField = <
@@ -38,32 +45,18 @@ const NumberField = <
   max,
   readOnly,
   showError = true,
+  'aria-label': ariaLabel,
 }: NumberFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const currentValue = useWatch({ control, name });
   const fieldId = String(name);
-
-  const clampValue = (value: number) => {
-    if (isDefined(min) && value < min) {
-      return min;
-    }
-
-    if (isDefined(max) && value > max) {
-      return max;
-    }
-
-    return value;
-  };
 
   return (
     <Controller
       control={control}
       name={name}
       render={({ field, fieldState }) => (
-        <Field
-          data-invalid={fieldState.invalid || undefined}
-          cssOverride={cssOverride}
-        >
+        <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
           {label && (
             <FieldLabel htmlFor={fieldId} infoText={infoText}>
               {label}
@@ -77,6 +70,7 @@ const NumberField = <
             disabled={disabled}
             readOnly={readOnly}
             error={Boolean(fieldState.error)}
+            aria-label={ariaLabel}
             aria-invalid={fieldState.invalid}
             onChange={(event: ChangeEvent<HTMLInputElement>) => {
               const nextValue = event.target.value;
@@ -91,7 +85,7 @@ const NumberField = <
                 return;
               }
 
-              const clampedValue = clampValue(enteredValue);
+              const clampedValue = clampValue(enteredValue, min, max);
 
               if (clampedValue !== enteredValue) {
                 field.onChange(clampedValue);
@@ -99,7 +93,7 @@ const NumberField = <
             }}
             name={field.name}
             ref={field.ref}
-            onFocus={event => event.target.select()}
+            onFocus={(event) => event.target.select()}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && showError && <FieldError errors={[fieldState.error]} />}

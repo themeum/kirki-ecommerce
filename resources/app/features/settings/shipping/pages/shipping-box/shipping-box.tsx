@@ -1,4 +1,4 @@
-import { Package2 } from 'lucide-react';
+import { Edit3, Package2 } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import DropdownButton from '@/components/dropdown-button';
@@ -19,9 +19,13 @@ import {
 import Text from '@/components/ui/text';
 import ShippingBoxPopup from '@/features/settings/shipping/pages/shipping-box/shipping-box-dialog';
 import type { ShippingBox as ShippingBoxType } from '@/features/settings/shipping/schemas/catalog/shipping';
-import { useDeleteShippingBoxMutation, useShippingBoxesQuery, useUpdateShippingBoxMutation } from '@/features/settings/shipping/services/shipping';
+import {
+  useDeleteShippingBoxMutation,
+  useShippingBoxesQuery,
+  useUpdateShippingBoxMutation,
+} from '@/features/settings/shipping/services/shipping';
 import StackedListSkeleton from '@/features/settings/skeletons/stacked-list-skeleton';
-import { EditPenIcon } from '@/icons';
+import { useConfirmDelete } from '@/hooks';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -54,18 +58,19 @@ const ShippingBoxRowActions = (props: ShippingBoxRowActionsProps) => {
   return (
     <ActionGroup>
       <Button
-        variant="outline"
+        variant="tertiary"
         size="icon-sm"
         aria-label={__('Edit', 'kirki-ecommerce')}
         cssOverride={styles.actionButton}
         onClick={() => onEdit(item)}
       >
-        <EditPenIcon />
+        <Edit3 />
       </Button>
       {!item.is_action_disabled && (
         <DropdownButton
           buttonProps={{
             cssOverride: styles.actionButton,
+            variant: 'tertiary',
           }}
           dropdownStyle={{ minWidth: '170px' }}
           size="small"
@@ -99,30 +104,28 @@ const getActionArray = (box: ShippingBoxListItem): BoxAction[] => {
 
 const ShippingBox = () => {
   const [openPopup, setOpenPopup] = useState(false);
-  const [removedIds, setRemovedIds] = useState<number[]>([]);
   const [editedItem, setEditedItem] = useState<ShippingBoxListItem | null>(null);
 
   const { data: shippingBoxes = [], isLoading, refetch } = useShippingBoxesQuery({ limit: -1 });
   const { mutate: updateBox } = useUpdateShippingBoxMutation();
   const { mutate: deleteBox } = useDeleteShippingBoxMutation();
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   const shippingBoxList = useMemo<ShippingBoxListItem[]>(
     () =>
-      shippingBoxes
-        .filter((box) => !removedIds.includes(box.id))
-        .map((box) => ({
-          ...box,
-          subText: sprintf(
-            __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
-            box.length ?? 0,
-            box.width ?? 0,
-            box.height ?? 0,
-            box.unit ?? '',
-          ),
-          is_action_disabled: (box as ShippingBoxListItem).is_default === true,
-          actionsArray: getActionArray(box as ShippingBoxListItem),
-        })) as ShippingBoxListItem[],
-    [shippingBoxes, removedIds],
+      shippingBoxes.map((box) => ({
+        ...box,
+        subText: sprintf(
+          __('%1$s x %2$s x %3$s %4$s', 'kirki-ecommerce'),
+          box.length ?? 0,
+          box.width ?? 0,
+          box.height ?? 0,
+          box.unit ?? '',
+        ),
+        is_action_disabled: (box as ShippingBoxListItem).is_default === true,
+        actionsArray: getActionArray(box as ShippingBoxListItem),
+      })) as ShippingBoxListItem[],
+    [shippingBoxes],
   );
 
   const openCreatePopup = () => {
@@ -142,20 +145,20 @@ const ShippingBox = () => {
 
   const handleAction = (action: string, item: ShippingBoxListItem) => {
     if (action === 'delete') {
-      setRemovedIds((prev) => [...prev, item.id]);
-
-      dispatchToastMessage('delete', {
-        title: __('Shipping box deleted', 'kirki-ecommerce'),
-        duration: 5000,
-        undoAction: () => {
-          setRemovedIds((prev) => prev.filter((id) => id !== item.id));
+      confirmDelete(
+        {
+          title: __('Delete shipping box?', 'kirki-ecommerce'),
+          description: __(
+            'This box will be permanently deleted and no longer used to calculate packaging. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
         },
-        onSuccess: () => {
+        () => {
           deleteBox(item?.id, {
             onSuccess: () => refetch(),
           });
         },
-      });
+      );
     } else {
       const data = {
         ...item,
@@ -179,20 +182,22 @@ const ShippingBox = () => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard} >
+      <Card
+        data-search-id="shipping.boxes"
+        data-search-keywords="parcel, package, dimensions, carton, packaging"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <HeaderActionsCard
             header={__('Shipping Box', 'kirki-ecommerce')}
             subHeader={__(
-              'Configure box sizes for accurate shipping cost calculations.',
+              'Parcel dimensions and package weight used to rate shipments.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Create Box', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={openCreatePopup}
           />
-          {isLoading && (
-            <StackedListSkeleton cssOverride={{ marginTop: theme.spacing[5] }} />
-          )}
+          {isLoading && <StackedListSkeleton cssOverride={{ marginTop: theme.spacing[5] }} />}
           {!isLoading && shippingBoxList.length > 0 && (
             <StackedItems cssOverride={{ marginTop: theme.spacing[5] }}>
               {shippingBoxList.map((item) => (
@@ -211,9 +216,7 @@ const ShippingBox = () => {
                         </Text>
                       )}
                       {item.is_default && (
-                        <Badge variant="secondary">
-                          {__('Default', 'kirki-ecommerce')}
-                        </Badge>
+                        <Badge variant="secondary">{__('Default', 'kirki-ecommerce')}</Badge>
                       )}
                     </StackedItemTitle>
                   </StackedItemContent>
@@ -238,6 +241,7 @@ const ShippingBox = () => {
           onSave={() => refetch()}
         />
       )}
+      {deleteConfirmation}
     </>
   );
 };

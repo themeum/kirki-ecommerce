@@ -9,7 +9,6 @@ import type {
   ToastMessageConfig,
   ToastVariant,
 } from '@/types/pages/common';
-import { __ } from '@/wpi18n';
 
 export const dateFormatter = (
   value: string | number | Date | null | undefined,
@@ -59,28 +58,12 @@ export const dispatchToastMessage = (
   variant: ToastVariant = 'success',
   config: ToastMessageConfig = {},
 ): void => {
-  const { title, duration = 2000, undoAction, onSuccess } = config;
+  const { title, duration = 2000 } = config;
   const message = title ?? '';
 
-  const options = {
-    duration,
-    action: undoAction
-      ? {
-          label: __('Undo', 'kirki-ecommerce'),
-          onClick: () => {
-            undoAction();
-          },
-        }
-      : undefined,
-    onAutoClose: () => {
-      void onSuccess?.();
-    },
-    onDismiss: () => {
-      void onSuccess?.();
-    },
-  };
+  const options = { duration };
 
-  if (variant === 'error' || variant === 'delete') {
+  if (variant === 'error') {
     toast.error(message, options);
     return;
   }
@@ -90,7 +73,7 @@ export const dispatchToastMessage = (
     return;
   }
 
-  if (variant === 'success') {
+  if (variant === 'success' || variant === 'delete') {
     toast.success(message, options);
     return;
   }

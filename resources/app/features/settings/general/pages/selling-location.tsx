@@ -12,7 +12,7 @@ import { __ } from '@/wpi18n';
 
 const sellingLocationOptions = [
   {
-    label: __('All Countries', 'kirki-ecommerce'),
+    label: __('Worldwide', 'kirki-ecommerce'),
     value: 'all-countries',
   },
   {
@@ -52,47 +52,43 @@ const SellingLocation = () => {
   }, [sellingLocation, getValues, setValue]);
 
   const showCountrySelector =
-    sellingLocation === 'selected-countries' ||
-    sellingLocation === 'excluded-countries';
+    sellingLocation === 'selected-countries' || sellingLocation === 'excluded-countries';
 
   return (
     <div>
-      <Card cssOverride={cardStyles.formCard}>
-        <CardHeader cssOverride={cardStyles.sectionHeader}>
+      <Card
+        data-search-id="general.selling-locations"
+        data-search-keywords="territory, region, market, geography, ship to countries"
+        cssOverride={cardStyles.formCard}
+      >
+        <CardHeader>
           <CardTitle>{__('Selling Locations', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
-            {__(
-              'Select the countries where you want to sell your products.',
-              'kirki-ecommerce',
-            )}
+            {__('Countries and territories your store sells to.', 'kirki-ecommerce')}
           </CardDescription>
         </CardHeader>
-        <CardContent cssOverride={cardStyles.largeContent}>
-          <Card cssOverride={cardStyles.innerCard}>
-            <CardContent cssOverride={cardStyles.innerCardContent}>
-              <Flex direction="column" gap={4}>
-                <SelectField
-                  name="selling_location_type"
-                  label={__('Selling', 'kirki-ecommerce')}
-                  description={__(
-                    'Select the countries where you want to sell your products.',
-                    'kirki-ecommerce',
-                  )}
-                  options={sellingLocationOptions}
-                />
+        <CardContent>
+          <Flex direction="column" gap={4}>
+            <SelectField
+              name="selling_location_type"
+              label={__('Selling', 'kirki-ecommerce')}
+              description={__(
+                'Select the countries where you want to sell your products.',
+                'kirki-ecommerce',
+              )}
+              options={sellingLocationOptions}
+            />
 
-                {showCountrySelector && (
-                  <MultiSelectField
-                    name="selling_countries"
-                    valueAs="strings"
-                    label={__('Countries', 'kirki-ecommerce')}
-                    placeholder={__('e.g United States', 'kirki-ecommerce')}
-                    options={countryOptions}
-                  />
-                )}
-              </Flex>
-            </CardContent>
-          </Card>
+            {showCountrySelector && (
+              <MultiSelectField
+                name="selling_countries"
+                valueAs="strings"
+                label={__('Countries', 'kirki-ecommerce')}
+                placeholder={__('e.g United States', 'kirki-ecommerce')}
+                options={countryOptions}
+              />
+            )}
+          </Flex>
         </CardContent>
       </Card>
     </div>
@@ -102,4 +98,3 @@ const SellingLocation = () => {
 SellingLocation.displayName = 'SellingLocation';
 
 export default SellingLocation;
-

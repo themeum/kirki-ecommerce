@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Database\Migrations\CreateAddressesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterAddressesTypeColumnToString;
 use Kirki\Ecommerce\Database\Migrations\CreateLanguagesTable;
@@ -36,6 +38,9 @@ use Kirki\Ecommerce\Database\Migrations\CreateCouponCustomersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterCouponCustomersCompositePrimaryKey;
 use Kirki\Ecommerce\Database\Migrations\CreateCouponProductsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCouponUsageTable;
+use Kirki\Ecommerce\Database\Migrations\CreateCartCouponsTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderCouponsTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderItemCouponsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCollectionTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeValueProductTable;
@@ -51,7 +56,18 @@ use Kirki\Ecommerce\Database\Migrations\CreateSchedulerJobsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchedulerJobsStatusColumnToString;
 use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
+use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
+use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
+use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
+use Kirki\Ecommerce\Database\Migrations\DropCouponUsageTable;
+use Kirki\Ecommerce\Database\Migrations\AlterCartsDropDiscountDetails;
+use Kirki\Ecommerce\Database\Migrations\AlterOrdersDropLegacyCouponColumns;
+use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
+use Kirki\Ecommerce\Database\Migrations\AddInvoiceNumberToOrdersTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderTaxesTable;
+use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddShippingTaxColumns;
+use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsDropTaxColumns;
 
 return [
     CreateLanguagesTable::class,
@@ -92,6 +108,7 @@ return [
     CreateShippingBoxesTable::class,
     CreateTaxProfilesTable::class,
     CreateSchedulerJobsTable::class,
+    CreateWishlistTable::class,
 
     // Gives every key an explicit, project-owned name. Must stay after every Create* migration and
     // before every Alter* migration: at this point an upgraded database and a fresh install hold
@@ -113,4 +130,21 @@ return [
     // Since v1.0.0-alpha.3
     AddLowStockThresholdToVariantsTable::class,
     AddPublishedAtAndTrashedAtToProductsTable::class,
+
+    // Since v1.0.0-alpha.4
+    AlterAddressesTableForAddressBook::class,
+    DropIsBillingSameAsShippingFromCustomersTable::class,
+    DropIsBillingSameAsShippingFromOrdersTable::class,
+    AddInvoiceNumberToOrdersTable::class,
+
+    CreateCartCouponsTable::class,
+    CreateOrderCouponsTable::class,
+    CreateOrderItemCouponsTable::class,
+    DropCouponUsageTable::class,
+    AlterCartsDropDiscountDetails::class,
+    AlterOrdersDropLegacyCouponColumns::class,
+
+    CreateOrderTaxesTable::class,
+    AlterOrdersAddShippingTaxColumns::class,
+    AlterOrderItemsDropTaxColumns::class,
 ];

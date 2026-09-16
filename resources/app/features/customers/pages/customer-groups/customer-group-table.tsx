@@ -7,7 +7,7 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Input from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowDownUp, ListFilter } from '@/icons';
+import { ListFilter } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import type { SelectOption } from '@/types/components/common';
@@ -92,9 +92,6 @@ const CustomerGroupTableFilters = () => (
         <ListFilter />
         Filter
       </Button>
-      <Button variant="outline" aria-label="Sort">
-        <ArrowDownUp />
-      </Button>
       <Input placeholder="Search" />
     </ActionGroup>
   </Flex>
@@ -104,6 +101,8 @@ CustomerGroupTableFilters.displayName = 'CustomerGroupTableFilters';
 
 const CustomerGroupTable = () => (
   <DataTable
+    tableId="customer-groups"
+    enableColumnVisibility={false}
     data={mockCustomerGroups}
     columns={customerGroupColumns}
     total={mockCustomerGroups.length}

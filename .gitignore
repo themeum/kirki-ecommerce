@@ -19,7 +19,9 @@ docker/php/conf.d/99-local.ini
 config/listeners.cache.php
 config/policies.cache.php
 .phpunit.result.cache
+.phpcs-wporg-cache
 .wp-tests/
+.phpcs-cache
 
 # IDE files
 .idea/
@@ -37,11 +39,13 @@ build/
 tmp/
 temp/
 .vite/
-libraries/
 
 # Vite build output (resources/app npm run build)
 assets/css
 assets/js
+
+# Settings search index (resources/app npm run search:index)
+resources/app/features/settings/search/settings-search-index.json
 
 # Backup files
 *.bak

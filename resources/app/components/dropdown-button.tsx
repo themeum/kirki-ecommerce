@@ -1,10 +1,22 @@
 import type { CSSObject } from '@emotion/react';
-import { EllipseIcon, EllipsisVertical } from 'lucide-react';
-import { type ComponentProps, type CSSProperties, type ReactNode, useEffect, useState } from 'react';
+import { Ellipsis, EllipsisVertical } from 'lucide-react';
+import {
+  type ComponentProps,
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useState,
+} from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { theme } from '@/theme';
 import type { ButtonState, DropdownSize, SelectOption } from '@/types/components/common';
 import { noop } from '@/utils/function';
@@ -12,6 +24,7 @@ import { noop } from '@/utils/function';
 type DropdownOption = SelectOption & {
   isDefault?: boolean;
   style?: CSSProperties;
+  cssOverride?: CSSObject;
   type?: 'separator';
 };
 
@@ -52,9 +65,7 @@ const DropdownButton = ({
   multiple,
 }: DropdownButtonProps) => {
   const [openDropdown, setOpenDropdown] = useState(false);
-  const [selectedValues, setSelectedValues] = useState<(string | number)[]>(
-    value ?? [],
-  );
+  const [selectedValues, setSelectedValues] = useState<(string | number)[]>(value ?? []);
 
   useEffect(() => {
     setSelectedValues(value ?? []);
@@ -107,7 +118,7 @@ const DropdownButton = ({
           disabled={state === 'disabled'}
           cssOverride={buttonCss}
         >
-          {direction === 'vertical' ? <EllipsisVertical /> : <EllipseIcon />}
+          {direction === 'vertical' ? <EllipsisVertical /> : <Ellipsis />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent style={dropdownStyle}>
@@ -119,12 +130,11 @@ const DropdownButton = ({
               onSelect={() => handleOnOptionClick(option)}
               key={option.value}
               style={option?.style}
+              cssOverride={option?.cssOverride}
             >
               {checkboxField ? (
                 <Checkbox
-                  value={
-                    option?.isDefault || selectedValues.includes(option.value)
-                  }
+                  value={option?.isDefault || selectedValues.includes(option.value)}
                   label={option?.title}
                   labelStyle={labelFontStyle}
                   onChange={() => handleOnOptionClick(option)}

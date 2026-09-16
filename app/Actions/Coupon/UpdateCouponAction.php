@@ -6,8 +6,9 @@ use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\DTO\Coupon\UpdateCouponDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class UpdateCouponAction
 {
@@ -35,9 +36,7 @@ class UpdateCouponAction
         try {
             $is_updated = $this->coupon_service->update($payload);
 
-            if (!$is_updated) {
-                throw new Exception(__('Coupon could not be updated.', 'kirki-ecommerce'));
-            }
+            throw_if(!$is_updated, __('Coupon could not be updated.', 'kirki-ecommerce'));
 
             $coupon = $this->coupon_service->find($payload->id);
 

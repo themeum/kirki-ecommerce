@@ -9,20 +9,23 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Url;
 
-$has_filters = !empty($_GET['search'])
-    || (!empty($_GET['sort_by']) && $_GET['sort_by'] !== 'recommended')
-    || !empty($_GET['category'])
-    || !empty($_GET['brand'])
-    || !empty($_GET['min_price'])
-    || !empty($_GET['max_price'])
-    || !empty($_GET['attribute']);
+use function Kirki\Ecommerce\Framework\request;
+
+$has_filters = !empty(request()->text('search'))
+    || (!empty(request()->text('sort_by')) && request()->text('sort_by') !== 'recommended')
+    || !empty(request()->text('category'))
+    || !empty(request()->text('brand'))
+    || !empty(request()->text('min_price'))
+    || !empty(request()->text('max_price'))
+    || !empty(request()->text('attribute'));
 ?>
 
 <div class="kecom-products-empty">
     <div class="kecom-products-empty-icon">
-        <img src="<?php echo esc_url(KIRKI_ECOMMERCE_ASSETS_URL . '/images/empty-product.svg'); ?>" alt="<?php esc_attr_e('No products found', 'kirki-ecommerce'); ?>" width="88" height="88">
+        <img src="<?php echo esc_url(Assets::get_url('images/empty-product.svg')); ?>" alt="<?php esc_attr_e('No products found', 'kirki-ecommerce'); ?>" width="88" height="88">
     </div>
 
     <?php if ($has_filters) : ?>

@@ -13,7 +13,6 @@ defined('ABSPATH') || exit;
 $product        = $data['product'] ?? [];
 $attributes     = $product['attributes'] ?? [];
 $item           = $data['item'] ?? [];
-$unit_price     = $data['unit_price'] ?? '';
 $item_id        = esc_attr($item['id'] ?? '');
 $formatted_item = "cartData.formatted_items['{$item_id}']";
 ?>

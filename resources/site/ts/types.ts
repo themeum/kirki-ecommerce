@@ -13,11 +13,15 @@ export type ShippingMethod = {
 };
 
 export type KirkiEcommerceConfig = {
+  checkout_consents?: {
+    id: string;
+    method: 'mandatory_checkbox' | 'optional_checkbox' | 'display_text_only';
+  }[];
   customer_id: any;
   customerId: any;
   is_billing_same_as_shipping: any;
   isBillingSameAsShipping: any;
-  addresses: Record<'billing' | 'shipping', AddressItem>;
+  addresses: AddressItem[];
   rest_url_base: string; // e.g. /wp-json/kirki/ecommerce/v1
   rest_nonce: string; // WordPress REST nonce
   cart_variant_ids: number[];
@@ -36,6 +40,8 @@ export type KirkiEcommerceConfig = {
     pricing: CartPricing;
     shipping_method: ShippingMethod | null;
     is_billing_same_as_shipping?: boolean;
+    shipping_address?: Record<string, any> | null;
+    billing_address?: Record<string, any> | null;
     available_shipping_methods?: ShippingMethod[];
   };
   currency?: string;
@@ -43,6 +49,7 @@ export type KirkiEcommerceConfig = {
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;
+  is_tax_inclusive_price?: boolean;
 };
 
 // Extend window for WordPress-injected config
@@ -80,18 +87,20 @@ export type CartItem = {
     available_quantity: number;
   };
   subtotal: string;
-  tax_rate: number;
   tax_amount: string;
-  tax_breakdown: any[];
+  tax_lines: any[];
   discount_amount: string;
   total: string;
   total_formatted: string;
   created_at: string;
   updated_at: string;
-  display_product_total_money_object: {
+  display_product_total_money_object?: {
     display: string;
   };
-  display_total_money_object: {
+  display_subtotal_money_object?: MoneyObject;
+  display_strikethrough_price_money_object?: MoneyObject | null;
+  applied_product_coupons?: CartCoupon[];
+  display_total_money_object?: {
     display: string;
   };
 };
@@ -121,24 +130,34 @@ export type MoneyObject = {
   };
 };
 
-export type DiscountDetails = {
-  code: string | null;
-  title: string | null;
-  discount_value_type: string | null;
-  discount_amount_percentage: number | null;
-  base_discount_amount_fixed: number | null;
+export type CartCoupon = {
+  code: string;
+  title: string;
+  discount_type?: string;
+  discount_target?: string;
+  discount_value_type?: string;
+  discount_amount_percentage?: number;
+  base_discount_amount_fixed?: number;
+  display_discount_amount_fixed_money_object?: MoneyObject | null;
+  display_discount_amount_money_object?: MoneyObject;
+};
+
+export type TaxLine = {
+  name: string;
+  rate: number;
+  display_amount_money_object: MoneyObject;
 };
 
 export type CartPricing = {
-  display_subtotal_money_object: MoneyObject;
+  display_items_subtotal_money_object: MoneyObject;
+  display_order_discount_money_object: MoneyObject;
+  display_order_total_money_object: MoneyObject;
   display_tax_total_money_object: MoneyObject;
-  discount_details: DiscountDetails | null;
-  display_discount_total_money_object: MoneyObject;
-  display_shipping_subtotal_money_object: MoneyObject;
-  display_shipping_tax_money_object: MoneyObject;
-  display_shipping_discount_money_object: MoneyObject;
-  display_shipping_total_money_object: MoneyObject;
+  display_shipping_amount_money_object: MoneyObject;
+  display_shipping_strikethrough_money_object: MoneyObject;
   display_total_money_object: MoneyObject;
+  tax_lines: TaxLine[];
+  coupons: CartCoupon[];
 };
 
 export type Cart = {
@@ -176,30 +195,32 @@ export type OrderItem = {
 };
 
 export type CheckoutRequest = {
+  consents?: string[];
   items: OrderItem[];
-  currency_code: string;
   payment_provider: string;
-  coupon_code?: string;
+  coupon_codes?: string[];
   shipping_method?: string;
   is_billing_same_as_shipping?: boolean;
+  shipping_id?: string | number;
   shipping_first_name: string;
   shipping_last_name: string;
   shipping_address_line1: string;
   shipping_address_line2: string;
   shipping_city: string;
   shipping_state: string;
-  shipping_postcode: string;
+  shipping_postal_code: string;
   shipping_country: string;
   shipping_phone: string;
   shipping_email?: string;
   shipping_company?: string | null;
+  billing_id?: string | number;
   billing_first_name?: string;
   billing_last_name?: string;
   billing_address_line1?: string;
   billing_address_line2?: string;
   billing_city?: string;
   billing_state?: string;
-  billing_postcode?: string;
+  billing_postal_code?: string;
   billing_country?: string;
   billing_phone?: string;
   billing_email?: string;

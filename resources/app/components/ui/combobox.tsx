@@ -1,12 +1,19 @@
 import { type CSSObject } from '@emotion/react';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
-import { type ReactNode, useId, useState } from 'react';
+import { type ReactNode, useId, useRef, useState } from 'react';
 
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, flexCenter, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -61,6 +68,8 @@ const Combobox = ({
   const [open, setOpen] = useState(false);
   const listboxId = useId();
   const [search, setSearch] = useState('');
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [triggerHeight, setTriggerHeight] = useState(0);
 
   const selectedValues = multiple
     ? Array.isArray(value)
@@ -70,16 +79,13 @@ const Combobox = ({
       ? [value]
       : [];
 
-  const selectedOptions = options.filter((option) =>
-    selectedValues.includes(option.value),
-  );
+  const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
 
   const trimmedSearch = search.trim();
   const hasExactMatch = options.some(
     (option) => option.label.toLowerCase() === trimmedSearch.toLowerCase(),
   );
-  const showCreatable =
-    creatable && trimmedSearch.length > 0 && !hasExactMatch;
+  const showCreatable = creatable && trimmedSearch.length > 0 && !hasExactMatch;
 
   const handleSelect = (optionValue: string) => {
     if (multiple) {
@@ -152,6 +158,9 @@ const Combobox = ({
       modal
       open={open}
       onOpenChange={(nextOpen) => {
+        if (nextOpen) {
+          setTriggerHeight(triggerRef.current?.offsetHeight ?? 0);
+        }
         setOpen(nextOpen);
         if (!nextOpen) {
           setSearch('');
@@ -160,6 +169,7 @@ const Combobox = ({
     >
       <PopoverTrigger asChild>
         <button
+          ref={triggerRef}
           type="button"
           role="combobox"
           aria-expanded={open}
@@ -172,10 +182,16 @@ const Combobox = ({
           <ChevronsUpDown size={16} css={scoped(styles.chevron)} />
         </button>
       </PopoverTrigger>
-      <PopoverContent id={listboxId} align="start" cssOverride={styles.content}>
+      <PopoverContent
+        id={listboxId}
+        align="start"
+        sideOffset={-triggerHeight}
+        cssOverride={styles.content}
+      >
         <Command>
           <CommandInput
             placeholder={searchPlaceholder}
+            wrapperCss={styles.searchRow}
             cssOverride={searchInputCss}
             value={search}
             onValueChange={setSearch}
@@ -205,9 +221,7 @@ const Combobox = ({
                     value={option.label}
                     onSelect={() => handleSelect(option.value)}
                   >
-                    <span
-                      css={scopedMerge(styles.itemCheck,                         !isSelected && styles.itemCheckEmpty)}
-                    >
+                    <span css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}>
                       {isSelected && <Check size={14} />}
                     </span>
                     {option.label}
@@ -230,8 +244,9 @@ export type { ComboboxOption, ComboboxProps };
 const styles = defineStyles({
   trigger: {
     width: '100%',
-    minHeight: '36px',
-    border: `1px solid ${theme.colors.border.default}`,
+    minHeight: '32px',
+    maxHeight: '32px',
+    border: `1px solid ${theme.colors.border.secondary}`,
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
@@ -241,8 +256,7 @@ const styles = defineStyles({
     cursor: 'pointer',
     textAlign: 'left',
     '&:focus-visible, &[data-state="open"]': {
-      borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme),
+      borderColor: theme.colors.background.fillBrand,
     },
     '&:disabled': {
       backgroundColor: theme.colors.background.surfaceAlt,
@@ -253,11 +267,10 @@ const styles = defineStyles({
     },
   },
   triggerError: {
-    border: `1px solid ${theme.colors.border.critical}`,
+    border: `1px solid ${theme.colors.background.fillCritical}`,
     boxShadow: 'none',
     '&:focus-visible, &[data-state="open"]': {
-      borderColor: theme.colors.border.critical,
-      ...uiFocusRing(theme, theme.colors.border.critical),
+      borderColor: theme.colors.background.fillCritical,
     },
   },
   value: {
@@ -309,11 +322,18 @@ const styles = defineStyles({
     },
   },
   content: {
-    width: 'var(--radix-popover-trigger-width)',
-    minWidth: 'var(--radix-popover-trigger-width)',
-    maxWidth: 'var(--radix-popover-trigger-width)',
+    minWidth: 'calc(var(--radix-popover-trigger-width) + 2px)',
+    maxWidth: 'none',
     padding: 0,
     overflow: 'hidden',
+    borderRadius: theme.radius.lg,
+  },
+  // Less the panel's own top border, so the row's divider lands exactly where
+  // the trigger's bottom edge was and the trigger is covered without a sliver.
+  searchRow: {
+    minHeight: 'calc(var(--radix-popover-trigger-height) - 1px)',
+    padding: `0 ${theme.spacing[3]}`,
+    borderBottom: 'none',
   },
   itemCheck: {
     ...flexCenter(),

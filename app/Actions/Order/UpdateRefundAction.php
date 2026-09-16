@@ -13,6 +13,8 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class UpdateRefundAction
 {
     protected $order_service;
@@ -28,9 +30,7 @@ class UpdateRefundAction
         $order = $this->order_service->find_order_or_fail($dto->order_id);
         $refund = $order->refunds->filter(fn($refund) => (int) $refund->id === (int) $dto->id)->values()->first();
 
-        if (!$refund) {
-            throw new NotFoundException(__('Refund not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$refund, __('Refund not found.', 'kirki-ecommerce'), NotFoundException::class);
 
         DB::begin_transaction();
 
@@ -46,7 +46,7 @@ class UpdateRefundAction
 
             DB::commit();
 
-            return $order->fresh('refunds', 'items');
+            return $order->fresh('refunds', 'items', 'order_coupons.order_item_coupons');
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;

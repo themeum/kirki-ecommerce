@@ -33,6 +33,7 @@ const removeZone = (
 const getShippingMethodData = (
   zones: ShippingZone[],
   zoneId: string | number,
+  currencySymbol = '',
 ): ShippingMethodData[] => {
   const selectedZone = zones.find((zone) => zone.id === zoneId);
   if (!selectedZone) {
@@ -43,7 +44,7 @@ const getShippingMethodData = (
     ...method,
     icon: shippingMethodIconMap[method.type] || null,
     subText: getShippingMethodSubText(method),
-    rightText: getShippingMethodRightText(method),
+    rightText: getShippingMethodRightText(method, currencySymbol),
     zoneId,
   }));
 };

@@ -17,6 +17,7 @@ $verify_url = $data['verify_url'];
 $site_name = $data['site_name'];
 ?>
 <div>
+    <?php /* translators: %s: customer name */ ?>
     <p><?php echo esc_html(sprintf(__('Hi %s,', 'kirki-ecommerce'), $user_name)); ?></p>
     <p>
         <?php echo esc_html__('Please click the link below to verify your email address and link any past orders to your account:', 'kirki-ecommerce'); ?>

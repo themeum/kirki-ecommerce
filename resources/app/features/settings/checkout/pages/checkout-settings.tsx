@@ -10,7 +10,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import CheckoutConf from '@/features/settings/checkout/pages/checkout-conf';
-import LegalInfo from '@/features/settings/checkout/pages/legal-info';
 import {
   type CheckoutSettingsFormInput,
   type CheckoutSettingsFormPayload,
@@ -18,7 +17,6 @@ import {
 } from '@/features/settings/checkout/schemas/forms/checkout-settings-form';
 import CheckoutSettingsSkeleton from '@/features/settings/checkout/skeletons/checkout-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { CartIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
@@ -32,8 +30,6 @@ const CheckoutSettings = () => {
   const { data: checkoutSettingsData, isLoading } = useSettingsQuery('checkout');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'checkout'>();
 
-  const loaded = !isLoading && Boolean(checkoutSettingsData);
-
   const form = useForm<CheckoutSettingsFormInput, unknown, CheckoutSettingsFormPayload>({
     resolver: zodResolver(CheckoutSettingsFormSchema),
     defaultValues: getDefaults(CheckoutSettingsFormSchema),
@@ -46,10 +42,6 @@ const CheckoutSettings = () => {
 
     form.reset(pickFormValues(CheckoutSettingsFormSchema, checkoutSettingsData));
   }, [checkoutSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(form.formState.isDirty);
-  }, [form.formState.isDirty]);
 
   const handleSaveData = async (payload: CheckoutSettingsFormPayload) => {
     try {
@@ -74,38 +66,35 @@ const CheckoutSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {loaded ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />
-            <Card cssOverride={cardStyles.formCard}>
-              <CardContent>
-                <Flex align="center">
-                  <Flex direction="column" gap={2}>
-                    <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
-                    <Text variant="small" color="secondary">
-                      {__(
-                        'Let customers buy without logging in or creating an account.',
-                        'kirki-ecommerce',
-                      )}
-                    </Text>
-                  </Flex>
-                  <ActionGroup>
-                    <SwitchField name="is_allowed_guest_checkout" />
-                  </ActionGroup>
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<CartIcon />} title={__('Checkout', 'kirki-ecommerce')} />
+          <Card data-search-id="checkout.guest-checkout" data-search-keywords="anonymous, without registration, no sign up, skip login" cssOverride={cardStyles.formCard}>
+            <CardContent>
+              <Flex align="center">
+                <Flex direction="column" gap={2}>
+                  <Text weight="medium">{__('Allow Guest Checkout', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">
+                    {__(
+                      'Let customers buy without logging in or creating an account.',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
                 </Flex>
-              </CardContent>
-            </Card>
-            <CheckoutConf />
-            <LegalInfo />
-          </Flex>
-        </Form>
-      ) : (
-        <CheckoutSettingsSkeleton />
-      )}
+                <ActionGroup>
+                  <SwitchField name="is_allowed_guest_checkout" />
+                </ActionGroup>
+              </Flex>
+            </CardContent>
+          </Card>
+          <CheckoutConf />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <CheckoutSettingsSkeleton />
   );
 };
 

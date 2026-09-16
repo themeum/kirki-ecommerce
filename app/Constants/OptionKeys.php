@@ -16,7 +16,11 @@ class OptionKeys
     const CURRENCY_SETTINGS = 'currency';
     const EMAIL_SETTINGS = 'email';
     const ADVANCE_SETTINGS = 'advance';
+    const LEGAL_SETTINGS = 'legal';
 
-    const MIGRATIONS = 'kirki_ecommerce_migrations'; // @todo: will be handled later
-    const ERASE_DATA_UPON_UNINSTALL = 'kirki_ecommerce_erase_upon_uninstall';
+    const MIGRATIONS = 'migrations'; // @todo: will be handled later
+    const ERASE_DATA_UPON_UNINSTALL = 'erase_upon_uninstall';
+
+    const LAST_INVOICE_NUMBER = 'last_invoice_number';
+    const LAST_INVOICE_NUMBER_RESET_YEAR = 'last_invoice_number_reset_year';
 }

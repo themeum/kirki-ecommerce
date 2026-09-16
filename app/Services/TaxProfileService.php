@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\TaxProfile;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -13,8 +14,25 @@ use Kirki\Ecommerce\App\DTO\TaxProfile\UpdateTaxProfileDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 class TaxProfileService
 {
+    use HasSortableColumns;
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function sortable_columns()
+    {
+        return [
+            'id' => 'id',
+            'name' => 'name',
+            'created_at' => 'created_at',
+            'updated_at' => 'updated_at',
+        ];
+    }
+
     /**
      * Return paginated tax profiles
      *
@@ -48,11 +66,19 @@ class TaxProfileService
     {
         $tax_profile = TaxProfile::find($id);
 
-        if (!$tax_profile) {
-            throw new NotFoundException(__('Tax profile not found.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$tax_profile, __('Tax profile not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return $tax_profile;
+    }
+
+    /**
+     * Find the default tax profile.
+     *
+     * @return TaxProfile|null
+     */
+    public function find_default()
+    {
+        return TaxProfile::where('is_default', true)->first() ?? null;
     }
 
     /**
@@ -64,6 +90,10 @@ class TaxProfileService
     public function create(CreateTaxProfileDTO $data)
     {
         $tax_profile = TaxProfile::create($data->to_array());
+
+        if ($tax_profile->is_default) {
+            TaxProfile::where('id', '!=', $tax_profile->id)->update(['is_default' => false]);
+        }
 
         return $tax_profile;
     }
@@ -79,15 +109,15 @@ class TaxProfileService
     {
         $tax_profile = TaxProfile::find($data->id);
 
-        if (empty($tax_profile)) {
-            throw new NotFoundException(__('Tax profile could not be found.', 'kirki-ecommerce'), Response::NOT_FOUND);
+        throw_if(empty($tax_profile), __('Tax profile could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if ($data->is_default) {
+            TaxProfile::where('id', '!=', $data->id)->update(['is_default' => false]);
         }
 
         $is_updated = (bool) $tax_profile->update($data->to_array());
 
-        if (!$is_updated) {
-            throw new NotFoundException(__('Tax profile could not be updated.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_updated, __('Tax profile could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return TaxProfile::find($data->id);
     }
@@ -103,9 +133,7 @@ class TaxProfileService
     {
         $is_deleted = (bool) TaxProfile::query()->where('id', $id)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Tax profile could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Tax profile could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -121,9 +149,7 @@ class TaxProfileService
     {
         $is_deleted = (bool) TaxProfile::where_in('id', $ids)->delete();
 
-        if (!$is_deleted) {
-            throw new NotFoundException(__('Tax profiles could not be deleted.', 'kirki-ecommerce'), Response::NOT_FOUND);
-        }
+        throw_if(!$is_deleted, __('Tax profiles could not be deleted.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
         return true;
     }
@@ -141,13 +167,10 @@ class TaxProfileService
 
     protected function list_query(ListFilterDTO $filters)
     {
-        return TaxProfile::when($filters->search, function (QueryBuilder $query, $search) {
+        $query = TaxProfile::when($filters->search, function (QueryBuilder $query, $search) {
             return $query->where('name', 'like', '%' . $search . '%');
-        })
-            ->when(!empty($filters->sort_by) && !empty($filters->sort_order), function (QueryBuilder $query) use ($filters) {
-                return $query->order_by($filters->sort_by, $filters->sort_order);
-            }, function (QueryBuilder $query) {
-                return $query->order_by('id', 'desc');
-            });
+        });
+
+        return $this->apply_sorting($query, $filters);
     }
 }

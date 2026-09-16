@@ -75,6 +75,22 @@ describe('useDataTableParams sort conversion', () => {
     expect(result.current.params.sort_order).toBe('desc');
     expect(result.current.sorting).toEqual([{ id: 'name', desc: true }]);
   });
+
+  it('returns to the default sort when the table reports no sort', () => {
+    const { result } = renderUseDataTableParams<TestFilter>(filterOptions, [
+      '/?sort_by=name&sort_order=desc',
+    ]);
+
+    expect(result.current.sorting).toEqual([{ id: 'name', desc: true }]);
+
+    act(() => {
+      result.current.onSortingChange(() => []);
+    });
+
+    expect(result.current.params.sort_by).toBe('id');
+    expect(result.current.params.sort_order).toBe('asc');
+    expect(result.current.sorting).toEqual([{ id: 'id', desc: false }]);
+  });
 });
 
 describe('useDataTableParams selectionResetKey', () => {

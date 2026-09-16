@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
-use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
@@ -18,7 +17,6 @@ class Customer extends Model
         'id' => 'integer',
         'user_id' => 'integer',
         'accepts_marketing' => 'boolean',
-        'is_billing_same_as_shipping' => 'boolean',
         'tags' => 'json'
     ];
 
@@ -30,7 +28,6 @@ class Customer extends Model
         'email',
         'phone',
         'accepts_marketing',
-        'is_billing_same_as_shipping',
         'notes',
         'tags',
         'created_by',
@@ -44,12 +41,12 @@ class Customer extends Model
 
     public function billing_address()
     {
-        return $this->has_one(Address::class, 'customer_id', 'id')->where('type', AddressType::BILLING);
+        return $this->has_one(Address::class, 'customer_id', 'id')->where('is_default_billing', true);
     }
 
     public function shipping_address()
     {
-        return $this->has_one(Address::class, 'customer_id', 'id')->where('type', AddressType::SHIPPING);
+        return $this->has_one(Address::class, 'customer_id', 'id')->where('is_default_shipping', true);
     }
 
     public function orders()

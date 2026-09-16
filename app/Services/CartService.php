@@ -8,6 +8,7 @@ use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;
 use Kirki\Ecommerce\App\DTO\Cart\EmptyCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\RemoveCartItemDTO;
 use Kirki\Ecommerce\App\Models\Cart as CartModel;
+use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Framework\Exceptions\AuthorizationException;
@@ -21,6 +22,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\request;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class CartService
@@ -127,15 +129,23 @@ class CartService
     {
         $this->assert_single_owner_identity($data);
 
-        if(empty($data['user_id'])){
+        if (empty($data['user_id'])) {
             return CartModel::create($data);
         }
 
         $customer = customer($data['user_id']);
-        
-        if(!empty($customer)){
-            $data['shipping_address'] = $customer->get_shipping_address();
-            $data['billing_address'] = $customer->get_billing_address();
+
+        if (!empty($customer->get_customer_id())) {
+            $shipping_address = $customer->get_shipping_address();
+            $billing_address = $customer->get_billing_address();
+            $is_billing_same_as_shipping = ($shipping_address ? $shipping_address['id'] : null) === ($billing_address ? $billing_address['id'] : null);
+
+            $data['shipping_address'] = $shipping_address;
+            $data['is_billing_same_as_shipping'] = $is_billing_same_as_shipping;
+
+            if (!$data['is_billing_same_as_shipping']) {
+                $data['billing_address'] = $billing_address;
+            }
         }
 
         return CartModel::create($data);
@@ -166,6 +176,7 @@ class CartService
         $data = [
             'currency_code' => base_currency()->code, // @todo: Implement currency selection in the future for multi-currency support
             'base_currency_code' => base_currency()->code,
+            'is_billing_same_as_shipping' => true,
         ];
 
         if (!empty($user_id)) {
@@ -195,13 +206,9 @@ class CartService
     {
         $item = $this->find_item($item_id);
 
-        if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
-        if ($item->cart_id !== $cart_id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN);
-        }
+        throw_if($item->cart_id !== $cart_id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
         return $this->update_item($item_id, ['quantity' => $quantity]);
     }
@@ -231,19 +238,13 @@ class CartService
     {
         $cart = $this->get_cart($dto->user_id, $dto->token);
 
-        if (empty($cart)) {
-            throw new Exception(__('Cart not found.', 'kirki-ecommerce'));
-        }
+        throw_if(empty($cart), __('Cart not found.', 'kirki-ecommerce'));
 
         $item = $this->find_item($dto->item_id);
 
-        if (!$item) {
-            throw new Exception(__('Cart item not found.', 'kirki-ecommerce'));
-        }
+        throw_if(!$item, __('Cart item not found.', 'kirki-ecommerce'));
 
-        if ($item->cart_id !== $cart->id) {
-            throw new AuthorizationException(__('Unauthorized action.', 'kirki-ecommerce'), Response::FORBIDDEN);
-        }
+        throw_if($item->cart_id !== $cart->id, __('Unauthorized action.', 'kirki-ecommerce'), AuthorizationException::class, Response::FORBIDDEN);
 
         $is_last_item = $cart->items->count() === 1;
 
@@ -272,6 +273,25 @@ class CartService
     public function find(int $cart_id)
     {
         return CartModel::with($this->cart_relations())->find($cart_id);
+    }
+
+    public function add_coupon(int $cart_id, int $coupon_id)
+    {
+        return CartCoupon::create([
+            'cart_id' => $cart_id,
+            'coupon_id' => $coupon_id,
+        ]);
+    }
+
+    public function remove_coupons(int $cart_id, array $coupon_ids)
+    {
+        if (empty($coupon_ids)) {
+            return false;
+        }
+
+        return CartCoupon::where('cart_id', $cart_id)
+            ->where_in('coupon_id', $coupon_ids)
+            ->delete();
     }
 
     protected function get_cookie_cart_token(): ?string
@@ -356,9 +376,7 @@ class CartService
 
     protected function assert_single_owner_identity(array $data): void
     {
-        if (!empty($data['user_id']) && !empty($data['cart_token'])) {
-            throw new ValidationException(__('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), Response::UNPROCESSABLE_ENTITY);
-        }
+        throw_if(!empty($data['user_id']) && !empty($data['cart_token']), __('A cart cannot have both user and guest token ownership.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 
     protected function create_cart_cookie(string $token): void
@@ -391,6 +409,7 @@ class CartService
                 'product' => ['media', 'categories'],
                 'variant' => ['media', 'attribute_values', 'available_quantity'],
             ],
+            'coupons',
         ];
     }
 }

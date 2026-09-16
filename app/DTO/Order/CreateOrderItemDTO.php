@@ -58,12 +58,6 @@ class CreateOrderItemDTO extends DTO
     public $base_tax_total;
 
     /** @var float */
-    public $tax_rate;
-
-    /** @var array */
-    public $tax_breakdown = [];
-
-    /** @var float */
     public $invoiced_total;
 
     /** @var float */

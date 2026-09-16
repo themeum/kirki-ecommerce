@@ -12,9 +12,11 @@ import { endpoints } from '@/config/endpoints';
  */
 // eslint-disable-next-line no-restricted-imports -- see comment above
 import type {
+  AdvanceSettingsFormPayload,
   CheckoutSettingsFormPayload,
   EmailSettingsFormPayload,
   GeneralSettingsFormPayload,
+  LegalSettingsFormPayload,
   MultiCurrencySettingsFormPayload,
   ProductsSettingsFormPayload,
   ShippingSettingsFormPayload,
@@ -24,12 +26,17 @@ import { apiClient } from '@/libs/api';
 import { defaultSettingsKeys, settingsKeys } from '@/libs/query-keys';
 import { AppConfigSchema } from '@/schemas/catalog/app-config';
 import { SettingsSchemaMap, type SettingsSectionKey } from '@/schemas/catalog/settings';
-import { parseData, parseResponse, toastMutationError, toastMutationSuccess } from '@/services/helpers';
+import {
+  parseData,
+  parseResponse,
+  toastMutationError,
+  toastMutationSuccess,
+} from '@/services/helpers';
 import type { ListQueryParams } from '@/types/list-state';
 import { __ } from '@/wpi18n';
 
 /**
- * Only the 7 sections converted to a canonical form schema are writable.
+ * Only the 9 sections converted to a canonical form schema are writable.
  * `payment` is readable (see `schemas/catalog/settings.ts`) but has no form
  * schema — payment settings are written through `services/payment.ts`'s
  * dedicated gateway/method endpoints instead of the generic settings PUT.
@@ -42,6 +49,8 @@ type SettingsPayloadMap = {
   shipping: ShippingSettingsFormPayload;
   tax: TaxSettingsFormPayload;
   currency: MultiCurrencySettingsFormPayload;
+  advance: AdvanceSettingsFormPayload;
+  legal: LegalSettingsFormPayload;
 };
 
 /**
@@ -58,9 +67,7 @@ const getSettings = <K extends SettingsSectionKey>(
     .get(endpoints.SETTINGS_BY_KEY(key), { params })
     .then(
       (response) =>
-        parseData(SettingsSchemaMap[key], response) as z.infer<
-          (typeof SettingsSchemaMap)[K]
-        >,
+        parseData(SettingsSchemaMap[key], response) as z.infer<(typeof SettingsSchemaMap)[K]>,
     );
 };
 
@@ -107,10 +114,7 @@ const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
   return useMutation({
     mutationFn: (variables: { key: K; data: SettingsPayloadMap[K] }) => updateSettings(variables),
     onSuccess(response, variables) {
-      toastMutationSuccess(
-        response.message ||
-        __('Settings updated successfully.', 'kirki-ecommerce'),
-      );
+      toastMutationSuccess(response.message || __('Settings saved', 'kirki-ecommerce'));
       void queryClient.invalidateQueries({
         queryKey: settingsKeys.section(variables.key),
       });
@@ -125,6 +129,10 @@ const useUpdateSettingsMutation = <K extends keyof SettingsPayloadMap>() => {
 };
 
 export {
-  getDefaultSettings, getSettings, updateSettings, useDefaultSettingsQuery, useSettingsQuery, useUpdateSettingsMutation,
+  getDefaultSettings,
+  getSettings,
+  updateSettings,
+  useDefaultSettingsQuery,
+  useSettingsQuery,
+  useUpdateSettingsMutation,
 };
-

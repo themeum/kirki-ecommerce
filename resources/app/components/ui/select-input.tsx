@@ -198,13 +198,13 @@ const styles = defineStyles({
     },
   }),
   selectTrigger: css({
-    border: 'none',
+    border: '1px solid transparent',
     boxShadow: 'none',
     borderRadius: theme.radius.none,
   }),
   selectTriggerDivider: css([
     {
-      border: 'none',
+      border: '1px solid transparent',
       boxShadow: 'none',
       borderRadius: theme.radius.none,
     },

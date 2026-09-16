@@ -13,7 +13,9 @@ namespace Kirki\Ecommerce\App\Resources\Site\Shop;
 
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
+use Kirki\Ecommerce\App\Services\WishlistService;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Resource;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -36,16 +38,17 @@ class ShopProductResource extends Resource
     public function to_array(): array
     {
         $variants = $this->variants;
-        $variant  = $variants->first();
+        $variant  = $this->variant ? $this->variant : $this->resolve_default_variant($variants);
 
         if (! $variant) {
             return [];
         }
 
-        $has_variants = (bool) $variant->has_variants;
+        $has_variants = (bool) $this->has_variants;
         $variant_id   = intval($variant->id);
         $out_of_stock = $this->resolve_stock_status($variant_id);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
+        $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 
         return [
             'id'                      => $this->id,
@@ -62,7 +65,23 @@ class ShopProductResource extends Resource
             'has_variants'            => $has_variants,
             'variant_id'              => $variant_id,
             'cart_url'                => Url::get_cart_url(),
+            'is_wishlisted'           => $is_wishlisted,
         ];
+    }
+
+    /**
+     * Resolve the default variant from the variants collection.
+     *
+     * @param Collection $variants
+     *
+     * @return \Kirki\Ecommerce\App\Models\Variant|null
+     */
+    private function resolve_default_variant($variants)
+    {
+        if (! $variants) {
+            return null;
+        }
+        return $variants->filter(fn($variant) => 1 == $variant->is_default)->first();
     }
 
     /**
@@ -83,11 +102,12 @@ class ShopProductResource extends Resource
         $sale_price    = $variant->base_sale_price;
         $in_sale       = $sale_price > 0 && $sale_price < $regular_price;
 
-        $formatted_regular_price = Money::format_from_minor($regular_price);
-        $display_price           = $in_sale ? Money::format_from_minor($sale_price) : $formatted_regular_price;
+        $display_currency = Money::resolve_display_currency();
+        $formatted_regular_price = Money::prepare_amount_object_from_minor($regular_price, null, $display_currency)->display;
+        $display_price           = $in_sale ? Money::prepare_amount_object_from_minor($sale_price, null, $display_currency)->display : $formatted_regular_price;
 
         if ($has_variants) {
-            [$display_price, $in_sale] = $this->resolve_variant_price_range($variants);
+            [$display_price, $in_sale] = $this->resolve_variant_price_range($variants, $display_currency);
         }
 
         return compact('display_price', 'formatted_regular_price', 'in_sale');
@@ -103,15 +123,15 @@ class ShopProductResource extends Resource
      *
      * @return array{ 0: string, 1: bool }
      */
-    private function resolve_variant_price_range($variants): array
+    private function resolve_variant_price_range($variants, $display_currency = null): array
     {
         $lowest_price  = $variants->min(fn($v) => $v->base_price);
         $highest_price = $variants->max(fn($v) => $v->base_price);
 
-        $display_price = Money::format_from_minor($lowest_price);
+        $display_price = Money::prepare_amount_object_from_minor($lowest_price, null, $display_currency)->display;
 
         if ($lowest_price !== $highest_price) {
-            $display_price .= ' - ' . Money::format_from_minor($highest_price);
+            $display_price .= ' - ' . Money::prepare_amount_object_from_minor($highest_price, null, $display_currency)->display;
         }
 
         return [$display_price, false];
@@ -136,10 +156,15 @@ class ShopProductResource extends Resource
      */
     private function resolve_image_url(): string
     {
-        $media = $this->media->first();
+        if (is_int($this->media)) {
+            $media_id = $this->media;
+        } else {
+            $media = is_object($this->media) ? $this->media->first() : null;
+            $media_id = $media && is_object($media) ? $media->ID : 0;
+        }
 
-        return $media
-            ? (wp_get_attachment_image_url($media->ID, 'large') ?: '')
+        return $media_id
+            ? (wp_get_attachment_image_url($media_id, 'large') ?: '')
             : Url::get_product_fallback_image();
     }
 

@@ -30,7 +30,6 @@ class BrandController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -57,7 +56,7 @@ class BrandController
 
         return response()->json([
             'data' => BrandResource::make($brand),
-            'message' => __('Brand created successfully.', 'kirki-ecommerce'),
+            'message' => __('Brand created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +78,7 @@ class BrandController
 
         return response()->json([
             'data' => BrandResource::make($brand),
-            'message' => __('Brand updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Brand updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +88,7 @@ class BrandController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Brand deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Brand deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +104,14 @@ class BrandController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Brand deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Brand deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All brands deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All brands deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

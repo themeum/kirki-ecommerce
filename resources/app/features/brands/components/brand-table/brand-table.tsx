@@ -2,20 +2,28 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
+import type { DataTableBulkAction } from '@/components/data-table';
 import type { DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dialog';
 import BrandTableFilters from '@/features/brands/components/brand-table/brand-table-filters';
 import { brandColumns } from '@/features/brands/components/brand-table/columns';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
-import { useBrandsQuery, useBulkDeleteBrandsMutation, useDeleteBrandMutation } from '@/features/brands/services/brand';
+import {
+  useBrandsQuery,
+  useBulkDeleteBrandsMutation,
+  useDeleteBrandMutation,
+} from '@/features/brands/services/brand';
 import { brandListOptions } from '@/features/brands/types';
-import { useDataTableParams } from '@/hooks';
+import { useConfirmDelete, useDataTableParams } from '@/hooks';
 import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
-const brandBulkActions = [{ value: 'delete', title: __('Trash', 'kirki-ecommerce') }];
+const brandBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+];
 
 const BrandTable = () => {
   const { params, pagination, sorting, onPaginationChange, onSortingChange, selectionResetKey } =
@@ -24,6 +32,7 @@ const BrandTable = () => {
   const { data, isFetching } = useBrandsQuery(params);
   const deleteMutation = useDeleteBrandMutation();
   const bulkDeleteMutation = useBulkDeleteBrandsMutation();
+  const { confirmDelete, confirmDeleteAsync, deleteConfirmation } = useConfirmDelete();
   const [editingItem, setEditingItem] = useState<Brand | null>(null);
 
   const handleBulkApply = useCallback(
@@ -32,9 +41,24 @@ const BrandTable = () => {
         return;
       }
 
-      await bulkDeleteMutation.mutateAsync(resolveBulkDeletePayload(isAllMatchingSelected, selectedIds));
+      if (
+        !(await confirmDeleteAsync({
+          title: __('Delete selected brands?', 'kirki-ecommerce'),
+          description: __(
+            'The selected brands will be permanently deleted. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        }))
+      ) {
+        // Rejecting keeps the row selection so the action can be retried.
+        throw new Error('Bulk delete cancelled');
+      }
+
+      await bulkDeleteMutation.mutateAsync(
+        resolveBulkDeletePayload(isAllMatchingSelected, selectedIds),
+      );
     },
-    [bulkDeleteMutation],
+    [bulkDeleteMutation, confirmDeleteAsync],
   );
 
   const columns = useMemo<ColumnDef<Brand>[]>(
@@ -44,6 +68,7 @@ const BrandTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <DataTableRowActions
             edit={{ onClick: () => setEditingItem(row.original) }}
@@ -52,19 +77,30 @@ const BrandTable = () => {
                 label: __('Delete', 'kirki-ecommerce'),
                 icon: <Trash2 size={16} />,
                 destructive: true,
-                onClick: () => deleteMutation.mutate(row.original.id),
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete brand?', 'kirki-ecommerce'),
+                      description: __(
+                        'This brand will be permanently deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
               },
             ]}
           />
         ),
       },
     ],
-    [deleteMutation],
+    [confirmDelete, deleteMutation],
   );
 
   return (
     <>
       <DataTable
+        tableId="brands"
         data={data?.results ?? []}
         columns={columns}
         total={data?.total}
@@ -76,14 +112,19 @@ const BrandTable = () => {
         isLoading={isFetching}
         enableRowSelection
         selectionResetKey={selectionResetKey}
-        bulkActionOptions={brandBulkActions}
+        bulkActions={brandBulkActions}
         onBulkApply={handleBulkApply}
         columnPinning={{ right: ['actions'] }}
         density="compact"
         toolbar={<BrandTableFilters />}
       />
+      {deleteConfirmation}
       {editingItem && (
-        <BrandAddEditPopover key={editingItem.id} brand={editingItem} onClose={() => setEditingItem(null)} />
+        <BrandAddEditPopover
+          key={editingItem.id}
+          brand={editingItem}
+          onClose={() => setEditingItem(null)}
+        />
       )}
     </>
   );

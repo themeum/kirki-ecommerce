@@ -37,7 +37,7 @@ class OnboardingController
 
         return response()->json([
             'data' => [],
-            'message' => __('Onboarding settings updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Onboarding settings saved', 'kirki-ecommerce'),
         ]);
     }
 }

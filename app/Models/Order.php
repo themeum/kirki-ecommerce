@@ -2,8 +2,14 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
+use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
 class Order extends Model
 {
@@ -14,6 +20,7 @@ class Order extends Model
     protected $fillable = [
         'uuid',
         'order_number',
+        'invoice_number',
         'customer_id',
         'order_status',
         'fulfillment_status',
@@ -29,12 +36,12 @@ class Order extends Model
         'reverse_charge',
         'invoiced_shipping_total',
         'base_shipping_total',
-        'coupon_code',
         'invoiced_discount_total',
         'base_discount_total',
-        'discount_details',
         'invoiced_tax_total',
         'base_tax_total',
+        'invoiced_shipping_tax_amount',
+        'base_shipping_tax_amount',
         'invoiced_total',
         'base_total',
         'items_count',
@@ -72,7 +79,6 @@ class Order extends Model
         'billing_phone',
         'billing_email',
         'billing_company',
-        'is_billing_same_as_shipping',
         'customer_first_name',
         'customer_last_name',
         'customer_email',
@@ -104,12 +110,12 @@ class Order extends Model
         'reverse_charge' => 'boolean',
         'invoiced_payment_provider_fee' => 'integer',
         'base_payment_provider_fee' => 'integer',
-        'discount_details' => 'json',
         'payment_metadata' => 'json',
         'shipping_metadata' => 'json',
         'invoiced_tax_total' => 'integer',
         'base_tax_total' => 'integer',
-        'is_billing_same_as_shipping' => 'boolean'
+        'invoiced_shipping_tax_amount' => 'integer',
+        'base_shipping_tax_amount' => 'integer',
     ];
 
     /**
@@ -157,9 +163,9 @@ class Order extends Model
         return $this->belongs_to(Customer::class, 'customer_id');
     }
 
-    public function coupon_usage()
+    public function order_coupons()
     {
-        return $this->has_one(CouponUsage::class, 'order_id');
+        return $this->has_many(OrderCoupon::class, 'order_id');
     }
 
     public function refunds()
@@ -170,5 +176,71 @@ class Order extends Model
     public function activities()
     {
         return $this->has_many(OrderActivity::class, 'order_id');
+    }
+
+    public function taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_id');
+    }
+
+    public function shipping_taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_id')->where('type', OrderTaxType::SHIPPING);
+    }
+
+    /**
+     * Narrow the list to a merchant-facing order state.
+     *
+     * The states a merchant filters by cut across three columns. How far the
+     * order has progressed is fulfillment_status; anything about money is
+     * payment_status; and the refund states exist only as a composite
+     * order_status, since order_status is the (fulfillment, payment) pair and
+     * has no independent column of its own.
+     *
+     * @param QueryBuilder $query
+     * @param string       $status
+     *
+     * @return QueryBuilder
+     */
+    public function scope_apply_status_filter(QueryBuilder $query, $status)
+    {
+        if (empty($status)) {
+            return $query;
+        }
+
+        $fulfillment_states = [
+            OrderListStatus::ORDER_PLACED => FulfillmentStatus::UNFULFILLED,
+            OrderListStatus::ORDER_PROCESSING => FulfillmentStatus::PROCESSING,
+            OrderListStatus::ORDER_ON_HOLD => FulfillmentStatus::ON_HOLD,
+            OrderListStatus::ORDER_SHIPPED => FulfillmentStatus::SHIPPED,
+            OrderListStatus::ORDER_DELIVERED => FulfillmentStatus::DELIVERED,
+            OrderListStatus::ORDER_RETURNED => FulfillmentStatus::RETURNED,
+            OrderListStatus::ORDER_CANCELLED => FulfillmentStatus::CANCELLED,
+        ];
+
+        if (isset($fulfillment_states[$status])) {
+            return $query->where('fulfillment_status', $fulfillment_states[$status]);
+        }
+
+        $payment_states = [
+            OrderListStatus::PAYMENT_FAILED => PaymentStatus::FAILED,
+            OrderListStatus::REFUND_IN_PROGRESS => PaymentStatus::REFUNDING,
+            OrderListStatus::REFUNDED => PaymentStatus::REFUNDED,
+        ];
+
+        if (isset($payment_states[$status])) {
+            return $query->where('payment_status', $payment_states[$status]);
+        }
+
+        $lifecycle_states = [
+            OrderListStatus::REFUND_REQUESTED => OrderStatus::REFUND_REQUESTED,
+            OrderListStatus::REFUND_DECLINED => OrderStatus::REFUND_DECLINED,
+        ];
+
+        if (isset($lifecycle_states[$status])) {
+            return $query->where('order_status', $lifecycle_states[$status]);
+        }
+
+        return $query;
     }
 }

@@ -1,33 +1,24 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2 } from 'lucide-react';
-import { type Dispatch, type SetStateAction, useCallback, useMemo, useState } from 'react';
+import { type Dispatch, type MouseEvent, type SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 import { useOutletContext } from 'react-router';
 
-import type { DataTableSelectionState } from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import type { Attribute, AttributeValue } from '@/features/products';
-import { useBulkDeleteAttributeValuesMutation, useDeleteAttributeValueMutation } from '@/features/products';
+import {
+  useBulkDeleteAttributeValuesMutation,
+  useDeleteAttributeValueMutation,
+} from '@/features/products';
 import { getVariationColumns } from '@/features/settings/essentials/pages/variation-library/variation-table/columns';
 import VariantTableFilters from '@/features/settings/essentials/pages/variation-library/variation-table/variant-table-filters';
-import VariationValuePopup from '@/features/settings/essentials/pages/variation-library/variation-value-dialog';
+import VariationValuePopover from '@/features/settings/essentials/pages/variation-library/variation-value-popover';
 import { getSearchedValue, setUnsavedDataStatus } from '@/features/settings/lib/utils';
-import type { ConfirmationVariant } from '@/types/components/common';
+import type { SettingsOutletContext } from '@/features/settings/types';
 import { __ } from '@/wpi18n';
 
 type AttributeWithMeta = Attribute & { updated_at?: string };
-
-type SettingsOutletContext = {
-  confirmAction: (params: {
-    action?: () => void;
-    otherProps?: {
-      variant?: ConfirmationVariant;
-      force?: boolean;
-      title?: string;
-      subtitle?: string;
-    };
-  }) => void;
-};
 
 type VariationTableProps = {
   results?: AttributeValue[];
@@ -35,18 +26,20 @@ type VariationTableProps = {
   updateDataList: Dispatch<SetStateAction<AttributeValue[]>>;
 };
 
-const variationBulkActions = [{ value: 'delete', title: __('Delete', 'kirki-ecommerce') }];
+const variationBulkActions: DataTableBulkAction[] = [
+  { value: 'delete', title: __('Delete', 'kirki-ecommerce'), destructive: true },
+];
 
-const VariationTable = ({
-  results = [],
-  selectedItem,
-  updateDataList,
-}: VariationTableProps) => {
+const VariationTable = ({ results = [], selectedItem, updateDataList }: VariationTableProps) => {
   const { confirmAction } = useOutletContext<SettingsOutletContext>();
-  const deleteMutation = useDeleteAttributeValueMutation();
-  const bulkDeleteMutation = useBulkDeleteAttributeValuesMutation();
+  // `useMutation` hands back a fresh object every render, so depending on it
+  // rebuilds `columns`, and a new cell renderer remounts every cell — taking
+  // the edit button the popover is anchored to with it. `mutate` is stable.
+  const { mutate: deleteValue } = useDeleteAttributeValueMutation();
+  const { mutate: bulkDeleteValues } = useBulkDeleteAttributeValuesMutation();
   const [searchValue, setSearchValue] = useState('');
   const [editingItem, setEditingItem] = useState<AttributeValue | null>(null);
+  const editAnchorRef = useRef<HTMLElement | null>(null);
 
   const filteredList = useMemo(() => {
     const keyword = searchValue?.trim();
@@ -65,7 +58,7 @@ const VariationTable = ({
       setUnsavedDataStatus(true);
       confirmAction({
         action: () => {
-          deleteMutation.mutate({ attribute_id: selectedItem.id, value_id: item.id });
+          deleteValue({ attribute_id: selectedItem.id, value_id: item.id });
         },
         otherProps: {
           variant: 'delete',
@@ -78,7 +71,7 @@ const VariationTable = ({
         },
       });
     },
-    [confirmAction, deleteMutation, selectedItem],
+    [confirmAction, deleteValue, selectedItem],
   );
 
   const handleBulkApply = useCallback(
@@ -92,7 +85,7 @@ const VariationTable = ({
         setUnsavedDataStatus(true);
         confirmAction({
           action: () => {
-            bulkDeleteMutation.mutate({
+            bulkDeleteValues({
               attribute_id: selectedItem.id,
               ids: selectedIds.map(Number),
             });
@@ -109,7 +102,7 @@ const VariationTable = ({
           },
         });
       }),
-    [bulkDeleteMutation, confirmAction, selectedItem],
+    [bulkDeleteValues, confirmAction, selectedItem],
   );
 
   const columns = useMemo<ColumnDef<AttributeValue>[]>(() => {
@@ -125,9 +118,15 @@ const VariationTable = ({
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: { alignment: 'right' },
         cell: ({ row }) => (
           <DataTableRowActions
-            edit={{ onClick: () => setEditingItem(row.original) }}
+            edit={{
+              onClick: (event: MouseEvent<HTMLButtonElement>) => {
+                editAnchorRef.current = event.currentTarget;
+                setEditingItem(row.original);
+              },
+            }}
             actions={[
               {
                 label: __('Delete', 'kirki-ecommerce'),
@@ -145,6 +144,8 @@ const VariationTable = ({
   return (
     <>
       <DataTable
+        tableId="variation-library"
+        enableColumnVisibility={false}
         data={filteredList}
         columns={columns}
         pageCount={1}
@@ -155,20 +156,25 @@ const VariationTable = ({
         hidePagination
         fixed
         enableRowSelection
-        bulkActionOptions={variationBulkActions}
+        bulkActions={variationBulkActions}
         onBulkApply={handleBulkApply}
-        toolbar={(
+        toolbar={
           <VariantTableFilters
             searchValue={searchValue}
             setSearchValue={setSearchValue}
             dataList={filteredList}
             updateDataList={updateDataList}
           />
-        )}
+        }
       />
-      <VariationValuePopup
+      <VariationValuePopover
         isOpen={Boolean(editingItem)}
-        onClose={() => setEditingItem(null)}
+        onOpenChange={(next) => {
+          if (!next) {
+            setEditingItem(null);
+          }
+        }}
+        anchorRef={editAnchorRef}
         editedItem={editingItem}
         type={selectedItem?.type}
         selectedItem={selectedItem}

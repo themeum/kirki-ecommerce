@@ -23,7 +23,6 @@ class CustomerResource extends Resource
             'phone' => $this->phone,
             'photo' => MediaAttachment::make($this->photo),
             'shipping_address' => $this->shipping_address,
-            'is_billing_same_as_shipping' => $this->is_billing_same_as_shipping,
             'billing_address' => $this->billing_address,
             'tags' => $this->tags ?? [],
             'created_at' => $this->created_at,

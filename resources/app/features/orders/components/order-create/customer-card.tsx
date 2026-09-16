@@ -92,6 +92,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
               variant="secondary"
               size="icon"
               aria-label="Remove customer"
+              cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
               onClick={handleRemove}
             >
               <TrashIcon />

@@ -12,9 +12,10 @@ import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import type { UnitPriceValue } from '@/features/products';
-import BaseUnitPopup from '@/features/products/components/product-form/sections/price/base-unit-dialog';
+import BaseUnitPopover from '@/features/products/components/product-form/sections/price/base-unit-popover';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
@@ -26,15 +27,10 @@ const Price = () => {
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
 
-  const showUnitPrice = Boolean(
-    useWatch({ control, name: 'variants.0.show_unit_price' }),
-  );
-  const chargeTaxes = Boolean(
-    useWatch({ control, name: 'variants.0.charge_taxes' }),
-  );
-  const currency = useWatch({ control, name: 'currency' });
+  const showUnitPrice = Boolean(useWatch({ control, name: 'variants.0.show_unit_price' }));
+  const chargeTaxes = Boolean(useWatch({ control, name: 'variants.0.charge_taxes' }));
   const variant = useWatch({ control, name: 'variants.0' });
-  const currencySymbol = currency?.symbol || '$';
+  const currencySymbol = useBaseCurrencySymbol();
 
   const taxProfileList = (taxProfiles ?? []).map((item) => ({
     value: item?.id,
@@ -100,7 +96,7 @@ const Price = () => {
                     <Text color="secondary" variant="small">
                       {__('Base price per unit', 'kirki-ecommerce')}
                     </Text>
-                    <BaseUnitPopup
+                    <BaseUnitPopover
                       data={variant as never}
                       currencySymbol={currencySymbol}
                       onChange={handleUnitPriceChange}
@@ -117,10 +113,7 @@ const Price = () => {
                 <CheckboxField
                   name="variants.0.charge_taxes"
                   label={__('Charge tax on this product', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Apply tax to this product using a tax profile.',
-                    'kirki-ecommerce',
-                  )}
+                  infoText={__('Apply tax to this product using a tax profile.', 'kirki-ecommerce')}
                 />
                 {chargeTaxes && (
                   <CreatableSelectField
@@ -151,11 +144,7 @@ const Price = () => {
           <Flex direction="column" gap={2}>
             <Label>{__('Profit', 'kirki-ecommerce')}</Label>
             <div style={{ position: 'relative' }}>
-              <span
-                css={scoped(styles.inputLeftSymbol)}
-              >
-                {currencySymbol}
-              </span>
+              <span css={scoped(styles.inputLeftSymbol)}>{currencySymbol}</span>
               <Input
                 value={calculateProfit('profit', variant)}
                 cssOverride={{ textIndent: '12px' }}

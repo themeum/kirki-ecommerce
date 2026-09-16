@@ -57,6 +57,7 @@ class EmailService
 
         $site_name = get_bloginfo('name');
         $user_name = $user->get_display_name() ?: $user->get_first_name() ?: __('Customer', 'kirki-ecommerce');
+        /* translators: %s: site name */
         $subject = sprintf(__('[%s] Please verify your email address', 'kirki-ecommerce'), $site_name);
 
         $data = [

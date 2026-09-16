@@ -81,7 +81,7 @@ class QuickpayTransactionBuilder
                 'item_no' => (string) $item->variant_id,
                 'item_name' => $item->product_name,
                 'item_price' => (int) $item->invoiced_total,
-                'vat_rate' => (float) $item->tax_rate / 100,
+                'vat_rate' => $this->get_effective_vat_rate($item) / 100,
             ];
         }
 
@@ -106,6 +106,26 @@ class QuickpayTransactionBuilder
         }
 
         return $line_items;
+    }
+
+    /**
+     * An order item's effective VAT rate, as a percentage. Items can now
+     * carry more than one simultaneous tax line, so this derives one
+     * blended rate from the item's already-invoiced amounts rather than
+     * assuming a single stored rate.
+     *
+     * @param object $item The order item.
+     * @return float
+     */
+    protected function get_effective_vat_rate($item): float
+    {
+        $taxable_base = $item->invoiced_subtotal - $item->invoiced_discount_amount;
+
+        if ($taxable_base <= 0) {
+            return 0;
+        }
+
+        return ($item->invoiced_tax_total / $taxable_base) * 100;
     }
 
     /**

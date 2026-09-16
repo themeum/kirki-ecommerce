@@ -30,7 +30,6 @@ class CollectionController
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
-        $params->sort_by = $request->whitelisted('sort_by', 'ordering', ['id', 'title', 'slug', 'ordering', 'created_by', 'updated_by', 'created_at', 'updated_at']);
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);
@@ -57,7 +56,7 @@ class CollectionController
 
         return response()->json([
             'data' => CollectionResource::make($collection),
-            'message' => __('Collection created successfully.', 'kirki-ecommerce'),
+            'message' => __('Collection created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -79,7 +78,7 @@ class CollectionController
 
         return response()->json([
             'data' => CollectionResource::make($collection),
-            'message' => __('Collection updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Collection updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -89,7 +88,7 @@ class CollectionController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Collection deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Collection deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -105,14 +104,14 @@ class CollectionController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Collection deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Collection deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All collections deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All collections deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

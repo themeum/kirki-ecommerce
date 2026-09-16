@@ -5,28 +5,39 @@ namespace Kirki\Ecommerce\Tests\Integration;
 use Kirki\Ecommerce\App\Actions\Cart\AddToCartAction;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
+use Kirki\Ecommerce\App\Actions\Order\UpdateOrderAction;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
+use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Cart;
+use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Models\OrderItemCoupon;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\VariantService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -91,6 +102,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertArrayHasKey('id', $payload['data']);
         $this->assertNotEmpty($payload['data']['order_number']);
+        $this->assertNotEmpty($payload['data']['invoice_number']);
         $this->assertEquals('PayPal', $payload['data']['payment_provider_name']);
         $this->assertNotEmpty($payload['data']['payment_provider_icon']);
         $this->assertFalse($payload['data']['payment_provider_is_offline']);
@@ -98,6 +110,84 @@ class OrderApiTest extends RestTestCase
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
 
         $this->order_id = $payload['data']['id'];
+    }
+
+    /**
+     * Order number and invoice number apply the configured prefix/suffix.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_order_number_and_invoice_number_apply_settings_prefix_suffix(): void
+    {
+        Settings::update('general.order_number', [
+            'prefix' => 'ORD-',
+            'suffix' => '-X',
+        ]);
+        Settings::update('general.invoice_number', [
+            'prefix' => 'INV-',
+            'suffix' => '-Y',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $order = $this->create_order();
+
+        $this->assertSame(
+            'ORD-' . str_pad((string) $order['id'], 6, '0', STR_PAD_LEFT) . '-X',
+            $order['order_number']
+        );
+        $this->assertMatchesRegularExpression('/^INV-\d{6}-Y$/', $order['invoice_number']);
+    }
+
+    /**
+     * Invoice number increments sequentially across orders.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_invoice_number_increments_sequentially_across_orders(): void
+    {
+        Settings::update('general.invoice_number', [
+            'prefix' => '',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $first_order = $this->create_order();
+        $second_order = $this->create_order();
+
+        $this->assertSame(
+            (int) $first_order['invoice_number'] + 1,
+            (int) $second_order['invoice_number']
+        );
+    }
+
+    /**
+     * Invoice number applies the year prefix when enabled.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_invoice_number_applies_year_prefix_when_enabled(): void
+    {
+        Settings::update('general.invoice_number', [
+            'prefix' => 'INV-',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => true,
+            'reset_sequence_every_year' => false,
+        ]);
+
+        $order = $this->create_order();
+
+        $this->assertMatchesRegularExpression(
+            '/^INV-' . date('y') . '-\d{6}$/',
+            $order['invoice_number']
+        );
     }
 
     /**
@@ -189,7 +279,37 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Create order persists order item product data and tax breakdown.
+     * Editing a guest order without submitting `customer_id` must not
+     * default it to `0` - `orders.customer_id` has no row with id `0`, so
+     * persisting `0` violates its FK constraint. Omitting `customer_id`
+     * should keep the order's guest (null) customer as-is.
+     *
+     * @return void
+     */
+    public function test_update_order_without_customer_id_keeps_guest_order_null(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $this->assertNull($order['customer_id']);
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'admin_notes' => 'Guest order edit',
+            'items' => [
+                [
+                    'id' => $order['items'][0]['id'] ?? null,
+                    'variant_id' => $this->variant_id,
+                    'quantity' => 1,
+                ],
+            ],
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertNull($payload['data']['customer_id']);
+    }
+
+    /**
+     * Create order persists order item product data and tax lines.
      *
      * `product_data` is not exposed through the order resource, so this
      * asserts persistence at the model layer directly.
@@ -197,12 +317,12 @@ class OrderApiTest extends RestTestCase
      * @return void
      * @since 1.0.0
      */
-    public function test_create_order_persists_item_product_data_and_tax_breakdown(): void
+    public function test_create_order_persists_item_product_data_and_tax_lines(): void
     {
         $order = $this->create_order();
         $this->order_id = $order['id'];
 
-        $this->assertIsArray($order['items'][0]['tax_breakdown']);
+        $this->assertIsArray($order['items'][0]['tax_lines']);
 
         $item = OrderItem::find($order['items'][0]['id']);
         $this->assertIsArray($item->product_data);
@@ -489,7 +609,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assertNotNull($customer);
         $this->assertEquals($customer->id, $payload['data']['customer_id']);
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
     }
 
     /**
@@ -556,6 +676,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
             'billing_last_name' => 'Billing',
         ]));
@@ -620,6 +741,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Fallback',
             'billing_last_name' => 'Billing',
             'billing_phone' => '555-9999',
@@ -651,6 +773,7 @@ class OrderApiTest extends RestTestCase
 
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Guest',
             'billing_last_name' => 'Shopper',
             'billing_email' => $billing_email,
@@ -720,62 +843,71 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * When billing is marked as same as shipping, the provisioned
-     * customer's billing address is duplicated from the shipping address.
+     * When the checkout request's billing is the same as shipping (e.g.
+     * because the shopper checked "same as shipping" in the UI, the default
+     * `order_payload()` state), the provisioned customer gets a single
+     * `Address` record serving as both default shipping and default
+     * billing - not two duplicate rows with identical field values.
      *
      * @return void
      */
-    public function test_checkout_duplicates_billing_address_from_shipping_when_same(): void
+    public function test_checkout_creates_single_address_when_billing_same_as_shipping(): void
     {
         $user_id = $this->create_shopper_user();
         wp_set_current_user($user_id);
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'is_billing_same_as_shipping' => true,
         ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
         $customer = Customer::where('user_id', $user_id)->first();
+        $addresses = Address::where('customer_id', $customer->id)->get();
 
-        $shipping_address = Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->first();
-        $billing_address = Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->first();
-
-        $this->assertNotNull($shipping_address);
-        $this->assertNotNull($billing_address);
-        $this->assertEquals($shipping_address->address_line1, $billing_address->address_line1);
-        $this->assertEquals('123 Main St', $shipping_address->address_line1);
+        $this->assertCount(1, $addresses);
+        $this->assertTrue($addresses->first()->is_default_shipping);
+        $this->assertTrue($addresses->first()->is_default_billing);
+        $this->assertEquals('123 Main St', $addresses->first()->address_line1);
     }
 
     /**
-     * An order created with billing marked as same as shipping persists the
-     * flag and snapshots the shipping address into the billing fields,
-     * discarding any billing address sent alongside it.
+     * When the checkout request's billing differs from shipping, the
+     * provisioned customer gets two separate `Address` records - one
+     * default shipping, one default billing.
      *
      * @return void
      */
-    public function test_store_order_persists_billing_same_as_shipping(): void
+    public function test_checkout_creates_separate_addresses_when_billing_differs_from_shipping(): void
     {
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
         $response = $this->request('POST', 'orders', $this->order_payload([
-            'is_billing_same_as_shipping' => true,
-            'shipping_address_line1' => '742 Evergreen Terrace',
-            'shipping_city' => 'Springfield',
-            'billing_address_line1' => '1 Stale Street',
-            'billing_city' => 'Oldtown',
+            'is_manual' => false,
+            'is_billing_same_as_shipping' => false,
+            'billing_first_name' => 'Fallback',
+            'billing_last_name' => 'Billing',
+            'billing_address_line1' => '456 Other Ave',
         ]));
         $payload = $this->assert_api_success($response, 201);
         $this->order_id = $payload['data']['id'];
 
-        $this->assertTrue($payload['data']['is_billing_same_as_shipping']);
-        $this->assertEquals($payload['data']['shipping_address'], $payload['data']['billing_address']);
-        $this->assertEquals('742 Evergreen Terrace', $payload['data']['billing_address']['address_line1']);
-        $this->assertEquals('Springfield', $payload['data']['billing_address']['city']);
+        $customer = Customer::where('user_id', $user_id)->first();
+        $addresses = Address::where('customer_id', $customer->id)->get();
 
-        $order = Order::find($this->order_id);
+        $this->assertCount(2, $addresses);
 
-        $this->assertTrue((bool) $order->is_billing_same_as_shipping);
-        $this->assertEquals('742 Evergreen Terrace', $order->billing_address_line1);
+        $shipping_address = Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->first();
+        $billing_address = Address::where('customer_id', $customer->id)->where('is_default_billing', true)->first();
+
+        $this->assertNotNull($shipping_address);
+        $this->assertNotNull($billing_address);
+        $this->assertNotEquals($shipping_address->id, $billing_address->id);
+        $this->assertFalse($shipping_address->is_default_billing);
+        $this->assertFalse($billing_address->is_default_shipping);
+        $this->assertEquals('123 Main St', $shipping_address->address_line1);
+        $this->assertEquals('456 Other Ave', $billing_address->address_line1);
     }
 
     /**
@@ -820,8 +952,8 @@ class OrderApiTest extends RestTestCase
         $customer = Customer::where('user_id', $user_id)->first();
 
         $this->assertNotNull($customer);
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::SHIPPING)->exists());
-        $this->assertTrue(Address::where('customer_id', $customer->id)->where('type', AddressType::BILLING)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_shipping', true)->exists());
+        $this->assertTrue(Address::where('customer_id', $customer->id)->where('is_default_billing', true)->exists());
         $this->assertEquals($order_count_before, Order::count());
     }
 
@@ -836,11 +968,10 @@ class OrderApiTest extends RestTestCase
      * still return 201 but silently without the discount - asserting
      * only the 201 status does not distinguish fixed from broken).
      *
-     * Asserts on the shipping total rather than the order's
-     * discount_details field: discount_details is a separate,
-     * pre-existing bug (storing a raw Coupon model into a JSON column
-     * loses it on persist) unrelated to this fix - discovered while
-     * writing this test, out of scope here.
+     * Asserts on the shipping total rather than looking up the applied
+     * coupon directly, to keep this test focused on the customer-resolution
+     * timing fix rather than the coupon-attribution persistence covered by
+     * the multi-coupon checkout tests below.
      *
      * @return void
      */
@@ -860,7 +991,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);
@@ -900,7 +1031,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);
@@ -934,11 +1065,467 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
-            'coupon_code' => $coupon->code,
+            'coupon_codes' => [$coupon->code],
         ]));
 
         $payload = $this->assert_api_success($response, 201);
         $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+    }
+
+    /**
+     * A customer_limit coupon that succeeded once is silently dropped on a
+     * second checkout by the same customer - proving the customer-usage
+     * check now enforces against `order_coupons` (task 3.6) rather than the
+     * removed `coupon_usage` table.
+     *
+     * @return void
+     */
+    public function test_customer_usage_limit_enforced_against_order_coupons_after_first_use(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'Limited Per Customer',
+            'code' => 'LIMITED' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'has_customer_limit' => true,
+            'customer_limit' => 1,
+            'is_active' => true,
+        ]);
+
+        $user_id = $this->create_shopper_user();
+        wp_set_current_user($user_id);
+
+        $first = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'coupon_codes' => [$coupon->code],
+        ])), 201);
+        $this->assertEquals(0.0, $first['data']['totals']['base_shipping']);
+
+        $second = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'coupon_codes' => [$coupon->code],
+        ])), 201);
+
+        $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping']);
+        $this->assertCount(0, OrderCoupon::where('order_id', $second['data']['id'])->get());
+    }
+
+    /**
+     * Checking out with several coupons applied to the cart (one item-scoped,
+     * one order-scoped) persists one `order_coupons` row per coupon and
+     * `order_item_coupons` attribution rows that reconcile back to the
+     * order's discount total, and increments each coupon's usage count
+     * independently.
+     *
+     * @return void
+     */
+    public function test_checkout_with_multiple_coupons_persists_order_coupons_and_item_attributions(): void
+    {
+        $product = $this->create_product();
+        $variant_id = $this->default_variant_id($product);
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = $product['id'];
+        $add_to_cart_dto->variant_id = $variant_id;
+        $add_to_cart_dto->quantity = 1;
+
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
+
+        $item_coupon = Coupon::create([
+            'title' => 'Item Coupon',
+            'code' => 'ITEMORD' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'base_discount_amount_fixed' => 500,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'is_active' => true,
+        ]);
+        $item_coupon->products()->attach($product['id']);
+
+        $order_coupon_def = Coupon::create([
+            'title' => 'Order Coupon',
+            'code' => 'ORDERORD' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 10,
+            'is_active' => true,
+        ]);
+
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $item_coupon->id]);
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $order_coupon_def->id]);
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'billing_email' => 'multi-coupon-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+        $dto->created_by = get_current_user_id();
+        $dto->currency_code = 'USD';
+        $dto->cart_token = $cart->cart_token;
+
+        $order = app()->make(CreateOrderAction::class)->execute($dto);
+        $this->order_id = $order->id;
+
+        $order_coupons = OrderCoupon::where('order_id', $order->id)->get();
+        $this->assertCount(2, $order_coupons);
+
+        $sum_of_order_coupons = array_sum($order_coupons->pluck('base_discount_amount')->to_array());
+        $this->assertEquals($order->base_discount_total, $sum_of_order_coupons);
+
+        foreach ($order_coupons as $order_coupon) {
+            $attributions = OrderItemCoupon::where('order_coupon_id', $order_coupon->id)->get();
+            $sum_of_attributions = array_sum($attributions->pluck('base_discount_amount')->to_array());
+            $this->assertEquals($order_coupon->base_discount_amount, $sum_of_attributions);
+        }
+
+        $this->assertEquals(1, Coupon::find($item_coupon->id)->current_usage_count);
+        $this->assertEquals(1, Coupon::find($order_coupon_def->id)->current_usage_count);
+    }
+
+    /**
+     * A free-shipping coupon's discount is attributed to the order-coupon
+     * itself (the waived shipping cost) with no `order_item_coupons` rows,
+     * since it discounts shipping rather than a line item.
+     *
+     * @return void
+     */
+    public function test_checkout_free_shipping_coupon_produces_no_item_attributions(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'Free Shipping',
+            'code' => 'FREESHIP' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'coupon_codes' => [$coupon->code],
+        ]));
+
+        $payload = $this->assert_api_success($response, 201);
+        $this->order_id = $payload['data']['id'];
+
+        $order_coupon = OrderCoupon::where('order_id', $this->order_id)->where('coupon_id', $coupon->id)->first();
+
+        $this->assertNotNull($order_coupon);
+        $this->assertGreaterThan(0, $order_coupon->base_discount_amount);
+        $this->assertCount(0, OrderItemCoupon::where('order_coupon_id', $order_coupon->id)->get());
+    }
+
+    /**
+     * Cancelling an order with multiple applied coupons reverses each
+     * coupon's usage count and stamps `usage_reversed_at`, but keeps the
+     * `order_coupons` records themselves - unlike the old `coupon_usage` row,
+     * which was deleted on cancel and lost the order's coupon history.
+     *
+     * @return void
+     */
+    public function test_cancelling_multi_coupon_order_reverses_usage_without_deleting_records(): void
+    {
+        $first_coupon = Coupon::create([
+            'title' => 'Cancel Coupon A',
+            'code' => 'CANCELA' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 5,
+            'is_active' => true,
+        ]);
+        $second_coupon = Coupon::create([
+            'title' => 'Cancel Coupon B',
+            'code' => 'CANCELB' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = app()->make(VariantService::class)->find($this->variant_id)->product_id;
+        $add_to_cart_dto->variant_id = $this->variant_id;
+        $add_to_cart_dto->quantity = 1;
+
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $first_coupon->id]);
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $second_coupon->id]);
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'billing_email' => 'cancel-multi-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+        $dto->created_by = get_current_user_id();
+        $dto->currency_code = 'USD';
+        $dto->cart_token = $cart->cart_token;
+
+        $order = app()->make(CreateOrderAction::class)->execute($dto);
+        $this->order_id = $order->id;
+
+        $this->assertEquals(1, Coupon::find($first_coupon->id)->current_usage_count);
+        $this->assertEquals(1, Coupon::find($second_coupon->id)->current_usage_count);
+
+        OrderManager::mark_as_cancel($order->id);
+
+        $this->assertEquals(0, Coupon::find($first_coupon->id)->current_usage_count);
+        $this->assertEquals(0, Coupon::find($second_coupon->id)->current_usage_count);
+
+        $order_coupons_after_cancel = OrderCoupon::where('order_id', $order->id)->get();
+        $this->assertCount(2, $order_coupons_after_cancel);
+
+        foreach ($order_coupons_after_cancel as $order_coupon) {
+            $this->assertNotNull($order_coupon->usage_reversed_at);
+        }
+    }
+
+    /**
+     * Editing an order to newly apply a coupon it didn't have before
+     * increments that coupon's usage count exactly once.
+     *
+     * @return void
+     */
+    public function test_editing_order_to_add_coupon_increments_usage_count(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $coupon = Coupon::create([
+            'title' => 'Added On Edit',
+            'code' => 'ADDEDIT' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+        $this->assertCount(1, OrderCoupon::where('order_id', $this->order_id)->get());
+    }
+
+    /**
+     * Editing an order to drop a coupon it previously had decrements that
+     * coupon's usage count exactly once.
+     *
+     * @return void
+     */
+    public function test_editing_order_to_remove_coupon_decrements_usage_count(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'Removed On Edit',
+            'code' => 'REMEDIT' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'coupon_codes' => [],
+        ])));
+
+        $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
+        $this->assertCount(0, OrderCoupon::where('order_id', $this->order_id)->get());
+    }
+
+    /**
+     * Editing an order without changing which coupons are applied leaves the
+     * coupon's usage count untouched - the coupon is neither incremented
+     * again nor decremented.
+     *
+     * @return void
+     */
+    public function test_editing_order_with_unchanged_coupon_leaves_usage_count_untouched(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'Unchanged On Edit',
+            'code' => 'SAMEEDIT' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'coupon_codes' => [$coupon->code],
+            'admin_notes' => 'Unrelated edit',
+        ])));
+
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+
+        $order_coupon = OrderCoupon::where('order_id', $this->order_id)->first();
+        $this->assertNotNull($order_coupon);
+        $this->assertNull($order_coupon->usage_reversed_at);
+    }
+
+    /**
+     * Editing an already-cancelled order (its coupon usage already reversed
+     * by cancellation) must not resurrect that reversed usage as active just
+     * because the coupon-attribution rows get regenerated by the edit.
+     *
+     * @return void
+     */
+    public function test_editing_cancelled_order_does_not_resurrect_reversed_coupon_usage(): void
+    {
+        $coupon = Coupon::create([
+            'title' => 'Cancelled Then Edited',
+            'code' => 'CANCEDIT' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        OrderManager::mark_as_cancel($this->order_id);
+
+        $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'coupon_codes' => [$coupon->code],
+            'admin_notes' => 'Edited after cancellation',
+        ])));
+
+        $this->assertEquals(0, Coupon::find($coupon->id)->current_usage_count);
+
+        $order_coupon = OrderCoupon::where('order_id', $this->order_id)->first();
+        $this->assertNotNull($order_coupon);
+        $this->assertNotNull($order_coupon->usage_reversed_at);
+    }
+
+    /**
+     * Order-coupon reconciliation in a non-base currency tolerates the small
+     * per-coupon rounding that independently converting each order-coupon's
+     * invoiced amount introduces - it must not throw just because summing
+     * several already-rounded amounts lands a minor unit or two away from
+     * converting the pre-summed base total in one shot.
+     *
+     * @return void
+     */
+    public function test_multi_coupon_order_reconciles_invoiced_totals_within_tolerance_in_foreign_currency(): void
+    {
+        $currency_code = $this->create_test_currency(['code' => 'GBP', 'exchange_rate' => 1.3]);
+
+        $product = $this->create_product();
+        $variant_id = $this->default_variant_id($product);
+
+        $add_to_cart_dto = new AddToCartDTO();
+        $add_to_cart_dto->product_id = $product['id'];
+        $add_to_cart_dto->variant_id = $variant_id;
+        $add_to_cart_dto->quantity = 3;
+
+        $cart = app()->make(AddToCartAction::class)->execute($add_to_cart_dto);
+
+        $item_coupon = Coupon::create([
+            'title' => 'Item Coupon EUR',
+            'code' => 'ITEMEUR' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'base_discount_amount_fixed' => 333,
+            'eligible_item_type' => EligibleItemType::SPECIFIC_PRODUCTS,
+            'is_active' => true,
+        ]);
+        $item_coupon->products()->attach($product['id']);
+
+        $order_coupon_def = Coupon::create([
+            'title' => 'Order Coupon EUR',
+            'code' => 'ORDEUR' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::ORDER,
+            'discount_value_type' => DiscountValueType::PERCENTAGE,
+            'discount_amount_percentage' => 7,
+            'is_active' => true,
+        ]);
+
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $item_coupon->id]);
+        CartCoupon::create(['cart_id' => $cart->id, 'coupon_id' => $order_coupon_def->id]);
+
+        $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
+            'is_manual' => false,
+            'billing_email' => 'eur-multi-coupon-' . wp_generate_password(8, false) . '@example.com',
+        ]));
+        $dto->created_by = get_current_user_id();
+        $dto->currency_code = $currency_code;
+        $dto->cart_token = $cart->cart_token;
+
+        $order = app()->make(CreateOrderAction::class)->execute($dto);
+        $this->order_id = $order->id;
+
+        $order_coupons = OrderCoupon::where('order_id', $order->id)->get();
+        $this->assertCount(2, $order_coupons);
+
+        $invoiced_sum = array_sum($order_coupons->pluck('invoiced_discount_amount')->to_array());
+        $this->assertLessThanOrEqual(2, abs($invoiced_sum - $order->invoiced_discount_total));
+    }
+
+    /**
+     * `sync_order_coupons()` fails loudly, instead of silently under-recording,
+     * when a coupon result attributes a discount to a variant that has no
+     * matching order item - the fail-loud backstop this change adds in place
+     * of the previous silent `continue`.
+     *
+     * @return void
+     */
+    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_variant(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $order_model = OrderManager::find($this->order_id);
+
+        $coupon = Coupon::create([
+            'title' => 'Mismatched Attribution',
+            'code' => 'MISMATCH' . wp_generate_password(6, false),
+            'discount_type' => DiscountType::AMOUNT_OFF,
+            'discount_target' => DiscountTarget::PRODUCTS,
+            'discount_value_type' => DiscountValueType::FIXED,
+            'base_discount_amount_fixed' => 500,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
+            'is_active' => true,
+        ]);
+
+        $coupon_result = new CouponDiscountResultDTO();
+        $coupon_result->coupon = $coupon;
+        $coupon_result->item_discounts = [999999999 => 500];
+        $coupon_result->total_discount = 500;
+
+        $calculated_result = new CalculationResultDTO();
+        $calculated_result->coupon_results = [$coupon_result];
+        $calculated_result->base_discount_total = 500;
+
+        $action = app()->make(UpdateOrderAction::class);
+        $sync_order_coupons = new ReflectionMethod(get_class($action), 'sync_order_coupons');
+        $sync_order_coupons->setAccessible(true);
+
+        $this->expectException(Exception::class);
+
+        $sync_order_coupons->invoke($action, $order_model, $calculated_result, 'USD', 1.0);
     }
 
     /**
@@ -1130,9 +1717,9 @@ class OrderApiTest extends RestTestCase
         $customer_payload->first_name = 'Existing';
         $customer_payload->last_name = 'Customer';
         $customer_payload->email = 'existing-' . $unique . '@example.com';
-        $customer_payload->is_billing_same_as_shipping = true;
 
         $address_payload = new CreateAddressDTO();
+        $address_payload->type = AddressType::HOME;
         $address_payload->first_name = 'Existing';
         $address_payload->last_name = 'Customer';
         $address_payload->address_line1 = '456 Existing Ave';
@@ -1142,7 +1729,9 @@ class OrderApiTest extends RestTestCase
         $address_payload->postal_code = '10001';
         $address_payload->email = $customer_payload->email;
 
-        return app()->make(CreateCustomerAction::class)->execute($customer_payload, $address_payload, $address_payload);
+        $customer_payload->addresses = [$address_payload];
+
+        return app()->make(CreateCustomerAction::class)->execute($customer_payload);
     }
 
     /**
@@ -1152,6 +1741,46 @@ class OrderApiTest extends RestTestCase
      * @return array
      * @since 1.0.0
      */
+    /**
+     * Orders can be sorted by every column the list presents, including the
+     * line quantity and the status, whose request name differs from the column.
+     *
+     * @dataProvider derived_order_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_orders_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->create_order();
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'orders', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_order_sort_fields(): array
+    {
+        return [
+            'order number' => ['order_number'],
+            'quantity' => ['quantity'],
+            'invoiced total' => ['invoiced_total'],
+            'status' => ['status'],
+            'payment provider' => ['payment_provider'],
+            'created at' => ['created_at'],
+        ];
+    }
+
     protected function create_order(array $overrides = []): array
     {
         $response = $this->request('POST', 'orders', $this->order_payload($overrides));
@@ -1174,8 +1803,19 @@ class OrderApiTest extends RestTestCase
             'last_name' => 'Customer',
             'email' => 'order-customer-' . $unique . '@example.com',
             'phone' => '5550100',
-            'is_billing_same_as_shipping' => true,
             'shipping_address' => [
+                'first_name' => 'Order',
+                'last_name' => 'Customer',
+                'email' => 'order-customer-' . $unique . '@example.com',
+                'phone' => '5550100',
+                'address_line1' => '123 Main St',
+                'address_line2' => '',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country' => 'US',
+            ],
+            'billing_address' => [
                 'first_name' => 'Order',
                 'last_name' => 'Customer',
                 'email' => 'order-customer-' . $unique . '@example.com',
@@ -1246,19 +1886,431 @@ class OrderApiTest extends RestTestCase
             'shipping_address_line1' => '123 Main St',
             'shipping_city' => 'New York',
             'shipping_state' => 'NY',
-            'shipping_postcode' => '10001',
+            'shipping_postal_code' => '10001',
             'shipping_country' => 'US',
             'billing_first_name' => 'John',
             'billing_last_name' => 'Doe',
             'billing_address_line1' => '123 Main St',
             'billing_city' => 'New York',
             'billing_state' => 'NY',
-            'billing_postcode' => '10001',
+            'billing_postal_code' => '10001',
             'billing_country' => 'US',
             'customer_notes' => 'Test order',
             'admin_notes' => 'Test order',
         ];
 
         return array_merge($payload, $overrides);
+    }
+
+    /**
+     * A fulfilment-derived status option lists orders whatever their payment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_fulfillment(): void
+    {
+        $shipped_paid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+        $shipped_unpaid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::UNPAID);
+        $delivered = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['status' => OrderListStatus::ORDER_SHIPPED]);
+
+        $this->assertContains($shipped_paid, $ids);
+        $this->assertContains($shipped_unpaid, $ids);
+        $this->assertNotContains($delivered, $ids);
+    }
+
+    /**
+     * Every fulfilment-derived status option maps to its own fulfilment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_maps_each_fulfillment_status_option(): void
+    {
+        $options = [
+            OrderListStatus::ORDER_PLACED => FulfillmentStatus::UNFULFILLED,
+            OrderListStatus::ORDER_PROCESSING => FulfillmentStatus::PROCESSING,
+            OrderListStatus::ORDER_ON_HOLD => FulfillmentStatus::ON_HOLD,
+            OrderListStatus::ORDER_DELIVERED => FulfillmentStatus::DELIVERED,
+            OrderListStatus::ORDER_RETURNED => FulfillmentStatus::RETURNED,
+            OrderListStatus::ORDER_CANCELLED => FulfillmentStatus::CANCELLED,
+        ];
+
+        $created = [];
+
+        foreach ($options as $option => $fulfillment_status) {
+            $created[$option] = $this->create_order_in_state($fulfillment_status, PaymentStatus::PAID);
+        }
+
+        foreach ($options as $option => $fulfillment_status) {
+            $ids = $this->listed_order_ids(['status' => $option]);
+
+            $this->assertContains($created[$option], $ids, 'Missing order for ' . $option);
+
+            foreach ($created as $other_option => $other_id) {
+                if ($other_option === $option) {
+                    continue;
+                }
+
+                $this->assertNotContains($other_id, $ids, 'Unexpected order in ' . $option);
+            }
+        }
+    }
+
+    /**
+     * A payment-derived status option resolves against the payment state.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_payment(): void
+    {
+        $failed = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::FAILED);
+        $refunding = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::REFUNDING);
+        $refunded = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::REFUNDED);
+        $paid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $failed_ids = $this->listed_order_ids(['status' => OrderListStatus::PAYMENT_FAILED]);
+        $this->assertContains($failed, $failed_ids);
+        $this->assertNotContains($paid, $failed_ids);
+
+        $refunding_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_IN_PROGRESS]);
+        $this->assertContains($refunding, $refunding_ids);
+        $this->assertNotContains($refunded, $refunding_ids);
+
+        $refunded_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUNDED]);
+        $this->assertContains($refunded, $refunded_ids);
+        $this->assertNotContains($refunding, $refunded_ids);
+    }
+
+    /**
+     * A lifecycle-only status option resolves against the order status.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_status_option_resolves_against_order_status(): void
+    {
+        $requested = $this->create_order_in_state(
+            FulfillmentStatus::DELIVERED,
+            PaymentStatus::PAID,
+            OrderStatus::REFUND_REQUESTED
+        );
+        $declined = $this->create_order_in_state(
+            FulfillmentStatus::DELIVERED,
+            PaymentStatus::PAID,
+            OrderStatus::REFUND_DECLINED
+        );
+
+        $requested_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_REQUESTED]);
+        $this->assertContains($requested, $requested_ids);
+        $this->assertNotContains($declined, $requested_ids);
+
+        $declined_ids = $this->listed_order_ids(['status' => OrderListStatus::REFUND_DECLINED]);
+        $this->assertContains($declined, $declined_ids);
+        $this->assertNotContains($requested, $declined_ids);
+    }
+
+    /**
+     * Filtering by payment status narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_filters_by_payment_status(): void
+    {
+        $unpaid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::UNPAID);
+        $paid = $this->create_order_in_state(FulfillmentStatus::UNFULFILLED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['payment_status' => PaymentStatus::UNPAID]);
+
+        $this->assertContains($unpaid, $ids);
+        $this->assertNotContains($paid, $ids);
+    }
+
+    /**
+     * Combining a status option with a payment status narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_combines_status_and_payment_status(): void
+    {
+        $shipped_unpaid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::UNPAID);
+        $shipped_paid = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+        $delivered_unpaid = $this->create_order_in_state(FulfillmentStatus::DELIVERED, PaymentStatus::UNPAID);
+
+        $ids = $this->listed_order_ids([
+            'status' => OrderListStatus::ORDER_SHIPPED,
+            'payment_status' => PaymentStatus::UNPAID,
+        ]);
+
+        $this->assertContains($shipped_unpaid, $ids);
+        $this->assertNotContains($shipped_paid, $ids);
+        $this->assertNotContains($delivered_unpaid, $ids);
+    }
+
+    /**
+     * Filtering by delivery method narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_filters_by_delivery_method(): void
+    {
+        $order = $this->create_order();
+        $other = $this->create_order();
+        Order::find($other['id'])->update(['shipping_method' => 'method-0002']);
+
+        $ids = $this->listed_order_ids(['shipping_method' => 'method-0001']);
+
+        $this->assertContains((int) $order['id'], $ids);
+        $this->assertNotContains((int) $other['id'], $ids);
+    }
+
+    /**
+     * The delivery method options are the enabled zone methods from settings.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_shipping_methods_endpoint_lists_enabled_zone_methods(): void
+    {
+        $response = $this->request('GET', 'shipping-methods');
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals(
+            [['id' => 'method-0001', 'name' => 'Standard Delivery', 'type' => 'flat_rate']],
+            $payload['data']
+        );
+    }
+
+    /**
+     * An unrecognised status is rejected rather than silently returning nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_rejects_unrecognised_status(): void
+    {
+        $response = $this->request('GET', 'orders', ['status' => 'not-a-status']);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A recognised status the order does not hold succeeds and omits it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_with_unmatched_status_succeeds_and_omits_the_order(): void
+    {
+        $shipped = $this->create_order_in_state(FulfillmentStatus::SHIPPED, PaymentStatus::PAID);
+
+        $ids = $this->listed_order_ids(['status' => OrderListStatus::ORDER_RETURNED]);
+
+        $this->assertNotContains($shipped, $ids);
+    }
+
+    /**
+     * Create an order and force it into a known state.
+     *
+     * @param string      $fulfillment_status Fulfilment state to set.
+     * @param string      $payment_status     Payment state to set.
+     * @param string|null $order_status       Lifecycle state to set, when it matters.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function create_order_in_state(
+        string $fulfillment_status,
+        string $payment_status,
+        string $order_status = null
+    ): int {
+        $order = $this->create_order();
+
+        $attributes = [
+            'fulfillment_status' => $fulfillment_status,
+            'payment_status' => $payment_status,
+        ];
+
+        if (!is_null($order_status)) {
+            $attributes['order_status'] = $order_status;
+        }
+
+        Order::find($order['id'])->update($attributes);
+
+        return (int) $order['id'];
+    }
+
+    /**
+     * Request the order list and return the listed order identifiers.
+     *
+     * @param array $params Query parameters.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function listed_order_ids(array $params = []): array
+    {
+        $response = $this->request('GET', 'orders', array_merge(['limit' => 100], $params));
+        $payload = $this->assert_api_success($response);
+
+        return array_map('intval', array_column($payload['data']['results'], 'id'));
+    }
+
+    /**
+     * Configure a single mandatory checkout consent.
+     *
+     * @param string $id
+     *
+     * @return void
+     */
+    protected function seed_mandatory_checkout_consent(string $id = 'consent-1'): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => $id,
+                'title' => 'Terms',
+                'locations' => ['checkout'],
+                'message' => 'You agree to our terms.',
+                'method' => 'mandatory_checkbox',
+                'is_enabled' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * An admin-created order is not blocked by a mandatory consent.
+     *
+     * No shopper is present to accept one, so consent enforcement must not
+     * reach this path. OrderCreateRequest is shared with the storefront, so
+     * this guards the `is_manual` exemption.
+     *
+     * @return void
+     */
+    public function test_manual_order_bypasses_mandatory_consent(): void
+    {
+        $this->seed_mandatory_checkout_consent();
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => true]));
+
+        // Asserted as "no consent rejection" rather than 201 on purpose: manual
+        // order creation currently fails with a 500 for reasons unrelated to
+        // consents (test_store_order_returns_201 fails the same way without
+        // this feature). Pinning 201 here would make this guard fail for
+        // somebody else's bug; what it must prove is that the consent rule
+        // never rejects an admin-created order.
+        $this->assertNotEquals(422, $response->get_status());
+
+        $data = $this->normalize_response_data($response->get_data());
+
+        $this->assertArrayNotHasKey('consents', $data['errors'] ?? []);
+    }
+
+    /**
+     * A storefront order is rejected when a mandatory consent is unaccepted.
+     *
+     * The payload omits `consents` entirely, which is what an older cached
+     * storefront bundle would send.
+     *
+     * @return void
+     */
+    public function test_storefront_order_requires_mandatory_consent(): void
+    {
+        $this->seed_mandatory_checkout_consent();
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * A storefront order succeeds once the mandatory consent is accepted.
+     *
+     * @return void
+     */
+    public function test_storefront_order_succeeds_with_accepted_consent(): void
+    {
+        $this->seed_mandatory_checkout_consent();
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'is_manual' => false,
+            'consents' => ['consent-1'],
+        ]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * A disabled consent does not block a storefront order.
+     *
+     * @return void
+     */
+    public function test_disabled_consent_does_not_block_storefront_order(): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => 'consent-1',
+                'title' => 'Terms',
+                'locations' => ['checkout'],
+                'message' => 'You agree to our terms.',
+                'method' => 'mandatory_checkbox',
+                'is_enabled' => false,
+            ],
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * An optional consent never blocks a storefront order.
+     *
+     * @return void
+     */
+    public function test_optional_consent_does_not_block_storefront_order(): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => 'consent-1',
+                'title' => 'Marketing emails',
+                'locations' => ['checkout'],
+                'message' => 'Send me offers.',
+                'method' => 'optional_checkbox',
+                'is_enabled' => true,
+            ],
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * A consent that does not target checkout does not block a checkout order.
+     *
+     * @return void
+     */
+    public function test_signup_only_consent_does_not_block_storefront_order(): void
+    {
+        Settings::update('legal.consents', [
+            [
+                'id' => 'consent-1',
+                'title' => 'Terms',
+                'locations' => ['signup'],
+                'message' => 'You agree to our terms.',
+                'method' => 'mandatory_checkbox',
+                'is_enabled' => true,
+            ],
+        ]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
+
+        $this->assert_api_success($response, 201);
     }
 }

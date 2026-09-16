@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
@@ -423,6 +424,112 @@ class ProductApiTest extends RestTestCase
      * @return array
      * @since 1.0.0
      */
+    /**
+     * Products can be sorted by every column the list presents, including the
+     * price, which lives on the variants rather than the product.
+     *
+     * @dataProvider derived_product_sort_fields
+     *
+     * @param string $sort_by Sort field.
+     * @return void
+     */
+    public function test_list_products_accepts_derived_sort_fields(string $sort_by): void
+    {
+        $this->request('POST', 'products', $this->product_payload(['title' => 'Sortable Product']));
+
+        foreach (['asc', 'desc'] as $direction) {
+            $response = $this->request('GET', 'products', [
+                'sort_by' => $sort_by,
+                'sort_order' => $direction,
+                'limit' => 10,
+            ]);
+
+            $payload = $this->assert_api_success($response);
+            $this->assertNotEmpty($payload['data']['results'], "{$sort_by} {$direction} returned no rows");
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function derived_product_sort_fields(): array
+    {
+        return [
+            'title' => ['title'],
+            'status' => ['status'],
+            'price' => ['base_price'],
+            'created at' => ['created_at'],
+        ];
+    }
+
+    /**
+     * Sorting by price orders products by their cheapest variant ascending and
+     * their dearest descending.
+     *
+     * @return void
+     */
+    public function test_list_products_sorts_by_price(): void
+    {
+        $cheap = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Cheap Sortable',
+            'variants' => [[
+                'base_price' => 5.00,
+                'sku' => 'CHEAP-' . wp_generate_password(6, false),
+                'available_quantity' => 10,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]));
+        $dear = $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Dear Sortable',
+            'variants' => [[
+                'base_price' => 500.00,
+                'sku' => 'DEAR-' . wp_generate_password(6, false),
+                'available_quantity' => 10,
+                'in_stock' => true,
+                'is_default' => true,
+                'attribute_values' => [],
+            ]],
+        ]));
+
+        $cheap_id = $this->assert_api_success($cheap, 201)['data']['id'];
+        $dear_id = $this->assert_api_success($dear, 201)['data']['id'];
+        $only = [$cheap_id, $dear_id];
+
+        $this->assertSame($only, $this->sorted_product_ids('base_price', 'asc', $only));
+        $this->assertSame(array_reverse($only), $this->sorted_product_ids('base_price', 'desc', $only));
+    }
+
+    /**
+     * Request the product list sorted, restricted to the given ids.
+     *
+     * @param string $sort_by Sort field.
+     * @param string $sort_order Sort direction.
+     * @param array $only Product ids to keep.
+     *
+     * @return array
+     */
+    protected function sorted_product_ids(string $sort_by, string $sort_order, array $only): array
+    {
+        $response = $this->request('GET', 'products', [
+            'sort_by' => $sort_by,
+            'sort_order' => $sort_order,
+            'limit' => 100,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $ids = [];
+
+        foreach ($payload['data']['results'] as $row) {
+            if (in_array($row['id'], $only, false)) {
+                $ids[] = $row['id'];
+            }
+        }
+
+        return $ids;
+    }
+
     protected function create_searchable_product(string $unique): array
     {
         return $this->create_product([
@@ -796,5 +903,231 @@ class ProductApiTest extends RestTestCase
         $this->assertCount(1, $duplicated['variants']);
         $this->assertNull($duplicated['variants'][0]['sku']);
         $this->assertEquals([], $duplicated['variants'][0]['attribute_values']);
+    }
+
+    /**
+     * Filtering by a single category narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_category(): void
+    {
+        $category_id = $this->create_category();
+        $unique = 'CatFilter-' . wp_generate_password(6, false);
+
+        $matching = $this->create_product([
+            'title' => $unique . ' Matching',
+            'categories' => [$category_id],
+        ]);
+        $this->create_product(['title' => $unique . ' Other']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'category_ids' => [$category_id],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Matching'], $this->listed_titles($payload));
+
+        $this->product_id = $matching['id'];
+    }
+
+    /**
+     * Filtering by several categories lists products in any of them.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_several_categories(): void
+    {
+        $first_category = $this->create_category();
+        $second_category = $this->create_category();
+        $unique = 'MultiCatFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' First',
+            'categories' => [$first_category],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Second',
+            'categories' => [$second_category],
+        ]);
+        $this->create_product(['title' => $unique . ' Neither']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'category_ids' => [$first_category, $second_category],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEqualsCanonicalizing(
+            [$unique . ' First', $unique . ' Second'],
+            $this->listed_titles($payload)
+        );
+    }
+
+    /**
+     * Filtering by collection narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_collection(): void
+    {
+        $collection_id = $this->create_collection();
+        $unique = 'CollectionFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'collections' => [$collection_id],
+        ]);
+        $this->create_product(['title' => $unique . ' Other']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'collection_id' => $collection_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Matching'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Filtering by brand narrows the list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_brand(): void
+    {
+        $brand_id = $this->create_brand();
+        $unique = 'BrandFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Matching',
+            'brand_id' => $brand_id,
+        ]);
+        $this->create_product(['title' => $unique . ' Other']);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'brand_id' => $brand_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Matching'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Combining a category filter with a brand filter narrows by both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_combines_category_and_brand_filters(): void
+    {
+        $category_id = $this->create_category();
+        $brand_id = $this->create_brand();
+        $unique = 'ComboFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Both',
+            'categories' => [$category_id],
+            'brand_id' => $brand_id,
+        ]);
+        $this->create_product([
+            'title' => $unique . ' CategoryOnly',
+            'categories' => [$category_id],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' BrandOnly',
+            'brand_id' => $brand_id,
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'category_ids' => [$category_id],
+            'brand_id' => $brand_id,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Both'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Filtering by draft status lists only drafts.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_draft_status(): void
+    {
+        $unique = 'DraftFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' Draft',
+            'status' => ProductStatus::DRAFT,
+        ]);
+        $this->create_product([
+            'title' => $unique . ' Published',
+            'status' => ProductStatus::PUBLISHED,
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'status' => ProductStatus::DRAFT,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' Draft'], $this->listed_titles($payload));
+    }
+
+    /**
+     * Filtering by out of stock lists only products with nothing to sell.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_filters_by_out_of_stock_availability(): void
+    {
+        $unique = 'StockFilter-' . wp_generate_password(6, false);
+
+        $this->create_product([
+            'title' => $unique . ' InStock',
+            'variants' => [
+                [
+                    'base_price' => 10.0,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 25,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'track_inventory' => true,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]);
+        $this->create_product([
+            'title' => $unique . ' OutOfStock',
+            'variants' => [
+                [
+                    'base_price' => 10.0,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 0,
+                    'in_stock' => false,
+                    'is_default' => true,
+                    'track_inventory' => true,
+                    'attribute_values' => [],
+                ],
+            ],
+        ]);
+
+        $response = $this->request('GET', 'products', [
+            'search' => $unique,
+            'availability_status' => AvailabilityStatus::OUT_OF_STOCK,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals([$unique . ' OutOfStock'], $this->listed_titles($payload));
     }
 }

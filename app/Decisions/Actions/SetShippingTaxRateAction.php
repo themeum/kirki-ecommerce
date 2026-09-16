@@ -14,6 +14,6 @@ class SetShippingTaxRateAction implements Action
 
     public function execute(DecisionContext $context, $value)
     {
-        $context->set_product_tax(floatval($value));
+        $context->set_shipping_tax(floatval($value));
     }
 }

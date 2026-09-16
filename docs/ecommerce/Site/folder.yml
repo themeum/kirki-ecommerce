@@ -1,7 +1,7 @@
 info:
   name: Site
   type: folder
-  seq: 27
+  seq: 28
 
 request:
   auth: inherit

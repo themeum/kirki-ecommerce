@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Scheduler\Repositories\QueueRepository;
 use Exception;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
 class Runner
@@ -90,13 +91,9 @@ class Runner
      */
     protected function validate($job)
     {
-        if (empty($job)) {
-            throw new Exception(__("Invalid job provided to resolve", 'kirki-ecommerce'));
-        }
+        throw_if(empty($job), __("Invalid job provided to resolve", 'kirki-ecommerce'));
 
-        if (empty($job->resolver)) {
-            throw new Exception(__("Missing resolver class", 'kirki-ecommerce'));
-        }
+        throw_if(empty($job->resolver), __("Missing resolver class", 'kirki-ecommerce'));
     }
 
     /**
@@ -118,6 +115,7 @@ class Runner
             $repository->mark_as_completed($job->id);
         } catch (Exception $error) {
             $repository->mark_as_failed($job->id, isset($resolver) ? $resolver->get_retry() : 0);
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine job-failure error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
             error_log(
                 sprintf(
                     "Failed to resolve job [%s] with error: %s",
@@ -140,13 +138,11 @@ class Runner
      */
     protected function make_resolver(string $resolver)
     {
-        if (!class_exists($resolver)) {
-            throw new Exception(sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver));
-        }
+        /* translators: %s: job resolver class name */
+        throw_if(!class_exists($resolver), sprintf(__('Class [%s] missing to resolve the job', 'kirki-ecommerce'), $resolver));
 
-        if (!method_exists($resolver, 'handle')) {
-            throw new Exception(sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver));
-        }
+        /* translators: %s: job resolver class name */
+        throw_if(!method_exists($resolver, 'handle'), sprintf(__('Missing [%s::handle] method to resolve the job', 'kirki-ecommerce'), $resolver));
 
         return app()->make($resolver);
     }

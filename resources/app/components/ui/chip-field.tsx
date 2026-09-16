@@ -2,7 +2,7 @@ import type { CSSObject } from '@emotion/react';
 import { forwardRef, type ReactNode } from 'react';
 
 import { theme } from '@/theme';
-import { defineStyles, itemCenter, scoped, scopedMerge, uiFocusRing } from '@/theme/mixins';
+import { defineStyles, itemCenter, scoped, scopedMerge } from '@/theme/mixins';
 
 type ChipFieldProps = {
   /** The control row at the top of the box — an input, a trigger, a search. */
@@ -50,19 +50,17 @@ export type { ChipFieldProps };
 const styles = defineStyles({
   root: {
     width: '100%',
-    border: `1px solid ${theme.colors.border.default}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     overflow: 'hidden',
     '&:focus-within': {
-      borderColor: theme.colors.border.default,
-      ...uiFocusRing(theme),
+      borderColor: theme.colors.background.fillBrand,
     },
     '&[data-error="true"]': {
-      borderColor: theme.colors.border.critical,
+      borderColor: theme.colors.background.fillCritical,
       '&:focus-within': {
-        borderColor: theme.colors.border.critical,
-        ...uiFocusRing(theme, theme.colors.border.critical),
+        borderColor: theme.colors.background.fillCritical,
       },
     },
     '&[data-disabled="true"]': {

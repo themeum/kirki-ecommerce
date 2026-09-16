@@ -75,11 +75,11 @@
   }
 
   .kecom-product-nav-prev {
-    left: $spacing-8;
+    inset-inline-start: $spacing-8;
   }
 
   .kecom-product-nav-next {
-    right: $spacing-8;
+    inset-inline-end: $spacing-8;
   }
 
   .kecom-product-thumbnails {
@@ -129,6 +129,17 @@
     @include breakpoint-down(md) {
       gap: $spacing-9;
     }
+
+    &-button-group {
+      @include flex(column, stretch, start);
+      gap: $spacing-4;
+      .kecom-product-wishlist.active {
+        svg {
+          color: $icon-primary;
+          fill: $icon-primary;
+        }
+      }
+    }
   }
 
   .kecom-product-title-and-price {
@@ -150,6 +161,13 @@
   .kecom-product-title {
     @include typography(3xl, semibold, $text-primary);
     margin: 0px;
+  }
+
+  .kecom-product-pricing-group {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: $spacing-3;
   }
 
   .kecom-product-price {
@@ -174,6 +192,15 @@
     border-radius: $radius-sm;
     text-transform: uppercase;
     text-decoration: none;
+  }
+
+  .kecom-product-unit-price {
+    @include typography(base, normal, $text-secondary);
+  }
+
+  .kecom-product-tax-info {
+    @include typography(base, normal, $text-subdued);
+    margin-top: $spacing-3;
   }
 
   .kecom-product-short-description {
@@ -235,10 +262,10 @@
     }
 
     &:disabled {
-      opacity: 0.4;
       cursor: not-allowed;
       position: relative;
       overflow: hidden;
+      z-index: 1;
 
       &::after {
         content: '';
@@ -251,6 +278,7 @@
           $border-disabled calc(50% + 0.5px),
           transparent calc(50% + 0.5px)
         );
+        z-index: -1;
       }
     }
   }
@@ -332,8 +360,8 @@
         content: '';
         position: absolute;
         bottom: -1px;
-        left: 0;
-        right: 0;
+        inset-inline-start: 0;
+        inset-inline-end: 0;
         height: 2px;
         background-color: $border-inverse;
       }

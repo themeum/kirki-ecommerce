@@ -29,7 +29,7 @@ class Url
      */
     public static function get_registration_url()
     {
-        return Route::site_url('register');
+        return wp_registration_url();
     }
 
     /**
@@ -56,6 +56,18 @@ class Url
     public static function get_product_fallback_image()
     {
         return Assets::get_url('images/product-fallback.webp');
+    }
+
+    /**
+     * Get order tracking URL.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
+    public static function get_order_tracking_url(string $order_uuid)
+    {
+        return Route::site_url('order_tracking', ['uuid' => $order_uuid]);
     }
 
     /**
@@ -160,15 +172,6 @@ class Url
      */
     public static function get_login_url($redirect = '')
     {
-        $login_page_id = Utils::get_login_page_id();
-        if ($login_page_id && get_post($login_page_id)) {
-            $login_url = Route::site_url('login');
-            if (!empty($redirect)) {
-                $login_url = self::add_query_params($login_url, ['redirect' => urlencode($redirect)]);
-            }
-            return $login_url;
-        }
-
         return wp_login_url($redirect);
     }
 

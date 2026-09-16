@@ -8,7 +8,11 @@ import Button from '@/components/ui/button';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
-const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTableRowActionsConfig) => {
+const DataTableRowActions = ({
+  edit,
+  actions = [],
+  actionCssOverride,
+}: DataTableRowActionsConfig) => {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!edit && actions.length === 0) {
@@ -19,8 +23,8 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
     <ActionGroup cssOverride={{ visibility: isOpen ? 'visible' : undefined }}>
       {edit && (
         <Button
-          variant="secondary"
-          size="icon"
+          variant="ghost"
+          size="icon-sm"
           cssOverride={edit.cssOverride}
           aria-label={edit.label ?? __('Edit', 'kirki-ecommerce')}
           onClick={edit.onClick}
@@ -32,21 +36,24 @@ const DataTableRowActions = ({ edit, actions = [], actionCssOverride }: DataTabl
       {actions.length > 0 && (
         <DropdownButton
           buttonProps={{
-            variant: 'secondary',
+            variant: 'ghost',
             cssOverride: actionCssOverride,
           }}
           options={actions.map((action, index) =>
             'type' in action && action.type === 'separator'
               ? { value: `separator-${index}`, title: '', type: 'separator' as const }
               : {
-                value: index,
-                title: action.label,
-                icon: action.icon,
-                style: {
-                  ...(action.destructive ? { color: theme.colors.text.critical } : {}),
-                  ...action.cssOverride,
+                  value: index,
+                  title: action.label,
+                  icon: action.icon,
+                  style: action.cssOverride,
+                  cssOverride: action.destructive
+                    ? {
+                        color: theme.colors.text.critical,
+                        '& svg': { color: theme.colors.icon.critical },
+                      }
+                    : undefined,
                 },
-              },
           )}
           onOptionSelect={(actionIndex) => {
             const action = actions[Number(actionIndex)];

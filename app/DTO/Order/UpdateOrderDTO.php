@@ -51,14 +51,17 @@ class UpdateOrderDTO extends DTO
     /** @var int */
     public $base_discount_total;
 
-    /** @var array */
-    public $discount_details;
-
     /** @var int */
     public $invoiced_tax_total;
 
     /** @var int */
     public $base_tax_total;
+
+    /** @var int */
+    public $invoiced_shipping_tax_amount;
+
+    /** @var int */
+    public $base_shipping_tax_amount;
 
     /** @var int */
     public $invoiced_total;
@@ -85,9 +88,6 @@ class UpdateOrderDTO extends DTO
     public $shipping_email;
     /** @var string|null */
     public $shipping_company;
-
-    /** @var bool */
-    public $is_billing_same_as_shipping = false;
 
     // Billing Address Fields
     public $billing_first_name;

@@ -8,7 +8,7 @@ import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
-  collection_ids?: number | undefined;
+  collection_id?: number | undefined;
 };
 
 type CollectionFilterProps = {
@@ -54,7 +54,7 @@ const CollectionFilter = ({
       <Label>{__('Collection', 'kirki-ecommerce')}</Label>
       <Combobox
         options={options}
-        value={String(filterObject?.collection_ids ?? 'all')}
+        value={String(filterObject?.collection_id ?? 'all')}
         onChange={handleChange}
       />
     </Flex>

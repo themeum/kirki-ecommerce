@@ -36,12 +36,21 @@ class UpdateAddressDTO extends DTO
     /** @var string */
     public $postal_code;
 
-    /** @var string */
+    /** @var string|null */
     public $email;
 
     /** @var string|null */
     public $phone;
 
-    /** @var string billing or shipping */
+    /** @var string home, office, or others */
     public $type;
+
+    /** @var string|null */
+    public $label;
+
+    /** @var bool|null null means "leave unchanged" - see AddressService::update_without_transaction() */
+    public $is_default_shipping = null;
+
+    /** @var bool|null null means "leave unchanged" - see AddressService::update_without_transaction() */
+    public $is_default_billing = null;
 }

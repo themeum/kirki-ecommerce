@@ -21,14 +21,14 @@ cp .env.example .env
 chmod +x wpcli kirki-test docker/scripts/*.sh
 source docker/scripts/dev-env.sh   # re-run in new terminals
 
-composer install   # installs deps and scopes themeum/framework into libraries/framework/
+composer install   # installs deps and scopes themeum/framework into vendor/libraries/framework
 cd payments/kirki-stripe && composer install && cd ../..
 
 docker compose up -d --build
 docker compose logs -f wordpress-init   # first run only — wait for WP install
 ```
 
-Do **not** activate the plugin until `composer install` finishes — scoping must populate `libraries/framework/` (`Kirki\Ecommerce\Framework\`) first.
+Do **not** activate the plugin until `composer install` finishes — scoping must relocate the package to `vendor/libraries/framework/` and rewrite its `src/` to the `Kirki\Ecommerce\Framework\` namespace first.
 
 | Service    | URL (defaults)              | Login                          |
 | ---------- | --------------------------- | ------------------------------ |
@@ -44,13 +44,20 @@ Edit `.env` for custom ports or credentials. Common variables: `NGINX_HTTP_PORT`
 
 ```
 app/                  # Controllers, models, domain logic
-libraries/framework/  # Scoped themeum/framework (generated — gitignored)
 database/             # Migrations and seeders
 docker/               # Compose stack, nginx, PHP, scripts
 payments/             # Payment gateway subprojects
 tests/                # PHPUnit (Unit + Integration)
 scoper.config.php     # PHP-Scoper config (prefix: Kirki\Ecommerce)
+bin/scope-framework.php  # Finalises `composer scope` (relocate, swap, metadata, strip)
+
+vendor/libraries/framework/  # themeum/framework, relocated and scoped (gitignored)
 ```
+
+`composer scope` moves the installed package from `vendor/themeum/framework` to
+`vendor/libraries/framework`, rewrites its namespaces, repoints its autoload prefix and
+install path in `vendor/composer/installed.json`, and strips the framework's own tests
+and tooling. It is safe to re-run at any time.
 
 After updating `themeum/framework`, re-run scoping:
 

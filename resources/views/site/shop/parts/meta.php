@@ -49,7 +49,7 @@ $current_sort_by = in_array($current_sort_by, $short_by_options, true) ? $curren
         <div class="kecom-products-search" x-data>
             <button
                 type="button"
-                class="kecom-products-search-btn"
+                class="kecom-btn kecom-btn-outline kecom-btn-icon kecom-products-search-btn"
                 :class="{ 'is-visible': searchBtnVisible }"
                 @click="openSearch()"
                 aria-label="<?php esc_attr_e('Open search', 'kirki-ecommerce'); ?>"

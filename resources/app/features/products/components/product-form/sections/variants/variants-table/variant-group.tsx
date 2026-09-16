@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type React from 'react';
 import type { MouseEvent } from 'react';
 
@@ -18,7 +19,6 @@ import { getVariantIndexArray } from '@/features/products/lib/variant-group';
 import { InfoIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import GroupPriceCell from './group-price-cell';
 import { useVariantGroup } from './use-variant-group';
 import VariantMediaSelector from './variant-media-selector';

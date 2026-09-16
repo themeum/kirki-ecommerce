@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\Constants\ConsentLocations;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
@@ -19,18 +20,24 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
+use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\LegalConsentService;
+use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -160,13 +167,15 @@ class SiteController
      * @param Request $request  request.
      * @param CartService $cart_service cart service.
      * @param OrderService $order_service order service.
+     * @param AddressService $address_service Address service.
      *
      * @return string Template path.
      */
     public function checkout_page(
         Request $request,
         CartService $cart_service,
-        OrderService $order_service
+        OrderService $order_service,
+        AddressService $address_service
     ) {
         $status = $request->get('order');
 
@@ -196,14 +205,18 @@ class SiteController
         }
 
         $customer = customer();
+        $customer_id      = $customer ? $customer->get_customer_id() : null;
+        $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
         $payment_gateways = Payment::get_available_providers();
         $cart = CartResource::make($cart);
 
         $data = [
             'customer'         => $customer,
+            'addresses'        => $addresses,
             'payment_gateways' => $payment_gateways,
             'countries'        => Utils::get_countries(),
             'cart'             => $cart,
+            'consents'         => app(LegalConsentService::class)->get_renderable(ConsentLocations::CHECKOUT),
         ];
 
         return view('site.checkout', $data)->layout(false);
@@ -237,5 +250,36 @@ class SiteController
     public function design_system_page(Request $request)
     {
         return view('site.design-system');
+    }
+
+    /**
+     * Order tracking page
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request  request.
+     *
+     * @return string Template path.
+     */
+    public function order_tracking_page(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
+    {
+        $order_uuid = $request->string('uuid', '');
+
+        if (empty($order_uuid)) {
+            return view('site.order-tracking', ['errors' => [__('Invalid order ID or order not found', 'kirki-ecommerce')]])->layout(false);
+        }
+
+        $order = $order_service->find_order_by_uuid($order_uuid);
+        if (! $order) {
+            return view('site.order-tracking', ['errors' => [__('Invalid order ID or order not found', 'kirki-ecommerce')]])->layout(false);
+        }
+
+        $order_resource = SiteOrderResource::make($order);
+
+        $activities = $order_activity_service->get_order_activity($order->id);
+
+        $activities_resource = OrderActivityResource::collection($activities);
+
+        return view('site.order-tracking', ['order' => $order_resource, 'activities' => $activities_resource])->layout(false);
     }
 }

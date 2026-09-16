@@ -43,6 +43,30 @@ export const getSelectedRegionTags = (
     .filter(Boolean) as RegionTag[];
 };
 
+export const mergeRegionsByCountry = (regions: Region[] = []): Region[] => {
+  const merged = new Map<string, { region: Region; states: Set<string | number> }>();
+
+  regions.forEach((region) => {
+    const existing = merged.get(region.country);
+
+    if (existing) {
+      region.states.forEach((stateId) => existing.states.add(stateId));
+      return;
+    }
+
+    merged.set(region.country, {
+      region,
+      states: new Set(region.states),
+    });
+  });
+
+  return Array.from(merged.values()).map(({ region, states }) => ({
+    country: region.country,
+    states: Array.from(states),
+    flag: region.flag,
+  }));
+};
+
 export const getSearchedCountries = <T extends Country>(
   searchValue: string,
   countryList: T[] | null | undefined,

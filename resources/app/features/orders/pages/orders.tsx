@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
-import Container from '@/components/ui/container';
-import PageHeading from '@/components/ui/page-heading';
+import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { RouteConfig } from '@/config/route-config';
 import OrderTable from '@/features/orders/components/order-table/order-table';
 import { __ } from '@/wpi18n';
@@ -10,7 +9,7 @@ import { __ } from '@/wpi18n';
 const Orders = () => {
   const navigate = useNavigate();
   return (
-    <>
+    <Page>
       <PageHeading
         text={__('Orders', 'kirki-ecommerce')}
         actions={
@@ -31,23 +30,11 @@ const Orders = () => {
           </>
         }
       />
-      <Container>
-        {/* @todo: implement table info later */}
-        {/* <Card cssOverride={mergeCss(cardStyles.formCard, styles.tableInfoCard)}>
-          <CardContent>
-            <TableInfo />
-          </CardContent>
-        </Card> */}
+      <PageContent>
         <OrderTable />
-      </Container>
-    </>
+      </PageContent>
+    </Page>
   );
 };
 
 export default Orders;
-
-// const styles = defineStyles({
-//   tableInfoCard: {
-//     marginBottom: theme.spacing[2],
-//   },
-// });

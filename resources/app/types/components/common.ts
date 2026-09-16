@@ -69,12 +69,12 @@ type ButtonState = 'loading' | 'disabled' | 'active' | 'hover' | '';
 type InputState = 'muted' | 'disabled' | 'active' | '';
 type SelectState = 'disabled' | 'active' | '';
 
-type AlertType = 'success' | 'fail' | 'pending';
+type AlertType = 'primary' | 'success' | 'fail' | 'pending' | 'warning';
 type HeadingType = 'primary' | 'secondary' | 'tertiary' | '';
 type LabelType = 'error' | '';
 type TableDensity = 'default' | 'compact' | 'wide';
 type TableAlignment = 'right' | 'center';
-type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth';
+type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'fullWidth' | 'fluid';
 type FlexDirection = 'column' | 'row' | '';
 type TooltipPosition = 'bottom' | 'top' | 'left' | 'right';
 type DropdownSize = 'default' | 'small';
@@ -85,7 +85,7 @@ type DropdownPosition = {
   top?: boolean;
 };
 type DropdownItemState = 'disabled' | 'titleOnly' | 'defaultSelected' | '';
-type ConfirmationVariant = 'default' | 'warning' | 'delete';
+type ConfirmationVariant = 'default' | 'warning' | 'delete' | 'success';
 
 export type {
   AlertType,

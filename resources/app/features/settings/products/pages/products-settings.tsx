@@ -2,13 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import Container from '@/components/ui/container';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { Review } from '@/features/settings/products/pages/review';
 import { StandardUnit } from '@/features/settings/products/pages/standard-unit';
 import {
   type ProductsSettingsFormInput,
@@ -21,13 +18,12 @@ import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
+import { scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const ProductsSettings = () => {
   const { data: productSettingsData, isLoading } = useSettingsQuery('product');
   const { mutateAsync: saveSettings, isPending } = useUpdateSettingsMutation<'product'>();
-
-  const loaded = !isLoading && Boolean(productSettingsData);
 
   const form = useForm<ProductsSettingsFormInput, unknown, ProductsSettingsFormPayload>({
     resolver: zodResolver(ProductsSettingsFormSchema),
@@ -48,10 +44,6 @@ const ProductsSettings = () => {
       }),
     );
   }, [productSettingsData, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(form.formState.isDirty);
-  }, [form.formState.isDirty]);
 
   const handleSaveData = async (payload: ProductsSettingsFormPayload) => {
     try {
@@ -76,23 +68,22 @@ const ProductsSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
-    <Container size="sm">
-      {loaded ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<ProductSettingsIcon />}
-              title={__('Products', 'kirki-ecommerce')}
-            />
-            <StandardUnit />
-            <Review />
-          </Flex>
-        </Form>
-      ) : (
-        <ProductsSettingsSkeleton />
-      )}
-    </Container>
+  return !isLoading ? (
+    <div css={scoped({ width: '100%' })}>
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader
+            icon={<ProductSettingsIcon />}
+            title={__('Products', 'kirki-ecommerce')}
+          />
+          <StandardUnit />
+          {/* @todo: will implement later */}
+          {/* <Review /> */}
+        </Flex>
+      </Form>
+    </div>
+  ) : (
+    <ProductsSettingsSkeleton />
   );
 };
 

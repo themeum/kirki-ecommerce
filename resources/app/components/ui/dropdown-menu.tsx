@@ -86,12 +86,13 @@ const DropdownMenuContent = forwardRef<
   ComponentRef<typeof DropdownMenuPrimitive.Content>,
   DropdownMenuContentProps
 >((props, ref) => {
-  const { cssOverride, sideOffset = 4, ...rest } = props;
+  const { cssOverride, align = 'start', sideOffset = 4, ...rest } = props;
 
   return (
     <DropdownMenuPrimitive.Portal container={getPortalContainer()}>
       <DropdownMenuPrimitive.Content
         ref={ref}
+        align={align}
         sideOffset={sideOffset}
         css={scopedMerge(styles.content, styles.contentWidth, cssOverride)}
         {...rest}

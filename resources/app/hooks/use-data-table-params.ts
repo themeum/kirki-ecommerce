@@ -50,6 +50,7 @@ const useDataTableParams = <TFilter extends Record<string, unknown> = {}>(
       const [nextSort] = next;
 
       if (!nextSort) {
+        setParams({ sort_by: undefined, sort_order: undefined });
         return;
       }
 

@@ -1,34 +1,34 @@
-import { MoreVertical } from 'lucide-react';
+import { Ban, CircleCheck, MoreVertical } from 'lucide-react';
 import { useNavigate, useOutletContext } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import Switch from '@/components/ui/switch';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { RouteConfig } from '@/config/route-config';
 import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import type { ShippingZone } from '@/features/settings/shipping/types';
-import { EditIcon, TrashIcon } from '@/icons';
+import type { SettingsOutletContext } from '@/features/settings/types';
+import { EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
 
-type SettingsOutletContext = {
-  confirmAction: (opts: {
-    action: () => void;
-    otherProps?: Record<string, unknown>;
-  }) => void;
-};
-
 type ShippingZoneActionsProps = {
   item: ShippingZone;
+  isSaving?: boolean;
   onToggle: (item: ShippingZone) => void;
   onDelete: (item: ShippingZone) => void;
 };
 
 const ShippingZoneActions = ({
   item,
+  isSaving = false,
   onToggle,
   onDelete,
 }: ShippingZoneActionsProps) => {
@@ -58,7 +58,15 @@ const ShippingZoneActions = ({
   };
   return (
     <ActionGroup gap={2} cssOverride={{ marginLeft: theme.spacing[2] }}>
-      <Switch checked={item?.is_enabled} onCheckedChange={() => onToggle(item)} />
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={__('Edit', 'kirki-ecommerce')}
+        cssOverride={{ '& svg': { width: 16, height: 16 } }}
+        onClick={() => handleEditAndDelete('edit', item)}
+      >
+        <EditPenIcon />
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -70,11 +78,18 @@ const ShippingZoneActions = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={() => handleEditAndDelete('edit', item)}>
-            <EditIcon />
-            <span>{__('Edit', 'kirki-ecommerce')}</span>
+          <DropdownMenuItem disabled={isSaving} onClick={() => onToggle(item)}>
+            {item?.is_enabled ? <Ban size={16} /> : <CircleCheck size={16} />}
+            <span>
+              {item?.is_enabled
+                ? __('Deactivate', 'kirki-ecommerce')
+                : __('Activate', 'kirki-ecommerce')}
+            </span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleEditAndDelete('delete', item)}>
+          <DropdownMenuItem
+            cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
+            onClick={() => handleEditAndDelete('delete', item)}
+          >
             <TrashIcon />
             <span>{__('Delete', 'kirki-ecommerce')}</span>
           </DropdownMenuItem>
@@ -87,4 +102,3 @@ const ShippingZoneActions = ({
 ShippingZoneActions.displayName = 'ShippingZoneActions';
 
 export default ShippingZoneActions;
-

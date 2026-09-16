@@ -6,7 +6,6 @@ import type { OrderListFilter } from '@/features/orders';
 import { orderListOptions } from '@/features/orders';
 import { orderColumns } from '@/features/orders/components/order-table/columns';
 import OrderTableAction from '@/features/orders/components/order-table/order-table-action';
-import OrderTableFilterBar from '@/features/orders/components/order-table/order-table-filter-bar';
 import { useOrdersQuery } from '@/features/orders/services/order';
 import { useDataTableParams } from '@/hooks';
 
@@ -19,6 +18,7 @@ const OrderTable = () => {
 
   return (
     <DataTable
+      tableId="orders"
       data={data?.results ?? []}
       columns={orderColumns}
       total={data?.total}
@@ -34,7 +34,6 @@ const OrderTable = () => {
         void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: item.id }));
       }}
       toolbar={<OrderTableAction />}
-      filterBar={<OrderTableFilterBar />}
     />
   );
 };

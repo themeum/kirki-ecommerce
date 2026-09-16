@@ -1,4 +1,4 @@
-export { default as BaseUnitDialog } from './components/product-form/sections/price/base-unit-dialog';
+export { default as BaseUnitPopover } from './components/product-form/sections/price/base-unit-popover';
 export { default as SelectProductsDialog } from './components/shared/select-products-dialog';
 export { buildProductSelection } from './components/shared/select-products-dialog/build-selection';
 export type {

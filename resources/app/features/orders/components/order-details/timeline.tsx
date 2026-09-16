@@ -10,7 +10,6 @@ import InfiniteScrollSentinel from '@/components/ui/infinite-scroll-sentinel';
 import Input from '@/components/ui/input';
 import LeadingIconBadge from '@/components/ui/leading-icon-badge';
 import Text from '@/components/ui/text';
-import type { ActivityFormPayload } from '@/features/orders/schemas/forms/activity-form';
 import {
   useCreateOrderActivityMutation,
   useDeleteOrderActivityMutation,
@@ -48,7 +47,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
     }
 
     createActivityMutation.mutate(
-      { orderId, data: { message: trimmed } as ActivityFormPayload },
+      { orderId, data: { message: trimmed } },
       { onSuccess: () => setMessage('') },
     );
   };
@@ -113,6 +112,7 @@ const Timeline = ({ orderId }: TimelineProps) => {
                           size="icon-sm"
                           aria-label={__('Delete comment', 'kirki-ecommerce')}
                           data-action-group="true"
+                          cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                           onClick={() => setPendingDeleteId(entry.id)}
                         >
                           <Trash2 size={12} />

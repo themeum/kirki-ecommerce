@@ -8,7 +8,7 @@ import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
 type FilterObject = {
-  brand_ids?: number | undefined;
+  brand_id?: number | undefined;
 };
 
 type BrandFilterProps = {
@@ -44,8 +44,8 @@ const BrandFilter = ({
       <Combobox
         options={brandOptions}
         value={
-          filterObject?.brand_ids !== undefined
-            ? String(filterObject.brand_ids)
+          filterObject?.brand_id !== undefined
+            ? String(filterObject.brand_id)
             : undefined
         }
         onChange={handleChange}

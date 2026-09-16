@@ -71,7 +71,7 @@
     display: inline-flex;
     align-items: center;
     gap: $spacing-2;
-    padding: $spacing-4 $spacing-6;
+    padding: 7px $spacing-6;
     border: 1px solid $border-default;
     border-radius: $radius-lg;
     background-color: $background-fill;
@@ -203,18 +203,6 @@
 }
 
 .kecom-products-search-btn {
-  @include flex-center();
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 36px;
-  height: 36px;
-  border: 1px solid $border-default;
-  border-radius: $radius-md;
-  background: $background-surface;
-  color: $icon-secondary;
-  cursor: pointer;
-  flex-shrink: 0;
   opacity: 0;
   pointer-events: none;
   transition:
@@ -225,11 +213,6 @@
   &.is-visible {
     opacity: 1;
     pointer-events: auto;
-  }
-
-  &:hover {
-    border-color: $border-hover;
-    color: $icon-secondary;
   }
 }
 
@@ -302,6 +285,10 @@
 
     &::placeholder {
       color: $text-subdued;
+    }
+
+    &:focus {
+      border: none;
     }
   }
 

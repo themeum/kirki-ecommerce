@@ -22,9 +22,14 @@ const App = () => {
         <Init>
           <Toaster
             richColors
-            position="bottom-right"
+            position="top-right"
             toastOptions={{
-              style: { padding: theme.spacing[2] },
+              style: {
+                padding: theme.spacing[4],
+                backgroundColor: theme.colors.background.fill,
+                color: theme.colors.text.primary,
+                border: `1px solid ${theme.colors.border.default}`,
+              },
             }}
           />
           <RouterProvider router={router} />
@@ -47,6 +52,22 @@ const resetActiveMenu = (root: HTMLElement): void => {
 const getLeadingRouteHash = (hash: string): string => {
   const hashParts = hash.split('/');
   return hashParts.slice(0, 2).join('/');
+};
+
+// WordPress renders these menu links as bare hash changes on the current
+// document. React Router never sees such a navigation, so its unsaved-changes
+// blocker fails to stop it — silently, by React Router's own warning. Handing
+// an in-app destination to the router instead is what lets the guard refuse it.
+const getInAppPath = (href: string): string | null => {
+  const target = new URL(href, window.location.href);
+  const isSameDocument =
+    target.pathname === window.location.pathname && target.search === window.location.search;
+
+  if (!isSameDocument || !target.hash.startsWith('#/')) {
+    return null;
+  }
+
+  return target.hash.slice(1);
 };
 
 const checkActiveSubmenu = (root: HTMLElement): void => {
@@ -77,9 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkActiveSubmenu(ecommerceAdminMenu);
 
   const menuItems = [
-    ...ecommerceAdminMenu.querySelectorAll(
-      '& > ul > li:not(:has(.gf-menu-separator))',
-    ),
+    ...ecommerceAdminMenu.querySelectorAll('& > ul > li:not(:has(.gf-menu-separator))'),
   ];
 
   for (const menuItem of menuItems) {
@@ -88,6 +107,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const mouseEvent = event as MouseEvent;
       const target = mouseEvent.target as Element | null;
       const url = target?.closest('a')?.getAttribute('href');
+      const inAppPath =
+        url && !mouseEvent.metaKey && !mouseEvent.ctrlKey ? getInAppPath(url) : null;
+
+      if (inAppPath) {
+        void router.navigate(inAppPath).then(() => {
+          resetActiveMenu(ecommerceAdminMenu);
+          checkActiveSubmenu(ecommerceAdminMenu);
+        });
+        return;
+      }
+
       resetActiveMenu(ecommerceAdminMenu);
       menuItem.classList.add('current');
       if (url) {

@@ -7,6 +7,13 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('esc_html__')) {
+    function esc_html__($text, $domain = 'default')
+    {
+        return $text;
+    }
+}
+
 if (!function_exists('_e')) {
     function _e($text, $domain = 'default')
     {
@@ -53,6 +60,30 @@ if (!defined('MINUTE_IN_SECONDS')) {
     define('MINUTE_IN_SECONDS', 60);
 }
 
+if (!function_exists('wp_unslash')) {
+    function wp_unslash($value)
+    {
+        return is_array($value) ? array_map('wp_unslash', $value) : stripslashes((string) $value);
+    }
+}
+
+if (!function_exists('wp_parse_url')) {
+    function wp_parse_url($url, $component = -1)
+    {
+        return parse_url($url, $component);
+    }
+}
+
+if (!function_exists('sanitize_text_field')) {
+    function sanitize_text_field($str)
+    {
+        $filtered = strip_tags((string) $str);
+        $filtered = preg_replace('/[\r\n\t ]+/', ' ', $filtered);
+
+        return trim($filtered);
+    }
+}
+
 if (!function_exists('sanitize_title')) {
     function sanitize_title($title, $fallback_title = '', $context = 'save')
     {
@@ -63,5 +94,21 @@ if (!function_exists('sanitize_title')) {
         $title = trim($title, '-');
 
         return $title === '' ? $fallback_title : $title;
+    }
+}
+
+if (!function_exists('esc_url')) {
+    function esc_url($url)
+    {
+        $url = str_replace(['"', "'", '<', '>'], '', (string) $url);
+
+        return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('get_permalink')) {
+    function get_permalink($post = 0, $leavename = false)
+    {
+        return 'https://example.test/?p=' . (int) (is_object($post) ? $post->ID : $post);
     }
 }

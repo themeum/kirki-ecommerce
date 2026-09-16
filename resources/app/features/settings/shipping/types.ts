@@ -75,7 +75,6 @@ type ShippingZone = {
 
 type SaveShippingZonesParams = {
   zones: ShippingZone[];
-  from?: string;
   shippingSettingsData: ShippingSettings | null | undefined;
   toastMessage?: string;
   variant?: ToastVariant;

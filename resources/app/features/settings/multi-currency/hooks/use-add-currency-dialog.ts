@@ -1,23 +1,34 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
-import { useForm, useWatch } from 'react-hook-form';
+import { useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 
 import { getSearchedValue } from '@/features/settings/lib/utils';
-import { filterUnaddedCurrencies, resolveSearchInputValue, toggleCurrencySelection } from '@/features/settings/multi-currency/lib/currency-selection';
-import type { CurrencyDraft, CurrencyOption } from '@/features/settings/multi-currency/schemas/catalog/currency';
-import { type AddCurrencyPopupFormInput, type AddCurrencyPopupFormPayload, AddCurrencyPopupFormSchema } from '@/features/settings/multi-currency/schemas/forms/add-currency-popup-form';
-import { useAllCurrenciesQuery, useAvailableCurrenciesQuery } from '@/features/settings/multi-currency/services/currency';
+import {
+  filterUnaddedCurrencies,
+  resolveSearchInputValue,
+  toggleCurrencySelection,
+} from '@/features/settings/multi-currency/lib/currency-selection';
+import type {
+  CurrencyDraft,
+  CurrencyOption,
+} from '@/features/settings/multi-currency/schemas/catalog/currency';
+import {
+  type AddCurrencyPopupFormInput,
+  type AddCurrencyPopupFormPayload,
+  AddCurrencyPopupFormSchema,
+} from '@/features/settings/multi-currency/schemas/forms/add-currency-popup-form';
+import type { MultiCurrencySettingsFormInput } from '@/features/settings/multi-currency/schemas/forms/multi-currency-settings-form';
+import {
+  useAllCurrenciesQuery,
+  useAvailableCurrenciesQuery,
+} from '@/features/settings/multi-currency/services/currency';
 
-type UseAddCurrencyDialogResult = {
+export type UseAddCurrencyDialogProps = {
   form: UseFormReturn<AddCurrencyPopupFormInput, unknown, AddCurrencyPopupFormPayload>;
   openPopup: boolean;
   setOpenPopup: Dispatch<SetStateAction<boolean>>;
-  openExchangePopup: boolean;
-  setOpenExchangePopup: Dispatch<SetStateAction<boolean>>;
-  selectedCurrencyList: CurrencyDraft[];
-  setSelectedCurrencyList: Dispatch<SetStateAction<CurrencyDraft[]>>;
   searchValue: string;
   setSearchValue: Dispatch<SetStateAction<string>>;
   filteredCurrency: CurrencyOption[];
@@ -28,16 +39,16 @@ type UseAddCurrencyDialogResult = {
   handleSubmit: (values: AddCurrencyPopupFormPayload) => void;
 };
 
-export const useAddCurrencyDialog = (): UseAddCurrencyDialogResult => {
+export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   const [openPopup, setOpenPopup] = useState(false);
-  const [openExchangePopup, setOpenExchangePopup] = useState(false);
-  const [allCurrency, setAllCurrency] = useState<CurrencyOption[]>([]);
-  const [selectedCurrencyList, setSelectedCurrencyList] = useState<CurrencyDraft[]>([]);
   const [searchValue, setSearchValue] = useState('');
-  const [filteredCurrency, setFilteredCurrency] = useState<CurrencyOption[]>([]);
 
-  const { data: availableCurrencies = [] } = useAvailableCurrenciesQuery({ limit: -1 });
-  const { data: allCurrenciesData = [] } = useAllCurrenciesQuery();
+  const { data: availableCurrencies } = useAvailableCurrenciesQuery({ limit: -1 });
+  const { data: allCurrenciesData } = useAllCurrenciesQuery({}, openPopup);
+
+  const parentForm = useFormContext<MultiCurrencySettingsFormInput>();
+  const { append } = useFieldArray({ control: parentForm.control, name: 'currencies' });
+  const formCurrencies = useWatch({ control: parentForm.control, name: 'currencies' });
 
   const form = useForm<AddCurrencyPopupFormInput, unknown, AddCurrencyPopupFormPayload>({
     resolver: zodResolver(AddCurrencyPopupFormSchema),
@@ -55,15 +66,20 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogResult => {
     if (!openPopup) {
       return;
     }
-
-    setAllCurrency(filterUnaddedCurrencies(allCurrenciesData, availableCurrencies));
     form.reset({ selectedCurrencies: [] });
     setSearchValue('');
-  }, [openPopup, availableCurrencies, allCurrenciesData, form]);
+  }, [openPopup, form]);
 
-  useEffect(() => {
-    setFilteredCurrency(allCurrency);
-  }, [allCurrency]);
+  const allCurrency = useMemo(() => {
+    return filterUnaddedCurrencies(allCurrenciesData ?? [], [
+      ...(availableCurrencies ?? []),
+      ...(formCurrencies ?? []),
+    ]);
+  }, [availableCurrencies, allCurrenciesData, formCurrencies]);
+
+  const filteredCurrency = useMemo(() => {
+    return getSearchedValue(searchValue, allCurrency);
+  }, [searchValue, allCurrency]);
 
   const handleSelectCurrencies = (currency: CurrencyOption) => {
     const next = toggleCurrencySelection(form.getValues('selectedCurrencies'), currency);
@@ -71,37 +87,31 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogResult => {
   };
 
   const handleSearchCurrency = (event: unknown) => {
-    const value = resolveSearchInputValue(event);
-    setSearchValue(value);
-
-    if (!value) {
-      setFilteredCurrency(allCurrency);
-      return;
-    }
-    setFilteredCurrency(getSearchedValue(value, allCurrency));
+    setSearchValue(resolveSearchInputValue(event));
   };
 
   const handleClosePopup = () => {
     setSearchValue('');
-    setSelectedCurrencyList([]);
     form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
   };
 
   const handleSubmit = (values: AddCurrencyPopupFormPayload) => {
-    setSelectedCurrencyList(values.selectedCurrencies);
+    append(
+      values.selectedCurrencies.map((currency) => ({
+        ...currency,
+        exchange_rate: null,
+      })),
+    );
+    setSearchValue('');
+    form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
-    setOpenExchangePopup(true);
   };
 
   return {
     form,
     openPopup,
     setOpenPopup,
-    openExchangePopup,
-    setOpenExchangePopup,
-    selectedCurrencyList,
-    setSelectedCurrencyList,
     searchValue,
     setSearchValue,
     filteredCurrency,

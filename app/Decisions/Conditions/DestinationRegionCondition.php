@@ -24,6 +24,21 @@ class DestinationRegionCondition extends Condition
             return false;
         }
 
-        return $this->compare($shipping_address['country'], '=', $value['country']) && $this->compare($shipping_address['state'], 'in', $value['state']);
+        $target_country = $value['country'] ?? null;
+        $target_states = $value['state'] ?? [];
+
+        $country_matches = is_array($target_country)
+            ? $this->compare($shipping_address['country'] ?? null, 'in', $target_country)
+            : $this->compare($shipping_address['country'] ?? null, '=', $target_country);
+
+        if (!$country_matches) {
+            return false;
+        }
+
+        if (empty($target_states)) {
+            return true;
+        }
+
+        return $this->compare($shipping_address['state'] ?? null, 'in', (array) $target_states);
     }
 }

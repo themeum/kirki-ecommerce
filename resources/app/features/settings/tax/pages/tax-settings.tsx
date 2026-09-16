@@ -10,18 +10,17 @@ import { Form } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
-import { setUnsavedDataStatus } from '@/features/settings/lib/utils';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import TaxCollectionField from '@/features/settings/tax/components/fields/tax-collection-field';
-import type { TaxRegion } from '@/features/settings/tax/lib/utils';
-import TaxProfile from '@/features/settings/tax/pages/tax-profile/tax-profile';
-import TaxRegions from '@/features/settings/tax/pages/tax-region/tax-region';
+import TaxCollectionField from '@/features/settings/tax/shared/components/fields/tax-collection-field';
+import TaxProfile from '@/features/settings/tax/shared/components/tax-profile/tax-profile';
+import TaxRegions from '@/features/settings/tax/shared/components/tax-region-list';
+import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import {
   type TaxSettingsFormInput,
   type TaxSettingsFormPayload,
   TaxSettingsFormSchema,
-} from '@/features/settings/tax/schemas/forms/tax-settings-form';
-import TaxSettingsSkeleton from '@/features/settings/tax/skeletons/tax-settings-skeleton';
+} from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
+import TaxSettingsSkeleton from '@/features/settings/tax/shared/skeletons/tax-settings-skeleton';
 import { TaxIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -33,31 +32,24 @@ import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TaxCollectionOptions = () => {
-  const isTaxInclusivePrice = useWatch<
-    TaxSettingsFormInput,
-    'is_tax_inclusive_price'
-  >({
+  const isTaxInclusivePrice = useWatch<TaxSettingsFormInput, 'is_tax_inclusive_price'>({
     name: 'is_tax_inclusive_price',
   });
 
   return (
     <div>
-      <Separator cssOverride={styles.separator} />
-      {isTaxInclusivePrice ? (
-        <CheckboxField
-          name="is_shipping_tax_enabled"
-          label={__('Charge shipping tax', 'kirki-ecommerce')}
-          description={__('Set charge for shipping tax', 'kirki-ecommerce')}
-        />
-      ) : (
-        <CheckboxField
-          name="is_enabled_taxed_price"
-          label={__('Display prices inclusive tax', 'kirki-ecommerce')}
-          infoText={__(
-            'Tax value will be included inside the product price',
-            'kirki-ecommerce',
-          )}
-        />
+      {isTaxInclusivePrice && (
+        <>
+          <Separator cssOverride={styles.separator} />
+          <CheckboxField
+            name="is_enabled_display_inclusive_taxed_price"
+            label={__('Display prices inclusive tax to the product list', 'kirki-ecommerce')}
+            infoText={__(
+              'Show tax-included prices on shop and collection listing pages.',
+              'kirki-ecommerce',
+            )}
+          />
+        </>
       )}
     </div>
   );
@@ -65,10 +57,7 @@ const TaxCollectionOptions = () => {
 
 const TaxSettings = () => {
   const { data: taxSettings, isLoading } = useSettingsQuery('tax');
-  const { mutateAsync: saveSettings, isPending: isSaving } =
-    useUpdateSettingsMutation<'tax'>();
-
-  const loaded = !isLoading && Boolean(taxSettings);
+  const { mutateAsync: saveSettings, isPending: isSaving } = useUpdateSettingsMutation<'tax'>();
 
   const form = useForm<TaxSettingsFormInput, unknown, TaxSettingsFormPayload>({
     resolver: zodResolver(TaxSettingsFormSchema),
@@ -84,18 +73,12 @@ const TaxSettings = () => {
 
     form.reset(
       pickFormValues(TaxSettingsFormSchema, taxSettings, {
-        tax_regions: Array.isArray(taxSettings.tax_regions)
-          ? (taxSettings.tax_regions as TaxRegion[])
-          : [],
+        tax_regions: Array.isArray(taxSettings.tax_regions) ? taxSettings.tax_regions : [],
         tax_services: [],
         tax_ids: [],
       }),
     );
   }, [taxSettings, form]);
-
-  useEffect(() => {
-    setUnsavedDataStatus(isDirty);
-  }, [isDirty]);
 
   const handleSaveTaxSettings = async (
     payload: TaxSettingsFormPayload,
@@ -103,7 +86,7 @@ const TaxSettings = () => {
   ) => {
     const data: TaxSettingsFormPayload = {
       ...payload,
-      tax_regions: (updatedRegions ?? payload.tax_regions) as TaxSettingsFormPayload['tax_regions'],
+      tax_regions: updatedRegions ?? payload.tax_regions,
     };
 
     try {
@@ -129,42 +112,44 @@ const TaxSettings = () => {
     onDiscard: handleDiscardData,
   });
 
-  return (
+  return !isLoading ? (
     <Container size="sm">
-      {loaded ? (
-        <Form {...form}>
-          <Flex direction="column" gap={4}>
-            <SettingsPageHeader
-              icon={<TaxIcon />}
-              title={__('Tax', 'kirki-ecommerce')}
-            />
-            <Card cssOverride={cardStyles.formCard} >
-              <CardContent>
-                <Flex direction="column" gap={4}>
-                  <Flex direction="column" gap={2}>
-                    <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>{__('How would you like to collect tax?', 'kirki-ecommerce')}</Text>
-                    <Text color="secondary">{__(
-                      'Configure how tax is displayed and how it appears on your product listings.',
+      <Form {...form}>
+        <Flex direction="column" gap={4}>
+          <SettingsPageHeader icon={<TaxIcon />} title={__('Tax', 'kirki-ecommerce')} />
+          <Card
+            data-search-id="tax.collection"
+            data-search-keywords="inclusive, exclusive, vat, gst, price display"
+            data-search-title={__('Tax Collection', 'kirki-ecommerce')}
+            cssOverride={cardStyles.formCard}
+          >
+            <CardContent>
+              <Flex direction="column" gap={4}>
+                <Flex direction="column">
+                  <Text weight="semibold" cssOverride={styles.taxCollectionHeader}>
+                    {__('How would you like to collect tax?', 'kirki-ecommerce')}
+                  </Text>
+                  <Text color="secondary">
+                    {__(
+                      'Whether product prices are shown with tax included or added separately.',
                       'kirki-ecommerce',
-                    )}</Text>
-                  </Flex>
-                  <Flex direction="column" gap={3}>
-                    <TaxCollectionField />
-                    {/* @TODO: will be handled in the future */}
-                    {/* eslint-disable-next-line no-constant-binary-expression -- kept in place until the feature is enabled */}
-                    {false && <TaxCollectionOptions />}
-                  </Flex>
+                    )}
+                  </Text>
                 </Flex>
-              </CardContent>
-            </Card>
-            <TaxRegions handleSave={handleSaveFromRegions} />
-            <TaxProfile />
-          </Flex>
-        </Form>
-      ) : (
-        <TaxSettingsSkeleton />
-      )}
+                <Flex direction="column" gap={3}>
+                  <TaxCollectionField />
+                  <TaxCollectionOptions />
+                </Flex>
+              </Flex>
+            </CardContent>
+          </Card>
+          <TaxRegions handleSave={handleSaveFromRegions} />
+          <TaxProfile />
+        </Flex>
+      </Form>
     </Container>
+  ) : (
+    <TaxSettingsSkeleton />
   );
 };
 

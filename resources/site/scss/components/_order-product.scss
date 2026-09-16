@@ -34,7 +34,7 @@
   .kecom-product-qty-badge {
     position: absolute;
     top: -4px;
-    right: -4px;
+    inset-inline-end: -4px;
     @include flex-center();
     @include typography(sm, semibold, $text-light);
     min-width: 22px;
@@ -54,6 +54,7 @@
 
   .kecom-product-name {
     @include typography(base, medium, $text-primary);
+    @include text-clamp(1);
     text-decoration: none;
     outline: none;
     margin: 0;
@@ -71,6 +72,36 @@
     span:not(:last-of-type)::after {
       content: '•';
       margin-inline-start: $spacing-2;
+    }
+  }
+
+  .kecom-product-coupons {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+  }
+
+  .kecom-product-coupon {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    @include typography(xs, regular, $text-secondary);
+
+    .kecom-product-coupon-icon {
+      display: inline-flex;
+      align-items: center;
+      color: $text-secondary;
+      flex-shrink: 0;
+
+      svg {
+        width: 12px;
+        height: 12px;
+      }
+    }
+
+    .kecom-product-coupon-text {
+      color: $text-secondary;
+      line-height: $line-height-xs;
     }
   }
 

@@ -102,6 +102,7 @@ class AvailabilityService
     public function format_status_label($status, $quantity = 0, $variant_count = null)
     {
         $label = ($status === AvailabilityStatus::IN_STOCK && $quantity > 0)
+            /* translators: %d: quantity in stock */
             ? sprintf(__('%d In Stock', 'kirki-ecommerce'), $quantity)
             : AvailabilityStatus::get_formatted($status);
 
@@ -110,6 +111,6 @@ class AvailabilityService
         }
 
         /* translators: 1: availability label, 2: variant count */
-        return sprintf(__('%1$s <span>across %2$d variants<span>', 'kirki-ecommerce'), $label, $variant_count);
+        return sprintf(__('%1$s <span>across %2$d variants</span>', 'kirki-ecommerce'), $label, $variant_count);
     }
 }

@@ -65,8 +65,12 @@ export function buildCartApi({ skipTax = true, headers: extraHeaders = {} }: Car
         headers,
       }),
 
-    removeCoupon: () =>
-      apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.coupon, { method: 'DELETE', headers }),
+    removeCoupon: (code?: string) =>
+      apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.coupon, {
+        method: 'DELETE',
+        body: code ? { code } : undefined,
+        headers,
+      }),
 
     updateShipping: (shippingData: any) =>
       apiRequest<ApiResponse<Cart>>(ENDPOINTS.cart.shipping, {

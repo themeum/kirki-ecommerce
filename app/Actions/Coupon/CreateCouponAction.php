@@ -6,8 +6,9 @@ use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
-use Exception;
 use Throwable;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 class CreateCouponAction
 {
@@ -35,9 +36,7 @@ class CreateCouponAction
         try {
             $coupon = $this->coupon_service->create($payload);
 
-            if (empty($coupon)) {
-                throw new Exception(__('Coupon could not be created.', 'kirki-ecommerce'));
-            }
+            throw_if(empty($coupon), __('Coupon could not be created.', 'kirki-ecommerce'));
 
             if (!empty($payload->category_ids)) {
                 $coupon->categories()->sync($payload->category_ids);

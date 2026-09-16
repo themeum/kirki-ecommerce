@@ -24,7 +24,7 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-12;
-    padding: $spacing-18 $spacing-19;
+    padding: $spacing-12 $spacing-19;
 
     @include breakpoint-down(md) {
       padding: $spacing-8 $spacing-0;
@@ -36,7 +36,7 @@
     display: flex;
     flex-direction: column;
     gap: $spacing-10;
-    padding: $spacing-18 $spacing-19;
+    padding: $spacing-12 $spacing-19;
     background-color: $background-surface-alt;
 
     position: sticky;
@@ -50,7 +50,7 @@
   }
 
   .kecom-section-title {
-    @include typography(xl, semibold);
+    @include typography(md, semibold);
     margin-top: $spacing-0;
     margin-bottom: $spacing-6;
   }
@@ -64,7 +64,7 @@
   .kecom-contact-header {
     @include flex-between();
     gap: $spacing-4;
-    margin-bottom: $spacing-8;
+    margin-bottom: $spacing-4;
 
     .kecom-section-title {
       margin-bottom: 0;
@@ -72,7 +72,7 @@
   }
 
   .kecom-contact-login-prompt {
-    @include typography(base, regular, $text-secondary);
+    @include typography(base, normal, $text-secondary);
 
     a,
     .kecom-link {
@@ -86,7 +86,7 @@
   }
 
   .kecom-contact-guest-notice {
-    @include typography(sm, regular, $text-secondary);
+    @include typography(sm, normal, $text-secondary);
     margin-top: $spacing-2;
     margin-bottom: 0;
   }
@@ -121,7 +121,7 @@
   }
 
   .kecom-contact-user-email {
-    @include typography(base, regular, $text-secondary);
+    @include typography(base, normal, $text-secondary);
   }
 
   // Billing Form
@@ -177,7 +177,7 @@
     }
 
     .kecom-shipping-description {
-      @include typography(sm, regular, $text-secondary);
+      @include typography(sm, normal, $text-secondary);
     }
 
     .kecom-shipping-price {
@@ -240,6 +240,8 @@
 
     .kecom-products-section-modify {
       @include typography(base, medium);
+      padding: $spacing-4;
+      display: flex;
     }
 
     .kecom-section-title {
@@ -250,7 +252,7 @@
   // Coupon Form
   .kecom-coupon-form {
     @include flex();
-    gap: $spacing-6;
+    gap: $spacing-4;
     align-items: start;
 
     .kecom-field {
@@ -258,36 +260,12 @@
     }
   }
 
-  .kecom-applied-coupon {
-    @include flex-column();
+  .kecom-applied-coupons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     gap: $spacing-4;
-
-    .kecom-applied-coupon-info {
-      @include flex-between();
-      border: 1px solid $icon-brand;
-      border-radius: $radius-lg;
-      padding: $spacing-3 $spacing-3 $spacing-3 $spacing-6;
-
-      .kecom-applied-coupon-code-wrapper {
-        @include flex-center();
-        gap: $spacing-4;
-      }
-
-      .kecom-coupon-code {
-        @include typography(base, medium);
-        text-transform: uppercase;
-      }
-
-      .kecom-coupon-discount {
-        text-transform: uppercase;
-      }
-
-      button {
-        height: 24px;
-        width: 24px;
-        @include flex-center();
-      }
-    }
+    margin-top: $spacing-6;
   }
 
   // Order Summary
@@ -300,7 +278,13 @@
   .kecom-summary-row {
     display: flex;
     justify-content: space-between;
-    @include typography(base, regular, $text-secondary);
+    @include typography(base, normal, $text-secondary);
+
+    &.kecom-discount-row {
+      padding-bottom: $spacing-6;
+      margin-bottom: $spacing-2;
+      border-bottom: 1px solid $border-default;
+    }
 
     &.kecom-total-row {
       font-weight: 700;
@@ -308,15 +292,218 @@
       padding-top: $spacing-6;
       margin-top: $spacing-2;
       border-top: 1px solid $border-default;
+      align-items: flex-start;
     }
+  }
+
+  .kecom-total-label-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kecom-total-currency {
+    @include typography(sm, normal, $text-subdued);
+    font-weight: 400;
+    margin-inline-end: $spacing-1;
+  }
+
+  .kecom-inclusive-tax-wrapper {
+    @include flex-column();
+    gap: $spacing-1;
+    margin-top: $spacing-1;
+    @include typography(sm, normal, $text-secondary);
+    font-weight: 400;
+  }
+
+  .kecom-inclusive-tax-summary {
+    color: $text-secondary;
+  }
+
+  .kecom-inclusive-tax-lines {
+    @include flex-column();
+    gap: $spacing-1;
+    padding-inline-start: $spacing-3;
+  }
+
+  .kecom-inclusive-tax-line {
+    @include typography(sm, normal, $text-subdued);
   }
 
   .kecom-summary-value {
     font-weight: 500;
     color: $text-primary;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
 
     &.kecom-total-value {
       font-weight: 700;
+      align-items: center;
+    }
+  }
+
+  .kecom-summary-discount {
+    @include typography(sm, normal, $text-secondary);
+    text-decoration: line-through;
+    font-weight: 400;
+  }
+
+  // Address Section
+  .kecom-checkout-saved-address-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kecom-checkout-address-card {
+    border: 1px solid $border-default;
+    border-radius: $radius-xl;
+    padding: $spacing-6 $spacing-8;
+    @include flex-between();
+    gap: $spacing-4;
+
+    &-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &-line {
+      font-size: 13px;
+      line-height: 20px;
+      font-weight: 400;
+      color: $text-primary;
+
+      &:first-of-type {
+        font-weight: 600;
+      }
+    }
+  }
+
+  .kecom-checkout-billing-toggle {
+    margin-top: $spacing-4;
+    margin-bottom: 0;
+  }
+}
+
+// ── Checkout Address Picker Modal ───────────────────────────────────────────
+
+.kecom-checkout-address-picker-modal {
+  max-width: 540px;
+
+  .kecom-modal-header {
+    padding: $spacing-6 $spacing-8;
+
+    &-close {
+      background-color: $background-fill-secondary;
+      border-radius: $radius-md;
+
+      &:hover {
+        background-color: $background-fill-hover;
+      }
+    }
+  }
+
+  .kecom-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+    padding: $spacing-6 $spacing-8;
+    max-height: calc(85dvh - 180px);
+    overflow-y: auto;
+  }
+
+  .kecom-modal-footer {
+    padding: $spacing-6 $spacing-9;
+  }
+}
+
+.kecom-checkout-address-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.kecom-checkout-address-picker-card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-9;
+  padding: $spacing-6 $spacing-8;
+  border: 1px solid $border-default;
+  border-radius: $radius-lg;
+  background-color: $background-fill;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+
+  &:hover {
+    background-color: $background-surface-alt;
+
+    .kecom-btn {
+      background-color: transparent;
+    }
+  }
+
+  .kecom-checkout-address-picker-radio {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    .kecom-radio-input {
+      cursor: pointer;
+    }
+  }
+
+  .kecom-checkout-address-picker-details {
+    flex: 1;
+    min-width: 0;
+    @include flex-between();
+    gap: $spacing-2;
+  }
+
+  .kecom-checkout-address-picker-row {
+    @include flex-column();
+    gap: $spacing-2;
+    max-width: 340px;
+  }
+
+  .kecom-checkout-address-picker-label-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+  }
+
+  .kecom-checkout-address-picker-icon {
+    display: inline-flex;
+    align-items: center;
+    color: $icon-primary;
+  }
+
+  .kecom-checkout-address-picker-label {
+    @include typography(sm, semibold, $text-primary);
+  }
+
+  .kecom-checkout-address-picker-text {
+    @include typography(sm, normal, $text-secondary);
+  }
+}
+
+.kecom-consent-section {
+  @include flex-column();
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+
+  .kecom-consent-text,
+  .kecom-checkbox-label {
+    @include typography(base, normal, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-consent {
+    align-items: center;
+
+    a {
+      color: $text-primary;
+      text-decoration: underline;
     }
   }
 }

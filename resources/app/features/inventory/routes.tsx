@@ -4,6 +4,7 @@ import type { RouteObject } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 
 const Inventory = lazy(() => import('@/features/inventory/pages/inventory'));
+const EditInventory = lazy(() => import('@/features/inventory/pages/edit-inventory'));
 
 const withSuspense = <Props extends object>(
   Component: ComponentType<Props>,
@@ -16,6 +17,10 @@ const withSuspense = <Props extends object>(
 
 const inventoryRoutes: RouteObject[] = [
   { path: RouteConfig.Inventory.template, element: withSuspense(Inventory) },
+  {
+    path: RouteConfig.Inventory.get('EditInventory').template,
+    element: withSuspense(EditInventory),
+  },
 ];
 
 export default inventoryRoutes;

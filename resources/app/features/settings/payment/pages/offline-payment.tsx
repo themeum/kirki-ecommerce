@@ -11,12 +11,15 @@ import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import OfflinePaymentPopup from '@/features/settings/payment/pages/offline-payment-dialog';
 import type { OfflinePayment } from '@/features/settings/payment/schemas/catalog/payment';
-import { useDeleteOfflinePaymentMutation, useUpdateOfflinePaymentMutation } from '@/features/settings/payment/services/payment';
+import {
+  useDeleteOfflinePaymentMutation,
+  useUpdateOfflinePaymentMutation,
+} from '@/features/settings/payment/services/payment';
+import { useConfirmDelete } from '@/hooks';
 import { BankIconLarge, CashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 type OfflinePaymentProps = {
@@ -44,21 +47,23 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
   const [editingMethod, setEditingMethod] = useState<OfflinePayment | null>(null);
 
   const { mutate: deleteOfflinePayment } = useDeleteOfflinePaymentMutation();
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
   const { mutate: updateOfflinePayment } = useUpdateOfflinePaymentMutation();
 
-  const handleAction = (
-    action: string | number | (string | number)[],
-    item: OfflinePayment,
-  ) => {
+  const handleAction = (action: string | number | (string | number)[], item: OfflinePayment) => {
     if (action === 'delete') {
-      dispatchToastMessage('delete', {
-        title: __('Payment method deleted', 'kirki-ecommerce'),
-        duration: 5000,
-        undoAction: () => refetch(),
-        onSuccess: () => {
+      confirmDelete(
+        {
+          title: __('Delete payment method?', 'kirki-ecommerce'),
+          description: __(
+            'Customers will no longer be able to choose this method at checkout. This cannot be undone.',
+            'kirki-ecommerce',
+          ),
+        },
+        () => {
           deleteOfflinePayment(item.id, { onSuccess: () => refetch() });
         },
-      });
+      );
     }
 
     if (action === 'edit') {
@@ -83,32 +88,31 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
 
   return (
     <>
-      <Card cssOverride={cardStyles.formCard}>
-        <CardContent >
+      <Card
+        data-search-id="payments.offline"
+        data-search-keywords="cash on delivery, bank transfer, cheque, offline payment"
+        cssOverride={cardStyles.formCard}
+      >
+        <CardContent>
           <Flex direction="column" gap={4}>
             <HeaderActionsCard
-              header={__('Manual payment methods', 'kirki-ecommerce')}
+              header={__('Manual Payment Methods', 'kirki-ecommerce')}
               subHeader={__(
-                "For manual payments, you'll need to approve orders made outside your online store.",
+                'Methods you confirm by hand for orders paid outside your online store.',
                 'kirki-ecommerce',
               )}
-              buttonText={__('Add Payment Methods', 'kirki-ecommerce')}
+              buttonText={__('Payment Methods', 'kirki-ecommerce')}
               onAdd={() => setIsPopupOpen(true)}
             />
 
             {offlinePaymentList.length === 0 ? (
               <Card cssOverride={cardStyles.innerDarkCard}>
                 <CardContent
-                  cssOverride={mergeCss(
-                    cardStyles.innerDarkContent,
-                    styles.emptyStateContent,
-                  )}
+                  cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}
                 >
                   <Flex direction="column" gap={2} align="center">
                     <CashIcon />
-                    <Text color="subdued">
-                      {__('No payment added yet', 'kirki-ecommerce')}
-                    </Text>
+                    <Text color="subdued">{__('No payment added yet', 'kirki-ecommerce')}</Text>
                   </Flex>
                 </CardContent>
               </Card>
@@ -117,10 +121,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
                 {offlinePaymentList.map((item) => (
                   <Card key={item.id} cssOverride={cardStyles.innerCard}>
                     <CardContent
-                      cssOverride={mergeCss(
-                        cardStyles.innerContent,
-                        styles.offlinePaymentContent,
-                      )}
+                      cssOverride={mergeCss(cardStyles.innerContent, styles.offlinePaymentContent)}
                     >
                       <Flex align="center">
                         <Flex gap={2} align="center">
@@ -134,16 +135,11 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
                           ) : (
                             <BankIconLarge />
                           )}
-                          <Text
-                            weight="medium"
-                            color={!item?.is_enabled ? 'disabled' : 'primary'}
-                          >
+                          <Text weight="medium" color={!item?.is_enabled ? 'disabled' : 'primary'}>
                             {item?.name}
                           </Text>
                           {!item?.is_enabled && (
-                            <Badge variant="destructive">
-                              {__('Inactive', 'kirki-ecommerce')}
-                            </Badge>
+                            <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
                           )}
                         </Flex>
 
@@ -183,6 +179,7 @@ const OfflinePaymentComponent = (props: OfflinePaymentProps) => {
         editingMethod={editingMethod}
         setEditingMethod={setEditingMethod}
       />
+      {deleteConfirmation}
     </>
   );
 };

@@ -11,34 +11,26 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\request;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $product = view_data();
 
-$media = $product['media'] ?? [];
-$product_image = array_shift($media) ?? [];
-$has_variants = $product['has_variants'] ?? false;
-$ribbon = $product['ribbon'] ?? '';
-
-$variants = $product['variants'] ?? [];
-$attributes = $product['attributes'] ?? [];
-$currency = $product['currency'] ?? [];
-$variant = $variants[0] ?? [];
-$price = Money::format_from_decimal($variant['base_price'], $currency['code']);
-$sale_price = isset($variant['base_sale_price']) ? Money::format_from_decimal($variant['base_sale_price'], $currency['code']) : null;
-$track_inventory = $variant['track_inventory'] ?? false;
-$quantity = (int) $variant['available_quantity'] ?? 0;
+$media           = $product['media'] ?? [];
+$product_image   = array_shift($media) ?? [];
+$ribbon          = $product['ribbon'] ?? '';
+$attributes      = $product['attributes'] ?? [];
 $additional_info = $product['additional_info'] ?? [];
 
 // Get variant ID from URL query param
-$selected_variant_id = isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : null;
+$selected_variant_id = request()->int('variant_id', null);
 
 // Prepare images for Alpine.js
 $images = [];
@@ -101,9 +93,7 @@ foreach ($media as $media_item) {
             </div>
 
             <!-- Right: Product Info -->
-            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) :
-                ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php
-                                                                                                                      endif; ?> })">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -111,10 +101,18 @@ foreach ($media as $media_item) {
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>
                     
-                    <div class="kecom-product-price">
-                        <span class="kecom-product-price-current" x-text="selectedVariant?.sale_price ? selectedVariant?.sale_price : selectedVariant?.price"></span>
-                        <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
-                        <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
+                    <div class="kecom-product-pricing-group">
+                        <div class="kecom-product-price">
+                            <span class="kecom-product-price-current" x-text="selectedVariant?.sale_price ? selectedVariant?.sale_price : selectedVariant?.price"></span>
+                            <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
+                            <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
+                        </div>
+                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.show_unit_price && selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
+                        <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
+                            <div class="kecom-product-tax-info">
+                                <?php esc_html_e('Incl. VAT', 'kirki-ecommerce'); ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -169,21 +167,12 @@ foreach ($media as $media_item) {
                 <?php endif; ?>
 
                 <!-- Quantity -->
-                 <div class="kecom-product-variant-group">
+                <div class="kecom-product-variant-group">
                     <span class="kecom-product-variant-label"><?php esc_html_e('Quantity', 'kirki-ecommerce'); ?></span>
                     <div
                         x-data="quantitySelector({
                             min: 1,
-                            max: () => {
-                                const variant = selectedVariant;
-                                if (!variant) return undefined;
-                                const limits = [];
-                                <?php if ($track_inventory) : ?>
-                                if (variant.stock !== undefined && !variant.allow_back_order) limits.push(variant.stock);
-                                <?php endif; ?>
-                                if (variant.has_limit_per_order && variant.max_per_order) limits.push(variant.max_per_order);
-                                return limits.length ? Math.min(...limits) : undefined;
-                            },
+                            max: () => maxQuantity,
                             initial: 1
                         })"
                         class="kecom-quantity"
@@ -204,6 +193,7 @@ foreach ($media as $media_item) {
                             type="number"
                             :value="quantity"
                             @change="handleBlur($el)"
+                            onwheel="this.blur()"
                             min="1"
                             :max="max"
                             :disabled="!selectedVariant?.available"
@@ -224,13 +214,21 @@ foreach ($media as $media_item) {
                 </div>
 
                 <!-- Add to Cart Button -->
-                <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
+                <div class="kecom-product-info-button-group" x-data="wishlist(selectedVariant?.is_wishlisted || false,variants)" x-init="$watch('selectedVariantId', (val) => {
+                    isWishlisted = wishlistedVariants[val];
+                })">
+                    <div x-data="addToCart({ variantId: selectedVariantId, cartUrl: '<?php echo esc_url(Url::get_cart_url()); ?>', watchVariantId: () => selectedVariantId, imageUrl: selectedVariant?.image || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>', containerClass: 'kecom-product-page' })" x-init="$watch('selectedVariant?.image', (val) => {
                     imageUrl = val || '<?php echo esc_url(Assets::get_url('images/product-fallback.webp')); ?>';
                 })">
-                    <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
-                        <?php Icon::render('cart'); ?>
-                        <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
-                    </button>
+                        <button type="button" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-btn-lg" @click="add(document.getElementById('quantity-input')?.value || 1)" :disabled="!selectedVariant?.available || loading" :class="{ 'kecom-btn-loading': loading }">
+                            <?php Icon::render('cart'); ?>
+                            <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
+                        </button>
+                    </div>
+                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': wishlistedVariants[selectedVariantId] }">
+                        <?php Icon::render('heart'); ?>
+                        <?php esc_html_e('Add to Wishlist', 'kirki-ecommerce'); ?>
+                    </a>
                 </div>
             </div>
         </div>

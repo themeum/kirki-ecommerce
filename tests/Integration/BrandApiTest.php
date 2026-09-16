@@ -3,10 +3,13 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class BrandApiTest extends RestTestCase
 {
+    use CreatesTestProducts;
+
     /**
      * Brand id for the current test.
      *
@@ -188,6 +191,127 @@ class BrandApiTest extends RestTestCase
 
         $check = $this->request('GET', 'brands/' . $first['id']);
         $this->assert_api_error($check, 404);
+    }
+
+    /**
+     * List brands sorted by name ascending.
+     *
+     * @return void
+     */
+    public function test_list_brands_sorts_by_name(): void
+    {
+        $this->create_brand(['name' => 'Zeta Sort', 'slug' => 'zeta-sort']);
+        $this->create_brand(['name' => 'Alpha Sort', 'slug' => 'alpha-sort']);
+
+        $names = $this->sorted_brand_field('name', 'name', 'asc');
+
+        $this->assertSame(array_values(array_unique($names)), $names);
+        $this->assertSame($names, $this->sorted_ascending_copy($names));
+    }
+
+    /**
+     * Brands can be sorted by their product count, which is a query alias
+     * rather than a stored column.
+     *
+     * @return void
+     */
+    public function test_list_brands_sorts_by_product_count(): void
+    {
+        $empty = $this->create_brand(['name' => 'Countless', 'slug' => 'countless-brand']);
+        $stocked = $this->create_brand(['name' => 'Stocked', 'slug' => 'stocked-brand']);
+
+        $this->request('POST', 'products', $this->product_payload([
+            'title' => 'Counted Product',
+            'brand_id' => $stocked['id'],
+        ]));
+
+        $descending = $this->sorted_brand_field('count', 'id', 'desc', [$empty['id'], $stocked['id']]);
+        $ascending = $this->sorted_brand_field('count', 'id', 'asc', [$empty['id'], $stocked['id']]);
+
+        $this->assertSame([$stocked['id'], $empty['id']], $descending);
+        $this->assertSame([$empty['id'], $stocked['id']], $ascending);
+    }
+
+    /**
+     * An unrecognised sort field falls back to the default order.
+     *
+     * @return void
+     */
+    public function test_list_brands_ignores_an_unrecognised_sort_field(): void
+    {
+        $this->create_brand(['name' => 'Fallback One', 'slug' => 'fallback-one']);
+
+        $response = $this->request('GET', 'brands', [
+            'sort_by' => 'definitely_not_a_column',
+            'sort_order' => 'asc',
+            'limit' => 10,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertNotEmpty($payload['data']['results']);
+    }
+
+    /**
+     * A malformed sort direction is rejected without failing the request.
+     *
+     * @return void
+     */
+    public function test_list_brands_ignores_a_malformed_sort_direction(): void
+    {
+        $this->create_brand(['name' => 'Direction One', 'slug' => 'direction-one']);
+
+        $response = $this->request('GET', 'brands', [
+            'sort_by' => 'name',
+            'sort_order' => 'sideways',
+            'limit' => 10,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $this->assertNotEmpty($payload['data']['results']);
+    }
+
+    /**
+     * Request the brand list sorted, returning one field per row.
+     *
+     * @param string $sort_by Sort field.
+     * @param string $field Field to collect.
+     * @param string $sort_order Sort direction.
+     * @param array $only Restrict the result to these brand ids.
+     *
+     * @return array
+     */
+    protected function sorted_brand_field(string $sort_by, string $field, string $sort_order, array $only = []): array
+    {
+        $response = $this->request('GET', 'brands', [
+            'sort_by' => $sort_by,
+            'sort_order' => $sort_order,
+            'limit' => 100,
+        ]);
+
+        $payload = $this->assert_api_success($response);
+
+        $values = [];
+
+        foreach ($payload['data']['results'] as $row) {
+            if ($only && !in_array($row['id'], $only, false)) {
+                continue;
+            }
+
+            $values[] = $row[$field];
+        }
+
+        return $values;
+    }
+
+    /**
+     * @param array $values Values.
+     * @return array
+     */
+    protected function sorted_ascending_copy(array $values): array
+    {
+        sort($values, SORT_STRING);
+
+        return $values;
     }
 
     /**
