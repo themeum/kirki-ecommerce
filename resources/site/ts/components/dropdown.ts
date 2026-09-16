@@ -48,40 +48,25 @@
  */
 
 export interface DropdownItem {
-  /** Unique identifier, passed to onChange and stored in `selected` */
   value: string;
-  /** Primary display label (e.g. "Euro", "Canada") */
   label: string;
-  /** Optional secondary label shown muted next to the primary (e.g. "(EUR €)") */
   sublabel?: string;
-  /** Optional flag emoji or symbol */
   flag?: string;
-  /** Optional currency code */
   code?: string;
-  /** Optional currency symbol */
   symbol?: string;
-  /** Whether this item is disabled */
   disabled?: boolean;
-  /** Arbitrary extra data callers can attach and read back from onChange */
   data?: Record<string, unknown>;
 }
 
 export type DropdownConfig = {
-  /** Pre-selected item value */
   selected?: string | null;
-  /** List of items to display */
   items?: DropdownItem[];
-  /** Placeholder text shown in trigger when nothing is selected */
   placeholder?: string;
-  /** Enable search/filter input inside the panel */
   searchable?: boolean;
-  /** Alignment: 'start', 'end', or 'auto' (detects viewport edge). Default: 'auto' */
   align?: 'start' | 'end' | 'auto';
-  /** Called whenever the selection changes */
   onChange?: (item: DropdownItem) => void;
 };
 
-/** Alpine magic properties available inside x-data component objects */
 export type AlpineMagics = {
   $el: HTMLElement;
   $refs: Record<string, HTMLElement | undefined>;
@@ -91,7 +76,6 @@ export type AlpineMagics = {
 };
 
 export type DropdownComponent = {
-  // State
   isOpen: boolean;
   selected: string | null;
   items: DropdownItem[];
@@ -103,14 +87,12 @@ export type DropdownComponent = {
   focusedIndex: number;
   instanceId: number;
 
-  // Computed
   readonly selectedItem: DropdownItem | null;
   readonly selectedLabel: string;
   readonly selectedSublabel: string;
   readonly filteredItems: DropdownItem[];
   readonly activeId: string | undefined;
 
-  // Methods
   init(this: DropdownComponent & AlpineMagics): void;
   open(this: DropdownComponent & AlpineMagics): void;
   close(this: DropdownComponent & AlpineMagics, restoreFocus?: boolean): void;
@@ -133,8 +115,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
   const prefix = `kecom-dropdown-${instanceId}`;
 
   return {
-    // ── State ────────────────────────────────────────────────────────────────
-
     isOpen: false,
     selected: config.selected ?? null,
     items: config.items ?? [],
@@ -145,8 +125,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
     query: '',
     focusedIndex: -1,
     instanceId,
-
-    // ── Computed ─────────────────────────────────────────────────────────────
 
     get selectedItem(): DropdownItem | null {
       if (!this.selected) {
@@ -175,8 +153,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
       );
     },
 
-    // ── Lifecycle ────────────────────────────────────────────────────────────
-
     init(this: DropdownComponent & AlpineMagics) {
       const onDropdownOpened = (e: Event) => {
         const detail = (e as CustomEvent<{ id: number }>).detail;
@@ -200,8 +176,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
         window.removeEventListener('kecom:popover:opened', onPopoverOpened);
       });
     },
-
-    // ── Open / Close ─────────────────────────────────────────────────────────
 
     open(this: DropdownComponent & AlpineMagics) {
       this.isOpen = true;
@@ -258,8 +232,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
       }
     },
 
-    // ── Selection ────────────────────────────────────────────────────────────
-
     select(this: DropdownComponent & AlpineMagics, item: DropdownItem, restoreFocus = true) {
       if (item.disabled) {
         return;
@@ -281,8 +253,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
       return this.filteredItems.indexOf(item) === this.focusedIndex;
     },
 
-    // ── Accessibility helpers ────────────────────────────────────────────────
-
     itemId(item: DropdownItem): string {
       return `${prefix}-item-${item.value}`;
     },
@@ -291,8 +261,6 @@ export function dropdown(config: DropdownConfig = {}): DropdownComponent {
       const item = this.filteredItems[this.focusedIndex];
       return item ? this.itemId(item) : undefined;
     },
-
-    // ── Keyboard navigation ──────────────────────────────────────────────────
 
     /** Attach to the trigger button with @keydown */
     onTriggerKeydown(this: DropdownComponent & AlpineMagics, event: KeyboardEvent) {
