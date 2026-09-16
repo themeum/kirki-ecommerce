@@ -16,8 +16,12 @@ const StoreAddressDetails = () => {
 
   return (
     <div>
-      <Card data-search-id="general.store-address" data-search-keywords="location, warehouse, origin address, headquarters" cssOverride={cardStyles.formCard}>
-        <CardHeader cssOverride={cardStyles.sectionHeader}>
+      <Card
+        data-search-id="general.store-address"
+        data-search-keywords="location, warehouse, origin address, headquarters"
+        cssOverride={cardStyles.formCard}
+      >
+        <CardHeader>
           <CardTitle>{__('Store Address', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
@@ -26,48 +30,40 @@ const StoreAddressDetails = () => {
             )}
           </CardDescription>
         </CardHeader>
-        <CardContent cssOverride={cardStyles.largeContent}>
-          <Card cssOverride={cardStyles.innerCard}>
-            <CardContent cssOverride={cardStyles.innerCardContent}>
-              <Flex direction="column" gap={4}>
-                <TextField
-                  name="store_address.address_line_1"
-                  label={__('Address Line 1', 'kirki-ecommerce')}
-                  placeholder={__('Address line 1', 'kirki-ecommerce')}
-                />
+        <CardContent>
+          <Flex direction="column" gap={4}>
+            <TextField
+              name="store_address.address_line_1"
+              label={__('Address Line 1', 'kirki-ecommerce')}
+              placeholder={__('Address line 1', 'kirki-ecommerce')}
+            />
 
-                <TextField
-                  name="store_address.address_line_2"
-                  label={__('Address Line 2', 'kirki-ecommerce')}
-                  placeholder={__('Address line 2', 'kirki-ecommerce')}
-                />
+            <TextField
+              name="store_address.address_line_2"
+              label={__('Address Line 2', 'kirki-ecommerce')}
+              placeholder={__('Address line 2', 'kirki-ecommerce')}
+            />
 
-                <TextField
-                  name="store_address.city"
-                  label={__('City', 'kirki-ecommerce')}
-                  placeholder={__('Enter city', 'kirki-ecommerce')}
-                />
+            <TextField
+              name="store_address.city"
+              label={__('City', 'kirki-ecommerce')}
+              placeholder={__('Enter city', 'kirki-ecommerce')}
+            />
 
-                <TextField
-                  name="store_address.postal_code"
-                  label={__('Postcode / Zip', 'kirki-ecommerce')}
-                  placeholder={__('Enter Postcode / Zip', 'kirki-ecommerce')}
-                />
+            <TextField
+              name="store_address.postal_code"
+              label={__('Postcode / Zip', 'kirki-ecommerce')}
+              placeholder={__('Enter Postcode / Zip', 'kirki-ecommerce')}
+            />
 
-                <CountryField
-                  name="store_address.country"
-                  label={__('Country', 'kirki-ecommerce')}
-                />
+            <CountryField name="store_address.country" label={__('Country', 'kirki-ecommerce')} />
 
-                <StateField
-                  name="store_address.state"
-                  country={country}
-                  label={__('State / Province', 'kirki-ecommerce')}
-                />
-
-              </Flex>
-            </CardContent>
-          </Card>
+            <StateField
+              name="store_address.state"
+              country={country}
+              label={__('State / Province', 'kirki-ecommerce')}
+            />
+          </Flex>
         </CardContent>
       </Card>
     </div>
@@ -77,4 +73,3 @@ const StoreAddressDetails = () => {
 StoreAddressDetails.displayName = 'StoreAddressDetails';
 
 export default StoreAddressDetails;
-

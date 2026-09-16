@@ -77,7 +77,7 @@ class CustomerController
 
         return response()->json([
             'data' => CustomerResource::make($customer),
-            'message' => __('Customer created successfully.', 'kirki-ecommerce'),
+            'message' => __('Customer created', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -103,7 +103,7 @@ class CustomerController
 
         return response()->json([
             'data' => CustomerResource::make($customer),
-            'message' => __('Customer updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Customer updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -113,7 +113,7 @@ class CustomerController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Customer deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Customer deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -129,14 +129,14 @@ class CustomerController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Customer deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Customer deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All customers deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All customers deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

@@ -42,7 +42,8 @@ const ApiConfigurationCard = ({
 
   return (
     <Card
-      data-search-id="currency.api-status" data-search-keywords="connection, sync, quota, usage limit"
+      data-search-id="currency.api-status"
+      data-search-keywords="connection, sync, quota, usage limit"
       data-search-title={__('Exchange Rate API Status', 'kirki-ecommerce')}
     >
       <CardContent>
@@ -62,7 +63,9 @@ const ApiConfigurationCard = ({
               <Text color="secondary" variant="small">
                 {sprintf(
                   __(`Last tested: %s`, 'kirki-ecommerce'),
-                  dateFormatter(currencySettings?.last_sync_at, 'datetime'),
+                  currencySettings?.last_sync_at
+                    ? dateFormatter(currencySettings?.last_sync_at, 'datetime')
+                    : __('N/A', 'kirki-ecommerce'),
                 )}
               </Text>
             </Flex>

@@ -96,7 +96,7 @@
 
   .kecom-order-success-row-value {
     @include typography(base, semibold, $text-primary);
-    text-align: right;
+    text-align: end;
     flex-shrink: 0;
 
     &--discount {
@@ -139,15 +139,15 @@
       height: 30px;
       width: 30px;
       position: absolute;
-      left: -38px;
+      inset-inline-start: -38px;
       top: -16px;
       background-color: $background-surface-tertiary;
       border-radius: $radius-full;
     }
 
     &::after {
-      left: auto;
-      right: -38px;
+      inset-inline-start: auto;
+      inset-inline-end: -38px;
     }
   }
 }

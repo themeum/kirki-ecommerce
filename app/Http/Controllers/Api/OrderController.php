@@ -70,7 +70,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
-            'message' => __('Order created successfully.', 'kirki-ecommerce'),
+            'message' => __('Order created', 'kirki-ecommerce'),
         ], 201);
     }
 
@@ -96,7 +96,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
-            'message' => __('Order updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Order updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -106,7 +106,7 @@ class OrderController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Order deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Order deleted', 'kirki-ecommerce'),
         ]);
     }
 
@@ -122,14 +122,14 @@ class OrderController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Orders deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Orders deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = OrderListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All orders deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All orders deleted', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([
@@ -149,7 +149,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($order),
-            'message' => __('Action performed successfully.', 'kirki-ecommerce'),
+            'message' => __('Order updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -162,7 +162,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($updated_order),
-            'message' => __('Refund processed successfully.', 'kirki-ecommerce'),
+            'message' => __('Refund processed', 'kirki-ecommerce'),
         ]);
     }
 
@@ -175,7 +175,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($updated_order),
-            'message' => __('Refund updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Refund updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -185,7 +185,7 @@ class OrderController
 
         return response()->json([
             'data' => OrderResource::make($updated_order),
-            'message' => __('Refund deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Refund deleted', 'kirki-ecommerce'),
         ]);
     }
 }

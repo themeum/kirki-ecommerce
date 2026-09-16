@@ -53,7 +53,17 @@ afterEach(() => {
 });
 
 const asRect = (width: number, height: number) =>
-  ({ width, height, top: 0, left: 0, right: width, bottom: height, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+  ({
+    width,
+    height,
+    top: 0,
+    left: 0,
+    right: width,
+    bottom: height,
+    x: 0,
+    y: 0,
+    toJSON: () => ({}),
+  }) as DOMRect;
 
 // jsdom reports every box as zero-sized, so the measurements have to be stubbed.
 const stubLayout = (columnWidths: Record<string, number>, rowHeight: number) => {
@@ -110,7 +120,12 @@ describe('DataTable loading', () => {
   });
 
   it('falls back to the page size when there are no previous rows to replace', () => {
-    render(<DataTable {...baseProps({ data: [], pagination: { pageIndex: 0, pageSize: 7 } })} isLoading />);
+    render(
+      <DataTable
+        {...baseProps({ data: [], pagination: { pageIndex: 0, pageSize: 7 } })}
+        isLoading
+      />,
+    );
 
     expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(7);
   });
@@ -313,11 +328,17 @@ describe('DataTable select-all-matching', () => {
   it('withholds the offer when the total does not exceed the rows shown', () => {
     render(
       <DataTable
-        {...baseProps({ enableRowSelection: true, total: items.length, onRowSelectionChange: noop })}
+        {...baseProps({
+          enableRowSelection: true,
+          total: items.length,
+          onRowSelectionChange: noop,
+        })}
       />,
     );
 
-    fireEvent.click(within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'));
+    fireEvent.click(
+      within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'),
+    );
 
     expect(screen.queryByText(/Select all/)).not.toBeInTheDocument();
   });
@@ -342,7 +363,9 @@ describe('DataTable select-all-matching', () => {
       />,
     );
 
-    fireEvent.click(within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'));
+    fireEvent.click(
+      within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'),
+    );
 
     fireEvent.click(screen.getByText('Select all 20 items'));
 
@@ -382,7 +405,9 @@ describe('DataTable selection lifecycle', () => {
       />,
     );
 
-    fireEvent.click(within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'));
+    fireEvent.click(
+      within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'),
+    );
     expect(onRowSelectionChange).toHaveBeenLastCalledWith({
       selectedIds: ['1'],
       isAllMatchingSelected: false,
@@ -400,7 +425,9 @@ describe('DataTable selection lifecycle', () => {
       />,
     );
 
-    expect(within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox')).toBeChecked();
+    expect(
+      within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'),
+    ).toBeChecked();
 
     rerender(
       <DataTable
@@ -413,7 +440,9 @@ describe('DataTable selection lifecycle', () => {
       />,
     );
 
-    expect(within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox')).not.toBeChecked();
+    expect(
+      within(screen.getByText('Alpha').closest('tr') as HTMLElement).getByRole('checkbox'),
+    ).not.toBeChecked();
   });
 });
 
@@ -447,7 +476,9 @@ describe('DataTable pinning and visibility', () => {
     const table = screen.getByRole('table');
 
     expect(table.querySelectorAll('thead th')).toHaveLength(1);
-    expect(table.querySelectorAll('tbody tr')[0].querySelectorAll('[data-slot="skeleton"]')).toHaveLength(1);
+    expect(
+      table.querySelectorAll('tbody tr')[0].querySelectorAll('[data-slot="skeleton"]'),
+    ).toHaveLength(1);
   });
 });
 
@@ -560,9 +591,7 @@ describe('DataTable column visibility', () => {
       { id: 'actions', header: '', cell: () => null },
     ];
 
-    render(
-      <DataTable {...baseProps({ columns: withActions, enableRowSelection: true })} />,
-    );
+    render(<DataTable {...baseProps({ columns: withActions, enableRowSelection: true })} />);
 
     openColumnsMenu();
 
@@ -617,5 +646,27 @@ describe('DataTable column visibility', () => {
     render(<DataTable {...baseProps({ enableColumnVisibility: false })} />);
 
     expect(screen.queryByRole('button', { name: 'Columns' })).not.toBeInTheDocument();
+  });
+
+  it('reserves no toolbar strip above the table when the caller opts out and supplies no toolbar', () => {
+    render(<DataTable {...baseProps({ enableColumnVisibility: false })} />);
+
+    const container = screen.getByRole('table').closest('[data-slot="table-container"]');
+
+    expect(container?.previousElementSibling).toBeNull();
+  });
+
+  it('keeps the toolbar strip when the caller opts out but supplies a toolbar', () => {
+    render(
+      <DataTable
+        {...baseProps({ enableColumnVisibility: false })}
+        toolbar={<div>My Toolbar</div>}
+      />,
+    );
+
+    const container = screen.getByRole('table').closest('[data-slot="table-container"]');
+
+    expect(container?.previousElementSibling).not.toBeNull();
+    expect(screen.getByText('My Toolbar')).toBeInTheDocument();
   });
 });

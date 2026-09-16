@@ -10,10 +10,7 @@ type ItemVariant = 'default' | 'outline' | 'muted';
 type ItemSize = 'default' | 'sm';
 type ItemMediaVariant = 'default' | 'icon' | 'image';
 
-type ItemElementProps = Omit<
-  ComponentPropsWithoutRef<'div'>,
-  'className' | 'css'
-> & {
+type ItemElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
@@ -33,23 +30,11 @@ const ItemGroup = forwardRef<HTMLDivElement, ItemElementProps>((props, ref) => {
 
 ItemGroup.displayName = 'ItemGroup';
 
-type ItemSeparatorProps = Omit<
-  ComponentPropsWithoutRef<typeof Separator>,
-  'orientation'
->;
+type ItemSeparatorProps = Omit<ComponentPropsWithoutRef<typeof Separator>, 'orientation'>;
 
-const ItemSeparator = forwardRef<HTMLDivElement, ItemSeparatorProps>(
-  (props, ref) => {
-    return (
-      <Separator
-        ref={ref}
-        data-slot="item-separator"
-        orientation="horizontal"
-        {...props}
-      />
-    );
-  },
-);
+const ItemSeparator = forwardRef<HTMLDivElement, ItemSeparatorProps>((props, ref) => {
+  return <Separator ref={ref} data-slot="item-separator" orientation="horizontal" {...props} />;
+});
 
 ItemSeparator.displayName = 'ItemSeparator';
 
@@ -60,13 +45,7 @@ type ItemProps = ItemElementProps & {
 };
 
 const Item = forwardRef<HTMLDivElement, ItemProps>((props, ref) => {
-  const {
-    cssOverride,
-    variant = 'default',
-    size = 'default',
-    asChild = false,
-    ...rest
-  } = props;
+  const { cssOverride, variant = 'default', size = 'default', asChild = false, ...rest } = props;
 
   const Component = asChild ? Slot : 'div';
 
@@ -101,11 +80,7 @@ const ItemMedia = forwardRef<HTMLDivElement, ItemMediaProps>((props, ref) => {
       ref={ref}
       data-slot="item-media"
       data-variant={variant}
-      css={scopedMerge(
-        styles.media,
-        styles.mediaVariants[variant],
-        cssOverride,
-      )}
+      css={scopedMerge(styles.media, styles.mediaVariants[variant], cssOverride)}
       {...rest}
     />
   );
@@ -113,20 +88,18 @@ const ItemMedia = forwardRef<HTMLDivElement, ItemMediaProps>((props, ref) => {
 
 ItemMedia.displayName = 'ItemMedia';
 
-const ItemContent = forwardRef<HTMLDivElement, ItemElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const ItemContent = forwardRef<HTMLDivElement, ItemElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="item-content"
-        css={scopedMerge(styles.content, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="item-content"
+      css={scopedMerge(styles.content, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 ItemContent.displayName = 'ItemContent';
 
@@ -134,55 +107,43 @@ const ItemTitle = forwardRef<HTMLDivElement, ItemElementProps>((props, ref) => {
   const { cssOverride, ...rest } = props;
 
   return (
-    <div
-      ref={ref}
-      data-slot="item-title"
-      css={scopedMerge(styles.title, cssOverride)}
-      {...rest}
-    />
+    <div ref={ref} data-slot="item-title" css={scopedMerge(styles.title, cssOverride)} {...rest} />
   );
 });
 
 ItemTitle.displayName = 'ItemTitle';
 
-type ItemDescriptionProps = Omit<
-  ComponentPropsWithoutRef<'p'>,
-  'className' | 'css'
-> & {
+type ItemDescriptionProps = Omit<ComponentPropsWithoutRef<'p'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
 };
 
-const ItemDescription = forwardRef<HTMLParagraphElement, ItemDescriptionProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const ItemDescription = forwardRef<HTMLParagraphElement, ItemDescriptionProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <p
-        ref={ref}
-        data-slot="item-description"
-        css={scopedMerge(styles.description, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <p
+      ref={ref}
+      data-slot="item-description"
+      css={scopedMerge(styles.description, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 ItemDescription.displayName = 'ItemDescription';
 
-const ItemActions = forwardRef<HTMLDivElement, ItemElementProps>(
-  (props, ref) => {
-    const { cssOverride, ...rest } = props;
+const ItemActions = forwardRef<HTMLDivElement, ItemElementProps>((props, ref) => {
+  const { cssOverride, ...rest } = props;
 
-    return (
-      <div
-        ref={ref}
-        data-slot="item-actions"
-        css={scopedMerge(styles.actions, cssOverride)}
-        {...rest}
-      />
-    );
-  },
-);
+  return (
+    <div
+      ref={ref}
+      data-slot="item-actions"
+      css={scopedMerge(styles.actions, cssOverride)}
+      {...rest}
+    />
+  );
+});
 
 ItemActions.displayName = 'ItemActions';
 
@@ -248,7 +209,6 @@ const styles = defineStyles({
     alignItems: 'center',
     flexWrap: 'wrap',
     border: '1px solid transparent',
-    borderRadius: theme.radius.md,
     color: theme.colors.text.primary,
     ...theme.typography.small(),
     transition: 'background-color 100ms ease, border-color 100ms ease',

@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import { useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -8,15 +7,15 @@ import HeaderActionsCard from '@/components/header-actions-card';
 import { RegionsDialog } from '@/components/regions-dialog';
 import ActionGroup from '@/components/ui/action-group';
 import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
 import { resolveTaxRegionStrategy } from '@/features/settings/tax/registry';
 import type { TaxRegion } from '@/features/settings/tax/shared/lib/utils';
 import type { TaxSettingsFormInput } from '@/features/settings/tax/shared/schemas/forms/tax-settings-form';
 import type { SettingsOutletContext } from '@/features/settings/types';
-import { EditIcon, LocationIcon, TrashIcon } from '@/icons';
+import { EyeClosedIcon, EyeIcon, LocationIcon, TrashIcon } from '@/icons';
 import type { Country } from '@/schemas/reference/country';
 import type { Region, RegionsDialogFormPayload } from '@/schemas/shared/region';
 import { useCountriesQuery } from '@/services/country';
@@ -24,18 +23,11 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { Edit3 } from 'lucide-react';
 
 type TaxRegionsProps = {
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;
 };
-
-const hoverVisibleCss = css({
-  visibility: 'hidden',
-});
-
-const activeCardCss = css({
-  visibility: 'visible',
-});
 
 const EU_REGION_CODE = 'EU';
 
@@ -48,7 +40,6 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const taxRegions = useMemo(() => (watchedTaxRegions ?? []) as TaxRegion[], [watchedTaxRegions]);
 
   const [showPopup, setShowPopup] = useState(false);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 
@@ -82,8 +73,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
   const resolveRegionMeta = (region: TaxRegion) =>
     resolveTaxRegionStrategy(region.code).resolveMeta(region, countryList);
 
-  const resolveRegionSummary = (region: TaxRegion) =>
-    resolveTaxRegionStrategy(region.code).resolveSummary(region);
+  const resolveRegionBadges = (region: TaxRegion) =>
+    resolveTaxRegionStrategy(region.code).resolveBadges(region);
+
+  const resolveRegionRateLabel = (region: TaxRegion) =>
+    resolveTaxRegionStrategy(region.code).resolveRateLabel(region);
 
   const popupErrors = {
     ...(formState.errors.tax_regions?.message
@@ -91,24 +85,33 @@ const TaxRegions = (props: TaxRegionsProps) => {
       : {}),
   };
 
-  const handleEditAndDelete = (action: string, item: TaxRegion) => {
+  const handleEditRegion = (item: TaxRegion) => {
+    void navigate(resolveTaxRegionStrategy(item.code).buildEditLink(item));
+  };
+
+  const handleRegionAction = (action: string, item: TaxRegion) => {
     if (action === 'edit') {
-      void navigate(resolveTaxRegionStrategy(item.code).buildEditLink(item));
+      handleEditRegion(item);
       return;
-    } else {
-      confirmAction({
-        action: () => handleDeleteRegion(item),
-        otherProps: {
-          variant: 'delete',
-          force: true,
-          title: __('Delete tax region?', 'kirki-ecommerce'),
-          subtitle: __(
-            'Are you sure you want to delete this region? This action cannot be undone.',
-            'kirki-ecommerce',
-          ),
-        },
-      });
     }
+
+    if (action === 'toggle') {
+      void handleToggleRegion(item);
+      return;
+    }
+
+    confirmAction({
+      action: () => handleDeleteRegion(item),
+      otherProps: {
+        variant: 'delete',
+        force: true,
+        title: __('Delete tax region?', 'kirki-ecommerce'),
+        subtitle: __(
+          'Are you sure you want to delete this region? This action cannot be undone.',
+          'kirki-ecommerce',
+        ),
+      },
+    });
   };
 
   const handleDeleteRegion = async (item: TaxRegion) => {
@@ -158,7 +161,11 @@ const TaxRegions = (props: TaxRegionsProps) => {
 
   return (
     <>
-      <Card data-search-id="tax.regions" data-search-keywords="vat, gst, jurisdiction, nexus, levy" cssOverride={cardStyles.formCard}>
+      <Card
+        data-search-id="tax.regions"
+        data-search-keywords="vat, gst, jurisdiction, nexus, levy"
+        cssOverride={cardStyles.formCard}
+      >
         <CardContent>
           <HeaderActionsCard
             header={__('Tax Regions', 'kirki-ecommerce')}
@@ -166,13 +173,13 @@ const TaxRegions = (props: TaxRegionsProps) => {
               'Places where you are registered to collect sales tax, matched by shopper address.',
               'kirki-ecommerce',
             )}
-            buttonText={__('Add Region', 'kirki-ecommerce')}
+            buttonText={__('Add', 'kirki-ecommerce')}
             onAdd={() => setShowPopup(true)}
           />
 
           <div css={scoped({ marginTop: theme.spacing[5] })}>
             {!taxRegions.length ? (
-              <Card cssOverride={cardStyles.innerDarkCard}>
+              <Card>
                 <CardContent
                   cssOverride={mergeCss(cardStyles.innerDarkContent, styles.emptyStateContent)}
                 >
@@ -185,65 +192,58 @@ const TaxRegions = (props: TaxRegionsProps) => {
                 </CardContent>
               </Card>
             ) : (
-              <Flex direction="column" gap={3}>
+              <Flex direction="column" gap={2}>
                 {taxRegions.map((item, index) => {
                   const region = resolveRegionMeta(item);
-
                   return (
-                    <Card cssOverride={cardStyles.innerCard} key={index}>
-                      <CardContent cssOverride={cardStyles.innerContent}>
-                        <Flex gap={2} align="flex-start">
+                    <Card cssOverride={styles.regionCard} key={index}>
+                      <CardContent cssOverride={styles.regionCardContent}>
+                        <Flex gap={2} align="center">
                           <span>{region.flag}</span>
-                          <Flex direction="column" gap={1}>
-                            <Flex gap={2} align="center">
-                              <Text
-                                weight="medium"
-                                color={!item?.is_enabled ? 'disabled' : 'primary'}
-                              >
-                                {region.name}
-                              </Text>
-                              {!item?.is_enabled && (
-                                <Badge variant="destructive">
-                                  {__('Inactive', 'kirki-ecommerce')}
-                                </Badge>
-                              )}
-                            </Flex>
-                            <Text variant="small" color="secondary">
-                              {resolveRegionSummary(item)}
+                          <Text weight="medium" color={!item?.is_enabled ? 'disabled' : 'primary'}>
+                            {region.name}
+                          </Text>
+                          {resolveRegionBadges(item).map((badge) => (
+                            <Badge key={badge.label} variant="info">
+                              {badge.label}
+                            </Badge>
+                          ))}
+                          {!item?.is_enabled && (
+                            <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
+                          )}
+                          <ActionGroup>
+                            <Text variant="paragraph" color="primary">
+                              {resolveRegionRateLabel(item)}
                             </Text>
-                          </Flex>
-                          <ActionGroup
-                            cssOverride={mergeCss(
-                              hoverVisibleCss,
-                              activeIndex === index && activeCardCss,
-                            )}
-                          >
-                            <Switch
-                              checked={Boolean(item?.is_enabled)}
-                              onCheckedChange={() => handleToggleRegion(item)}
-                            />
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label={__('Edit', 'kirki-ecommerce')}
+                              onClick={() => handleEditRegion(item)}
+                            >
+                              <Edit3 />
+                            </Button>
                             <DropdownButton
-                              dropdownStyle={{ width: 120 }}
+                              buttonProps={{ direction: 'horizontal' }}
+                              dropdownStyle={{ width: 140 }}
                               options={[
                                 {
-                                  title: __('Edit', 'kirki-ecommerce'),
-                                  value: 'edit',
-                                  icon: <EditIcon />,
+                                  title: item?.is_enabled
+                                    ? __('Disable', 'kirki-ecommerce')
+                                    : __('Enable', 'kirki-ecommerce'),
+                                  value: 'toggle',
+                                  icon: item?.is_enabled ? <EyeClosedIcon /> : <EyeIcon />,
                                 },
                                 {
                                   title: __('Delete', 'kirki-ecommerce'),
                                   value: 'delete',
                                   icon: <TrashIcon />,
+                                  cssOverride: {
+                                    '& svg': { color: theme.colors.icon.critical },
+                                  },
                                 },
                               ]}
-                              onOptionToggle={(value) => {
-                                if (value === true) {
-                                  setActiveIndex(index);
-                                } else {
-                                  setActiveIndex(null);
-                                }
-                              }}
-                              onOptionSelect={(action) => handleEditAndDelete(String(action), item)}
+                              onOptionSelect={(action) => handleRegionAction(String(action), item)}
                             />
                           </ActionGroup>
                         </Flex>
@@ -279,5 +279,14 @@ const styles = defineStyles({
   emptyStateContent: { padding: `${theme.spacing[9]} 0` },
   mutedText: {
     color: theme.colors.text.subdued,
+  },
+  regionCard: {
+    padding: `${theme.spacing[3]} ${theme.spacing[4]}`,
+    backgroundColor: theme.colors.background.fillHover,
+    border: 'none',
+    boxShadow: 'none',
+  },
+  regionCardContent: {
+    padding: 0,
   },
 });

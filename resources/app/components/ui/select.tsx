@@ -1,9 +1,10 @@
 import { type CSSObject } from '@emotion/react';
-import { CheckIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { CheckIcon, ChevronDownIcon, Cross2Icon } from '@radix-ui/react-icons';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import type { ComponentRef } from 'react';
 import { type ComponentPropsWithoutRef, forwardRef, type ReactNode } from 'react';
 
+import Button from '@/components/ui/button';
 import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
 import {
@@ -14,6 +15,7 @@ import {
   scopedMerge,
   uiFocusRing,
 } from '@/theme/mixins';
+import { __ } from '@/wpi18n';
 
 const Select = SelectPrimitive.Root;
 
@@ -30,13 +32,23 @@ type SelectTriggerProps = Omit<
   variant?: SelectTriggerVariant;
   error?: boolean;
   cssOverride?: CSSObject;
+  showClear?: boolean;
+  onClear?: () => void;
 };
 
 const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, SelectTriggerProps>(
   (props, ref) => {
-    const { cssOverride, variant = 'default', error, children, ...rest } = props;
+    const {
+      cssOverride,
+      variant = 'default',
+      error,
+      children,
+      showClear = false,
+      onClear,
+      ...rest
+    } = props;
 
-    return (
+    const trigger = (
       <SelectPrimitive.Trigger
         ref={ref}
         data-slot="select-trigger"
@@ -44,18 +56,41 @@ const SelectTrigger = forwardRef<ComponentRef<typeof SelectPrimitive.Trigger>, S
         css={scopedMerge(
           styles.trigger,
           styles.variants[variant],
+          showClear && styles.triggerWithClear,
           error && styles.error,
           cssOverride,
         )}
         {...rest}
       >
         <span css={scoped(styles.value)}>{children}</span>
-        <SelectPrimitive.Icon asChild>
-          <span css={scoped(styles.chevron)}>
-            <ChevronDownIcon width={16} height={16} />
-          </span>
-        </SelectPrimitive.Icon>
+        {!showClear && (
+          <SelectPrimitive.Icon asChild>
+            <span data-slot="select-icon" css={scoped(styles.chevron)}>
+              <ChevronDownIcon width={16} height={16} />
+            </span>
+          </SelectPrimitive.Icon>
+        )}
       </SelectPrimitive.Trigger>
+    );
+
+    if (!showClear) {
+      return trigger;
+    }
+
+    return (
+      <span css={scoped(styles.triggerWrapper)}>
+        {trigger}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={__('Clear selection', 'kirki-ecommerce')}
+          cssOverride={styles.clear}
+          onClick={onClear}
+        >
+          <Cross2Icon width={12} height={12} />
+        </Button>
+      </span>
     );
   },
 );
@@ -224,6 +259,9 @@ const styles = defineStyles({
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
+    '&[data-placeholder]': {
+      color: theme.colors.text.secondary,
+    },
   },
   variants: {
     default: {},
@@ -263,6 +301,21 @@ const styles = defineStyles({
   chevron: {
     ...flexCenter(),
     flexShrink: 0,
+  },
+  triggerWrapper: {
+    position: 'relative',
+    display: 'block',
+    width: '100%',
+    paddingRight: theme.spacing[1],
+  },
+  triggerWithClear: {
+    paddingRight: theme.spacing[1],
+  },
+  clear: {
+    position: 'absolute',
+    right: theme.spacing[3],
+    top: '50%',
+    transform: 'translateY(-50%)',
   },
   content: {
     padding: `${theme.spacing[1]} 0`,
@@ -313,7 +366,7 @@ const styles = defineStyles({
     cursor: 'pointer',
     position: 'relative',
     outline: 'none',
-    ...theme.typography.small(),
+    ...theme.typography.small('medium'),
     maxHeight: '32px',
     '&:hover, &[data-highlighted]': {
       backgroundColor: theme.colors.background.optionHover,

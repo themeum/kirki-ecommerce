@@ -36,7 +36,7 @@ class OnlinePaymentController
 
         return response()->json([
             'data' => OnlinePaymentResource::make($data),
-            'message' => __('Payment gateway installed successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment gateway installed', 'kirki-ecommerce'),
         ]);
     }
 
@@ -66,7 +66,7 @@ class OnlinePaymentController
 
         return response()->json([
             'data' => OnlinePaymentResource::make($data),
-            'message' => __('Payment method updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment method updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -76,7 +76,7 @@ class OnlinePaymentController
 
         return response()->json([
             'data' => $is_updated,
-            'message' => __('Payment method updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment method updated', 'kirki-ecommerce'),
         ]);
     }
 
@@ -86,7 +86,7 @@ class OnlinePaymentController
         $this->service->mock_download_provider_zip($request->string('id'));
 
         return response()->json([
-            'message' => __('Payment gateway downloaded successfully.', 'kirki-ecommerce'),
+            'message' => __('Payment gateway downloaded', 'kirki-ecommerce'),
         ]);
     }
 }

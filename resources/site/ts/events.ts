@@ -90,10 +90,7 @@ export type Events = {
   };
 
   /** Fired when the account wishlist is refreshed. */
-  [EVENTS.ACCOUNT_WISHLIST_REMOVED]: {
-    current_page?: number;
-    last_page?: number;
-  };
+  [EVENTS.ACCOUNT_WISHLIST_REMOVED]: void;
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

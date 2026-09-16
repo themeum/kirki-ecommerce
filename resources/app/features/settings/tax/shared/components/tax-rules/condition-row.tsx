@@ -150,6 +150,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             readOnly
             value={getDestinationDisplayValue(row?.value)}
             onClick={() => setShowStatesPopup(true)}
+            placeholder={__('Value', 'kirki-ecommerce')}
           />
         ) : (
           <Select
@@ -157,7 +158,7 @@ const ConditionRow = (props: ConditionRowProps) => {
             onValueChange={(value) => updateCondition(row.id, 'value', value)}
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue placeholder={__('Select value', 'kirki-ecommerce')} />
             </SelectTrigger>
             <SelectContent>
               {getConditionValue(row.condition).map((option) => (
@@ -185,7 +186,9 @@ const ConditionRow = (props: ConditionRowProps) => {
             size="icon"
             variant="secondary"
             onClick={() => handleDeleteConditionRow(row.id)}
-            cssOverride={styles.conditionActions}
+            cssOverride={mergeCss(styles.conditionActions, {
+              '& svg': { color: theme.colors.icon.critical },
+            })}
             data-tax-rule-condition-action
           >
             <TrashIcon />

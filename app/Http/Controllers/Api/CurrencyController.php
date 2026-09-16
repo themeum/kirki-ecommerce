@@ -68,7 +68,7 @@ class CurrencyController
 
         return response()->json([
             'data' => [],
-            'message' => __('Currencies created successfully.', 'kirki-ecommerce'),
+            'message' => __('Currencies added', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -112,13 +112,13 @@ class CurrencyController
                 'data' => CurrencyResource::collection($currencies),
                 'errors' => $errors,
                 /* translators: %1$s: number of currencies updated, %2$s: number of errors */
-                'message' => sprintf(__('Updated %1$s currencies successfully. %2$s errors occurred.', 'kirki-ecommerce'), $total_count - $error_count, $error_count),
+                'message' => sprintf(__('Updated %1$s currencies, %2$s failed', 'kirki-ecommerce'), $total_count - $error_count, $error_count),
             ], Response::CREATED);
         }
 
         return response()->json([
             'data' => CurrencyResource::collection($currencies),
-            'message' => __('Currencies updated successfully.', 'kirki-ecommerce'),
+            'message' => __('Currencies updated', 'kirki-ecommerce'),
         ], Response::CREATED);
     }
 
@@ -128,7 +128,7 @@ class CurrencyController
 
         return response()->json([
             'data' => $result,
-            'message' => __('Currency deleted successfully.', 'kirki-ecommerce'),
+            'message' => __('Currency removed', 'kirki-ecommerce'),
         ]);
     }
 
@@ -144,14 +144,14 @@ class CurrencyController
                 $result = $this->service->bulk_delete($ids);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('Currency deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('Currency removed', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
                 $params = ListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
-                    'message' => __('All currencies deleted successfully.', 'kirki-ecommerce'),
+                    'message' => __('All currencies removed', 'kirki-ecommerce'),
                 ]);
             default:
                 return response()->json([

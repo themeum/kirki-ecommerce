@@ -145,7 +145,7 @@ class PageInlineScript extends BaseHook
         $cart    = $data->cart ?? null;
         $pricing = $cart['pricing'] ?? [];
 
-        $discount_details = $pricing['discount_details'] ?? null;
+        $coupons = $pricing['coupons'] ?? [];
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
@@ -153,13 +153,15 @@ class PageInlineScript extends BaseHook
             'shipping_address'            => $cart['shipping_address'] ?? null,
             'billing_address'             => $cart['billing_address'] ?? null,
             'pricing'                     => [
-                'discount_details'                   => $discount_details ? [
-                    'code'                       => $discount_details['code'] ?? null,
-                    'title'                      => $discount_details['title'] ?? null,
-                    'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
-                    'discount_amount_percentage' => $discount_details['discount_amount_percentage'] ?? null,
-                    'base_discount_amount_fixed' => $discount_details['base_discount_amount_fixed'] ?? null,
-                ] : null,
+                'coupons'                             => array_map(function ($coupon) {
+                    return [
+                        'code'                       => $coupon['code'] ?? null,
+                        'title'                      => $coupon['title'] ?? null,
+                        'discount_value_type'        => $coupon['discount_value_type'] ?? null,
+                        'discount_amount_percentage' => $coupon['discount_amount_percentage'] ?? null,
+                        'base_discount_amount_fixed' => $coupon['base_discount_amount_fixed'] ?? null,
+                    ];
+                }, $coupons),
                 'display_subtotal_money_object'      => $pricing['display_subtotal_money_object'] ?? null,
                 'display_tax_total_money_object'     => $pricing['display_tax_total_money_object'] ?? null,
                 'display_discount_total_money_object' => $pricing['display_discount_total_money_object'] ?? null,
@@ -176,6 +178,18 @@ class PageInlineScript extends BaseHook
         $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
+
+        // Only the id and method travel: the rendered message is already in
+        // the DOM, and repeating it here would double the inline payload.
+        $config['checkout_consents'] = array_map(
+            function ($consent) {
+                return [
+                    'id'     => $consent['id'],
+                    'method' => $consent['method'],
+                ];
+            },
+            $data->consents ?? []
+        );
 
         if (is_user_logged_in()) {
             $current_user = wp_get_current_user();

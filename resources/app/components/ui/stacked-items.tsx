@@ -16,7 +16,7 @@ import {
   ItemTitle,
 } from '@/components/ui/item';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 
 type StackedItemsElementProps = Omit<ComponentPropsWithoutRef<'div'>, 'className' | 'css'> & {
   cssOverride?: CSSObject;
@@ -88,17 +88,19 @@ const StackedItem = forwardRef<HTMLDivElement, StackedItemProps>((props, ref) =>
 
   return (
     <StackedItemContext.Provider value={{ isOpen, setOpen }}>
-      <Item
-        ref={ref}
-        role="listitem"
-        size="sm"
-        data-slot="stacked-item"
-        data-actions-open={isOpen ? 'true' : undefined}
-        cssOverride={mergeCss(styles.row, cssOverride)}
-        {...rest}
-      >
-        {children}
-      </Item>
+      <div css={scoped(styles.stackedItem)}>
+        <Item
+          ref={ref}
+          role="listitem"
+          size="sm"
+          data-slot="stacked-item"
+          data-actions-open={isOpen ? 'true' : undefined}
+          cssOverride={mergeCss(styles.row, cssOverride)}
+          {...rest}
+        >
+          {children}
+        </Item>
+      </div>
     </StackedItemContext.Provider>
   );
 });
@@ -145,8 +147,8 @@ const styles = defineStyles({
   container: {
     overflow: 'hidden',
     borderRadius: theme.radius.xl,
-    backgroundColor: theme.colors.background.surfaceAlt,
-    padding: theme.spacing[1],
+    backgroundColor: 'transparent',
+    border: `1px solid ${theme.colors.border.secondary}`,
   },
   cardContainer: {
     borderColor: theme.colors.border.secondary,
@@ -154,17 +156,23 @@ const styles = defineStyles({
       backgroundColor: theme.colors.background.fill,
     },
   },
+  stackedItem: {
+    padding: 0,
+    '&:not(:last-of-type)': {
+      borderBottom: `1px solid ${theme.colors.border.secondary}`,
+    },
+  },
   row: {
     position: 'relative',
     height: '34px',
-    borderRadius: theme.radius.lg,
     padding: `${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[1]} ${theme.spacing[3]}`,
+
     '&:hover': {
       backgroundColor: theme.colors.background.surfaceAlt,
     },
     '& [data-action-group="true"]': {
       position: 'absolute',
-      right: theme.spacing[0],
+      right: theme.spacing[3],
       top: '50%',
       transform: 'translateY(-50%)',
       pointerEvents: 'none',
@@ -179,7 +187,7 @@ const styles = defineStyles({
       {
         visibility: 'hidden',
       },
-    '& button': {
+    '& button:not([role="switch"])': {
       width: '24px',
       height: '24px',
 

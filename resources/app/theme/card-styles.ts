@@ -46,7 +46,7 @@ const cardStyles = defineStyles({
   },
   innerDarkCard: {
     borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.background.surfaceSecondary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     border: 'none',
     padding: theme.spacing[0],
   },

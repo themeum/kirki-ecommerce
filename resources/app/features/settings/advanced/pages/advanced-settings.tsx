@@ -14,7 +14,7 @@ import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const AlertMessage = () => {
@@ -55,27 +55,31 @@ const AdvancedSettings = () => {
         <Card
           data-search-id="advanced.pages"
           data-search-keywords="cart page, my account page, thank you page, shop page, page assignment, permalink, endpoint"
-          cssOverride={cardStyles.formCard}
+          cssOverride={mergeCss(cardStyles.formCard)}
         >
           <CardContent>
             <Flex direction="column" gap={2}>
-              <Flex justify="space-between" align="center">
-                <Text weight="semibold">{__('Pages', 'kirki-ecommerce')}</Text>
+              <Flex justify="space-between" align="flex-start">
+                <Flex direction="column">
+                  <Text weight="semibold">{__('Pages', 'kirki-ecommerce')}</Text>
+                  <Text variant="small" color="secondary">
+                    {__(
+                      'Which WordPress pages your storefront uses, and repairing missing ones.',
+                      'kirki-ecommerce',
+                    )}
+                  </Text>
+                </Flex>
                 <Button
                   onClick={() => void runFixMutation.mutate()}
                   loading={runFixMutation.isPending}
                   disabled={!hasPageError || runFixMutation.isPending}
+                  size="sm"
                 >
                   <Hammer size="12" />
                   {__('Run Fix', 'kirki-ecommerce')}
                 </Button>
               </Flex>
-              <Text variant="small" color="secondary">
-                {__(
-                  'Which WordPress pages your storefront uses, and repairing missing ones.',
-                  'kirki-ecommerce',
-                )}
-              </Text>
+
               <Flex direction="column" gap={3} cssOverride={styles.contentWrapper}>
                 {hasPageError && <Alert type="warning" text={<AlertMessage />} hasHighlight />}
                 <PageTable pages={pages} />

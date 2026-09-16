@@ -3,6 +3,7 @@ export type { CheckoutSettingsFormPayload } from './checkout/schemas/forms/check
 export type { EmailSettingsFormPayload } from './email/schemas/forms/email-settings-form';
 export { useSchemasQuery } from './essentials/services/schema';
 export type { GeneralSettingsFormPayload } from './general/schemas/forms/general-settings-form';
+export type { LegalSettingsFormPayload } from './legal/schemas/forms/legal-settings-form';
 export type { MultiCurrencySettingsFormPayload } from './multi-currency/schemas/forms/multi-currency-settings-form';
 export { useOfflinePaymentsQuery } from './payment/services/payment';
 export type { ProductsSettingsFormPayload } from './products/schemas/forms/products-settings-form';

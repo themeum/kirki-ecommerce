@@ -29,11 +29,9 @@ class CalculationItemDTO extends DTO
     /** @var int */
     public $base_subtotal = 0;
     /** @var int */
-    public $tax_rate = 0;
-    /** @var int */
     public $base_tax_amount = 0;
-    /** @var array */
-    public $tax_breakdown = [];
+    /** @var \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] */
+    public $tax_lines = [];
     /** @var int */
     public $base_discount_amount = 0;
     /** @var int */

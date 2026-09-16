@@ -7,7 +7,9 @@ Guarantees that assigning a value to a model attribute — directly, through `fi
 ## Requirements
 
 ### Requirement: Array/JSON attributes persist on save
-Assigning an array value to `Customer.tags`, `OrderItem.product_data`, `OrderItem.tax_breakdown`, `ProductSchema.schema`, `Product.additional_info`, `Product.seo_keywords`, `Coupon.target_countries`, or `Coupon.combinations` SHALL result in that value being written to the corresponding database column when the model is saved, and reading the model back SHALL return an equivalent array.
+Assigning an array value to `Customer.tags`, `OrderItem.product_data`, `ProductSchema.schema`, `Product.additional_info`, `Product.seo_keywords`, `Coupon.target_countries`, or `Coupon.combinations` SHALL result in that value being written to the corresponding database column when the model is saved, and reading the model back SHALL return an equivalent array.
+
+`OrderItem.tax_breakdown` is no longer a covered field: the column is removed, and an order item's tax breakdown is read from its recorded tax lines instead of an array/JSON attribute on `OrderItem`.
 
 #### Scenario: Creating a customer with tags
 - **WHEN** a `Customer` is created with `tags` set to a non-empty array
@@ -15,7 +17,7 @@ Assigning an array value to `Customer.tags`, `OrderItem.product_data`, `OrderIte
 - **AND** re-fetching the customer returns `tags` as the same array
 
 #### Scenario: Updating an order item's product data
-- **WHEN** an existing `OrderItem` has `product_data` (or `tax_breakdown`) reassigned to a new non-empty array and saved
+- **WHEN** an existing `OrderItem` has `product_data` reassigned to a new non-empty array and saved
 - **THEN** the updated row reflects the new array, not the previous value or `NULL`
 
 #### Scenario: Creating a product schema

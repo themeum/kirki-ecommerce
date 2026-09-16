@@ -3,10 +3,14 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
 class SettingsApiTest extends RestTestCase
 {
+    use SeedsTestCurrency;
+
     /**
      * Get product settings returns resource.
      *
@@ -475,5 +479,323 @@ class SettingsApiTest extends RestTestCase
 
         $data = $this->assert_validation_error($response);
         $this->assertStringContainsString('pages', wp_json_encode($data['errors']));
+    }
+
+    /**
+     * Shipping method payload carrying every field the update rules require,
+     * so tests can focus on the money fields.
+     *
+     * @param array $overrides
+     *
+     * @return array
+     */
+    protected function shipping_settings_payload(array $overrides = []): array
+    {
+        return [
+            'key' => OptionKeys::SHIPPING_SETTINGS,
+            'data' => [
+                'shipping_zones' => [
+                    [
+                        'id' => 'zone-1',
+                        'is_enabled' => true,
+                        'title' => 'Zone 1',
+                        'regions' => [
+                            ['country' => 'BD', 'states' => []],
+                        ],
+                        'shipping_methods' => [
+                            array_merge([
+                                'id' => 'method-1',
+                                'is_enabled' => true,
+                                'name' => 'Rate by Weight',
+                                'type' => 'weight',
+                                'is_taxable' => false,
+                                'base_amount' => 30,
+                                'is_free_shipping_enabled' => false,
+                                'base_free_shipping_min_amount' => 250,
+                                'ranges' => [
+                                    ['from' => 0, 'to' => 5, 'base_amount' => 15],
+                                    ['from' => 5, 'to' => 10, 'base_amount' => 25],
+                                ],
+                            ], $overrides),
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * A weight method's amounts come back in major units, including the
+     * method-level base_amount that sits alongside its ranges.
+     *
+     * @return void
+     */
+    public function test_update_shipping_settings_weight_method_amounts_round_trip(): void
+    {
+        $this->seed_base_currency();
+
+        $response = $this->request('PUT', 'settings', $this->shipping_settings_payload());
+
+        $payload = $this->assert_api_success($response);
+        $method = $payload['data']['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertSame(30.0, (float) $method['base_amount']);
+        $this->assertSame(250.0, (float) $method['base_free_shipping_min_amount']);
+        $this->assertSame(15.0, (float) $method['ranges'][0]['base_amount']);
+        $this->assertSame(25.0, (float) $method['ranges'][1]['base_amount']);
+    }
+
+    /**
+     * Saving the settings the API just returned, unchanged, must not change
+     * the stored amounts. Any money field converted to minor units on write
+     * but not back on read is multiplied by 100 on every save until it
+     * overflows the integer range and the request 500s.
+     *
+     * @return void
+     */
+    public function test_update_shipping_settings_amounts_are_stable_across_repeated_saves(): void
+    {
+        $this->seed_base_currency();
+
+        $response = $this->request('PUT', 'settings', $this->shipping_settings_payload());
+        $data = $this->assert_api_success($response)['data'];
+
+        for ($save = 0; $save < 5; $save++) {
+            $response = $this->request('PUT', 'settings', [
+                'key' => OptionKeys::SHIPPING_SETTINGS,
+                'data' => $data,
+            ]);
+
+            $data = $this->assert_api_success($response)['data'];
+        }
+
+        $method = $data['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertSame(30.0, (float) $method['base_amount']);
+        $this->assertSame(250.0, (float) $method['base_free_shipping_min_amount']);
+        $this->assertSame(15.0, (float) $method['ranges'][0]['base_amount']);
+
+        $stored = Option::get(OptionKeys::SHIPPING_SETTINGS);
+        $stored_method = $stored['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertSame(3000, (int) $stored_method['base_amount']);
+        $this->assertSame(25000, (int) $stored_method['base_free_shipping_min_amount']);
+        $this->assertSame(1500, (int) $stored_method['ranges'][0]['base_amount']);
+    }
+
+    /**
+     * Free shipping is off and carries no minimum, which the client sends as
+     * null. Reading it back must leave the empty value alone rather than
+     * trying to convert it.
+     *
+     * @return void
+     */
+    public function test_update_shipping_settings_handles_an_empty_free_shipping_minimum(): void
+    {
+        $this->seed_base_currency();
+
+        $response = $this->request('PUT', 'settings', $this->shipping_settings_payload([
+            'is_free_shipping_enabled' => false,
+            'base_free_shipping_min_amount' => null,
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $method = $payload['data']['shipping_zones'][0]['shipping_methods'][0];
+
+        $this->assertNull($method['base_free_shipping_min_amount']);
+        $this->assertSame(30.0, (float) $method['base_amount']);
+    }
+
+    /**
+     * Build a valid consent payload.
+     *
+     * @param array $overrides
+     *
+     * @return array
+     */
+    protected function make_consent(array $overrides = []): array
+    {
+        return array_merge([
+            'id' => 'consent-1',
+            'title' => 'Basic consents',
+            'locations' => ['signup', 'checkout'],
+            'message' => 'By continuing, you agree to our {privacy_policy}.',
+            'method' => 'mandatory_checkbox',
+            'is_enabled' => true,
+        ], $overrides);
+    }
+
+    /**
+     * Update legal settings round trips every consent field.
+     *
+     * Guards the sanitizer contract: only paths listed in the request's
+     * filters() survive, so a field that gains a validation rule but no filter
+     * entry is dropped silently on the way to storage. If this test starts
+     * failing on a field, check its filter entry before anything else.
+     *
+     * @return void
+     */
+    public function test_update_legal_settings_round_trips(): void
+    {
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => [
+                'consents' => [
+                    $this->make_consent(),
+                    $this->make_consent([
+                        'id' => 'consent-2',
+                        'title' => 'Marketing emails',
+                        'locations' => ['checkout'],
+                        'method' => 'optional_checkbox',
+                        'is_enabled' => false,
+                    ]),
+                ],
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $consents = $payload['data']['consents'];
+
+        $this->assertCount(2, $consents);
+
+        $this->assertSame('consent-1', $consents[0]['id']);
+        $this->assertSame('Basic consents', $consents[0]['title']);
+        $this->assertSame(['signup', 'checkout'], $consents[0]['locations']);
+        $this->assertSame('By continuing, you agree to our {privacy_policy}.', $consents[0]['message']);
+        $this->assertSame('mandatory_checkbox', $consents[0]['method']);
+        $this->assertTrue($consents[0]['is_enabled']);
+
+        $this->assertSame('consent-2', $consents[1]['id']);
+        $this->assertSame(['checkout'], $consents[1]['locations']);
+        $this->assertSame('optional_checkbox', $consents[1]['method']);
+        $this->assertFalse($consents[1]['is_enabled']);
+    }
+
+    /**
+     * Update legal settings replaces the whole consent array.
+     *
+     * The settings blob merges shallowly, so a write of the full list is the
+     * only way to remove an entry.
+     *
+     * @return void
+     */
+    public function test_update_legal_settings_replaces_the_whole_array(): void
+    {
+        $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => [
+                'consents' => [
+                    $this->make_consent(),
+                    $this->make_consent(['id' => 'consent-2']),
+                ],
+            ],
+        ]);
+
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => [
+                'consents' => [$this->make_consent(['id' => 'consent-2'])],
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+
+        $this->assertCount(1, $payload['data']['consents']);
+        $this->assertSame('consent-2', $payload['data']['consents'][0]['id']);
+    }
+
+    /**
+     * Update legal settings with an empty array clears the consents.
+     *
+     * @return void
+     */
+    public function test_update_legal_settings_empty_array_clears_consents(): void
+    {
+        $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => ['consents' => [$this->make_consent()]],
+        ]);
+
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => ['consents' => []],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame([], $payload['data']['consents']);
+    }
+
+    /**
+     * Update legal settings rejects an unrecognised location.
+     *
+     * @return void
+     */
+    public function test_update_legal_settings_rejects_unknown_location(): void
+    {
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => [
+                'consents' => [$this->make_consent(['locations' => ['nowhere']])],
+            ],
+        ]);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * Update legal settings rejects an unrecognised consent method.
+     *
+     * @return void
+     */
+    public function test_update_legal_settings_rejects_unknown_method(): void
+    {
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => [
+                'consents' => [$this->make_consent(['method' => 'telepathy'])],
+            ],
+        ]);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * Update legal settings rejects a consent with no location.
+     *
+     * @return void
+     */
+    public function test_update_legal_settings_rejects_empty_locations(): void
+    {
+        $response = $this->request('PUT', 'settings', [
+            'key' => OptionKeys::LEGAL_SETTINGS,
+            'data' => [
+                'consents' => [$this->make_consent(['locations' => []])],
+            ],
+        ]);
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * Get legal settings exposes the registration flag.
+     *
+     * @return void
+     */
+    public function test_get_legal_settings_exposes_registration_flag(): void
+    {
+        update_option('users_can_register', 1);
+
+        $response = $this->request('GET', 'settings/' . OptionKeys::LEGAL_SETTINGS);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_registration_enabled']);
+
+        update_option('users_can_register', 0);
+
+        $response = $this->request('GET', 'settings/' . OptionKeys::LEGAL_SETTINGS);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertFalse($payload['data']['is_registration_enabled']);
     }
 }

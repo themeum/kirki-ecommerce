@@ -19,6 +19,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
       type={type}
       data-error={error ? 'true' : undefined}
       css={scopedMerge(styles.base, invisible && styles.invisible, cssOverride)}
+      onFocus={(event) => event.target.select()}
       {...rest}
       {...('value' in props ? { value: value ?? '' } : {})}
     />

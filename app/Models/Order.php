@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Models;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
@@ -35,12 +36,12 @@ class Order extends Model
         'reverse_charge',
         'invoiced_shipping_total',
         'base_shipping_total',
-        'coupon_code',
         'invoiced_discount_total',
         'base_discount_total',
-        'discount_details',
         'invoiced_tax_total',
         'base_tax_total',
+        'invoiced_shipping_tax_amount',
+        'base_shipping_tax_amount',
         'invoiced_total',
         'base_total',
         'items_count',
@@ -109,11 +110,12 @@ class Order extends Model
         'reverse_charge' => 'boolean',
         'invoiced_payment_provider_fee' => 'integer',
         'base_payment_provider_fee' => 'integer',
-        'discount_details' => 'json',
         'payment_metadata' => 'json',
         'shipping_metadata' => 'json',
         'invoiced_tax_total' => 'integer',
         'base_tax_total' => 'integer',
+        'invoiced_shipping_tax_amount' => 'integer',
+        'base_shipping_tax_amount' => 'integer',
     ];
 
     /**
@@ -161,9 +163,9 @@ class Order extends Model
         return $this->belongs_to(Customer::class, 'customer_id');
     }
 
-    public function coupon_usage()
+    public function order_coupons()
     {
-        return $this->has_one(CouponUsage::class, 'order_id');
+        return $this->has_many(OrderCoupon::class, 'order_id');
     }
 
     public function refunds()
@@ -174,6 +176,16 @@ class Order extends Model
     public function activities()
     {
         return $this->has_many(OrderActivity::class, 'order_id');
+    }
+
+    public function taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_id');
+    }
+
+    public function shipping_taxes()
+    {
+        return $this->has_many(OrderTax::class, 'order_id')->where('type', OrderTaxType::SHIPPING);
     }
 
     /**

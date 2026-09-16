@@ -37,6 +37,9 @@ class SettingResource extends Resource
             case OptionKeys::ADVANCE_SETTINGS:
                 $data = $this->get_advanced_settings($data);
                 break;
+            case OptionKeys::LEGAL_SETTINGS:
+                $data = $this->get_legal_settings($data);
+                break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
             default:
@@ -108,22 +111,30 @@ class SettingResource extends Resource
      */
     protected function get_shipping_settings($data)
     {
-        foreach ($data['shipping_zones'] as $key => $zone) {
-            foreach ($zone['shipping_methods'] as $method_key => $method) {
-
-                if (!empty($method['ranges'])) {
-                    foreach ($method['ranges'] as $range_key => $range) {
-                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount'] = Money::prepare_amount_from_minor($range['base_amount']);
-                        $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount_money_object'] = Money::prepare_amount_object_from_minor($range['base_amount']);
+        // Every amount below is converted back from the minor units it was
+        // stored in. The set of fields and the emptiness guard must stay in
+        // lockstep with SettingsUpdateRequest::prepare_for_validation(), which
+        // converts the same fields to minor units on the way in - a field
+        // converted on write but not on read is multiplied by the currency's
+        // subunit factor again on every save until it overflows.
+        foreach ($data['shipping_zones'] ?? [] as $key => $zone) {
+            foreach ($zone['shipping_methods'] ?? [] as $method_key => $method) {
+                foreach (['base_amount', 'base_free_shipping_min_amount'] as $field) {
+                    if (empty($method[$field])) {
+                        continue;
                     }
-                } else {
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_amount'] = Money::prepare_amount_from_minor($method['base_amount']);
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_amount_money_object'] = Money::prepare_amount_object_from_minor($method['base_amount']);
+
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key][$field] = Money::prepare_amount_from_minor($method[$field]);
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key][$field . '_money_object'] = Money::prepare_amount_object_from_minor($method[$field]);
                 }
 
-                if (!empty($method['is_free_shipping_enabled'])) {
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_free_shipping_min_amount'] = Money::prepare_amount_from_minor($method['base_free_shipping_min_amount']);
-                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['base_free_shipping_min_amount_money_object'] = Money::prepare_amount_object_from_minor($method['base_free_shipping_min_amount']);
+                foreach ($method['ranges'] ?? [] as $range_key => $range) {
+                    if (empty($range['base_amount'])) {
+                        continue;
+                    }
+
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount'] = Money::prepare_amount_from_minor($range['base_amount']);
+                    $data['shipping_zones'][$key]['shipping_methods'][$method_key]['ranges'][$range_key]['base_amount_money_object'] = Money::prepare_amount_object_from_minor($range['base_amount']);
                 }
             }
         }
@@ -163,5 +174,24 @@ class SettingResource extends Resource
                 'reset_at' =>  $data['usage']['reset_at'] ?? null,
             ] : null
         ];
+    }
+
+    /**
+     * Get the legal settings.
+     *
+     * Consents are re-indexed so they serialise as a JSON array rather than an
+     * object, and the store's registration flag is surfaced so the admin can
+     * warn when a signup consent cannot be displayed.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    protected function get_legal_settings($data)
+    {
+        $data['consents'] = array_values($data['consents'] ?? []);
+        $data['is_registration_enabled'] = (bool) Utils::registration_enabled();
+
+        return $data;
     }
 }

@@ -7,6 +7,13 @@ if (!function_exists('__')) {
     }
 }
 
+if (!function_exists('esc_html__')) {
+    function esc_html__($text, $domain = 'default')
+    {
+        return $text;
+    }
+}
+
 if (!function_exists('_e')) {
     function _e($text, $domain = 'default')
     {
@@ -87,5 +94,21 @@ if (!function_exists('sanitize_title')) {
         $title = trim($title, '-');
 
         return $title === '' ? $fallback_title : $title;
+    }
+}
+
+if (!function_exists('esc_url')) {
+    function esc_url($url)
+    {
+        $url = str_replace(['"', "'", '<', '>'], '', (string) $url);
+
+        return htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('get_permalink')) {
+    function get_permalink($post = 0, $leavename = false)
+    {
+        return 'https://example.test/?p=' . (int) (is_object($post) ? $post->ID : $post);
     }
 }

@@ -25,7 +25,6 @@ import { WrenchIcon } from '@/icons';
 import type { CurrencySettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
@@ -86,8 +85,15 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
           'kirki-ecommerce',
         )}
         leftIcon={<RefreshCcw size={16} />}
-        // rightActions={rightActions()}
         open
+        cssOverride={{
+          backgroundColor: theme.colors.background.surfaceAlt,
+          '& [data-option-accordion-card="true"]': {
+            backgroundColor: 'transparent',
+            border: 'none',
+            borderTop: `1px solid ${theme.colors.border.default}`,
+          },
+        }}
       >
         <Flex direction="column" gap={2}>
           <Flex direction="column" gap={2}>
@@ -98,7 +104,15 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
               value={apiProvider ?? undefined}
               onValueChange={(value) => setValue('api_provider', value, { shouldDirty: true })}
             >
-              <SelectTrigger id="api-provider-select">
+              <SelectTrigger
+                id="api-provider-select"
+                showClear={Boolean(isApiProviderSelected)}
+                onClear={
+                  isApiProviderSelected
+                    ? () => setValue('api_provider', null, { shouldDirty: true })
+                    : undefined
+                }
+              >
                 <SelectValue placeholder={__('Select', 'kirki-ecommerce')} />
               </SelectTrigger>
               <SelectContent>
@@ -123,7 +137,7 @@ const ApiConfig = ({ currencySettings }: { currencySettings?: CurrencySettings |
                   data-search-id="currency.api-configuration"
                   data-search-keywords="api key, conversion rate, exchange rate provider, automatic rates"
                   data-search-title={__('Exchange Rate API Configuration', 'kirki-ecommerce')}
-                  cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}
+                  // cssOverride={mergeCss(cardStyles.innerCard, { marginTop: theme.spacing[2] })}
                 >
                   <CardContent cssOverride={cardStyles.innerContent}>
                     <Flex justify="space-between" align="center">

@@ -18,10 +18,8 @@ const EmptyState = (props: EmptyStateProps) => {
   const { icon, text, cssOverride } = props;
 
   return (
-    <Card cssOverride={mergeCss(cardStyles.innerDarkCard, cssOverride)}>
-      <CardContent
-        cssOverride={mergeCss(cardStyles.innerDarkContent, styles.content)}
-      >
+    <Card cssOverride={mergeCss(cardStyles.innerDarkCard, cssOverride, { boxShadow: 'none' })}>
+      <CardContent cssOverride={mergeCss(cardStyles.innerDarkContent, styles.content)}>
         <Flex direction="column" gap={2} align="center">
           {icon}
           <Text variant="small" color="subdued">
