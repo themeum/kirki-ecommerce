@@ -131,7 +131,7 @@ $slot          = $data['slot'] ?? '';
         <?php endif; ?>
 
         <?php if (!empty($slot)) : ?>
-            <?php echo $slot; ?>
+            <?php echo $slot; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- developer-authored template markup (may include Alpine.js directives) passed by the calling view, not user input; HTML-escaping would corrupt it. ?>
         <?php endif; ?>
     </div>
 </div>

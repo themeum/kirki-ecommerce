@@ -81,6 +81,56 @@ class VariantApiTest extends RestTestCase
     }
 
     /**
+     * Show returns a formatted, currency-aware unit price when unit pricing is enabled.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_variant_includes_formatted_unit_price(): void
+    {
+        $product = $this->create_product([
+            'variants' => [
+                [
+                    'base_price' => 30.00,
+                    'sku' => 'SKU-' . wp_generate_password(6, false),
+                    'available_quantity' => 100,
+                    'in_stock' => true,
+                    'is_default' => true,
+                    'attribute_values' => [],
+                    'show_unit_price' => true,
+                    'base_unit' => 'kg',
+                    'base_unit_amount' => 1,
+                    'total_unit' => 'kg',
+                    'total_unit_amount' => 1,
+                ],
+            ],
+        ]);
+        $variant_id = $this->default_variant_id($product);
+
+        $response = $this->request('GET', 'variants/' . $variant_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertEquals('$30.00/1kg', $payload['data']['display_unit_price']);
+    }
+
+    /**
+     * Show returns a null unit price when unit pricing is disabled.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_variant_unit_price_is_null_when_disabled(): void
+    {
+        $product = $this->create_product();
+        $variant_id = $this->default_variant_id($product);
+
+        $response = $this->request('GET', 'variants/' . $variant_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertNull($payload['data']['display_unit_price']);
+    }
+
+    /**
      * Show returns not found for an unknown identifier.
      *
      * @return void
