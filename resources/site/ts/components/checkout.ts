@@ -62,7 +62,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
   const rawSavedAddresses = config.addresses ?? [];
   const initialCartData = config.checkout_cart ?? null;
-  const defaultCountry = config.countries?.[0]?.code || '';
+  const defaultCountry = '';
 
   const defaultShippingSaved =
     rawSavedAddresses.find((savedAddress: any) => savedAddress.is_default_shipping) ??
