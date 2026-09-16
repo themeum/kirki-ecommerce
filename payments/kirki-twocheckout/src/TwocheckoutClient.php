@@ -261,9 +261,9 @@ class TwocheckoutClient
     protected function format_read_receipt(string $algorithm, string $date, string $signature): string
     {
         if (TwocheckoutConstant::IPN_SIGNATURE_ALGORITHM_MD5 === $algorithm) {
-            return sprintf('<EPAYMENT>%s|%s</EPAYMENT>', $date, $signature);
+            return sprintf('<EPAYMENT>%s|%s</EPAYMENT>', esc_html($date), esc_html($signature));
         }
 
-        return sprintf('<sig algo="%s" date="%s">%s</sig>', $algorithm, $date, $signature);
+        return sprintf('<sig algo="%s" date="%s">%s</sig>', esc_attr($algorithm), esc_attr($date), esc_html($signature));
     }
 }
