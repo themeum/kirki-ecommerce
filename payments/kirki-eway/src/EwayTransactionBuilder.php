@@ -139,10 +139,12 @@ class EwayTransactionBuilder
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
+            $unit_cost = $this->order->invoiced_shipping_total - $this->order->invoiced_shipping_tax_amount ?? 0;
             $line_items[] = [
-                'Description' => __('Shipping (Incl. any tax)', 'kirki-ecommerce-eway'),
+                'Description' => __('Shipping Charge', 'kirki-ecommerce-eway'),
                 'Quantity' => 1,
-                'UnitCost' => (int) $this->order->invoiced_shipping_total,
+                'UnitCost' => (int) $unit_cost,
+                'Tax' => (int) $this->order->invoiced_shipping_tax_amount ?? 0,
                 'Total' => (int) $this->order->invoiced_shipping_total,
             ];
         }
