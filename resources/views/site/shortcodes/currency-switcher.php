@@ -24,8 +24,8 @@ $current_flag   = $data['current_flag'] ?? '';
 <div
     class="kecom-dropdown kecom-currency-switcher <?php echo esc_attr($attributes['class']); ?>"
     x-data="dropdown({
-        items: <?php echo $items_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped via esc_attr(wp_json_encode()) in service. ?>,
-        selected: <?php echo $selected_json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Pre-escaped via esc_attr(wp_json_encode()) in service. ?>,
+        items: <?php echo esc_attr($items_json); ?>,
+        selected: <?php echo esc_attr($selected_json); ?>,
         align: '<?php echo esc_js($attributes['align']); ?>',
         onChange(item) {
             const maxAge = 30 * 24 * 60 * 60;

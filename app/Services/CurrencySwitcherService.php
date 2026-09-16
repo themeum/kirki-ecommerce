@@ -5,10 +5,9 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Supports\Utils;
 
 use function Kirki\Ecommerce\Framework\include_view;
-use function Kirki\Ecommerce\Framework\json_decoded_data;
-use function Kirki\Ecommerce\Framework\resource_path;
 
 /**
  * Class CurrencySwitcherService
@@ -105,8 +104,9 @@ class CurrencySwitcherService
                 'flag'     => $this->get_currency_flag($currency->code),
             ];
         }
-        $items_json    = esc_attr(wp_json_encode($items));
-        $selected_json = esc_attr(wp_json_encode($current_code));
+
+        $items_json    = wp_json_encode($items);
+        $selected_json = wp_json_encode($current_code);
 
         include_view(
             'site.shortcodes.currency-switcher',
@@ -145,7 +145,7 @@ class CurrencySwitcherService
         }
 
         if ($this->countries === null) {
-            $this->countries = json_decoded_data(resource_path('data/countries.json')) ?? [];
+            $this->countries = Utils::get_countries();
         }
 
         $alpha2 = substr($code, 0, 2);
