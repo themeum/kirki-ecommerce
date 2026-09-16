@@ -40,7 +40,6 @@ $trigger_text  = $data['trigger_text'] ?? null;
 $trigger_label = $data['trigger_label'] ?? __('Options', 'kirki-ecommerce');
 $trigger_class = $data['trigger_class'] ?? 'kecom-btn kecom-btn-ghost kecom-btn-icon kecom-btn-sm';
 $items         = $data['items'] ?? [];
-$slot          = $data['slot'] ?? '';
 ?>
 
 <div
@@ -130,8 +129,5 @@ $slot          = $data['slot'] ?? '';
             <?php endforeach; ?>
         <?php endif; ?>
 
-        <?php if (!empty($slot)) : ?>
-            <?php echo $slot; ?>
-        <?php endif; ?>
     </div>
 </div>

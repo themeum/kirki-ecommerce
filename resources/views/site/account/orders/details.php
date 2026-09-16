@@ -236,7 +236,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                 </div>
                 <?php if (count($items) > 3) : ?>
                     <div class="kecom-expand-button" x-show="!expanded" x-cloak>
-                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php printf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3); ?>'"></button>
+                        <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php esc_attr(printf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3)); ?>'"></button>
                     </div>
                 <?php endif; ?>
                 <!-- Summary Totals Breakdown -->
