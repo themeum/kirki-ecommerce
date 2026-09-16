@@ -163,6 +163,13 @@
     margin: 0px;
   }
 
+  .kecom-product-pricing-group {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: $spacing-3;
+  }
+
   .kecom-product-price {
     display: flex;
     align-items: center;
@@ -187,8 +194,13 @@
     text-decoration: none;
   }
 
+  .kecom-product-unit-price {
+    @include typography(base, normal, $text-secondary);
+  }
+
   .kecom-product-tax-info {
-    @include typography(base, regular, $text-subdued);
+    @include typography(base, normal, $text-subdued);
+    margin-top: $spacing-3;
   }
 
   .kecom-product-short-description {

@@ -93,11 +93,7 @@ foreach ($media as $media_item) {
             </div>
 
             <!-- Right: Product Info -->
-            <div 
-                class="kecom-product-info" 
-                x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) :
-                    ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php
-                                                                                          endif; ?> })">
+            <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -105,18 +101,20 @@ foreach ($media as $media_item) {
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>
                     
-                    <div class="kecom-product-price">
-                        <span class="kecom-product-price-current" x-text="selectedVariant?.sale_price ? selectedVariant?.sale_price : selectedVariant?.price"></span>
-                        <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
-                        <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
+                    <div class="kecom-product-pricing-group">
+                        <div class="kecom-product-price">
+                            <span class="kecom-product-price-current" x-text="selectedVariant?.sale_price ? selectedVariant?.sale_price : selectedVariant?.price"></span>
+                            <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
+                            <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
+                        </div>
+                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.show_unit_price && selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
+                        <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
+                            <div class="kecom-product-tax-info">
+                                <?php esc_html_e('Incl. VAT', 'kirki-ecommerce'); ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-
-                <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
-                    <div class="kecom-product-tax-info">
-                        <?php esc_html_e('Incl. Tax', 'kirki-ecommerce'); ?>
-                    </div>
-                <?php endif; ?>
 
                 <?php if (! empty($product['description'])) : ?>
                     <p class="kecom-product-short-description">
