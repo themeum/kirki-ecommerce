@@ -18,6 +18,7 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\DTO\Customer\CustomerListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Customer\CustomerListRequest;
 use Kirki\Ecommerce\App\Services\CustomerService;
+use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
@@ -70,15 +71,45 @@ class CustomerController
         $validated = $request->validated();
 
         $customer_payload = CreateCustomerDTO::from_array($validated);
-        $shipping_address_payload = CreateAddressDTO::from_array($validated['shipping_address'] ?? []);
-        $billing_address_payload = CreateAddressDTO::from_array($validated['billing_address'] ?? []);
+        $customer_payload->addresses = $this->prepare_customer_addresses($validated);
 
-        $customer = $create_customer_action->execute($customer_payload, $shipping_address_payload, $billing_address_payload);
+        $customer = $create_customer_action->execute($customer_payload);
 
         return response()->json([
             'data' => CustomerResource::make($customer),
             'message' => __('Customer created', 'kirki-ecommerce'),
         ], Response::CREATED);
+    }
+
+    /**
+     * Build the addresses to create the customer with from the optional
+     * shipping_address/billing_address request blocks - either may be
+     * omitted entirely.
+     *
+     * @param array $validated
+     * @return CreateAddressDTO[]
+     */
+    protected function prepare_customer_addresses(array $validated)
+    {
+        $addresses = [];
+
+        if (!empty($validated['shipping_address'])) {
+            $shipping_address = CreateAddressDTO::from_array($validated['shipping_address']);
+            $shipping_address->type = AddressType::HOME;
+            $shipping_address->is_default_shipping = true;
+
+            $addresses[] = $shipping_address;
+        }
+
+        if (!empty($validated['billing_address'])) {
+            $billing_address = CreateAddressDTO::from_array($validated['billing_address']);
+            $billing_address->type = AddressType::HOME;
+            $billing_address->is_default_billing = true;
+
+            $addresses[] = $billing_address;
+        }
+
+        return $addresses;
     }
 
     public function show(Request $request)
