@@ -15,6 +15,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 
 $product = $data['product'] ?? null;
@@ -35,7 +36,7 @@ $out_of_stock            = $product['out_of_stock'];
 $has_variants            = $product['has_variants'];
 $variant_id              = $product['variant_id'];
 $cart_url                = $product['cart_url'];
-$is_wishlisted            = $product['is_wishlisted'];
+$is_wishlisted           = $product['is_wishlisted'];
 $display_context         = $data['context'] ?? null;
 ?>
 <div class="kecom-product-card" x-data="<?php printf('wishlist(%s, %s, \'%s\')', $is_wishlisted ? 'true' : 'false', 'null', esc_js($display_context)); ?>">
@@ -48,7 +49,7 @@ $display_context         = $data['context'] ?? null;
         <?php endif; ?>
     </a>
     <?php if (is_user_logged_in()) : ?>
-    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr( $variant_id ) ?>" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem(<?php echo esc_attr($variant_id); ?>);">
+    <span class="kecom-product-card-wishlist" id="<?php echo esc_attr($variant_id) ?>" :class="{ 'active' : isWishlisted }" @click.prevent="wishlistItem(<?php echo esc_attr($variant_id); ?>);">
         <?php Icon::render('heart'); ?>
     </span>
     <?php else : ?>
@@ -73,12 +74,19 @@ $display_context         = $data['context'] ?? null;
                 <span class="kecom-product-card-price-discount"><?php echo esc_html($formatted_regular_price); ?></span>
             <?php endif; ?>
         </div>
+
+        <?php if (Tax::should_show_incl_tax_on_shop_page()) : ?>
+            <div class="kecom-product-card-tax-info">
+                <?php esc_html_e('Incl. Tax', 'kirki-ecommerce'); ?>
+            </div>
+        <?php endif; ?>
+
         <?php if ($has_variants || $out_of_stock) { ?>
             <a href="<?php echo esc_url($product_url); ?>" class="kecom-btn kecom-btn-primary kecom-btn-block kecom-product-card-add-to-cart">
                 <span><?php esc_html_e('Details', 'kirki-ecommerce'); ?></span>
             </a>
         <?php } else { ?>
-        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?>', imageUrl: '<?php echo esc_url( $image_url ); ?>', containerClass: 'kecom-products-page' })">
+        <div x-data="addToCart({ variantId: <?php echo esc_attr($variant_id); ?>, cartUrl: '<?php echo esc_url($cart_url); ?>', buttonText: '<?php echo esc_html__('Add to Cart', 'kirki-ecommerce'); ?>', imageUrl: '<?php echo esc_url($image_url); ?>', containerClass: 'kecom-products-page' })">
             <button
                 type="button"
                 class="kecom-btn kecom-btn-primary kecom-btn-block kecom-product-card-add-to-cart"

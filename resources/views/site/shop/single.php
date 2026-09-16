@@ -14,6 +14,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\include_view;
@@ -94,7 +95,9 @@ foreach ($media as $media_item) {
             <!-- Right: Product Info -->
             <div 
                 class="kecom-product-info" 
-                x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
+                x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) :
+                    ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php
+                                                                                          endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
                         <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
@@ -108,6 +111,12 @@ foreach ($media as $media_item) {
                         <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
                     </div>
                 </div>
+
+                <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
+                    <div class="kecom-product-tax-info">
+                        <?php esc_html_e('Incl. Tax', 'kirki-ecommerce'); ?>
+                    </div>
+                <?php endif; ?>
 
                 <?php if (! empty($product['description'])) : ?>
                     <p class="kecom-product-short-description">
@@ -218,7 +227,7 @@ foreach ($media as $media_item) {
                             <span x-text="selectedVariant?.available ? buttonText : '<?php echo esc_js(__('Out of Stock', 'kirki-ecommerce')); ?>'"></span>
                         </button>
                     </div>
-                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url( Url::get_login_url() ) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': wishlistedVariants[selectedVariantId] }">
+                    <a class="kecom-btn kecom-btn-block kecom-btn-outline kecom-product-wishlist" href="<?php echo is_user_logged_in() ? '#' : esc_url(Url::get_login_url()) ?>" @click="wishlistItem(selectedVariantId)" :class="{ 'active': wishlistedVariants[selectedVariantId] }">
                         <?php Icon::render('heart'); ?>
                         <?php esc_html_e('Add to Wishlist', 'kirki-ecommerce'); ?>
                     </a>
