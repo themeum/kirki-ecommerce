@@ -93,10 +93,13 @@ export type CartItem = {
   total_formatted: string;
   created_at: string;
   updated_at: string;
-  display_product_total_money_object: {
+  display_product_total_money_object?: {
     display: string;
   };
-  display_total_money_object: {
+  display_subtotal_money_object?: MoneyObject;
+  display_strikethrough_price_money_object?: MoneyObject | null;
+  applied_product_coupons?: CartCoupon[];
+  display_total_money_object?: {
     display: string;
   };
 };

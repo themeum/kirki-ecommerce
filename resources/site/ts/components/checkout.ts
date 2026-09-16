@@ -418,6 +418,26 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       }
     },
 
+    getItem(id: number) {
+      return this.cartData?.items?.find((item) => item.id === id);
+    },
+
+    formatCouponDiscount(coupon: any): string {
+      if (!coupon) {
+        return '';
+      }
+      let text = coupon.code ?? '';
+      if (coupon.discount_value_type === 'percentage' && coupon.discount_amount_percentage) {
+        text += ` ${coupon.discount_amount_percentage}%`;
+      }
+      const discountDisplay = coupon.display_discount_amount_money_object?.display;
+      if (discountDisplay) {
+        text += `${coupon.discount_value_type === 'percentage' ? '' : ' '}(-${discountDisplay})`;
+      }
+      const appliedText = __('Discount Applied', 'kirki-ecommerce');
+      return `${text} ${appliedText}`;
+    },
+
     setPaymentMethod(method: string) {
       this.selectedPaymentMethod = method;
       emit(EVENTS.PAYMENT_METHOD_CHANGED, { method });

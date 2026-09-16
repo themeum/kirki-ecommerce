@@ -240,6 +240,8 @@
 
     .kecom-products-section-modify {
       @include typography(base, medium);
+      padding: $spacing-4;
+      display: flex;
     }
 
     .kecom-section-title {
