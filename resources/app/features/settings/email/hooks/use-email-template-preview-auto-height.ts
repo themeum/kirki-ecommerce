@@ -13,6 +13,7 @@ export const useEmailTemplatePreviewAutoHeight = (
     }
 
     const resize = () => {
+      iframe.style.height = '0px';
       iframe.style.height = `${doc.documentElement.scrollHeight}px`;
     };
 

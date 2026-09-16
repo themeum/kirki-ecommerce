@@ -16,19 +16,17 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import { mapEmailGroup } from '@/features/settings/email/lib/utils';
+import {
+  type EmailListItem,
+  getNotificationTemplateLabel,
+  mapEmailGroup,
+  resolveNotificationTemplate,
+} from '@/features/settings/email/lib/utils';
 import type { EmailSettingsFormInput } from '@/features/settings/email/schemas/forms/email-settings-form';
 import { CartIcon, EditPenIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-
-type EmailListItem = {
-  key: string;
-  name?: string;
-  is_enabled?: boolean;
-  [key: string]: unknown;
-};
 
 type AdminEmailProps = {
   handleToggleOrder: (item: EmailListItem) => void;
@@ -37,19 +35,20 @@ type AdminEmailProps = {
 
 type EmailRowProps = {
   item: EmailListItem;
+  label: string;
   onToggle: (item: EmailListItem) => void;
   onEdit: (item: EmailListItem) => void;
 };
 
 const EmailRow = (props: EmailRowProps) => {
-  const { item, onToggle, onEdit } = props;
+  const { item, label, onToggle, onEdit } = props;
 
   return (
     <StackedItem id={item.key}>
       <StackedItemContent>
         <StackedItemTitle>
           <Text variant="small" weight="medium">
-            {item.name ?? ''}
+            {label}
           </Text>
           {item.is_enabled === false && (
             <Badge variant="destructive">
@@ -141,6 +140,7 @@ const AdminEmail = (props: AdminEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
+                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'admin_order'))}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />
@@ -162,6 +162,7 @@ const AdminEmail = (props: AdminEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
+                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'admin_inventory'))}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />
@@ -183,6 +184,7 @@ const AdminEmail = (props: AdminEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
+                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'admin_user'))}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />

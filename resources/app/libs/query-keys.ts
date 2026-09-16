@@ -18,4 +18,16 @@ const emailTemplatePreviewKeys = {
   all: ['EmailTemplatePreview'] as const,
 };
 
-export { countryKeys, defaultSettingsKeys, emailTemplatePreviewKeys, settingsKeys };
+const emailNotificationPreviewKeys = {
+  all: ['EmailNotificationPreview'] as const,
+  detail: (type: string, group: string, key: string) =>
+    [...emailNotificationPreviewKeys.all, type, group, key] as const,
+};
+
+export {
+  countryKeys,
+  defaultSettingsKeys,
+  emailNotificationPreviewKeys,
+  emailTemplatePreviewKeys,
+  settingsKeys,
+};

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CheckoutSettingsSchema,
   CurrencySettingsSchema,
+  EmailNotificationSchema,
   EmailSettingsSchema,
   GeneralSettingsSchema,
   PaymentSettingsSchema,
@@ -116,6 +117,24 @@ describe('CheckoutSettingsSchema', () => {
   });
 });
 
+describe('EmailNotificationSchema', () => {
+  it('accepts the documented per-entry shape (is_enabled/subject/heading/message, no name/shortcodes)', () => {
+    const result = EmailNotificationSchema.safeParse({
+      key: 'order_confirmation',
+      is_enabled: true,
+      subject: 'New Order',
+      heading: 'New Order',
+      message: '<p>Hi there!</p>',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts every field absent', () => {
+    const result = EmailNotificationSchema.safeParse({});
+    expect(result.success).toBe(true);
+  });
+});
+
 describe('EmailSettingsSchema', () => {
   it('accepts the documented response shape (settings/email.yml)', () => {
     const result = EmailSettingsSchema.safeParse({
@@ -127,13 +146,11 @@ describe('EmailSettingsSchema', () => {
       },
       customer_emails: {
         order_notifications: {
-          new_order_email: {
+          order_confirmation: {
             is_enabled: true,
-            name: 'New Order',
             subject: 'New Order',
             heading: 'New Order',
             message: '<p>Hi there!</p>',
-            shortcodes: [{ label: 'Order Table', value: '{order_table}' }],
           },
         },
       },
@@ -146,7 +163,7 @@ describe('EmailSettingsSchema', () => {
     const result = EmailSettingsSchema.safeParse({
       customer_emails: {
         unexpected_group: {
-          some_email: { name: 'x', is_enabled: true, extra_field: 'value' },
+          some_email: { is_enabled: true, extra_field: 'value' },
         },
       },
     });

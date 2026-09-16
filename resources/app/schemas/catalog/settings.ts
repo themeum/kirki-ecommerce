@@ -129,16 +129,24 @@ export const CheckoutSettingsSchema = z
 export type CheckoutSettings = z.infer<typeof CheckoutSettingsSchema>;
 
 /**
- * A notification entry's fields vary per notification type beyond
- * `name`/`is_enabled` (subject/heading/message/shortcodes/...) — kept a
- * passthrough record rather than enumerated, matching the form side
- * (`email-settings-form.ts`, `zod-first-type-declarations` design.md
- * Decision on notification records).
+ * Mirrors what the backend actually persists per notification entry in
+ * `email.json` (`is_enabled`/`subject`/`heading`/`message`) — there is no
+ * `name` field, and `shortcodes` is deliberately excluded (its stored data
+ * is currently unreliable placeholder content per notification, see
+ * design.md; the editor's reference shortcode list is sourced from the
+ * preview endpoint's `variables` instead). `key` is not part of the stored
+ * record — it's the entry's own key within its `EmailNotificationGroupSchema`
+ * record, attached here so list items derived from that record carry it.
+ * Kept `.passthrough()` since notification-specific extra fields may still
+ * appear (matching the form side, `email-settings-form.ts`).
  */
 export const EmailNotificationSchema = z
   .object({
-    name: z.string().nullish(),
+    key: z.string().nullish(),
     is_enabled: z.boolean().nullish(),
+    subject: z.string().nullish(),
+    heading: z.string().nullish(),
+    message: z.string().nullish(),
   })
   .passthrough();
 

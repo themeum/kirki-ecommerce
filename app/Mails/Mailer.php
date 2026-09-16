@@ -21,6 +21,11 @@ abstract class Mailer implements Mailable
     protected $template_overrides = [];
 
     /**
+     * @var array
+     */
+    protected $content_overrides = [];
+
+    /**
      * @param mixed $args
      * @return static
      */
@@ -43,11 +48,38 @@ abstract class Mailer implements Mailable
     }
 
     /**
+     * Override this notification's content (e.g. unsaved draft subject/heading/message).
+     *
+     * @param array $overrides
+     * @return $this
+     */
+    public function with_content_overrides(array $overrides)
+    {
+        $this->content_overrides = $overrides;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     protected function get_default_template()
     {
         return array_merge(Settings::get('email')->get('default_template') ?? [], $this->template_overrides);
+    }
+
+    /**
+     * @param string $suffix
+     * @param mixed  $default
+     * @return mixed
+     */
+    protected function get_option_value(string $suffix, $default = '')
+    {
+        if (array_key_exists($suffix, $this->content_overrides)) {
+            return $this->content_overrides[$suffix];
+        }
+
+        return Settings::get('email')->get($this->option_key() . '.' . $suffix) ?? $default;
     }
 
     /**
@@ -68,8 +100,7 @@ abstract class Mailer implements Mailable
      */
     public function subject()
     {
-        $settings = Settings::get('email');
-        $subject = $settings->get($this->option_key() . '.subject') ?? '';
+        $subject = $this->get_option_value('subject');
 
         return ShortcodeParser::create()->with($this->get_variables())->parse($subject);
     }
@@ -93,13 +124,13 @@ abstract class Mailer implements Mailable
     /**
      * @return array
      */
-    protected function get_variables()
+    public function get_variables()
     {
         $general_settings = Settings::get('general');
 
         $settings = Settings::get('email');
-        $heading = $settings->get($this->option_key() . '.heading') ?? '';
-        $body = $settings->get($this->option_key() . '.message') ?? '';
+        $heading = $this->get_option_value('heading');
+        $body = $this->get_option_value('message');
 
         $default_variables = [
             'heading' => $heading,

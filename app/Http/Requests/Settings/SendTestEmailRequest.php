@@ -30,6 +30,9 @@ class SendTestEmailRequest extends Request
             'colors.button.text' => 'nullable|string',
             'additional_description' => 'nullable|string',
             'footer' => 'nullable|string',
+            'subject' => 'nullable|string',
+            'heading' => 'nullable|string',
+            'message' => 'nullable|string',
         ];
     }
 
@@ -56,6 +59,9 @@ class SendTestEmailRequest extends Request
             'colors.button.text' => Sanitizer::TEXT,
             'additional_description' => Sanitizer::RICH_TEXT,
             'footer' => Sanitizer::RICH_TEXT,
+            'subject' => Sanitizer::TEXT,
+            'heading' => Sanitizer::TEXT,
+            'message' => Sanitizer::RICH_TEXT,
         ];
     }
 }

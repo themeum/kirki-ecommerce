@@ -27,6 +27,7 @@ $total_before_shipping_display = Money::prepare_amount_object_from_minor(
 
 $tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
 ?>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr>
     <td style="padding: 32px 0 32px 0;">
         <p data-email-part="colors.typography.headings" style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>;">
@@ -176,3 +177,4 @@ $tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
         </table>
     </td>
 </tr>
+</table>

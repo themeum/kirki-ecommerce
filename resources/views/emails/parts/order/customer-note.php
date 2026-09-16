@@ -19,6 +19,7 @@ $headings_color = $colors['typography']['headings'] ?? EmailDefaultTemplate::TYP
 $muted_color = $colors['typography']['muted'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_MUTED;
 $divider_color = $colors['background']['divider'] ?? EmailDefaultTemplate::BACKGROUND_COLOR_DIVIDER;
 ?>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr>
     <td data-email-part="colors.background.divider" style="padding: 32px 0; border-top: 1px solid <?php echo esc_attr($divider_color); ?>; width: 100%;">
         <p data-email-part="colors.typography.headings" style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: <?php echo esc_attr($headings_color); ?>;">
@@ -29,3 +30,4 @@ $divider_color = $colors['background']['divider'] ?? EmailDefaultTemplate::BACKG
         </p>
     </td>
 </tr>
+</table>

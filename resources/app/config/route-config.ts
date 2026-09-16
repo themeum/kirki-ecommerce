@@ -50,6 +50,7 @@ export const RouteConfig = {
     }),
     EmailSettings: defineRoute('/email', {
       EditEmailTemplate: defineRoute('/edit-template'),
+      EditNotificationTemplate: defineRoute('/:type/:group/:key'),
     }),
     CheckoutSettings: defineRoute('/checkout'),
     EssentialsSettings: defineRoute('/essentials', {

@@ -19,7 +19,7 @@ export const incrementString = (value: string | undefined, by?: string | number)
     return value.slice(0, -1) + by;
   }
 
-  const match = value.match(/^(\D*)(\d*)$/);
+  const match = /^(\D*)(\d*)$/.exec(value);
   if (!match) return value;
 
   const [, prefix, digits] = match;

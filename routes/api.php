@@ -181,8 +181,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/shipping-boxes/bulk', [ShippingBoxController::class, 'bulk_actions']);
 
     // Settings
-    Route::get('/settings/email/preview', [EmailTemplateController::class, 'preview']);
-    Route::post('/settings/email/preview/test-mail', [EmailTemplateController::class, 'send_test_mail']);
+    Route::get('/settings/email/{type}/{group}/{key}/preview', [EmailTemplateController::class, 'preview']);
+    Route::post('/settings/email/{type}/{group}/{key}/preview/test-mail', [EmailTemplateController::class, 'send_test_mail']);
     Route::get('/settings/{key}', [SettingsController::class, 'get']);
     Route::put('/settings', [SettingsController::class, 'update']);
 

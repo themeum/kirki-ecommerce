@@ -36,6 +36,16 @@ const RichText = ({
   css: cssProp,
 }: RichTextProps) => {
   const editorRef = useRef<TinyMceEditorInstance | null>(null);
+  const valueRef = useRef(value);
+
+  useEffect(() => {
+    valueRef.current = value;
+
+    const editor = editorRef.current;
+    if (editor && editor.getContent() !== (value || '')) {
+      editor.setContent(value || '');
+    }
+  }, [value]);
 
   useEffect(() => {
     if (!window.tinymce || !window.wp?.editor) {
@@ -61,7 +71,7 @@ const RichText = ({
         'bold italic underline blockquote fontselect fontsizeselect alignleft aligncenter alignright alignjustify bullist numlist shortcode_button wp_more wp_adv undo redo',
       setup: (editor: TinyMceEditorInstance) => {
         editor.on('init', () => {
-          editor.setContent(value || '');
+          editor.setContent(valueRef.current || '');
           editorRef.current = editor;
         });
 

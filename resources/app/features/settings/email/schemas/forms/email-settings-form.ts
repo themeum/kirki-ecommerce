@@ -4,13 +4,15 @@ import { MailConfigurationShape } from '@/features/settings/email/schemas/forms/
 import { prepareFormSchema } from '@/libs/zod';
 
 /**
- * Each notification entry carries at least a name/enabled flag; the exact
- * extra fields vary per notification type (subject/heading/message/etc.),
- * so the leaf stays a passthrough rather than enumerating every variant.
+ * The list/toggle page only reads/writes `is_enabled` here — the record
+ * also carries `subject`/`heading`/`message` (see `EmailNotificationSchema`
+ * in `schemas/catalog/settings.ts`), edited separately in the per-notification
+ * editor, so this leaf stays a passthrough rather than enumerating them.
+ * There is no `name` field; row labels come from the client-side
+ * notification dictionary (`lib/utils.ts`).
  */
 const EmailNotificationFormShape = z
   .object({
-    name: z.string().nullish(),
     is_enabled: z.boolean().nullish(),
   })
   .passthrough();

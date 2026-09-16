@@ -6,7 +6,9 @@ $data = view_data();
 $body = $data['body'] ?? '';
 ?>
 <tr>
-    <td data-email-part="body">
-        <?php echo wp_kses_post($body); ?>
+    <td>
+        <div data-email-part="body">
+            <?php echo wp_kses_post($body); ?>
+        </div>
     </td>
 </tr>

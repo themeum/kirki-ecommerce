@@ -1,3 +1,5 @@
+import type { NotificationTemplateRef } from '@/features/settings/email/lib/utils';
+import type { EmailNotificationTemplateFormPayload } from '@/features/settings/email/schemas/forms/email-notification-template-form';
 import type { EmailSettingsFormPayload } from '@/features/settings/email/schemas/forms/email-settings-form';
 import type { EmailTemplateFormPayload } from '@/features/settings/email/schemas/forms/email-template-form';
 import type { MediaRef } from '@/schemas/shared/media';
@@ -69,6 +71,54 @@ export const buildEmailTemplatePayload = (
     ...payload,
   },
 });
+
+type NotificationRoot = 'admin_emails' | 'customer_emails';
+
+type NotificationGroupKey = 'order_notifications' | 'user_notifications' | 'inventory_notifications';
+
+/**
+ * `NotificationTemplateRef`'s short `type`/`group` (route segments, also
+ * used by `EmailNotificationRegistry` on the backend) map 1:1 onto the
+ * `[type]_emails`/`[group]_notifications` keys the settings payload actually
+ * stores under.
+ */
+export const notificationRootKey = (type: NotificationTemplateRef['type']): NotificationRoot =>
+  `${type}_emails` as const;
+
+export const notificationGroupKey = (
+  group: NotificationTemplateRef['group'],
+): NotificationGroupKey => `${group}_notifications` as const;
+
+/**
+ * Rebuilds the full email-settings payload with only the one
+ * `[type_emails][group_notifications][key]` leaf replaced, so every other
+ * notification's saved content and enabled state survives untouched.
+ */
+export const buildNotificationTemplatePayload = (
+  currentEmailSettings: EmailSettingsFormPayload,
+  ref: NotificationTemplateRef,
+  payload: EmailNotificationTemplateFormPayload,
+): EmailSettingsFormPayload => {
+  const rootKey = notificationRootKey(ref.type);
+  const groupKey = notificationGroupKey(ref.group);
+  const rootData = currentEmailSettings[rootKey] ?? {};
+  const groupData = (rootData as Record<string, Record<string, unknown> | null | undefined>)[groupKey];
+  const current = groupData?.[ref.key] ?? {};
+
+  return {
+    ...currentEmailSettings,
+    [rootKey]: {
+      ...rootData,
+      [groupKey]: {
+        ...groupData,
+        [ref.key]: {
+          ...current,
+          ...payload,
+        },
+      },
+    },
+  };
+};
 
 export const emailTemplateStyles = defineStyles({
   container: {

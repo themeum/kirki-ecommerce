@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\collection;
-use function Kirki\Ecommerce\Framework\view;
 
 class CustomerOrderConfirmationMail extends Mailer
 {

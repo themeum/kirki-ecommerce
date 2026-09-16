@@ -9,6 +9,7 @@ $colors = $default_template['colors'] ?? [];
 $button_text_color = $colors['button']['text'] ?? '#ffffff';
 $button_bg_color = $colors['button']['background'] ?? '#000000';
 ?>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr>
     <td
         data-email-part="colors.button.background"
@@ -21,3 +22,4 @@ $button_bg_color = $colors['button']['background'] ?? '#000000';
         </a>
     </td>
 </tr>
+</table>

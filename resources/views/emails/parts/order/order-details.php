@@ -34,6 +34,7 @@ $format_address = function (array $address) {
     return $lines;
 };
 ?>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 <tr>
     <td data-email-part="colors.background.divider" style="padding: 32px 0 0 0; border-top: 1px solid <?php echo esc_attr($divider_color); ?>; width: 100%;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -98,3 +99,4 @@ $format_address = function (array $address) {
         </table>
     </td>
 </tr>
+</table>

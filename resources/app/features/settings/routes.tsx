@@ -6,6 +6,7 @@ import { Navigate } from 'react-router';
 import { RouteConfig } from '@/config/route-config';
 import AdvancedSettingsSkeleton from '@/features/settings/advanced/skeletons/advanced-settings-skeleton';
 import CheckoutSettingsSkeleton from '@/features/settings/checkout/skeletons/checkout-settings-skeleton';
+import EditNotificationTemplateSkeleton from '@/features/settings/email/skeletons/edit-notification-template-skeleton';
 import EditTemplateSkeleton from '@/features/settings/email/skeletons/edit-template-skeleton';
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import EssentialsSettingsSkeleton from '@/features/settings/essentials/skeletons/essentials-settings-skeleton';
@@ -38,6 +39,9 @@ const MultiCurrencySettings = lazy(
 );
 const CheckoutSettings = lazy(() => import('@/features/settings/checkout/pages/checkout-settings'));
 const EditTemplate = lazy(() => import('@/features/settings/email/pages/edit-template'));
+const EditNotificationTemplate = lazy(
+  () => import('@/features/settings/email/pages/edit-notification-template'),
+);
 const EssentialsSettings = lazy(
   () => import('@/features/settings/essentials/pages/essential-settings'),
 );
@@ -130,6 +134,10 @@ const settingsRoutes: RouteObject[] = [
   {
     path: SettingsRoutes.get('EmailSettings').get('EditEmailTemplate').template,
     element: withSuspense(EditTemplate, <EditTemplateSkeleton />),
+  },
+  {
+    path: SettingsRoutes.get('EmailSettings').get('EditNotificationTemplate').template,
+    element: withSuspense(EditNotificationTemplate, <EditNotificationTemplateSkeleton />),
   },
 ];
 

@@ -176,6 +176,20 @@ class Url
     }
 
     /**
+     * Get the admin edit URL for a product.
+     *
+     * @since 1.0.0
+     *
+     * @param int $product_id
+     *
+     * @return string
+     */
+    public static function get_product_admin_edit_url($product_id)
+    {
+        return admin_url('admin.php?page=kirki-ecommerce#/products/' . $product_id);
+    }
+
+    /**
      * Add query params to URL.
      *
      * @since 1.0.0

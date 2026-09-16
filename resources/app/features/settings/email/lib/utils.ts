@@ -1,15 +1,15 @@
-import type { EmailSettingsFormInput } from '@/features/settings/email/schemas/forms/email-settings-form';
+import type { z } from 'zod';
 
-type EmailNotification = {
-  name?: string;
-  is_enabled?: boolean;
-  [key: string]: unknown;
-};
+import type { EmailSettingsFormInput } from '@/features/settings/email/schemas/forms/email-settings-form';
+import type { EmailNotificationSchema } from '@/schemas/catalog/settings';
+import { __ } from '@/wpi18n';
+
+export type EmailListItem = z.infer<typeof EmailNotificationSchema> & { key: string };
 
 /**
  * Loose on purpose: callers pass the zod-inferred notification records
- * (a passthrough object type) which don't structurally match a hand-written
- * `EmailNotification` despite carrying the same fields at runtime.
+ * (a passthrough object type) which don't structurally match `EmailListItem`
+ * despite carrying the same fields at runtime.
  */
 type EmailGroup = Record<string, Record<string, unknown> | null | undefined>;
 
@@ -28,7 +28,7 @@ type BuildTogglePayloadParams = {
 export const mapEmailGroup = (
   group: EmailGroup | null | undefined,
   prefix: string,
-): (EmailNotification & { key: string })[] => {
+): EmailListItem[] => {
   if (!group) {
     return [];
   }
@@ -62,11 +62,97 @@ export const EMAIL_CONFIG: Record<string, EmailConfigEntry> = {
   },
 };
 
-export const findEmailKeyByName = (
-  data: EmailGroup = {},
-  name: string,
-): string | undefined => {
-  return Object.keys(data).find((key) => data[key]?.name === name);
+export type NotificationTemplateRef = {
+  type: 'customer' | 'admin';
+  group: 'order' | 'user' | 'inventory';
+  key: string;
+};
+
+/**
+ * Derives `{ type, group, key }` from a list item's composite `key`
+ * (`${prefix}_${id}`, see `mapEmailGroup`) by stripping the `EMAIL_CONFIG`
+ * prefix that produced it, and translating that entry's full group name
+ * (`order_notifications`, etc.) to the short route segment used by the
+ * backend registry and notification dictionary.
+ */
+export const resolveNotificationTemplate = (
+  item: Pick<EmailListItem, 'key'>,
+  prefix: string,
+): NotificationTemplateRef | undefined => {
+  const config = EMAIL_CONFIG[prefix];
+
+  if (!config) {
+    return undefined;
+  }
+
+  const key = item.key.startsWith(`${prefix}_`) ? item.key.slice(prefix.length + 1) : item.key;
+  const type: NotificationTemplateRef['type'] = config.root === 'admin_emails' ? 'admin' : 'customer';
+  const group: NotificationTemplateRef['group'] =
+    config.group === 'inventory_notifications' ? 'inventory' : config.group === 'user_notifications' ? 'user' : 'order';
+
+  return { type, group, key };
+};
+
+type NotificationTemplateDictionaryEntry = NotificationTemplateRef & { label: string };
+
+const ORDER_EVENT_LABELS: Record<string, string> = {
+  order_confirmation: __('Order Confirmation', 'kirki-ecommerce'),
+  order_processing: __('Order Processing', 'kirki-ecommerce'),
+  order_on_hold: __('Order On Hold', 'kirki-ecommerce'),
+  order_completed: __('Order Completed', 'kirki-ecommerce'),
+  order_refunded: __('Order Refunded', 'kirki-ecommerce'),
+  order_cancelled: __('Order Cancelled', 'kirki-ecommerce'),
+  order_failed: __('Order Failed', 'kirki-ecommerce'),
+};
+
+/**
+ * The canonical list of all 17 notification templates the backend
+ * (`EmailNotificationRegistry`) knows how to preview/test-send. Used both to
+ * label list rows and to build each row's edit route.
+ */
+export const NOTIFICATION_TEMPLATES: NotificationTemplateDictionaryEntry[] = [
+  ...Object.entries(ORDER_EVENT_LABELS).map(([key, label]) => ({
+    type: 'customer' as const,
+    group: 'order' as const,
+    key,
+    label,
+  })),
+  ...Object.entries(ORDER_EVENT_LABELS).map(([key, label]) => ({
+    type: 'admin' as const,
+    group: 'order' as const,
+    key,
+    label,
+  })),
+  {
+    type: 'customer',
+    group: 'user',
+    key: 'reset_password',
+    label: __('Password Reset', 'kirki-ecommerce'),
+  },
+  {
+    type: 'admin',
+    group: 'user',
+    key: 'reset_password',
+    label: __('Password Reset', 'kirki-ecommerce'),
+  },
+  {
+    type: 'admin',
+    group: 'inventory',
+    key: 'low_stock',
+    label: __('Low Stock Alert', 'kirki-ecommerce'),
+  },
+];
+
+export const getNotificationTemplateLabel = (ref: NotificationTemplateRef | undefined): string => {
+  if (!ref) {
+    return '';
+  }
+
+  const match = NOTIFICATION_TEMPLATES.find(
+    (entry) => entry.type === ref.type && entry.group === ref.group && entry.key === ref.key,
+  );
+
+  return match?.label ?? '';
 };
 
 export const buildTogglePayload = ({
