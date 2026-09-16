@@ -49,6 +49,7 @@ export type KirkiEcommerceConfig = {
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;
+  is_tax_inclusive_price?: boolean;
 };
 
 // Extend window for WordPress-injected config
@@ -141,18 +142,21 @@ export type CartCoupon = {
   display_discount_amount_money_object?: MoneyObject;
 };
 
+export type TaxLine = {
+  name: string;
+  rate: number;
+  display_amount_money_object: MoneyObject;
+};
+
 export type CartPricing = {
   display_items_subtotal_money_object: MoneyObject;
   display_order_discount_money_object: MoneyObject;
   display_order_total_money_object: MoneyObject;
+  display_tax_total_money_object: MoneyObject;
   display_shipping_amount_money_object: MoneyObject;
   display_shipping_strikethrough_money_object: MoneyObject;
   display_total_money_object: MoneyObject;
-  tax_lines: {
-    name: string;
-    rate: number;
-    display_amount_money_object: MoneyObject;
-  }
+  tax_lines: TaxLine[];
   coupons: CartCoupon[];
 };
 

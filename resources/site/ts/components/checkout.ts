@@ -46,10 +46,7 @@ export type CheckoutConfig = {
   cartTotal?: number;
 };
 
-function getOrderDiscountDisplay(
-  pricing?: CartPricing,
-  coupons: CartCoupon[] = [],
-): string | null {
+function getOrderDiscountDisplay(pricing?: CartPricing, coupons: CartCoupon[] = []): string | null {
   if (!coupons.length) {
     return null;
   }
@@ -153,6 +150,7 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     appliedCoupons: [] as CartCoupon[],
     discount: null as string | null,
     billingSameAsShipping: Boolean(initialCartData?.is_billing_same_as_shipping),
+    isTaxInclusivePrice: Boolean(config.is_tax_inclusive_price),
 
     loading: false,
     couponLoading: false,
@@ -435,6 +433,28 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       }
       const appliedText = __('Discount Applied', 'kirki-ecommerce');
       return `${text} ${appliedText}`;
+    },
+
+    get inclusiveTaxSummary(): string {
+      const taxDisplay = this.cartData?.pricing?.display_tax_total_money_object?.display;
+      if (!taxDisplay) {
+        return '';
+      }
+      const taxLines = this.cartData?.pricing?.tax_lines ?? [];
+      const names = [...new Set(taxLines.map((t: any) => t.name).filter(Boolean))] as string[];
+      const taxLabel = names.length === 1 ? names[0] : __('Taxes', 'kirki-ecommerce');
+      return `${__('Incl.', 'kirki-ecommerce')} ${taxDisplay} ${taxLabel}`.trim();
+    },
+
+    formatTaxLine(taxLine: any): string {
+      if (!taxLine) {
+        return '';
+      }
+      const rate = taxLine.rate ? `${Number(taxLine.rate)}%` : '';
+      const name = taxLine.name || __('Tax', 'kirki-ecommerce');
+      const amount = taxLine.display_amount_money_object?.display || '';
+      const prefix = rate ? `${rate} ${name}` : name;
+      return amount ? `${prefix}: ${amount}` : prefix;
     },
 
     setPaymentMethod(method: string) {

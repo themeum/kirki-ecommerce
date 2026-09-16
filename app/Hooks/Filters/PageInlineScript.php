@@ -17,6 +17,8 @@ use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -139,6 +141,8 @@ class PageInlineScript extends BaseHook
 
         $config['countries'] = $data->countries ?? [];
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
+
+        $config['is_tax_inclusive_price'] = Tax::is_tax_inclusive();
 
         // Only the id and method travel: the rendered message is already in
         // the DOM, and repeating it here would double the inline payload.
