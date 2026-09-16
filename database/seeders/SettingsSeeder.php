@@ -368,11 +368,7 @@ class SettingsSeeder extends Seeder
                     "company_id_validation" => "optional",
                     "vat_identification_number_validation" => "optional",
                     "has_apply_coupon_code" => true
-                ],
-                "is_terms_and_conditions_visible" => true,
-                "terms_and_conditions_content" => "[site_name] © 2022 All Rights Reserved.\nPrivacy & Policy - Terms & Conditions",
-                "is_privacy_policy_visible" => true,
-                "privacy_policy_content" => "[site_name] © 2022 All Rights Reserved.\nPrivacy & Policy - Terms & Conditions"
+                ]
             ],
         ];
     }

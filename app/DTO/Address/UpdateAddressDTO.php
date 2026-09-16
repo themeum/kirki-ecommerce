@@ -48,9 +48,9 @@ class UpdateAddressDTO extends DTO
     /** @var string|null */
     public $label;
 
-    /** @var bool|null */
-    public $is_default_shipping = false;
+    /** @var bool|null null means "leave unchanged" - see AddressService::update_without_transaction() */
+    public $is_default_shipping = null;
 
-    /** @var bool|null */
-    public $is_default_billing = false;
+    /** @var bool|null null means "leave unchanged" - see AddressService::update_without_transaction() */
+    public $is_default_billing = null;
 }

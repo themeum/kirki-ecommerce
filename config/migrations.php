@@ -38,6 +38,9 @@ use Kirki\Ecommerce\Database\Migrations\CreateCouponCustomersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterCouponCustomersCompositePrimaryKey;
 use Kirki\Ecommerce\Database\Migrations\CreateCouponProductsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCouponUsageTable;
+use Kirki\Ecommerce\Database\Migrations\CreateCartCouponsTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderCouponsTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderItemCouponsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateCollectionTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeTranslationsTable;
 use Kirki\Ecommerce\Database\Migrations\CreateAttributeValueProductTable;
@@ -57,8 +60,14 @@ use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
+use Kirki\Ecommerce\Database\Migrations\DropCouponUsageTable;
+use Kirki\Ecommerce\Database\Migrations\AlterCartsDropDiscountDetails;
+use Kirki\Ecommerce\Database\Migrations\AlterOrdersDropLegacyCouponColumns;
 use Kirki\Ecommerce\Database\Migrations\CreateWishlistTable;
 use Kirki\Ecommerce\Database\Migrations\AddInvoiceNumberToOrdersTable;
+use Kirki\Ecommerce\Database\Migrations\CreateOrderTaxesTable;
+use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddShippingTaxColumns;
+use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsDropTaxColumns;
 
 return [
     CreateLanguagesTable::class,
@@ -127,4 +136,15 @@ return [
     DropIsBillingSameAsShippingFromCustomersTable::class,
     DropIsBillingSameAsShippingFromOrdersTable::class,
     AddInvoiceNumberToOrdersTable::class,
+
+    CreateCartCouponsTable::class,
+    CreateOrderCouponsTable::class,
+    CreateOrderItemCouponsTable::class,
+    DropCouponUsageTable::class,
+    AlterCartsDropDiscountDetails::class,
+    AlterOrdersDropLegacyCouponColumns::class,
+
+    CreateOrderTaxesTable::class,
+    AlterOrdersAddShippingTaxColumns::class,
+    AlterOrderItemsDropTaxColumns::class,
 ];

@@ -2,9 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Tax\Strategies;
 
+use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
-use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
-use Kirki\Ecommerce\App\DTO\Tax\TaxResultDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\App\decision_engine;
 
@@ -24,20 +26,32 @@ abstract class AbstractTaxStrategy
     }
 
     /**
-     * Calculate product tax
+     * Calculate every tax line the cart accrues - per item and for shipping -
+     * in one pass.
      *
-     * @param ProductTaxContextDTO $tax_context
-     * @return TaxResultDTO
+     * @param TaxCalculationContextDTO $context
+     * @return TaxCalculationResultDTO
      */
-    abstract public function calculate_product_tax(ProductTaxContextDTO $tax_context);
+    abstract public function calculate(TaxCalculationContextDTO $context): TaxCalculationResultDTO;
 
     /**
-     * Calculate shipping tax
+     * The tax amount for one line: extracted from the base amount when prices
+     * are tax-inclusive, added on top of it otherwise.
      *
-     * @param int $shipping_cost
-     * @return TaxResultDTO
+     * @param float $rate
+     * @param int $base_amount
+     * @return int
      */
-    abstract public function calculate_shipping_tax(int $shipping_cost);
+    protected function calculate_tax_amount(float $rate, int $base_amount): int
+    {
+        $amount = Money::from_minor($base_amount);
+
+        if ($this->is_tax_inclusive_price) {
+            return $amount->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100 + $rate, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
+        }
+
+        return $amount->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
+    }
 
     /**
      * Apply rules using Decision Engine

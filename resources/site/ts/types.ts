@@ -13,6 +13,10 @@ export type ShippingMethod = {
 };
 
 export type KirkiEcommerceConfig = {
+  checkout_consents?: {
+    id: string;
+    method: 'mandatory_checkbox' | 'optional_checkbox' | 'display_text_only';
+  }[];
   customer_id: any;
   customerId: any;
   is_billing_same_as_shipping: any;
@@ -82,9 +86,8 @@ export type CartItem = {
     available_quantity: number;
   };
   subtotal: string;
-  tax_rate: number;
   tax_amount: string;
-  tax_breakdown: any[];
+  tax_lines: any[];
   discount_amount: string;
   total: string;
   total_formatted: string;
@@ -178,6 +181,7 @@ export type OrderItem = {
 };
 
 export type CheckoutRequest = {
+  consents?: string[];
   items: OrderItem[];
   currency_code: string;
   payment_provider: string;

@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+use Kirki\Ecommerce\App\Constants\ConsentLocations;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;
 use Kirki\Ecommerce\App\Models\Brand;
@@ -28,6 +29,7 @@ use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\App\Services\CartService;
+use Kirki\Ecommerce\App\Services\LegalConsentService;
 use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Url;
@@ -35,6 +37,7 @@ use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
+use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -213,6 +216,7 @@ class SiteController
             'payment_gateways' => $payment_gateways,
             'countries'        => Utils::get_countries(),
             'cart'             => $cart,
+            'consents'         => app(LegalConsentService::class)->get_renderable(ConsentLocations::CHECKOUT),
         ];
 
         return view('site.checkout', $data)->layout(false);

@@ -62,17 +62,18 @@ This mirrors the server, which resolves the same two kinds from the same code wi
 The admin SHALL declare a single contract that every region strategy satisfies, covering the decisions that differ per region kind:
 
 - the display name and flag shown for a region
-- the summary line describing how that region is configured
+- the badges describing how that region is configured, each with its own styling
+- the effective tax rate shown for that region in the region list
 - the destination a merchant is taken to when editing the region
 - the initial stored shape of a newly added region of that kind
 - the routes the kind serves
 
-The region list SHALL obtain each of these from the resolved strategy rather than computing any of them itself.
+The region list SHALL obtain each of these from the resolved strategy rather than computing any of them itself. In particular, the region list SHALL NOT inspect a region's stored fields to decide what to show: which properties a kind has, how each is styled, and how its rates collapse to one value or a range are all that kind's own business.
 
 #### Scenario: Rendering the region list
 
 - **WHEN** the region list renders a stored region
-- **THEN** its name, flag, and summary line all come from the strategy that region resolves to
+- **THEN** its name, flag, badges, and tax rate all come from the strategy that region resolves to
 
 #### Scenario: Editing a region
 

@@ -458,3 +458,24 @@
     @include typography(sm, regular, $text-secondary);
   }
 }
+
+.kecom-consent-section {
+  @include flex-column();
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+
+  .kecom-consent-text,
+  .kecom-checkbox-label {
+    @include typography(base, normal, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-consent {
+    align-items: center;
+
+    a {
+      color: $text-primary;
+      text-decoration: underline;
+    }
+  }
+}

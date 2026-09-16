@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\App\Actions\Order;
 
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
+use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
 use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
@@ -47,6 +49,9 @@ use function Kirki\Ecommerce\Framework\uuid;
 
 class CreateOrderAction
 {
+    use PersistsOrderCoupons;
+    use PersistsOrderTaxes;
+
     protected $recalculate_cart_action;
     protected $variant_service;
     protected $order_service;
@@ -116,16 +121,6 @@ class CreateOrderAction
             $order = $this->order_service->create_order($create_order_dto);
             $this->sync_address($dto, $order);
 
-            $coupon = !empty($order->discount_details) ? $this->coupon_service->find($order->discount_details['id']) : null;
-
-            if ($coupon) {
-                $coupon->usage()->create([
-                    'order_id' => $order->id,
-                    'customer_id' => $create_order_dto->customer_id,
-                ]);
-                $this->coupon_service->increment($coupon->id, 'current_usage_count');
-            }
-
             foreach ($dto->items as $item_data) {
                 $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
 
@@ -136,6 +131,11 @@ class CreateOrderAction
                 $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
             }
 
+            $order_with_items = $order->fresh('items');
+
+            $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
+            $this->sync_order_taxes($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
+
             if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
                 $empty_cart_dto->token = $dto->cart_token;
@@ -144,11 +144,13 @@ class CreateOrderAction
                 $this->cart_service->empty_cart($empty_cart_dto);
             }
 
-            OrderActivity::log($order->fresh('items'), OrderActivityType::ORDER_PLACED);
+            $order = $order->fresh('items', 'order_coupons.order_item_coupons');
+
+            OrderActivity::log($order, OrderActivityType::ORDER_PLACED);
 
             DB::commit();
 
-            return $order->fresh('items');
+            return $order;
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
@@ -184,12 +186,26 @@ class CreateOrderAction
      * default shipping and billing addresses, creating them if they don't
      * exist yet.
      *
+     * A guest order has no customer_id and therefore no address book to
+     * sync into - the order's own shipping and billing column snapshots
+     * already carry the data, so this is a no-op for guests.
+     *
+     * Runs inside CreateOrderAction::execute()'s own open transaction, so
+     * every AddressService call here must be a without-transaction variant
+     * - the framework's Connection has no transaction nesting support, and
+     * a nested START TRANSACTION would implicitly commit the order insert
+     * early.
+     *
      * @param CreateOrderPayloadDTO $dto
      * @param Order $order
      * @return void
      */
     protected function sync_address(CreateOrderPayloadDTO $dto, $order)
     {
+        if (empty($order->customer_id)) {
+            return;
+        }
+
         if (empty($dto->shipping_id)) {
             $dto->shipping_id = $this->create_address($dto, $order->customer_id, AddressPurpose::SHIPPING)->id;
         }
@@ -202,8 +218,8 @@ class CreateOrderAction
             $dto->billing_id = $dto->shipping_id;
         }
 
-        $this->address_service->set_default($dto->shipping_id, AddressPurpose::SHIPPING);
-        $this->address_service->set_default($dto->billing_id, AddressPurpose::BILLING);
+        $this->address_service->set_default_without_transaction($dto->shipping_id, AddressPurpose::SHIPPING);
+        $this->address_service->set_default_without_transaction($dto->billing_id, AddressPurpose::BILLING);
     }
 
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
@@ -225,10 +241,7 @@ class CreateOrderAction
 
         $dto->items = $items;
         $dto->cart_token = !empty($cart->cart_token) ? $cart->cart_token : $dto->cart_token;
-
-        if (empty($dto->coupon_code) && !empty($cart->discount_details['code'])) {
-            $dto->coupon_code = $cart->discount_details['code'];
-        }
+        $dto->coupon_codes = $cart->coupons->pluck('code')->to_array();
 
         if (empty($dto->shipping_method) && !empty($cart->shipping_method)) {
             $dto->shipping_method = $cart->shipping_method;
@@ -288,29 +301,7 @@ class CreateOrderAction
         $address_dto = $this->prepare_checkout_address_dto($dto, $purpose);
         $address_dto->customer_id = $customer_id;
 
-        return $this->address_service->create($address_dto);
-    }
-
-    /**
-     * Update the customer's existing default shipping/billing address from
-     * the checkout request's shipping/billing fields, preserving the
-     * address's own type (home/office/others).
-     *
-     * @param CreateOrderPayloadDTO $dto
-     * @param Customer $customer
-     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
-     * @return void
-     */
-    protected function update_address(CreateOrderPayloadDTO $dto, $customer, $purpose)
-    {
-        $existing = $customer->{$purpose . '_address'};
-
-        $address_dto = $this->prepare_checkout_address_dto($dto, $purpose, true);
-        $address_dto->customer_id = $customer->id;
-        $address_dto->id = $existing->id;
-        $address_dto->type = $existing->type;
-
-        $this->address_service->update($address_dto);
+        return $this->address_service->create_without_transaction($address_dto);
     }
 
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
@@ -389,7 +380,17 @@ class CreateOrderAction
             'postal_code' => $dto->shipping_postal_code,
             'country' => $dto->shipping_country,
         ];
-        $context->coupon = $dto->coupon_code ?? null;
+        $context->billing_address = [
+            'first_name' => $dto->billing_first_name,
+            'last_name' => $dto->billing_last_name,
+            'address_line1' => $dto->billing_address_line1,
+            'address_line2' => $dto->billing_address_line2,
+            'city' => $dto->billing_city,
+            'state' => $dto->billing_state,
+            'postal_code' => $dto->billing_postal_code,
+            'country' => $dto->billing_country,
+        ];
+        $context->coupon_codes = $dto->coupon_codes;
         $context->shipping_method_id = $dto->shipping_method ?? null;
 
         $context->items = $this->prepare_context_items($dto);
@@ -424,6 +425,7 @@ class CreateOrderAction
             $item_dto->product_id = $product->id;
             $item_dto->quantity = $item_data['quantity'];
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
+            $item_dto->base_product_total = $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->product_categories = $product->categories->pluck('id')->all();
@@ -456,10 +458,12 @@ class CreateOrderAction
 
         $order_dto->invoiced_discount_total = $this->convert_amount($calculated_result->base_discount_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_discount_total = $calculated_result->base_discount_total;
-        $order_dto->discount_details = $calculated_result->discount_details;
 
         $order_dto->invoiced_tax_total = $this->convert_amount($calculated_result->base_tax_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_tax_total = $calculated_result->base_tax_total;
+
+        $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $target_currency_code, $order_dto->exchange_rate);
+        $order_dto->base_shipping_tax_amount = $calculated_result->base_shipping_tax;
 
         $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $target_currency_code, $order_dto->exchange_rate);
         $order_dto->base_total = $calculated_result->base_total;
@@ -547,8 +551,6 @@ class CreateOrderAction
 
         $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
         $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-        $item_dto->tax_rate = $calculated_item->tax_rate;
-        $item_dto->tax_breakdown = $calculated_item->tax_breakdown;
 
         $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
         $item_dto->base_total = $calculated_item->base_total;

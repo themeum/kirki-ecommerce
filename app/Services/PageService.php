@@ -24,4 +24,26 @@ class PageService
 
         return $query->get();
     }
+
+    /**
+     * Find published pages by their slugs in a single query.
+     *
+     * @param string[] $slugs
+     *
+     * @return Collection
+     */
+    public function find_published_by_slugs(array $slugs)
+    {
+        $slugs = array_values(array_unique(array_filter($slugs)));
+
+        if (empty($slugs)) {
+            return Page::query()->where('ID', 0)->get();
+        }
+
+        return Page::query()
+            ->where('post_type', 'page')
+            ->where('post_status', 'publish')
+            ->where_in('post_name', $slugs)
+            ->get();
+    }
 }

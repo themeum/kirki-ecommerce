@@ -10,7 +10,6 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import CheckoutConf from '@/features/settings/checkout/pages/checkout-conf';
-import LegalInfo from '@/features/settings/checkout/pages/legal-info';
 import {
   type CheckoutSettingsFormInput,
   type CheckoutSettingsFormPayload,
@@ -91,7 +90,6 @@ const CheckoutSettings = () => {
             </CardContent>
           </Card>
           <CheckoutConf />
-          <LegalInfo />
         </Flex>
       </Form>
     </Container>

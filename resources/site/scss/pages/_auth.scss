@@ -79,7 +79,7 @@
         &-show {
           @include flex-center;
           position: absolute;
-          right: $spacing-5;
+          inset-inline-end: $spacing-5;
           top: 50%;
           transform: translateY(-50%);
           cursor: pointer;

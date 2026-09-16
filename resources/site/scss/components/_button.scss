@@ -189,16 +189,16 @@
     width: 1em;
     height: 1em;
     border: 2px solid currentcolor;
-    border-right-color: transparent;
+    border-inline-end-color: transparent;
     border-radius: $radius-full;
     animation: kecom-spin 0.65s linear infinite;
   }
 
-  // Spinner colour overrides for filled variants — (0,4,0)
+  // Spinner color overrides for filled variants — (0,4,0)
   &.kecom-btn-primary::after,
   &.kecom-btn-destructive::after {
     border-color: $text-light;
-    border-right-color: transparent;
+    border-inline-end-color: transparent;
   }
 }
 
