@@ -79,6 +79,20 @@ class MoneyManagerTest extends TestCase
         $this->assertSame('$', MoneyManager::get_currency_symbol('USD'));
     }
 
+    public function test_get_currency_symbol_prefers_symbol_stored_in_database(): void
+    {
+        $this->bind_money_dependencies('USD', [], ['BDT' => "\u{09F3}"]);
+
+        $this->assertSame("\u{09F3}", MoneyManager::get_currency_symbol('bdt'));
+    }
+
+    public function test_get_currency_symbol_falls_back_to_icu_when_not_in_database(): void
+    {
+        $this->bind_money_dependencies('USD', [], []);
+
+        $this->assertSame('€', MoneyManager::get_currency_symbol('EUR'));
+    }
+
     public function test_convert_to_currency_uses_explicit_exchange_rate(): void
     {
         $manager = new MoneyManager();

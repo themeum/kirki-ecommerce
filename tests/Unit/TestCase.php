@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Unit;
 
 use Kirki\Ecommerce\Framework\Application;
+use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Framework\Container;
 use Kirki\Ecommerce\Framework\Database\Connection\Connection;
@@ -22,6 +23,7 @@ abstract class TestCase extends BaseTestCase
     {
         $this->reset_container_instance();
         $this->reset_european_country_checker_cache();
+        $this->reset_money_manager_symbol_cache();
         $this->reset_str_macros();
         $this->reset_test_wpdb();
         $this->reset_route_state();
@@ -66,6 +68,14 @@ abstract class TestCase extends BaseTestCase
         $property = $reflection->getProperty('eu_countries');
         $property->setAccessible(true);
         $property->setValue(null, $countries);
+    }
+
+    protected function reset_money_manager_symbol_cache(): void
+    {
+        $reflection = new \ReflectionClass(MoneyManager::class);
+        $property = $reflection->getProperty('currency_symbols');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
     }
 
     protected function reset_str_macros(): void
@@ -117,7 +127,7 @@ abstract class TestCase extends BaseTestCase
         $property->setValue(null, []);
     }
 
-    protected function bind_money_dependencies(string $base_currency = 'USD', array $currency_settings = []): void
+    protected function bind_money_dependencies(string $base_currency = 'USD', array $currency_settings = [], array $symbol_map = []): void
     {
         $defaults = [
             'decimal_separator' => '.',
@@ -165,17 +175,25 @@ abstract class TestCase extends BaseTestCase
             }
         };
 
-        $currency_service = new class($currency) {
+        $currency_service = new class($currency, $symbol_map) {
             private $currency;
 
-            public function __construct($currency)
+            private array $symbol_map;
+
+            public function __construct($currency, array $symbol_map)
             {
                 $this->currency = $currency;
+                $this->symbol_map = $symbol_map;
             }
 
             public function get_base_currency()
             {
                 return $this->currency;
+            }
+
+            public function get_symbol_map()
+            {
+                return $this->symbol_map;
             }
         };
 
