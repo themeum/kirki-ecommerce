@@ -39,7 +39,6 @@ export const getShippingZoneSummary = (zone: ShippingZone): string => {
 
 export const saveShippingZones = async ({
   zones,
-  from = '',
   toastMessage = '',
 }: SaveShippingZonesParams): Promise<void> => {
   try {
@@ -51,7 +50,7 @@ export const saveShippingZones = async ({
       queryKey: settingsKeys.section('shipping'),
     });
     setUnsavedDataStatus(false);
-    if (from !== 'delete' && toastMessage) {
+    if (toastMessage) {
       toast.success(toastMessage);
     }
   } catch (error) {

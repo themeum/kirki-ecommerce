@@ -31,7 +31,6 @@ import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const ShippingRoutes = RouteConfig.Settings.get('ShippingSettings');
@@ -74,8 +73,6 @@ export const ShippingMethod = ({
         ),
       },
       () => {
-        const originalZones = [...shippingZonesObj];
-
         const updatedZones = shippingZonesObj.map((zone) => {
           if (!zone.shipping_methods?.some((m) => m.id === item.id)) {
             return zone;
@@ -86,19 +83,11 @@ export const ShippingMethod = ({
           };
         });
         setShippingZonesObj(updatedZones);
-        dispatchToastMessage('delete', {
-          title: __('Shipping method deleted', 'kirki-ecommerce'),
-          duration: 5000,
-          undoAction: () => {
-            setShippingZonesObj(originalZones);
-          },
-          onSuccess: async () => {
-            await saveShippingZones({
-              zones: updatedZones,
-              from: 'delete',
-              shippingSettingsData,
-            });
-          },
+
+        void saveShippingZones({
+          zones: updatedZones,
+          shippingSettingsData,
+          toastMessage: __('Shipping method deleted', 'kirki-ecommerce'),
         });
       },
     );

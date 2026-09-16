@@ -16,8 +16,6 @@ type SuggestionOption = {
 type ToastMessageConfig = {
   title?: string;
   duration?: number;
-  undoAction?: () => void;
-  onSuccess?: () => void | Promise<void>;
 };
 
 type ToastVariant = 'default' | 'warning' | 'delete' | 'success' | 'error';

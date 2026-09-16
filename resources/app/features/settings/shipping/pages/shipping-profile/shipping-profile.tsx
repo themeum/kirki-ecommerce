@@ -16,21 +16,18 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
-import { shippingKeys } from '@/features/settings';
 import { CreateProfilePopup } from '@/features/settings/shipping/pages/shipping-profile/create-profile-dialog';
 import { CreateProfilePopover } from '@/features/settings/shipping/pages/shipping-profile/create-profile-popover';
 import type { ShippingProfile as ShippingProfileType } from '@/features/settings/shipping/schemas/catalog/shipping';
 import {
-  deleteShippingProfile,
+  useDeleteShippingProfileMutation,
   useShippingProfilesQuery,
 } from '@/features/settings/shipping/services/shipping';
 import { useConfirmDelete } from '@/hooks';
 import { EditPenIcon, TrashIcon } from '@/icons';
-import { queryClient } from '@/libs/query-client';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
-import { dispatchToastMessage } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const SHIPPING_PROFILES_PARAMS = { limit: -1 };
@@ -40,6 +37,7 @@ const ShippingProfile = () => {
   const [editProfileIndex, setEditProfileIndex] = useState<number | null>(null);
 
   const { data: shippingProfiles = [] } = useShippingProfilesQuery(SHIPPING_PROFILES_PARAMS);
+  const { mutate: deleteShippingProfile } = useDeleteShippingProfileMutation();
 
   const shippingProfileList = useMemo(() => {
     return shippingProfiles.map((profile) => {
@@ -66,28 +64,7 @@ const ShippingProfile = () => {
         ),
       },
       () => {
-        void (async () => {
-          const queryKey = shippingKeys.profiles.list(SHIPPING_PROFILES_PARAMS);
-
-          await queryClient.cancelQueries({ queryKey });
-          const previousProfiles = queryClient.getQueryData<ShippingProfileType[]>(queryKey);
-
-          queryClient.setQueryData<ShippingProfileType[]>(queryKey, (profiles) =>
-            (profiles ?? []).filter((profile) => profile.id !== item.id),
-          );
-
-          dispatchToastMessage('delete', {
-            title: __('Shipping profile deleted', 'kirki-ecommerce'),
-            duration: 5000,
-            undoAction: () => {
-              queryClient.setQueryData(queryKey, previousProfiles);
-            },
-            onSuccess: async () => {
-              await deleteShippingProfile(item?.id);
-              void queryClient.invalidateQueries({ queryKey: shippingKeys.profiles.all });
-            },
-          });
-        })();
+        deleteShippingProfile(item?.id);
       },
     );
   };
