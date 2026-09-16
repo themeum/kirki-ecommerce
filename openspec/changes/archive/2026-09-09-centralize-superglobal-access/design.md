@@ -54,7 +54,7 @@ Note: `Superglobals::query('category_ids', [], Sanitizer::ARRAY)` also works now
 | `Assets.php:78,83` | `isset($_GET['page'])` then `sanitize_text_field(wp_unslash($_GET['page']))` | `$page = Superglobals::query('page', null, Sanitizer::TEXT); if ($page === null) { return false; }` |
 | `PageIdentifier.php:39` | `isset($_GET['post_type'])` | `Superglobals::query('post_type') !== null` |
 | `Scheduler.php:218` | `isset($_POST['secret']) ? Sanitizer::apply_rule(wp_unslash($_POST['secret']), Sanitizer::TEXT) : ''` | `Superglobals::post('secret', '', Sanitizer::TEXT)` |
-| `MoneyManager.php:138` | `isset($_COOKIE[static::DISPLAY_CURRENCY_COOKIE]) ? wp_unslash(...) : null` | `Superglobals::cookie(static::DISPLAY_CURRENCY_COOKIE)` |
+| `MoneyManager.php:138` | `isset($_COOKIE[CookieNames::CURRENCY]) ? wp_unslash(...) : null` | `Superglobals::cookie(CookieNames::CURRENCY)` |
 | `MoneyManager.php:140` | `isset($_SERVER[static::DISPLAY_CURRENCY_HEADER]) ? wp_unslash(...) : null` | `Superglobals::server(static::DISPLAY_CURRENCY_HEADER)` |
 | `shop.php:27` | `!empty($_GET)` | `!empty(Superglobals::query())` — not `Request::all()`, see Decision 0 |
 | `shop/single.php:41` | `isset($_GET['variant_id']) ? (int) $_GET['variant_id'] : null` | `request()->int('variant_id', null)` |
