@@ -41,6 +41,7 @@ class ShortcodeRegister
     {
         $this->shortcodes = [
             MiniCartShortcode::class,
+            CurrencySwitcherShortcode::class,
         ];
 
         $this->register();

@@ -18,7 +18,7 @@ class WishlistResource extends ShopProductResource
         if (!$this->resource) {
             return [];
         }
-       
+
         $variant = $this->variant;
         $product = $variant ? $variant->product : null;
 
@@ -68,10 +68,11 @@ class WishlistResource extends ShopProductResource
      *
      * @return array{ display_price: string, formatted_regular_price: string, in_sale: bool }
      */
-    private function resolve_pricing($regular_price,$sale_price, $in_sale): array
+    private function resolve_pricing($regular_price, $sale_price, $in_sale): array
     {
-        $formatted_regular_price = Money::format_from_minor($regular_price);
-        $display_price           = $in_sale ? Money::format_from_minor($sale_price) : $formatted_regular_price;
+        $display_currency = Money::resolve_display_currency();
+        $formatted_regular_price = Money::prepare_amount_object_from_minor($regular_price, null, $display_currency)->display;
+        $display_price           = $in_sale ? Money::prepare_amount_object_from_minor($sale_price, null, $display_currency)->display : $formatted_regular_price;
 
         return compact('display_price', 'formatted_regular_price', 'in_sale');
     }
