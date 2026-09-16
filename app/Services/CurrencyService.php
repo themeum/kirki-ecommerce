@@ -270,7 +270,7 @@ class CurrencyService
      *
      * @since 1.0.0
      *
-     * @return array
+     * @return Collection
      */
     public function get_active_currencies()
     {

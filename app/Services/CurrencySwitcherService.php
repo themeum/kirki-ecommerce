@@ -68,7 +68,7 @@ class CurrencySwitcherService
 
         $currencies = $this->currency_service->get_active_currencies();
 
-        if (empty($currencies)) {
+        if ($currencies->count() <= 1) {
             return '';
         }
 
