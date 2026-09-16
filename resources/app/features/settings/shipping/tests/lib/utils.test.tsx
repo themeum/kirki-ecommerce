@@ -21,7 +21,7 @@ describe('getShippingMethodRightText', () => {
       ],
     });
 
-    expect(getShippingMethodRightText(method)).toBe('$10 - $20');
+    expect(getShippingMethodRightText(method, '€')).toBe('€10 - €20');
   });
 
   it('collapses to a single amount when every range costs the same', () => {
@@ -32,7 +32,7 @@ describe('getShippingMethodRightText', () => {
       ],
     });
 
-    expect(getShippingMethodRightText(method)).toBe('$12');
+    expect(getShippingMethodRightText(method, '€')).toBe('€12');
   });
 
   it('ignores ranges that carry no amount yet', () => {
@@ -44,7 +44,13 @@ describe('getShippingMethodRightText', () => {
       ],
     });
 
-    expect(getShippingMethodRightText(method)).toBe('$8');
+    expect(getShippingMethodRightText(method, '€')).toBe('€8');
+  });
+
+  it('omits the symbol entirely when the base currency is not resolved yet', () => {
+    const method = buildMethod({ type: 'flat_rate', base_amount: 25 });
+
+    expect(getShippingMethodRightText(method)).toBe('25');
   });
 
   it('shows nothing for a weight method with no priced range', () => {
@@ -54,13 +60,14 @@ describe('getShippingMethodRightText', () => {
 
   it('leaves the flat rate and local pickup amounts as they were', () => {
     expect(
-      getShippingMethodRightText(buildMethod({ type: 'flat_rate', base_amount: 25 })),
-    ).toBe('$25');
+      getShippingMethodRightText(buildMethod({ type: 'flat_rate', base_amount: 25 }), '€'),
+    ).toBe('€25');
     expect(
       getShippingMethodRightText(
         buildMethod({ type: 'local_pickup', has_fee: true, base_amount: 5 }),
+        '€',
       ),
-    ).toBe('$5');
+    ).toBe('€5');
     expect(
       getShippingMethodRightText(buildMethod({ type: 'local_pickup', base_amount: 5 })),
     ).toBeUndefined();

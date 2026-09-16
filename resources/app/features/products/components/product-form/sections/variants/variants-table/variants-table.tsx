@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RouteConfig } from '@/config/route-config';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { EditIcon } from '@/icons';
 import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
@@ -32,6 +33,7 @@ import VariantGroup from './variant-group';
 
 const VariantsTable = () => {
   const { control, getValues, setValue } = useFormContext<ProductFormInput>();
+  const baseCurrencySymbol = useBaseCurrencySymbol();
   const watchedAttributes = useWatch({ control, name: 'attributes' });
   const attributes = useMemo<NonNullable<typeof watchedAttributes>>(
     () => watchedAttributes ?? [],
@@ -39,7 +41,7 @@ const VariantsTable = () => {
   );
   const variants = useWatch({ control, name: 'variants' }) ?? [];
   const currency = useWatch({ control, name: 'currency' });
-  const currencySymbol = currency?.symbol || '$';
+  const currencySymbol = currency?.symbol || baseCurrencySymbol;
   const { data: productSettings } = useSettingsQuery('product');
   const storeDefaultThreshold = Number(productSettings?.low_stock_threshold ?? 0);
   const [showBy, setShowBy] = useState<number | null>(null);
@@ -196,7 +198,7 @@ const VariantsTable = () => {
                     </TableHead>
                     <TableHead cssOverride={{ width: '170px' }}>
                       <NumberInput
-                        placeholder={__('$0.00', 'kirki-ecommerce')}
+                        placeholder={sprintf(__('%s0.00', 'kirki-ecommerce'), currencySymbol)}
                         cssOverride={{ textAlign: 'center' }}
                         onChange={(event) => {
                           const parsed = parseFloat(event.target.value);

@@ -33,6 +33,7 @@ import {
 } from '@/features/settings/shipping/schemas/forms/shipping-rule-form';
 import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
 import type { ShippingRegion, ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { LighteningIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -44,7 +45,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { noop } from '@/utils/function';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type ShippingRuleFormCardProps = {
   methodId: string | number;
@@ -65,6 +66,7 @@ const ShippingRuleFormCard = ({
 }: ShippingRuleFormCardProps) => {
   const [searchParams] = useSearchParams();
   const zoneID = searchParams.get('zoneId');
+  const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const [openDestinationPopup, setOpenDestinationPopup] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<ShippingRegion[]>([]);
@@ -288,7 +290,7 @@ const ShippingRuleFormCard = ({
                     selectedAction === 'add_shipping_cost') && (
                       <TextField
                         name="action_value"
-                        placeholder="e.g., $100"
+                        placeholder={sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)}
                       />
                     )}
                 </Grid>

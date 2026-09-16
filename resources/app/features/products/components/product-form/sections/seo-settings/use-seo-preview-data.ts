@@ -1,6 +1,7 @@
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
+import { useBaseCurrencySymbol } from '@/hooks';
 import type { MediaRef } from '@/schemas/shared/media';
 import { useSettingsQuery } from '@/services/settings';
 import { isDefined } from '@/utils/object';
@@ -49,6 +50,7 @@ const resolveMediaUrl = (media: MediaRef[] | undefined): string | null => {
 const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
   const { control } = useFormContext<ProductFormInput>();
   const { data: generalSettings } = useSettingsQuery('general');
+  const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const seoTitle = useWatch({ control, name: 'seo_title' });
   const seoDescription = useWatch({ control, name: 'seo_description' });
@@ -76,7 +78,7 @@ const useSeoPreviewData = (mode: SeoPreviewMode): SeoPreviewData => {
       : seoDescription || shortDescription || '';
 
   const previewImageUrl = resolveMediaUrl(media);
-  const currencySymbol = currency?.symbol ?? '$';
+  const currencySymbol = currency?.symbol ?? baseCurrencySymbol;
   const currencyCode = currency?.code ?? '';
   const regularPrice = formatAmount(price, currencySymbol, currencyCode);
   const salePrice = formatAmount(salePriceValue, currencySymbol, currencyCode);

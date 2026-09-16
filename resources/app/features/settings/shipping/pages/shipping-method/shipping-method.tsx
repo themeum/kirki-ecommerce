@@ -25,7 +25,7 @@ import {
   shippingMethodIconMap,
 } from '@/features/settings/shipping/lib/utils';
 import type { ShippingMethodData, ShippingZone } from '@/features/settings/shipping/types';
-import { useConfirmDelete } from '@/hooks';
+import { useBaseCurrencySymbol, useConfirmDelete } from '@/hooks';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import type { ShippingSettings } from '@/schemas/catalog/settings';
 import { theme } from '@/theme';
@@ -51,15 +51,16 @@ export const ShippingMethod = ({
   zoneId = null,
 }: ShippingMethodProps) => {
   const navigate = useNavigate();
+  const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const shippingMethodListWithIcon = useMemo(() => {
     return (shippingMethodList || []).map((method) => ({
       ...method,
       icon: shippingMethodIconMap[method.type] || null,
       subText: getShippingMethodSubText(method),
-      rightText: getShippingMethodRightText(method),
+      rightText: getShippingMethodRightText(method, baseCurrencySymbol),
     }));
-  }, [shippingMethodList]);
+  }, [shippingMethodList, baseCurrencySymbol]);
 
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
