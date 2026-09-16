@@ -35,15 +35,15 @@ class DiscountService
      * @param string[]|null $already_applied_coupon_codes Codes of coupons already confirmed valid in this same
      *        calculation. Only `calculate()`'s batch loop needs to pass this explicitly - it validates coupons
      *        one at a time, so `$context->coupon_codes` (the full candidate list) still includes ones not yet
-     *        confirmed valid, and even the coupon being validated itself. Every other caller can omit it: it
-     *        defaults to `$context->coupon_codes` minus the coupon's own code, which is already correct whenever
-     *        the coupon being validated isn't part of that list yet (e.g. applying a new coupon to a cart).
+     *        confirmed valid. Every other caller can omit it: it defaults to `$context->coupon_codes` as-is,
+     *        which is the cart's currently-applied coupons (e.g. applying a new coupon to a cart) - including
+     *        the coupon's own code when it's a duplicate of one already applied, so that case is still caught.
      * @throws ValidationException
      */
     public function validate_coupon(Coupon $coupon, CalculationContextDTO $context, ?array $already_applied_coupon_codes = null)
     {
         if ($already_applied_coupon_codes === null) {
-            $already_applied_coupon_codes = array_diff($context->coupon_codes, [$coupon->code]);
+            $already_applied_coupon_codes = $context->coupon_codes;
         }
 
         $this->validate_status($coupon);

@@ -60,14 +60,11 @@ class OrderController
     }
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
-        // @todo: in future the header will come from a constant
-        $currency_code = $request->string('currency_code') ?? $request->get_header(CookieNames::CURRENCY_CODE) ?? base_currency()->code;
         $user_id = user()->get_id();
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = !empty($user_id) ? $user_id : null;
-        $dto->currency_code = $currency_code;
 
         $order = $action->execute($dto);
 

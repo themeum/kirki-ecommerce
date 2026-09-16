@@ -15,8 +15,8 @@ use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
-
 use Exception;
+
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -263,5 +263,17 @@ class CurrencyService
         $content = file_get_contents($path);
 
         return json_decode($content, true) ?? [];
+    }
+
+    /**
+     * Get active currencies from database.
+     *
+     * @since 1.0.0
+     *
+     * @return Collection
+     */
+    public function get_active_currencies()
+    {
+        return Currency::where('is_active', 1)->get();
     }
 }

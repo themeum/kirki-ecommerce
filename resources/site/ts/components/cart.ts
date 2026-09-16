@@ -16,8 +16,8 @@ export function cart() {
         const cart_items = {} as Record<string, any>;
         this.cartData.items.forEach((item: any) => {
           cart_items[item.id] = {
-            total: item.display_total_money_object.display,
-            product_total: item.display_product_total_money_object.display,
+            total: item.display_subtotal_money_object?.display ?? '',
+            product_total: item.display_strikethrough_price_money_object?.display ?? '',
           };
         });
         this.cartData.formatted_items = cart_items;
