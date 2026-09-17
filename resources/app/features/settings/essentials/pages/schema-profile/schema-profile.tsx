@@ -1,4 +1,4 @@
-import { Code } from 'lucide-react';
+import { ScrollText } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
 
 import HeaderActionsCard from '@/components/header-actions-card';
@@ -113,7 +113,7 @@ const SchemaProfileComponent = () => {
               {schemaProfileList.map((item) => (
                 <StackedItem key={item.id} id={String(item.id)}>
                   <StackedItemMedia>
-                    <Code size={16} />
+                    <ScrollText size={16} />
                   </StackedItemMedia>
                   <StackedItemContent>
                     <StackedItemTitle>

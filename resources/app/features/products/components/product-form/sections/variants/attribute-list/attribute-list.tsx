@@ -96,7 +96,6 @@ const SortableCard = ({
                 <Button
                   variant="secondary"
                   size="icon"
-                  cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                   onClick={() => handleAttributeRemove(item.id)}
                 >
                   <Trash2 />
