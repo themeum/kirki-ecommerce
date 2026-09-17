@@ -20,10 +20,12 @@ type RichTextProps = {
   error?: string | boolean;
   css?: SerializedStyles;
   shortcodes?: Shortcode[];
+  rootBlockElement?: 'p' | 'div';
 };
 
 type TinyMceEvent = {
   key?: string;
+  newBlock?: HTMLElement;
   preventDefault: () => void;
 };
 
@@ -47,9 +49,11 @@ type TinyMceEditorInstance = {
     isCollapsed: () => boolean;
     getRng: () => Range;
     setRng: (range: Range) => void;
+    setCursorLocation: (node?: Node, offset?: number) => void;
   };
   dom: {
     getStyle: (elm: HTMLElement, name: string, computed?: boolean) => string;
+    rename: (elm: HTMLElement, name: string) => HTMLElement;
   };
   execCommand: (command: string, ui: boolean, value?: string) => void;
   windowManager: {
@@ -299,6 +303,16 @@ const setupTextColorSelectionFix = (editor: TinyMceEditorInstance) => {
   });
 };
 
+const setupNewBlockRootElement = (editor: TinyMceEditorInstance, rootBlockElement: 'p' | 'div') => {
+  editor.on('NewBlock', (event) => {
+    const newBlock = event.newBlock;
+    if (newBlock && newBlock.nodeName.toLowerCase() !== rootBlockElement) {
+      const renamed = editor.dom.rename(newBlock, rootBlockElement);
+      editor.selection.setCursorLocation(renamed, 0);
+    }
+  });
+};
+
 const setupShortcodeAutocomplete = (
   editor: TinyMceEditorInstance,
   onChange: (content: string) => void,
@@ -450,6 +464,7 @@ const RichText = ({
   error,
   css: cssProp,
   shortcodes = [],
+  rootBlockElement = 'p',
 }: RichTextProps) => {
   const editorRef = useRef<TinyMceEditorInstance | null>(null);
   const valueRef = useRef(value);
@@ -487,12 +502,18 @@ const RichText = ({
       branding: false,
       height: 200,
       placeholder,
+      forced_root_block: rootBlockElement,
+      content_style: rootBlockElement === 'div' ? 'body > div { margin: 1em 0; }' : undefined,
       plugins: 'link lists paste textcolor',
       toolbar:
         'bold italic underline blockquote customfontsize forecolor alignleft aligncenter alignright alignjustify bullist numlist shortcodes undo redo',
       setup: (editor: TinyMceEditorInstance) => {
         editor.addButton('customfontsize', getCustomFontSizeSettings(editor, onChange));
         setupTextColorSelectionFix(editor);
+
+        if (rootBlockElement !== 'p') {
+          setupNewBlockRootElement(editor, rootBlockElement);
+        }
 
         if (shortcodeOptions.length > 0) {
           editor.addButton(
@@ -520,8 +541,8 @@ const RichText = ({
         editorToRemove.remove();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reinitializes when shortcodes changes so the toolbar button/autocomplete pick up fresh data; value/placeholder/onChange are read through the live editor instance and intentionally excluded, since re-running on those would tear down in-progress content
-  }, [id, shortcodeOptions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reinitializes when shortcodes or rootBlockElement changes so the toolbar button/autocomplete pick up fresh data and TinyMCE re-inits with the new root block config; value/placeholder/onChange are read through the live editor instance and intentionally excluded, since re-running on those would tear down in-progress content
+  }, [id, shortcodeOptions, rootBlockElement]);
 
   return (
     <div css={scopedMerge(styles.root, cssProp)}>

@@ -843,7 +843,7 @@ class SettingsUpdateRequest extends Request
             'data.customer_emails.order_notifications.order_confirmation.is_enabled' => Sanitizer::BOOL,
             'data.customer_emails.order_notifications.order_confirmation.subject' => Sanitizer::TEXT,
             'data.customer_emails.order_notifications.order_confirmation.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_confirmation.message' => Sanitizer::TEXTAREA,
+            'data.customer_emails.order_notifications.order_confirmation.message' => Sanitizer::RICH_TEXT,
 
             // Customer user notifications
             'data.customer_emails.user_notifications' => Sanitizer::ARRAY,
@@ -853,7 +853,7 @@ class SettingsUpdateRequest extends Request
             'data.customer_emails.user_notifications.new_customer_registered_email.name' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.new_customer_registered_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
+            'data.customer_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::RICH_TEXT,
             'data.customer_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
 
             'data.customer_emails.user_notifications.reset_password_email' => Sanitizer::ARRAY,
@@ -861,7 +861,7 @@ class SettingsUpdateRequest extends Request
             'data.customer_emails.user_notifications.reset_password_email.name' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.reset_password_email.subject' => Sanitizer::TEXT,
             'data.customer_emails.user_notifications.reset_password_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.reset_password_email.message' => Sanitizer::TEXTAREA,
+            'data.customer_emails.user_notifications.reset_password_email.message' => Sanitizer::RICH_TEXT,
             'data.customer_emails.user_notifications.reset_password_email.shortcodes' => Sanitizer::ARRAY,
 
             // Admin emails
@@ -874,7 +874,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.order_notifications.new_order_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.new_order_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.new_order_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.new_order_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.order_notifications.new_order_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY,
 
             'data.admin_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY,
@@ -882,7 +882,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.order_notifications.cancelled_order_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.cancelled_order_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.cancelled_order_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.cancelled_order_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.order_notifications.cancelled_order_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY,
 
             'data.admin_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY,
@@ -890,7 +890,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.order_notifications.failed_order_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.failed_order_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.failed_order_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.failed_order_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.order_notifications.failed_order_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY,
 
             'data.admin_emails.order_notifications.customer_requested_refund_email' => Sanitizer::ARRAY,
@@ -898,7 +898,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.order_notifications.customer_requested_refund_email.name' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.customer_requested_refund_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.order_notifications.customer_requested_refund_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.order_notifications.customer_requested_refund_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.order_notifications.customer_requested_refund_email.shortcodes' => Sanitizer::ARRAY,
 
             // Admin inventory notifications
@@ -909,7 +909,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.inventory_notifications.low_stock_email.name' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.low_stock_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.low_stock_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.low_stock_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.inventory_notifications.low_stock_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.inventory_notifications.low_stock_email.shortcodes' => Sanitizer::ARRAY,
 
             'data.admin_emails.inventory_notifications.out_of_stock_email' => Sanitizer::ARRAY,
@@ -917,7 +917,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.inventory_notifications.out_of_stock_email.name' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.out_of_stock_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.inventory_notifications.out_of_stock_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.inventory_notifications.out_of_stock_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.inventory_notifications.out_of_stock_email.shortcodes' => Sanitizer::ARRAY,
 
             // Admin user notifications
@@ -928,7 +928,7 @@ class SettingsUpdateRequest extends Request
             'data.admin_emails.user_notifications.new_customer_registered_email.name' => Sanitizer::TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.subject' => Sanitizer::TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
+            'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::RICH_TEXT,
             'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
 
             // Mail server configuration

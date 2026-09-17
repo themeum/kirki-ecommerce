@@ -181,8 +181,13 @@ const EditTemplateContent = () => {
                 <RichTextField
                   name="additional_description"
                   label={__('Additional Description', 'kirki-ecommerce')}
+                  rootBlockElement="div"
                 />
-                <RichTextField name="footer" label={__('Footer', 'kirki-ecommerce')} />
+                <RichTextField
+                  name="footer"
+                  label={__('Footer', 'kirki-ecommerce')}
+                  rootBlockElement="div"
+                />
               </Flex>
             </CardContent>
           </Card>

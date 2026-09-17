@@ -97,12 +97,6 @@ type NotificationTemplateDictionaryEntry = NotificationTemplateRef & { label: st
 
 const ORDER_EVENT_LABELS: Record<string, string> = {
   order_confirmation: __('Order Confirmation', 'kirki-ecommerce'),
-  order_processing: __('Order Processing', 'kirki-ecommerce'),
-  order_on_hold: __('Order On Hold', 'kirki-ecommerce'),
-  order_completed: __('Order Completed', 'kirki-ecommerce'),
-  order_refunded: __('Order Refunded', 'kirki-ecommerce'),
-  order_cancelled: __('Order Cancelled', 'kirki-ecommerce'),
-  order_failed: __('Order Failed', 'kirki-ecommerce'),
 };
 
 /**

@@ -44,6 +44,7 @@ const EditNotificationTemplateContent = () => {
                   name="message"
                   label={__('Content', 'kirki-ecommerce')}
                   shortcodes={shortcodes}
+                  rootBlockElement='div'
                 />
               </Flex>
             </CardContent>
