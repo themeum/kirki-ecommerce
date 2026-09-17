@@ -175,7 +175,7 @@ const EditCoupon = () => {
   }, [isNew, couponInfo?.status]);
 
   return (
-    <Page>
+    <Page containerSize="lg">
       <Form {...form}>
         <PageHeading
           text={isNew ? __('New Coupon', 'kirki-ecommerce') : __('Edit Coupon', 'kirki-ecommerce')}

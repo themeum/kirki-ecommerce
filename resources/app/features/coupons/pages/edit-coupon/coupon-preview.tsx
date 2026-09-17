@@ -2,7 +2,6 @@ import { Copy } from 'lucide-react';
 import { useCallback } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -177,12 +176,6 @@ const CouponPreview = () => {
               <Text variant="small" weight="normal">
                 {values.title?.trim() || __('Untitled coupon', 'kirki-ecommerce')}
               </Text>
-              {hasDiscountAmount && (
-                <Badge variant="destructive">
-                  {/* TODO: Add currency formatter to show discount amount */}
-                  {`${values.discount_amount}${isPercentage ? '%' : ''} ${__('OFF', 'kirki-ecommerce')}`}
-                </Badge>
-              )}
             </Flex>
 
             <Flex direction="column">

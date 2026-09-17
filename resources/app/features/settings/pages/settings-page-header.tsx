@@ -58,6 +58,7 @@ export type { SettingsBreadcrumb };
 const styles = defineStyles({
   wrapper: {
     width: '100%',
+    minHeight: '28px',
   },
   separator: {
     width: 16,

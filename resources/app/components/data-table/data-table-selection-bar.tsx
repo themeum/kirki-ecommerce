@@ -75,7 +75,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
   const hasActionChoice = !!bulkActions && bulkActions.length > 1;
 
   return (
-    <Flex gap={5} cssOverride={mergeCss(styles.wrapper, cssOverride)}>
+    <Flex gap={5} align="center" cssOverride={mergeCss(styles.wrapper, cssOverride)}>
       <Flex gap={3} align="center">
         <Text variant="small" color="subdued">
           {sprintf(__('%s selected', 'kirki-ecommerce'), selectedCount)}
@@ -93,6 +93,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
       </Flex>
       {singleAction && (
         <Button
+          size="sm"
           variant={singleAction.destructive ? 'destructive' : 'secondary'}
           loading={isApplying}
           onClick={() => void applyAction(singleAction.value)}
@@ -117,6 +118,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
           </Select>
           <Button
             variant="secondary"
+            size="sm"
             loading={isApplying}
             onClick={handleApply}
             disabled={!selectedAction}

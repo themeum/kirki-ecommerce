@@ -99,7 +99,7 @@ const styles = defineStyles({
     borderRadius: theme.radius.lg,
     backgroundColor: theme.colors.background.fill,
     '&:focus-within, &:has([data-state="open"])': {
-      borderColor: theme.colors.border.default,
+      borderColor: theme.colors.background.fillBrand,
       ...uiFocusRing(theme),
     },
     '&[data-disabled="true"]': {

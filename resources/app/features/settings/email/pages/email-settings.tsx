@@ -25,7 +25,7 @@ import {
 import EmailSettingsSkeleton from '@/features/settings/email/skeletons/email-settings-skeleton';
 import { useSettingsPageActions } from '@/features/settings/hooks/use-settings-page-actions';
 import SettingsPageHeader from '@/features/settings/pages/settings-page-header';
-import { AtSignIcon, BrushIcon } from '@/icons';
+import { BrushIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -34,6 +34,7 @@ import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
+import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
 
 type EmailGroupData = {
   order_notifications?: Record<
@@ -143,8 +144,15 @@ const EmailSettings = () => {
     <Container size="sm">
       <Form {...form}>
         <Flex direction="column" gap={4}>
-          <SettingsPageHeader icon={<AtSignIcon />} title={__('Email', 'kirki-ecommerce')} />
-          <Card data-search-id="email.default-template" data-search-keywords="branding, header, footer, from name, sender address" cssOverride={styles.roundedCard}>
+          <SettingsPageHeader
+            icon={<EnvelopeClosedIcon />}
+            title={__('Email', 'kirki-ecommerce')}
+          />
+          <Card
+            data-search-id="email.default-template"
+            data-search-keywords="branding, header, footer, from name, sender address"
+            cssOverride={styles.roundedCard}
+          >
             <CardContent>
               <Flex justify="space-between" align="center">
                 <Flex direction="column" gap={2} align="flex-start">

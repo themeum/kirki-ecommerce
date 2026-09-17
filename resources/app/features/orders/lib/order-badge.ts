@@ -2,7 +2,9 @@ import type { BadgeVariant } from '@/components/ui/badge';
 import type { FulfillmentStatus, PaymentStatus } from '@/features/orders/schemas/catalog/order';
 import { __ } from '@/wpi18n';
 
-export const getPaymentBadgeInfo = (status: PaymentStatus): { variant: BadgeVariant, text: string } => {
+export const getPaymentBadgeInfo = (
+  status: PaymentStatus,
+): { variant: BadgeVariant; text: string } => {
   switch (status) {
     case 'paid':
       return {
@@ -21,12 +23,12 @@ export const getPaymentBadgeInfo = (status: PaymentStatus): { variant: BadgeVari
       };
     case 'refunding':
       return {
-        variant: 'caution',
+        variant: 'warning',
         text: __('Refunding', 'kirki-ecommerce'),
       };
     case 'refunded':
       return {
-        variant: 'secondary',
+        variant: 'destructive',
         text: __('Refunded', 'kirki-ecommerce'),
       };
     default:
@@ -35,9 +37,11 @@ export const getPaymentBadgeInfo = (status: PaymentStatus): { variant: BadgeVari
         text: __('Unknown', 'kirki-ecommerce'),
       };
   }
-}
+};
 
-export const getFulfillmentBadgeInfo = (status: FulfillmentStatus): { variant: BadgeVariant, text: string } => {
+export const getFulfillmentBadgeInfo = (
+  status: FulfillmentStatus,
+): { variant: BadgeVariant; text: string } => {
   switch (status) {
     case 'unfulfilled':
       return {
@@ -80,7 +84,7 @@ export const getFulfillmentBadgeInfo = (status: FulfillmentStatus): { variant: B
         text: __('Unknown', 'kirki-ecommerce'),
       };
   }
-}
+};
 
 export const getFulfillmentHint = (status: FulfillmentStatus): string => {
   switch (status) {
@@ -101,4 +105,4 @@ export const getFulfillmentHint = (status: FulfillmentStatus): string => {
     default:
       return '';
   }
-}
+};

@@ -78,10 +78,18 @@ type DataTableProps<T extends DataTableItem> = {
   columnPinning?: ColumnPinningState;
   columnVisibility?: VisibilityState;
   enableColumnVisibility?: boolean;
-  noCardShadown?: boolean;
+  noCardShadow?: boolean;
 };
 
 const EMPTY_COLUMN_PINNING: ColumnPinningState = {};
+
+/*
+ * The filter toolbar and the selection bar occupy the same slot, so a swap
+ * between them shifts the whole table unless both rows resolve to one height.
+ * 4rem is the filter toolbar's natural height: a 2rem control plus the 1rem
+ * vertical padding its wrapper adds on each side.
+ */
+const TOOLBAR_ROW_HEIGHT = '4rem';
 
 const noop = () => undefined;
 
@@ -126,7 +134,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     columnPinning = EMPTY_COLUMN_PINNING,
     columnVisibility,
     enableColumnVisibility = true,
-    noCardShadown = false,
+    noCardShadow = false,
   } = props;
 
   const [storedColumnVisibility, toggleColumnVisibility] = useTableColumnVisibility(tableId);
@@ -275,8 +283,8 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
   const shouldShowPagination = !hidePagination && totalPages > 1;
 
   return (
-    <Flex direction="column" gap={4}>
-      <Card cssOverride={mergeCss(cardStyles.tableCard, noCardShadown && { boxShadow: 'none' })}>
+    <Flex direction="column" gap={4} cssOverride={{ minHeight: 64 }}>
+      <Card cssOverride={mergeCss(cardStyles.tableCard, noCardShadow && { boxShadow: 'none' })}>
         <CardContent cssOverride={cardStyles.tableContent}>
           {hasSelection ? (
             <DataTableSelectionBar
@@ -494,11 +502,11 @@ const styles = defineStyles({
   },
   toolbar: {
     width: '100%',
-    minHeight: '3rem',
+    minHeight: TOOLBAR_ROW_HEIGHT,
   },
   toolbarRow: {
     width: '100%',
-    minHeight: '3rem',
+    minHeight: TOOLBAR_ROW_HEIGHT,
     paddingRight: theme.spacing[3],
   },
   toolbarContent: {
