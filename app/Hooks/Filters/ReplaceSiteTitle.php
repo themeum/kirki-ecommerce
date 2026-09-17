@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -22,8 +23,7 @@ class ReplaceSiteTitle extends BaseHook
 {
     public function get_name(): string
     {
-        //@TODO: need to add this to Hooks constants.
-        return 'pre_get_document_title';
+        return WPHookNames::PRE_GET_DOCUMENT_TITLE;
     }
 
     public function get_type(): string

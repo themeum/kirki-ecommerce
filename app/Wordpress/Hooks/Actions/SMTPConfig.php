@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
-use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -13,7 +13,7 @@ class SMTPConfig extends BaseHook
 {
     public function get_name(): string
     {
-        return HookNames::WP_PHP_MAILER_INIT;
+        return WPHookNames::WP_PHP_MAILER_INIT;
     }
 
     public function get_type(): string

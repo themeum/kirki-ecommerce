@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Hooks\Actions;
 
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
 use Kirki\Ecommerce\App\Concerns\RendersLoginConsents;
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
@@ -24,7 +25,7 @@ class RenderRegisterConsents extends BaseHook
 
     public function get_name(): string
     {
-        return 'register_form';
+        return WPHookNames::REGISTER_FORM;
     }
 
     public function get_type(): string
