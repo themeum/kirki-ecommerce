@@ -5,6 +5,7 @@ import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui
 import { theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
+import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
 type RichTextProps = {
@@ -23,6 +24,158 @@ type TinyMceEditorInstance = {
   setContent: (content: string) => void;
   getContent: () => string;
   remove: () => void;
+  addButton: (name: string, settings: Record<string, unknown>) => void;
+  focus: () => void;
+  formatter: {
+    apply: (name: string, vars?: Record<string, unknown>) => void;
+  };
+  selection: {
+    getBookmark: (type?: number, normalized?: boolean) => unknown;
+    moveToBookmark: (bookmark: unknown) => void;
+    getNode: () => HTMLElement;
+    isCollapsed: () => boolean;
+  };
+  dom: {
+    getStyle: (elm: HTMLElement, name: string, computed?: boolean) => string;
+  };
+};
+
+type TinyMceButtonControl = {
+  getEl: () => HTMLElement | null;
+};
+
+const DEFAULT_FONT_SIZES = ['10', '12', '13', '14', '16', '18', '20', '24', '30', '36'];
+
+const normalizeFontSize = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  const match = /^(\d+(?:\.\d+)?)(px)?$/i.exec(trimmed);
+  return match ? `${match[1]}px` : null;
+};
+
+const getNumericFontSize = (value: string) => {
+  const match = /^\d+(\.\d+)?/.exec(value);
+  return match ? match[0] : '';
+};
+
+const getCustomFontSizeSettings = (
+  editor: TinyMceEditorInstance,
+  onChange: (content: string) => void,
+) => {
+  return {
+    type: 'button',
+    text: '',
+    icon: false,
+    onPostRender(this: TinyMceButtonControl) {
+      const container = this.getEl();
+      if (!container) {
+        return;
+      }
+
+      container.classList.add('kirki-ecommerce-rich-text-fontsize-control');
+      container.innerHTML = '';
+
+      const field = document.createElement('span');
+      field.className = 'kirki-ecommerce-rich-text-fontsize-field';
+
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.title = __('Font size', 'kirki-ecommerce');
+      input.className = 'kirki-ecommerce-rich-text-fontsize-input';
+      input.placeholder = __('Size', 'kirki-ecommerce');
+
+      const unit = document.createElement('span');
+      unit.className = 'kirki-ecommerce-rich-text-fontsize-unit';
+      unit.textContent = 'px';
+
+      field.appendChild(input);
+      field.appendChild(unit);
+
+      const panel = document.createElement('div');
+      panel.className = 'kirki-ecommerce-rich-text-fontsize-options-panel';
+
+      let bookmark: unknown = null;
+      const captureBookmark = () => {
+        bookmark = editor.selection.getBookmark(2, true);
+      };
+
+      const updateSelectedOption = () => {
+        Array.from(panel.children).forEach((child) => {
+          if (child instanceof HTMLElement) {
+            child.classList.toggle('is-selected', child.dataset.size === input.value);
+          }
+        });
+      };
+
+      const applySize = (rawValue: string) => {
+        const size = normalizeFontSize(rawValue);
+        if (size) {
+          editor.focus();
+          if (bookmark) editor.selection.moveToBookmark(bookmark);
+          if (!editor.selection.isCollapsed()) {
+            editor.formatter.apply('fontsize', { value: size });
+            onChange(editor.getContent());
+          }
+          input.value = getNumericFontSize(size);
+          updateSelectedOption();
+        }
+        panel.classList.remove('is-open');
+      };
+
+      DEFAULT_FONT_SIZES.forEach((size) => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.textContent = `${size}px`;
+        option.dataset.size = size;
+        option.addEventListener('mousedown', (event) => {
+          event.preventDefault();
+          applySize(size);
+        });
+        panel.appendChild(option);
+      });
+
+      input.addEventListener('mousedown', (event) => {
+        event.stopPropagation();
+        captureBookmark();
+        panel.classList.toggle('is-open');
+        updateSelectedOption();
+      });
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          applySize(input.value);
+        }
+      });
+      input.addEventListener('blur', () => {
+        applySize(input.value);
+      });
+
+      editor.on('nodechange', () => {
+        const currentSize = editor.dom.getStyle(editor.selection.getNode(), 'font-size', true);
+        input.value = currentSize ? getNumericFontSize(currentSize) : '';
+        updateSelectedOption();
+      });
+
+      const closeOnOutsideClick = (event: MouseEvent) => {
+        if (event.target instanceof Node && !container.contains(event.target)) {
+          panel.classList.remove('is-open');
+        }
+      };
+      document.addEventListener('mousedown', closeOnOutsideClick);
+      editor.on('mousedown', () => {
+        panel.classList.remove('is-open');
+      });
+      editor.on('remove', () => {
+        document.removeEventListener('mousedown', closeOnOutsideClick);
+      });
+
+      container.appendChild(field);
+      container.appendChild(panel);
+    },
+  };
 };
 
 const RichText = ({
@@ -48,10 +201,8 @@ const RichText = ({
   }, [value]);
 
   useEffect(() => {
-    if (!window.tinymce || !window.wp?.editor) {
-      console.warn(
-        'TinyMCE or wp.editor not found. Did you enqueue wp-tinymce and wp-editor?',
-      );
+    if (!isDefined(window.tinymce) || !isDefined(window.wp) || !isDefined(window.wp.editor)) {
+      console.warn('TinyMCE or wp.editor not found. Did you enqueue wp-tinymce and wp-editor?');
       return;
     }
 
@@ -66,10 +217,12 @@ const RichText = ({
       branding: false,
       height: 200,
       placeholder,
-      plugins: 'link lists paste',
+      plugins: 'link lists paste textcolor',
       toolbar:
-        'bold italic underline blockquote fontselect fontsizeselect alignleft aligncenter alignright alignjustify bullist numlist shortcode_button wp_more wp_adv undo redo',
+        'bold italic underline blockquote customfontsize forecolor alignleft aligncenter alignright alignjustify bullist numlist undo redo',
       setup: (editor: TinyMceEditorInstance) => {
+        editor.addButton('customfontsize', getCustomFontSizeSettings(editor, onChange));
+
         editor.on('init', () => {
           editor.setContent(valueRef.current || '');
           editorRef.current = editor;
@@ -131,6 +284,73 @@ const styles = defineStyles({
     },
     '.mce-top-part::before': {
       boxShadow: 'none',
+    },
+    '.kirki-ecommerce-rich-text-fontsize-control': {
+      width: 'max-content',
+      position: 'relative',
+      marginTop: 0,
+    },
+    '.kirki-ecommerce-rich-text-fontsize-field': {
+      position: 'relative',
+      display: 'inline-flex',
+      alignItems: 'center',
+    },
+    '.kirki-ecommerce-rich-text-fontsize-input': {
+      maxWidth: '48px',
+      height: '24px',
+      border: `1px solid ${theme.colors.border.default}`,
+      borderRadius: theme.radius.sm,
+      padding: `${theme.spacing[0]} ${theme.spacing[1]}`,
+      fontSize: '12px',
+    },
+    '.kirki-ecommerce-rich-text-fontsize-unit': {
+      position: 'absolute',
+      right: theme.spacing[1],
+      top: '50%',
+      transform: 'translateY(-50%)',
+      fontSize: '12px',
+      color: theme.colors.text.subdued,
+      pointerEvents: 'none',
+    },
+    'kirki-ecommerce-rich-text-fontsize-input:placeholder': {
+      fontSize: '8px',
+    },
+    '.kirki-ecommerce-rich-text-fontsize-input:placeholder-shown + .kirki-ecommerce-rich-text-fontsize-unit':
+      {
+        display: 'none',
+      },
+    '.kirki-ecommerce-rich-text-fontsize-options-panel': {
+      display: 'none',
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      zIndex: 1,
+      flexDirection: 'column',
+      maxHeight: '200px',
+      overflowY: 'auto',
+      background: theme.colors.background.surface,
+      border: `1px solid ${theme.colors.border.default}`,
+      borderRadius: theme.radius.sm,
+      '&.is-open': {
+        display: 'flex',
+      },
+      button: {
+        border: 'none',
+        borderBottom: `1px solid ${theme.colors.border.secondary}`,
+        background: 'transparent',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
+        cursor: 'pointer',
+        fontSize: '12px',
+        '&:hover': {
+          background: theme.colors.border.default,
+        },
+        '&.is-selected': {
+          background: theme.colors.background.fillSecondary,
+        },
+      },
     },
   },
   controller: {

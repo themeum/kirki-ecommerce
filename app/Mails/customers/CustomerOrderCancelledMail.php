@@ -35,9 +35,9 @@ class CustomerOrderCancelledMail extends Mailer
             'order_number' => $order['order_number'],
             'order_date' => $order['created_at'],
             'order_detail' => $this->get_content('emails.parts.order.order-details', ['order' => $order]),
-            'order_view_button' => $this->get_content('emails.parts.order.order-view-button', [
-                'order' => $order,
-                'order_view_url' => Url::get_order_tracking_url($order['uuid']),
+            'order_view_button' => $this->get_content('emails.parts.link-button', [
+                'label' => __('View Your Order', 'kirki-ecommerce'),
+                'link' => Url::get_order_tracking_url($order['uuid']),
             ]),
             'shipping_tracking_number' => $order['shipping_tracking']['tracking_number'] ?? '',
             'shipping_tracking_url' => $order['shipping_tracking']['tracking_url'] ?? '',

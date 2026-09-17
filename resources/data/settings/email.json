@@ -31,7 +31,7 @@
         "is_enabled": true,
         "subject": "Order Confirmation",
         "heading": "Thank you for your order!",
-        "message": "<p>Hi there! </p><p>New order on the site {store_name}</p><p>{order_view_button}</p><p>{order_summary}</p><p>{customer_note}</p><p>{order_detail}</p>",
+        "message": "<p><span style=\"font-size: 13px;\">Hi there!</span> </p><p><span style=\"font-size: 13px;\">New order on the site {store_name}</span> </p><p>{order_view_button}</p><p>{order_summary}</p><p>{customer_note}</p><p>{order_detail}</p>",
         "shortcodes": [
           {
             "label": "Order Summary",
