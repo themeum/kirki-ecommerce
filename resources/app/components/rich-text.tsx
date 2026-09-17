@@ -273,6 +273,32 @@ const getShortcodesButtonSettings = (
   };
 };
 
+const setupTextColorSelectionFix = (editor: TinyMceEditorInstance) => {
+  let lastBookmark: unknown = null;
+
+  const captureBookmark = () => {
+    if (!editor.selection.isCollapsed()) {
+      lastBookmark = editor.selection.getBookmark(2, true);
+    }
+  };
+  editor.on('mouseup keyup nodechange', captureBookmark);
+
+  const restoreSelection = (event: MouseEvent) => {
+    if (!lastBookmark) {
+      return;
+    }
+    if (event.target instanceof Element && event.target.closest('[data-mce-color]')) {
+      editor.focus();
+      editor.selection.moveToBookmark(lastBookmark);
+    }
+  };
+  document.addEventListener('mousedown', restoreSelection, true);
+
+  editor.on('remove', () => {
+    document.removeEventListener('mousedown', restoreSelection, true);
+  });
+};
+
 const setupShortcodeAutocomplete = (
   editor: TinyMceEditorInstance,
   onChange: (content: string) => void,
@@ -466,6 +492,7 @@ const RichText = ({
         'bold italic underline blockquote customfontsize forecolor alignleft aligncenter alignright alignjustify bullist numlist shortcodes undo redo',
       setup: (editor: TinyMceEditorInstance) => {
         editor.addButton('customfontsize', getCustomFontSizeSettings(editor, onChange));
+        setupTextColorSelectionFix(editor);
 
         if (shortcodeOptions.length > 0) {
           editor.addButton(
