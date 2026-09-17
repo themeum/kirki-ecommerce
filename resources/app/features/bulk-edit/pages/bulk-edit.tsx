@@ -180,6 +180,27 @@ const BulkEditPage = () => {
       return;
     }
 
+    /**
+     * The Availability column holds a quantity on rows that track inventory and
+     * a stock status on rows that do not, so a fill copies whichever value the
+     * row it started from is showing and skips rows in the other state —
+     * writing a value a target's cell does not display would be invisible to
+     * the merchant. `track_inventory` itself is never copied.
+     */
+    if (payload.field === 'available_quantity') {
+      const sourceTracks = Boolean(sourceVariant.track_inventory);
+      const field = sourceTracks ? 'available_quantity' : 'in_stock';
+
+      targetRows
+        .filter((row) => Boolean(getValues(`variants.${row}.track_inventory`)) === sourceTracks)
+        .forEach((row) => {
+          setValue(`variants.${row}.${field}` as never, sourceVariant[field] as never, {
+            shouldDirty: true,
+          });
+        });
+      return;
+    }
+
     if (payload.field === 'weight') {
       targetRows.forEach((row) => {
         setValue(`variants.${row}.weight` as never, sourceVariant.weight as never, {
@@ -286,6 +307,7 @@ const BulkEditPage = () => {
           _n('Editing %d variant', 'Editing %d variants', variants.length, 'kirki-ecommerce'),
           variants.length,
         )}
+        sticky
         cssOverride={styles.heading}
         containerSize="fullWidth"
         hasBack
@@ -318,7 +340,7 @@ const BulkEditPage = () => {
         {isDirty && <Badge variant="secondary">{__('Unsaved Changes', 'kirki-ecommerce')}</Badge>}
       </PageHeading>
 
-      <PageContent containerSize="none">
+      <PageContent containerSize="none" cssOverride={{ marginTop: '0px' }}>
         <FullPageContainer cssOverride={styles.pageBackground}>
           {isEmptySelection ? (
             <Flex

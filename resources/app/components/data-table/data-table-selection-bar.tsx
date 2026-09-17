@@ -20,6 +20,7 @@ type DataTableSelectionBarProps = {
   selection: DataTableSelectionState;
   total: number;
   shownCount: number;
+  enableSelectAllMatching?: boolean;
   bulkActions?: DataTableBulkAction[];
   onBulkApply?: (action: string, selection: DataTableSelectionState) => void | Promise<void>;
   onSelectAllMatching: () => void;
@@ -32,6 +33,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
     selection,
     total,
     shownCount,
+    enableSelectAllMatching = true,
     bulkActions,
     onBulkApply,
     onSelectAllMatching,
@@ -80,7 +82,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
         <Text variant="small" color="subdued">
           {sprintf(__('%s selected', 'kirki-ecommerce'), selectedCount)}
         </Text>
-        {total > shownCount && (
+        {enableSelectAllMatching && total > shownCount && (
           <Button
             variant="link"
             onClick={isAllMatchingSelected ? onClearSelection : onSelectAllMatching}

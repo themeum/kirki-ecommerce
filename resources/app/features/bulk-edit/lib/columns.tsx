@@ -13,6 +13,7 @@ type BulkEditCellKind =
   | 'text'
   | 'shipping-box'
   | 'weight'
+  | 'availability'
   | 'number'
   | 'readonly-number'
   | 'tax-profile'
@@ -117,9 +118,13 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   },
   {
     id: 'available_quantity',
+    // Deliberately not `gatedBy: 'track_inventory'`: the cell is editable in
+    // both states, showing a quantity when the row tracks inventory and an
+    // In Stock / Out of Stock choice when it does not. The gate is read inside
+    // the control instead, to pick which one to render.
     header: __('Availability', 'kirki-ecommerce'),
-    size: 120,
-    meta: { cellKind: 'number', gatedBy: 'track_inventory', alignment: 'right' },
+    size: 140,
+    meta: { cellKind: 'availability', alignment: 'right' },
     cell: BulkEditCell,
   },
   {

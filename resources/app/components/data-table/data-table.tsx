@@ -71,6 +71,13 @@ type DataTableProps<T extends DataTableItem> = {
   cssOverride?: CSSObject;
   hidePagination?: boolean;
   enableRowSelection?: boolean;
+  /**
+   * Whether the selection bar offers "select all N items" when more rows match
+   * than are shown. Off for a table whose bulk action can only address an
+   * enumerated set of rows, where the offer would promise something the action
+   * cannot deliver.
+   */
+  enableSelectAllMatching?: boolean;
   selectionResetKey?: string | number;
   onRowSelectionChange?: (state: DataTableSelectionState) => void;
   bulkActions?: DataTableBulkAction[];
@@ -127,6 +134,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     cssOverride,
     hidePagination = false,
     enableRowSelection = false,
+    enableSelectAllMatching = true,
     selectionResetKey,
     onRowSelectionChange,
     bulkActions,
@@ -291,6 +299,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
               selection={selection}
               total={total}
               shownCount={data.length}
+              enableSelectAllMatching={enableSelectAllMatching}
               bulkActions={bulkActions}
               onBulkApply={onBulkApply}
               onSelectAllMatching={handleSelectAllMatching}

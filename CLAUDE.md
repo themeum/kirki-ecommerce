@@ -109,6 +109,8 @@ skills:
 Before implementing tasks from an existing change always ask me to run the command `opsx:apply` manually
 by myself instead of applying automatically.
 
+Note: Whenever I start a new session make sure to follow the **OpenSpec workflow** by default.
+
 ---
 
 ## 2. PHP Coding Standards

@@ -107,7 +107,7 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
         >
           <Table cssOverride={styles.table} fixed>
             <TableHeader cssOverride={styles.header}>
-              <TableRow>
+              <TableRow cssOverride={{ background: theme.colors.background.solidSurfaceAlt }}>
                 {table.getHeaderGroups()[0]?.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -129,10 +129,7 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
                     {header.column.id === SKU_FIELD ? (
                       <Flex align="center" cssOverride={styles.skuHeader}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
-                        <SkuGenerateAction
-                          onGenerate={onGenerateSkus}
-                          loading={isGeneratingSkus}
-                        />
+                        <SkuGenerateAction onGenerate={onGenerateSkus} loading={isGeneratingSkus} />
                       </Flex>
                     ) : (
                       flexRender(header.column.columnDef.header, header.getContext())
@@ -181,7 +178,8 @@ const styles = defineStyles({
     position: 'relative',
   },
   scrollContainer: {
-    maxHeight: 'calc(100vh - 180px)',
+    maxHeight: 'calc(100svh - 0px)',
+
     overflow: 'auto',
     borderCollapse: 'separate',
     // Bottom padding on an `overflow: auto` element is part of its scrollable

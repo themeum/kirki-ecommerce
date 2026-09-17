@@ -69,6 +69,7 @@ type PageHeadingProps = {
   leftIcon?: ReactNode;
   buttonProps?: Partial<ComponentProps<typeof Button>>;
   cssOverride?: CSSObject;
+  sticky?: boolean;
   onBack?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
@@ -85,6 +86,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) =>
     leftIcon,
     buttonProps = {},
     onBack,
+    sticky = false,
   } = props;
 
   const navigate = useNavigate();
@@ -100,7 +102,7 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) =>
   const BackIcon = backIcon || <ArrowLeft size={16} aria-hidden="true" />;
 
   return (
-    <div ref={ref} css={scoped(styles.wrapper)}>
+    <div ref={ref} css={scopedMerge(styles.wrapper, sticky && { position: 'sticky' })}>
       <Container
         size={resolvedSize === 'none' ? undefined : resolvedSize}
         style={{ width: '100%' }}
@@ -162,7 +164,7 @@ const PageContent = forwardRef<HTMLDivElement, PageContentProps>((props, ref) =>
 
   if (resolvedSize === 'none') {
     return (
-      <div ref={ref} css={scopedMerge(styles.content, cssOverride && scoped(cssOverride))}>
+      <div ref={ref} css={scopedMerge(styles.content, cssOverride)}>
         {children}
       </div>
     );
@@ -191,13 +193,11 @@ const styles = defineStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    position: 'sticky',
-    borderBottom: `1px solid ${theme.colors.border.default}`,
     backgroundColor: theme.colors.background.solidSurfaceSecondary,
     zIndex: theme.zIndex.sticky,
   },
   content: {
-    marginTop: PAGE_CONTENT_MARGIN_TOP,
+    // marginTop: PAGE_CONTENT_MARGIN_TOP,
   },
   heading: {
     width: '100%',
