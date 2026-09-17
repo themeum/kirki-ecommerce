@@ -11,7 +11,7 @@ class AttributeValueCreateRequest extends Request
     {
         return [
             'attribute_id' => 'required|integer',
-            'value' => 'required|unique:kirki_ecommerce_attribute_values,value|string',
+            'value' => 'required|string',
             'color' => 'string|nullable',
             'media' => 'integer|nullable',
         ];
