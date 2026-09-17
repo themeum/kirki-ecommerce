@@ -87,10 +87,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
                 <NumberField
                   name="low_stock_threshold"
                   label={__('Low stock threshold', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Notify when stock falls below this amount.',
-                    'kirki-ecommerce',
-                  )}
+                  infoText={__('Notify when stock falls below this amount.', 'kirki-ecommerce')}
                   placeholder={__('600', 'kirki-ecommerce')}
                 />
               </Grid>
@@ -110,10 +107,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
 
         <Flex direction="column" gap={1}>
           <Flex justify="space-between" align="center">
-            <FieldLabel
-              htmlFor="sku"
-              infoText={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
-            >
+            <FieldLabel htmlFor="sku" infoText={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}>
               {__('SKU', 'kirki-ecommerce')}
             </FieldLabel>
             <Button
@@ -127,14 +121,11 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
               <WandIcon />
             </Button>
           </Flex>
-          <TextField
-            name="sku"
-            placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')}
-          />
+          <TextField name="sku" placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')} />
         </Flex>
 
         <Grid gap={2} template="1fr 2fr">
-          <Card cssOverride={cardStyles.innerDarkCard}>
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <CheckboxField
                 name="allow_back_order"
@@ -143,7 +134,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
             </CardContent>
           </Card>
 
-          <Card cssOverride={cardStyles.innerDarkCard}>
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex align="center" justify="space-between" gap={2}>
                 <CheckboxField
@@ -155,10 +146,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
                   )}
                 />
                 {hasLimitPerOrder && (
-                  <NumberField
-                    name="max_per_order"
-                    cssOverride={styles.maxPerOrderField}
-                  />
+                  <NumberField name="max_per_order" cssOverride={styles.maxPerOrderField} />
                 )}
               </Flex>
             </CardContent>

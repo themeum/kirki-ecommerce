@@ -160,6 +160,7 @@ const EditInventory = () => {
           hasBack
           onBack={handleBack}
           buttonProps={{ disabled: isSubmitting }}
+          sticky
           actions={
             <>
               {variant.preview_url && (

@@ -71,7 +71,7 @@ const Price = () => {
         </Grid>
 
         <Flex direction="column" gap={2}>
-          <Card cssOverride={cardStyles.innerDarkCard}>
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex align="center" justify="space-between" gap={2}>
                 <CheckboxField
@@ -98,7 +98,7 @@ const Price = () => {
             </CardContent>
           </Card>
 
-          <Card cssOverride={cardStyles.innerDarkCard}>
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex align="center" justify="space-between" gap={2}>
                 <CheckboxField

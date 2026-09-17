@@ -8,6 +8,8 @@ import {
   type PropsWithChildren,
   type ReactNode,
   useContext,
+  useEffect,
+  useState,
 } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -29,6 +31,9 @@ import type { ContainerSize } from '@/types/components/common';
 const PAGE_HEADING_HEIGHT = '64px';
 const PAGE_HEADING_STICKY_TOP = '32px';
 const PAGE_CONTENT_MARGIN_TOP = '32px';
+const PAGE_HEADING_SHADOW_HEIGHT = '6px';
+const PAGE_HEADING_SHADOW_MASK =
+  'linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 15%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0.6) 85%, rgba(0, 0, 0, 0) 100%)';
 
 type PageContainerSize = ContainerSize | 'none';
 
@@ -91,6 +96,25 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) =>
 
   const navigate = useNavigate();
   const resolvedSize = usePageContainerSize(containerSize);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!sticky) {
+      setIsScrolled(false);
+      return;
+    }
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [sticky]);
 
   const {
     cssOverride: buttonCssOverride,
@@ -102,7 +126,14 @@ const PageHeading = forwardRef<HTMLDivElement, PageHeadingProps>((props, ref) =>
   const BackIcon = backIcon || <ArrowLeft size={16} aria-hidden="true" />;
 
   return (
-    <div ref={ref} css={scopedMerge(styles.wrapper, sticky && { position: 'sticky' })}>
+    <div
+      ref={ref}
+      css={scopedMerge(
+        styles.wrapper,
+        sticky && styles.sticky,
+        sticky && isScrolled && styles.stickyScrolled,
+      )}
+    >
       <Container
         size={resolvedSize === 'none' ? undefined : resolvedSize}
         style={{ width: '100%' }}
@@ -198,6 +229,28 @@ const styles = defineStyles({
   },
   content: {
     // marginTop: PAGE_CONTENT_MARGIN_TOP,
+  },
+  sticky: {
+    position: 'sticky',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      right: 0,
+      height: PAGE_HEADING_SHADOW_HEIGHT,
+      pointerEvents: 'none',
+      opacity: 0,
+      transition: 'opacity 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+      background: 'linear-gradient(to bottom, hsla(0, 0%, 0%, 0.25), hsla(0, 0%, 0%, 0))',
+      WebkitMaskImage: PAGE_HEADING_SHADOW_MASK,
+      maskImage: PAGE_HEADING_SHADOW_MASK,
+    },
+  },
+  stickyScrolled: {
+    '&::after': {
+      opacity: 1,
+    },
   },
   heading: {
     width: '100%',
