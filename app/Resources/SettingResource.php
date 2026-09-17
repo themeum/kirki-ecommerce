@@ -186,7 +186,7 @@ class SettingResource extends Resource
     protected function get_email_settings($data)
     {
         $header_logo = MediaAttachment::make($data['default_template']['logo'] ?? null);
-        $order_confirmation_shortcodes = Settings::get(OptionKeys::EMAIL_SETTINGS)->get_default('customer_emails.order_notifications.order_confirmation') ?? [];
+        $order_confirmation_shortcodes = Settings::get(OptionKeys::EMAIL_SETTINGS)->get_default('customer_emails.order_notifications.order_confirmation.shortcodes') ?? [];
 
         $data = array_merge($data ?? [], [
             'default_template' => array_merge($data['default_template'] ?? [], [

@@ -1,5 +1,5 @@
 import { type SerializedStyles } from '@emotion/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { theme } from '@/theme';
@@ -7,6 +7,8 @@ import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
+
+type Shortcode = { label: string; value: string };
 
 type RichTextProps = {
   id?: string;
@@ -17,15 +19,24 @@ type RichTextProps = {
   helpText?: string;
   error?: string | boolean;
   css?: SerializedStyles;
+  shortcodes?: Shortcode[];
+};
+
+type TinyMceEvent = {
+  key?: string;
+  preventDefault: () => void;
 };
 
 type TinyMceEditorInstance = {
-  on: (event: string, callback: () => void) => void;
+  on: (event: string, callback: (event: TinyMceEvent) => void) => void;
   setContent: (content: string) => void;
   getContent: () => string;
   remove: () => void;
   addButton: (name: string, settings: Record<string, unknown>) => void;
   focus: () => void;
+  getWin: () => Window;
+  getContainer: () => HTMLElement;
+  iframeElement: HTMLIFrameElement;
   formatter: {
     apply: (name: string, vars?: Record<string, unknown>) => void;
   };
@@ -34,9 +45,15 @@ type TinyMceEditorInstance = {
     moveToBookmark: (bookmark: unknown) => void;
     getNode: () => HTMLElement;
     isCollapsed: () => boolean;
+    getRng: () => Range;
+    setRng: (range: Range) => void;
   };
   dom: {
     getStyle: (elm: HTMLElement, name: string, computed?: boolean) => string;
+  };
+  execCommand: (command: string, ui: boolean, value?: string) => void;
+  windowManager: {
+    open: (settings: Record<string, unknown>) => void;
   };
 };
 
@@ -69,6 +86,7 @@ const getCustomFontSizeSettings = (
     type: 'button',
     text: '',
     icon: false,
+    tooltip: __('Font size', 'kirki-ecommerce'),
     onPostRender(this: TinyMceButtonControl) {
       const container = this.getEl();
       if (!container) {
@@ -83,7 +101,6 @@ const getCustomFontSizeSettings = (
 
       const input = document.createElement('input');
       input.type = 'number';
-      input.title = __('Font size', 'kirki-ecommerce');
       input.className = 'kirki-ecommerce-rich-text-fontsize-input';
       input.placeholder = __('Size', 'kirki-ecommerce');
 
@@ -178,6 +195,225 @@ const getCustomFontSizeSettings = (
   };
 };
 
+const renderShortcodeOptions = (
+  panel: HTMLElement,
+  items: Shortcode[],
+  onSelect: (value: string) => void,
+) => {
+  panel.innerHTML = '';
+  items.forEach((item) => {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.textContent = item.label;
+    option.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+      onSelect(item.value);
+    });
+    panel.appendChild(option);
+  });
+};
+
+const getShortcodesButtonSettings = (
+  editor: TinyMceEditorInstance,
+  onChange: (content: string) => void,
+  shortcodes: Shortcode[],
+) => {
+  return {
+    type: 'button',
+    icon: false,
+    tooltip: __('Shortcodes', 'kirki-ecommerce'),
+    onPostRender(this: TinyMceButtonControl) {
+      const container = this.getEl();
+      if (!container) {
+        return;
+      }
+
+      container.classList.add('kirki-ecommerce-rich-text-shortcodes-control');
+      container.innerHTML = '<span class="kirki-ecommerce-rich-text-shortcodes-icon">{/}</span>';
+
+      const panel = document.createElement('div');
+      panel.className = 'kirki-ecommerce-rich-text-shortcodes-options-panel';
+
+      let bookmark: unknown = null;
+
+      const insertShortcode = (value: string) => {
+        editor.focus();
+        if (bookmark) editor.selection.moveToBookmark(bookmark);
+        editor.execCommand('mceInsertContent', false, value);
+        onChange(editor.getContent());
+        panel.classList.remove('is-open');
+      };
+
+      renderShortcodeOptions(panel, shortcodes, insertShortcode);
+
+      container.addEventListener('mousedown', (event) => {
+        if (event.target instanceof Node && panel.contains(event.target)) {
+          return;
+        }
+        event.preventDefault();
+        bookmark = editor.selection.getBookmark(2, true);
+        panel.classList.toggle('is-open');
+      });
+
+      const closeOnOutsideClick = (event: MouseEvent) => {
+        if (event.target instanceof Node && !container.contains(event.target)) {
+          panel.classList.remove('is-open');
+        }
+      };
+      document.addEventListener('mousedown', closeOnOutsideClick);
+      editor.on('mousedown', () => {
+        panel.classList.remove('is-open');
+      });
+      editor.on('remove', () => {
+        document.removeEventListener('mousedown', closeOnOutsideClick);
+      });
+
+      container.appendChild(panel);
+    },
+  };
+};
+
+const setupShortcodeAutocomplete = (
+  editor: TinyMceEditorInstance,
+  onChange: (content: string) => void,
+  shortcodes: Shortcode[],
+) => {
+  const panel = document.createElement('div');
+  panel.className = 'kirki-ecommerce-rich-text-shortcodes-autocomplete-panel';
+  editor.on('init', () => {
+    editor.getContainer().appendChild(panel);
+  });
+
+  let activeMatchRange: Range | null = null;
+  let visibleShortcodes: Shortcode[] = [];
+
+  const closePanel = () => {
+    panel.classList.remove('is-open');
+    activeMatchRange = null;
+    visibleShortcodes = [];
+  };
+
+  const highlightOption = (index: number) => {
+    Array.from(panel.children).forEach((child, childIndex) => {
+      child.classList.toggle('is-highlighted', childIndex === index);
+    });
+  };
+
+  const acceptShortcode = (value: string) => {
+    if (!activeMatchRange) {
+      return;
+    }
+    editor.selection.setRng(activeMatchRange);
+    editor.execCommand('mceInsertContent', false, value);
+    onChange(editor.getContent());
+    closePanel();
+  };
+
+  const positionPanel = (matchRange: Range) => {
+    const rects = matchRange.getClientRects();
+    const rect = rects[rects.length - 1];
+    if (!rect) {
+      return;
+    }
+
+    const frameRect = editor.iframeElement.getBoundingClientRect();
+    const containerRect = editor.getContainer().getBoundingClientRect();
+    const frameOffsetTop = frameRect.top - containerRect.top;
+    const frameOffsetLeft = frameRect.left - containerRect.left;
+
+    const caretTop = frameOffsetTop + rect.top;
+    const caretBottom = frameOffsetTop + rect.bottom;
+    const caretLeft = frameOffsetLeft + rect.right;
+
+    const panelHeight = panel.offsetHeight;
+    const panelWidth = panel.offsetWidth;
+
+    const fitsBelow = caretBottom + panelHeight <= containerRect.height;
+    panel.style.top = fitsBelow ? `${caretBottom + 20}px` : `${caretTop - panelHeight - 20}px`;
+
+    const maxLeft = containerRect.width - panelWidth;
+    panel.style.left = `${Math.max(0, Math.min(caretLeft, maxLeft)) + 20}px`;
+  };
+
+  editor.on('keyup', () => {
+    const range = editor.selection.getRng();
+    if (!range.collapsed || range.startContainer.nodeType !== Node.TEXT_NODE) {
+      closePanel();
+      return;
+    }
+
+    const textBeforeCursor = (range.startContainer.textContent ?? '').slice(0, range.startOffset);
+    const openBraceIndex = textBeforeCursor.lastIndexOf('{');
+
+    if (openBraceIndex === -1) {
+      closePanel();
+      return;
+    }
+
+    const query = textBeforeCursor.slice(openBraceIndex + 1);
+
+    if (query.includes('}')) {
+      closePanel();
+      return;
+    }
+
+    const textAfterCursor = (range.startContainer.textContent ?? '').slice(range.startOffset);
+    const nextCloseIndex = textAfterCursor.indexOf('}');
+    const nextOpenIndex = textAfterCursor.indexOf('{');
+    const isInsideClosedShortcode =
+      nextCloseIndex !== -1 && (nextOpenIndex === -1 || nextCloseIndex < nextOpenIndex);
+
+    if (isInsideClosedShortcode) {
+      closePanel();
+      return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+    visibleShortcodes = shortcodes.filter(
+      ({ label, value }) =>
+        label.toLowerCase().includes(lowerQuery) || value.toLowerCase().includes(lowerQuery),
+    );
+
+    if (visibleShortcodes.length === 0) {
+      closePanel();
+      return;
+    }
+
+    const matchRange = editor.getWin().document.createRange();
+    matchRange.setStart(range.startContainer, openBraceIndex);
+    matchRange.setEnd(range.startContainer, range.startOffset);
+    activeMatchRange = matchRange;
+
+    renderShortcodeOptions(panel, visibleShortcodes, acceptShortcode);
+    highlightOption(0);
+    panel.classList.add('is-open');
+    positionPanel(matchRange);
+  });
+
+  editor.on('keydown', (event) => {
+    if (!panel.classList.contains('is-open')) {
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closePanel();
+    }
+  });
+
+  const closeOnOutsideClick = (event: MouseEvent) => {
+    if (event.target instanceof Node && !panel.contains(event.target)) {
+      closePanel();
+    }
+  };
+  document.addEventListener('mousedown', closeOnOutsideClick);
+
+  editor.on('remove', () => {
+    document.removeEventListener('mousedown', closeOnOutsideClick);
+    panel.remove();
+  });
+};
+
 const RichText = ({
   id = 'my-wp-editor',
   value = '',
@@ -187,9 +423,17 @@ const RichText = ({
   helpText,
   error,
   css: cssProp,
+  shortcodes = [],
 }: RichTextProps) => {
   const editorRef = useRef<TinyMceEditorInstance | null>(null);
   const valueRef = useRef(value);
+
+  const shortcodeOptions = useMemo(() => {
+    return shortcodes.map(({ label, value }) => ({
+      label,
+      value,
+    }));
+  }, [shortcodes]);
 
   useEffect(() => {
     valueRef.current = value;
@@ -219,9 +463,17 @@ const RichText = ({
       placeholder,
       plugins: 'link lists paste textcolor',
       toolbar:
-        'bold italic underline blockquote customfontsize forecolor alignleft aligncenter alignright alignjustify bullist numlist undo redo',
+        'bold italic underline blockquote customfontsize forecolor alignleft aligncenter alignright alignjustify bullist numlist shortcodes undo redo',
       setup: (editor: TinyMceEditorInstance) => {
         editor.addButton('customfontsize', getCustomFontSizeSettings(editor, onChange));
+
+        if (shortcodeOptions.length > 0) {
+          editor.addButton(
+            'shortcodes',
+            getShortcodesButtonSettings(editor, onChange, shortcodeOptions),
+          );
+          setupShortcodeAutocomplete(editor, onChange, shortcodeOptions);
+        }
 
         editor.on('init', () => {
           editor.setContent(valueRef.current || '');
@@ -241,8 +493,8 @@ const RichText = ({
         editorToRemove.remove();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- initialises the editor once per id; value/placeholder/onChange are read through the live editor instance, and re-running would tear down in-progress content
-  }, [id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reinitializes when shortcodes changes so the toolbar button/autocomplete pick up fresh data; value/placeholder/onChange are read through the live editor instance and intentionally excluded, since re-running on those would tear down in-progress content
+  }, [id, shortcodeOptions]);
 
   return (
     <div css={scopedMerge(styles.root, cssProp)}>
@@ -274,10 +526,10 @@ const styles = defineStyles({
     columnGap: theme.spacing[4],
     width: '100%',
     '.mce-tinymce': {
+      position: 'relative',
       border: `0.63px solid ${theme.colors.border.default}`,
       boxShadow: 'none',
       borderRadius: theme.radius.sm,
-      overflow: 'hidden',
     },
     '.mce-statusbar': {
       display: 'none',
@@ -349,6 +601,75 @@ const styles = defineStyles({
         },
         '&.is-selected': {
           background: theme.colors.background.fillSecondary,
+        },
+      },
+    },
+    '.kirki-ecommerce-rich-text-shortcodes-control': {
+      position: 'relative',
+    },
+    '.kirki-ecommerce-rich-text-shortcodes-icon': {
+      fontFamily: 'monospace',
+      fontSize: '14px',
+      fontWeight: 700,
+      lineHeight: 1.5,
+    },
+    '.kirki-ecommerce-rich-text-shortcodes-options-panel': {
+      display: 'none',
+      position: 'absolute',
+      top: '100%',
+      left: 0,
+      zIndex: 1,
+      flexDirection: 'column',
+      maxHeight: '200px',
+      minWidth: '160px',
+      overflowY: 'auto',
+      background: theme.colors.background.surface,
+      border: `1px solid ${theme.colors.border.default}`,
+      borderRadius: theme.radius.sm,
+      '&.is-open': {
+        display: 'flex',
+      },
+      button: {
+        border: 'none',
+        borderBottom: `1px solid ${theme.colors.border.secondary}`,
+        background: 'transparent',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
+        cursor: 'pointer',
+        fontSize: '12px',
+        '&:hover': {
+          background: theme.colors.border.default,
+        },
+      },
+    },
+    '.kirki-ecommerce-rich-text-shortcodes-autocomplete-panel': {
+      display: 'none',
+      position: 'absolute',
+      zIndex: 1000,
+      flexDirection: 'column',
+      maxHeight: '200px',
+      minWidth: '160px',
+      overflowY: 'auto',
+      background: theme.colors.background.surface,
+      border: `1px solid ${theme.colors.border.default}`,
+      borderRadius: theme.radius.sm,
+      '&.is-open': {
+        display: 'flex',
+      },
+      button: {
+        border: 'none',
+        borderBottom: `1px solid ${theme.colors.border.secondary}`,
+        background: 'transparent',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
+        cursor: 'pointer',
+        fontSize: '12px',
+        '&:hover, &.is-highlighted': {
+          background: theme.colors.border.default,
         },
       },
     },

@@ -1,6 +1,5 @@
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
-import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -10,10 +9,7 @@ import EmailNotificationTemplateLayout from '@/features/settings/email/component
 import { EditNotificationTemplateProvider } from '@/features/settings/email/contexts/edit-notification-template-context';
 import { useEditNotificationTemplate } from '@/features/settings/email/hooks/use-edit-notification-template';
 import { emailTemplateStyles } from '@/features/settings/email/lib/template';
-import {
-  useEmailNotificationPreviewQuery,
-  useSendNotificationTestEmailMutation,
-} from '@/features/settings/email/services/email-notification-template';
+import { useSendNotificationTestEmailMutation } from '@/features/settings/email/services/email-notification-template';
 import EditNotificationTemplateSkeleton from '@/features/settings/email/skeletons/edit-notification-template-skeleton';
 import { SendIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
@@ -21,8 +17,7 @@ import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const EditNotificationTemplateContent = () => {
-  const { form, ref, loaded } = useEditNotificationTemplate();
-  const { data: previewData } = useEmailNotificationPreviewQuery(ref.type, ref.group, ref.key);
+  const { form, ref, loaded, shortcodes } = useEditNotificationTemplate();
   const sendTestEmailMutation = useSendNotificationTestEmailMutation();
 
   if (!loaded) {
@@ -32,11 +27,6 @@ const EditNotificationTemplateContent = () => {
   const handleSendTestEmail = form.handleSubmit((payload) => {
     sendTestEmailMutation.mutate({ type: ref.type, group: ref.group, key: ref.key, data: payload });
   });
-
-  const shortcodes = Object.entries(previewData?.variables ?? {}).filter(
-    (entry): entry is [string, string | number] =>
-      typeof entry[1] === 'string' || typeof entry[1] === 'number',
-  );
 
   return (
     <EmailNotificationTemplateLayout>
@@ -48,40 +38,16 @@ const EditNotificationTemplateContent = () => {
           >
             <CardContent>
               <Flex direction="column" gap={4}>
-                <Flex direction="column" gap={2}>
-                  <Text weight="semibold">{__('Content', 'kirki-ecommerce')}</Text>
-                  <Text color="secondary">
-                    {__('Edit the subject, heading and message for this notification.', 'kirki-ecommerce')}
-                  </Text>
-                </Flex>
                 <TextField name="subject" label={__('Subject', 'kirki-ecommerce')} />
                 <TextField name="heading" label={__('Heading', 'kirki-ecommerce')} />
-                <RichTextField name="message" label={__('Message', 'kirki-ecommerce')} />
+                <RichTextField
+                  name="message"
+                  label={__('Content', 'kirki-ecommerce')}
+                  shortcodes={shortcodes}
+                />
               </Flex>
             </CardContent>
           </Card>
-          {shortcodes.length > 0 && (
-            <Card
-              data-search-skip="true"
-              cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
-            >
-              <CardContent>
-                <Flex direction="column" gap={3}>
-                  <Flex direction="column" gap={2}>
-                    <Text weight="semibold">{__('Available Shortcodes', 'kirki-ecommerce')}</Text>
-                    <Text color="secondary">
-                      {__('Use these in the heading or message — they resolve automatically.', 'kirki-ecommerce')}
-                    </Text>
-                  </Flex>
-                  <Flex gap={2} wrap="wrap">
-                    {shortcodes.map(([tag]) => (
-                      <Badge key={tag} variant="secondary">{`{${tag}}`}</Badge>
-                    ))}
-                  </Flex>
-                </Flex>
-              </CardContent>
-            </Card>
-          )}
         </Flex>
 
         <Flex direction="column" gap={4} cssOverride={{ width: '60%' }}>
@@ -97,7 +63,11 @@ const EditNotificationTemplateContent = () => {
             </Button>
           </Flex>
           <Card
-            cssOverride={mergeCss(cardStyles.innerCard, emailTemplateStyles.squareCard, styles.previewCard)}
+            cssOverride={mergeCss(
+              cardStyles.innerCard,
+              emailTemplateStyles.squareCard,
+              styles.previewCard,
+            )}
           >
             <CardContent cssOverride={styles.previewCardContent}>
               <EmailNotificationTemplatePreview templateRef={ref} form={form} />

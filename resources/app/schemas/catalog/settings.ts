@@ -130,15 +130,14 @@ export type CheckoutSettings = z.infer<typeof CheckoutSettingsSchema>;
 
 /**
  * Mirrors what the backend actually persists per notification entry in
- * `email.json` (`is_enabled`/`subject`/`heading`/`message`) — there is no
- * `name` field, and `shortcodes` is deliberately excluded (its stored data
- * is currently unreliable placeholder content per notification, see
- * design.md; the editor's reference shortcode list is sourced from the
- * preview endpoint's `variables` instead). `key` is not part of the stored
- * record — it's the entry's own key within its `EmailNotificationGroupSchema`
- * record, attached here so list items derived from that record carry it.
- * Kept `.passthrough()` since notification-specific extra fields may still
- * appear (matching the form side, `email-settings-form.ts`).
+ * `email.json` (`is_enabled`/`subject`/`heading`/`message`/`shortcodes`) —
+ * there is no `name` field. `shortcodes` is the read-only per-notification
+ * reference list (`{label, value}[]`, e.g. `{ label: 'Order Number', value:
+ * '{order_number}' }`) shown in the message editor's shortcode picker. `key`
+ * is not part of the stored record — it's the entry's own key within its
+ * `EmailNotificationGroupSchema` record, attached here so list items derived
+ * from that record carry it. Kept `.passthrough()` since notification-specific
+ * extra fields may still appear (matching the form side, `email-settings-form.ts`).
  */
 export const EmailNotificationSchema = z
   .object({
@@ -147,8 +146,11 @@ export const EmailNotificationSchema = z
     subject: z.string().nullish(),
     heading: z.string().nullish(),
     message: z.string().nullish(),
+    shortcodes: z.array(z.object({ label: z.string(), value: z.string() })).nullish(),
   })
   .passthrough();
+
+export type EmailNotification = z.infer<typeof EmailNotificationSchema>;
 
 export const EmailNotificationGroupSchema = z.record(EmailNotificationSchema);
 

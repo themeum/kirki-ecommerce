@@ -118,13 +118,14 @@ describe('CheckoutSettingsSchema', () => {
 });
 
 describe('EmailNotificationSchema', () => {
-  it('accepts the documented per-entry shape (is_enabled/subject/heading/message, no name/shortcodes)', () => {
+  it('accepts the documented per-entry shape (is_enabled/subject/heading/message/shortcodes, no name)', () => {
     const result = EmailNotificationSchema.safeParse({
       key: 'order_confirmation',
       is_enabled: true,
       subject: 'New Order',
       heading: 'New Order',
       message: '<p>Hi there!</p>',
+      shortcodes: [{ label: 'Order Number', value: '{order_number}' }],
     });
     expect(result.success).toBe(true);
   });

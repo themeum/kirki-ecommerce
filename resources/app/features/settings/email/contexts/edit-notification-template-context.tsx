@@ -21,6 +21,7 @@ import { useUnsavedNavigationGuard } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
+import type { EmailNotification } from '@/schemas/catalog/settings';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 
 export type EditNotificationTemplateContextValue = {
@@ -36,6 +37,7 @@ export type EditNotificationTemplateContextValue = {
   isSaving: boolean;
   isBlocked: boolean;
   shakeSignal: number;
+  shortcodes: { label: string; value: string }[];
   onSave: () => Promise<void>;
   onDiscard: () => void;
 };
@@ -43,6 +45,8 @@ export type EditNotificationTemplateContextValue = {
 const EditNotificationTemplateContext = createContext<EditNotificationTemplateContextValue | null>(
   null,
 );
+
+const EMPTY_SHORTCODES: { label: string; value: string }[] = [];
 
 type EditNotificationTemplateProviderProps = {
   children: ReactNode;
@@ -62,8 +66,8 @@ const EditNotificationTemplateProvider = ({ children }: EditNotificationTemplate
   const rootKey = notificationRootKey(ref.type);
   const groupKey = notificationGroupKey(ref.group);
   const currentNotification = (
-    emailSettingsData?.[rootKey] as Record<string, Record<string, unknown>> | undefined
-  )?.[groupKey]?.[ref.key] as Record<string, unknown> | undefined;
+    emailSettingsData?.[rootKey] as Record<string, Record<string, EmailNotification>> | undefined
+  )?.[groupKey]?.[ref.key];
 
   const form = useForm<
     EmailNotificationTemplateFormInput,
@@ -132,6 +136,7 @@ const EditNotificationTemplateProvider = ({ children }: EditNotificationTemplate
     isSaving: isPending,
     isBlocked,
     shakeSignal,
+    shortcodes: currentNotification?.shortcodes ?? EMPTY_SHORTCODES,
     onSave: handleSave,
     onDiscard: handleDiscard,
   };
