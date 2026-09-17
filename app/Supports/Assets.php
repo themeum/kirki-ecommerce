@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
@@ -99,7 +100,7 @@ class Assets
             'login_url' => esc_url(wp_login_url()),
         ];
 
-        $config_data = apply_filters('kirki_ecommerce_config_data', $config_data);
+        $config_data = apply_filters(CustomHookNames::CONFIG_DATA, $config_data);
 
         return sprintf(
             'window.kirki_ecommerce = %s;',
