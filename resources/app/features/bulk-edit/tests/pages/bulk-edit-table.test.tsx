@@ -353,6 +353,91 @@ describe('BulkEditPage grid', () => {
     expect(getCell('track_inventory', 2)!.querySelector<HTMLButtonElement>('button')!.dataset.state).toBe('unchecked');
   });
 
+  it('the SKU header Generate button appears only while SKU cells are selected', async () => {
+    renderBulkEditPage([buildVariant(1), buildVariant(2)]);
+
+    await waitFor(() => expect(getCellInput('sku', 0)).toBeTruthy());
+
+    expect(screen.queryByRole('button', { name: 'Generate' })).not.toBeInTheDocument();
+
+    fireEvent.mouseDown(getCell('base_price', 0)!);
+    fireEvent.mouseUp(window);
+
+    expect(screen.queryByRole('button', { name: 'Generate' })).not.toBeInTheDocument();
+
+    fireEvent.mouseDown(getCell('sku', 0)!);
+    fireEvent.mouseUp(window);
+
+    expect(screen.getByRole('button', { name: 'Generate' })).toBeInTheDocument();
+  });
+
+  it('the Generate button requests one SKU per selected row and writes each one back', async () => {
+    const requested: number[][] = [];
+    server.use(
+      http.post(`${baseUrl()}${endpoints.VARIANTS_GENERATE_SKUS}`, async ({ request }) => {
+        const body = (await request.json()) as { variant_ids: number[] };
+        requested.push(body.variant_ids);
+        return HttpResponse.json({
+          data: body.variant_ids.map((variantId, index) => ({
+            variant_id: variantId,
+            sku: `GEN-00${index + 1}`,
+          })),
+          message: 'ok',
+        });
+      }),
+    );
+
+    renderBulkEditPage([buildVariant(1), buildVariant(2), buildVariant(3)]);
+
+    await waitFor(() => expect(getCellInput('sku', 0)).toBeTruthy());
+
+    fireEvent.mouseDown(getCell('sku', 0)!);
+    fireEvent.mouseUp(window);
+    fireEvent.mouseDown(getCell('sku', 1)!, { shiftKey: true });
+    fireEvent.mouseUp(window);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Generate' }));
+
+    await waitFor(() => expect(getCellInput('sku', 0)?.value).toBe('GEN-001'));
+
+    expect(requested).toEqual([[1, 2]]);
+    expect(getCellInput('sku', 1)?.value).toBe('GEN-002');
+    expect(getCellInput('sku', 2)?.value).toBe('SKU-3');
+  });
+
+  it('dragging the SKU fill handle generates a SKU for every row in the range, origin included', async () => {
+    server.use(
+      http.post(`${baseUrl()}${endpoints.VARIANTS_GENERATE_SKUS}`, async ({ request }) => {
+        const body = (await request.json()) as { variant_ids: number[] };
+        return HttpResponse.json({
+          data: body.variant_ids.map((variantId, index) => ({
+            variant_id: variantId,
+            sku: `GEN-00${index + 1}`,
+          })),
+          message: 'ok',
+        });
+      }),
+    );
+
+    renderBulkEditPage([buildVariant(1), buildVariant(2), buildVariant(3)]);
+
+    await waitFor(() => expect(getCellInput('sku', 0)).toBeTruthy());
+
+    fireEvent.mouseDown(getCell('sku', 0)!);
+    fireEvent.mouseUp(window);
+
+    const grabber = getCell('sku', 0)!.querySelector<HTMLElement>('[data-grabber="true"]');
+    fireEvent.mouseDown(grabber!);
+    fireEvent.mouseEnter(getCell('sku', 1)!);
+    fireEvent.mouseEnter(getCell('sku', 2)!);
+    fireEvent.mouseUp(window);
+
+    await waitFor(() => expect(getCellInput('sku', 0)?.value).toBe('GEN-001'));
+
+    expect(getCellInput('sku', 1)?.value).toBe('GEN-002');
+    expect(getCellInput('sku', 2)?.value).toBe('GEN-003');
+  });
+
   it('clicking a cell outside the selection replaces it', async () => {
     renderBulkEditPage([buildVariant(1), buildVariant(2), buildVariant(3)]);
 

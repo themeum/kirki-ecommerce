@@ -38,6 +38,8 @@ export const endpoints = {
   VARIANTS_BULK: '/variants/bulk',
   VARIANTS_BULK_BY_IDS: (ids: string | (string | number)[]) =>
     `/variants/bulk/${Array.isArray(ids) ? ids.join(',') : ids}`,
+  VARIANT_GENERATE_SKU: '/variants/generate-sku',
+  VARIANTS_GENERATE_SKUS: '/variants/generate-skus',
 
   COUNTRIES: '/countries',
 

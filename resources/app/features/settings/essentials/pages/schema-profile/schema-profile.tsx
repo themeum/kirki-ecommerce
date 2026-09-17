@@ -86,7 +86,7 @@ const SchemaProfileComponent = () => {
     >
       <CardContent>
         <HeaderActionsCard
-          header={__('Product Schemas', 'kirki-ecommerce')}
+          header={__('Schemas', 'kirki-ecommerce')}
           subHeader={__(
             'Structured data properties attached to products for richer search listings.',
             'kirki-ecommerce',

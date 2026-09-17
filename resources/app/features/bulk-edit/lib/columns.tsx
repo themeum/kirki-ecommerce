@@ -27,6 +27,8 @@ type BulkEditColumnGroup = {
 
 const ROW_HEIGHT = 32;
 
+const SKU_FIELD = 'sku';
+
 const bulkEditColumns: ColumnDef<ProductVariant>[] = [
   {
     id: 'variant',
@@ -86,10 +88,10 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
     cell: BulkEditCell,
   },
   {
-    id: 'sku',
+    id: SKU_FIELD,
     header: __('SKU', 'kirki-ecommerce'),
-    size: 160,
-    meta: { cellKind: 'text' },
+    size: 260,
+    meta: { cellKind: 'text', alignment: 'center' },
     cell: BulkEditCell,
   },
   {
@@ -216,5 +218,5 @@ const bulkEditColumnGroups: BulkEditColumnGroup[] = [
   },
 ];
 
-export { bulkEditColumnGroups, bulkEditColumns, ROW_HEIGHT };
+export { bulkEditColumnGroups, bulkEditColumns, ROW_HEIGHT, SKU_FIELD };
 export type { BulkEditCellKind, BulkEditColumnGroup, BulkEditGate };

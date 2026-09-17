@@ -423,6 +423,7 @@ Styling goes through `@emotion/react`, not plain CSS modules or inline
 - Define styles with `defineStyles({...})` from `@/theme/mixins`, keyed by element role
 - Reference design tokens from `theme` (`@/theme`) — colors, spacing,
   radius, typography — instead of hardcoded values
+- Make sure the applied design does not cause any layout shifting to the interface.
 - Apply with the `css` prop (`scoped(styles.icon)` for scoped styles), and
   reserve the `style` prop for truly dynamic, runtime-computed values
 

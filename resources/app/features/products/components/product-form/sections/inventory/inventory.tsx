@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import { generateSku } from '@/features/products/lib/utils';
+import { useGenerateSkuMutation } from '@/features/inventory';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { WandIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -18,7 +18,8 @@ import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const Inventory = () => {
-  const { control, setValue } = useFormContext<ProductFormInput>();
+  const { control, setValue, getValues } = useFormContext<ProductFormInput>();
+  const generateSkuMutation = useGenerateSkuMutation();
   const trackInventory = Boolean(
     useWatch({ control, name: 'variants.0.track_inventory' }),
   );
@@ -33,10 +34,24 @@ const Inventory = () => {
   };
 
   const handleGenerateSku = () => {
-    setValue('variants.0.sku', generateSku(), {
-      shouldDirty: true,
-      shouldTouch: true,
-    });
+    const values = getValues();
+
+    generateSkuMutation.mutate(
+      {
+        title: values.title,
+        brand_id: values.brand?.id ?? null,
+        category_ids: values.categories?.map((category) => category.id) ?? [],
+        attribute_value_ids: values.variants?.[0]?.attribute_values ?? [],
+      },
+      {
+        onSuccess: (response) => {
+          setValue('variants.0.sku', response.data.sku, {
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -104,6 +119,7 @@ const Inventory = () => {
               variant="ghost"
               size="icon"
               onClick={handleGenerateSku}
+              loading={generateSkuMutation.isPending}
               aria-label={__('Generate SKU', 'kirki-ecommerce')}
             >
               <WandIcon />
@@ -111,7 +127,7 @@ const Inventory = () => {
           </Flex>
           <TextField
             name="variants.0.sku"
-            placeholder={__('SKU-XYZ-1234', 'kirki-ecommerce')}
+            placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')}
           />
         </Flex>
 

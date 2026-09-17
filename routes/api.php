@@ -153,6 +153,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
     Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
+    Route::post('/variants/generate-sku', [VariantController::class, 'generate_sku']);
+    Route::post('/variants/generate-skus', [VariantController::class, 'generate_skus']);
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
     Route::put('/variants/bulk', [VariantController::class, 'bulk_update']);
     Route::get('/variants', [VariantController::class, 'get']);

@@ -77,6 +77,8 @@ const createSelectionStore = (): SelectionStore => {
 type CellSelectionActions = {
   /** Rows a value change at (field, row) should propagate to. */
   getPropagationTargets: (field: string, row: number) => number[];
+  /** Every row currently selected in `field`, or none when the selection sits in another column. */
+  getSelectedRows: (field: string) => number[];
   onCellMouseDown: (field: string, row: number, selectable: boolean, shiftKey: boolean, metaOrCtrlKey: boolean) => void;
   onCellMouseEnter: (field: string, row: number, selectable: boolean) => void;
   onGrabberMouseDown: (field: string, row: number) => void;
@@ -253,6 +255,24 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
     [store],
   );
 
+  /**
+   * Read imperatively at click time rather than exposed as a subscribed
+   * snapshot: `selectionRange` builds a fresh array on every call, which
+   * `useSyncExternalStore` would treat as a changed value on every store
+   * notification. Components that need to *show* something for a selection
+   * subscribe to `useSelectedRowCount` (a number) instead.
+   */
+  const getSelectedRows = useCallback(
+    (field: string) => {
+      const { selection: current } = store.getState();
+      if (current?.field !== field) {
+        return [];
+      }
+      return selectionRange(current);
+    },
+    [store],
+  );
+
   useEffect(() => {
     const handleMouseUp = () => {
       const { selection: current } = store.getState();
@@ -394,6 +414,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
   const actions = useMemo<CellSelectionActions>(
     () => ({
       getPropagationTargets,
+      getSelectedRows,
       onCellMouseDown,
       onCellMouseEnter,
       onGrabberMouseDown,
@@ -401,7 +422,7 @@ const CellSelectionProvider = ({ children, containerRef, onFillCommit, onTypeToE
       deactivateCell,
       clear,
     }),
-    [getPropagationTargets, onCellMouseDown, onCellMouseEnter, onGrabberMouseDown, activateCell, deactivateCell, clear],
+    [getPropagationTargets, getSelectedRows, onCellMouseDown, onCellMouseEnter, onGrabberMouseDown, activateCell, deactivateCell, clear],
   );
 
   return (
@@ -449,6 +470,14 @@ const useIsFocusCell = (field: string, row: number): boolean => {
   return useSyncExternalStore(store.subscribe, () => isFocusCell(store.getState().selection, field, row));
 };
 
+const useSelectedRowCount = (field: string): number => {
+  const store = useCellSelectionStore();
+  return useSyncExternalStore(store.subscribe, () => {
+    const { selection } = store.getState();
+    return selection?.field === field ? selectionRange(selection).length : 0;
+  });
+};
+
 const useIsActiveCell = (field: string, row: number): boolean => {
   const store = useCellSelectionStore();
   return useSyncExternalStore(store.subscribe, () => {
@@ -457,5 +486,5 @@ const useIsActiveCell = (field: string, row: number): boolean => {
   });
 };
 
-export { CellSelectionProvider, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsFocusCell, useIsHandleCell };
+export { CellSelectionProvider, useCellSelection, useIsActiveCell, useIsCellFilled, useIsCellSelected, useIsFocusCell, useIsHandleCell, useSelectedRowCount };
 export type { FillCommitPayload };
