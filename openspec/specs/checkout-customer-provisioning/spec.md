@@ -36,12 +36,17 @@ When provisioning a `Customer` record for an authenticated checkout user, the sy
 - **THEN** the missing field is populated from the corresponding billing field submitted in the checkout request
 
 ### Requirement: Shipping and billing addresses are created for the new customer
-When a `Customer` record is auto-provisioned during checkout, the system SHALL also create two `Address` records of type `home` for that customer: one populated from the request's shipping fields with `is_default_shipping` set to true, and one populated from the request's billing fields with `is_default_billing` set to true. The request's submitted billing fields are used as-is — if the shopper chose "same as shipping" at checkout, the request is expected to already carry the shipping values in its billing fields; the system does not branch on or persist any such flag itself.
+When a `Customer` record is auto-provisioned during checkout, the system SHALL also create `Address` record(s) of type `home` for that customer from the request's shipping and billing fields. When the checkout request indicates billing is the same as shipping, a single `Address` record is created from the shipping fields with both `is_default_shipping` and `is_default_billing` set to true. Otherwise, two `Address` records are created: one from the shipping fields with `is_default_shipping` true, and one from the billing fields with `is_default_billing` true.
 
-#### Scenario: Addresses created from checkout payload
-- **WHEN** a new `Customer` record is provisioned during checkout
+#### Scenario: Addresses created from checkout payload with different shipping and billing
+- **WHEN** a new `Customer` record is provisioned during checkout and the request's shipping and billing fields differ
 - **THEN** a `home` `Address` record with `is_default_shipping` true is created for that customer from the request's shipping fields
-- **AND** a `home` `Address` record with `is_default_billing` true is created for that customer from the request's billing fields, whatever values the request submitted for them
+- **AND** a separate `home` `Address` record with `is_default_billing` true is created for that customer from the request's billing fields
+
+#### Scenario: Addresses created from checkout payload with billing same as shipping
+- **WHEN** a new `Customer` record is provisioned during checkout and the checkout request indicates billing is the same as shipping
+- **THEN** a single `home` `Address` record is created for that customer from the shipping fields
+- **AND** that address has both `is_default_shipping` and `is_default_billing` set to true
 
 #### Scenario: Existing customer's addresses are kept in sync via default flags, not type
 - **WHEN** checkout resolves to an existing `Customer` record and updates or creates their shipping and/or billing address

@@ -41,4 +41,7 @@ class CreateCustomerDTO extends DTO
 
     /** @var int|null */
     public $updated_by = null;
+
+    /** @var \Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO[] */
+    public $addresses = [];
 }

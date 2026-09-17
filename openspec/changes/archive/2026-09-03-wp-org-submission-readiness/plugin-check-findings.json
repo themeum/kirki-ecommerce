@@ -6457,7 +6457,7 @@
     "column": 17,
     "type": "WARNING",
     "code": "WordPress.Security.ValidatedSanitizedInput.MissingUnslash",
-    "message": "$_COOKIE[static::DISPLAY_CURRENCY_COOKIE] not unslashed before sanitization. Use wp_unslash() or similar",
+    "message": "$_COOKIE[CookieNames::CURRENCY] not unslashed before sanitization. Use wp_unslash() or similar",
     "docs": "",
     "file": "app/Managers/MoneyManager.php"
   },
@@ -6466,7 +6466,7 @@
     "column": 17,
     "type": "WARNING",
     "code": "WordPress.Security.ValidatedSanitizedInput.InputNotSanitized",
-    "message": "Detected usage of a non-sanitized input variable: $_COOKIE[static::DISPLAY_CURRENCY_COOKIE]",
+    "message": "Detected usage of a non-sanitized input variable: $_COOKIE[CookieNames::CURRENCY]",
     "docs": "",
     "file": "app/Managers/MoneyManager.php"
   },
@@ -6907,7 +6907,7 @@
     "column": 23,
     "type": "WARNING",
     "code": "WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound",
-    "message": "Hook names invoked by a theme/plugin should start with the theme/plugin prefix. Found: &quot;HookNames::USER_EMAIL_VERIFIED&quot;.",
+    "message": "Hook names invoked by a theme/plugin should start with the theme/plugin prefix. Found: &quot;CustomHookNames::USER_EMAIL_VERIFIED&quot;.",
     "docs": "",
     "file": "app/Wordpress/User.php"
   },
@@ -6916,7 +6916,7 @@
     "column": 13,
     "type": "WARNING",
     "code": "WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound",
-    "message": "Hook names invoked by a theme/plugin should start with the theme/plugin prefix. Found: &quot;HookNames::ECOMMERCE_PAYMENT_PROVIDERS&quot;.",
+    "message": "Hook names invoked by a theme/plugin should start with the theme/plugin prefix. Found: &quot;CustomHookNames::ECOMMERCE_PAYMENT_PROVIDERS&quot;.",
     "docs": "",
     "file": "app/Payment/PaymentManager.php"
   },

@@ -4,6 +4,7 @@ import { http, HttpResponse } from 'msw';
 import { createMemoryRouter, Outlet, RouterProvider } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { AppConfigProvider } from '@/contexts/app-config-context';
 import ShippingSettings from '@/features/settings/shipping/pages/shipping-settings';
 import type { ShippingZone } from '@/features/settings/shipping/types';
 import type {
@@ -89,7 +90,9 @@ const renderPage = () => {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AppConfigProvider>
+        <RouterProvider router={router} />
+      </AppConfigProvider>
     </QueryClientProvider>,
   );
 };

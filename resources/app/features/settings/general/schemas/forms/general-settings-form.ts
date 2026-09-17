@@ -48,6 +48,7 @@ const GeneralSettingsFormShape = z.object({
       reset_sequence_every_year: z.boolean().default(false),
     })
     .nullish(),
+  is_tax_calculation_enabled: z.boolean().default(true),
 });
 
 export const GeneralSettingsFormSchema = prepareFormSchema(GeneralSettingsFormShape).transform(
@@ -79,6 +80,7 @@ export const GeneralSettingsFormSchema = prepareFormSchema(GeneralSettingsFormSh
         ? Boolean(values.invoice_number.reset_sequence_every_year)
         : false,
     },
+    is_tax_calculation_enabled: values.is_tax_calculation_enabled,
   }),
 );
 

@@ -23,6 +23,9 @@ import { noop } from '@/utils/function';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
+const SELECT_TRIGGER = '[data-slot="select-trigger"]';
+const SELECT_ICON = '[data-slot="select-icon"]';
+
 const statusBarCss = (isActive: boolean): CSSObject => ({
   width: '2px',
   height: '14px',
@@ -88,7 +91,7 @@ const PageTable = ({ pages }: PageTableProps) => {
     () => [
       {
         id: 'id',
-        header: __('Id', 'kirki-ecommerce'),
+        header: __('ID', 'kirki-ecommerce'),
         enableSorting: false,
         cell: ({ row }) => (
           <Text variant="tiny" color="secondary">
@@ -132,36 +135,27 @@ const PageTable = ({ pages }: PageTableProps) => {
         enableSorting: false,
         meta: { cssOverride: styles.pageColumn },
         cell: ({ row }) => (
-          <>
-            <span data-hover-hide>
-              <Text variant="tiny" cssOverride={styles.truncate}>
-                {row.original.title}
-              </Text>
-            </span>
-            <span data-hover-show>
-              <Select
-                defaultValue={String(row.original.pageId)}
-                onValueChange={(value) => handlePageChange(row.original.id, Number(value))}
-              >
-                <SelectTrigger cssOverride={styles.selectTrigger}>
-                  <SelectValue>
-                    <Text variant="tiny" cssOverride={styles.truncate}>
-                      {isDefined(row.original.pageId)
-                        ? row.original.title
-                        : __('Select page', 'kirki-ecommerce')}
-                    </Text>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {allPages?.map((option) => (
-                    <SelectItem key={option.id} value={String(option.id)}>
-                      {option.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </span>
-          </>
+          <Select
+            defaultValue={String(row.original.pageId)}
+            onValueChange={(value) => handlePageChange(row.original.id, Number(value))}
+          >
+            <SelectTrigger cssOverride={styles.selectTrigger}>
+              <SelectValue>
+                <Text variant="tiny" cssOverride={styles.truncate}>
+                  {isDefined(row.original.pageId)
+                    ? row.original.title
+                    : __('Select page', 'kirki-ecommerce')}
+                </Text>
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {allPages?.map((option) => (
+                <SelectItem key={option.id} value={String(option.id)}>
+                  {option.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ),
       },
       {
@@ -178,6 +172,7 @@ const PageTable = ({ pages }: PageTableProps) => {
   return (
     <DataTable
       tableId="pages"
+      enableColumnVisibility={false}
       data={data}
       columns={columns}
       pageCount={1}
@@ -188,6 +183,7 @@ const PageTable = ({ pages }: PageTableProps) => {
       sorting={[]}
       onSortingChange={noop}
       cssOverride={styles.tableCss}
+      noCardShadown
     />
   );
 };
@@ -198,11 +194,22 @@ export default PageTable;
 
 const styles = defineStyles({
   tableCss: {
+    '& [data-table-card="true"]': {
+      boxShadow: 'none',
+    },
     '& thead th': { height: '40px' },
     '& tbody td': { height: '56px' },
     '& [data-hover-show]': { display: 'none' },
-    '& tbody tr:hover [data-hover-show], & [data-hover-show]:focus-within': { display: 'flex' },
-    '& tbody tr:hover [data-hover-hide], & [data-hover-show]:focus-within': { display: 'none' },
+    '& tbody tr:hover [data-hover-show], & td:focus-within [data-hover-show]': { display: 'flex' },
+    '& tbody tr:hover [data-hover-hide], & td:focus-within [data-hover-hide]': { display: 'none' },
+    [`& tbody tr:hover ${SELECT_TRIGGER}`]: {
+      backgroundColor: theme.colors.background.surface,
+      borderColor: theme.colors.border.secondary,
+    },
+    [`& tbody tr:hover ${SELECT_ICON}, & ${SELECT_TRIGGER}:focus-visible ${SELECT_ICON}, & ${SELECT_TRIGGER}[data-state="open"] ${SELECT_ICON}`]:
+      {
+        visibility: 'visible',
+      },
   },
   truncate: {
     display: 'block',
@@ -232,5 +239,10 @@ const styles = defineStyles({
   },
   selectTrigger: {
     height: '32px',
+    borderColor: 'transparent',
+    backgroundColor: theme.colors.background.surfaceAlt,
+    [`& ${SELECT_ICON}`]: {
+      visibility: 'hidden',
+    },
   },
 });

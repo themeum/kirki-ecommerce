@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { EllipseIcon, EllipsisVertical } from 'lucide-react';
+import { Ellipsis, EllipsisVertical } from 'lucide-react';
 import {
   type ComponentProps,
   type CSSProperties,
@@ -118,7 +118,7 @@ const DropdownButton = ({
           disabled={state === 'disabled'}
           cssOverride={buttonCss}
         >
-          {direction === 'vertical' ? <EllipsisVertical /> : <EllipseIcon />}
+          {direction === 'vertical' ? <EllipsisVertical /> : <Ellipsis />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent style={dropdownStyle}>

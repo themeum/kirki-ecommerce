@@ -72,7 +72,7 @@
   }
 
   .kecom-contact-login-prompt {
-    @include typography(base, regular, $text-secondary);
+    @include typography(base, normal, $text-secondary);
 
     a,
     .kecom-link {
@@ -86,7 +86,7 @@
   }
 
   .kecom-contact-guest-notice {
-    @include typography(sm, regular, $text-secondary);
+    @include typography(sm, normal, $text-secondary);
     margin-top: $spacing-2;
     margin-bottom: 0;
   }
@@ -121,7 +121,7 @@
   }
 
   .kecom-contact-user-email {
-    @include typography(base, regular, $text-secondary);
+    @include typography(base, normal, $text-secondary);
   }
 
   // Billing Form
@@ -177,7 +177,7 @@
     }
 
     .kecom-shipping-description {
-      @include typography(sm, regular, $text-secondary);
+      @include typography(sm, normal, $text-secondary);
     }
 
     .kecom-shipping-price {
@@ -240,6 +240,8 @@
 
     .kecom-products-section-modify {
       @include typography(base, medium);
+      padding: $spacing-4;
+      display: flex;
     }
 
     .kecom-section-title {
@@ -250,7 +252,7 @@
   // Coupon Form
   .kecom-coupon-form {
     @include flex();
-    gap: $spacing-6;
+    gap: $spacing-4;
     align-items: start;
 
     .kecom-field {
@@ -258,36 +260,12 @@
     }
   }
 
-  .kecom-applied-coupon {
-    @include flex-column();
+  .kecom-applied-coupons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
     gap: $spacing-4;
-
-    .kecom-applied-coupon-info {
-      @include flex-between();
-      border: 1px solid $icon-brand;
-      border-radius: $radius-lg;
-      padding: $spacing-3 $spacing-3 $spacing-3 $spacing-6;
-
-      .kecom-applied-coupon-code-wrapper {
-        @include flex-center();
-        gap: $spacing-4;
-      }
-
-      .kecom-coupon-code {
-        @include typography(base, medium);
-        text-transform: uppercase;
-      }
-
-      .kecom-coupon-discount {
-        text-transform: uppercase;
-      }
-
-      button {
-        height: 24px;
-        width: 24px;
-        @include flex-center();
-      }
-    }
+    margin-top: $spacing-6;
   }
 
   // Order Summary
@@ -300,7 +278,13 @@
   .kecom-summary-row {
     display: flex;
     justify-content: space-between;
-    @include typography(base, regular, $text-secondary);
+    @include typography(base, normal, $text-secondary);
+
+    &.kecom-discount-row {
+      padding-bottom: $spacing-6;
+      margin-bottom: $spacing-2;
+      border-bottom: 1px solid $border-default;
+    }
 
     &.kecom-total-row {
       font-weight: 700;
@@ -308,16 +292,60 @@
       padding-top: $spacing-6;
       margin-top: $spacing-2;
       border-top: 1px solid $border-default;
+      align-items: flex-start;
     }
+  }
+
+  .kecom-total-label-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kecom-total-currency {
+    @include typography(sm, normal, $text-subdued);
+    font-weight: 400;
+    margin-inline-end: $spacing-1;
+  }
+
+  .kecom-inclusive-tax-wrapper {
+    @include flex-column();
+    gap: $spacing-1;
+    margin-top: $spacing-1;
+    @include typography(sm, normal, $text-secondary);
+    font-weight: 400;
+  }
+
+  .kecom-inclusive-tax-summary {
+    color: $text-secondary;
+  }
+
+  .kecom-inclusive-tax-lines {
+    @include flex-column();
+    gap: $spacing-1;
+    padding-inline-start: $spacing-3;
+  }
+
+  .kecom-inclusive-tax-line {
+    @include typography(sm, normal, $text-subdued);
   }
 
   .kecom-summary-value {
     font-weight: 500;
     color: $text-primary;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
 
     &.kecom-total-value {
       font-weight: 700;
+      align-items: center;
     }
+  }
+
+  .kecom-summary-discount {
+    @include typography(sm, normal, $text-secondary);
+    text-decoration: line-through;
+    font-weight: 400;
   }
 
   // Address Section
@@ -455,6 +483,27 @@
   }
 
   .kecom-checkout-address-picker-text {
-    @include typography(sm, regular, $text-secondary);
+    @include typography(sm, normal, $text-secondary);
+  }
+}
+
+.kecom-consent-section {
+  @include flex-column();
+  gap: $spacing-3;
+  margin-bottom: $spacing-4;
+
+  .kecom-consent-text,
+  .kecom-checkbox-label {
+    @include typography(base, normal, $text-primary);
+    margin: 0;
+  }
+
+  .kecom-consent {
+    align-items: center;
+
+    a {
+      color: $text-primary;
+      text-decoration: underline;
+    }
   }
 }

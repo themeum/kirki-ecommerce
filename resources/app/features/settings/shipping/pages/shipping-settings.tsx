@@ -30,6 +30,7 @@ import ShippingBox from '@/features/settings/shipping/pages/shipping-box/shippin
 import ShippingProfile from '@/features/settings/shipping/pages/shipping-profile/shipping-profile';
 import ShippingZoneActions from '@/features/settings/shipping/pages/shipping-zone-actions';
 import ShippingSettingsSkeleton from '@/features/settings/shipping/skeletons/shipping-settings-skeleton';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { EditPenIcon, LocationIcon, TrashIcon, TruckIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -58,6 +59,7 @@ const ShippingSettings = () => {
     handleDeleteItem,
     handleCreateZone,
   } = useShippingSettings();
+  const baseCurrencySymbol = useBaseCurrencySymbol();
 
   return (
     <>
@@ -104,7 +106,7 @@ const ShippingSettings = () => {
                           ...method,
                           icon: shippingMethodIconMap[method.type] || null,
                           subText: getShippingMethodSubText(method),
-                          rightText: getShippingMethodRightText(method),
+                          rightText: getShippingMethodRightText(method, baseCurrencySymbol),
                         }));
                         const regionTags = getSelectedRegionTags(item?.regions, countryList);
                         const overflowCount = regionTags.length - MAX_VISIBLE_REGION_FLAGS;

@@ -1,7 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-
 import CheckboxField from '@/components/form/checkbox-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
@@ -17,18 +13,8 @@ import {
 } from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import { useTaxProfileForm } from '@/features/settings/tax/shared/hooks/use-tax-profile-form';
 import type { TaxProfile } from '@/features/settings/tax/shared/schemas/catalog/tax';
-import {
-  type TaxProfileFormInput,
-  type TaxProfileFormPayload,
-  TaxProfileFormSchema,
-} from '@/features/settings/tax/shared/schemas/forms/tax-profile-form';
-import {
-  useCreateTaxProfileMutation,
-  useUpdateTaxProfileMutation,
-} from '@/features/settings/tax/shared/services/tax';
-import type { ErrorResponse } from '@/libs/api';
-import { applyServerErrors } from '@/libs/form-errors';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -47,65 +33,19 @@ export const TaxProfilePopup = ({
   from = '',
   taxProfile = null,
 }: TaxProfilePopupProps) => {
-  const createMutation = useCreateTaxProfileMutation();
-  const updateMutation = useUpdateTaxProfileMutation();
-  const isSubmitting = createMutation.isPending || updateMutation.isPending;
-
-  const form = useForm<TaxProfileFormInput, unknown, TaxProfileFormPayload>({
-    resolver: zodResolver(TaxProfileFormSchema),
-    defaultValues: {
-      name: '',
-      is_default: false,
-    },
+  const { form, isSubmitting, isSaveDisabled, handleClose, handleSubmit } = useTaxProfileForm({
+    isOpen: !!isOpen,
+    editingProfile: from === 'edit' ? taxProfile : null,
+    onClose,
+    onSave,
   });
-
-  const nameValue = form.watch('name');
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    form.reset({
-      name: taxProfile?.name ?? '',
-      is_default: taxProfile?.is_default ?? false,
-    });
-  }, [isOpen, taxProfile, form]);
-
-  const handleOnPopupClose = () => {
-    form.reset({ name: '', is_default: false });
-    onClose();
-  };
-
-  const handleSubmit = async (payload: TaxProfileFormPayload) => {
-    try {
-      if (from === 'edit') {
-        if (!taxProfile) {
-          return;
-        }
-        const response = await updateMutation.mutateAsync({
-          id: taxProfile.id,
-          data: payload,
-        });
-        onSave(response.data?.id);
-        handleOnPopupClose();
-        return;
-      }
-
-      const response = await createMutation.mutateAsync(payload);
-      onSave(response.data?.id);
-      handleOnPopupClose();
-    } catch (error) {
-      applyServerErrors(form, error as ErrorResponse);
-    }
-  };
 
   return (
     <Dialog
       open={!!isOpen}
       onOpenChange={(next) => {
         if (!next) {
-          handleOnPopupClose();
+          handleClose();
         }
       }}
     >
@@ -136,9 +76,9 @@ export const TaxProfilePopup = ({
             </DialogClose>
             <Button
               variant="primary"
-              onClick={form.handleSubmit(handleSubmit)}
+              onClick={handleSubmit}
               loading={isSubmitting}
-              disabled={!isSubmitting && nameValue === ''}
+              disabled={isSaveDisabled}
             >
               {from === 'edit' ? __('Update', 'kirki-ecommerce') : __('Save', 'kirki-ecommerce')}
             </Button>

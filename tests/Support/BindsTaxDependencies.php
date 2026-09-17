@@ -2,8 +2,10 @@
 
 namespace Kirki\Ecommerce\Tests\Support;
 
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Decisions\DecisionEngine;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Framework\Container;
 
 trait BindsTaxDependencies
@@ -19,6 +21,115 @@ trait BindsTaxDependencies
         $this->bind_money_dependencies();
 
         $container = Container::get_instance();
+        $container->alias('money', MoneyManager::class);
+
+        $decisions = require dirname(__DIR__, 2) . '/config/decisions.php';
+
+        $container->singleton(
+            DecisionEngine::class,
+            fn() => new DecisionEngine($decisions['conditions'], $decisions['actions'])
+        );
+    }
+
+    /**
+     * Bind everything `Tax::get_tax_strategy()` needs to resolve a real
+     * strategy end to end: `Settings::get(OptionKeys::TAX_SETTINGS)`, the
+     * Money facade, and the decision engine - so a test can exercise
+     * `TaxStrategyFactory`/`RecalculateCartAction` exactly as production
+     * does, rather than constructing a strategy directly.
+     *
+     * Boots the real `Application` (not the lighter container
+     * `bind_tax_dependencies()` uses) because `TaxStrategyFactory` reads
+     * `config('tax-strategies')`, which needs a real `config_path()`. The
+     * real EU country dataset loads along with it - `EuropeanCountryChecker`
+     * needs no faking.
+     *
+     * @param array $tax_regions Same shape the tax settings UI persists:
+     *        each entry a region (`code`, `is_enabled`, plus its rate/rule
+     *        fields).
+     * @param bool $is_tax_inclusive_price
+     * @param string $base_currency
+     * @return void
+     */
+    protected function bind_full_tax_settings(array $tax_regions, bool $is_tax_inclusive_price = false, string $base_currency = 'USD'): void
+    {
+        $this->bootstrap_application();
+
+        $container = Container::get_instance();
+
+        $currency = new \stdClass();
+        $currency->code = $base_currency;
+
+        $currency_settings_object = new class {
+            public function get($key = null, $default = null)
+            {
+                return $default;
+            }
+        };
+
+        $tax_settings_data = [
+            'tax_regions' => $tax_regions,
+            'is_tax_inclusive_price' => $is_tax_inclusive_price,
+        ];
+
+        $tax_settings_object = new class($tax_settings_data) {
+            private array $data;
+
+            public function __construct(array $data)
+            {
+                $this->data = $data;
+            }
+
+            public function get($key = null, $default = null)
+            {
+                if ($key === null) {
+                    return $this->data;
+                }
+
+                return $this->data[$key] ?? $default;
+            }
+        };
+
+        $settings_factory = new class($currency_settings_object, $tax_settings_object) {
+            private $currency_settings;
+            private $tax_settings;
+
+            public function __construct($currency_settings, $tax_settings)
+            {
+                $this->currency_settings = $currency_settings;
+                $this->tax_settings = $tax_settings;
+            }
+
+            public function get(string $key)
+            {
+                if ($key === 'currency') {
+                    return $this->currency_settings;
+                }
+
+                if ($key === OptionKeys::TAX_SETTINGS) {
+                    return $this->tax_settings;
+                }
+
+                throw new \Exception("Invalid settings key: {$key}");
+            }
+        };
+
+        $currency_service = new class($currency) {
+            private $currency;
+
+            public function __construct($currency)
+            {
+                $this->currency = $currency;
+            }
+
+            public function get_base_currency()
+            {
+                return $this->currency;
+            }
+        };
+
+        $container->instance('settings', $settings_factory);
+        $container->singleton(CurrencyService::class, fn() => $currency_service);
         $container->alias('money', MoneyManager::class);
 
         $decisions = require dirname(__DIR__, 2) . '/config/decisions.php';

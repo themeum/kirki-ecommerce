@@ -1,6 +1,5 @@
 <?php
 
-use Kirki\Ecommerce\App\Menu\Analytics;
 use Kirki\Ecommerce\App\Menu\Brands;
 use Kirki\Ecommerce\App\Menu\Categories;
 use Kirki\Ecommerce\App\Menu\Collections;
@@ -14,7 +13,6 @@ use Kirki\Ecommerce\App\Menu\Root;
 use Kirki\Ecommerce\App\Menu\Separator;
 use Kirki\Ecommerce\App\Menu\Settings;
 use Kirki\Ecommerce\App\Menu\Tags;
-use Kirki\Ecommerce\App\Menu\Tools;
 
 defined('ABSPATH') or exit;
 
@@ -29,11 +27,7 @@ return [
     Categories::class,
     Tags::class,
     Brands::class,
-    Separator::class,
-    Analytics::class,
-    Separator::class,
     Customers::class,
     Coupons::class,
     Settings::class,
-    Tools::class,
 ];

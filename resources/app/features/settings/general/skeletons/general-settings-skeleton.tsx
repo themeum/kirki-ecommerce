@@ -6,7 +6,7 @@ import { __ } from '@/wpi18n';
 
 const GeneralSettingsSkeleton = () => (
   <SettingsPageSkeleton
-    cards={[4, 4, 2, 2, 2]}
+    cards={[4, 4, 2, 2, 2, 1]}
     header={
       <SettingsPageHeader icon={<Home size={16} />} title={__('General', 'kirki-ecommerce')} />
     }

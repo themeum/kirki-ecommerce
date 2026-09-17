@@ -1,6 +1,4 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { type ReactNode, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 import HeaderActionsCard from '@/components/header-actions-card';
 import ActionGroup from '@/components/ui/action-group';
@@ -17,13 +15,15 @@ import {
   StackedItemTitle,
 } from '@/components/ui/stacked-items';
 import Text from '@/components/ui/text';
-import { taxKeys } from '@/features/settings';
 import { TaxProfilePopup } from '@/features/settings/tax/shared/components/tax-profile/tax-profile-dialog';
+import { TaxProfilePopover } from '@/features/settings/tax/shared/components/tax-profile/tax-profile-popover';
 import type { TaxProfile as TaxProfileType } from '@/features/settings/tax/shared/schemas/catalog/tax';
-import { deleteTaxProfile, useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
+import {
+  useDeleteTaxProfileMutation,
+  useTaxProfilesQuery,
+} from '@/features/settings/tax/shared/services/tax';
 import { useConfirmDelete } from '@/hooks';
 import { BoxClosedIcon, BoxOpenIcon, EditPenIcon, TrashIcon } from '@/icons';
-import { toastMutationError } from '@/services/helpers';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
@@ -34,16 +34,12 @@ type TaxProfileListItem = TaxProfileType & {
 };
 
 const TaxProfile = () => {
-  // Not folded into a shared tax hook alongside general-edit-region.tsx /
-  // edit-region-eu.tsx: this invalidates a different key (`taxKeys.all`,
-  // not the `tax` settings section) from inside an undo-toast's
-  // `onAutoClose` closure, so the two aren't provably the same operation.
-  const queryClient = useQueryClient();
   const [showPopup, setShowPopup] = useState(false);
   const [editingProfile, setEditingProfile] = useState<TaxProfileListItem | null>(null);
   const [taxProfileList, setTaxProfileList] = useState<TaxProfileListItem[]>([]);
 
   const { data: taxProfiles } = useTaxProfilesQuery();
+  const { mutate: deleteTaxProfile } = useDeleteTaxProfileMutation();
 
   useEffect(() => {
     const updatedData = (taxProfiles ?? []).map((item) => ({
@@ -65,28 +61,7 @@ const TaxProfile = () => {
         ),
       },
       () => {
-        const initialList = [...taxProfileList];
-
-        setTaxProfileList((prev) => prev.filter((profile) => profile?.id !== item?.id));
-        toast(__('Tax profile deleted', 'kirki-ecommerce'), {
-          duration: 5000,
-          action: {
-            label: __('Undo', 'kirki-ecommerce'),
-            onClick: () => {
-              setTaxProfileList(initialList);
-            },
-          },
-          onAutoClose: () => {
-            deleteTaxProfile(item?.id)
-              .then(() => {
-                void queryClient.invalidateQueries({ queryKey: taxKeys.all });
-              })
-              .catch((error) => {
-                toastMutationError(error);
-                setTaxProfileList(initialList);
-              });
-          },
-        });
+        deleteTaxProfile(item?.id);
       },
     );
   };
@@ -103,15 +78,17 @@ const TaxProfile = () => {
         cssOverride={cardStyles.formCard}
       >
         <CardContent>
-          <HeaderActionsCard
-            header={__('Tax Profiles', 'kirki-ecommerce')}
-            subHeader={__(
-              'Rate groups for products taxed differently, such as food, books or digital goods.',
-              'kirki-ecommerce',
-            )}
-            buttonText={__('Create Profile', 'kirki-ecommerce')}
-            onAdd={() => setShowPopup(true)}
-          />
+          <TaxProfilePopover isOpen={showPopup} onClose={() => setShowPopup(false)}>
+            <HeaderActionsCard
+              header={__('Tax Profiles', 'kirki-ecommerce')}
+              subHeader={__(
+                'Rate groups for products taxed differently, such as food, books or digital goods.',
+                'kirki-ecommerce',
+              )}
+              buttonText={__('Add', 'kirki-ecommerce')}
+              onAdd={() => setShowPopup(true)}
+            />
+          </TaxProfilePopover>
 
           <div css={scoped({ marginTop: theme.spacing[5] })}>
             {!taxProfileList?.length ? (
@@ -171,7 +148,6 @@ const TaxProfile = () => {
           </div>
         </CardContent>
       </Card>
-      {showPopup && <TaxProfilePopup isOpen={showPopup} onClose={() => setShowPopup(false)} />}
       {editingProfile && (
         <TaxProfilePopup
           isOpen={editingProfile}

@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -20,6 +21,7 @@ class OrderUpdateRequest extends Request
 
         $this->merge([
             'customer_id' => $customer_id ?? 0,
+            'currency_code' => $this->input('currency_code') ?? Money::resolve_display_currency(),
         ]);
     }
 
@@ -34,7 +36,8 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => 'required|integer|min:1',
 
             'currency_code' => 'nullable|string',
-            'coupon_code' => 'nullable|string',
+            'coupon_codes' => 'nullable|array',
+            'coupon_codes.*' => 'string',
 
             'shipping_method' => 'required|string',
 
@@ -81,7 +84,8 @@ class OrderUpdateRequest extends Request
             'items.*.quantity' => Sanitizer::INT,
 
             'currency_code' => Sanitizer::TEXT,
-            'coupon_code' => Sanitizer::TEXT,
+            'coupon_codes' => Sanitizer::ARRAY,
+            'coupon_codes.*' => Sanitizer::TEXT,
 
             'shipping_method' => Sanitizer::TEXT,
 

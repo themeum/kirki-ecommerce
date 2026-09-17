@@ -53,8 +53,20 @@ class OrderCalculationController
                 'postal_code' => $data['shipping_postal_code'],
                 'country' => $data['shipping_country']
             ],
+            'billing_address' => [
+                'first_name' => $data['billing_first_name'] ?? null,
+                'last_name' => $data['billing_last_name'] ?? null,
+                'email' => $data['billing_email'] ?? null,
+                'phone' => $data['billing_phone'] ?? null,
+                'address_line1' => $data['billing_address_line1'] ?? null,
+                'address_line2' => $data['billing_address_line2'] ?? null,
+                'city' => $data['billing_city'] ?? null,
+                'state' => $data['billing_state'] ?? null,
+                'postal_code' => $data['billing_postal_code'] ?? null,
+                'country' => $data['billing_country'] ?? null
+            ],
             'customer_id' => $data['customer_id'],
-            'coupon' => $data['coupon_code'] ?? null,
+            'coupon_codes' => $data['coupon_codes'] ?? [],
             'shipping_method_id' => $data['shipping_method'] ?? null,
             'customer_order_count' => 0,
         ]);
@@ -78,6 +90,7 @@ class OrderCalculationController
 
             $item_dto->product_id = $variant->product_id;
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
+            $item_dto->base_product_total = $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->tax_profile_id = $variant->tax_profile_id ?: $variant->product->tax_profile_id;
@@ -91,6 +104,6 @@ class OrderCalculationController
     {
         $customer = customer(null, $customer_id);
         // @todo: need to update this with order status which are terminal states
-        return $customer->get_customer()->orders()->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])->count();
+        return $customer->get_customer()->orders()->where_not_in('order_status', [OrderStatus::FAILED_CANCELLED, OrderStatus::REFUNDED])->count();
     }
 }

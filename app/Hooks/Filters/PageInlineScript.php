@@ -12,11 +12,12 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
-use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -34,7 +35,7 @@ class PageInlineScript extends BaseHook
 {
     public function get_name(): string
     {
-        return 'kirki_ecommerce_config_data';
+        return CustomHookNames::CONFIG_DATA;
     }
 
     public function get_type(): string
@@ -102,27 +103,10 @@ class PageInlineScript extends BaseHook
     protected function set_cart_page_data($view_data, $config)
     {
         $cart = $view_data['cart'];
-        $pricing = $cart['pricing'] ?? [];
-        $items = $cart['items'] ?? [];
         $cart_config = array(
             'items_count' => $cart['items_count'] ?? 0,
-            'pricing' => (object) array(
-                'display_subtotal_money_object' => (object) array(
-                    'display' => $pricing['display_subtotal_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-                'display_total_money_object' =>  (object) array(
-                    'display' => $pricing['display_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-            ),
-            'items' => array_map(fn($item) => (object) array(
-                'id' => $item['id'],
-                'display_product_total_money_object' => (object) array(
-                    'display' => $item['display_product_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-                'display_total_money_object' => (object) array(
-                    'display' => $item['display_total_money_object']->display ?? Money::format_from_decimal(0),
-                ),
-            ), $items),
+            'pricing' => $cart['pricing'] ?? [],
+            'items' => $cart['items'] ?? [],
         );
         $config['cart'] = $cart_config;
 
@@ -143,39 +127,33 @@ class PageInlineScript extends BaseHook
     {
         $data    = (object) $view_data;
         $cart    = $data->cart ?? null;
-        $pricing = $cart['pricing'] ?? [];
-
-        $discount_details = $pricing['discount_details'] ?? null;
 
         $config['checkout_cart'] = [
             'items'                       => $cart['items'] ?? [],
             'is_billing_same_as_shipping' => (bool) ($cart['is_billing_same_as_shipping'] ?? false),
             'shipping_address'            => $cart['shipping_address'] ?? null,
             'billing_address'             => $cart['billing_address'] ?? null,
-            'pricing'                     => [
-                'discount_details'                   => $discount_details ? [
-                    'code'                       => $discount_details['code'] ?? null,
-                    'title'                      => $discount_details['title'] ?? null,
-                    'discount_value_type'        => $discount_details['discount_value_type'] ?? null,
-                    'discount_amount_percentage' => $discount_details['discount_amount_percentage'] ?? null,
-                    'base_discount_amount_fixed' => $discount_details['base_discount_amount_fixed'] ?? null,
-                ] : null,
-                'display_subtotal_money_object'      => $pricing['display_subtotal_money_object'] ?? null,
-                'display_tax_total_money_object'     => $pricing['display_tax_total_money_object'] ?? null,
-                'display_discount_total_money_object' => $pricing['display_discount_total_money_object'] ?? null,
-                'display_shipping_subtotal_money_object' => $pricing['display_shipping_subtotal_money_object'] ?? null,
-                'display_shipping_tax_money_object'  => $pricing['display_shipping_tax_money_object'] ?? null,
-                'display_shipping_discount_money_object' => $pricing['display_shipping_discount_money_object'] ?? null,
-                'display_shipping_total_money_object' => $pricing['display_shipping_total_money_object'] ?? null,
-                'display_total_money_object'         => $pricing['display_total_money_object'] ?? null,
-            ],
+            'pricing'                     => $cart['pricing'] ?? [],
             'available_shipping_methods'  => $cart['available_shipping_methods'] ?? [],
             'shipping_method'             => $cart['shipping_method'] ?? null,
         ];
 
-        $config['currency']  = $cart['currency']['code'] ?? 'USD';
         $config['countries'] = $data->countries ?? [];
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
+
+        $config['is_tax_inclusive_price'] = Tax::is_tax_inclusive();
+
+        // Only the id and method travel: the rendered message is already in
+        // the DOM, and repeating it here would double the inline payload.
+        $config['checkout_consents'] = array_map(
+            function ($consent) {
+                return [
+                    'id'     => $consent['id'],
+                    'method' => $consent['method'],
+                ];
+            },
+            $data->consents ?? []
+        );
 
         if (is_user_logged_in()) {
             $current_user = wp_get_current_user();
@@ -242,6 +220,8 @@ class PageInlineScript extends BaseHook
             $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
                 ? round((1 - ($display_sale_price / $display_price)) * 100)
                 : null;
+            $show_unit_price     = (bool) ($variant['show_unit_price'] ?? false);
+            $display_unit_price  = $variant['display_unit_price'] ?? null;
             $stock               = intval($variant['available_quantity'] ?? 0);
             $available           = $inventory_service->has_stock($variant_id, 1);
             $allow_back_order    = (bool) ($variant['allow_back_order'] ?? false);
@@ -263,6 +243,8 @@ class PageInlineScript extends BaseHook
                 'product_id'          => $product_id,
                 'price'               => $price,
                 'sale_price'          => $sale_price,
+                'show_unit_price'     => $show_unit_price,
+                'display_unit_price'  => $display_unit_price,
                 'discount_percentage' => $discount_percentage,
                 'stock'               => $stock,
                 'attributes'          => $variant_attrs,

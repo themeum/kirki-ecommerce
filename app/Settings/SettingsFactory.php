@@ -116,6 +116,9 @@ class SettingsFactory
             case OptionKeys::ADVANCE_SETTINGS:
                 static::$cache[$key] = app()->make(AdvanceSettings::class);
                 break;
+            case OptionKeys::LEGAL_SETTINGS:
+                static::$cache[$key] = app()->make(LegalSettings::class);
+                break;
             default:
                 return null;
         }

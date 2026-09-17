@@ -3,9 +3,9 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
-import type { DataTableBulkAction } from '@/components/data-table';
-import type { DataTableSelectionState } from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import { RouteConfig } from '@/config/route-config';
 import { customerColumns } from '@/features/customers/components/customer-table/columns';
@@ -76,6 +76,7 @@ const CustomerTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <div role="presentation" onClick={(event) => event.stopPropagation()}>
             <DataTableRowActions

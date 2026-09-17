@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Actions\Customer;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CustomerService;
-use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -28,18 +27,21 @@ class CreateCustomerAction
     }
 
     /**
-     * Create a new customer with the given address.
+     * Create a new customer, optionally together with one or more addresses.
      *
-     * The customer and address will be created in a single transaction.
-     * If either the customer or address cannot be created, a Throwable will be thrown.
+     * The customer and any addresses are created in a single transaction.
+     * If the customer or any address cannot be created, a Throwable is thrown.
+     *
+     * When addresses are supplied, the one marked (or falling back to the
+     * first) as default shipping and the one marked (or falling back to the
+     * first) as default billing are resolved independently - an address
+     * winning both is persisted once, with both flags true.
      *
      * @param CreateCustomerDTO $customer_payload
-     * @param CreateAddressDTO $billing_address_payload
-     * @param CreateAddressDTO $shipping_address_payload
      * @return Customer
      * @throws Throwable
      */
-    public function execute(CreateCustomerDTO $customer_payload, CreateAddressDTO $shipping_address_payload, CreateAddressDTO $billing_address_payload)
+    public function execute(CreateCustomerDTO $customer_payload)
     {
         DB::begin_transaction();
 
@@ -50,22 +52,11 @@ class CreateCustomerAction
 
             throw_if(empty($customer), __('Customer could not be created.', 'kirki-ecommerce'));
 
-            // Set both flags explicitly on each payload (not just the one being
-            // claimed) so this is safe even if the caller passed the same
-            // CreateAddressDTO instance for both parameters.
-            $shipping_address_payload->customer_id = $customer->id;
-            $shipping_address_payload->type = AddressType::HOME;
-            $shipping_address_payload->is_default_shipping = true;
-            $shipping_address_payload->is_default_billing = false;
+            foreach ($this->resolve_addresses($customer_payload->addresses) as $address_payload) {
+                $address_payload->customer_id = $customer->id;
 
-            $this->create_address($shipping_address_payload);
-
-            $billing_address_payload->customer_id = $customer->id;
-            $billing_address_payload->type = AddressType::HOME;
-            $billing_address_payload->is_default_shipping = false;
-            $billing_address_payload->is_default_billing = true;
-
-            $this->create_address($billing_address_payload);
+                $this->create_address($address_payload);
+            }
 
             $customer = $this->customer_service->find($customer->id);
 
@@ -77,6 +68,48 @@ class CreateCustomerAction
 
             throw $e;
         }
+    }
+
+    /**
+     * Resolve which supplied address is the default shipping address and
+     * which is the default billing address, and set every address's flags
+     * to match - forcing false on every non-winning address regardless of
+     * what the caller submitted.
+     *
+     * @param CreateAddressDTO[] $addresses
+     * @return CreateAddressDTO[]
+     */
+    protected function resolve_addresses(array $addresses)
+    {
+        if (empty($addresses)) {
+            return [];
+        }
+
+        $shipping_winner = $this->find_default($addresses, 'is_default_shipping') ?? $addresses[0];
+        $billing_winner = $this->find_default($addresses, 'is_default_billing') ?? $addresses[0];
+
+        foreach ($addresses as $address) {
+            $address->is_default_shipping = $address === $shipping_winner;
+            $address->is_default_billing = $address === $billing_winner;
+        }
+
+        return $addresses;
+    }
+
+    /**
+     * @param CreateAddressDTO[] $addresses
+     * @param string $flag
+     * @return CreateAddressDTO|null
+     */
+    protected function find_default(array $addresses, string $flag)
+    {
+        foreach ($addresses as $address) {
+            if (!empty($address->{$flag})) {
+                return $address;
+            }
+        }
+
+        return null;
     }
 
     protected function create_user(CreateCustomerDTO $customer)

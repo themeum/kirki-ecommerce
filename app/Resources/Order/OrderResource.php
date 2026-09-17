@@ -43,16 +43,44 @@ class OrderResource extends Resource
                 'invoiced_discount_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_discount_total, $this->currency_code),
                 'base_discount' => Money::prepare_amount_from_minor($this->base_discount_total),
                 'base_discount_money_object' => Money::prepare_amount_object_from_minor($this->base_discount_total),
-                'discount_details' => $this->discount_details,
                 'invoiced_tax' => Money::prepare_amount_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'invoiced_tax_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_tax_total, $this->currency_code),
                 'base_tax' => Money::prepare_amount_from_minor($this->base_tax_total),
                 'base_tax_money_object' => Money::prepare_amount_object_from_minor($this->base_tax_total),
+                'invoiced_shipping_tax' => Money::prepare_amount_from_minor($this->invoiced_shipping_tax_amount, $this->currency_code),
+                'invoiced_shipping_tax_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_shipping_tax_amount, $this->currency_code),
+                'base_shipping_tax' => Money::prepare_amount_from_minor($this->base_shipping_tax_amount),
+                'base_shipping_tax_money_object' => Money::prepare_amount_object_from_minor($this->base_shipping_tax_amount),
                 'invoiced_total' => Money::prepare_amount_from_minor($this->invoiced_total, $this->currency_code),
                 'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($this->invoiced_total, $this->currency_code),
                 'base_total' => Money::prepare_amount_from_minor($this->base_total),
                 'base_total_money_object' => Money::prepare_amount_object_from_minor($this->base_total),
             ],
+
+            'coupons' => empty($this->order_coupons) ? [] : $this->order_coupons->map(function ($order_coupon) {
+                return [
+                    'id' => $order_coupon->id,
+                    'coupon_id' => $order_coupon->coupon_id,
+                    'code' => $order_coupon->code,
+                    'title' => $order_coupon->title,
+                    'discount_type' => $order_coupon->discount_type,
+                    'discount_target' => $order_coupon->discount_target,
+                    'invoiced_discount_amount' => Money::prepare_amount_from_minor($order_coupon->invoiced_discount_amount, $this->currency_code),
+                    'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->invoiced_discount_amount, $this->currency_code),
+                    'base_discount_amount' => Money::prepare_amount_from_minor($order_coupon->base_discount_amount),
+                    'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($order_coupon->base_discount_amount),
+                    'usage_reversed_at' => $order_coupon->usage_reversed_at,
+                    'item_attributions' => empty($order_coupon->order_item_coupons) ? [] : $order_coupon->order_item_coupons->map(function ($attribution) {
+                        return [
+                            'order_item_id' => $attribution->order_item_id,
+                            'invoiced_discount_amount' => Money::prepare_amount_from_minor($attribution->invoiced_discount_amount, $this->currency_code),
+                            'invoiced_discount_amount_money_object' => Money::prepare_amount_object_from_minor($attribution->invoiced_discount_amount, $this->currency_code),
+                            'base_discount_amount' => Money::prepare_amount_from_minor($attribution->base_discount_amount),
+                            'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($attribution->base_discount_amount),
+                        ];
+                    }),
+                ];
+            }),
 
             'items_count' => $this->items_count,
             'items' => $this->items->map(function ($item) {
@@ -79,16 +107,17 @@ class OrderResource extends Resource
                     'invoiced_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_total, $this->currency_code),
                     'base_total' => Money::prepare_amount_from_minor($item->base_total),
                     'base_total_money_object' => Money::prepare_amount_object_from_minor($item->base_total),
-                    'tax_rate' => $item->tax_rate,
                     'invoiced_tax_total' => Money::prepare_amount_from_minor($item->invoiced_tax_total, $this->currency_code),
                     'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_tax_total, $this->currency_code),
                     'base_tax_total' => Money::prepare_amount_from_minor($item->base_tax_total),
                     'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->base_tax_total),
-                    'tax_breakdown' => $item->tax_breakdown,
+                    'tax_lines' => $this->format_order_taxes($item->taxes, $this->currency_code),
                     'sku' => $item->sku,
                     'image' => MediaAttachment::make($item->product_image),
                 ];
             }),
+
+            'shipping_tax_lines' => $this->format_order_taxes($this->shipping_taxes, $this->currency_code),
 
             'shipping_address' => [
                 'first_name' => $this->shipping_first_name,
@@ -152,5 +181,31 @@ class OrderResource extends Resource
             'archived_at' => $this->archived_at,
             'created_at' => $this->created_at,
         ];
+    }
+
+    /**
+     * Format a set of persisted order_taxes rows (an item's, or the order's
+     * shipping) into API tax lines.
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $taxes
+     * @param string $currency_code
+     * @return array
+     */
+    protected function format_order_taxes($taxes, $currency_code)
+    {
+        if (empty($taxes)) {
+            return [];
+        }
+
+        return $taxes->map(function ($tax) use ($currency_code) {
+            return [
+                'name' => $tax->name,
+                'rate' => $tax->rate,
+                'invoiced_amount' => Money::prepare_amount_from_minor($tax->invoiced_amount, $currency_code),
+                'invoiced_amount_money_object' => Money::prepare_amount_object_from_minor($tax->invoiced_amount, $currency_code),
+                'base_amount' => Money::prepare_amount_from_minor($tax->base_amount),
+                'base_amount_money_object' => Money::prepare_amount_object_from_minor($tax->base_amount),
+            ];
+        });
     }
 }

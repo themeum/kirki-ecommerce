@@ -22,6 +22,7 @@ import type {
   ShippingZone,
 } from '@/features/settings/shipping/types';
 import type { SettingsOutletContext } from '@/features/settings/types';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { type ErrorResponse, getErrorsObject } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
@@ -62,6 +63,8 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   const newZoneIdRef = useRef(uuid());
   const [showCreateZonePopup, setShowCreateZonePopup] = useState(false);
   const [popupErrors, setPopupErrors] = useState<FormErrors>({});
+
+  const baseCurrencySymbol = useBaseCurrencySymbol();
 
   const { data: countryData = [] } = useCountriesQuery({ limit: -1 });
   const countryList = countryData as CountryWithStates[];
@@ -149,7 +152,7 @@ export const useShippingSettings = (): UseShippingSettingsResult => {
   };
 
   const getShippingMethodData = (zoneId: string | number): ShippingMethodData[] =>
-    getZoneShippingMethods(shippingZonesObj, zoneId);
+    getZoneShippingMethods(shippingZonesObj, zoneId, baseCurrencySymbol);
 
   const handleToggleMethod = async (method: ShippingMethodData) => {
     await commitZones((prev) => toggleMethod(prev, method.zoneId!, method.id));

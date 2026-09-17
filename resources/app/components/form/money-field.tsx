@@ -4,6 +4,7 @@ import { Controller, type FieldPath, type FieldValues, useFormContext } from 're
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import NumberInput from '@/components/ui/number-input';
+import { useBaseCurrencySymbol } from '@/hooks';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
 
@@ -32,13 +33,15 @@ const MoneyField = <
   description,
   infoText,
   placeholder,
-  currencySymbol = '$',
+  currencySymbol,
   showSymbolWhenEmpty = true,
   disabled,
   cssOverride,
   autoFocus = false,
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
+  const baseCurrencySymbol = useBaseCurrencySymbol();
+  const symbol = currencySymbol ?? baseCurrencySymbol;
   const fieldId = String(name);
 
   return (
@@ -50,7 +53,7 @@ const MoneyField = <
           field.value !== null &&
           field.value !== undefined &&
           field.value !== '';
-        const showSymbol = showSymbolWhenEmpty || hasValue;
+        const showSymbol = Boolean(symbol) && (showSymbolWhenEmpty || hasValue);
 
         return (
           <Field
@@ -74,7 +77,7 @@ const MoneyField = <
                     pointerEvents: 'none',
                   })}
                 >
-                  {currencySymbol}
+                  {symbol}
                 </span>
               )}
               <NumberInput

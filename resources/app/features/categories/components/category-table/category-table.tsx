@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
+import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import CategoryAddEditPopover from '@/features/categories/components/category-add-edit-dialog';
 import CategoryTableFilters from '@/features/categories/components/category-table/category-table-filters';
@@ -66,6 +67,7 @@ const CategoryTable = () => {
         id: 'actions',
         header: '',
         enableSorting: false,
+        meta: actionsColumnMeta,
         cell: ({ row }) => (
           <DataTableRowActions
             edit={{ onClick: () => setEditingItem(row.original) }}

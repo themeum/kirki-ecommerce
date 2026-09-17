@@ -39,7 +39,6 @@ export const getShippingZoneSummary = (zone: ShippingZone): string => {
 
 export const saveShippingZones = async ({
   zones,
-  from = '',
   toastMessage = '',
 }: SaveShippingZonesParams): Promise<void> => {
   try {
@@ -51,7 +50,7 @@ export const saveShippingZones = async ({
       queryKey: settingsKeys.section('shipping'),
     });
     setUnsavedDataStatus(false);
-    if (from !== 'delete' && toastMessage) {
+    if (toastMessage) {
       toast.success(toastMessage);
     }
   } catch (error) {
@@ -71,7 +70,10 @@ const isEmptyAmount = (amount: unknown): boolean =>
 export const getShippingMethodSubText = (method: ShippingMethodData): string | undefined =>
   method.description || undefined;
 
-export const getShippingMethodRightText = (method: ShippingMethodData): string | undefined => {
+export const getShippingMethodRightText = (
+  method: ShippingMethodData,
+  currencySymbol = '',
+): string | undefined => {
   if (method.type === 'weight') {
     const rangeAmounts = (method.ranges ?? [])
       .filter((range) => !isEmptyAmount(range.base_amount))
@@ -86,17 +88,25 @@ export const getShippingMethodRightText = (method: ShippingMethodData): string |
     const highestAmount = Math.max(...rangeAmounts);
 
     if (lowestAmount === highestAmount) {
-      return sprintf(__('$%s', 'kirki-ecommerce'), lowestAmount);
+      return sprintf(__('%1$s%2$s', 'kirki-ecommerce'), currencySymbol, lowestAmount);
     }
 
-    return sprintf(__('$%1$s - $%2$s', 'kirki-ecommerce'), lowestAmount, highestAmount);
+    return sprintf(
+      __('%1$s%2$s - %3$s%4$s', 'kirki-ecommerce'),
+      currencySymbol,
+      lowestAmount,
+      currencySymbol,
+      highestAmount,
+    );
   }
 
   const showsAmount =
     (method.type === 'flat_rate' || (method.type === 'local_pickup' && method.has_fee)) &&
     !isEmptyAmount(method.base_amount);
 
-  return showsAmount ? sprintf(__('$%s', 'kirki-ecommerce'), method.base_amount!) : undefined;
+  return showsAmount
+    ? sprintf(__('%1$s%2$s', 'kirki-ecommerce'), currencySymbol, method.base_amount!)
+    : undefined;
 };
 
 export const conditionOptions: SelectOption[] = [

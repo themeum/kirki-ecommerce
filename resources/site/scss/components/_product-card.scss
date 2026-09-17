@@ -29,7 +29,7 @@
     @include typography(xs, medium, $text-light);
     position: absolute;
     top: 12px;
-    left: 16px;
+    inset-inline-start: 16px;
     background-color: $background-fill-critical;
     padding: $spacing-2 $spacing-4;
     border-radius: $radius-sm;
@@ -115,6 +115,10 @@
   &-price-discount {
     @include typography(sm, regular, $text-secondary);
     text-decoration: line-through;
+  }
+
+  &-tax-info {
+    @include typography(sm, regular, $text-secondary);
   }
 
   &-add-to-cart {

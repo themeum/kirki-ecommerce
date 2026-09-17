@@ -2,80 +2,127 @@
 
 namespace Kirki\Ecommerce\App\Tax\Strategies;
 
-use Brick\Math\RoundingMode;
-use Kirki\Ecommerce\App\DTO\Tax\ProductTaxContextDTO;
-use Kirki\Ecommerce\App\DTO\Tax\TaxItemResultDTO;
-use Kirki\Ecommerce\App\DTO\Tax\TaxResultDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
+use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Facades\Money;
 
 class EUTaxStrategy extends AbstractTaxStrategy
 {
-    public function calculate_product_tax(ProductTaxContextDTO $tax_context): TaxResultDTO
+    public function calculate(TaxCalculationContextDTO $context): TaxCalculationResultDTO
     {
-        return $this->calculate_tax('product_tax', $tax_context->all(), $tax_context->base_product_price);
-    }
+        $result = new TaxCalculationResultDTO();
+        $rates_by_item = [];
 
-    public function calculate_shipping_tax(int $shipping_cost): TaxResultDTO
-    {
-        if (!$this->is_shipping_tax_enabled) {
-            return new TaxResultDTO();
-        }
+        foreach ($context->items as $item) {
+            $rate = $this->resolve_item_rate($item, $context);
+            $rates_by_item[$item->item_id] = $rate;
 
-        return $this->calculate_tax('shipping_tax', ['shipping_address' => $this->address], $shipping_cost);
-    }
-
-    public function calculate_tax(string $type, array $context_data, int $amount): TaxResultDTO
-    {
-        $result = new TaxResultDTO();
-
-        $rate = $this->get_rate($type);
-        $amount = Money::from_minor($amount);
-
-        if (!empty($this->settings['rules']) && !empty($context_data)) {
-            $context_data[$type] = $rate;
-            $context = $this->prepare_decision_context($context_data);
-            $context = $this->apply_rules($context, $this->settings['rules']);
-
-            $rate = $context->get($type);
-        }
-
-        if ($this->is_tax_inclusive_price) {
-            $tax_amount = $amount->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100 + $rate, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
-            $result->breakdown = [
-                TaxItemResultDTO::from_array([
+            $result->items[$item->item_id] = [
+                TaxLineDTO::from_array([
                     'name' => 'VAT',
                     'rate' => $rate,
-                    'base_amount' => $tax_amount
-                ])
+                    'base_amount' => $this->calculate_tax_amount($rate, $item->taxable_amount),
+                    'item_id' => $item->item_id,
+                ]),
             ];
-            $result->base_total = $tax_amount;
-
-            return $result;
         }
 
-        $tax_amount = $amount->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
-
-        $result->breakdown = [
-            TaxItemResultDTO::from_array([
-                'name' => 'VAT',
-                'rate' => $rate,
-                'base_amount' => $tax_amount
-            ])
-        ];
-        $result->base_total = $tax_amount;
+        $result->shipping = $this->calculate_shipping_tax($context, $rates_by_item);
 
         return $result;
+    }
+
+    protected function resolve_item_rate($item, TaxCalculationContextDTO $tax_context): float
+    {
+        $rate = $this->get_rate();
+
+        if (empty($this->settings['rules'])) {
+            return $rate;
+        }
+
+        $decision_context = $this->prepare_decision_context([
+            'shipping_address' => $this->address,
+            'billing_address' => $tax_context->billing_address,
+            'base_product_price' => $item->taxable_amount,
+            'product_categories' => $item->product_categories,
+            'tax_profile' => $item->tax_profile_id,
+            'product_tax' => $rate,
+        ]);
+
+        $decision_context = $this->apply_rules($decision_context, $this->settings['rules']);
+
+        return (float) $decision_context->get('product_tax');
+    }
+
+    /**
+     * The EU's shipping tax follows the goods it ships: rather than one
+     * independently configured shipping rate, the shipping fee is
+     * allocated across the cart's items - proportioned to each item's own
+     * taxable value - and each item's portion is taxed at that item's own
+     * resolved rate. Every line is tagged with the item it was allocated
+     * to, so persistence can record which order item each portion of
+     * shipping tax belongs to; two items that happen to share a rate still
+     * produce two separate lines, one per item, rather than being merged.
+     *
+     * @param TaxCalculationContextDTO $context
+     * @param array<int|string, float> $rates_by_item
+     * @return TaxLineDTO[]
+     */
+    protected function calculate_shipping_tax(TaxCalculationContextDTO $context, array $rates_by_item): array
+    {
+        if (!$this->is_shipping_tax_enabled || !$context->is_shipping_taxable) {
+            return [];
+        }
+
+        $taxable_amounts = array_map(fn($item) => $item->taxable_amount, $context->items);
+
+        // No items to allocate the shipping fee across (e.g. a
+        // shipping-only quote) - fall back to the member country's plain
+        // rate, unattributed to any item.
+        if (empty($taxable_amounts) || array_sum($taxable_amounts) <= 0) {
+            $rate = $this->get_rate();
+
+            return [
+                TaxLineDTO::from_array([
+                    'name' => 'VAT',
+                    'rate' => $rate,
+                    'base_amount' => $this->calculate_tax_amount($rate, $context->shipping_fee),
+                ]),
+            ];
+        }
+
+        $portions = Money::from_minor($context->shipping_fee)->allocate(...$taxable_amounts);
+
+        $lines = [];
+
+        foreach ($context->items as $index => $item) {
+            $portion = $portions[$index]->getMinorAmount()->toInt();
+
+            if ($portion <= 0) {
+                continue;
+            }
+
+            $rate = $rates_by_item[$item->item_id];
+
+            $lines[] = TaxLineDTO::from_array([
+                'name' => 'VAT',
+                'rate' => $rate,
+                'base_amount' => $this->calculate_tax_amount($rate, $portion),
+                'item_id' => $item->item_id,
+            ]);
+        }
+
+        return $lines;
     }
 
     /**
      * Get the VAT rate configured for the address's member country. A member
      * country has a single rate that applies to both product and shipping tax.
      *
-     * @param string $type 'product_tax' or 'shipping_tax' — kept as the
-     *                      rules-context key; it does not affect the rate.
      * @return float
      */
-    protected function get_rate(string $type): float
+    protected function get_rate(): float
     {
         // TODO: honour $this->settings['type'] === 'micro_business' — a micro
         // business charges its home-country VAT rate, not the destination

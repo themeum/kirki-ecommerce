@@ -27,7 +27,6 @@
  *                                    ]
  *                                  - Or a standalone divider:
  *                                    ['type' => 'divider'] or ['is_divider' => true] or 'divider'
- * @var string      $slot           Optional raw HTML content inside the popover panel.
  */
 
 defined('ABSPATH') || exit;
@@ -40,7 +39,6 @@ $trigger_text  = $data['trigger_text'] ?? null;
 $trigger_label = $data['trigger_label'] ?? __('Options', 'kirki-ecommerce');
 $trigger_class = $data['trigger_class'] ?? 'kecom-btn kecom-btn-ghost kecom-btn-icon kecom-btn-sm';
 $items         = $data['items'] ?? [];
-$slot          = $data['slot'] ?? '';
 ?>
 
 <div
@@ -128,10 +126,6 @@ $slot          = $data['slot'] ?? '';
                     <div class="kecom-popover-divider"></div>
                 <?php endif; ?>
             <?php endforeach; ?>
-        <?php endif; ?>
-
-        <?php if (!empty($slot)) : ?>
-            <?php echo $slot; ?>
         <?php endif; ?>
     </div>
 </div>

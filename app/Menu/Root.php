@@ -58,7 +58,7 @@ class Root extends Menu
                 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block'
             ),
             [],
-            false
+            null
         );
 
         $root_style_handle = app()->prefix() . 'root-shell';

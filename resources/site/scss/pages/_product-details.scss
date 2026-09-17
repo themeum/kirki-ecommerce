@@ -75,11 +75,11 @@
   }
 
   .kecom-product-nav-prev {
-    left: $spacing-8;
+    inset-inline-start: $spacing-8;
   }
 
   .kecom-product-nav-next {
-    right: $spacing-8;
+    inset-inline-end: $spacing-8;
   }
 
   .kecom-product-thumbnails {
@@ -163,6 +163,13 @@
     margin: 0px;
   }
 
+  .kecom-product-pricing-group {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: $spacing-3;
+  }
+
   .kecom-product-price {
     display: flex;
     align-items: center;
@@ -185,6 +192,15 @@
     border-radius: $radius-sm;
     text-transform: uppercase;
     text-decoration: none;
+  }
+
+  .kecom-product-unit-price {
+    @include typography(base, normal, $text-secondary);
+  }
+
+  .kecom-product-tax-info {
+    @include typography(base, normal, $text-subdued);
+    margin-top: $spacing-3;
   }
 
   .kecom-product-short-description {
@@ -344,8 +360,8 @@
         content: '';
         position: absolute;
         bottom: -1px;
-        left: 0;
-        right: 0;
+        inset-inline-start: 0;
+        inset-inline-end: 0;
         height: 2px;
         background-color: $border-inverse;
       }

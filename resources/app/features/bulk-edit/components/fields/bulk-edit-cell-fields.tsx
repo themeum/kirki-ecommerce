@@ -17,6 +17,7 @@ import type { BulkEditFormValues, BulkEditProfileOption } from '@/features/bulk-
 import { BaseUnitPopover } from '@/features/products';
 import type { BaseUnitFormPayload } from '@/features/products/schemas/forms/base-unit-form';
 import { ShippingBoxField } from '@/features/settings';
+import { useBaseCurrencySymbol } from '@/hooks';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
 import { defineStyles, flexCenter, scoped, scopedMerge } from '@/theme/mixins';
@@ -285,6 +286,7 @@ const ReadonlyNumberControl = ({ field, rowIndex }: { field: string; rowIndex: n
 const UnitPriceControl = ({ rowIndex, active }: { rowIndex: number; active: boolean }) => {
   const { control, setValue } = useFormContext<BulkEditFormValues>();
   const selection = useCellSelection();
+  const baseCurrencySymbol = useBaseCurrencySymbol();
   const variant = useWatch({ control, name: `variants.${rowIndex}` });
 
   const handleChange = (payload: BaseUnitFormPayload) => {
@@ -307,7 +309,7 @@ const UnitPriceControl = ({ rowIndex, active }: { rowIndex: number; active: bool
     <div css={controlWrapperStyle(active)}>
       <BaseUnitPopover
         data={variant}
-        currencySymbol={variant?.base_price_money_object?.currency?.symbol || '$'}
+        currencySymbol={variant?.base_price_money_object?.currency?.symbol || baseCurrencySymbol}
         buttonProps={{
           variant: 'ghost',
           cssOverride: {

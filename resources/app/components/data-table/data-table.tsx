@@ -78,6 +78,7 @@ type DataTableProps<T extends DataTableItem> = {
   columnPinning?: ColumnPinningState;
   columnVisibility?: VisibilityState;
   enableColumnVisibility?: boolean;
+  noCardShadown?: boolean;
 };
 
 const EMPTY_COLUMN_PINNING: ColumnPinningState = {};
@@ -125,6 +126,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     columnPinning = EMPTY_COLUMN_PINNING,
     columnVisibility,
     enableColumnVisibility = true,
+    noCardShadown = false,
   } = props;
 
   const [storedColumnVisibility, toggleColumnVisibility] = useTableColumnVisibility(tableId);
@@ -133,6 +135,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     ? columnVisibility
     : storedColumnVisibility;
   const showColumnVisibilityMenu = enableColumnVisibility && !isColumnVisibilityControlled;
+  const showToolbarRow = Boolean(toolbar) || showColumnVisibilityMenu;
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isAllMatchingSelected, setIsAllMatchingSelected] = useState(false);
@@ -273,7 +276,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
 
   return (
     <Flex direction="column" gap={4}>
-      <Card cssOverride={cardStyles.tableCard}>
+      <Card cssOverride={mergeCss(cardStyles.tableCard, noCardShadown && { boxShadow: 'none' })}>
         <CardContent cssOverride={cardStyles.tableContent}>
           {hasSelection ? (
             <DataTableSelectionBar
@@ -287,18 +290,20 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
               cssOverride={styles.toolbar}
             />
           ) : (
-            <Flex align="center" gap={2} cssOverride={styles.toolbarRow}>
-              <div css={scoped(styles.toolbarContent)}>{toolbar}</div>
-              {showColumnVisibilityMenu && (
-                <DataTableColumnVisibility table={table} onToggle={toggleColumnVisibility} />
-              )}
-            </Flex>
+            showToolbarRow && (
+              <Flex align="center" gap={2} cssOverride={styles.toolbarRow}>
+                <div css={scoped(styles.toolbarContent)}>{toolbar}</div>
+                {showColumnVisibilityMenu && (
+                  <DataTableColumnVisibility table={table} onToggle={toggleColumnVisibility} />
+                )}
+              </Flex>
+            )
           )}
           <Table
             ref={tableRef}
             density={density}
             fixed={fixed}
-            cssOverride={cssOverride}
+            cssOverride={mergeCss(styles.pinnedColumns, cssOverride)}
             style={isLayoutFrozen ? { tableLayout: 'fixed' } : undefined}
             aria-busy={isLoading}
           >
@@ -315,6 +320,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
                       <TableHead
                         key={header.id}
                         data-column-id={header.column.id}
+                        data-pinned={header.column.getIsPinned() || undefined}
                         onlyCheckbox={isSelectColumn}
                         alignment={meta?.alignment}
                         cssOverride={mergeCss(meta?.cssOverride, getPinnedCss(header.column, true))}
@@ -375,6 +381,7 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
                         return (
                           <TableCell
                             key={cell.id}
+                            data-pinned={cell.column.getIsPinned() || undefined}
                             onlyCheckbox={isSelectColumn}
                             alignment={meta?.alignment}
                             cssOverride={mergeCss(
@@ -449,6 +456,30 @@ export default DataTable;
 export type { DataTableProps };
 
 const styles = defineStyles({
+  /*
+   * `border-collapse: collapse` draws the header frame and the row dividers as
+   * borders of the table itself, which a pinned cell then paints over — it is a
+   * stacking context sitting above them. Redrawing the covered edges inside the
+   * pinned cell keeps those lines running to the edge of the table.
+   */
+  pinnedColumns: {
+    '& thead th[data-pinned="left"]': {
+      boxShadow: `inset 0 1px 0 ${theme.colors.border.tertiary},
+        inset 1px 0 0 ${theme.colors.border.tertiary},
+        inset 0 -1px 0 ${theme.colors.border.tertiary}`,
+    },
+    '& thead th[data-pinned="right"]': {
+      boxShadow: `inset 0 1px 0 ${theme.colors.border.tertiary},
+        inset -1px 0 0 ${theme.colors.border.tertiary},
+        inset 0 -1px 0 ${theme.colors.border.tertiary}`,
+    },
+    '& tbody td[data-pinned]': {
+      boxShadow: `inset 0 -1px 0 ${theme.colors.border.tertiary}`,
+    },
+    '& tbody tr:hover td[data-pinned], & tbody tr[data-active="true"] td[data-pinned]': {
+      backgroundColor: theme.colors.background.solidSurfaceAlt,
+    },
+  },
   clickable: {
     cursor: 'pointer',
   },

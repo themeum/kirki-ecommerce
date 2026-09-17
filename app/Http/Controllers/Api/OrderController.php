@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
-use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
@@ -31,7 +30,6 @@ use Kirki\Ecommerce\App\Http\Requests\Order\RefundCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Order\RefundUpdateRequest;
 use Kirki\Ecommerce\Framework\Http\Response;
 
-use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
@@ -60,14 +58,11 @@ class OrderController
     }
     public function store(OrderCreateRequest $request, CreateOrderAction $action)
     {
-        // @todo: in future the header will come from a constant
-        $currency_code = $request->string('currency_code') ?? $request->get_header(CookieNames::CURRENCY_CODE) ?? base_currency()->code;
         $user_id = user()->get_id();
 
         $dto = CreateOrderPayloadDTO::from_request($request);
         $dto->is_manual = user()->is_admin() && $request->bool('is_manual') ? true : false;
         $dto->created_by = !empty($user_id) ? $user_id : null;
-        $dto->currency_code = $currency_code;
 
         $order = $action->execute($dto);
 
@@ -89,11 +84,7 @@ class OrderController
 
     public function update(OrderUpdateRequest $request, UpdateOrderAction $action)
     {
-        $headers = $request->get_headers();
-        $currency_code = $request->string('currency_code') ?? $headers['kirki-currency-code'] ?? base_currency()->code; //todo: implement change the name later
-
         $dto = UpdateOrderPayloadDTO::from_request($request);
-        $dto->currency_code = $currency_code;
 
         $order = $action->execute($dto);
 

@@ -28,6 +28,7 @@ import {
   BaseUnitFormSchema,
   mapBaseUnitFromVariant,
 } from '@/features/products/schemas/forms/base-unit-form';
+import { useBaseCurrencySymbol } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { theme } from '@/theme';
@@ -59,9 +60,11 @@ const BaseUnitPopover = ({
   onChange,
   buttonProps,
   data,
-  currencySymbol = '$',
+  currencySymbol,
 }: BaseUnitPopoverProps) => {
   const [openUnitPopover, setOpenUnitPopover] = useState(false);
+  const baseCurrencySymbol = useBaseCurrencySymbol();
+  const symbol = currencySymbol ?? baseCurrencySymbol;
 
   const form = useForm<BaseUnitFormInput, unknown, BaseUnitFormPayload>({
     resolver: zodResolver(BaseUnitFormSchema),
@@ -138,7 +141,7 @@ const BaseUnitPopover = ({
       ? __('Add', 'kirki-ecommerce')
       : sprintf(
           '%s%s / %s%s',
-          currencySymbol,
+          symbol,
           savedBasePricePerUnit.toFixed(2),
           data?.base_unit_amount ?? '',
           data?.base_unit ?? '',

@@ -45,14 +45,14 @@
     "is_available": true
   },
   {
-    "id": "paddle",
-    "name": "Paddle",
-    "is_available": false
-  },
-  {
     "id": "2checkout",
     "name": "2Checkout",
-    "is_available": false
+    "is_available": true
+  },
+  {
+    "id": "eway",
+    "name": "Eway",
+    "is_available": true
   },
   {
     "id": "redsys",
@@ -67,11 +67,6 @@
   {
     "id": "payfast",
     "name": "PayFast",
-    "is_available": false
-  },
-  {
-    "id": "eway",
-    "name": "Eway",
     "is_available": false
   },
   {

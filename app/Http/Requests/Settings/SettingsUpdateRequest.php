@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Settings;
 
+use Kirki\Ecommerce\App\Constants\ConsentLocations;
+use Kirki\Ecommerce\App\Constants\ConsentMethods;
 use Kirki\Ecommerce\App\Constants\CurrencyFormat;
 use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
@@ -111,6 +113,9 @@ class SettingsUpdateRequest extends Request
             case OptionKeys::ADVANCE_SETTINGS:
                 $rules = $this->get_advance_settings_rules();
                 break;
+            case OptionKeys::LEGAL_SETTINGS:
+                $rules = $this->get_legal_settings_rules();
+                break;
             default:
                 break;
         }
@@ -143,6 +148,8 @@ class SettingsUpdateRequest extends Request
                 return $this->get_email_settings_filters();
             case OptionKeys::ADVANCE_SETTINGS:
                 return $this->get_advance_settings_filters();
+            case OptionKeys::LEGAL_SETTINGS:
+                return $this->get_legal_settings_filters();
             default:
                 return [];
         }
@@ -186,6 +193,7 @@ class SettingsUpdateRequest extends Request
             'data.invoice_number.sequence' => 'required|string|regex:/^\d+$/',
             'data.invoice_number.apply_year_prefix' => 'boolean',
             'data.invoice_number.reset_sequence_every_year' => 'boolean',
+            'data.is_tax_calculation_enabled' => 'boolean',
         ];
     }
 
@@ -214,6 +222,7 @@ class SettingsUpdateRequest extends Request
             'data.invoice_number.sequence' => Sanitizer::TEXT,
             'data.invoice_number.apply_year_prefix' => Sanitizer::BOOL,
             'data.invoice_number.reset_sequence_every_year' => Sanitizer::BOOL,
+            'data.is_tax_calculation_enabled' => Sanitizer::BOOL,
         ];
     }
 
@@ -554,10 +563,6 @@ class SettingsUpdateRequest extends Request
             'data.checkout_configuration.company_id_validation' => 'required|string|in:required,optional',
             'data.checkout_configuration.vat_identification_number_validation' => 'required|string|in:required,optional',
             'data.checkout_configuration.has_apply_coupon_code' => 'required|boolean',
-            'data.is_terms_and_conditions_visible' => 'required|boolean',
-            'data.terms_and_conditions_content' => 'nullable|string',
-            'data.is_privacy_policy_visible' => 'required|boolean',
-            'data.privacy_policy_content' => 'nullable|string',
         ];
     }
 
@@ -572,10 +577,6 @@ class SettingsUpdateRequest extends Request
             'data.checkout_configuration.company_id_validation' => Sanitizer::TEXT,
             'data.checkout_configuration.vat_identification_number_validation' => Sanitizer::TEXT,
             'data.checkout_configuration.has_apply_coupon_code' => Sanitizer::BOOL,
-            'data.is_terms_and_conditions_visible' => Sanitizer::BOOL,
-            'data.terms_and_conditions_content' => Sanitizer::TEXTAREA,
-            'data.is_privacy_policy_visible' => Sanitizer::BOOL,
-            'data.privacy_policy_content' => Sanitizer::TEXTAREA,
         ];
     }
 
@@ -979,5 +980,47 @@ class SettingsUpdateRequest extends Request
         }
 
         return $filters;
+    }
+
+    /**
+     * Validation rules for the legal consents.
+     *
+     * @return array
+     */
+    protected function get_legal_settings_rules()
+    {
+        return [
+            'data.consents' => 'nullable|array',
+            'data.consents.*.id' => 'required|string',
+            'data.consents.*.title' => 'required|string',
+            'data.consents.*.locations' => 'required|array|min:1',
+            'data.consents.*.locations.*' => 'required|string|in:' . implode(',', ConsentLocations::get_constant_values()),
+            'data.consents.*.message' => 'required|string',
+            'data.consents.*.method' => 'required|string|in:' . implode(',', ConsentMethods::get_constant_values()),
+            'data.consents.*.is_enabled' => 'required|boolean',
+        ];
+    }
+
+    /**
+     * Sanitizers for the legal consents.
+     *
+     * The `data.consents` array rule must stay first: sanitization only keeps
+     * the paths listed here, and the array rule seeds the whole subtree that
+     * the leaf rules below then overwrite key by key.
+     *
+     * @return array
+     */
+    protected function get_legal_settings_filters()
+    {
+        return [
+            'data.consents' => Sanitizer::ARRAY,
+            'data.consents.*.id' => Sanitizer::TEXT,
+            'data.consents.*.title' => Sanitizer::TEXT,
+            'data.consents.*.locations' => Sanitizer::ARRAY,
+            'data.consents.*.locations.*' => Sanitizer::KEY,
+            'data.consents.*.message' => Sanitizer::TEXTAREA,
+            'data.consents.*.method' => Sanitizer::KEY,
+            'data.consents.*.is_enabled' => Sanitizer::BOOL,
+        ];
     }
 }

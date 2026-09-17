@@ -103,10 +103,6 @@ describe('CheckoutSettingsSchema', () => {
         vat_identification_number_validation: 'optional',
         has_apply_coupon_code: true,
       },
-      is_terms_and_conditions_visible: true,
-      terms_and_conditions_content: 'Terms',
-      is_privacy_policy_visible: true,
-      privacy_policy_content: 'Privacy',
     });
     expect(result.success).toBe(true);
   });
@@ -296,7 +292,7 @@ describe('PaymentSettingsSchema', () => {
 });
 
 describe('SettingsSchemaMap', () => {
-  it('has exactly the eight sections with a real endpoint and caller', () => {
+  it('has exactly the nine sections with a real endpoint and caller', () => {
     expect(Object.keys(SettingsSchemaMap).sort()).toEqual(
       [
         'checkout',
@@ -308,6 +304,7 @@ describe('SettingsSchemaMap', () => {
         'shipping',
         'tax',
         'advance',
+        'legal',
       ].sort(),
     );
   });
