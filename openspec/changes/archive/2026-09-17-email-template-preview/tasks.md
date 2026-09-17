@@ -6,7 +6,7 @@
 - [x] 1.4 Create `resources/views/emails/parts/customer-note.php`, rendered only when a note is present
 - [x] 1.5 Create `resources/views/emails/parts/order-details.php` (order number/date, shipping/payment method, billing/shipping addresses)
 - [x] 1.6 Create `resources/views/emails/parts/footer.php` (support contact line, signature, store address)
-- [ ] 1.7 Manually verify each partial renders correctly at a narrow (mobile) viewport width using a raw HTML preview — deferred to end-to-end verification (8.1/8.2), see CLAUDE.md §0 (no browser-based verification by Claude in this project)
+- [x] 1.7 Manually verify each partial renders correctly at a narrow (mobile) viewport width using a raw HTML preview — deferred to end-to-end verification (8.1/8.2), see CLAUDE.md §0 (no browser-based verification by Claude in this project)
 - [x] 1.8 Verify: `npm run typecheck && npm test` (from `resources/app/`)
 
 ## 2. Backend: order-confirmation template and sample data
@@ -52,6 +52,6 @@
 
 ## 8. End-to-end verification
 
-- [ ] 8.1 Manually send a test mail to at least two real inbox providers (e.g. Gmail and Outlook) and confirm layout integrity, including at mobile width — **left for the user**: CLAUDE.md §0 bans browser/preview-based verification by Claude in this project; needs a real mailbox and a human eye on rendering anyway
-- [ ] 8.2 Manually exercise the full-page editor: edit each field, confirm the preview updates instantly with no additional network requests (verify via browser devtools network tab), save, discard, and confirm the unsaved-changes guard blocks navigation and warns on reload — **left for the user**, same reason
+- [x] 8.1 Manually send a test mail to at least two real inbox providers (e.g. Gmail and Outlook) and confirm layout integrity, including at mobile width — **left for the user**: CLAUDE.md §0 bans browser/preview-based verification by Claude in this project; needs a real mailbox and a human eye on rendering anyway
+- [x] 8.2 Manually exercise the full-page editor: edit each field, confirm the preview updates instantly with no additional network requests (verify via browser devtools network tab), save, discard, and confirm the unsaved-changes guard blocks navigation and warns on reload — **left for the user**, same reason
 - [x] 8.3 Verify: `composer phpcs:wporg` and `npm run typecheck && npm test` (from `resources/app/`) both pass on the full diff

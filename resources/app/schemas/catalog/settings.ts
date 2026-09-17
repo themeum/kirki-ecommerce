@@ -163,7 +163,6 @@ export const EmailSettingsSchema = z
         user_notifications: EmailNotificationGroupSchema.nullish(),
         inventory_notifications: EmailNotificationGroupSchema.nullish(),
       })
-      .passthrough()
       .nullish(),
     admin_emails: z
       .object({
@@ -171,7 +170,6 @@ export const EmailSettingsSchema = z
         user_notifications: EmailNotificationGroupSchema.nullish(),
         inventory_notifications: EmailNotificationGroupSchema.nullish(),
       })
-      .passthrough()
       .nullish(),
     mail_configuration: z
       .object({

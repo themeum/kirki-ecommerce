@@ -137,13 +137,28 @@ describe('EmailNotificationSchema', () => {
 });
 
 describe('EmailSettingsSchema', () => {
-  it('accepts the documented response shape (settings/email.yml)', () => {
+  it('accepts the current default_template shape (nested background/typography/button colors)', () => {
     const result = EmailSettingsSchema.safeParse({
       default_template: {
         logo: null,
-        height: '30px',
+        height: 30,
         position: 'center',
-        colors: { background: '#000000', text: '#ffffff' },
+        colors: {
+          background: {
+            email_body: '#000000',
+            outer_area: '#DBDBE5',
+            info_cads: '#F5F5F5',
+            divider: '#E0E0E0',
+          },
+          typography: {
+            headings: '#000000',
+            body: '#000000',
+            muted: '#474747',
+            link: '#167BFF',
+            exceptions: '#0078CE',
+          },
+          button: { background: '#167BFF', text: '#ffffff' },
+        },
       },
       customer_emails: {
         order_notifications: {
@@ -162,6 +177,7 @@ describe('EmailSettingsSchema', () => {
 
   it('accepts an unrecognized notification group and extra notification fields', () => {
     const result = EmailSettingsSchema.safeParse({
+      default_template: { colors: { background: {}, typography: {}, button: {} } },
       customer_emails: {
         unexpected_group: {
           some_email: { is_enabled: true, extra_field: 'value' },
@@ -171,8 +187,12 @@ describe('EmailSettingsSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts every field absent', () => {
-    const result = EmailSettingsSchema.safeParse({});
+  it('requires default_template while other fields may be absent', () => {
+    expect(EmailSettingsSchema.safeParse({}).success).toBe(false);
+
+    const result = EmailSettingsSchema.safeParse({
+      default_template: { colors: { background: {}, typography: {}, button: {} } },
+    });
     expect(result.success).toBe(true);
   });
 });

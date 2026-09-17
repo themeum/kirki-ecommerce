@@ -86,16 +86,25 @@ export const resolveNotificationTemplate = (
   }
 
   const key = item.key.startsWith(`${prefix}_`) ? item.key.slice(prefix.length + 1) : item.key;
-  const type: NotificationTemplateRef['type'] = config.root === 'admin_emails' ? 'admin' : 'customer';
+  const type: NotificationTemplateRef['type'] =
+    config.root === 'admin_emails' ? 'admin' : 'customer';
   const group: NotificationTemplateRef['group'] =
-    config.group === 'inventory_notifications' ? 'inventory' : config.group === 'user_notifications' ? 'user' : 'order';
+    config.group === 'inventory_notifications'
+      ? 'inventory'
+      : config.group === 'user_notifications'
+        ? 'user'
+        : 'order';
 
   return { type, group, key };
 };
 
 type NotificationTemplateDictionaryEntry = NotificationTemplateRef & { label: string };
 
-const ORDER_EVENT_LABELS: Record<string, string> = {
+const ADMIN_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
+  order_confirmation: __('Order Confirmation', 'kirki-ecommerce'),
+};
+
+const CUSTOMER_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
   order_confirmation: __('Order Confirmation', 'kirki-ecommerce'),
 };
 
@@ -105,13 +114,13 @@ const ORDER_EVENT_LABELS: Record<string, string> = {
  * label list rows and to build each row's edit route.
  */
 export const NOTIFICATION_TEMPLATES: NotificationTemplateDictionaryEntry[] = [
-  ...Object.entries(ORDER_EVENT_LABELS).map(([key, label]) => ({
+  ...Object.entries(CUSTOMER_ORDER_NOTIFICATION_LABELS).map(([key, label]) => ({
     type: 'customer' as const,
     group: 'order' as const,
     key,
     label,
   })),
-  ...Object.entries(ORDER_EVENT_LABELS).map(([key, label]) => ({
+  ...Object.entries(ADMIN_ORDER_NOTIFICATION_LABELS).map(([key, label]) => ({
     type: 'admin' as const,
     group: 'order' as const,
     key,
@@ -155,9 +164,7 @@ export const buildTogglePayload = ({
   groupKey,
   selectedKey,
 }: BuildTogglePayloadParams): EmailSettingsFormInput | null => {
-  const rootData = (
-    baseData as Record<string, Record<string, EmailGroup> | undefined>
-  )?.[rootKey];
+  const rootData = (baseData as Record<string, Record<string, EmailGroup> | undefined>)?.[rootKey];
   const current = rootData?.[groupKey]?.[selectedKey];
 
   if (!current) {
