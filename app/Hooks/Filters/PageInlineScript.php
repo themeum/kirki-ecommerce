@@ -12,6 +12,7 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
+use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
@@ -34,7 +35,7 @@ class PageInlineScript extends BaseHook
 {
     public function get_name(): string
     {
-        return 'kirki_ecommerce_config_data';
+        return CustomHookNames::CONFIG_DATA;
     }
 
     public function get_type(): string

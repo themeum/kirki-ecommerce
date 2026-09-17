@@ -13,7 +13,7 @@
  * Requires Plugins:  kirki-ecommerce
  */
 
-use Kirki\Ecommerce\App\Constants\HookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\Payments\Razorpay;
 
 if (!defined('ABSPATH')) {
@@ -27,10 +27,10 @@ register_activation_hook(__FILE__, 'kirki_razorpay_register_payment_provider');
 
 function kirki_razorpay_register_payment_provider()
 {
-    if (!class_exists(HookNames::class)) {
+    if (!class_exists(CustomHookNames::class)) {
         return;
     }
-    add_filter(HookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
+    add_filter(CustomHookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
         $providers[Razorpay::class] = new Razorpay();
 
         return $providers;
