@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -21,8 +22,7 @@ class AddWpHeadMeta extends BaseHook
 {
     public function get_name(): string
     {
-        // @TODO: need to add this in constants
-        return 'wp_head';
+        return WPHookNames::WP_HEAD;
     }
 
     public function get_type(): string

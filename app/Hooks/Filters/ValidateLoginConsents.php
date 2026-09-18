@@ -13,6 +13,7 @@ namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Concerns\RendersLoginConsents;
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
@@ -27,7 +28,7 @@ class ValidateLoginConsents extends BaseHook
 
     public function get_name(): string
     {
-        return 'authenticate';
+        return WPHookNames::AUTHENTICATE;
     }
 
     public function get_type(): string
