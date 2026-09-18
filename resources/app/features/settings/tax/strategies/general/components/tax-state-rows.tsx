@@ -106,7 +106,6 @@ const TaxStateRows = ({ code, stateNameById }: TaxStateRowsProps) => {
                     size="icon-sm"
                     data-state-row="remove"
                     aria-label={__('Remove state', 'kirki-ecommerce')}
-                    cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                     onClick={(event) => {
                       event.stopPropagation();
                       remove(index);

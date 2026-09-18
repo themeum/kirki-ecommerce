@@ -183,7 +183,7 @@ const PageTable = ({ pages }: PageTableProps) => {
       sorting={[]}
       onSortingChange={noop}
       cssOverride={styles.tableCss}
-      noCardShadown
+      noCardShadow
     />
   );
 };

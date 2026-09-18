@@ -135,6 +135,49 @@ describe('ProductFormVariantSchema', () => {
     expect(result.base_unit).toBeNull();
     expect(result.weight_unit).toBeNull();
   });
+
+  it('sends null for every numeric field the merchant cleared', () => {
+    const result = ProductFormVariantSchema.parse({
+      ...baseVariantInput,
+      base_price: '',
+      base_unit_amount: '',
+      total_unit_amount: '',
+      base_sale_price: '',
+      base_cost_of_goods: '',
+      weight: '',
+    });
+
+    expect(result.base_price).toBeNull();
+    expect(result.base_unit_amount).toBeNull();
+    expect(result.total_unit_amount).toBeNull();
+    expect(result.base_sale_price).toBeNull();
+    expect(result.base_cost_of_goods).toBeNull();
+    expect(result.weight).toBeNull();
+  });
+
+  it('keeps a zero value rather than treating it as blank', () => {
+    const result = ProductFormVariantSchema.parse({
+      ...baseVariantInput,
+      base_price: 0,
+      weight: '0',
+    });
+
+    expect(result.base_price).toBe(0);
+    expect(result.weight).toBe(0);
+  });
+
+  it('keeps a money amount as typed but coerces a weight to a number', () => {
+    const result = ProductFormVariantSchema.parse({
+      ...baseVariantInput,
+      base_price: '12.50',
+      weight: '500',
+      base_unit_amount: '100',
+    });
+
+    expect(result.base_price).toBe('12.50');
+    expect(result.weight).toBe(500);
+    expect(result.base_unit_amount).toBe(100);
+  });
 });
 
 describe('ProductFormSchema', () => {
@@ -197,6 +240,16 @@ describe('ProductFormSchema', () => {
     expect(result.ribbon).toBeNull();
     expect(result.slug).toBeNull();
     expect(result.description).toBeNull();
+  });
+
+  it('carries a cleared variant price through to the nested payload as null', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      variants: [{ ...baseVariantInput, base_price: '', base_sale_price: '' }],
+    });
+
+    expect(result.variants[0].base_price).toBeNull();
+    expect(result.variants[0].base_sale_price).toBeNull();
   });
 
   it('rejects a blank required title', () => {

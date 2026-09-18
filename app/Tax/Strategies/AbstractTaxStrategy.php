@@ -54,6 +54,21 @@ abstract class AbstractTaxStrategy
     }
 
     /**
+     * The tax amount for a shipping line: always added on top of the
+     * shipping charge, regardless of the store's tax-inclusive-price
+     * setting for products - a shipping fee is never itself quoted
+     * tax-inclusive.
+     *
+     * @param float $rate
+     * @param int $base_amount
+     * @return int
+     */
+    protected function calculate_shipping_tax_amount(float $rate, int $base_amount): int
+    {
+        return Money::from_minor($base_amount)->multipliedBy($rate, RoundingMode::HALF_UP)->dividedBy(100, RoundingMode::HALF_UP)->getMinorAmount()->toInt();
+    }
+
+    /**
      * Apply rules using Decision Engine
      *
      * @param DecisionContext $context

@@ -123,7 +123,7 @@ const EditInventory = () => {
 
   if (isError) {
     return (
-      <Page>
+      <Page containerSize="lg">
         <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <PageContent>
           <EmptyState text={__('This variant could not be found.', 'kirki-ecommerce')} />
@@ -134,7 +134,7 @@ const EditInventory = () => {
 
   if (isLoading || !variant) {
     return (
-      <Page>
+      <Page containerSize="lg">
         <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <EditInventorySkeleton />
       </Page>
@@ -154,12 +154,13 @@ const EditInventory = () => {
   );
 
   return (
-    <Page>
+    <Page containerSize="lg">
       <Form {...form}>
         <PageHeading
           hasBack
           onBack={handleBack}
           buttonProps={{ disabled: isSubmitting }}
+          sticky
           actions={
             <>
               {variant.preview_url && (

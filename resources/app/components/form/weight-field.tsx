@@ -73,10 +73,11 @@ const WeightField = <
                 : String(unitField.value);
 
             const handleWeightChange = (nextValue: string) => {
-              weightField.onChange(nextValue);
+              const weight = nextValue === '' ? null : nextValue;
+              weightField.onChange(weight);
               onFieldChange?.(
                 {
-                  value: nextValue,
+                  value: weight,
                   unit: getValues(unitName) || storeWeightUnit,
                 },
                 String(name),
@@ -87,7 +88,7 @@ const WeightField = <
               unitField.onChange(nextUnit);
               onFieldChange?.(
                 {
-                  value: getValues(name) || '',
+                  value: getValues(name) ?? null,
                   unit: nextUnit,
                 },
                 String(name),

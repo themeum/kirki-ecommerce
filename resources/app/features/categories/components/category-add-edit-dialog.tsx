@@ -6,8 +6,16 @@ import SelectField from '@/components/form/select-field';
 import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { Category } from '@/features/categories/schemas/catalog/category';
@@ -16,12 +24,14 @@ import {
   type CategoryFormPayload,
   CategoryFormSchema,
 } from '@/features/categories/schemas/forms/category-form';
-import { useCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation } from '@/features/categories/services/category';
+import {
+  useCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+} from '@/features/categories/services/category';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { pickFormValues } from '@/libs/zod';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
 import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
 
@@ -30,10 +40,7 @@ type CategoryAddEditPopoverProps = {
   onClose?: () => void;
 };
 
-const CategoryAddEditPopover = ({
-  category,
-  onClose = noop,
-}: CategoryAddEditPopoverProps) => {
+const CategoryAddEditPopover = ({ category, onClose = noop }: CategoryAddEditPopoverProps) => {
   const { data: categoriesData } = useCategoriesQuery({ limit: -1 });
   const categories = categoriesData?.results ?? [];
   const createMutation = useCreateCategoryMutation();
@@ -93,56 +100,43 @@ const CategoryAddEditPopover = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogBody>
-              <Card cssOverride={cardStyles.lightCard}>
-                <CardContent cssOverride={{ paddingTop: theme.spacing[4], paddingBottom: theme.spacing[4] }}>
-                  <Flex direction="column" gap={4}>
-                    <TextField
-                      name="name"
-                      label={__('Name', 'kirki-ecommerce')}
-                      placeholder={__('e.g., Fundraising', 'kirki-ecommerce')}
-                    />
-                    <TextField
-                      name="slug"
-                      label={__('Slug', 'kirki-ecommerce')}
-                      placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
-                    />
-                    <SelectField
-                      name="parent_id"
-                      label={__('Parent', 'kirki-ecommerce')}
-                      options={parentOptions}
-                      placeholder={__('None', 'kirki-ecommerce')}
-                    />
-                    <TextareaField
-                      name="description"
-                      label={__('Description', 'kirki-ecommerce')}
-                      rows={2}
-                      placeholder={__(
-                        'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
-                        'kirki-ecommerce',
-                      )}
-                    />
-                    <MediaField
-                      name="image"
-                      label={__('Thumb', 'kirki-ecommerce')}
-                    />
-                  </Flex>
-                </CardContent>
-              </Card>
+              <Flex direction="column" gap={4}>
+                <TextField
+                  name="name"
+                  label={__('Name', 'kirki-ecommerce')}
+                  placeholder={__('e.g., Fundraising', 'kirki-ecommerce')}
+                />
+                <TextField
+                  name="slug"
+                  label={__('Slug', 'kirki-ecommerce')}
+                  placeholder={__('e.g., fundraising', 'kirki-ecommerce')}
+                />
+                <SelectField
+                  name="parent_id"
+                  label={__('Parent', 'kirki-ecommerce')}
+                  options={parentOptions}
+                  placeholder={__('None', 'kirki-ecommerce')}
+                />
+                <TextareaField
+                  name="description"
+                  label={__('Description', 'kirki-ecommerce')}
+                  rows={2}
+                  placeholder={__(
+                    'e.g., Dedicated to providing immediate support and essential resources to communities affected by unexpected crises.',
+                    'kirki-ecommerce',
+                  )}
+                />
+                <MediaField name="image" label={__('Thumb', 'kirki-ecommerce')} />
+              </Flex>
             </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isSubmitting}
-                >
+                <Button type="button" variant="outline" disabled={isSubmitting}>
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
               </DialogClose>
               <Button type="submit" variant="primary" loading={isSubmitting}>
-                {categoryId
-                  ? __('Save', 'kirki-ecommerce')
-                  : __('Add', 'kirki-ecommerce')}
+                {categoryId ? __('Save', 'kirki-ecommerce') : __('Add', 'kirki-ecommerce')}
               </Button>
             </DialogFooter>
           </form>

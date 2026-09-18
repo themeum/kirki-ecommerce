@@ -61,13 +61,21 @@ integration)
 		 vendor/bin/phpunit --testsuite Integration --testdox ${phpunit_args}"
 	;;
 all)
+	# One PHPUnit process per suite, on purpose. tests/bootstrap.php only loads
+	# the stub-based Unit bootstrap when it sees --testsuite Unit; a single
+	# combined process would boot real WordPress and run the Unit suite against
+	# an environment it is not written for. This mirrors CI, which runs the two
+	# suites as separate jobs.
 	docker compose exec php bash -lc \
 		"cd ${PLUGIN_PATH} && \
+		 vendor/bin/phpunit --testsuite Unit --testdox ${phpunit_args} && \
 		 WP_TESTS_DIR=${WP_TESTS_DIR} \
 		 WP_CORE_DIR=${WP_CORE_DIR} \
 		 DB_HOST=mariadb \
 		 DB_NAME=kirki_ecommerce_test \
-		 vendor/bin/phpunit --testdox ${phpunit_args}"
+		 vendor/bin/phpunit --testsuite Integration --testsuite Integration --testdox ${phpunit_args}"
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && vendor/bin/phpunit --testsuite Unit --testdox ${phpunit_args}"
 	;;
 -h | --help | help)
 	usage

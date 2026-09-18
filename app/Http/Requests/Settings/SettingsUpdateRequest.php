@@ -193,7 +193,7 @@ class SettingsUpdateRequest extends Request
             'data.invoice_number.sequence' => 'required|string|regex:/^\d+$/',
             'data.invoice_number.apply_year_prefix' => 'boolean',
             'data.invoice_number.reset_sequence_every_year' => 'boolean',
-            'data.is_tax_calculation_enabled' => 'boolean',
+            'data.is_tax_calculation_enabled' => 'nullable|boolean',
         ];
     }
 

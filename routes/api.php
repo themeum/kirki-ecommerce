@@ -154,6 +154,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/products/bulk', [ProductController::class, 'bulk_actions']);
     Route::post('/products/{id}/duplicate', [ProductController::class, 'duplicate'])->where('id', '[\d]+');
 
+    Route::post('/variants/generate-sku', [VariantController::class, 'generate_sku']);
+    Route::post('/variants/generate-skus', [VariantController::class, 'generate_skus']);
     Route::get('/variants/bulk/{ids}', [VariantController::class, 'get_by_ids']);
     Route::put('/variants/bulk', [VariantController::class, 'bulk_update']);
     Route::get('/variants', [VariantController::class, 'get']);
@@ -202,11 +204,6 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/shipping-profiles/{id}', [ShippingProfileController::class, 'update']);
     Route::delete('/shipping-profiles/{id}', [ShippingProfileController::class, 'delete']);
     Route::post('/shipping-profiles/bulk', [ShippingProfileController::class, 'bulk_actions']);
-
-    // Cart
-    Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
-    Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
-
 
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
@@ -270,6 +267,8 @@ Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
 Route::delete('/cart', [CartController::class, 'empty_cart']);
 Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);
+Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
+Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
 // Account api endpoints (self-service, logged-in customer only).
 Route::group([
