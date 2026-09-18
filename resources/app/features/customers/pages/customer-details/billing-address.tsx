@@ -11,7 +11,6 @@ import Text from '@/components/ui/text';
 import type { CustomerFormInput } from '@/features/customers/schemas/forms/customer-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 import { BadgeDollarSign } from 'lucide-react';
 
@@ -93,14 +92,3 @@ const BillingAddress = () => {
 BillingAddress.displayName = 'BillingAddress';
 
 export default BillingAddress;
-
-const styles = defineStyles({
-  roundedCard: {
-    padding: theme.spacing[5],
-    borderRadius: theme.radius.xl,
-    gap: theme.spacing[5],
-  },
-  header: {
-    paddingBottom: theme.spacing[1],
-  },
-});

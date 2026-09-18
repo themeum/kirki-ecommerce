@@ -70,13 +70,13 @@ const Price = () => {
           <MoneyField
             name="variants.0.base_price"
             label={__('Regular price', 'kirki-ecommerce')}
-            placeholder={__('29.00', 'kirki-ecommerce')}
+            placeholder={__('0.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
           />
           <MoneyField
             name="variants.0.base_sale_price"
             label={__('Sale price', 'kirki-ecommerce')}
-            placeholder={__('19.99', 'kirki-ecommerce')}
+            placeholder={__('0.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
           />
         </Grid>

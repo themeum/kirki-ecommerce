@@ -30,7 +30,6 @@ import type { ContainerSize } from '@/types/components/common';
 
 const PAGE_HEADING_HEIGHT = '64px';
 const PAGE_HEADING_STICKY_TOP = '32px';
-const PAGE_CONTENT_MARGIN_TOP = '32px';
 const PAGE_HEADING_SHADOW_HEIGHT = '6px';
 const PAGE_HEADING_SHADOW_MASK =
   'linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 15%, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0.6) 85%, rgba(0, 0, 0, 0) 100%)';

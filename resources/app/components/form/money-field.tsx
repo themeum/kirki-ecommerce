@@ -63,7 +63,7 @@ const MoneyField = <
               {showSymbol && (
                 <span
                   css={scoped({
-                    color: theme.colors.text.primary,
+                    color: theme.colors.text.subdued,
                     position: 'absolute',
                     left: theme.spacing[3],
                     top: '50%',
@@ -81,7 +81,7 @@ const MoneyField = <
                 placeholder={placeholder}
                 disabled={disabled}
                 onChange={(event) => {
-                  field.onChange(event.target.value);
+                  field.onChange(event.target.value === '' ? null : event.target.value);
                 }}
                 onBlur={field.onBlur}
                 name={field.name}

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import { booleanish, mediaId, numberOrNull, prepareFormSchema, requiredWhen } from '@/libs/zod';
-import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { booleanish, mediaId, moneyOrNull, numberOrNull, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
@@ -9,22 +8,22 @@ const VariantFormShape = z.object({
   id: z.number().optional(),
   media: mediaId(),
   sku: z.string().nullish(),
-  base_price: MoneyAmountSchema.nullish(),
+  base_price: moneyOrNull(),
   show_unit_price: z.boolean().nullish().default(false),
   base_unit: z.string().nullish(),
-  base_unit_amount: MoneyAmountSchema.nullish(),
+  base_unit_amount: numberOrNull(),
   total_unit: z.string().nullish(),
-  total_unit_amount: MoneyAmountSchema.nullish(),
+  total_unit_amount: numberOrNull(),
   base_sale_price: requiredWhen(
-    MoneyAmountSchema.nullish(),
+    moneyOrNull(),
     (values) =>
       isDefined(values.base_sale_price) &&
       isDefined(values.base_price) &&
       Number(values.base_sale_price) > Number(values.base_price),
     __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce'),
   ),
-  base_cost_of_goods: MoneyAmountSchema.nullish(),
-  weight: MoneyAmountSchema.nullish(),
+  base_cost_of_goods: moneyOrNull(),
+  weight: numberOrNull(),
   weight_unit: z.string().nullish(),
   charge_taxes: z.boolean().nullish(),
   allow_back_order: z.boolean().nullish(),
