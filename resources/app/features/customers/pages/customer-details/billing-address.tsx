@@ -1,3 +1,4 @@
+import { BadgeDollarSign } from 'lucide-react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
@@ -12,7 +13,6 @@ import type { CustomerFormInput } from '@/features/customers/schemas/forms/custo
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-import { BadgeDollarSign } from 'lucide-react';
 
 const BillingAddress = () => {
   const { setValue, control } = useFormContext<CustomerFormInput>();

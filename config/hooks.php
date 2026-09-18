@@ -15,6 +15,8 @@ use Kirki\Ecommerce\App\Hooks\Filters\ValidateRegisterConsents;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\EnqueueAdminScripts;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SMTPConfig;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\MailFromEmail;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\MailFromName;
 use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterAdminMenu;
 use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterRestApi;
 
@@ -35,6 +37,8 @@ return [
         ReplaceSiteTitle::class,
         PageIdentifier::class,
         PageInlineScript::class,
+        MailFromEmail::class,
+        MailFromName::class,
         ValidateLoginConsents::class,
         ValidateRegisterConsents::class,
     ],

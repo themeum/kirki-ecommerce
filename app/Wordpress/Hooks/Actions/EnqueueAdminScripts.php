@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Assets;
+use Kirki\Ecommerce\App\Supports\HtmlStyle;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 
@@ -37,6 +38,12 @@ class EnqueueAdminScripts extends BaseHook
         wp_enqueue_script('wp-tinymce');
         wp_enqueue_editor();
         wp_enqueue_media();
+
+        $admin_style_handle = 'kirki-ecommerce-admin-styles';
+
+        wp_register_style($admin_style_handle, false, [], app()->version());
+        wp_enqueue_style($admin_style_handle);
+        wp_add_inline_style($admin_style_handle, HtmlStyle::build_style_block(HtmlStyle::richtext_styles()));
 
         if (app()->is_dev_mode()) {
             $this->enqueue_vite_dev_scripts();

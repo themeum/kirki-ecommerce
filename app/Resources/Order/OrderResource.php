@@ -15,7 +15,15 @@ class OrderResource extends Resource
             'uuid' => $this->uuid,
             'order_number' => $this->order_number,
             'invoice_number' => $this->invoice_number,
+
             'customer_id' => $this->customer_id,
+            'customer' => [
+                'first_name' => $this->customer_first_name,
+                'last_name' => $this->customer_last_name,
+                'email' => $this->customer_email,
+                'phone' => $this->customer_phone,
+            ],
+
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,

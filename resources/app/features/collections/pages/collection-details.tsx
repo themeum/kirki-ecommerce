@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
@@ -35,7 +36,6 @@ import { getDefaults, pickFormValues } from '@/libs/zod';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { Plus } from 'lucide-react';
 
 const CollectionDetails = () => {
   const { id } = useParams();

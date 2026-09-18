@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
@@ -10,13 +11,15 @@ import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { RouteConfig } from '@/config/route-config';
+import AdminEmail from '@/features/settings/email/components/admin-email';
+import CustomerEmail from '@/features/settings/email/components/customer-email';
+import MailConfiguration from '@/features/settings/email/components/mail-configuration/mail-configuration';
 import {
   buildTogglePayload,
   EMAIL_CONFIG,
-  findEmailKeyByName,
+  type EmailListItem,
+  resolveNotificationTemplate,
 } from '@/features/settings/email/lib/utils';
-import AdminEmail from '@/features/settings/email/pages/admin-email';
-import CustomerEmail from '@/features/settings/email/pages/customer-email';
 import {
   type EmailSettingsFormInput,
   type EmailSettingsFormPayload,
@@ -32,33 +35,7 @@ import { getDefaults, pickFormValues } from '@/libs/zod';
 import { useSettingsQuery, useUpdateSettingsMutation } from '@/services/settings';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { noop } from '@/utils/function';
 import { __ } from '@/wpi18n';
-import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
-
-type EmailGroupData = {
-  order_notifications?: Record<
-    string,
-    { name?: string; is_enabled?: boolean; [key: string]: unknown }
-  >;
-  user_notifications?: Record<
-    string,
-    { name?: string; is_enabled?: boolean; [key: string]: unknown }
-  >;
-  inventory_notifications?: Record<
-    string,
-    { name?: string; is_enabled?: boolean; [key: string]: unknown }
-  >;
-};
-
-type EmailListItem = {
-  key: string;
-  name?: string;
-  is_enabled?: boolean;
-  [key: string]: unknown;
-};
-
-const handleEditOrder = noop;
 
 const EmailSettings = () => {
   const navigate = useNavigate();
@@ -97,25 +74,20 @@ const EmailSettings = () => {
       return;
     }
 
+    const template = resolveNotificationTemplate(item, matchedConfigKey);
+
+    if (!template) {
+      return;
+    }
+
     const { root, group } = EMAIL_CONFIG[matchedConfigKey];
     const currentValues = form.getValues();
-    const rootData = (currentValues as Record<string, EmailGroupData | undefined>)?.[root];
-    const groupData = rootData?.[group as keyof EmailGroupData];
-
-    if (!groupData) {
-      return;
-    }
-
-    const selectedKey = findEmailKeyByName(groupData, item.name || '');
-    if (!selectedKey) {
-      return;
-    }
 
     const payload = buildTogglePayload({
       baseData: currentValues,
       rootKey: root,
       groupKey: group,
-      selectedKey,
+      selectedKey: template.key,
     });
 
     if (!payload) {
@@ -126,6 +98,24 @@ const EmailSettings = () => {
       root as 'admin_emails' | 'customer_emails',
       payload[root as 'admin_emails' | 'customer_emails'],
       { shouldDirty: true },
+    );
+  };
+
+  const handleEditOrder = (item: EmailListItem) => {
+    const matchedConfigKey = Object.keys(EMAIL_CONFIG).find((k) => item.key.includes(k));
+
+    if (!matchedConfigKey) {
+      return;
+    }
+
+    const template = resolveNotificationTemplate(item, matchedConfigKey);
+
+    if (!template) {
+      return;
+    }
+
+    void navigate(
+      RouteConfig.Settings.get('EmailSettings').get('EditNotificationTemplate').buildLink(template),
     );
   };
 
@@ -176,13 +166,13 @@ const EmailSettings = () => {
                         .buildLink(),
                     );
                   }}
-                  disabled // @todo: will be implemented in the future
                 >
                   {__('Edit', 'kirki-ecommerce')}
                 </Button>
               </Flex>
             </CardContent>
           </Card>
+          <MailConfiguration />
           <CustomerEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
           <AdminEmail handleToggleOrder={handleToggleOrder} handleEditOrder={handleEditOrder} />
         </Flex>

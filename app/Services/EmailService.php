@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
-use Exception;
 use Kirki\Ecommerce\App\Wordpress\User;
 
 use function Kirki\Ecommerce\Framework\include_view;

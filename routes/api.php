@@ -24,6 +24,7 @@ use Kirki\Ecommerce\App\Http\Controllers\Api\CountryController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\TaxProfileController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingBoxController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingMethodController;
+use Kirki\Ecommerce\App\Http\Controllers\Api\EmailTemplateController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\SettingsController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ProductSchemaController;
 use Kirki\Ecommerce\App\Http\Controllers\Api\ShippingProfileController;
@@ -183,6 +184,8 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::post('/shipping-boxes/bulk', [ShippingBoxController::class, 'bulk_actions']);
 
     // Settings
+    Route::get('/settings/email/{type}/{group}/{key}/preview', [EmailTemplateController::class, 'preview']);
+    Route::post('/settings/email/{type}/{group}/{key}/preview/test-mail', [EmailTemplateController::class, 'send_test_mail']);
     Route::get('/settings/{key}', [SettingsController::class, 'get']);
     Route::put('/settings', [SettingsController::class, 'update']);
 
