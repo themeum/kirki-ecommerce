@@ -119,7 +119,10 @@ const productColumns: ColumnDef<ProductListItem>[] = [
     id: 'base_price',
     header: __('Price', 'kirki-ecommerce'),
     enableSorting: true,
-    cell: ({ row }) => displayMoney('base_price', row.original),
+    cell: ({ row }) =>
+      isDefined(row.original.base_sale_price)
+        ? displayMoney('base_sale_price', row.original)
+        : displayMoney('base_price', row.original),
   },
   {
     id: 'status',

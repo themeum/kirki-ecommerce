@@ -104,6 +104,7 @@ const ProductForm = ({
       <Form {...form}>
         <PageHeading
           onBack={handleBack}
+          sticky
           text={
             isCreate ? __('New Product', 'kirki-ecommerce') : __('Edit Product', 'kirki-ecommerce')
           }

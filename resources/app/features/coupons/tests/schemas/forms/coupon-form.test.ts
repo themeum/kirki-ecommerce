@@ -137,6 +137,16 @@ describe('CouponFormSchema', () => {
     expect(result.customer_limit).toBeNull();
   });
 
+  it('keeps an untouched usage_limit and customer_limit present as null rather than dropping the keys', () => {
+    const { usage_limit, customer_limit, ...withoutLimits } = base;
+    const result = CouponFormSchema.parse(withoutLimits);
+
+    expect('usage_limit' in result).toBe(true);
+    expect('customer_limit' in result).toBe(true);
+    expect(result.usage_limit).toBeNull();
+    expect(result.customer_limit).toBeNull();
+  });
+
   it('requires usage_limit and customer_limit when their toggles are on', () => {
     const missingUsage = CouponFormSchema.safeParse({
       ...base,

@@ -17,8 +17,7 @@ import {
 import { CustomerInfoSchema } from '@/features/customers';
 import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
 import { END_OF_DAY_TIME, formatAtomDateTime, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
-import { isEmptyValue, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
-import { MoneyAmountSchema } from '@/schemas/shared/api';
+import { isEmptyValue, moneyOrNull, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { RegionSchema } from '@/schemas/shared/region';
 import { __ } from '@/wpi18n';
 
@@ -46,7 +45,7 @@ const CouponFormShape = z.object({
     __('Discount type is required', 'kirki-ecommerce'),
   ),
   discount_amount: requiredWhen(
-    MoneyAmountSchema.nullish(),
+    moneyOrNull(),
     (values) => {
       if (values.discount_type === 'amount-off' && isEmptyValue(values.discount_amount)) {
         return true;

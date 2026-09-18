@@ -8,7 +8,7 @@ import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import CategoryAddEditPopover from '@/features/categories/components/category-add-edit-dialog';
 import CategoryTableFilters from '@/features/categories/components/category-table/category-table-filters';
-import { categoryColumns } from '@/features/categories/components/category-table/columns';
+import { createCategoryColumns } from '@/features/categories/components/category-table/columns';
 import type { Category } from '@/features/categories/schemas/catalog/category';
 import {
   useBulkDeleteCategoriesMutation,
@@ -62,7 +62,7 @@ const CategoryTable = () => {
 
   const columns = useMemo<ColumnDef<Category>[]>(
     () => [
-      ...categoryColumns,
+      ...createCategoryColumns({ onEdit: setEditingItem }),
       {
         id: 'actions',
         header: '',

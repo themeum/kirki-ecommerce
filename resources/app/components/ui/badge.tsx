@@ -51,7 +51,7 @@ const badgeVariantStyles = defineStyles({
   },
   secondary: {
     backgroundColor: theme.colors.background.fillSecondary,
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.emphasis,
     'a&:hover': {
       backgroundColor: theme.colors.background.fillSecondaryHover,
     },

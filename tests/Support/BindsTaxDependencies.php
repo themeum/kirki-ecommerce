@@ -60,88 +60,16 @@ trait BindsTaxDependencies
         $currency = new \stdClass();
         $currency->code = $base_currency;
 
-        $currency_settings_object = new class {
-            public function get($key = null, $default = null)
-            {
-                return $default;
-            }
-        };
-
-        $tax_settings_data = [
-            'tax_regions' => $tax_regions,
-            'is_tax_inclusive_price' => $is_tax_inclusive_price,
-        ];
-
-        $tax_settings_object = new class($tax_settings_data) {
-            private array $data;
-
-            public function __construct(array $data)
-            {
-                $this->data = $data;
-            }
-
-            public function get($key = null, $default = null)
-            {
-                if ($key === null) {
-                    return $this->data;
-                }
-
-                return $this->data[$key] ?? $default;
-            }
-        };
-
-        $general_settings_object = new class {
-            public function get($key = null, $default = null)
-            {
-                if ($key === 'is_tax_calculation_enabled') {
-                    return true;
-                }
-
-                return $default;
-            }
-        };
-
-        $settings_instances = [
-            OptionKeys::CURRENCY_SETTINGS => $currency_settings_object,
-            OptionKeys::TAX_SETTINGS => $tax_settings_object,
-            OptionKeys::GENERAL_SETTINGS => $general_settings_object,
-        ];
-
-        $settings_factory = new class($settings_instances) {
-            private array $settings_instances;
-
-            public function __construct(array $settings_instances)
-            {
-                $this->settings_instances = $settings_instances;
-            }
-
-            /**
-             * Mirrors `SettingsFactory::get()`'s dot-notation split: the
-             * segment before the first dot picks the settings group, the
-             * remainder is looked up on that group's instance.
-             */
-            public function get(string $key, $default = null)
-            {
-                if (strpos($key, '.') === false) {
-                    if (!isset($this->settings_instances[$key])) {
-                        throw new \Exception("Invalid settings key: {$key}");
-                    }
-
-                    return $this->settings_instances[$key];
-                }
-
-                [$group, $rest] = explode('.', $key, 2);
-
-                if (!isset($this->settings_instances[$group])) {
-                    throw new \Exception("Invalid settings key: {$key}");
-                }
-
-                return $this->settings_instances[$group]->get($rest) ?? $default;
-            }
-        };
+        $settings_factory = new FakeSettingsFactory([
+            OptionKeys::CURRENCY_SETTINGS => [],
+            OptionKeys::TAX_SETTINGS => [
+                'tax_regions' => $tax_regions,
+                'is_tax_inclusive_price' => $is_tax_inclusive_price,
+            ],
+        ]);
 
         $currency_service = new class($currency) {
-            private $currency;
+            protected $currency;
 
             public function __construct($currency)
             {

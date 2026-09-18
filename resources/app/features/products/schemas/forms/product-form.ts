@@ -14,8 +14,7 @@ import {
 import type { ProductVariant } from '@/features/products/schemas/catalog/variant';
 import { ProductBasicsFormSchema } from '@/features/products/schemas/forms/product-basics-form';
 import { ProductSeoFormSchema } from '@/features/products/schemas/forms/product-seo-form';
-import { booleanish, mediaId, numberOrNull, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
-import { moneyAmount } from '@/schemas/forms/shared/validators';
+import { booleanish, mediaId, moneyOrNull, numberOrNull, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { MediaRefSchema } from '@/schemas/shared/media';
 import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
@@ -26,15 +25,15 @@ const ProductFormVariantShape = z.object({
   media: mediaId(),
   sku: z.string().nullish(),
   barcode: z.string().nullish(),
-  base_price: moneyAmount.nullish(),
+  base_price: moneyOrNull(),
   show_unit_price: z.boolean().nullish().default(false),
   base_unit: z.string().nullish(),
-  base_unit_amount: moneyAmount.nullish(),
+  base_unit_amount: numberOrNull(),
   total_unit: z.string().nullish(),
-  total_unit_amount: moneyAmount.nullish(),
-  base_sale_price: requiredWhen(moneyAmount.nullish(), (values) => isDefined(values.base_sale_price) && isDefined(values.base_price) && Number(values.base_sale_price) > Number(values.base_price), __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce')),
-  base_cost_of_goods: moneyAmount.nullish(),
-  weight: moneyAmount.nullish(),
+  total_unit_amount: numberOrNull(),
+  base_sale_price: requiredWhen(moneyOrNull(), (values) => isDefined(values.base_sale_price) && isDefined(values.base_price) && Number(values.base_sale_price) > Number(values.base_price), __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce')),
+  base_cost_of_goods: moneyOrNull(),
+  weight: numberOrNull(),
   weight_unit: z.string().nullish(),
   dimension_unit: z.string().nullish(),
   charge_taxes: z.boolean().nullish(),

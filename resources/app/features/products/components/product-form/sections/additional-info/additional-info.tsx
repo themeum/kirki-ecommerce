@@ -82,7 +82,6 @@ const AdditionalInfo = () => {
                       >
                         <Button
                           variant="secondary"
-                          cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                           onClick={() => remove(index)}
                         >
                           <TrashIcon />

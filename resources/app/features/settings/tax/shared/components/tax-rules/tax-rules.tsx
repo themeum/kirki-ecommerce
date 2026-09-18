@@ -191,7 +191,6 @@ const TaxRules = (props: TaxRulesProps) => {
                             <Button
                               variant="outline"
                               size="icon-sm"
-                              cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                               onClick={() => handleDeleteRules(item, index)}
                             >
                               <Trash2 />

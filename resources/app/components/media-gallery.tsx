@@ -150,7 +150,12 @@ const SortableItem = ({
               size="icon-sm"
               aria-label={__('Delete', 'kirki-ecommerce')}
               onClick={onDeleteImage}
-              cssOverride={{ backgroundColor: theme.colors.background.fill }}
+              cssOverride={{
+                backgroundColor: theme.colors.background.fill,
+                '&:hover': {
+                  backgroundColor: theme.colors.background.fill,
+                },
+              }}
             >
               <Trash2Icon color={theme.colors.icon.critical} />
             </Button>
@@ -279,7 +284,7 @@ const MediaGallery = ({
         <>
           {label && (
             <Field data-invalid={error ? true : undefined}>
-              <FieldLabel style={{ minHeight: '23px' }}>{label}</FieldLabel>
+              <FieldLabel style={{ minHeight: '24px' }}>{label}</FieldLabel>
               {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
               {typeof error === 'string' && <FieldError>{error}</FieldError>}
             </Field>

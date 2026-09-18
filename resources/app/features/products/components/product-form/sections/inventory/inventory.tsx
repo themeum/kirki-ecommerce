@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
-import { generateSku } from '@/features/products/lib/utils';
+import { useGenerateSkuMutation } from '@/features/inventory';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { WandIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -18,13 +18,10 @@ import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const Inventory = () => {
-  const { control, setValue } = useFormContext<ProductFormInput>();
-  const trackInventory = Boolean(
-    useWatch({ control, name: 'variants.0.track_inventory' }),
-  );
-  const hasLimitPerOrder = Boolean(
-    useWatch({ control, name: 'variants.0.has_limit_per_order' }),
-  );
+  const { control, setValue, getValues } = useFormContext<ProductFormInput>();
+  const generateSkuMutation = useGenerateSkuMutation();
+  const trackInventory = Boolean(useWatch({ control, name: 'variants.0.track_inventory' }));
+  const hasLimitPerOrder = Boolean(useWatch({ control, name: 'variants.0.has_limit_per_order' }));
 
   const handleTrackInventoryChange = (checked: boolean) => {
     if (!checked) {
@@ -33,10 +30,24 @@ const Inventory = () => {
   };
 
   const handleGenerateSku = () => {
-    setValue('variants.0.sku', generateSku(), {
-      shouldDirty: true,
-      shouldTouch: true,
-    });
+    const values = getValues();
+
+    generateSkuMutation.mutate(
+      {
+        title: values.title,
+        brand_id: values.brand?.id ?? null,
+        category_ids: values.categories?.map((category) => category.id) ?? [],
+        attribute_value_ids: values.variants?.[0]?.attribute_values ?? [],
+      },
+      {
+        onSuccess: (response) => {
+          setValue('variants.0.sku', response.data.sku, {
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -70,10 +81,7 @@ const Inventory = () => {
                 <NumberField
                   name="variants.0.low_stock_threshold"
                   label={__('Low stock threshold', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Notify when stock falls below this amount.',
-                    'kirki-ecommerce',
-                  )}
+                  infoText={__('Notify when stock falls below this amount.', 'kirki-ecommerce')}
                   placeholder={__('600', 'kirki-ecommerce')}
                 />
               </Grid>
@@ -104,19 +112,17 @@ const Inventory = () => {
               variant="ghost"
               size="icon"
               onClick={handleGenerateSku}
+              loading={generateSkuMutation.isPending}
               aria-label={__('Generate SKU', 'kirki-ecommerce')}
             >
               <WandIcon />
             </Button>
           </Flex>
-          <TextField
-            name="variants.0.sku"
-            placeholder={__('SKU-XYZ-1234', 'kirki-ecommerce')}
-          />
+          <TextField name="variants.0.sku" placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')} />
         </Flex>
 
         <Grid gap={2} template="1fr 2fr">
-          <Card cssOverride={cardStyles.innerDarkCard}>
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <CheckboxField
                 name="variants.0.allow_back_order"
@@ -125,15 +131,12 @@ const Inventory = () => {
             </CardContent>
           </Card>
 
-          <Card cssOverride={cardStyles.innerDarkCard}>
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex align="center" justify="space-between" gap={2}>
                 <CheckboxField
                   name="variants.0.has_limit_per_order"
-                  label={__(
-                    'Limit orders to number of item',
-                    'kirki-ecommerce',
-                  )}
+                  label={__('Limit orders to number of item', 'kirki-ecommerce')}
                   infoText={__(
                     'Limit the number of items a customer can purchase in a single order.',
                     'kirki-ecommerce',

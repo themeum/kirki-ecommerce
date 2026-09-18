@@ -109,6 +109,8 @@ skills:
 Before implementing tasks from an existing change always ask me to run the command `opsx:apply` manually
 by myself instead of applying automatically.
 
+Note: Whenever I start a new session make sure to follow the **OpenSpec workflow** by default.
+
 ---
 
 ## 2. PHP Coding Standards
@@ -423,6 +425,7 @@ Styling goes through `@emotion/react`, not plain CSS modules or inline
 - Define styles with `defineStyles({...})` from `@/theme/mixins`, keyed by element role
 - Reference design tokens from `theme` (`@/theme`) — colors, spacing,
   radius, typography — instead of hardcoded values
+- Make sure the applied design does not cause any layout shifting to the interface.
 - Apply with the `css` prop (`scoped(styles.icon)` for scoped styles), and
   reserve the `style` prop for truly dynamic, runtime-computed values
 

@@ -80,16 +80,37 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
 
+    name: integration-tests (${{ matrix.database.name }})
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # MySQL 5.7 is the supported floor and is stricter than MariaDB in ways
+        # that matter: ONLY_FULL_GROUP_BY is on by default there and off here,
+        # and the MySQL 8 regex functions are unavailable. Running only MariaDB
+        # would let both classes of breakage reach a release.
+        database:
+          - name: MariaDB 10.6
+            image: mariadb:10.6
+            health-cmd: healthcheck.sh --connect --innodb_initialized
+          - name: MySQL 5.7
+            image: mysql:5.7
+            # Credentialed and over TCP on purpose: a bare `mysqladmin ping`
+            # answers "mysqld is alive" from the init-time server ~4s before
+            # authenticated TCP connections start working, which would let the
+            # job start against a database it cannot yet log into.
+            health-cmd: mysqladmin ping -h 127.0.0.1 -uroot -proot --silent
+
     services:
-      mariadb:
-        image: mariadb:10.6
+      database:
+        image: ${{ matrix.database.image }}
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: kirki_ecommerce_test
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-cmd="${{ matrix.database.health-cmd }}"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=10

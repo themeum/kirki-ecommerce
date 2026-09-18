@@ -11,14 +11,16 @@ import { forwardRef, useImperativeHandle, useRef } from 'react';
 
 import { getPinnedCss, getPinningStyle } from '@/components/data-table/column-styles';
 import type { DataTableItem } from '@/components/data-table/types';
+import Flex from '@/components/ui/flex';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { BulkEditOptionsProvider } from '@/features/bulk-edit/contexts/bulk-edit-options-context';
 import {
   CellSelectionProvider,
   type FillCommitPayload,
 } from '@/features/bulk-edit/contexts/cell-selection-context';
-import { bulkEditColumns, ROW_HEIGHT } from '@/features/bulk-edit/lib/columns';
+import { bulkEditColumns, ROW_HEIGHT, SKU_FIELD } from '@/features/bulk-edit/lib/columns';
 import BulkEditRow from '@/features/bulk-edit/pages/bulk-edit-table/bulk-edit-row';
+import SkuGenerateAction from '@/features/bulk-edit/pages/bulk-edit-table/sku-generate-action';
 import type { ProductVariant } from '@/features/products';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
@@ -30,6 +32,8 @@ type BulkEditTableProps = {
   onFillCommit: (payload: FillCommitPayload) => void;
   onTypeToEdit: (field: string, rows: number[], char: string) => void;
   onSpaceToggle: (field: string, rows: number[]) => void;
+  onGenerateSkus: (rows: number[]) => void;
+  isGeneratingSkus: boolean;
 };
 
 type BulkEditTableHandle = {
@@ -44,6 +48,8 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
     onFillCommit,
     onTypeToEdit,
     onSpaceToggle,
+    onGenerateSkus,
+    isGeneratingSkus,
   } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -101,7 +107,7 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
         >
           <Table cssOverride={styles.table} fixed>
             <TableHeader cssOverride={styles.header}>
-              <TableRow>
+              <TableRow cssOverride={{ background: theme.colors.background.solidSurfaceAlt }}>
                 {table.getHeaderGroups()[0]?.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -120,7 +126,14 @@ const BulkEditTable = forwardRef<BulkEditTableHandle, BulkEditTableProps>((props
                     alignment={header.column.columnDef.meta?.alignment}
                     data-sticky-cell={header.column.getIsPinned() ? 'true' : undefined}
                   >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.column.id === SKU_FIELD ? (
+                      <Flex align="center" cssOverride={styles.skuHeader}>
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        <SkuGenerateAction onGenerate={onGenerateSkus} loading={isGeneratingSkus} />
+                      </Flex>
+                    ) : (
+                      flexRender(header.column.columnDef.header, header.getContext())
+                    )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -159,8 +172,14 @@ export default BulkEditTable;
 export type { BulkEditTableHandle };
 
 const styles = defineStyles({
+  // Only an anchor for the absolutely-positioned generate action, which is
+  // kept out of flow so that showing it never changes the header's height.
+  skuHeader: {
+    position: 'relative',
+  },
   scrollContainer: {
-    maxHeight: 'calc(100vh - 180px)',
+    maxHeight: 'calc(100svh - 0px)',
+
     overflow: 'auto',
     borderCollapse: 'separate',
     // Bottom padding on an `overflow: auto` element is part of its scrollable
