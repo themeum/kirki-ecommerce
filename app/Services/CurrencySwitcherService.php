@@ -5,7 +5,7 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\App\Supports\CountryData;
 
 use function Kirki\Ecommerce\Framework\include_view;
 
@@ -145,7 +145,7 @@ class CurrencySwitcherService
         }
 
         if ($this->countries === null) {
-            $this->countries = Utils::get_countries();
+            $this->countries = CountryData::index();
         }
 
         $alpha2 = substr($code, 0, 2);

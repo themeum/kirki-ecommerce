@@ -17,6 +17,7 @@ use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
+use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Route;
@@ -83,9 +84,10 @@ class PageInlineScript extends BaseHook
         $data     = (object) $view_data;
         $customer = $data->customer->get_customer() ?? null;
 
-        $config['countries']   = $data->countries ?? Utils::get_countries();
-        $config['customer_id'] = $customer->id ?? 0;
-        $config['addresses']   = AddressResource::collection($data->addresses ?? []);
+        $config['countries']     = $data->countries ?? Utils::get_countries();
+        $config['address_rules'] = AddressRules::all_for_display();
+        $config['customer_id']   = $customer->id ?? 0;
+        $config['addresses']     = AddressResource::collection($data->addresses ?? []);
 
         return $config;
     }
@@ -139,6 +141,7 @@ class PageInlineScript extends BaseHook
         ];
 
         $config['countries'] = $data->countries ?? [];
+        $config['address_rules'] = AddressRules::all_for_display();
         $config['addresses'] = AddressResource::collection($data->addresses ?? []);
 
         $config['is_tax_inclusive_price'] = Tax::is_tax_inclusive();

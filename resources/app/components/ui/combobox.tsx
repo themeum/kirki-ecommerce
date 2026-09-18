@@ -20,6 +20,7 @@ import { __ } from '@/wpi18n';
 type ComboboxOption = {
   label: string;
   value: string;
+  keywords?: string[];
 };
 
 type ComboboxProps = {
@@ -219,6 +220,7 @@ const Combobox = ({
                   <CommandItem
                     key={option.value}
                     value={option.label}
+                    keywords={option.keywords}
                     onSelect={() => handleSelect(option.value)}
                   >
                     <span css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}>

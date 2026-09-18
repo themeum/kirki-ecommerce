@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import { endpoints } from '@/config/endpoints';
+import { cacheAddressRules } from '@/libs/address-rules';
 import { apiClient } from '@/libs/api';
 import { countryKeys } from '@/libs/query-keys';
 import { CountrySchema } from '@/schemas/reference/country';
@@ -13,7 +14,11 @@ const getCountries = (params: ListQueryParams = {}) => {
     .get(endpoints.COUNTRIES, { params })
     .then((response) =>
       parseData(ResourceCollectionSchema(CountrySchema), response),
-    );
+    )
+    .then((countries) => {
+      cacheAddressRules(countries);
+      return countries;
+    });
 };
 
 const useCountriesQuery = (params: ListQueryParams = {}, enabled = true) => {

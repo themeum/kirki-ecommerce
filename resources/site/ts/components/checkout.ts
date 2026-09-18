@@ -13,9 +13,11 @@ import { debounce } from '../utils/debounce';
 import { scrollToFirstError } from '../utils/dom';
 import { renderPaymentGatewayHTML } from '../utils/payment';
 import { type CountryState, createAddressModal } from './address-modal';
+import type { AddressRule } from '../types';
 import {
   type CheckoutAddress,
   formatAddressPayload,
+  getAddressRule,
   getStatesForCountry,
   initAddress,
   toBillingOrderFields,
@@ -128,6 +130,17 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
       return getStatesForCountry(this.billingAddress.country, this.countries);
     },
 
+    // Which address fields this country actually uses. A hidden field is left
+    // out of the form rather than rendered empty, and the subdivision field
+    // carries the country's own term for it.
+    get shippingRule(): AddressRule {
+      return getAddressRule(this.shippingAddress.country);
+    },
+
+    get billingRule(): AddressRule {
+      return getAddressRule(this.billingAddress.country);
+    },
+
     get selectedShippingAddress(): CheckoutAddress {
       return this.shippingAddress;
     },
@@ -220,19 +233,25 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
     },
 
     validateShipping(): boolean {
-      this.shippingErrors = validateAddress(this.shippingAddress, this.shippingStates);
+      this.shippingErrors = validateAddress(this.shippingAddress);
       return Object.keys(this.shippingErrors).length === 0;
     },
 
     validateBilling(): boolean {
-      this.billingErrors = validateAddress(this.billingAddress, this.billingStates);
+      this.billingErrors = validateAddress(this.billingAddress);
       return Object.keys(this.billingErrors).length === 0;
     },
 
     onShippingCountryChange() {
       this.shippingAddress.state = '';
+      // A field the new country does not use must not carry a value over from
+      // the old one, or a hidden input would be submitted unseen.
+      if (this.shippingRule.postal_code.mode === 'hidden') {
+        this.shippingAddress.postal_code = '';
+      }
       delete this.shippingErrors.country;
       delete this.shippingErrors.state;
+      delete this.shippingErrors.postal_code;
       void this.updateCart();
     },
 
@@ -243,8 +262,12 @@ export function checkout(componentConfig: CheckoutConfig = {}) {
 
     onBillingCountryChange() {
       this.billingAddress.state = '';
+      if (this.billingRule.postal_code.mode === 'hidden') {
+        this.billingAddress.postal_code = '';
+      }
       delete this.billingErrors.country;
       delete this.billingErrors.state;
+      delete this.billingErrors.postal_code;
     },
 
     onBillingStateChange() {
