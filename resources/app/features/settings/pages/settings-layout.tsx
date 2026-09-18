@@ -127,6 +127,6 @@ const styles = defineStyles({
   contentPane: {
     minWidth: CONTENT_PANE_WIDTH,
     maxWidth: CONTENT_PANE_WIDTH,
-    marginTop: theme.spacing[1],
+    marginTop: theme.spacing[4],
   },
 });

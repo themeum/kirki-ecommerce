@@ -49,17 +49,11 @@ const MoneyField = <
       control={control}
       name={name}
       render={({ field, fieldState }) => {
-        const hasValue =
-          field.value !== null &&
-          field.value !== undefined &&
-          field.value !== '';
+        const hasValue = field.value !== null && field.value !== undefined && field.value !== '';
         const showSymbol = Boolean(symbol) && (showSymbolWhenEmpty || hasValue);
 
         return (
-          <Field
-            data-invalid={fieldState.invalid || undefined}
-            cssOverride={cssOverride}
-          >
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && (
               <FieldLabel htmlFor={fieldId} infoText={infoText}>
                 {label}
@@ -69,7 +63,7 @@ const MoneyField = <
               {showSymbol && (
                 <span
                   css={scoped({
-                    color: theme.colors.text.secondary,
+                    color: theme.colors.text.primary,
                     position: 'absolute',
                     left: theme.spacing[3],
                     top: '50%',
@@ -94,7 +88,7 @@ const MoneyField = <
                 ref={field.ref}
                 error={Boolean(fieldState.error)}
                 aria-invalid={fieldState.invalid}
-                onFocus={event => event.target.select()}
+                onFocus={(event) => event.target.select()}
                 // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus
                 autoFocus={autoFocus}
               />

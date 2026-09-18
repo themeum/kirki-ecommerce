@@ -178,6 +178,7 @@ const EditCoupon = () => {
     <Page containerSize="lg">
       <Form {...form}>
         <PageHeading
+          sticky
           text={isNew ? __('New Coupon', 'kirki-ecommerce') : __('Edit Coupon', 'kirki-ecommerce')}
           actions={
             <>

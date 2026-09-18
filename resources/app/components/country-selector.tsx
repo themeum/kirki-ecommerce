@@ -55,7 +55,7 @@ export default CountrySelector;
 const styles = defineStyles({
   wrapper: {
     maxHeight: '220px',
-    overflowY: 'scroll',
+    overflowY: 'auto',
     overflowX: 'hidden',
     borderTop: `1px solid ${theme.colors.border.muted}`,
     borderBottom: `1px solid ${theme.colors.border.muted}`,
