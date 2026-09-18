@@ -9,7 +9,7 @@ import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import BrandAddEditPopover from '@/features/brands/components/brand-add-edit-dialog';
 import BrandTableFilters from '@/features/brands/components/brand-table/brand-table-filters';
-import { brandColumns } from '@/features/brands/components/brand-table/columns';
+import { createBrandColumns } from '@/features/brands/components/brand-table/columns';
 import type { Brand } from '@/features/brands/schemas/catalog/brand';
 import {
   useBrandsQuery,
@@ -63,7 +63,7 @@ const BrandTable = () => {
 
   const columns = useMemo<ColumnDef<Brand>[]>(
     () => [
-      ...brandColumns,
+      ...createBrandColumns({ onEdit: setEditingItem }),
       {
         id: 'actions',
         header: '',

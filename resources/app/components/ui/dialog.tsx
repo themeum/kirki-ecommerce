@@ -272,6 +272,11 @@ const styles = defineStyles({
     '&[data-state="closed"]': {
       animation: `${dialogContentOut} 200ms ease`,
     },
+    '& > form': {
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: 0,
+    },
   },
   closeButton: {
     position: 'absolute',
@@ -281,6 +286,7 @@ const styles = defineStyles({
   header: {
     display: 'flex',
     flexDirection: 'column',
+    flexShrink: 0,
     rowGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
     paddingRight: theme.spacing[12],
@@ -288,6 +294,7 @@ const styles = defineStyles({
   footer: {
     display: 'flex',
     alignItems: 'center',
+    flexShrink: 0,
     justifyContent: 'flex-end',
     columnGap: theme.spacing[2],
     padding: `${theme.spacing[4]} ${theme.spacing[6]}`,
