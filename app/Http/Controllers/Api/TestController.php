@@ -8,7 +8,6 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
-use Kirki\Ecommerce\App\Supports\AddonPlugin;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Payments\Stripe;
 
@@ -40,7 +39,7 @@ class TestController
             'somoy2' => $today,
             'settings' => Settings::update('general.industry', 'tech'),
             // 'usage' => CurrencyExchange::get_active_provider()->get_usage()->all(),
-            // 'is_installed' => AddonPlugin::install('https://kirki.com/addons/paypal-gateway')
+            // 'is_installed' => Extension::install('https://kirki.com/addons/paypal-gateway')
             // 'refund' => Payment::get_provider('paypal')->refund(Order::find(7), 1)
             // 'pay' => Payment::get_provider('paypal')->pay(Order::find(8))
         ]);
