@@ -28,7 +28,7 @@ class SettingsFactory
      *
      * @param string $key
      * @param mixed $default
-     * @return mixed
+     * @return AppSettings|mixed
      */
     public function get(string $key, $default = null)
     {

@@ -31,6 +31,7 @@ const CountrySelector = ({
       value: country.code,
       label: country.name,
       leftIcon: country.flag ? <span css={scoped(styles.flag)}>{country.flag}</span> : undefined,
+      keywords: [country.code],
     }));
   }, [countries]);
 

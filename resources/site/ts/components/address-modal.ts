@@ -3,6 +3,8 @@
  * Shared between Account Addresses and Checkout components
  */
 
+import type { AddressRule } from '../types';
+import { getAddressRule } from './checkout-address';
 import { type AccountAddressPayload, accountApi } from '../api/account';
 import { toastManager } from '../services/toast/runtime';
 import { config } from '../utils';
@@ -66,6 +68,7 @@ export interface AddressModalHost {
   formData: AddressFormData;
   countries: CountryItem[];
   availableStates: CountryState[];
+  addressRule: AddressRule;
   shouldDisplayDefaultCheckboxes(): boolean;
   addresses?: AddressItem[];
   savedAddresses?: AddressItem[];
@@ -90,12 +93,20 @@ export interface AddressModalHost {
   saveAddress(): Promise<void>;
 }
 
+function isBlank(value: unknown): boolean {
+  if (value === null || value === undefined || value === '') {
+    return true;
+  }
+
+  return typeof value === 'string' && value.trim() === '';
+}
+
 export interface AddressModalOptions {
   onSaved?: (self: AddressModalHost, address: AddressItem, isEditing: boolean) => void;
 }
 
 export function createAddressModal(options: AddressModalOptions = {}) {
-  const { __ } = window.wp.i18n;
+  const { __, sprintf } = window.wp.i18n;
 
   return {
     modalOpen: false,
@@ -138,6 +149,12 @@ export function createAddressModal(options: AddressModalOptions = {}) {
 
     get availableStates(): CountryState[] {
       return (this as AddressModalHost).getAvailableStates();
+    },
+
+    // Which address fields the selected country actually uses, and its own
+    // term for the subdivision field.
+    get addressRule(): AddressRule {
+      return getAddressRule(this.formData?.country ?? '');
     },
 
     shouldDisplayDefaultCheckboxes(this: AddressModalHost): boolean {
@@ -317,7 +334,6 @@ export function createAddressModal(options: AddressModalOptions = {}) {
         { field: 'country', message: __('Country is required.', 'kirki-ecommerce') },
         { field: 'address_line1', message: __('Street address is required.', 'kirki-ecommerce') },
         { field: 'city', message: __('City is required.', 'kirki-ecommerce') },
-        { field: 'postal_code', message: __('Postal code is required.', 'kirki-ecommerce') },
         { field: 'phone', message: __('Phone number is required.', 'kirki-ecommerce') },
       ];
 
@@ -328,12 +344,22 @@ export function createAddressModal(options: AddressModalOptions = {}) {
         }
       }
 
-      const states = this.getAvailableStates();
-      if (states.length > 0) {
-        const stateVal = this.formData.state;
-        if (!stateVal || (typeof stateVal === 'string' && stateVal.trim() === '')) {
-          this.errors.state = __('State is required.', 'kirki-ecommerce');
-        }
+      // The country's own rules decide these two, not whether the dataset
+      // happens to list subdivisions: a country can have states on file and
+      // still not require one, and one with no postal codes must not be
+      // asked for a postcode the form does not even render.
+      const addressRule = this.addressRule;
+
+      if (addressRule.state.mode === 'required' && isBlank(this.formData.state)) {
+        this.errors.state = sprintf(
+          /* translators: %s is the country's term for its subdivision, e.g. State, Prefecture, Emirate. */
+          __('%s is required.', 'kirki-ecommerce'),
+          addressRule.state.label,
+        );
+      }
+
+      if (addressRule.postal_code.mode === 'required' && isBlank(this.formData.postal_code)) {
+        this.errors.postal_code = __('Postal code is required.', 'kirki-ecommerce');
       }
 
       if (

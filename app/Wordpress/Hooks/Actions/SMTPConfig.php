@@ -4,6 +4,8 @@ namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
+use Kirki\Ecommerce\App\Constants\MailEncryption;
+use Kirki\Ecommerce\App\Constants\Mailer;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
@@ -44,24 +46,32 @@ class SMTPConfig extends BaseHook
         }
 
         $config = Settings::get(OptionKeys::EMAIL_SETTINGS);
-        $is_smtp = $config->get('mailer') === 'smtp';
-
-        if ($is_smtp && empty($config->get('mail'))) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine misconfiguration error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
-            error_log(__('Mail settings are not configured', 'kirki-ecommerce'));
-            return;
-        }
+        $is_smtp = $config->get('mail_configuration.mailer') === Mailer::SMTP;
 
         if ($is_smtp) {
+            if (empty($config->get('mail_configuration.host'))) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Genuine misconfiguration error, not debug output; writes to the server's PHP error log rather than this plugin's own framework.log, which is not protected from direct web access.
+                error_log(__('Mail settings are not configured', 'kirki-ecommerce'));
+                return;
+            }
+
+
             $mailer->isSMTP();
-            $mailer->Host = $config->get('mail.host');
-            $mailer->SMTPAuth = $config->get('mail.enable_authentication');
-            $mailer->Port = $config->get('mail.port');
-            $mailer->Username = $config->get('mail.username');
-            $mailer->Password = $config->get('mail.password');
-            $mailer->SMTPSecure = $config->get('mail.encryption');
-            $mailer->FromName = $config->get('mail.from_name');
-            $mailer->From = $config->get('mail.from_email');
+            $mailer->Host = $config->get('mail_configuration.host');
+            $mailer->Port = (int) $config->get('mail_configuration.port');
+            $mailer->From = $config->get('mail_configuration.from_email') ?? get_bloginfo('admin_email');
+            $mailer->FromName = $config->get('mail_configuration.from_name') ?? get_bloginfo('name');
+
+            $is_authentication_enabled = (bool) $config->get('mail_configuration.is_authentication_enabled');
+            $mailer->SMTPAuth = $is_authentication_enabled;
+
+            if ($is_authentication_enabled) {
+                $mailer->Username = $config->get('mail_configuration.username');
+                $mailer->Password = $config->get('mail_configuration.password');
+            }
+
+            $encryption = $config->get('mail_configuration.encryption');
+            $mailer->SMTPSecure = $encryption === MailEncryption::NONE ? '' : (string) $encryption;
         }
     }
 }

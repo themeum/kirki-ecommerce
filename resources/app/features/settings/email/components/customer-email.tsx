@@ -1,3 +1,4 @@
+import { Edit3, User2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -16,40 +17,39 @@ import {
 } from '@/components/ui/stacked-items';
 import Switch from '@/components/ui/switch';
 import Text from '@/components/ui/text';
-import { mapEmailGroup } from '@/features/settings/email/lib/utils';
+import {
+  type EmailListItem,
+  getNotificationTemplateLabel,
+  mapEmailGroup,
+  resolveNotificationTemplate,
+} from '@/features/settings/email/lib/utils';
 import type { EmailSettingsFormInput } from '@/features/settings/email/schemas/forms/email-settings-form';
-import { CartIcon, EditPenIcon, InventoryBoxIcon, SettingsIcon, UserIcon } from '@/icons';
+import { CartIcon, UserIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
-type EmailListItem = {
-  key: string;
-  name?: string;
-  is_enabled?: boolean;
-  [key: string]: unknown;
-};
-
-type AdminEmailProps = {
+type CustomerEmailProps = {
   handleToggleOrder: (item: EmailListItem) => void;
   handleEditOrder: (item: EmailListItem) => void;
 };
 
 type EmailRowProps = {
   item: EmailListItem;
+  label: string;
   onToggle: (item: EmailListItem) => void;
   onEdit: (item: EmailListItem) => void;
 };
 
 const EmailRow = (props: EmailRowProps) => {
-  const { item, onToggle, onEdit } = props;
+  const { item, label, onToggle, onEdit } = props;
 
   return (
     <StackedItem id={item.key}>
       <StackedItemContent>
         <StackedItemTitle>
           <Text variant="small" weight="medium">
-            {item.name ?? ''}
+            {label}
           </Text>
           {item.is_enabled === false && (
             <Badge variant="destructive">
@@ -71,7 +71,7 @@ const EmailRow = (props: EmailRowProps) => {
             cssOverride={styles.actionButton}
             onClick={() => onEdit(item)}
           >
-            <EditPenIcon />
+            <Edit3 />
           </Button>
         </ActionGroup>
       </StackedItemActions>
@@ -79,49 +79,45 @@ const EmailRow = (props: EmailRowProps) => {
   );
 };
 
-const AdminEmail = (props: AdminEmailProps) => {
+const CustomerEmail = (props: CustomerEmailProps) => {
   const { handleToggleOrder, handleEditOrder } = props;
   const { control } = useFormContext<EmailSettingsFormInput>();
-  const adminEmails = useWatch({ control, name: 'admin_emails' });
+  const customerEmails = useWatch({ control, name: 'customer_emails' });
 
-  const { orderEmails, inventoryEmails, userEmails } = useMemo(() => {
-    if (!adminEmails) {
+  const { orderEmails, userEmails } = useMemo(() => {
+    if (!customerEmails) {
       return {
         orderEmails: [],
-        inventoryEmails: [],
         userEmails: [],
       };
     }
 
     return {
       orderEmails: mapEmailGroup(
-        adminEmails.order_notifications,
-        'admin_order',
+        customerEmails.order_notifications,
+        'customer_order',
       ),
-      inventoryEmails: mapEmailGroup(
-        adminEmails.inventory_notifications,
-        'admin_inventory',
+      userEmails: mapEmailGroup(
+        customerEmails.user_notifications,
+        'customer_user',
       ),
-      userEmails: mapEmailGroup(adminEmails.user_notifications, 'admin_user'),
     };
-  }, [adminEmails]);
+  }, [customerEmails]);
 
   return (
-    <>
-      <Card data-search-id="email.admin-emails" data-search-keywords="notification, alert, recipient, store owner, staff" cssOverride={styles.roundedCard}>
+    <div>
+      <Card data-search-id="email.customer-emails" data-search-keywords="notification, transactional, receipt, confirmation" cssOverride={styles.roundedCard}>
         <CardContent>
 
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={2} align="flex-start">
               <Flex gap={2} align="center">
-                <SettingsIcon />
-                <Text weight="semibold">
-                  {__('Admin Emails', 'kirki-ecommerce')}
-                </Text>
+                <User2 size={16} />
+                <Text weight="semibold">{__('Customer Emails', 'kirki-ecommerce')}</Text>
               </Flex>
               <Text color="secondary">
                 {__(
-                  'Order and account alerts sent to store administrators.',
+                  'Order confirmation and registration messages sent to your shoppers.',
                   'kirki-ecommerce',
                 )}
               </Text>
@@ -130,7 +126,7 @@ const AdminEmail = (props: AdminEmailProps) => {
             <OptionAccordion
               header={__('Order', 'kirki-ecommerce')}
               subHeader={__(
-                "Get notified about updates on your customer's orders.",
+                'Customers get updates about their orders.',
                 'kirki-ecommerce',
               )}
               leftIcon={<CartIcon />}
@@ -141,27 +137,7 @@ const AdminEmail = (props: AdminEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
-                      onToggle={handleToggleOrder}
-                      onEdit={handleEditOrder}
-                    />
-                  ))}
-                </StackedItems>
-              )}
-            </OptionAccordion>
-            <OptionAccordion
-              header={__('Inventory', 'kirki-ecommerce')}
-              subHeader={__(
-                'Get notified about your inventory status',
-                'kirki-ecommerce',
-              )}
-              leftIcon={<InventoryBoxIcon />}
-            >
-              {inventoryEmails.length > 0 && (
-                <StackedItems variant="card">
-                  {inventoryEmails.map((item) => (
-                    <EmailRow
-                      key={item.key}
-                      item={item}
+                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'customer_order'))}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />
@@ -172,7 +148,7 @@ const AdminEmail = (props: AdminEmailProps) => {
             <OptionAccordion
               header={__('User', 'kirki-ecommerce')}
               subHeader={__(
-                'Get notified about new user registration',
+                'Customers get updates regarding registration.',
                 'kirki-ecommerce',
               )}
               leftIcon={<UserIcon />}
@@ -183,6 +159,7 @@ const AdminEmail = (props: AdminEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
+                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'customer_user'))}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />
@@ -193,13 +170,13 @@ const AdminEmail = (props: AdminEmailProps) => {
           </Flex>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 };
 
-AdminEmail.displayName = 'AdminEmail';
+CustomerEmail.displayName = 'CustomerEmail';
 
-export default AdminEmail;
+export default CustomerEmail;
 
 const styles = defineStyles({
   roundedCard: {

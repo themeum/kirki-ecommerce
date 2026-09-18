@@ -23,6 +23,7 @@ type ComboboxOption = {
   label: string;
   value: string;
   leftIcon?: ReactNode;
+  keywords?: string[];
 };
 
 // Fixed so the virtualizer's estimate is exact: it positions rows from this
@@ -325,7 +326,10 @@ const Combobox = ({
                           cssOverride={styles.virtualItem}
                         >
                           <span
-                            css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}
+                            css={scopedMerge(
+                              styles.itemCheck,
+                              !isSelected && styles.itemCheckEmpty,
+                            )}
                           >
                             {isSelected && <Check size={14} />}
                           </span>
@@ -348,6 +352,7 @@ const Combobox = ({
                     <CommandItem
                       key={option.value}
                       value={option.label}
+                      keywords={option.keywords}
                       onSelect={() => handleSelect(option.value)}
                     >
                       <span

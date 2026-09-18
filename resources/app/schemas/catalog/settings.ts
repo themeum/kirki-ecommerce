@@ -15,6 +15,13 @@ import { z } from 'zod';
  * and is deferred with the rest of the `services/settings.ts` split.
  */
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import { EmailDefaultTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
+import {
+  EncryptionOptions,
+  MailerOptions,
+} from '@/features/settings/email/schemas/forms/mail-configuration-form';
+// eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { LegalSettingsSchema } from '@/features/settings/legal/schemas/catalog/legal';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import { OfflinePaymentSettingsSchema } from '@/features/settings/payment/schemas/catalog/payment';
@@ -121,37 +128,58 @@ export const CheckoutSettingsSchema = z
 export type CheckoutSettings = z.infer<typeof CheckoutSettingsSchema>;
 
 /**
- * A notification entry's fields vary per notification type beyond
- * `name`/`is_enabled` (subject/heading/message/shortcodes/...) — kept a
- * passthrough record rather than enumerated, matching the form side
- * (`email-settings-form.ts`, `zod-first-type-declarations` design.md
- * Decision on notification records).
+ * Mirrors what the backend actually persists per notification entry in
+ * `email.json` (`is_enabled`/`subject`/`heading`/`message`/`shortcodes`) —
+ * there is no `name` field. `shortcodes` is the read-only per-notification
+ * reference list (`{label, value}[]`, e.g. `{ label: 'Order Number', value:
+ * '{order_number}' }`) shown in the message editor's shortcode picker. `key`
+ * is not part of the stored record — it's the entry's own key within its
+ * `EmailNotificationGroupSchema` record, attached here so list items derived
+ * from that record carry it. Kept `.passthrough()` since notification-specific
+ * extra fields may still appear (matching the form side, `email-settings-form.ts`).
  */
 export const EmailNotificationSchema = z
   .object({
-    name: z.string().nullish(),
+    key: z.string().nullish(),
     is_enabled: z.boolean().nullish(),
+    subject: z.string().nullish(),
+    heading: z.string().nullish(),
+    message: z.string().nullish(),
+    shortcodes: z.array(z.object({ label: z.string(), value: z.string() })).nullish(),
   })
   .passthrough();
+
+export type EmailNotification = z.infer<typeof EmailNotificationSchema>;
 
 export const EmailNotificationGroupSchema = z.record(EmailNotificationSchema);
 
 export const EmailSettingsSchema = z
   .object({
-    default_template: z.record(z.unknown()).nullish(),
+    default_template: EmailDefaultTemplateShape,
     customer_emails: z
       .object({
         order_notifications: EmailNotificationGroupSchema.nullish(),
         user_notifications: EmailNotificationGroupSchema.nullish(),
-        inventory_notifications: EmailNotificationGroupSchema.nullish(),
       })
-      .passthrough()
       .nullish(),
     admin_emails: z
       .object({
         order_notifications: EmailNotificationGroupSchema.nullish(),
         user_notifications: EmailNotificationGroupSchema.nullish(),
         inventory_notifications: EmailNotificationGroupSchema.nullish(),
+      })
+      .nullish(),
+    mail_configuration: z
+      .object({
+        from_email: z.string().nullish(),
+        from_name: z.string().nullish(),
+        mailer: z.enum(MailerOptions).nullish(),
+        host: z.string().nullish(),
+        port: z.number().nullish(),
+        encryption: z.enum(EncryptionOptions).nullish(),
+        is_authentication_enabled: z.boolean().nullish(),
+        username: z.string().nullish(),
+        password: z.string().nullish(),
       })
       .passthrough()
       .nullish(),
