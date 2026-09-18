@@ -52,6 +52,8 @@ export const useEmailNotificationPreviewSync = (
       return;
     }
 
+    applyValuesToDocument(doc, form.getValues(), variables);
+
     const subscription = form.watch((values) => {
       applyValuesToDocument(doc, values, variables);
     });

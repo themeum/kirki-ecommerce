@@ -6,6 +6,7 @@ use Kirki\Ecommerce\App\Http\Requests\Settings\SendTestEmailRequest;
 use Kirki\Ecommerce\App\Mails\EmailNotificationRegistry;
 use Kirki\Ecommerce\App\Services\MailerService;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
@@ -27,7 +28,18 @@ class EmailTemplateController
         if (!$mailer) {
             return response()->json([
                 'message' => __('Unknown notification template.', 'kirki-ecommerce'),
-            ], 404);
+            ], Response::NOT_FOUND);
+        }
+
+        try {
+             $this->mailer_service->get_preview($mailer);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+                'code' => $e->getCode(),
+                'line' => $e->getLine(),
+            ]);
         }
 
         return response()->json([
@@ -46,7 +58,7 @@ class EmailTemplateController
         if (!$mailer) {
             return response()->json([
                 'message' => __('Unknown notification template.', 'kirki-ecommerce'),
-            ], 404);
+            ], Response::NOT_FOUND);
         }
 
         $to = user()->get_email();
@@ -54,7 +66,7 @@ class EmailTemplateController
         if (empty($to)) {
             return response()->json([
                 'message' => __('Could not determine your account email address.', 'kirki-ecommerce'),
-            ], 422);
+            ], Response::UNPROCESSABLE_ENTITY);
         }
 
         $mailer->with_template_overrides($request->all())->with_content_overrides($request->all());
@@ -76,7 +88,7 @@ class EmailTemplateController
                         $mail_error
                     )
                     : __('The test email could not be sent.', 'kirki-ecommerce'),
-            ], 500);
+            ], Response::INTERNAL_SERVER_ERROR);
         }
 
         return response()->json([

@@ -32,11 +32,15 @@ class HtmlStyle
      *
      * @return array
      */
-    public static function richtext()
+    public static function print_richtext_styles()
     {
-        return [
-            'margin' => '1em 0',
+        $selector = [
+            ':scope div' => [
+                'margin' => '1em 0',
+            ]
         ];
+
+        static::print_style_block($selector);
     }
 
 

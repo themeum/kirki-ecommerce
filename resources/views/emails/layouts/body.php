@@ -9,7 +9,7 @@ $body = $data['body'] ?? '';
 <tr>
     <td>
         <div data-email-part="body">
-            <?php HtmlStyle::print_style_block([':scope div' => HtmlStyle::richtext()]); ?>
+            <?php HtmlStyle::print_richtext_styles(); ?>
             <?php echo wp_kses_post($body); ?>
         </div>
     </td>
