@@ -195,11 +195,13 @@ class EUTaxStrategyTest extends TestCase
 
     /**
      * Tax-inclusive pricing extracts the tax from the item's base amount
-     * instead of adding it on top.
+     * instead of adding it on top. Shipping is never sold at a
+     * tax-inclusive price, so its tax is still added on top of the
+     * shipping fee even when the store's product pricing is tax-inclusive.
      *
      * @return void
      */
-    public function test_tax_inclusive_pricing_extracts_the_tax(): void
+    public function test_tax_inclusive_pricing_extracts_the_tax_from_items_but_adds_it_on_top_for_shipping(): void
     {
         $strategy = $this->make_strategy('AT', $this->eu_region(), true);
 
@@ -209,6 +211,7 @@ class EUTaxStrategyTest extends TestCase
         $result = $strategy->calculate($context);
 
         $this->assertSame(2000, $result->items[1][0]->base_amount);
+        $this->assertSame(2000, $result->shipping[0]->base_amount);
     }
 
     /**

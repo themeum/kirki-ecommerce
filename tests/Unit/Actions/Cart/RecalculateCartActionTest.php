@@ -225,6 +225,36 @@ class RecalculateCartActionTest extends TestCase
     }
 
     /**
+     * Tax-inclusive product pricing does not make shipping tax-inclusive
+     * too: shipping is never sold at a tax-inclusive price, so its tax is
+     * still added on top of the shipping subtotal, even while the item's
+     * tax is extracted (not added) because the store's product pricing is
+     * tax-inclusive.
+     *
+     * @return void
+     */
+    public function test_shipping_tax_is_added_on_top_even_under_tax_inclusive_product_pricing(): void
+    {
+        $this->bind_default_region(20, 10, true);
+
+        $context = $this->make_context([$this->make_item(1, 12000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'shipping_method_id' => 7,
+        ]);
+
+        $shipping_service = $this->make_taxable_shipping_service(2000);
+
+        $result = $this->make_action(['shipping_service' => $shipping_service])->execute($context);
+
+        $this->assertSame(12000, $result->items[1]->base_total);
+        $this->assertSame(2000, $result->base_shipping_subtotal);
+        $this->assertSame(200, $result->base_shipping_tax);
+        $this->assertSame(2200, $result->base_shipping_total);
+        $this->assertSame(2200, $result->base_tax_total);
+        $this->assertSame(14200, $result->base_total);
+    }
+
+    /**
      * A non-taxable shipping method produces no shipping tax at all.
      *
      * @return void
