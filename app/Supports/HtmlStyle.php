@@ -32,21 +32,42 @@ class HtmlStyle
      *
      * @return array
      */
-    public static function print_richtext_styles()
+    public static function richtext_styles()
     {
-        $selector = [
-            ':scope div' => [
+        return [
+            '.kirki-ecommerce-rich-text > div' => [
                 'margin' => '1em 0',
             ]
         ];
-
-        static::print_style_block($selector);
     }
 
 
     /**
-     * print CSS style block from one or more [ selector => styles ] arrays, without
+     * Build a CSS style block from one or more [ selector => styles ] arrays, without
      * printing anything or wrapping the result in a <style> tag.
+     *
+     * @param array ...$selector_array One or more associative arrays of selector => CSS property/value pairs.
+     *                        Can be passed as a single array with multiple selectors, or as
+     *                        multiple single-selector arrays.
+     *
+     * @return string
+     */
+    public static function build_style_block(array ...$selector_array)
+    {
+        $css = [];
+
+        foreach ($selector_array as $selectors) {
+            foreach ($selectors as $selector => $styles) {
+                $css[] = sprintf('%s { %s }', $selector, esc_attr(static::merge($styles)));
+            }
+        }
+
+        return implode(' ', $css);
+    }
+
+    /**
+     * print CSS style block from one or more [ selector => styles ] arrays, wrapped
+     * in a <style> tag.
      *
      * @param array ...$selector_array One or more associative arrays of selector => CSS property/value pairs.
      *                        Can be passed as a single array with multiple selectors, or as
@@ -56,17 +77,10 @@ class HtmlStyle
      */
     public static function print_style_block(array ...$selector_array)
     {
-        $css = [];
+        $style = static::build_style_block(...$selector_array);
 
-        foreach ($selector_array as $selectors) {
-            foreach ($selectors as $selector => $styles) {
-                $css[] = sprintf('%s { %s }', $selector, static::merge($styles));
-            }
-        }
-
-        $style = implode(' ', $css);
-
-        echo wp_kses("<style>{$style}</style>", ['style' => []]);
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $style is built only from developer-supplied selector/property arrays (never raw user input), so esc_html()/wp_kses() are unsuitable here: they HTML-entity-encode plain CSS syntax (e.g. the `>` combinator becomes `&gt;`), corrupting the output. wp_strip_all_tags() still removes any stray tags (e.g. a `</style>` breakout) before printing, matching core's wp_custom_css_cb() in wp-includes/theme.php, which faces the same constraint and applies the same ignore.
+        echo '<style type="text/css">' . wp_strip_all_tags($style) . '</style>';
     }
 
     /**
@@ -79,6 +93,6 @@ class HtmlStyle
      */
     public static function print_inline(array ...$styles)
     {
-        echo esc_html(static::merge(...$styles));
+        echo esc_attr(static::merge(...$styles));
     }
 }
