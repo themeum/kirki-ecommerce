@@ -15,7 +15,7 @@ http:
         "data": {
           "merchant_code": "263100000",
           "signature_key": "sq7HjrUOBfKmC576",
-          "termianl":9,
+          "terminal": 9,
           "sandbox": true
         }
       }
@@ -41,7 +41,7 @@ examples:
             "data": {
               "merchant_code": "263100000",
               "signature_key": "sq7HjrUOBfKmC576",
-              "termianl":9,
+              "terminal":9,
               "sandbox": true
             }
           }
@@ -76,7 +76,7 @@ examples:
                   "required": true
                 },
                 {
-                  "name": "termianl",
+                  "name": "terminal",
                   "label": "Terminal",
                   "type": "text",
                   "required": true
@@ -114,7 +114,7 @@ examples:
            "data": {
               "merchant_code": "263100000",
               "signature_key": "sq7HjrUOBfKmC576",
-              "termianl":9,
+              "terminal":9,
               "sandbox": true
             }
           }

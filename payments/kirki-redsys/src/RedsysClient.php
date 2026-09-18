@@ -88,7 +88,7 @@ class RedsysClient
     protected function send(string $endpoint, string $method, array $payload = []): array
     {
         $request = Http::with_token($this->access_token)
-                    ->with_headers(['Square-Version' => SquareConstant::SQUARE_VERSION]);
+            ->with_headers(['Square-Version' => SquareConstant::SQUARE_VERSION]);
 
         $response = SquareConstant::POST_METHOD === $method
             ? $request->with_body(wp_json_encode($payload))->post($endpoint)
@@ -110,15 +110,9 @@ class RedsysClient
         return $this->get_base_url() . SquareConstant::PAYMENT_LINK;
     }
 
-    /**
-     * Endpoint for a specific Square order.
-     *
-     * @param string $square_order_id Square's order ID.
-     * @return string
-     */
-    protected function order_url(string $square_order_id): string
+    protected function form_url(): string
     {
-        return $this->get_base_url() . SquareConstant::ORDER_LINK . "/{$square_order_id}";
+        return $this->sandbox ? RedsysConstant::FORM_SANDBOX_URL : RedsysConstant::FORM_PRODUCTION_URL;
     }
 
     /**
@@ -127,5 +121,20 @@ class RedsysClient
     protected function get_base_url(): string
     {
         return $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
+    }
+
+    public function render_checkout_form($encoded_merchant_params, $order_uuid)
+    {
+        $form_url = $this->form_url();
+        $signature_version = (new RedsysTransactionBuilder())->create_merchant_signature($this->signature_key, $encoded_merchant_params, $order_uuid);
+        $signature_version = RedsysConstant::SIGNATURE_VERSION;
+
+        return <<<HTML
+        <form name="redsys-checkout-form" action="{$form_url}" method="POST">
+            <input type="hidden" name="Ds_SignatureVersion" value="{$signature_version}" />
+            <input type="hidden" name="Ds_MerchantParameters" value="{$encoded_merchant_params}" />
+            <input type="hidden" name="Ds_Signature" value="" />
+        </form>
+        HTML;
     }
 }

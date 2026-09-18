@@ -15,12 +15,12 @@ defined('ABSPATH') || exit;
  */
 class RedsysTransactionBuilder
 {
-    protected Order $order;
+    protected ?Order $order = null;
 
     /**
      * @param Order $order The order to build the 2Checkout buy-link payload for.
      */
-    public function __construct(Order $order)
+    public function __construct(?Order $order = null)
     {
         $this->order = $order;
     }
@@ -80,5 +80,30 @@ class RedsysTransactionBuilder
     public function base64_url_encode_safe($input)
     {
         return str_replace("=", "", strtr(base64_encode($input), '+/', '-_'));
+    }
+
+    public function create_merchant_signature($signature_key, $encoded_merchant_params, $order_uuid)
+    {
+        // The key is diversified using the Order UUID.
+        $key = $this->encrypt_AES($signature_key, $order_uuid);
+
+        // MAC512 from the Ds_Parameters parameter sent by Redsys.
+        $res = $this->mac512($encoded_merchant_params, $key);
+
+        return $this->base64_url_encode_safe($res);
+    }
+
+    protected function encrypt_AES($signature_key, $data)
+    {
+        $fixed_key = str_pad(substr($signature_key, 0, 16), 16, "0");
+        $signature = base64_encode(openssl_encrypt($data, "aes-128-cbc", $fixed_key, OPENSSL_RAW_DATA, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"));
+
+        return $signature;
+    }
+
+    protected function mac512($data, $key)
+    {
+        $sha = hash_hmac('sha512', $data, $key, true);
+        return $sha;
     }
 }

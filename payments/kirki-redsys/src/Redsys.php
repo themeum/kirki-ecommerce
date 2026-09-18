@@ -84,18 +84,12 @@ class Redsys extends PaymentProvider
             $merchant_params['DS_MERCHANT_TERMINAL'] = $this->settings['terminal'];
             $merchant_params['DS_MERCHANT_MERCHANTCODE'] = $this->settings['merchant_code'];
 
-            $payload = [
-                'merchant_params' => $builder->base64_url_encode_safe(wp_json_encode($merchant_params)),
-                'signature' => 
-            ]
+            $encoded_merchant_params = $builder->base64_url_encode_safe(wp_json_encode($merchant_params));
+            $html = $this->client->render_checkout_form($encoded_merchant_params, $order->uuid);
 
-
-            if (empty($response['payment_link']['long_url'])) {
-                throw new Exception(__('Redsys checkout link not found.', 'kirki-ecommerce-redsys'));
-            }
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::HTML,
-                'value' => '',//$response['payment_link']['long_url'],
+                'value' => $html,
             ]);
         } catch (Exception $e) {
             throw new Exception(sprintf(__('Redsys Payment Error: %s', 'kirki-ecommerce-redsys'), $e->getMessage()));
