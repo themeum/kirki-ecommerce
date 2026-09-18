@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\App\Constants\Product\UnitConversion;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class UnitPrice
 {
@@ -19,7 +20,7 @@ class UnitPrice
      */
     public static function make(Variant $variant, ?string $display_currency = null)
     {
-        if (!$variant->show_unit_price) {
+        if (!$variant->show_unit_price || Settings::get('product.is_unit_price_visible', false) === false) {
             return null;
         }
 

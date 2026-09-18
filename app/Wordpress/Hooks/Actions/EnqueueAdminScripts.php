@@ -2,8 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Assets;
-use Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 
@@ -20,7 +20,7 @@ class EnqueueAdminScripts extends BaseHook
 
     public function get_name()
     {
-        return HookNames::ADMIN_ENQUEUE_SCRIPT;
+        return WPHookNames::ADMIN_ENQUEUE_SCRIPT;
     }
 
     public function get_type()

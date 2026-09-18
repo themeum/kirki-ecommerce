@@ -104,6 +104,6 @@ class OrderCalculationController
     {
         $customer = customer(null, $customer_id);
         // @todo: need to update this with order status which are terminal states
-        return $customer->get_customer()->orders()->where_not_in('fulfillment_status', [FulfillmentStatus::CANCELLED, FulfillmentStatus::RETURNED])->count();
+        return $customer->get_customer()->orders()->where_not_in('order_status', [OrderStatus::FAILED_CANCELLED, OrderStatus::REFUNDED])->count();
     }
 }
