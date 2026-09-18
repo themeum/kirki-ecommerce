@@ -61,13 +61,21 @@ integration)
 		 vendor/bin/phpunit --testsuite Integration --testdox ${phpunit_args}"
 	;;
 all)
+	# Run as two separate phpunit invocations, not a single combined one: the
+	# Unit suite loads a lightweight bootstrap that stubs WordPress functions
+	# (tests/Unit/bootstrap.php), while Integration boots the real WordPress
+	# test environment (tests/bootstrap.php). A single process can only pick
+	# one bootstrap, so combining both suites in one `phpunit` call runs Unit
+	# tests against real WordPress instead of their expected stubs.
 	docker compose exec php bash -lc \
 		"cd ${PLUGIN_PATH} && \
 		 WP_TESTS_DIR=${WP_TESTS_DIR} \
 		 WP_CORE_DIR=${WP_CORE_DIR} \
 		 DB_HOST=mariadb \
 		 DB_NAME=kirki_ecommerce_test \
-		 vendor/bin/phpunit --testdox ${phpunit_args}"
+		 vendor/bin/phpunit --testsuite Integration --testdox ${phpunit_args}"
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && vendor/bin/phpunit --testsuite Unit --testdox ${phpunit_args}"
 	;;
 -h | --help | help)
 	usage
