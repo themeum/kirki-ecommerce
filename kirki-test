@@ -73,7 +73,9 @@ all)
 		 WP_CORE_DIR=${WP_CORE_DIR} \
 		 DB_HOST=mariadb \
 		 DB_NAME=kirki_ecommerce_test \
-		 vendor/bin/phpunit --testsuite Integration --testdox ${phpunit_args}"
+		 vendor/bin/phpunit --testsuite Integration --testsuite Integration --testdox ${phpunit_args}"
+	docker compose exec php bash -lc \
+		"cd ${PLUGIN_PATH} && vendor/bin/phpunit --testsuite Unit --testdox ${phpunit_args}"
 	;;
 -h | --help | help)
 	usage
