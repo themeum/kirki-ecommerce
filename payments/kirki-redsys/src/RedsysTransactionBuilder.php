@@ -47,9 +47,10 @@ class RedsysTransactionBuilder
             'DS_MERCHANT_URLOK' => Url::get_checkout_success_url($this->order->uuid),
             'DS_MERCHANT_URLKO' => Url::get_checkout_success_url($this->order->uuid),
             'DS_MERCHANT_TRANSACTIONTYPE' => 0,
-            'DS_MERCHANT_ORDER' => $this->order->uuid,
-            'DS_MERCHANT_CURRENCY' => Money::get_currency_numeric_code($this->order->currency_code),
-            'DS_MERCHANT_AMOUNT' => $this->order->invoiced_total,
+            'DS_MERCHANT_MERCHANTDATA' => $this->order->uuid,
+            'DS_MERCHANT_ORDER' => wp_rand(1000, 100000000000),
+            'DS_MERCHANT_CURRENCY' => (int) Money::get_currency_numeric_code($this->order->currency_code),
+            'DS_MERCHANT_AMOUNT' => (int) $this->order->invoiced_total,
             'DS_MERCHANT_EMV3DS' => wp_json_encode($EMV3DS),
         ];
     }

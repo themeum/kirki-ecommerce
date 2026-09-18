@@ -53,30 +53,6 @@ class RedsysClient
     }
 
     /**
-     * Create a Square Payment Link for an order.
-     *
-     * @param array $payload The payment link request payload.
-     * @return array The decoded JSON response, including the payment_link.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment_link(array $payload): array
-    {
-        return $this->send($this->payment_link_url(), SquareConstant::POST_METHOD, $payload);
-    }
-
-    /**
-     * Fetch an order from Square's Orders API.
-     *
-     * @param string $square_order_id Square's order ID.
-     * @return array The decoded JSON response.
-     * @throws Exception If the API request fails.
-     */
-    public function get_order(string $square_order_id): array
-    {
-        return $this->send($this->order_url($square_order_id), SquareConstant::GET_METHOD);
-    }
-
-    /**
      * Send a request to the Square API and decode the JSON response.
      *
      * @param string $endpoint The full request URL.
@@ -101,39 +77,22 @@ class RedsysClient
         return $response->json();
     }
 
-    /**
-     * Endpoint for creating a new payment link.
-     * @return string
-     */
-    protected function payment_link_url(): string
-    {
-        return $this->get_base_url() . SquareConstant::PAYMENT_LINK;
-    }
-
     protected function form_url(): string
     {
         return $this->sandbox ? RedsysConstant::FORM_SANDBOX_URL : RedsysConstant::FORM_PRODUCTION_URL;
     }
 
-    /**
-     * @return string The API base URL for the configured environment.
-     */
-    protected function get_base_url(): string
-    {
-        return $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
-    }
-
     public function render_checkout_form($encoded_merchant_params, $order_uuid)
     {
         $form_url = $this->form_url();
-        $signature_version = (new RedsysTransactionBuilder())->create_merchant_signature($this->signature_key, $encoded_merchant_params, $order_uuid);
+        $signature = (new RedsysTransactionBuilder())->create_merchant_signature($this->signature_key, $encoded_merchant_params, $order_uuid);
         $signature_version = RedsysConstant::SIGNATURE_VERSION;
 
         return <<<HTML
         <form name="redsys-checkout-form" action="{$form_url}" method="POST">
             <input type="hidden" name="Ds_SignatureVersion" value="{$signature_version}" />
             <input type="hidden" name="Ds_MerchantParameters" value="{$encoded_merchant_params}" />
-            <input type="hidden" name="Ds_Signature" value="" />
+            <input type="hidden" name="Ds_Signature" value="{$signature}" />
         </form>
         HTML;
     }

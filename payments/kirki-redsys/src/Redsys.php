@@ -79,13 +79,13 @@ class Redsys extends PaymentProvider
         try {
             $this->client = $this->get_client();
             $builder = new RedsysTransactionBuilder($order);
-            $merchant_params = $builder->create_merchant_params($this->webhook_url());
+            $merchant_params = $builder->create_merchant_params();
             $merchant_params['DS_MERCHANT_MERCHANTURL'] = $this->webhook_url();
-            $merchant_params['DS_MERCHANT_TERMINAL'] = $this->settings['terminal'];
-            $merchant_params['DS_MERCHANT_MERCHANTCODE'] = $this->settings['merchant_code'];
+            $merchant_params['DS_MERCHANT_TERMINAL'] = (int) $this->settings['terminal'];
+            $merchant_params['DS_MERCHANT_MERCHANTCODE'] = (int) $this->settings['merchant_code'];
 
             $encoded_merchant_params = $builder->base64_url_encode_safe(wp_json_encode($merchant_params));
-            $html = $this->client->render_checkout_form($encoded_merchant_params, $order->uuid);
+            $html = $this->client->render_checkout_form($encoded_merchant_params, $merchant_params['DS_MERCHANT_ORDER']);
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::HTML,
