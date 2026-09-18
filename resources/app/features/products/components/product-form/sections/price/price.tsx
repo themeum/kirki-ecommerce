@@ -16,6 +16,7 @@ import BaseUnitPopover from '@/features/products/components/product-form/section
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
 import { useBaseCurrencySymbol } from '@/hooks';
+import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
@@ -26,6 +27,7 @@ const Price = () => {
   const { control, setValue } = useFormContext<ProductFormInput>();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
+  const { data: productSettingsData } = useSettingsQuery('product');
 
   const showUnitPrice = Boolean(useWatch({ control, name: 'variants.0.show_unit_price' }));
   const chargeTaxes = Boolean(useWatch({ control, name: 'variants.0.charge_taxes' }));
@@ -80,32 +82,34 @@ const Price = () => {
         </Grid>
 
         <Flex direction="column" gap={2}>
-          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
-            <CardContent cssOverride={styles.innerDarkRowContent}>
-              <Flex align="center" justify="space-between" gap={2}>
-                <CheckboxField
-                  name="variants.0.show_unit_price"
-                  label={__('Show unit price', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Display the price per unit on the product page.',
-                    'kirki-ecommerce',
+          {productSettingsData?.is_unit_price_visible && (
+            <Card cssOverride={cardStyles.innerDarkCard} noShadow>
+              <CardContent cssOverride={styles.innerDarkRowContent}>
+                <Flex align="center" justify="space-between" gap={2}>
+                  <CheckboxField
+                    name="variants.0.show_unit_price"
+                    label={__('Show unit price', 'kirki-ecommerce')}
+                    infoText={__(
+                      'Display the price per unit on the product page.',
+                      'kirki-ecommerce',
+                    )}
+                  />
+                  {showUnitPrice && (
+                    <Flex gap={2} align="center" justify="flex-end" shrink={0}>
+                      <Text color="secondary" variant="small">
+                        {__('Base price per unit', 'kirki-ecommerce')}
+                      </Text>
+                      <BaseUnitPopover
+                        data={variant as never}
+                        currencySymbol={currencySymbol}
+                        onChange={handleUnitPriceChange}
+                      />
+                    </Flex>
                   )}
-                />
-                {showUnitPrice && (
-                  <Flex gap={2} align="center" justify="flex-end" shrink={0}>
-                    <Text color="secondary" variant="small">
-                      {__('Base price per unit', 'kirki-ecommerce')}
-                    </Text>
-                    <BaseUnitPopover
-                      data={variant as never}
-                      currencySymbol={currencySymbol}
-                      onChange={handleUnitPriceChange}
-                    />
-                  </Flex>
-                )}
-              </Flex>
-            </CardContent>
-          </Card>
+                </Flex>
+              </CardContent>
+            </Card>
+          )}
 
           <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>

@@ -96,7 +96,7 @@ class DiscountService
 
         // Has customer limit
         if ($coupon->has_customer_limit && $coupon->customer_limit > 0) {
-            throw_if(!$context->customer_id || empty(user()->get_id()), __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
+            throw_if(empty($context->customer_id) && empty(user()->get_id()), __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
 
             $current_customer_usage = $coupon->order_coupons()
                 ->where('customer_id', $context->customer_id)
@@ -138,7 +138,7 @@ class DiscountService
 
         // First time buyer
         if ($coupon->first_time_buyer_only) {
-            throw_if(!$context->customer_id || empty(user()->get_id()), __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
+            throw_if(empty($context->customer_id) && empty(user()->get_id()), __('Please login to use this coupon.', 'kirki-ecommerce'), ValidationException::class);
 
             throw_if($context->customer_order_count > 0, __('This coupon is only available for first time buyers.', 'kirki-ecommerce'), ValidationException::class);
         }

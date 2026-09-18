@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -20,6 +21,7 @@ class OrderUpdateRequest extends Request
 
         $this->merge([
             'customer_id' => $customer_id ?? 0,
+            'currency_code' => $this->input('currency_code') ?? Money::resolve_display_currency(),
         ]);
     }
 

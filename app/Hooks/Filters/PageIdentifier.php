@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
+use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -20,8 +21,7 @@ class PageIdentifier extends BaseHook
 {
     public function get_name(): string
     {
-        //@TODO: need to add this to Hooks constants.
-        return 'display_post_states';
+        return WPHookNames::DISPLAY_POST_STATES;
     }
 
     public function get_type(): string
