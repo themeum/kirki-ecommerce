@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
 use Kirki\Ecommerce\App\Http\Requests\Settings\SendTestEmailRequest;
-use Kirki\Ecommerce\App\Mails\EmailNotificationRegistry;
+use Kirki\Ecommerce\App\Services\EmailPreviewService;
 use Kirki\Ecommerce\App\Services\MailerService;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -16,30 +16,23 @@ class EmailTemplateController
     /** @var MailerService */
     protected $mailer_service;
 
-    public function __construct(MailerService $mailer_service)
+    /** @var EmailPreviewService */
+    protected $email_preview_service;
+
+    public function __construct(MailerService $mailer_service, EmailPreviewService $email_preview_service)
     {
         $this->mailer_service = $mailer_service;
+        $this->email_preview_service = $email_preview_service;
     }
 
-    public function preview(Request $request, string $type, string $group, string $key)
+    public function preview(Request $_request, string $type, string $group, string $key)
     {
-        $mailer = EmailNotificationRegistry::resolve($type, $group, $key);
+        $mailer = $this->email_preview_service->resolve_mailer($type, $group, $key);
 
         if (!$mailer) {
             return response()->json([
                 'message' => __('Unknown notification template.', 'kirki-ecommerce'),
             ], Response::NOT_FOUND);
-        }
-
-        try {
-             $this->mailer_service->get_preview($mailer);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'trace' => $e->getTrace(),
-                'code' => $e->getCode(),
-                'line' => $e->getLine(),
-            ]);
         }
 
         return response()->json([
@@ -53,7 +46,7 @@ class EmailTemplateController
 
     public function send_test_mail(SendTestEmailRequest $request, string $type, string $group, string $key)
     {
-        $mailer = EmailNotificationRegistry::resolve($type, $group, $key);
+        $mailer = $this->email_preview_service->resolve_mailer($type, $group, $key);
 
         if (!$mailer) {
             return response()->json([
@@ -69,7 +62,7 @@ class EmailTemplateController
             ], Response::UNPROCESSABLE_ENTITY);
         }
 
-        $mailer->with_template_overrides($request->all())->with_content_overrides($request->all());
+        $mailer->with_default_template_settings_overrides($request->all())->with_email_settings_overrides($request->all());
 
         $mail_error = '';
 

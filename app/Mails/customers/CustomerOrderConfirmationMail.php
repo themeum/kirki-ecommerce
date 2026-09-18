@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Mails\customers;
+namespace Kirki\Ecommerce\App\Mails\Customers;
 
 defined('ABSPATH') || exit;
 

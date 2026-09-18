@@ -1,6 +1,10 @@
 import type { NotificationTemplateRef } from '@/features/settings/email/lib/utils';
+import type { EmailDefaultTemplate } from '@/features/settings/email/schemas/catalog/email-template';
 import type { EmailNotificationTemplateFormPayload } from '@/features/settings/email/schemas/forms/email-notification-template-form';
-import type { EmailSettingsFormPayload } from '@/features/settings/email/schemas/forms/email-settings-form';
+import {
+  type EmailSettingsFormPayload,
+  EmailSettingsFormSchema,
+} from '@/features/settings/email/schemas/forms/email-settings-form';
 import type { EmailTemplateFormPayload } from '@/features/settings/email/schemas/forms/email-template-form';
 import type { MediaRef } from '@/schemas/shared/media';
 import { theme } from '@/theme';
@@ -54,27 +58,27 @@ export const resolveTemplateFormOverrides = (
  * expose) survive the save.
  */
 export const buildEmailTemplatePayload = (
-  emailSettingsData: { default_template?: unknown },
+  emailSettingsData: { default_template?: EmailDefaultTemplate },
   currentEmailSettings: Pick<
     EmailSettingsFormPayload,
     'admin_emails' | 'customer_emails' | 'mail_configuration'
   >,
   payload: EmailTemplateFormPayload,
-): Pick<EmailSettingsFormPayload, 'admin_emails' | 'customer_emails' | 'mail_configuration'> & {
-  default_template: Record<string, unknown>;
-} => ({
-  admin_emails: currentEmailSettings.admin_emails,
-  customer_emails: currentEmailSettings.customer_emails,
-  mail_configuration: currentEmailSettings.mail_configuration,
-  default_template: {
-    ...((emailSettingsData.default_template as Record<string, unknown>) ?? {}),
-    ...payload,
-  },
-});
+): EmailSettingsFormPayload =>
+  EmailSettingsFormSchema.parse({
+    admin_emails: currentEmailSettings.admin_emails,
+    customer_emails: currentEmailSettings.customer_emails,
+    mail_configuration: currentEmailSettings.mail_configuration,
+    default_template: {
+      ...(emailSettingsData.default_template ?? {}),
+      ...payload,
+    },
+  });
 
 type NotificationRoot = 'admin_emails' | 'customer_emails';
 
-type NotificationGroupKey = 'order_notifications' | 'user_notifications' | 'inventory_notifications';
+type NotificationGroupKey =
+  'order_notifications' | 'user_notifications' | 'inventory_notifications';
 
 /**
  * `NotificationTemplateRef`'s short `type`/`group` (route segments, also
@@ -102,7 +106,9 @@ export const buildNotificationTemplatePayload = (
   const rootKey = notificationRootKey(ref.type);
   const groupKey = notificationGroupKey(ref.group);
   const rootData = currentEmailSettings[rootKey] ?? {};
-  const groupData = (rootData as Record<string, Record<string, unknown> | null | undefined>)[groupKey];
+  const groupData = (rootData as Record<string, Record<string, unknown> | null | undefined>)[
+    groupKey
+  ];
   const current = groupData?.[ref.key] ?? {};
 
   return {

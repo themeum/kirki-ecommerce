@@ -184,9 +184,23 @@ class Url
      *
      * @return string
      */
-    public static function get_product_admin_edit_url($product_id)
+    public static function get_product_edit_url($product_id)
     {
         return admin_url('admin.php?page=kirki-ecommerce#/products/' . $product_id);
+    }
+
+    /**
+     * Get the order edit URL for an order.
+     *
+     * @since 1.0.0
+     *
+     * @param int $order_id
+     *
+     * @return string
+     */
+    public static function get_order_edit_url($order_id)
+    {
+        return admin_url('admin.php?page=kirki-ecommerce#/orders/' . $order_id);
     }
 
     /**

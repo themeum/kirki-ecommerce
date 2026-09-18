@@ -79,6 +79,11 @@ const EditTemplateProvider = ({ children }: EditTemplateProviderProps) => {
 
       await saveSettings({
         key: 'email',
+        // EmailSettingsFormPayload['default_template'] mirrors the GET response's
+        // hydrated media object for `logo`, but a save always sends the
+        // just-edited numeric media id (see SettingsUpdateRequest.php's
+        // `data.default_template.logo => nullable|integer` rule) — this cast
+        // bridges that read/write shape gap.
         data: buildEmailTemplatePayload(emailSettingsData, currentEmailSettings, payload),
       });
       form.reset(form.getValues());

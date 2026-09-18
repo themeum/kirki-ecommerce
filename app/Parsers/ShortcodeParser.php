@@ -55,7 +55,7 @@ class ShortcodeParser implements Parsable
     public function parse(string $content)
     {
         if (empty($this->pattern)) {
-            throw new InvalidArgumentException(esc_html__('The parser pattern is required.', 'growfund'));
+            throw new InvalidArgumentException(esc_html__('The parser pattern is required.', 'kirki-ecommerce'));
         }
 
         if (empty($this->variables)) {

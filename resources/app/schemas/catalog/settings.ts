@@ -15,7 +15,7 @@ import { z } from 'zod';
  * and is deferred with the rest of the `services/settings.ts` split.
  */
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
-import { EmailTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
+import { EmailDefaultTemplateShape } from '@/features/settings/email/schemas/catalog/email-template';
 // eslint-disable-next-line no-restricted-imports -- see file-level comment above
 import {
   EncryptionOptions,
@@ -155,12 +155,11 @@ export const EmailNotificationGroupSchema = z.record(EmailNotificationSchema);
 
 export const EmailSettingsSchema = z
   .object({
-    default_template: EmailTemplateShape,
+    default_template: EmailDefaultTemplateShape,
     customer_emails: z
       .object({
         order_notifications: EmailNotificationGroupSchema.nullish(),
         user_notifications: EmailNotificationGroupSchema.nullish(),
-        inventory_notifications: EmailNotificationGroupSchema.nullish(),
       })
       .nullish(),
     admin_emails: z

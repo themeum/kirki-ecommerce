@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Mails\admins;
+namespace Kirki\Ecommerce\App\Mails\Admins;
 
 defined('ABSPATH') || exit;
 
@@ -36,8 +36,8 @@ class AdminOrderConfirmationMail extends Mailer
             'order_date' => $order['created_at'],
             'order_detail' => $this->get_content('emails.parts.order.order-details', ['order' => $order]),
             'order_view_button' => $this->get_content('emails.parts.link-button', [
-                'label' => __('View Your Order', 'kirki-ecommerce'),
-                'link' => Url::get_order_tracking_url($order['uuid']),
+                'label' => __('View this Order', 'kirki-ecommerce'),
+                'link' => Url::get_order_edit_url($order['id']),
             ]),
             'shipping_tracking_number' => $order['shipping_tracking']['tracking_number'] ?? '',
             'shipping_tracking_url' => $order['shipping_tracking']['tracking_url'] ?? '',

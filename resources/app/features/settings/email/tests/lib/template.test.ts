@@ -7,6 +7,11 @@ import {
   resolveTemplateFormOverrides,
   tabIndexToPosition,
 } from '@/features/settings/email/lib/template';
+import {
+  EmailTemplateBackgroundColorsSchema,
+  EmailTemplateButtonColorsSchema,
+  EmailTemplateTypographyColorsSchema,
+} from '@/features/settings/email/schemas/catalog/email-template';
 import type { EmailTemplateFormPayload } from '@/features/settings/email/schemas/forms/email-template-form';
 
 describe('resolveLogoUrl', () => {
@@ -20,7 +25,9 @@ describe('resolveLogoUrl', () => {
   });
 
   it('reads the url off a media object', () => {
-    expect(resolveLogoUrl({ id: 1, url: 'https://example.test/logo.png' })).toBe('https://example.test/logo.png');
+    expect(resolveLogoUrl({ id: 1, url: 'https://example.test/logo.png' })).toBe(
+      'https://example.test/logo.png',
+    );
   });
 
   it('returns an empty string for an object with no url', () => {
@@ -69,16 +76,30 @@ describe('resolveTemplateFormOverrides', () => {
 describe('buildEmailTemplatePayload', () => {
   const currentEmailSettings = {
     admin_emails: { order_notifications: {}, user_notifications: {}, inventory_notifications: {} },
-    customer_emails: { order_notifications: {}, user_notifications: {}, inventory_notifications: {} },
+    customer_emails: {
+      order_notifications: {},
+      user_notifications: {},
+    },
     mail_configuration: null,
   };
   const payload: EmailTemplateFormPayload = {
-    logo: '5',
+    logo: null,
     height: 64,
     position: 'center',
     colors: {
-      background: { email_body: '#fff', outer_area: '#DBDBE5', info_cads: '#F5F5F5', divider: '#E0E0E0' },
-      typography: { headings: '#000000', body: '#000000', muted: '#474747', link: '#167BFF', exceptions: '#0078CE' },
+      background: {
+        email_body: '#fff',
+        outer_area: '#DBDBE5',
+        info_cads: '#F5F5F5',
+        divider: '#E0E0E0',
+      },
+      typography: {
+        headings: '#000000',
+        body: '#000000',
+        muted: '#474747',
+        link: '#167BFF',
+        exceptions: '#0078CE',
+      },
       button: { background: '#167BFF', text: '#FFFFFF' },
     },
     additional_description: null,
@@ -86,8 +107,20 @@ describe('buildEmailTemplatePayload', () => {
   };
 
   it('merges the edited template fields over the existing default_template', () => {
+    const default_value = {
+      position: 'start',
+      colors: {
+        background: EmailTemplateBackgroundColorsSchema.parse({}),
+        typography: EmailTemplateTypographyColorsSchema.parse({}),
+        button: EmailTemplateButtonColorsSchema.parse({}),
+      },
+      height: 50,
+    } as const;
+
     const result = buildEmailTemplatePayload(
-      { default_template: { position: 'start', unrelated_field: 'kept' } },
+      {
+        default_template: default_value,
+      },
       currentEmailSettings,
       payload,
     );
@@ -96,13 +129,13 @@ describe('buildEmailTemplatePayload', () => {
       admin_emails: currentEmailSettings.admin_emails,
       customer_emails: currentEmailSettings.customer_emails,
       mail_configuration: currentEmailSettings.mail_configuration,
-      default_template: { ...payload, unrelated_field: 'kept' },
+      default_template: { ...default_value, ...payload, logo: undefined },
     });
   });
 
   it('treats a missing default_template as empty', () => {
     const result = buildEmailTemplatePayload({}, currentEmailSettings, payload);
 
-    expect(result.default_template).toEqual(payload);
+    expect(result.default_template).toEqual({ ...payload, logo: undefined });
   });
 });

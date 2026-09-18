@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Parsers\ShortcodeParser;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 use function Kirki\Ecommerce\Framework\collection;
-use function Kirki\Ecommerce\Framework\template_engine;
 use function Kirki\Ecommerce\Framework\view;
 
 abstract class Mailer implements Mailable
@@ -18,12 +17,12 @@ abstract class Mailer implements Mailable
     /**
      * @var array
      */
-    protected $template_overrides = [];
+    protected $default_template_settings_overrides = [];
 
     /**
      * @var array
      */
-    protected $content_overrides = [];
+    protected $email_settings_overrides = [];
 
     /**
      * @param mixed $args
@@ -40,9 +39,9 @@ abstract class Mailer implements Mailable
      * @param array $overrides
      * @return $this
      */
-    public function with_template_overrides(array $overrides)
+    public function with_default_template_settings_overrides(array $overrides)
     {
-        $this->template_overrides = $overrides;
+        $this->default_template_settings_overrides = $overrides;
 
         return $this;
     }
@@ -53,9 +52,9 @@ abstract class Mailer implements Mailable
      * @param array $overrides
      * @return $this
      */
-    public function with_content_overrides(array $overrides)
+    public function with_email_settings_overrides(array $overrides)
     {
-        $this->content_overrides = $overrides;
+        $this->email_settings_overrides = $overrides;
 
         return $this;
     }
@@ -63,23 +62,23 @@ abstract class Mailer implements Mailable
     /**
      * @return array
      */
-    protected function get_default_template()
+    protected function get_default_template_settings()
     {
-        return array_merge(Settings::get('email')->get('default_template') ?? [], $this->template_overrides);
+        return array_merge(Settings::get('email')->get('default_template') ?? [], $this->default_template_settings_overrides);
     }
 
     /**
-     * @param string $suffix
+     * @param string $key
      * @param mixed  $default
      * @return mixed
      */
-    protected function get_option_value(string $suffix, $default = '')
+    protected function get_email_settings_value(string $key, $default = '')
     {
-        if (array_key_exists($suffix, $this->content_overrides)) {
-            return $this->content_overrides[$suffix];
+        if (array_key_exists($key, $this->email_settings_overrides)) {
+            return $this->email_settings_overrides[$key];
         }
 
-        return Settings::get('email')->get($this->option_key() . '.' . $suffix) ?? $default;
+        return Settings::get('email')->get($this->option_key() . '.' . $key) ?? $default;
     }
 
     /**
@@ -92,7 +91,7 @@ abstract class Mailer implements Mailable
      */
     protected function template()
     {
-        return 'emails.layouts.email-layout';
+        return 'emails.layouts.base';
     }
 
     /**
@@ -100,7 +99,7 @@ abstract class Mailer implements Mailable
      */
     public function subject()
     {
-        $subject = $this->get_option_value('subject');
+        $subject = $this->get_email_settings_value('subject');
 
         return ShortcodeParser::create()->with($this->get_variables())->parse($subject);
     }
@@ -129,8 +128,8 @@ abstract class Mailer implements Mailable
         $general_settings = Settings::get('general');
 
         $settings = Settings::get('email');
-        $heading = $this->get_option_value('heading');
-        $body = $this->get_option_value('message');
+        $heading = $this->get_email_settings_value('heading');
+        $body = $this->get_email_settings_value('message');
 
         $default_variables = [
             'heading' => $heading,
@@ -149,7 +148,8 @@ abstract class Mailer implements Mailable
                 'postal_code' => $general_settings->get('store_address.postal_code'),
             ])->filter(fn($value) => !empty($value))->join(', '),
         ];
-        return array_merge($this->with(), $default_variables);
+
+        return array_merge($default_variables, $this->with());
     }
 
     /**
@@ -158,7 +158,7 @@ abstract class Mailer implements Mailable
      */
     protected function body()
     {
-        $default_template = $this->get_default_template();
+        $default_template = $this->get_default_template_settings();
 
         $body = view($this->template(), array_merge(['default_template' => $default_template], $this->get_variables()))->layout(false)->__toString();
 
@@ -216,7 +216,7 @@ abstract class Mailer implements Mailable
 
     protected function get_content(string $template, array $data = [])
     {
-        $default_template = $this->get_default_template();
+        $default_template = $this->get_default_template_settings();
 
         return view($template, array_merge(['default_template' => $default_template], $data))->layout(false)->__toString();
     }

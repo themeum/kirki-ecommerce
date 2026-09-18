@@ -8,7 +8,7 @@ import type {
   EmailTemplateFormPayload,
 } from '@/features/settings/email/schemas/forms/email-template-form';
 
-const POSITION_TO_ALIGN: Record<string, string> = {
+const POSITION_TO_ALIGN = {
   start: 'left',
   center: 'center',
   end: 'right',

@@ -1,29 +1,26 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Mails;
+namespace Kirki\Ecommerce\App\Mails\Admins;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\Url;
 
-class LowStockNotificationMail extends Mailer
+class AdminLowStockMail extends Mailer
 {
     /** @var Variant */
     protected $variant;
 
-    /** @var string */
-    protected $key;
-
-    public function __construct(Variant $variant, string $option_key)
+    public function __construct(Variant $variant)
     {
         $this->variant = $variant;
-        $this->key = $option_key;
     }
 
     public function option_key()
     {
-        return $this->key;
+        return 'admin_emails.inventory_notifications.low_stock';
     }
 
     public function with()
@@ -32,7 +29,7 @@ class LowStockNotificationMail extends Mailer
             'product_name' => $this->variant->product->title ?? '',
             'product_sku' => $this->variant->sku,
             'available_quantity' => $this->variant->available_quantity,
-            'product_edit_url' => Url::get_product_admin_edit_url($this->variant->product_id),
+            'product_edit_url' => Url::get_product_edit_url($this->variant->product_id),
         ];
     }
 }

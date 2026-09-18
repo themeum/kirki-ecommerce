@@ -45,7 +45,7 @@ describe('EmailTemplateFormSchema', () => {
     const result = EmailTemplateFormSchema.parse({
       logo: null,
       height: null,
-      position: '',
+      position: null,
       colors: { background: {}, typography: {}, button: {} },
     });
     expect(result.height).toBe(50);
