@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import { getStateLabel, isAddressFieldRequired } from '@/libs/address-rules';
 import {
   isEmptyValue,
   nullishShape,
@@ -8,7 +9,31 @@ import {
   requiredWhen,
   stringOrNull,
 } from '@/libs/zod';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
+
+/**
+ * The country's own term for its subdivision, e.g. Prefecture for Japan.
+ */
+const stateRequiredMessage = (country: unknown) => {
+  return sprintf(
+    /* translators: %s is the country's term for its subdivision, e.g. State, Prefecture, Emirate. */
+    __('%s is required', 'kirki-ecommerce'),
+    getStateLabel(country as string | null | undefined),
+  );
+};
+
+/**
+ * A field is demanded only when the selected country says it uses one - a
+ * country with no subdivisions, or no postal codes, must not block the form
+ * on a value it has none of.
+ */
+const addressFieldRequired = (
+  country: unknown,
+  field: 'state' | 'postal_code',
+  value: unknown,
+) => {
+  return isAddressFieldRequired(country as string | null | undefined, field) && isEmptyValue(value);
+};
 
 const OrderFormShape = prepareFormSchema(
   z.object({
@@ -29,8 +54,17 @@ const OrderFormShape = prepareFormSchema(
     shipping_address_line1: required(z.string(), __('Address is required', 'kirki-ecommerce')),
     shipping_address_line2: stringOrNull(),
     shipping_city: required(z.string(), __('City is required', 'kirki-ecommerce')),
-    shipping_state: required(z.string(), __('State is required', 'kirki-ecommerce')),
-    shipping_postal_code: required(z.string(), __('Postal code is required', 'kirki-ecommerce')),
+    shipping_state: requiredWhen(
+      z.string().nullish(),
+      (values) => addressFieldRequired(values.shipping_country, 'state', values.shipping_state),
+      (values) => stateRequiredMessage(values.shipping_country),
+    ),
+    shipping_postal_code: requiredWhen(
+      z.string().nullish(),
+      (values) =>
+        addressFieldRequired(values.shipping_country, 'postal_code', values.shipping_postal_code),
+      __('Postal code is required', 'kirki-ecommerce'),
+    ),
     shipping_country: required(z.string(), __('Country is required', 'kirki-ecommerce')),
     shipping_phone: stringOrNull(),
     shipping_email: stringOrNull(),
@@ -60,12 +94,16 @@ const OrderFormShape = prepareFormSchema(
     ),
     billing_state: requiredWhen(
       z.string().nullish(),
-      (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_state),
-      __('State is required', 'kirki-ecommerce'),
+      (values) =>
+        !values.is_billing_same_as_shipping &&
+        addressFieldRequired(values.billing_country, 'state', values.billing_state),
+      (values) => stateRequiredMessage(values.billing_country),
     ),
     billing_postal_code: requiredWhen(
       z.string().nullish(),
-      (values) => !values.is_billing_same_as_shipping && isEmptyValue(values.billing_postal_code),
+      (values) =>
+        !values.is_billing_same_as_shipping &&
+        addressFieldRequired(values.billing_country, 'postal_code', values.billing_postal_code),
       __('Postal code is required', 'kirki-ecommerce'),
     ),
     billing_country: requiredWhen(
@@ -128,8 +166,8 @@ const OrderFormSchema = OrderFormShape.transform((values) => ({
   shipping_address_line1: values.shipping_address_line1,
   shipping_address_line2: values.shipping_address_line2 ?? null,
   shipping_city: values.shipping_city,
-  shipping_state: values.shipping_state,
-  shipping_postal_code: values.shipping_postal_code,
+  shipping_state: values.shipping_state ?? null,
+  shipping_postal_code: values.shipping_postal_code ?? null,
   shipping_country: values.shipping_country,
   shipping_phone: values.shipping_phone ?? null,
   shipping_email: values.shipping_email ?? null,

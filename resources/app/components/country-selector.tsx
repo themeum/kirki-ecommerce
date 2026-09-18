@@ -27,6 +27,7 @@ const CountrySelector = ({
   const options = countries.map((country) => ({
     value: country.code,
     label: country.name,
+    keywords: [country.code],
   }));
 
   return (
