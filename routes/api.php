@@ -202,11 +202,6 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::delete('/shipping-profiles/{id}', [ShippingProfileController::class, 'delete']);
     Route::post('/shipping-profiles/bulk', [ShippingProfileController::class, 'bulk_actions']);
 
-    // Cart
-    Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
-    Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
-
-
     // Orders
     Route::get('/orders', [OrderController::class, 'get']);
     Route::get('/orders/{id}', [OrderController::class, 'show']);
@@ -269,6 +264,8 @@ Route::delete('/cart/items/{id}', [CartController::class, 'remove_item']);
 Route::delete('/cart', [CartController::class, 'empty_cart']);
 Route::put('/cart', [CartController::class, 'update']);
 Route::post('/checkout', [CheckoutController::class, 'store']);
+Route::post('/cart/coupon', [CartController::class, 'apply_coupon']);
+Route::delete('/cart/coupon', [CartController::class, 'remove_coupon']);
 
 // Account api endpoints (self-service, logged-in customer only).
 Route::group([
