@@ -90,27 +90,53 @@ trait BindsTaxDependencies
             }
         };
 
-        $settings_factory = new class($currency_settings_object, $tax_settings_object) {
-            private $currency_settings;
-            private $tax_settings;
-
-            public function __construct($currency_settings, $tax_settings)
+        $general_settings_object = new class {
+            public function get($key = null, $default = null)
             {
-                $this->currency_settings = $currency_settings;
-                $this->tax_settings = $tax_settings;
+                if ($key === 'is_tax_calculation_enabled') {
+                    return true;
+                }
+
+                return $default;
+            }
+        };
+
+        $settings_instances = [
+            OptionKeys::CURRENCY_SETTINGS => $currency_settings_object,
+            OptionKeys::TAX_SETTINGS => $tax_settings_object,
+            OptionKeys::GENERAL_SETTINGS => $general_settings_object,
+        ];
+
+        $settings_factory = new class($settings_instances) {
+            private array $settings_instances;
+
+            public function __construct(array $settings_instances)
+            {
+                $this->settings_instances = $settings_instances;
             }
 
-            public function get(string $key)
+            /**
+             * Mirrors `SettingsFactory::get()`'s dot-notation split: the
+             * segment before the first dot picks the settings group, the
+             * remainder is looked up on that group's instance.
+             */
+            public function get(string $key, $default = null)
             {
-                if ($key === 'currency') {
-                    return $this->currency_settings;
+                if (strpos($key, '.') === false) {
+                    if (!isset($this->settings_instances[$key])) {
+                        throw new \Exception("Invalid settings key: {$key}");
+                    }
+
+                    return $this->settings_instances[$key];
                 }
 
-                if ($key === OptionKeys::TAX_SETTINGS) {
-                    return $this->tax_settings;
+                [$group, $rest] = explode('.', $key, 2);
+
+                if (!isset($this->settings_instances[$group])) {
+                    throw new \Exception("Invalid settings key: {$key}");
                 }
 
-                throw new \Exception("Invalid settings key: {$key}");
+                return $this->settings_instances[$group]->get($rest) ?? $default;
             }
         };
 
