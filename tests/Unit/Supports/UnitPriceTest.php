@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Supports;
 
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\UnitPrice;
@@ -15,7 +16,9 @@ class UnitPriceTest extends TestCase
     {
         parent::setUp();
 
-        $this->bind_money_dependencies();
+        $this->bind_money_dependencies('USD', [], [], [
+            OptionKeys::PRODUCT_SETTINGS => ['is_unit_price_visible' => true],
+        ]);
         app()->alias('money', MoneyManager::class);
     }
 

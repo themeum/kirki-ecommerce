@@ -63,11 +63,19 @@ describe('ConsentFormSchema', () => {
     expect(ConsentFormSchema.safeParse({ ...validInput, message: '' }).success).toBe(false);
   });
 
-  it('defaults to a mandatory checkbox shown on checkout', () => {
-    const result = ConsentFormSchema.parse({ title: 'Terms', message: 'Agree' });
+  it('defaults to a mandatory checkbox when no method is given', () => {
+    const result = ConsentFormSchema.parse({
+      title: 'Terms',
+      message: 'Agree',
+      show_on_checkout: true,
+    });
 
     expect(result.method).toBe('mandatory_checkbox');
     expect(result.locations).toEqual(['checkout']);
+  });
+
+  it('selects no location by default', () => {
+    expect(ConsentFormSchema.safeParse({ title: 'Terms', message: 'Agree' }).success).toBe(false);
   });
 
   it('rejects an unknown consent method', () => {
