@@ -45,7 +45,7 @@ class RedsysTransactionBuilder
         ];
         return [
             'DS_MERCHANT_URLOK' => Url::get_checkout_success_url($this->order->uuid),
-            'DS_MERCHANT_URLKO' => Url::get_checkout_success_url($this->order->uuid),
+            'DS_MERCHANT_URLKO' => Url::get_checkout_failed_url($this->order->uuid),
             'DS_MERCHANT_TRANSACTIONTYPE' => 0,
             'DS_MERCHANT_MERCHANTDATA' => $this->order->uuid,
             'DS_MERCHANT_ORDER' => wp_rand(1000, 100000000000),
