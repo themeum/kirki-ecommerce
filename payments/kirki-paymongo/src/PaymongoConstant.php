@@ -45,17 +45,5 @@ class PaymongoConstant
     const EVENT_CHECKOUT_PAYMENT_PAID = 'checkout_session.payment.paid';
     const EVENT_PAYMENT_PAID = 'payment.paid';
     const EVENT_PAYMENT_FAILED = 'payment.failed';
-
-    const PAID_EVENTS = [
-        self::EVENT_CHECKOUT_PAYMENT_PAID,
-        self::EVENT_PAYMENT_PAID,
-    ];
-
-    const HANDLED_EVENTS = [
-        self::EVENT_CHECKOUT_PAYMENT_PAID,
-        self::EVENT_PAYMENT_PAID,
-        self::EVENT_PAYMENT_FAILED,
-    ];
-
     const RESOURCE_PAYMENT = 'payment';
 }

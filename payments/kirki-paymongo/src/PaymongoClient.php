@@ -6,6 +6,8 @@ use Exception;
 use InvalidArgumentException;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
+use function Kirki\Ecommerce\Framework\throw_if;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -101,9 +103,7 @@ class PaymongoClient
 
         $response = $request->{$method}($url);
 
-        if ($response->failed()) {
-            throw new Exception($response->body());
-        }
+        throw_if($response->failed(), $response->body());
 
         return $response->json();
     }
@@ -116,9 +116,7 @@ class PaymongoClient
      */
     protected function get_auth(): string
     {
-        if (empty($this->secret_key)) {
-            throw new InvalidArgumentException(__('Invalid API Key.', 'kirki-ecommerce-paymongo'));
-        }
+        throw_if(empty($this->secret_key), __('Invalid API Key.', 'kirki-ecommerce-paymongo'), InvalidArgumentException::class);
 
         return base64_encode($this->secret_key . ':');
     }

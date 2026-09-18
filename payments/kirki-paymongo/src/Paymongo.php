@@ -14,6 +14,10 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 use Throwable;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
+use function Kirki\Ecommerce\Framework\throw_unless;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -22,6 +26,18 @@ defined('ABSPATH') || exit;
 class Paymongo extends PaymentProvider
 {
     protected ?PaymongoClient $client = null;
+
+    protected const PAID_EVENTS = [
+        PaymongoConstant::EVENT_CHECKOUT_PAYMENT_PAID,
+        PaymongoConstant::EVENT_PAYMENT_PAID,
+    ];
+
+    protected const HANDLED_EVENTS = [
+        PaymongoConstant::EVENT_CHECKOUT_PAYMENT_PAID,
+        PaymongoConstant::EVENT_PAYMENT_PAID,
+        PaymongoConstant::EVENT_PAYMENT_FAILED,
+    ];
+
 
     public function __construct()
     {
@@ -66,29 +82,29 @@ class Paymongo extends PaymentProvider
      */
     public function pay(Order $order)
     {
-        if (!$this->enabled()) {
-            throw new Exception(__('PayMongo is not enabled.', 'kirki-ecommerce-paymongo'));
-        }
+        throw_unless(
+            $this->enabled(),
+            __('PayMongo is not enabled.', 'kirki-ecommerce-paymongo')
+        );
 
-        if (PaymongoConstant::CURRENCY !== strtoupper((string) $order->currency_code)) {
-            throw new Exception(__('PayMongo only accepts payments in Philippine pesos (PHP).', 'kirki-ecommerce-paymongo'));
-        }
+        throw_if(
+            PaymongoConstant::CURRENCY !== strtoupper((string) $order->currency_code),
+            __('PayMongo only accepts payments in Philippine pesos (PHP).', 'kirki-ecommerce-paymongo')
+        );
 
         try {
             $builder = new PaymongoTransactionBuilder($order);
             $response = $this->get_client()->create_checkout_session($builder->create_checkout_session_payload(), $order->uuid);
             $checkout_url = $response['data']['attributes']['checkout_url'] ?? '';
 
-            if (empty($checkout_url)) {
-                throw new Exception(__('PayMongo Checkout Url Not Found.', 'kirki-ecommerce-paymongo'));
-            }
+            throw_if(empty($checkout_url), __('PayMongo Checkout Url Not Found.', 'kirki-ecommerce-paymongo'));
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
                 'value' => $checkout_url,
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('PayMongo Payment Error: %s', 'kirki-ecommerce-paymongo'), $e->getMessage()));
+            throw_anyway(sprintf(__('PayMongo Payment Error: %s', 'kirki-ecommerce-paymongo'), $e->getMessage()));
         }
     }
 
@@ -143,7 +159,7 @@ class Paymongo extends PaymentProvider
         try {
             $event = $this->read_verified_event();
 
-            if (!in_array($event->type, PaymongoConstant::HANDLED_EVENTS, true)) {
+            if (!in_array($event->type, static::HANDLED_EVENTS, true)) {
                 return false;
             }
 
@@ -152,15 +168,10 @@ class Paymongo extends PaymentProvider
             $attributes = $event->data->attributes ?? null;
             $order_uuid = (string) ($attributes->metadata->order_id ?? $attributes->reference_number ?? '');
 
-            if (empty($order_uuid)) {
-                throw new Exception(__('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-paymongo'));
-            }
+            throw_if(empty($order_uuid), __('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-paymongo'));
 
             $order = OrderManager::find_by_uuid($order_uuid);
-
-            if (!$order) {
-                throw new Exception(__('Webhook error: Order Not Found.', 'kirki-ecommerce-paymongo'));
-            }
+            throw_if(!$order, __('Webhook error: Order Not Found.', 'kirki-ecommerce-paymongo'));
 
             if (PaymentStatus::PAID === $order->payment_status) {
                 return true;
@@ -170,7 +181,7 @@ class Paymongo extends PaymentProvider
 
             return true;
         } catch (Throwable $th) {
-            throw new Exception(sprintf(__('Webhook error: %s', 'kirki-ecommerce-paymongo'), $th->getMessage()));
+            throw_anyway(sprintf(__('Webhook error: %s', 'kirki-ecommerce-paymongo'), $th->getMessage()));
         }
     }
 
@@ -190,7 +201,7 @@ class Paymongo extends PaymentProvider
         $webhook_secret_key = $this->settings['webhook_secret_key'] ?? '';
 
         if (empty($secret_key) || empty($webhook_secret_key)) {
-            throw new Exception(__('PayMongo credentials are missing.', 'kirki-ecommerce-paymongo'));
+            throw_anyway(__('PayMongo credentials are missing.', 'kirki-ecommerce-paymongo'));
         }
 
         $this->client = new PaymongoClient(
@@ -221,7 +232,7 @@ class Paymongo extends PaymentProvider
             OrderManager::set_transaction_id($order->id, (string) ($payment->id ?? $resource->id));
             OrderManager::set_payment_metadata($order->id, wp_json_encode($resource));
 
-            if (in_array($event->type, PaymongoConstant::PAID_EVENTS, true)) {
+            if (in_array($event->type, static::PAID_EVENTS, true)) {
                 OrderManager::mark_payment_as_paid($order->id);
 
                 $fee = (int) ($payment->attributes->fee ?? 0);
@@ -237,9 +248,7 @@ class Paymongo extends PaymentProvider
         } catch (Throwable $e) {
             DB::rollback();
 
-            throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-paymongo'), $e->getMessage())
-            );
+            throw_anyway(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-paymongo'), $e->getMessage()));
         }
     }
 
@@ -271,14 +280,14 @@ class Paymongo extends PaymentProvider
         $raw_payload = file_get_contents('php://input');
 
         if (empty($raw_payload) || !$this->get_client()->is_verified($raw_payload)) {
-            throw new Exception(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-paymongo'));
+            throw_anyway(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-paymongo'));
         }
 
         $payload = json_decode($raw_payload);
         $event = $payload->data->attributes ?? null;
 
         if (!is_object($event) || empty($event->type) || !isset($event->data)) {
-            throw new Exception(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-paymongo'));
+            throw_anyway(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-paymongo'));
         }
 
         return $event;
