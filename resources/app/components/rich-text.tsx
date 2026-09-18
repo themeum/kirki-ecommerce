@@ -10,6 +10,8 @@ import { __ } from '@/wpi18n';
 
 type Shortcode = { label: string; value: string };
 
+const EMPTY_SHORTCODES: Shortcode[] = [];
+
 type RichTextProps = {
   id?: string;
   value?: string;
@@ -463,7 +465,7 @@ const RichText = ({
   helpText,
   error,
   css: cssProp,
-  shortcodes = [],
+  shortcodes = EMPTY_SHORTCODES,
   rootBlockElement = 'p',
 }: RichTextProps) => {
   const editorRef = useRef<TinyMceEditorInstance | null>(null);
