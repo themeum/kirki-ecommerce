@@ -87,7 +87,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
                 TaxLineDTO::from_array([
                     'name' => 'VAT',
                     'rate' => $rate,
-                    'base_amount' => $this->calculate_tax_amount($rate, $context->shipping_fee),
+                    'base_amount' => $this->calculate_shipping_tax_amount($rate, $context->shipping_fee),
                 ]),
             ];
         }
@@ -108,7 +108,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
             $lines[] = TaxLineDTO::from_array([
                 'name' => 'VAT',
                 'rate' => $rate,
-                'base_amount' => $this->calculate_tax_amount($rate, $portion),
+                'base_amount' => $this->calculate_shipping_tax_amount($rate, $portion),
                 'item_id' => $item->item_id,
             ]);
         }

@@ -1,0 +1,127 @@
+info:
+  name: PayMongo
+  type: http
+  seq: 7
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/paymongo"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+          "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/paymongo"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+               "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "quickpay",
+              "name": "QuickPay",
+              "icon": "quickpay",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "QuickPay payment gateway",
+              "settings": {
+                "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+                 "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "secret_key",
+                  "label": "Secret Key",
+                  "type": "password",
+                  "required": true
+                },
+
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/paymongo",
+              "webhook_events": [
+
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/paymongo"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+              "secret_key": "sk_test_5bfmggTjrfYuGjpmy5N85bnq",
+              "webhook_secret_key": "whsk_WnQNj9pS3j9SXqzTqBAQW2Vc",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.

@@ -3,7 +3,9 @@
 namespace Kirki\Ecommerce\Tests\Support;
 
 use Kirki\Ecommerce\App\Services\ShippingService;
+use Kirki\Ecommerce\App\Settings\SettingsFactory;
 use Kirki\Ecommerce\Framework\Facade;
+use Kirki\Ecommerce\Framework\Managers\OptionManager;
 use WP_UnitTestCase;
 
 use function Kirki\Ecommerce\Framework\migrator;
@@ -43,7 +45,11 @@ abstract class RestTestCase extends WP_UnitTestCase
      * Clears the Facade's process-wide static instance cache so a facade
      * resolved here against real WP-backed data (e.g. Settings) can't leak
      * into a later test in the same PHPUnit run that expects its own
-     * container binding to be resolved fresh.
+     * container binding to be resolved fresh. Also clears SettingsFactory's
+     * own static cache of AppSettings instances and OptionManager's static
+     * option-value cache - both read from the DB once and cache in-memory
+     * for the rest of the PHP process, so a stale cached value would keep
+     * being served after a previous test's DB transaction is rolled back.
      *
      * @return void
      * @since 1.0.0
@@ -51,6 +57,8 @@ abstract class RestTestCase extends WP_UnitTestCase
     protected function tearDown(): void
     {
         $this->reset_facade_cache();
+        $this->reset_settings_factory_cache();
+        $this->reset_option_manager_cache();
 
         parent::tearDown();
     }
@@ -65,6 +73,34 @@ abstract class RestTestCase extends WP_UnitTestCase
     {
         $reflection = new \ReflectionClass(Facade::class);
         $property = $reflection->getProperty('resolved_instance');
+        $property->setAccessible(true);
+        $property->setValue(null, []);
+    }
+
+    /**
+     * Reset SettingsFactory's static cache of AppSettings instances.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function reset_settings_factory_cache(): void
+    {
+        $reflection = new \ReflectionClass(SettingsFactory::class);
+        $property = $reflection->getProperty('cache');
+        $property->setAccessible(true);
+        $property->setValue(null, []);
+    }
+
+    /**
+     * Reset OptionManager's static cache of raw option values.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function reset_option_manager_cache(): void
+    {
+        $reflection = new \ReflectionClass(OptionManager::class);
+        $property = $reflection->getProperty('cache');
         $property->setAccessible(true);
         $property->setValue(null, []);
     }

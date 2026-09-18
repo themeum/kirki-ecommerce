@@ -55,7 +55,7 @@ class RecalculateCartAction
             $items_count += $item->quantity;
         }
 
-        $shipping = $this->build_shipping_result($context, $discount_result, $tax_result, $is_inclusive_tax);
+        $shipping = $this->build_shipping_result($context, $discount_result, $tax_result);
 
         return $this->aggregate($items, $items_count, $shipping, $discount_result);
     }
@@ -232,20 +232,21 @@ class RecalculateCartAction
     }
 
     /**
+     * Shipping is never sold at a tax-inclusive price, so unlike item
+     * totals, shipping tax is always added on top of the discounted
+     * shipping subtotal, regardless of the store's tax-inclusive-price
+     * setting for products.
+     *
      * @return array{subtotal: int, discount: int, tax: int, tax_lines: \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[], total: int}
      */
-    protected function build_shipping_result(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result, TaxCalculationResultDTO $tax_result, bool $is_inclusive_tax): array
+    protected function build_shipping_result(CalculationContextDTO $context, DiscountCalculationResultDTO $discount_result, TaxCalculationResultDTO $tax_result): array
     {
         $subtotal_money = Money::of_minor($context->shipping_subtotal);
         $discount_money = Money::of_minor($discount_result->shipping_discount);
         $tax_lines = $tax_result->shipping;
         $tax_money = $this->sum_tax_amount($tax_lines);
 
-        $total_money = $subtotal_money->minus($discount_money);
-
-        if (!$is_inclusive_tax) {
-            $total_money = $total_money->plus($tax_money);
-        }
+        $total_money = $subtotal_money->minus($discount_money)->plus($tax_money);
 
         return [
             'subtotal' => $subtotal_money->getMinorAmount()->toInt(),

@@ -19,6 +19,20 @@ use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * @var mixed
+     */
+    protected $original_wpdb;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        global $wpdb;
+
+        $this->original_wpdb = $wpdb;
+    }
+
     protected function tearDown(): void
     {
         $this->reset_container_instance();
@@ -116,7 +130,7 @@ abstract class TestCase extends BaseTestCase
     {
         global $wpdb;
 
-        $wpdb = null;
+        $wpdb = $this->original_wpdb;
     }
 
     protected function reset_facade_cache(): void
@@ -157,18 +171,36 @@ abstract class TestCase extends BaseTestCase
             }
         };
 
-        $settings_factory = new class($currency_settings_object) {
+        $product_settings_object = new class {
+            public function get($key = null, $default = null)
+            {
+                if ($key === 'is_unit_price_visible') {
+                    return true;
+                }
+
+                return $default;
+            }
+        };
+
+        $settings_factory = new class($currency_settings_object, $product_settings_object) {
             private $currency_settings;
 
-            public function __construct($currency_settings)
+            private $product_settings;
+
+            public function __construct($currency_settings, $product_settings)
             {
                 $this->currency_settings = $currency_settings;
+                $this->product_settings = $product_settings;
             }
 
-            public function get(string $key)
+            public function get(string $key, $default = null)
             {
                 if ($key === 'currency') {
                     return $this->currency_settings;
+                }
+
+                if (strpos($key, 'product.') === 0) {
+                    return $this->product_settings->get(substr($key, \strlen('product.')), $default);
                 }
 
                 throw new \Exception("Invalid settings key: {$key}");
