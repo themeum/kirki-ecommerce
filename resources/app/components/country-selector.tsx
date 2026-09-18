@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
+
 import Combobox from '@/components/ui/combobox';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import type { LabelFieldProps } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
@@ -24,11 +26,14 @@ const CountrySelector = ({
 }: CountrySelectorProps) => {
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
 
-  const options = countries.map((country) => ({
-    value: country.code,
-    label: country.name,
-    keywords: [country.code],
-  }));
+  const options = useMemo(() => {
+    return countries.map((country) => ({
+      value: country.code,
+      label: country.name,
+      leftIcon: country.flag ? <span css={scoped(styles.flag)}>{country.flag}</span> : undefined,
+      keywords: [country.code],
+    }));
+  }, [countries]);
 
   return (
     <Field data-invalid={error ? true : undefined}>
@@ -41,6 +46,7 @@ const CountrySelector = ({
         multiple={multiple}
         listCss={styles.wrapper}
         disabled={disabled}
+        virtualized
       />
 
       {helpText && !error && <FieldDescription>{helpText}</FieldDescription>}
@@ -63,5 +69,9 @@ const styles = defineStyles({
   },
   searchInput: {
     padding: theme.spacing[3],
+  },
+  flag: {
+    fontSize: '16px',
+    lineHeight: 1,
   },
 });

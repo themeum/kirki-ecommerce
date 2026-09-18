@@ -159,7 +159,7 @@ const styles = defineStyles({
   },
   availabilityLabel: {
     '& span': {
-      color: theme.colors.text.primary,
+      color: theme.colors.text.secondary,
     },
   },
 });

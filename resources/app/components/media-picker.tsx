@@ -72,7 +72,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
     onChange,
     onRequestOpen,
     accept = ['image'],
-    placeholder = __('Drag and drop, or upload image', 'kirki-ecommerce'),
+    placeholder = __('Drag and drop, or upload image.', 'kirki-ecommerce'),
     btnText = __('Upload image', 'kirki-ecommerce'),
     size = 'fullWidth',
     disabled = false,
@@ -316,7 +316,7 @@ const MediaPicker = forwardRef<HTMLDivElement, MediaPickerProps>((props, ref) =>
       onDrop={handleDrop}
     >
       <Flex direction="column" align="center" gap={2}>
-        <Button variant="ghost" type="button" disabled={isBusy} onClick={openBrowse}>
+        <Button variant="tertiary" type="button" disabled={isBusy} onClick={openBrowse}>
           <CloudUpload />
           {btnText}
         </Button>

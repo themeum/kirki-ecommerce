@@ -1,6 +1,8 @@
 import { type CSSObject } from '@emotion/react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { defaultFilter } from 'cmdk';
 import { Check, ChevronsUpDown, PlusCircle, X } from 'lucide-react';
-import { type ReactNode, useId, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import {
   Command,
@@ -20,8 +22,13 @@ import { __ } from '@/wpi18n';
 type ComboboxOption = {
   label: string;
   value: string;
+  leftIcon?: ReactNode;
   keywords?: string[];
 };
+
+// Fixed so the virtualizer's estimate is exact: it positions rows from this
+// value alone, and a row that measured taller would overlap the next one.
+const VIRTUAL_ROW_HEIGHT = 32;
 
 type ComboboxProps = {
   options: ComboboxOption[];
@@ -39,6 +46,7 @@ type ComboboxProps = {
   cssOverride?: CSSObject;
   listCss?: CSSObject;
   searchInputCss?: CSSObject;
+  virtualized?: boolean;
 };
 
 /**
@@ -65,11 +73,19 @@ const Combobox = ({
   cssOverride,
   listCss,
   searchInputCss,
+  virtualized = false,
 }: ComboboxProps) => {
   const [open, setOpen] = useState(false);
   const listboxId = useId();
   const [search, setSearch] = useState('');
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // A callback ref, not `useRef`: Radix mounts the popover's content in its
+  // own commit without re-rendering this component, so a ref object would
+  // still read null when the virtualizer's layout effect resolves the scroll
+  // element — leaving it permanently unsubscribed from scroll while the first
+  // page of rows still painted from `initialRect`. Storing the node in state
+  // re-renders us so the virtualizer picks it up.
+  const [listElement, setListElement] = useState<HTMLDivElement | null>(null);
   const [triggerHeight, setTriggerHeight] = useState(0);
 
   const selectedValues = multiple
@@ -81,6 +97,57 @@ const Combobox = ({
       : [];
 
   const selectedOptions = options.filter((option) => selectedValues.includes(option.value));
+
+  const hasLeadingIcons = options.some((option) => Boolean(option.leftIcon));
+
+  // Virtualized rows are not mounted, so cmdk cannot score them and its
+  // sorting would reorder the DOM against the virtualizer's absolute
+  // positioning. Filtering moves here, reusing cmdk's own scorer so matches
+  // and ranking stay identical to the non-virtualized path.
+  const visibleOptions = useMemo(() => {
+    if (!virtualized) {
+      return options;
+    }
+
+    const query = search.trim();
+
+    if (!query) {
+      return options;
+    }
+
+    return options
+      .map((option) => ({ option, score: defaultFilter(option.label, query) }))
+      .filter((scored) => scored.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map((scored) => scored.option);
+  }, [options, search, virtualized]);
+
+  const virtualizer = useVirtualizer({
+    count: visibleOptions.length,
+    getScrollElement: () => listElement,
+    estimateSize: () => VIRTUAL_ROW_HEIGHT,
+    // Load-bearing for keyboard navigation, not just paint smoothness: cmdk
+    // moves selection between mounted rows only, so this buffer is what an
+    // arrow key past the viewport lands on before its scroll mounts the next
+    // batch.
+    overscan: 10,
+    getItemKey: (index) => visibleOptions[index].value,
+    // Assumed size until the ResizeObserver reports the real one — avoids a
+    // flash of zero rows on first paint, and (as a side effect) means jsdom,
+    // which never fires ResizeObserver callbacks, still has rows to interact
+    // with in tests.
+    initialRect: { width: 320, height: 240 },
+  });
+
+  // Without this, narrowing a list the merchant has scrolled down leaves them
+  // staring at a blank region past the end of the shorter result set.
+  useEffect(() => {
+    if (!virtualized || !listElement) {
+      return;
+    }
+
+    listElement.scrollTop = 0;
+  }, [search, virtualized, listElement]);
 
   const trimmedSearch = search.trim();
   const hasExactMatch = options.some(
@@ -129,6 +196,7 @@ const Combobox = ({
         <span css={scoped(styles.tags)}>
           {selectedOptions.map((option) => (
             <span key={option.value} css={scoped(styles.tag)}>
+              {option.leftIcon && <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>}
               {option.label}
               <button
                 type="button"
@@ -148,7 +216,18 @@ const Combobox = ({
     }
 
     if (selectedOptions.length > 0) {
-      return selectedOptions[0].label;
+      const selectedOption = selectedOptions[0];
+
+      if (!selectedOption.leftIcon) {
+        return selectedOption.label;
+      }
+
+      return (
+        <span css={scoped(styles.triggerOption)}>
+          <span css={scoped(styles.leadingIcon)}>{selectedOption.leftIcon}</span>
+          {selectedOption.label}
+        </span>
+      );
     }
 
     return <span css={scoped(styles.placeholder)}>{placeholder}</span>;
@@ -189,7 +268,7 @@ const Combobox = ({
         sideOffset={-triggerHeight}
         cssOverride={styles.content}
       >
-        <Command>
+        <Command shouldFilter={!virtualized}>
           <CommandInput
             placeholder={searchPlaceholder}
             wrapperCss={styles.searchRow}
@@ -197,8 +276,17 @@ const Combobox = ({
             value={search}
             onValueChange={setSearch}
           />
-          <CommandList cssOverride={listCss}>
-            {!showCreatable && <CommandEmpty>{emptyText}</CommandEmpty>}
+          <CommandList ref={setListElement} cssOverride={listCss}>
+            {!showCreatable &&
+              // With `shouldFilter={false}` cmdk no longer knows the match
+              // count, so the virtualized path resolves the empty state itself.
+              (virtualized ? (
+                visibleOptions.length === 0 && (
+                  <div css={scoped(styles.emptyState)}>{emptyText}</div>
+                )
+              ) : (
+                <CommandEmpty>{emptyText}</CommandEmpty>
+              ))}
             {showCreatable && (
               <>
                 <CommandGroup>
@@ -212,25 +300,75 @@ const Combobox = ({
                 {options.length > 0 && <Separator />}
               </>
             )}
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selectedValues.includes(option.value);
+            {virtualized ? (
+              visibleOptions.length > 0 && (
+                <div
+                  style={{
+                    height: virtualizer.getTotalSize(),
+                    position: 'relative',
+                    width: '100%',
+                  }}
+                >
+                  {virtualizer.getVirtualItems().map((virtualRow) => {
+                    const option = visibleOptions[virtualRow.index];
+                    const isSelected = selectedValues.includes(option.value);
 
-                return (
-                  <CommandItem
-                    key={option.value}
-                    value={option.label}
-                    keywords={option.keywords}
-                    onSelect={() => handleSelect(option.value)}
-                  >
-                    <span css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}>
-                      {isSelected && <Check size={14} />}
-                    </span>
-                    {option.label}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
+                    return (
+                      <div
+                        key={virtualRow.key}
+                        data-index={virtualRow.index}
+                        css={scoped(styles.virtualRow)}
+                        style={{ transform: `translateY(${virtualRow.start}px)` }}
+                      >
+                        <CommandItem
+                          value={option.value}
+                          onSelect={() => handleSelect(option.value)}
+                          cssOverride={styles.virtualItem}
+                        >
+                          <span
+                            css={scopedMerge(
+                              styles.itemCheck,
+                              !isSelected && styles.itemCheckEmpty,
+                            )}
+                          >
+                            {isSelected && <Check size={14} />}
+                          </span>
+                          {hasLeadingIcons && (
+                            <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
+                          )}
+                          <span css={scoped(styles.itemLabel)}>{option.label}</span>
+                        </CommandItem>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
+            ) : (
+              <CommandGroup>
+                {options.map((option) => {
+                  const isSelected = selectedValues.includes(option.value);
+
+                  return (
+                    <CommandItem
+                      key={option.value}
+                      value={option.label}
+                      keywords={option.keywords}
+                      onSelect={() => handleSelect(option.value)}
+                    >
+                      <span
+                        css={scopedMerge(styles.itemCheck, !isSelected && styles.itemCheckEmpty)}
+                      >
+                        {isSelected && <Check size={14} />}
+                      </span>
+                      {hasLeadingIcons && (
+                        <span css={scoped(styles.leadingIcon)}>{option.leftIcon}</span>
+                      )}
+                      {option.label}
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
@@ -287,6 +425,20 @@ const styles = defineStyles({
   placeholder: {
     color: theme.colors.text.secondary,
     opacity: 0.8,
+  },
+  triggerOption: {
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    gap: theme.spacing[2],
+    minWidth: 0,
+  },
+  // Sized so a row without an icon still lines its label up with the rows
+  // that have one. Reserved only when some option in the list carries an icon.
+  leadingIcon: {
+    ...itemCenter(),
+    justifyContent: 'flex-start',
+    flexShrink: 0,
+    minWidth: '20px',
   },
   chevron: {
     flexShrink: 0,
@@ -350,5 +502,31 @@ const styles = defineStyles({
   addIcon: {
     ...itemCenter(),
     flexShrink: 0,
+  },
+  virtualRow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+  },
+  // Fixed height keeps the virtualizer's estimate exact; the label is clipped
+  // rather than wrapped, since a second line would desynchronise every offset
+  // below it.
+  virtualItem: {
+    height: `${VIRTUAL_ROW_HEIGHT}px`,
+    minHeight: `${VIRTUAL_ROW_HEIGHT}px`,
+    boxSizing: 'border-box',
+  },
+  itemLabel: {
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  emptyState: {
+    padding: `${theme.spacing[4]} ${theme.spacing[2]}`,
+    textAlign: 'center',
+    ...theme.typography.small(),
+    color: theme.colors.text.secondary,
   },
 });
