@@ -46,7 +46,7 @@ class ShopProductResource extends Resource
 
         $has_variants = (bool) $this->has_variants;
         $variant_id   = intval($variant->id);
-        $out_of_stock = $this->resolve_stock_status($variant_id);
+        $out_of_stock = ! $this->resolve_has_stock($variants);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
         $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 
@@ -138,15 +138,23 @@ class ShopProductResource extends Resource
     }
 
     /**
-     * Check whether the given variant is out of stock.
+     * Check any variant is in stock.
      *
-     * @param int $variant_id
+     * @param Collection $variants variants.
      *
      * @return bool
      */
-    private function resolve_stock_status(int $variant_id): bool
+    private function resolve_has_stock(Collection $variants): bool
     {
-        return ! app()->make(InventoryService::class)->has_stock($variant_id, 1);
+        $has_stock = false;
+        $inventory_service = app()->make(InventoryService::class);
+        foreach ($variants as $variant) {
+            if ($inventory_service->has_stock($variant->id, 1)) {
+                $has_stock = true;
+                break;
+            }
+        }
+        return $has_stock;
     }
 
     /**
