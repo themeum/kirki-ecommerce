@@ -357,8 +357,7 @@ class Utils
      */
     public static function get_countries()
     {
-        $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
-        return json_decode($countries_json, true);
+        return CountryData::nested();
     }
 
     /**

@@ -38,6 +38,8 @@ export const endpoints = {
   VARIANTS_BULK: '/variants/bulk',
   VARIANTS_BULK_BY_IDS: (ids: string | (string | number)[]) =>
     `/variants/bulk/${Array.isArray(ids) ? ids.join(',') : ids}`,
+  VARIANT_GENERATE_SKU: '/variants/generate-sku',
+  VARIANTS_GENERATE_SKUS: '/variants/generate-skus',
 
   COUNTRIES: '/countries',
 
@@ -62,6 +64,10 @@ export const endpoints = {
   SETTINGS: '/settings',
   SETTINGS_SECTION: (key: string) => `/settings/${key}`,
   SETTINGS_BY_KEY: (key: string) => `/settings/${key}`,
+  EMAIL_NOTIFICATION_PREVIEW: (type: string, group: string, key: string) =>
+    `/settings/email/${type}/${group}/${key}/preview`,
+  EMAIL_NOTIFICATION_SEND_TEST_MAIL: (type: string, group: string, key: string) =>
+    `/settings/email/${type}/${group}/${key}/preview/test-mail`,
   APP_CONFIG: '/app-config',
 
   SHIPPING_PROFILES: '/shipping-profiles',

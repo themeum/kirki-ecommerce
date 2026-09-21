@@ -27,8 +27,11 @@ const getShellStyles = (theme: Theme): CSSObject => {
   const surfaceTertiary = theme.colors.background.surfaceTertiary;
 
   return {
+    body: {
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
+    },
     '#wpcontent': {
-      backgroundColor: surfaceTertiary,
+      backgroundColor: theme.colors.background.solidSurfaceSecondary,
     },
     [APP_ROOT_SELECTOR]: {
       marginLeft: '-20px',

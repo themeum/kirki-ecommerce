@@ -57,6 +57,12 @@ const InventoryTable = () => {
       onSortingChange={onSortingChange}
       isLoading={isFetching}
       enableRowSelection
+      /**
+       * Bulk edit opens the grid on an enumerated `ids` list, so it can only
+       * ever address the rows the merchant actually ticked. Offering "select
+       * all N items" here would promise a set the action cannot carry.
+       */
+      enableSelectAllMatching={false}
       selectionResetKey={selectionResetKey}
       bulkActions={inventoryBulkActions}
       onBulkApply={handleBulkApply}

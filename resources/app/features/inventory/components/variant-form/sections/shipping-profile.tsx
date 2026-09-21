@@ -55,7 +55,7 @@ const ShippingProfile = () => {
   };
 
   return (
-    <Card cssOverride={cardStyles.innerDarkCard}>
+    <Card cssOverride={cardStyles.innerDarkCard} noShadow>
       <CardContent cssOverride={styles.innerDarkRowContent}>
         <Grid align="center">
           <Field orientation="horizontal">

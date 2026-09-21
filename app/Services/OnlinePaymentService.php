@@ -9,10 +9,9 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\Framework\Route;
-use Kirki\Ecommerce\App\Supports\AddonPlugin;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Exception;
-
+use Kirki\Ecommerce\Framework\Wordpress\Extension;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ZipArchive;
@@ -77,7 +76,7 @@ class OnlinePaymentService
         throw_if((bool) Payment::get_provider($id), __('Payment method already installed.', 'kirki-ecommerce'), Exception::class, Response::NOT_FOUND);
 
         $addon_zip_url = Route::url('online-payments/download/' . $id); //@todo: implement cloud url
-        $is_installed = AddonPlugin::install($addon_zip_url);
+        $is_installed = Extension::install($addon_zip_url);
 
         throw_if(!$is_installed, __('Payment method not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 

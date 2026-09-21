@@ -219,7 +219,7 @@ const VariantGroup = ({
                 <TableCell onClick={stopPropagation}>
                   <MoneyField
                     name={`variants.${mainIndex}.base_price`}
-                    placeholder={__('19.99', 'kirki-ecommerce')}
+                    placeholder={__('0.00', 'kirki-ecommerce')}
                     currencySymbol={currencySymbol}
                   />
                 </TableCell>

@@ -8,6 +8,8 @@ use Kirki\Ecommerce\App\Constants\CurrencyFormat;
 use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
 use Kirki\Ecommerce\App\Constants\DecimalSeparator;
+use Kirki\Ecommerce\App\Constants\MailEncryption;
+use Kirki\Ecommerce\App\Constants\Mailer;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\Constants\SellingLocationType;
@@ -191,7 +193,7 @@ class SettingsUpdateRequest extends Request
             'data.invoice_number.sequence' => 'required|string|regex:/^\d+$/',
             'data.invoice_number.apply_year_prefix' => 'boolean',
             'data.invoice_number.reset_sequence_every_year' => 'boolean',
-            'data.is_tax_calculation_enabled' => 'boolean',
+            'data.is_tax_calculation_enabled' => 'nullable|boolean',
         ];
     }
 
@@ -675,163 +677,94 @@ class SettingsUpdateRequest extends Request
         return [
             // Default template settings
             'data.default_template' => 'nullable|array',
-            'data.default_template.logo' => 'nullable|string',
-            'data.default_template.height' => 'nullable|string',
+            'data.default_template.logo' => 'nullable|integer',
+            'data.default_template.height' => 'nullable|integer',
             'data.default_template.position' => 'nullable|string',
-            'data.default_template.colors' => 'nullable|array',
-            'data.default_template.colors.background' => 'nullable|string',
-            'data.default_template.colors.text' => 'nullable|string',
-            'data.default_template.colors.link' => 'nullable|string',
-            'data.default_template.colors.label' => 'nullable|string',
-            'data.default_template.colors.button' => 'nullable|string',
-            'data.default_template.colors.button_bg' => 'nullable|string',
+            'data.default_template.colors' => 'array',
+            'data.default_template.colors.background' => 'array',
+            'data.default_template.colors.background.email_body' => 'string',
+            'data.default_template.colors.background.outer_area' => 'string',
+            'data.default_template.colors.background.info_cads' => 'string',
+            'data.default_template.colors.background.divider' => 'string',
+            'data.default_template.colors.typography' => 'array',
+            'data.default_template.colors.typography.headings' => 'string',
+            'data.default_template.colors.typography.body' => 'string',
+            'data.default_template.colors.typography.muted' => 'string',
+            'data.default_template.colors.typography.link' => 'string',
+            'data.default_template.colors.typography.exceptions' => 'string',
+            'data.default_template.colors.button' => 'array',
+            'data.default_template.colors.button.background' => 'string',
+            'data.default_template.colors.button.text' => 'string',
+            'data.default_template.additional_description' => 'nullable|string',
+            'data.default_template.footer' => 'nullable|string',
+
+            // Mail server configuration
+            'data.mail_configuration' => 'nullable|array',
+            'data.mail_configuration.from_email' => 'nullable|email',
+            'data.mail_configuration.from_name' => 'nullable|string',
+            'data.mail_configuration.mailer' => 'nullable|string|in:' . Mailer::join(),
+            'data.mail_configuration.host' => 'nullable|string',
+            'data.mail_configuration.port' => 'nullable|integer',
+            'data.mail_configuration.encryption' => 'nullable|string|in:' . MailEncryption::join(),
+            'data.mail_configuration.is_authentication_enabled' => 'nullable|boolean',
+            'data.mail_configuration.username' => 'nullable|string',
+            'data.mail_configuration.password' => 'nullable|string',
 
             // Customer emails
             'data.customer_emails' => 'nullable|array',
-            'data.customer_emails.order_notifications' => 'nullable|array',
 
             // Customer order notifications
-            'data.customer_emails.order_notifications.new_order_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.new_order_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.new_order_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.new_order_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.new_order_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.new_order_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.new_order_email.shortcodes' => 'nullable|array',
+            'data.customer_emails.order_notifications' => 'nullable|array',
 
-            'data.customer_emails.order_notifications.cancelled_order_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.cancelled_order_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.cancelled_order_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.cancelled_order_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.cancelled_order_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.cancelled_order_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.cancelled_order_email.shortcodes' => 'nullable|array',
-
-            'data.customer_emails.order_notifications.failed_order_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.failed_order_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.failed_order_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.failed_order_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.failed_order_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.failed_order_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.failed_order_email.shortcodes' => 'nullable|array',
-
-            'data.customer_emails.order_notifications.order_on_hold_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.order_on_hold_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.order_on_hold_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_on_hold_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_on_hold_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_on_hold_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_on_hold_email.shortcodes' => 'nullable|array',
-
-            'data.customer_emails.order_notifications.processing_order_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.processing_order_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.processing_order_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.processing_order_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.processing_order_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.processing_order_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.processing_order_email.shortcodes' => 'nullable|array',
-
-            'data.customer_emails.order_notifications.completed_order_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.completed_order_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.completed_order_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.completed_order_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.completed_order_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.completed_order_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.completed_order_email.shortcodes' => 'nullable|array',
-
-            'data.customer_emails.order_notifications.order_note_email' => 'nullable|array',
-            'data.customer_emails.order_notifications.order_note_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.order_note_email.name' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_note_email.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_note_email.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_note_email.message' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_note_email.shortcodes' => 'nullable|array',
+            // Customer order confirmation
+            'data.customer_emails.order_notifications.order_confirmation' => 'nullable|array',
+            'data.customer_emails.order_notifications.order_confirmation.is_enabled' => 'nullable|boolean',
+            'data.customer_emails.order_notifications.order_confirmation.subject' => 'nullable|string',
+            'data.customer_emails.order_notifications.order_confirmation.heading' => 'nullable|string',
+            'data.customer_emails.order_notifications.order_confirmation.message' => 'nullable|string',
 
             // Customer user notifications
             'data.customer_emails.user_notifications' => 'nullable|array',
 
-            'data.customer_emails.user_notifications.new_customer_registered_email' => 'nullable|array',
-            'data.customer_emails.user_notifications.new_customer_registered_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.user_notifications.new_customer_registered_email.name' => 'nullable|string',
-            'data.customer_emails.user_notifications.new_customer_registered_email.subject' => 'nullable|string',
-            'data.customer_emails.user_notifications.new_customer_registered_email.heading' => 'nullable|string',
-            'data.customer_emails.user_notifications.new_customer_registered_email.message' => 'nullable|string',
-            'data.customer_emails.user_notifications.new_customer_registered_email.shortcodes' => 'nullable|array',
-
-            'data.customer_emails.user_notifications.reset_password_email' => 'nullable|array',
-            'data.customer_emails.user_notifications.reset_password_email.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.user_notifications.reset_password_email.name' => 'nullable|string',
-            'data.customer_emails.user_notifications.reset_password_email.subject' => 'nullable|string',
-            'data.customer_emails.user_notifications.reset_password_email.heading' => 'nullable|string',
-            'data.customer_emails.user_notifications.reset_password_email.message' => 'nullable|string',
-            'data.customer_emails.user_notifications.reset_password_email.shortcodes' => 'nullable|array',
+            // Customer reset password
+            'data.customer_emails.user_notifications.reset_password' => 'nullable|array',
+            'data.customer_emails.user_notifications.reset_password.is_enabled' => 'nullable|boolean',
+            'data.customer_emails.user_notifications.reset_password.subject' => 'nullable|string',
+            'data.customer_emails.user_notifications.reset_password.heading' => 'nullable|string',
+            'data.customer_emails.user_notifications.reset_password.message' => 'nullable|string',
 
             // Admin emails
             'data.admin_emails' => 'nullable|array',
-            'data.admin_emails.order_notifications' => 'nullable|array',
 
             // Admin order notifications
-            'data.admin_emails.order_notifications.new_order_email' => 'nullable|array',
-            'data.admin_emails.order_notifications.new_order_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.order_notifications.new_order_email.name' => 'nullable|string',
-            'data.admin_emails.order_notifications.new_order_email.subject' => 'nullable|string',
-            'data.admin_emails.order_notifications.new_order_email.heading' => 'nullable|string',
-            'data.admin_emails.order_notifications.new_order_email.message' => 'nullable|string',
-            'data.admin_emails.order_notifications.new_order_email.shortcodes' => 'nullable|array',
+            'data.admin_emails.order_notifications' => 'nullable|array',
 
-            'data.admin_emails.order_notifications.cancelled_order_email' => 'nullable|array',
-            'data.admin_emails.order_notifications.cancelled_order_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.order_notifications.cancelled_order_email.name' => 'nullable|string',
-            'data.admin_emails.order_notifications.cancelled_order_email.subject' => 'nullable|string',
-            'data.admin_emails.order_notifications.cancelled_order_email.heading' => 'nullable|string',
-            'data.admin_emails.order_notifications.cancelled_order_email.message' => 'nullable|string',
-            'data.admin_emails.order_notifications.cancelled_order_email.shortcodes' => 'nullable|array',
-
-            'data.admin_emails.order_notifications.failed_order_email' => 'nullable|array',
-            'data.admin_emails.order_notifications.failed_order_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.order_notifications.failed_order_email.name' => 'nullable|string',
-            'data.admin_emails.order_notifications.failed_order_email.subject' => 'nullable|string',
-            'data.admin_emails.order_notifications.failed_order_email.heading' => 'nullable|string',
-            'data.admin_emails.order_notifications.failed_order_email.message' => 'nullable|string',
-            'data.admin_emails.order_notifications.failed_order_email.shortcodes' => 'nullable|array',
-
-            'data.admin_emails.order_notifications.customer_requested_refund_email' => 'nullable|array',
-            'data.admin_emails.order_notifications.customer_requested_refund_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.order_notifications.customer_requested_refund_email.name' => 'nullable|string',
-            'data.admin_emails.order_notifications.customer_requested_refund_email.subject' => 'nullable|string',
-            'data.admin_emails.order_notifications.customer_requested_refund_email.heading' => 'nullable|string',
-            'data.admin_emails.order_notifications.customer_requested_refund_email.message' => 'nullable|string',
-            'data.admin_emails.order_notifications.customer_requested_refund_email.shortcodes' => 'nullable|array',
+            // Admin order confirmation
+            'data.admin_emails.order_notifications.order_confirmation' => 'nullable|array',
+            'data.admin_emails.order_notifications.order_confirmation.is_enabled' => 'nullable|boolean',
+            'data.admin_emails.order_notifications.order_confirmation.subject' => 'nullable|string',
+            'data.admin_emails.order_notifications.order_confirmation.heading' => 'nullable|string',
+            'data.admin_emails.order_notifications.order_confirmation.message' => 'nullable|string',
 
             // Admin inventory notifications
             'data.admin_emails.inventory_notifications' => 'nullable|array',
 
-            'data.admin_emails.inventory_notifications.low_stock_email' => 'nullable|array',
-            'data.admin_emails.inventory_notifications.low_stock_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.inventory_notifications.low_stock_email.name' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.low_stock_email.subject' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.low_stock_email.heading' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.low_stock_email.message' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.low_stock_email.shortcodes' => 'nullable|array',
-
-            'data.admin_emails.inventory_notifications.out_of_stock_email' => 'nullable|array',
-            'data.admin_emails.inventory_notifications.out_of_stock_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.inventory_notifications.out_of_stock_email.name' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.out_of_stock_email.subject' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.out_of_stock_email.heading' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.out_of_stock_email.message' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.out_of_stock_email.shortcodes' => 'nullable|array',
+            // Admin inventory low stock
+            'data.admin_emails.inventory_notifications.low_stock' => 'nullable|array',
+            'data.admin_emails.inventory_notifications.low_stock.is_enabled' => 'nullable|boolean',
+            'data.admin_emails.inventory_notifications.low_stock.subject' => 'nullable|string',
+            'data.admin_emails.inventory_notifications.low_stock.heading' => 'nullable|string',
+            'data.admin_emails.inventory_notifications.low_stock.message' => 'nullable|string',
 
             // Admin user notifications
             'data.admin_emails.user_notifications' => 'nullable|array',
 
-            'data.admin_emails.user_notifications.new_customer_registered_email' => 'nullable|array',
-            'data.admin_emails.user_notifications.new_customer_registered_email.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.user_notifications.new_customer_registered_email.name' => 'nullable|string',
-            'data.admin_emails.user_notifications.new_customer_registered_email.subject' => 'nullable|string',
-            'data.admin_emails.user_notifications.new_customer_registered_email.heading' => 'nullable|string',
-            'data.admin_emails.user_notifications.new_customer_registered_email.message' => 'nullable|string',
-            'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => 'nullable|array',
+            // Admin reset password
+            'data.admin_emails.user_notifications.reset_password' => 'nullable|array',
+            'data.admin_emails.user_notifications.reset_password.is_enabled' => 'nullable|boolean',
+            'data.admin_emails.user_notifications.reset_password.subject' => 'nullable|string',
+            'data.admin_emails.user_notifications.reset_password.heading' => 'nullable|string',
+            'data.admin_emails.user_notifications.reset_password.message' => 'nullable|string',
         ];
     }
 
@@ -840,163 +773,94 @@ class SettingsUpdateRequest extends Request
         return [
             // Default template settings
             'data.default_template' => Sanitizer::ARRAY,
-            'data.default_template.logo' => Sanitizer::TEXT,
-            'data.default_template.height' => Sanitizer::TEXT,
+            'data.default_template.logo' => Sanitizer::INT,
+            'data.default_template.height' => Sanitizer::INT,
             'data.default_template.position' => Sanitizer::TEXT,
             'data.default_template.colors' => Sanitizer::ARRAY,
-            'data.default_template.colors.background' => Sanitizer::TEXT,
-            'data.default_template.colors.text' => Sanitizer::TEXT,
-            'data.default_template.colors.link' => Sanitizer::TEXT,
-            'data.default_template.colors.label' => Sanitizer::TEXT,
-            'data.default_template.colors.button' => Sanitizer::TEXT,
-            'data.default_template.colors.button_bg' => Sanitizer::TEXT,
+            'data.default_template.colors.background' => Sanitizer::ARRAY,
+            'data.default_template.colors.background.email_body' => Sanitizer::TEXT,
+            'data.default_template.colors.background.outer_area' => Sanitizer::TEXT,
+            'data.default_template.colors.background.info_cads' => Sanitizer::TEXT,
+            'data.default_template.colors.background.divider' => Sanitizer::TEXT,
+            'data.default_template.colors.typography' => Sanitizer::ARRAY,
+            'data.default_template.colors.typography.headings' => Sanitizer::TEXT,
+            'data.default_template.colors.typography.body' => Sanitizer::TEXT,
+            'data.default_template.colors.typography.muted' => Sanitizer::TEXT,
+            'data.default_template.colors.typography.link' => Sanitizer::TEXT,
+            'data.default_template.colors.typography.exceptions' => Sanitizer::TEXT,
+            'data.default_template.colors.button' => Sanitizer::ARRAY,
+            'data.default_template.colors.button.background' => Sanitizer::TEXT,
+            'data.default_template.colors.button.text' => Sanitizer::TEXT,
+            'data.default_template.additional_description' => Sanitizer::RICH_TEXT,
+            'data.default_template.footer' => Sanitizer::RICH_TEXT,
+
+            // Mail server configuration
+            'data.mail_configuration' => Sanitizer::ARRAY,
+            'data.mail_configuration.from_email' => Sanitizer::EMAIL,
+            'data.mail_configuration.from_name' => Sanitizer::TEXT,
+            'data.mail_configuration.mailer' => Sanitizer::TEXT,
+            'data.mail_configuration.host' => Sanitizer::TEXT,
+            'data.mail_configuration.port' => Sanitizer::INT,
+            'data.mail_configuration.encryption' => Sanitizer::TEXT,
+            'data.mail_configuration.is_authentication_enabled' => Sanitizer::BOOL,
+            'data.mail_configuration.username' => Sanitizer::TEXT,
+            'data.mail_configuration.password' => Sanitizer::TEXT,
 
             // Customer emails
             'data.customer_emails' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications' => Sanitizer::ARRAY,
 
             // Customer order notifications
-            'data.customer_emails.order_notifications.new_order_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.new_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.new_order_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.new_order_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.new_order_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.new_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY,
+            'data.customer_emails.order_notifications' => Sanitizer::ARRAY,
 
-            'data.customer_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.cancelled_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.cancelled_order_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.cancelled_order_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.cancelled_order_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.cancelled_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.customer_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.failed_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.failed_order_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.failed_order_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.failed_order_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.failed_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.customer_emails.order_notifications.order_on_hold_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.order_on_hold_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.order_on_hold_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_on_hold_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_on_hold_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_on_hold_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.order_on_hold_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.customer_emails.order_notifications.processing_order_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.processing_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.processing_order_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.processing_order_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.processing_order_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.processing_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.processing_order_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.customer_emails.order_notifications.completed_order_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.completed_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.completed_order_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.completed_order_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.completed_order_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.completed_order_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.completed_order_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.customer_emails.order_notifications.order_note_email' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.order_note_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.order_note_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_note_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_note_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_note_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.order_notifications.order_note_email.shortcodes' => Sanitizer::ARRAY,
+            // Customer order confirmation
+            'data.customer_emails.order_notifications.order_confirmation' => Sanitizer::ARRAY,
+            'data.customer_emails.order_notifications.order_confirmation.is_enabled' => Sanitizer::BOOL,
+            'data.customer_emails.order_notifications.order_confirmation.subject' => Sanitizer::TEXT,
+            'data.customer_emails.order_notifications.order_confirmation.heading' => Sanitizer::TEXT,
+            'data.customer_emails.order_notifications.order_confirmation.message' => Sanitizer::RICH_TEXT,
 
             // Customer user notifications
             'data.customer_emails.user_notifications' => Sanitizer::ARRAY,
 
-            'data.customer_emails.user_notifications.new_customer_registered_email' => Sanitizer::ARRAY,
-            'data.customer_emails.user_notifications.new_customer_registered_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.user_notifications.new_customer_registered_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.new_customer_registered_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.customer_emails.user_notifications.reset_password_email' => Sanitizer::ARRAY,
-            'data.customer_emails.user_notifications.reset_password_email.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.user_notifications.reset_password_email.name' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.reset_password_email.subject' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.reset_password_email.heading' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.reset_password_email.message' => Sanitizer::TEXTAREA,
-            'data.customer_emails.user_notifications.reset_password_email.shortcodes' => Sanitizer::ARRAY,
+            // Customer reset password
+            'data.customer_emails.user_notifications.reset_password' => Sanitizer::ARRAY,
+            'data.customer_emails.user_notifications.reset_password.is_enabled' => Sanitizer::BOOL,
+            'data.customer_emails.user_notifications.reset_password.subject' => Sanitizer::TEXT,
+            'data.customer_emails.user_notifications.reset_password.heading' => Sanitizer::TEXT,
+            'data.customer_emails.user_notifications.reset_password.message' => Sanitizer::RICH_TEXT,
 
             // Admin emails
             'data.admin_emails' => Sanitizer::ARRAY,
-            'data.admin_emails.order_notifications' => Sanitizer::ARRAY,
 
             // Admin order notifications
-            'data.admin_emails.order_notifications.new_order_email' => Sanitizer::ARRAY,
-            'data.admin_emails.order_notifications.new_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.order_notifications.new_order_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.new_order_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.new_order_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.new_order_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.new_order_email.shortcodes' => Sanitizer::ARRAY,
+            'data.admin_emails.order_notifications' => Sanitizer::ARRAY,
 
-            'data.admin_emails.order_notifications.cancelled_order_email' => Sanitizer::ARRAY,
-            'data.admin_emails.order_notifications.cancelled_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.order_notifications.cancelled_order_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.cancelled_order_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.cancelled_order_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.cancelled_order_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.cancelled_order_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.admin_emails.order_notifications.failed_order_email' => Sanitizer::ARRAY,
-            'data.admin_emails.order_notifications.failed_order_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.order_notifications.failed_order_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.failed_order_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.failed_order_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.failed_order_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.failed_order_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.admin_emails.order_notifications.customer_requested_refund_email' => Sanitizer::ARRAY,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.order_notifications.customer_requested_refund_email.shortcodes' => Sanitizer::ARRAY,
+            // Admin order confirmation
+            'data.admin_emails.order_notifications.order_confirmation' => Sanitizer::ARRAY,
+            'data.admin_emails.order_notifications.order_confirmation.is_enabled' => Sanitizer::BOOL,
+            'data.admin_emails.order_notifications.order_confirmation.subject' => Sanitizer::TEXT,
+            'data.admin_emails.order_notifications.order_confirmation.heading' => Sanitizer::TEXT,
+            'data.admin_emails.order_notifications.order_confirmation.message' => Sanitizer::RICH_TEXT,
 
             // Admin inventory notifications
             'data.admin_emails.inventory_notifications' => Sanitizer::ARRAY,
 
-            'data.admin_emails.inventory_notifications.low_stock_email' => Sanitizer::ARRAY,
-            'data.admin_emails.inventory_notifications.low_stock_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.inventory_notifications.low_stock_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.low_stock_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.low_stock_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.low_stock_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.inventory_notifications.low_stock_email.shortcodes' => Sanitizer::ARRAY,
-
-            'data.admin_emails.inventory_notifications.out_of_stock_email' => Sanitizer::ARRAY,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.inventory_notifications.out_of_stock_email.shortcodes' => Sanitizer::ARRAY,
+            // Admin inventory low stock
+            'data.admin_emails.inventory_notifications.low_stock' => Sanitizer::ARRAY,
+            'data.admin_emails.inventory_notifications.low_stock.is_enabled' => Sanitizer::BOOL,
+            'data.admin_emails.inventory_notifications.low_stock.subject' => Sanitizer::TEXT,
+            'data.admin_emails.inventory_notifications.low_stock.heading' => Sanitizer::TEXT,
+            'data.admin_emails.inventory_notifications.low_stock.message' => Sanitizer::RICH_TEXT,
 
             // Admin user notifications
             'data.admin_emails.user_notifications' => Sanitizer::ARRAY,
 
-            'data.admin_emails.user_notifications.new_customer_registered_email' => Sanitizer::ARRAY,
-            'data.admin_emails.user_notifications.new_customer_registered_email.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.user_notifications.new_customer_registered_email.name' => Sanitizer::TEXT,
-            'data.admin_emails.user_notifications.new_customer_registered_email.subject' => Sanitizer::TEXT,
-            'data.admin_emails.user_notifications.new_customer_registered_email.heading' => Sanitizer::TEXT,
-            'data.admin_emails.user_notifications.new_customer_registered_email.message' => Sanitizer::TEXTAREA,
-            'data.admin_emails.user_notifications.new_customer_registered_email.shortcodes' => Sanitizer::ARRAY,
+            // Admin reset password
+            'data.admin_emails.user_notifications.reset_password' => Sanitizer::ARRAY,
+            'data.admin_emails.user_notifications.reset_password.is_enabled' => Sanitizer::BOOL,
+            'data.admin_emails.user_notifications.reset_password.subject' => Sanitizer::TEXT,
+            'data.admin_emails.user_notifications.reset_password.heading' => Sanitizer::TEXT,
+            'data.admin_emails.user_notifications.reset_password.message' => Sanitizer::RICH_TEXT,
         ];
     }
 

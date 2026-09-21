@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Country;
 
+use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\Framework\Resource;
 
 class CountryResource extends Resource
@@ -18,6 +19,7 @@ class CountryResource extends Resource
             'currency_symbol' => $this->currency_symbol,
             'flag' => $this->flag,
             'states' => StateResource::collection($this->states),
+            'address_rules' => AddressRules::for_display($this->code),
         ];
     }
 }

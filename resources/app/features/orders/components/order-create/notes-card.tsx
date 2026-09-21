@@ -1,4 +1,4 @@
-import { PlusIcon } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
@@ -38,11 +38,15 @@ const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
   const handleClear = () => {
     setValue('admin_notes', snapshot.current);
     setIsAdding(false);
-  }
+  };
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
-        <CardTitle><Text variant="small" weight="medium">{__('Notes', 'kirki-ecommerce')}</Text></CardTitle>
+        <CardTitle>
+          <Text variant="small" weight="medium">
+            {__('Notes', 'kirki-ecommerce')}
+          </Text>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={3}>
@@ -53,10 +57,7 @@ const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
                 placeholder={__('Write a note...', 'kirki-ecommerce')}
               />
               <Flex gap={2} justify="flex-end">
-                <Button
-                  variant="ghost"
-                  onClick={() => handleClear()}
-                >
+                <Button variant="ghost" onClick={() => handleClear()}>
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button variant="primary" loading={isSaving} onClick={handleSave}>
@@ -68,14 +69,14 @@ const NotesCard = ({ onSave, isSaving }: NotesCardProps) => {
             <>
               {Boolean(notes) && <Text variant="tiny">{notes}</Text>}
               <Button variant="secondary" style={{ width: '100%' }} onClick={handleEdit}>
-                <PlusIcon />
+                <Plus />
                 {notes ? __('Edit note', 'kirki-ecommerce') : __('Add note', 'kirki-ecommerce')}
               </Button>
             </>
           )}
         </Flex>
       </CardContent>
-    </Card >
+    </Card>
   );
 };
 

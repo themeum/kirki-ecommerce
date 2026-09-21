@@ -16,6 +16,8 @@ type RichTextFieldProps<
   placeholder?: string;
   id?: string;
   cssOverride?: CSSObject;
+  shortcodes?: { label: string; value: string }[];
+  rootBlockElement?: 'p' | 'div';
 };
 
 const RichTextField = <
@@ -29,6 +31,8 @@ const RichTextField = <
   placeholder,
   id,
   cssOverride,
+  shortcodes,
+  rootBlockElement,
 }: RichTextFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
 
@@ -45,6 +49,8 @@ const RichTextField = <
             onChange={field.onChange}
             placeholder={placeholder}
             error={Boolean(fieldState.error)}
+            shortcodes={shortcodes}
+            rootBlockElement={rootBlockElement}
           />
           {description && <FieldDescription>{description}</FieldDescription>}
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

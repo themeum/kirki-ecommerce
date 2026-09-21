@@ -38,6 +38,7 @@ const OrderCreate = () => {
       <Form {...form}>
         <PageHeading
           text={__('Create order', 'kirki-ecommerce')}
+          sticky
           actions={
             <>
               <Button variant="ghost" onClick={handleBack}>

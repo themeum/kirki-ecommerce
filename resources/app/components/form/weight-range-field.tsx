@@ -15,7 +15,7 @@ import Input from '@/components/ui/input';
 import Text from '@/components/ui/text';
 import { PlusIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type WeightRangeFieldProps<
@@ -126,9 +126,7 @@ const WeightRangeField = <
               {fields.length > 1 && (
                 <Button
                   variant="secondary"
-                  cssOverride={mergeCss(styles.deleteButton, {
-                    '& svg': { color: theme.colors.icon.critical },
-                  })}
+                  cssOverride={styles.deleteButton}
                   data-hover-reveal
                   disabled={disabled}
                   onClick={() => remove(index)}

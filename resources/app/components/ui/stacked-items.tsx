@@ -188,12 +188,13 @@ const styles = defineStyles({
         visibility: 'hidden',
       },
     '& button:not([role="switch"])': {
-      width: '24px',
-      height: '24px',
+      width: '28px',
+      height: '28px',
 
       '& svg': {
-        width: '16px',
-        height: '16px',
+        width: '14px',
+        height: '14px',
+        color: theme.colors.icon.primary,
       },
     },
   },

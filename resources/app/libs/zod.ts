@@ -157,8 +157,9 @@ const requiredWhenRules = new WeakMap<z.ZodTypeAny, RequiredWhenRule[]>();
 /**
  * `.describe()` returns a fresh schema instance (a shallow clone), which is
  * what lets us register a rule against a copy instead of the caller's shared
- * schema object. Without this, a shared field builder (e.g. `moneyAmount`)
- * would leak a `requiredWhen` rule into every form that imports it.
+ * schema object. Without this, a field definition shared as a single instance
+ * rather than built per call would leak a `requiredWhen` rule into every form
+ * that imports it.
  */
 function requiredWhen<Base extends z.ZodTypeAny>(
   schema: Base,
@@ -317,6 +318,31 @@ function numberOrNull() {
     });
 }
 
+/**
+ * For currency amounts only — a field the server converts to minor units
+ * (`base_price`, `base_sale_price`, `base_cost_of_goods`). It keeps whichever
+ * numeric representation the field already holds — a number hydrated from the
+ * API, a string typed into the input — and normalizes only the blank case,
+ * because parsing to a number would re-round the amount before the server ever
+ * sees the decimal the merchant typed.
+ *
+ * Anything else numeric belongs in `numberOrNull()`, which is free to coerce:
+ * a weight (`weight`), a unit of measure (`base_unit_amount`,
+ * `total_unit_amount` — despite the `base_`/`amount` in those names), a count,
+ * a percentage or a rate.
+ */
+function moneyOrNull() {
+  return z
+    .union([z.number(), z.string()])
+    .nullish()
+    .transform((value): number | string | null => {
+      if (!isDefined(value) || (typeof value === 'string' && value.trim() === '')) {
+        return null;
+      }
+      return value;
+    });
+}
+
 function stringOrNull() {
   return z
     .string()
@@ -350,6 +376,7 @@ export {
   getDefaults,
   isEmptyValue,
   mediaId,
+  moneyOrNull,
   nullishShape,
   numberOrNull,
   pickFormValues,
