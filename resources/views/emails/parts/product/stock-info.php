@@ -8,6 +8,9 @@ defined('ABSPATH') || exit;
 
 $data = view_data();
 $variant = $data['variant'] ?? [];
+$product_name = $variant['name'] ?? '';
+$variant_name = implode(', ', $variant['attribute_value_labels'] ?? []);
+$available_quantity = (int) ($variant['available_quantity'] ?? 0);
 $default_template = $data['default_template'] ?? [];
 
 $body_color = $default_template['colors']['typography']['body'] ?? EmailDefaultTemplate::TYPOGRAPHY_COLOR_BODY;
@@ -36,18 +39,19 @@ $divider_color = $default_template['colors']['background']['divider'] ?? EmailDe
                     </td>
                     <td style="padding-left:14px; padding-bottom: 16px; vertical-align: top;">
                         <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($body_color); ?>;">
-                            <?php
-                            echo esc_html('sample product'); // @todo: add product name
-                            ?>
+                            <?php echo esc_html($product_name); ?>
                         </p>
-                        <p data-email-part="colors.typography.headings" style="margin: 4px 0 0 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($headings_color); ?>;">
-                            <?php echo esc_html('Porcelain | Colorful | Smooth'); // @todo: add variant name 
-                            ?>
-                        </p>
+                        <?php if (!empty($variant_name)) : ?>
+                            <p data-email-part="colors.typography.headings" style="margin: 4px 0 0 0; font-size: 12px; font-weight: 400; color: <?php echo esc_attr($headings_color); ?>;">
+                                <?php echo esc_html($variant_name); ?>
+                            </p>
+                        <?php endif; ?>
                     </td>
                     <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: top; text-align: right; white-space: nowrap;">
                         <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: #D40000;">
-                            <?php echo esc_html('2 left'); // @todo: add quantity 
+                            <?php
+                            /* translators: %d: remaining stock quantity. */
+                            echo esc_html(sprintf(__('%d left', 'kirki-ecommerce'), $available_quantity));
                             ?>
                         </p>
                     </td>

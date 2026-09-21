@@ -27,6 +27,7 @@ use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderProcessingMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderShippedMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Mailer;
+use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
@@ -162,13 +163,11 @@ class EmailPreviewService
             'title' => $product_data['title'] ?? '',
         ]);
 
-        $variant = new Variant([
-            'product_id' => $product_data['id'] ?? null,
-            'sku' => $product_data['sku'] ?? '',
-            'available_quantity' => $product_data['available_quantity'] ?? 0,
-            'low_stock_threshold' => $product_data['low_stock_threshold'] ?? 0,
-        ]);
+        $variant = new Variant(array_merge($product_data, ['product_id' => $product_data['id'] ?? null]));
         $variant->set_relation('product', $product);
+        $variant->set_relation('attribute_values', collection($product_data['attribute_values'] ?? [])->map(function ($attribute_value) {
+            return new AttributeValue($attribute_value);
+        }));
 
         return $variant;
     }
