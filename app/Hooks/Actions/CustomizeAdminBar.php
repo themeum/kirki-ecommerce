@@ -19,23 +19,58 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
+/**
+ * Class CustomizeAdminBar
+ *
+ * @since 1.0.0
+ */
 class CustomizeAdminBar extends BaseHook
 {
+    /**
+     * Get the hook name.
+     *
+     * @since 1.0.0
+     *
+     * @return string The hook name.
+     */
     public function get_name(): string
     {
         return WPHookNames::ADMIN_BAR_MENU;
     }
 
+    /**
+     * Get the hook type.
+     *
+     * @since 1.0.0
+     *
+     * @return string The hook type.
+     */
     public function get_type(): string
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Get the hook priority.
+     *
+     * @since 1.0.0
+     *
+     * @return int The hook priority.
+     */
     public function get_priority(): int
     {
         return 90;
     }
 
+    /**
+     * Handle the hook.
+     *
+     * @since 1.0.0
+     *
+     * @param array $args Hook arguments.
+     *
+     * @return void
+     */
     public function handle(...$args)
     {
         if (! is_admin_bar_showing() || ! current_user_can('manage_options')) {
