@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_coupon_usage table, which records which coupon was used on which order.
+ *
+ * @since 1.0.0
+ */
 class CreateCouponUsageTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_coupon_usage table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_coupon_usage', function (Structure $table) {
@@ -34,6 +46,13 @@ class CreateCouponUsageTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_coupon_usage table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_coupon_usage');

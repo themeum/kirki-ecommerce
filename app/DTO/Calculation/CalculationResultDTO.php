@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Calculation;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Result of a price calculation: per-item amounts and order-level base-currency totals.
+ *
+ * @since 1.0.0
+ */
 class CalculationResultDTO extends DTO
 {
     /** @var array<int, CalculationItemDTO> Keyed by item ID */

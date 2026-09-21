@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_orders table, which stores orders.
+ *
+ * @since 1.0.0
+ */
 class CreateOrdersTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_orders', function (Structure $table) {
@@ -144,6 +156,13 @@ class CreateOrdersTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_orders');

@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Address;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating a customer address.
+ *
+ * @since 1.0.0
+ */
 class UpdateAddressDTO extends DTO
 {
     /** @var int */

@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_order_activities table, which stores the activity timeline of orders.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderActivitiesTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_order_activities table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_order_activities', function (Structure $table) {
@@ -34,6 +46,13 @@ class CreateOrderActivitiesTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_order_activities table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_order_activities');

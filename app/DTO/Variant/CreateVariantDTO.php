@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Variant;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a product variant.
+ *
+ * @since 1.0.0
+ */
 class CreateVariantDTO extends DTO
 {
     /** @var int */

@@ -5,6 +5,11 @@ namespace Kirki\Ecommerce\App\Menu;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
+/**
+ * Registers the Settings submenu under the eCommerce admin menu.
+ *
+ * @since 1.0.0
+ */
 class Settings extends Menu
 {
     /** @inheritDoc */
@@ -19,6 +24,11 @@ class Settings extends Menu
     /** @inheritDoc */
     protected $parent_slug = 'kirki-ecommerce';
 
+    /**
+     * Set the Settings page and menu titles.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->page_title = __('Settings', 'kirki-ecommerce');

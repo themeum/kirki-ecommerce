@@ -5,8 +5,20 @@ namespace Kirki\Ecommerce\App\Resources\Country;
 use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a country in list views, with states left as-is.
+ *
+ * @since 1.0.0
+ */
 class CountryListResource extends Resource
 {
+    /**
+     * Convert the country resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The country data, its raw states and address display rules.
+     */
     public function to_array()
     {
         return [

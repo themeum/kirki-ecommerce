@@ -8,6 +8,11 @@ use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\TargetCountryType;
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a coupon, including its discount rules, eligibility and limits.
+ *
+ * @since 1.0.0
+ */
 class CreateCouponDTO extends DTO
 {
     /** @var string */

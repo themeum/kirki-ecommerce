@@ -18,12 +18,19 @@ use Exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages product attributes: listing, lookup and CRUD.
+ *
+ * @since 1.0.0
+ */
 class AttributeService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -40,9 +47,11 @@ class AttributeService
     }
 
     /**
-     * Return paginated attributes
+     * Get a page of attributes, with their values, matching the filters.
      *
-     * @param AttributeListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param AttributeListFilterDTO $filters Search, type, sorting and pagination.
      * @return Paginator
      */
     public function paginated(AttributeListFilterDTO $filters)
@@ -51,10 +60,12 @@ class AttributeService
     }
 
     /**
-     * Return all attributes
+     * Get every attribute, with its values, matching the filters.
      *
-     * @param AttributeListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param AttributeListFilterDTO $filters Search, type and sorting.
+     * @return Collection Collection of Attribute models.
      */
     public function all(AttributeListFilterDTO $filters)
     {
@@ -62,11 +73,13 @@ class AttributeService
     }
 
     /**
-     * Find a attribute by ID.
+     * Find an attribute, with its values, by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Attribute ID.
      * @return Attribute
-     * @throws NotFoundException
+     * @throws NotFoundException When the attribute does not exist.
      */
     public function find(int $id)
     {
@@ -80,9 +93,12 @@ class AttributeService
     /**
      * Create a new attribute.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the name. The current
+     * user is recorded as creator and updater.
      *
-     * @param CreateAttributeDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateAttributeDTO $data Attribute data.
      * @return Attribute
      */
     public function create(CreateAttributeDTO $data)
@@ -98,13 +114,17 @@ class AttributeService
     }
 
     /**
-     * Updates a attribute.
+     * Update an attribute.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the name. The nested
+     * values in the payload are not persisted here.
      *
-     * @throws NotFoundException
-     * @throws Exception
-     * @return Attribute
+     * @since 1.0.0
+     *
+     * @param UpdateAttributeDTO $data Attribute data including the ID.
+     * @return Attribute The refreshed attribute with its values.
+     * @throws NotFoundException When the attribute does not exist.
+     * @throws Exception When the update fails.
      */
     public function update(UpdateAttributeDTO $data)
     {
@@ -126,12 +146,13 @@ class AttributeService
     }
 
     /**
-     * Deletes a attribute by ID.
+     * Delete an attribute by ID.
      *
-     * @param int $id The ID of the attribute to delete.
-     * @return bool True if the attribute was deleted successfully, false otherwise.
-     * @throws NotFoundException If the attribute could not be found or deleted.
-     * @throws Exception If the attribute could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Attribute ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no attribute was deleted.
      */
     public function delete(int $id)
     {
@@ -143,12 +164,14 @@ class AttributeService
     }
 
     /**
-     * Deletes multiple attributes by their IDs.
+     * Delete multiple attributes by their IDs.
      *
-     * @param array $ids The IDs of the attributes to delete.
-     * @return bool True if the attributes were deleted successfully, false otherwise.
-     * @throws NotFoundException If the attributes could not be found or deleted.
-     * @throws Exception If the attributes could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Attribute IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no IDs are given.
+     * @throws Exception When no attribute was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -164,16 +187,26 @@ class AttributeService
 
 
     /**
-     * Deletes all attributes.
+     * Delete every attribute matching the filters.
      *
-     * @param AttributeListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param AttributeListFilterDTO $filters Search and type filters.
+     * @return bool True when at least one attribute was deleted.
      */
     public function delete_all(AttributeListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the attribute list query with search, type filter and sorting applied.
+     *
+     * @since 1.0.0
+     *
+     * @param AttributeListFilterDTO $filters Search, type and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(AttributeListFilterDTO $filters)
     {
         $query = Attribute::with('values')

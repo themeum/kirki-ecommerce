@@ -1,8 +1,14 @@
 <?php
 
+namespace Kirki\Ecommerce\Database\Migrations;
+
+use Kirki\Ecommerce\App\Supports\SchemaKeys;
+use Kirki\Ecommerce\Framework\Contracts\Migration;
+use Kirki\Ecommerce\Framework\Database\Schema\Structure;
+use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
+
 /**
- * Renames every index, unique key and foreign key on the plugin's tables to an explicit,
- * project-owned name.
+ * Renames every index, unique key and foreign key on the plugin's tables to an explicit, project-owned name.
  *
  * Framework 2.1.15 compiled foreign keys without a CONSTRAINT clause and ignored the name passed
  * to Structure::foreign(), so every foreign key on a site created before framework 3.x carries an
@@ -20,17 +26,20 @@
  * before the first Alter* migration. At that point an upgraded database and a fresh install hold
  * the same set of tables, which is what lets one code path serve both. Never reorder it, and never
  * edit it once released.
+ *
+ * @since 1.0.0
  */
-
-namespace Kirki\Ecommerce\Database\Migrations;
-
-use Kirki\Ecommerce\App\Supports\SchemaKeys;
-use Kirki\Ecommerce\Framework\Contracts\Migration;
-use Kirki\Ecommerce\Framework\Database\Schema\Structure;
-use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
-
 class AlterSchemaKeysToExplicitNames implements Migration
 {
+    /**
+     * Rename every index, unique key and foreign key to its scheme name.
+     *
+     * Foreign key checks are disabled for the duration and always re-enabled.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::disabled_checking_foreign_key_constraints();
@@ -43,7 +52,11 @@ class AlterSchemaKeysToExplicitNames implements Migration
     }
 
     /**
+     * Do nothing on rollback.
+     *
      * Renaming back to engine-assigned names is neither possible nor wanted.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -51,6 +64,8 @@ class AlterSchemaKeysToExplicitNames implements Migration
 
     /**
      * Bring every key in the schema in line with the naming scheme.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -75,7 +90,9 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * indexes that need renaming; and the backing indexes that have to go because they no longer
      * carry the name of the constraint they belong to.
      *
-     * @return array<string, array>
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, mixed>> Entries keyed by table name.
      */
     protected function build_plan()
     {
@@ -103,9 +120,10 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * Nothing is dropped when every key already carries its scheme name, which is what makes the
      * migration a no-op on a database that has already been through it.
      *
-     * @param array $plan The plan.
+     * @since 1.0.0
      *
-     * @return bool
+     * @param array<string, array<string, mixed>> $plan The plan built by build_plan().
+     * @return bool True when at least one key needs renaming.
      */
     protected function has_work(array $plan)
     {
@@ -121,9 +139,10 @@ class AlterSchemaKeysToExplicitNames implements Migration
     /**
      * Get a table's foreign keys, each with the name the scheme derives for it.
      *
-     * @param string $table The table name, without the WordPress table prefix.
+     * @since 1.0.0
      *
-     * @return array
+     * @param string $table The table name, without the WordPress table prefix.
+     * @return array<int, array<string, string>> Foreign key definitions, each with an added "expected" name.
      */
     protected function describe_foreign_keys($table)
     {
@@ -137,9 +156,10 @@ class AlterSchemaKeysToExplicitNames implements Migration
     /**
      * Determine whether any of a table's foreign keys is misnamed.
      *
-     * @param array $foreign_keys The described foreign keys.
+     * @since 1.0.0
      *
-     * @return bool
+     * @param array<int, array<string, string>> $foreign_keys The described foreign keys.
+     * @return bool True when a foreign key name differs from its expected name.
      */
     protected function has_stale_foreign_key(array $foreign_keys)
     {
@@ -160,9 +180,10 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * produces either shape for a declared index, so matching them identifies a backing index
      * without any risk of catching a deliberately declared one.
      *
-     * @param array $foreign_keys The described foreign keys.
-     * @param array $indexes The live indexes.
+     * @since 1.0.0
      *
+     * @param array<int, array<string, string>>                                          $foreign_keys The described foreign keys.
+     * @param array<int, array{name: string, columns: array<int, string>, unique: bool}> $indexes      The live indexes.
      * @return array<string, string> Index name keyed by the constraint it backs.
      */
     protected function collect_backing_indexes(array $foreign_keys, array $indexes)
@@ -198,10 +219,11 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * framework 3.x has these indexes named after their column, and one created since has them
      * named after their constraint.
      *
-     * @param array $foreign_keys The described foreign keys.
-     * @param array $backing_indexes Index name keyed by the constraint it backs.
+     * @since 1.0.0
      *
-     * @return array<int, string>
+     * @param array<int, array<string, string>> $foreign_keys    The described foreign keys.
+     * @param array<string, string>             $backing_indexes Index name keyed by the constraint it backs.
+     * @return array<int, string> Names of the backing indexes to drop.
      */
     protected function collect_obsolete_backing_indexes(array $foreign_keys, array $backing_indexes)
     {
@@ -228,11 +250,12 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * A foreign key's backing index is left out: it is dropped and recreated with its constraint
      * rather than renamed on its own.
      *
-     * @param string $table The table name.
-     * @param array $indexes The live indexes.
-     * @param array $backing_indexes Index name keyed by the constraint it backs.
+     * @since 1.0.0
      *
-     * @return array
+     * @param string                                                                     $table           The table name, without the WordPress table prefix.
+     * @param array<int, array{name: string, columns: array<int, string>, unique: bool}> $indexes         The live indexes.
+     * @param array<string, string>                                                      $backing_indexes Index name keyed by the constraint it backs.
+     * @return array<int, array<string, mixed>> Misnamed indexes, each with an added "expected" name.
      */
     protected function collect_stale_indexes($table, array $indexes, array $backing_indexes)
     {
@@ -266,8 +289,9 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * depends on, so the only way to guarantee an index is free to drop is for no foreign key to
      * exist at that moment. They are all restored from their live definitions in the last phase.
      *
-     * @param array $plan The plan.
+     * @since 1.0.0
      *
+     * @param array<string, array<string, mixed>> $plan The plan built by build_plan().
      * @return void
      */
     protected function drop_foreign_keys(array $plan)
@@ -288,8 +312,9 @@ class AlterSchemaKeysToExplicitNames implements Migration
     /**
      * Drop the indexes that need renaming, along with any orphaned backing index.
      *
-     * @param array $plan The plan.
+     * @since 1.0.0
      *
+     * @param array<string, array<string, mixed>> $plan The plan built by build_plan().
      * @return void
      */
     protected function drop_indexes(array $plan)
@@ -317,8 +342,9 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * This runs before any foreign key is restored, because a foreign key can only be added once
      * the index it references is in place on the parent table.
      *
-     * @param array $plan The plan.
+     * @since 1.0.0
      *
+     * @param array<string, array<string, mixed>> $plan The plan built by build_plan().
      * @return void
      */
     protected function add_indexes(array $plan)
@@ -344,8 +370,9 @@ class AlterSchemaKeysToExplicitNames implements Migration
     /**
      * Restore every foreign key under its scheme name, with its definition unchanged.
      *
-     * @param array $plan The plan.
+     * @since 1.0.0
      *
+     * @param array<string, array<string, mixed>> $plan The plan built by build_plan().
      * @return void
      */
     protected function add_foreign_keys(array $plan)
@@ -382,9 +409,10 @@ class AlterSchemaKeysToExplicitNames implements Migration
      * itself differently from an identical key that was simply created, which is a difference this
      * migration has no business introducing.
      *
-     * @param string $rule The rule read from the information schema.
+     * @since 1.0.0
      *
-     * @return bool
+     * @param string $rule The rule read from the information schema.
+     * @return bool True for RESTRICT and NO ACTION.
      */
     protected function is_default_rule($rule)
     {

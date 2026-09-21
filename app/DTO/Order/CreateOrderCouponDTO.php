@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Order;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for recording a coupon applied to an order.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderCouponDTO extends DTO
 {
     /** @var int */

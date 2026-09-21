@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\Database\Seeders\OnBoarding;
 
 use Kirki\Ecommerce\Framework\Database\Seeder;
 
+/**
+ * Entry seeder that queues the onboarding seeders for a newly installed store.
+ *
+ * @since 1.0.0
+ */
 class OnBoardingSeeder extends Seeder
 {
     /**
@@ -15,8 +20,9 @@ class OnBoardingSeeder extends Seeder
      *
      * This queues only - the caller invokes the seeder to drain the queue.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

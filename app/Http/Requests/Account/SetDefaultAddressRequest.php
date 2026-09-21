@@ -6,8 +6,18 @@ use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for marking an address as the default shipping or billing address.
+ *
+ * @since 1.0.0
+ */
 class SetDefaultAddressRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -16,6 +26,11 @@ class SetDefaultAddressRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

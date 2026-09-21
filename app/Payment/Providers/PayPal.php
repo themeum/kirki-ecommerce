@@ -24,6 +24,11 @@ use function Kirki\Ecommerce\Framework\throw_if;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Payment provider for PayPal checkout, using the PayPal orders REST API.
+ *
+ * @since 1.0.0
+ */
 class PayPal extends PaymentProvider
 {
     /**
@@ -37,7 +42,9 @@ class PayPal extends PaymentProvider
     const LIVE_URL = 'https://api-m.paypal.com';
 
     /**
-     * Constructor.
+     * Set up PayPal's identity and admin fields.
+     *
+     * @since 1.0.0
      */
     public function __construct()
     {
@@ -88,8 +95,12 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Get API Base URL.
-     * 
+     * Get the PayPal API base URL for the configured mode.
+     *
+     * Returns the sandbox URL when sandbox mode is on, the live URL otherwise.
+     *
+     * @since 1.0.0
+     *
      * @return string
      */
     protected function get_base_url()
@@ -98,10 +109,12 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Get Access Token.
-     * 
+     * Request an OAuth access token from PayPal.
+     *
+     * @since 1.0.0
+     *
      * @return string
-     * @throws Exception
+     * @throws Exception When PayPal is disabled, the credentials are missing or authentication fails.
      */
     protected function get_access_token()
     {
@@ -130,11 +143,13 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Pay for an order.
+     * Create a PayPal order and return its approval redirect.
+     *
+     * @since 1.0.0
      *
      * @param Order $order
      * @return PaymentActionDTO
-     * @throws Exception
+     * @throws Exception When the PayPal order cannot be created or has no approve link.
      */
     public function pay(Order $order)
     {
@@ -217,12 +232,14 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Refund an order.
+     * Refund a captured PayPal payment for an order.
      *
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param Order  $order
      * @param Refund $refund
-     * @return bool
-     * @throws Exception
+     * @return bool True when PayPal accepted the refund.
+     * @throws Exception When the order has no transaction ID or the refund request fails.
      */
     public function refund(Order $order, Refund $refund)
     {
@@ -256,11 +273,13 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Capture PayPal Order.
-     * 
-     * @param string $order_id
-     * @return array
-     * @throws Exception
+     * Capture an approved PayPal order.
+     *
+     * @since 1.0.0
+     *
+     * @param string $order_id PayPal order ID.
+     * @return array<string, mixed> Decoded PayPal capture response.
+     * @throws Exception When authentication or the capture request fails.
      */
     protected function capture_order($order_id)
     {
@@ -277,9 +296,14 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Handle webhook event.
+     * Handle a PayPal webhook event.
      *
-     * @return bool
+     * Dispatches CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED and
+     * PAYMENT.CAPTURE.REFUNDED events; other event types are ignored.
+     *
+     * @since 1.0.0
+     *
+     * @return bool False when the payload is empty or invalid, or handling threw.
      */
     public function webhook()
     {
@@ -311,6 +335,14 @@ class PayPal extends PaymentProvider
         return true;
     }
 
+    /**
+     * Capture the PayPal order once the buyer has approved it.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $event Decoded webhook payload.
+     * @return void
+     */
     protected function handle_checkout_order_approved($event)
     {
         $resource = $event['resource'];
@@ -323,6 +355,17 @@ class PayPal extends PaymentProvider
         $this->capture_order($order_id);
     }
 
+    /**
+     * Mark the matching order as paid after PayPal reports a completed capture.
+     *
+     * Finds the order by PayPal order ID, falling back to the custom ID, then
+     * stores the capture ID, payment metadata and PayPal fee.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $event Decoded webhook payload.
+     * @return void
+     */
     protected function handle_payment_capture_completed($event)
     {
         $resource = $event['resource'];
@@ -352,6 +395,15 @@ class PayPal extends PaymentProvider
         $this->capture_payment_provider_fee($order, $resource);
     }
 
+    /**
+     * Store PayPal's fee on the order when it is in the order's currency.
+     *
+     * @since 1.0.0
+     *
+     * @param Order                $order
+     * @param array<string, mixed> $resource Capture resource from the webhook payload.
+     * @return void
+     */
     protected function capture_payment_provider_fee(Order $order, array $resource)
     {
         $fee = $resource['seller_receivable_breakdown']['paypal_fee'] ?? null;
@@ -367,6 +419,18 @@ class PayPal extends PaymentProvider
         OrderManager::set_payment_provider_fee($order->id, Money::to_minor($fee['value'], $order->currency_code));
     }
 
+    /**
+     * Update the matching refund after PayPal reports a refunded capture.
+     *
+     * Finds the order through the capture ID linked from the event and the
+     * refund through its custom ID, then marks the refund completed or pending
+     * to match PayPal's status.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $event Decoded webhook payload.
+     * @return void
+     */
     protected function handle_payment_capture_refunded($event)
     {
         $resource = $event['resource'];
@@ -410,10 +474,13 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Validate settings.
+     * Validate the PayPal settings.
      *
-     * @param array $settings
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $settings
      * @return bool
+     * @throws \Kirki\Ecommerce\Framework\Exceptions\ValidationException When a setting has the wrong type.
      */
     protected function validate_settings(array $settings)
     {
@@ -430,10 +497,12 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Sanitize settings.
+     * Sanitize the PayPal settings on top of the parent's.
      *
-     * @param array $settings
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $settings
+     * @return array<string, mixed>
      */
     protected function sanitize_settings(array $settings)
     {

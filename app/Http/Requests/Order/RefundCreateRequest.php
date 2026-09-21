@@ -6,8 +6,22 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
+/**
+ * Validates and sanitizes the payload for creating a refund.
+ *
+ * @since 1.0.0
+ */
 class RefundCreateRequest extends Request
 {
+    /**
+     * Convert the submitted invoiced amount to minor units.
+     *
+     * Skipped when the amount is empty.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $amount = $this->input('invoiced_amount');
@@ -17,6 +31,11 @@ class RefundCreateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -26,6 +45,11 @@ class RefundCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

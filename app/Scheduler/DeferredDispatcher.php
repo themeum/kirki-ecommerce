@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Scheduler;
 
+/**
+ * Fluent wrapper that configures a job and stores it when the wrapper is destroyed.
+ *
+ * @since 1.0.0
+ */
 class DeferredDispatcher
 {
     /**
@@ -14,7 +19,9 @@ class DeferredDispatcher
     /**
      * Initialize the dispatcher with a specific job instance.
      *
-     * @param mixed $job
+     * @since 1.0.0
+     *
+     * @param mixed $job Job instance using the Queueable trait.
      */
     public function __construct($job)
     {
@@ -24,7 +31,9 @@ class DeferredDispatcher
     /**
      * Specify the delay (time or interval) before the job should be executed.
      *
-     * @param mixed $moment
+     * @since 1.0.0
+     *
+     * @param mixed $moment The moment at which the job becomes due.
      * @return $this
      */
     public function delay($moment)
@@ -37,7 +46,9 @@ class DeferredDispatcher
     /**
      * Set the execution priority level for the job.
      *
-     * @param int $priority
+     * @since 1.0.0
+     *
+     * @param int $priority Lower numbers run first.
      * @return $this
      */
     public function priority(int $priority)
@@ -49,6 +60,8 @@ class DeferredDispatcher
 
     /**
      * Ensure the job is executed without any scheduled delay.
+     *
+     * @since 1.0.0
      *
      * @return $this
      */
@@ -62,8 +75,10 @@ class DeferredDispatcher
     /**
      * Proxy method calls to the underlying job instance to allow fluent configuration.
      *
-     * @param string $method
-     * @param array $parameters
+     * @since 1.0.0
+     *
+     * @param string $method     Method name to call on the job.
+     * @param array  $parameters Arguments passed to the job method.
      * @return $this
      */
     public function __call($method, $parameters)
@@ -74,8 +89,9 @@ class DeferredDispatcher
     }
 
     /**
-     * Finalize the job by storing it in the database and triggering it immediately 
-     * via an async worker if no delay is specified.
+     * Store the job in the queue and, when it has no delay, trigger the async worker immediately.
+     *
+     * @since 1.0.0
      *
      * @return void
      */

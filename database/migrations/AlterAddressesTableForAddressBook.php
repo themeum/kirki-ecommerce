@@ -7,8 +7,20 @@ use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Reshapes the addresses table into an address book with labels and default shipping and billing flags.
+ *
+ * @since 1.0.0
+ */
 class AlterAddressesTableForAddressBook implements Migration
 {
+    /**
+     * Turn address types into home, office and others, add the label and default flags, and migrate existing billing and shipping addresses to them.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_addresses', function (Structure $table) {
@@ -33,6 +45,13 @@ class AlterAddressesTableForAddressBook implements Migration
         ]);
     }
 
+    /**
+     * Restore billing and shipping types from the default flags, then drop the label and default flag columns.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         DB::table('kirki_ecommerce_addresses')->where('is_default_billing', 1)->update(['type' => 'billing']);

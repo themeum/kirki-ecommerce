@@ -13,6 +13,8 @@ use function Kirki\Ecommerce\Framework\resource_path;
  * happens to have subdivisions in the dataset.
  *
  * Loaded on first call and memoized, the same way as CountryData.
+ *
+ * @since 1.0.0
  */
 class AddressRules
 {
@@ -29,6 +31,8 @@ class AddressRules
 
     /**
      * Get the rules for every country.
+     *
+     * @since 1.0.0
      *
      * @return array<string, array>
      */
@@ -47,9 +51,10 @@ class AddressRules
      * An unknown code returns the same permissive shape an uncovered country
      * gets, so callers never have to branch on null.
      *
-     * @param string $code Country code, in any casing.
+     * @since 1.0.0
      *
-     * @return array
+     * @param string $code Country code, in any casing.
+     * @return array<string, array<string, string>> Rules keyed by field (`state`, `postal_code`).
      */
     public static function for_country(string $code)
     {
@@ -76,6 +81,8 @@ class AddressRules
      * storage, not something to put in front of a customer. Anything that
      * publishes the rules to a client must use this instead.
      *
+     * @since 1.0.0
+     *
      * @return array<string, array>
      */
     public static function all_for_display()
@@ -92,9 +99,10 @@ class AddressRules
     /**
      * Get one country's rules with the state label resolved for display.
      *
-     * @param string $code Country code, in any casing.
+     * @since 1.0.0
      *
-     * @return array
+     * @param string $code Country code, in any casing.
+     * @return array<string, array<string, string>> Rules keyed by field (`state`, `postal_code`).
      */
     public static function for_display(string $code)
     {
@@ -105,11 +113,12 @@ class AddressRules
     }
 
     /**
-     * Whether a field must be filled in for a country.
+     * Check whether a field must be filled in for a country.
+     *
+     * @since 1.0.0
      *
      * @param string $code  Country code.
      * @param string $field Either 'state' or 'postal_code'.
-     *
      * @return bool
      */
     public static function is_required(string $code, string $field)
@@ -118,11 +127,12 @@ class AddressRules
     }
 
     /**
-     * Whether a field should be left off the form entirely for a country.
+     * Check whether a field should be left off the form entirely for a country.
+     *
+     * @since 1.0.0
      *
      * @param string $code  Country code.
      * @param string $field Either 'state' or 'postal_code'.
-     *
      * @return bool
      */
     public static function is_hidden(string $code, string $field)
@@ -133,10 +143,11 @@ class AddressRules
     /**
      * Get a field's mode for a country.
      *
+     * @since 1.0.0
+     *
      * @param string $code  Country code.
      * @param string $field Either 'state' or 'postal_code'.
-     *
-     * @return string
+     * @return string One of the `HIDDEN`, `OPTIONAL` or `REQUIRED` values.
      */
     public static function mode_for(string $code, string $field)
     {
@@ -148,8 +159,9 @@ class AddressRules
     /**
      * Get the translated label for a country's subdivision field.
      *
-     * @param string $code Country code.
+     * @since 1.0.0
      *
+     * @param string $code Country code.
      * @return string
      */
     public static function state_label(string $code)
@@ -166,9 +178,10 @@ class AddressRules
      * rather than there - this keeps the data file free of gettext calls and
      * keeps every term in one place for translators.
      *
-     * @param string $key
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $key Label key, such as `region` or `do_si`.
+     * @return string Translated term, `Region` for an unrecognised key.
      */
     protected static function translate_label(string $key)
     {
@@ -214,6 +227,8 @@ class AddressRules
 
     /**
      * Drop the cached rules.
+     *
+     * @since 1.0.0
      *
      * @return void
      */

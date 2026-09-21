@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Units of measurement for weight, volume, size and area.
+ *
+ * @since 1.0.0
+ */
 class Unit
 {
     use HasConstants;

@@ -14,16 +14,23 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Records and reads the activity timeline of orders.
+ *
+ * @since 1.0.0
+ */
 class OrderActivityService
 {
     /**
      * Persist a new order activity.
      *
-     * @param int $order_id
-     * @param string $activity_type
-     * @param string|null $description
-     * @param array|null $metadata
-     * @param int|null $created_by
+     * @since 1.0.0
+     *
+     * @param int                       $order_id      Order ID.
+     * @param string                    $activity_type One of the OrderActivityType constants.
+     * @param string|null               $description   Human-readable description.
+     * @param array<string, mixed>|null $metadata      Extra structured data stored with the activity.
+     * @param int|null                  $created_by    ID of the user who caused the activity, if any.
      * @return OrderActivity
      */
     public function create(int $order_id, string $activity_type, ?string $description, ?array $metadata, ?int $created_by)
@@ -40,8 +47,10 @@ class OrderActivityService
     /**
      * Paginate an order's activities, newest first.
      *
-     * @param int $order_id
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param int           $order_id Order ID.
+     * @param ListFilterDTO $filters  Page and limit to use.
      * @return \Kirki\Ecommerce\Framework\Database\Query\Paginator
      */
     public function paginated_for_order(int $order_id, ListFilterDTO $filters)
@@ -52,8 +61,10 @@ class OrderActivityService
     /**
      * Get all of an order's activities, newest first.
      *
-     * @param int $order_id
-     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of OrderActivity.
      */
     public function all_for_order(int $order_id)
     {
@@ -61,10 +72,15 @@ class OrderActivityService
     }
 
     /**
-     * Get all of an order's activities, newest first.
+     * Get an order's activities for the customer-facing timeline, newest first.
      *
-     * @param int $order_id
-     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     * Comment and payment-completed activities are left out, and only the
+     * activity_type and created_at columns are selected.
+     *
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of OrderActivity.
      */
     public function get_order_activity(int $order_id)
     {
@@ -77,7 +93,9 @@ class OrderActivityService
     /**
      * Base query for an order's activities, newest first.
      *
-     * @param int $order_id
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
      * @return QueryBuilder
      */
     protected function list_query(int $order_id)
@@ -90,11 +108,12 @@ class OrderActivityService
     /**
      * Find an activity belonging to an order, or throw an exception.
      *
-     * @param int $order_id
-     * @param int $id
-     * @return OrderActivity
+     * @since 1.0.0
      *
-     * @throws NotFoundException
+     * @param int $order_id Order ID.
+     * @param int $id       Activity ID.
+     * @return OrderActivity
+     * @throws NotFoundException When the activity does not exist on the order.
      */
     public function find_or_fail(int $order_id, int $id)
     {
@@ -115,11 +134,12 @@ class OrderActivityService
      * every other activity type is a system record of what happened and
      * stays immutable.
      *
-     * @param int $order_id
-     * @param int $id
-     * @return bool
+     * @since 1.0.0
      *
-     * @throws NotFoundException When the activity does not exist on the order.
+     * @param int $order_id Order ID.
+     * @param int $id       Activity ID.
+     * @return bool True when the activity was deleted.
+     * @throws NotFoundException   When the activity does not exist on the order.
      * @throws ValidationException When the activity is not a comment.
      */
     public function delete_comment(int $order_id, int $id)

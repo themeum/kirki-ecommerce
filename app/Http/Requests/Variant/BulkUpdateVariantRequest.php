@@ -7,8 +7,20 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating several variants at once.
+ *
+ * @since 1.0.0
+ */
 class BulkUpdateVariantRequest extends Request
 {
+    /**
+     * Convert variant prices and cost of goods to minor units before validation.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $variants = $this->input('variants');
@@ -32,6 +44,11 @@ class BulkUpdateVariantRequest extends Request
         $this->merge(['variants' => $variants]);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -71,6 +88,11 @@ class BulkUpdateVariantRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

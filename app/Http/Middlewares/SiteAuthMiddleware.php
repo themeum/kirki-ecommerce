@@ -21,23 +21,22 @@ use Kirki\Ecommerce\Framework\Exceptions\AuthorizationException;
 use Kirki\Ecommerce\Framework\Route;
 
 /**
- * Class SiteAuthMiddleware
+ * Restricts a site route to logged-in users, redirecting guests to the login page.
  *
  * @since 1.0.0
  */
 class SiteAuthMiddleware implements Middleware
 {
     /**
-     * Handle the incoming request and determine if the user is authenticated.
+     * Pass the request on when the user is logged in, or on checkout when guest checkout is enabled.
      *
-     * @param Request $request The incoming request instance.
-     * @param callable $next The next middleware callback.
-     *
-     * @return mixed The result of the next middleware or a response.
-     *
-     * @throws AuthorizationException
+     * Otherwise redirects to the login URL and exits.
      *
      * @since 1.0.0
+     *
+     * @param Request  $request The incoming request instance.
+     * @param callable $next    The next middleware callback.
+     * @return mixed The result of the next middleware.
      */
     public function handle(Request $request, callable $next)
     {

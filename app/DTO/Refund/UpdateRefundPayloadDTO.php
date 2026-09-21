@@ -4,35 +4,28 @@ namespace Kirki\Ecommerce\App\DTO\Refund;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Input payload for updating the status of a refund.
+ *
+ * @since 1.0.0
+ */
 class UpdateRefundPayloadDTO extends DTO
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     public $id;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $order_id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $status;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $reason;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $refund_id;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $updated_by;
 }

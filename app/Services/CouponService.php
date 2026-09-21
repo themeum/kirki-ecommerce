@@ -21,12 +21,19 @@ use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages discount coupons: listing, lookup, CRUD, code generation and usage counters.
+ *
+ * @since 1.0.0
+ */
 class CouponService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -64,9 +71,11 @@ class CouponService
     ];
 
     /**
-     * Return paginated coupons
+     * Get a page of coupons matching the filters.
      *
-     * @param CouponFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param CouponFilterDTO $filters Search, method, discount type, status, date range, sorting and pagination.
      * @return Paginator
      */
     public function paginated(CouponFilterDTO $filters)
@@ -75,10 +84,12 @@ class CouponService
     }
 
     /**
-     * Return all coupons
+     * Get every coupon matching the filters.
      *
-     * @param CouponFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param CouponFilterDTO $filters Search, method, discount type, status, date range and sorting.
+     * @return Collection Collection of Coupon models.
      */
     public function all(CouponFilterDTO $filters)
     {
@@ -86,11 +97,13 @@ class CouponService
     }
 
     /**
-     * Find a coupon by ID.
+     * Find a coupon, with the relations needed to render it, by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Coupon ID.
      * @return Coupon
-     * @throws NotFoundException
+     * @throws NotFoundException When the coupon does not exist.
      */
     public function find(int $id)
     {
@@ -102,11 +115,13 @@ class CouponService
     }
 
     /**
-     * Find a coupon by code.
+     * Find a coupon by its code.
      *
-     * @param string $code
+     * @since 1.0.0
+     *
+     * @param string $code Coupon code.
      * @return Coupon
-     * @throws NotFoundException
+     * @throws NotFoundException When no coupon has that code.
      */
     public function find_by_code(string $code)
     {
@@ -118,13 +133,17 @@ class CouponService
     }
 
     /**
-     * Find coupons by code in a single query. Codes that don't resolve to a
-     * coupon are silently omitted from the result rather than throwing, so
-     * callers resolving several applied-coupon codes at once (e.g. a cart's)
-     * don't need to query per code or handle a not-found error per code.
+     * Find coupons by code in a single query.
      *
-     * @param string[] $codes
-     * @return Collection
+     * Codes that don't resolve to a coupon are silently omitted from the result
+     * rather than throwing, so callers resolving several applied-coupon codes at
+     * once (e.g. a cart's) don't need to query per code or handle a not-found
+     * error per code.
+     *
+     * @since 1.0.0
+     *
+     * @param string[] $codes Coupon codes.
+     * @return Collection Collection of Coupon models.
      */
     public function find_by_codes(array $codes)
     {
@@ -138,7 +157,12 @@ class CouponService
     /**
      * Create a new coupon (used internally by CreateCouponAction).
      *
-     * @param CreateCouponDTO $data
+     * Stores the discount amount as a fixed base amount or a percentage,
+     * depending on the discount value type.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateCouponDTO $data Coupon data.
      * @return Coupon
      */
     public function create(CreateCouponDTO $data)
@@ -159,9 +183,14 @@ class CouponService
     /**
      * Update a coupon (used internally by UpdateCouponAction).
      *
-     * @param UpdateCouponDTO $data
-     * @throws NotFoundException
-     * @return bool
+     * Related product, category and customer IDs in the payload are not
+     * persisted here.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateCouponDTO $data Coupon data including the ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When the coupon does not exist or cannot be updated.
      */
     public function update(UpdateCouponDTO $data)
     {
@@ -188,9 +217,11 @@ class CouponService
     /**
      * Delete a coupon by ID.
      *
-     * @param int $id The ID of the coupon to delete.
-     * @return bool True if the coupon was deleted successfully, false otherwise.
-     * @throws NotFoundException If the coupon could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Coupon ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no coupon was deleted.
      */
     public function delete(int $id)
     {
@@ -204,9 +235,11 @@ class CouponService
     /**
      * Delete multiple coupons by their IDs.
      *
-     * @param array $ids The IDs of the coupons to delete.
-     * @return bool True if the coupons were deleted successfully, false otherwise.
-     * @throws NotFoundException If the coupons could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Coupon IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no IDs are given or no coupon was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -220,16 +253,26 @@ class CouponService
     }
 
     /**
-     * Delete all coupons.
+     * Delete every coupon matching the filters.
      *
-     * @param CouponFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param CouponFilterDTO $filters Search, method, discount type, status and date range filters.
+     * @return bool True when at least one coupon was deleted.
      */
     public function delete_all(CouponFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the coupon list query with filters and sorting applied.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponFilterDTO $filters Search, method, discount type, status, date range and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(CouponFilterDTO $filters)
     {
         $query = Coupon::query()
@@ -254,9 +297,11 @@ class CouponService
     }
 
     /**
-     * Check if a coupon code exists.
+     * Check whether a coupon with the given code exists.
      *
-     * @param string $code
+     * @since 1.0.0
+     *
+     * @param string $code Coupon code.
      * @return bool
      */
     public function is_exists(string $code)
@@ -264,6 +309,16 @@ class CouponService
         return Coupon::query()->where('code', $code)->exists();
     }
 
+    /**
+     * Generate a random, unused coupon code.
+     *
+     * The code is 8 random letters and digits with the current two-digit year and
+     * month embedded in it; generation repeats until the code is unused.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     public function generate_new_code()
     {
         $now = Date::now();
@@ -299,10 +354,12 @@ class CouponService
     }
 
     /**
-     * Check if a coupon code is not already in use then it is valid code.
+     * Check whether a coupon code is still available.
      *
-     * @param string $code
-     * @return bool when code is not exists then return true otherwise return false
+     * @since 1.0.0
+     *
+     * @param string $code Coupon code.
+     * @return bool True when no coupon uses the code.
      */
     public function validate_code(string $code)
     {
@@ -310,10 +367,14 @@ class CouponService
     }
 
     /**
-     * Update coupon activation state
-     * @param int $id
-     * @param bool $is_active
-     * @return Coupon
+     * Activate or deactivate a coupon.
+     *
+     * @since 1.0.0
+     *
+     * @param int  $id        Coupon ID.
+     * @param bool $is_active Desired activation state.
+     * @return Coupon The updated coupon with its detail relations.
+     * @throws \Exception When the coupon is already in the requested state.
      */
     public function change_activation_state(int $id, bool $is_active)
     {
@@ -330,12 +391,14 @@ class CouponService
     }
 
     /**
-     * Increment a coupon by ID.
+     * Increment a numeric coupon column.
      *
-     * @param int $id
-     * @param string $column
-     * @param int $count
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int    $id     Coupon ID.
+     * @param string $column Column to increment.
+     * @param int    $count  Amount to add.
+     * @return bool True when a row was updated.
      */
     public function increment(int $id, string $column, int $count = 1)
     {
@@ -343,12 +406,14 @@ class CouponService
     }
 
     /**
-     * Decrement a coupon by ID.
-
-     * @param int $id
-     * @param string $column
-     * @param int $count
-     * @return bool
+     * Decrement a numeric coupon column.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $id     Coupon ID.
+     * @param string $column Column to decrement.
+     * @param int    $count  Amount to subtract.
+     * @return bool True when a row was updated.
      */
     public function decrement(int $id, string $column, int $count = 1)
     {

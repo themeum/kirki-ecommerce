@@ -8,12 +8,19 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
+/**
+ * API resource for a coupon in list views.
+ *
+ * @since 1.0.0
+ */
 class CouponListResource extends Resource
 {
     /**
      * Convert the coupon resource to an array.
      *
-     * @return array The coupon data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The coupon summary, with the discount as a money amount or a percentage.
      */
     public function to_array()
     {

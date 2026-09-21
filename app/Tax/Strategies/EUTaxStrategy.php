@@ -7,8 +7,18 @@ use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Facades\Money;
 
+/**
+ * Tax strategy for EU member countries, charging the VAT rate of the destination country.
+ *
+ * @since 1.0.0
+ */
 class EUTaxStrategy extends AbstractTaxStrategy
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function calculate(TaxCalculationContextDTO $context): TaxCalculationResultDTO
     {
         $result = new TaxCalculationResultDTO();
@@ -33,6 +43,16 @@ class EUTaxStrategy extends AbstractTaxStrategy
         return $result;
     }
 
+    /**
+     * Resolve the VAT rate for one cart item, letting any matching decision
+     * rules override the destination country's rate.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO $item
+     * @param TaxCalculationContextDTO                    $tax_context
+     * @return float
+     */
     protected function resolve_item_rate($item, TaxCalculationContextDTO $tax_context): float
     {
         $rate = $this->get_rate();
@@ -65,9 +85,11 @@ class EUTaxStrategy extends AbstractTaxStrategy
      * shipping tax belongs to; two items that happen to share a rate still
      * produce two separate lines, one per item, rather than being merged.
      *
+     * @since 1.0.0
+     *
      * @param TaxCalculationContextDTO $context
-     * @param array<int|string, float> $rates_by_item
-     * @return TaxLineDTO[]
+     * @param array<int|string, float> $rates_by_item VAT rate of each item, keyed by item ID.
+     * @return TaxLineDTO[] Empty when shipping tax is disabled or shipping is not taxable.
      */
     protected function calculate_shipping_tax(TaxCalculationContextDTO $context, array $rates_by_item): array
     {
@@ -120,7 +142,9 @@ class EUTaxStrategy extends AbstractTaxStrategy
      * Get the VAT rate configured for the address's member country. A member
      * country has a single rate that applies to both product and shipping tax.
      *
-     * @return float
+     * @since 1.0.0
+     *
+     * @return float Zero when the address has no country or the country has no configured rate.
      */
     protected function get_rate(): float
     {

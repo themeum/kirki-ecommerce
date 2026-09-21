@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_coupon_customers table, which stores the customers a coupon is limited to or excluded from.
+ *
+ * @since 1.0.0
+ */
 class CreateCouponCustomersTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_coupon_customers table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_coupon_customers', function (Structure $table) {
@@ -30,6 +42,13 @@ class CreateCouponCustomersTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_coupon_customers table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_coupon_customers');

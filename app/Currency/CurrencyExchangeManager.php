@@ -12,20 +12,42 @@ use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
+/**
+ * Syncs stored currency exchange rates from the active rate provider.
+ *
+ * @since 1.0.0
+ */
 class CurrencyExchangeManager
 {
+    /**
+     * @var CurrencyExchangeFactory
+     */
     protected CurrencyExchangeFactory $factory;
+
+    /**
+     * @var CurrencyService
+     */
     protected CurrencyService $service;
+
+    /**
+     * @var string
+     */
     protected string $active_provider_id;
+
+    /**
+     * @var array<string, mixed>
+     */
     protected array $config = [];
 
     /**
      * Create a new currency exchange manager instance.
      *
+     * @since 1.0.0
+     *
      * @param CurrencyExchangeFactory $factory
-     * @param CurrencyService $service
-     * @param string $active_provider_id
-     * @param array $config
+     * @param CurrencyService         $service
+     * @param string                  $active_provider_id ID of the provider used for syncing, empty for none.
+     * @param array<string, mixed>    $config             Settings passed to the active provider, such as the API key.
      */
     public function __construct(
         CurrencyExchangeFactory $factory,
@@ -40,9 +62,11 @@ class CurrencyExchangeManager
     }
 
     /**
-     * Get the available currency providers.
+     * Get all registered currency providers.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return CurrencyProvider[]
      */
     public function get_available_providers()
     {
@@ -50,9 +74,11 @@ class CurrencyExchangeManager
     }
 
     /**
-     * Get the active currency provider.
+     * Get the configured active currency provider.
      *
-     * @return CurrencyProvider|null
+     * @since 1.0.0
+     *
+     * @return CurrencyProvider|null Null when no active provider ID is set.
      */
     public function get_active_provider()
     {
@@ -60,10 +86,12 @@ class CurrencyExchangeManager
     }
 
     /**
-     * Get the exchange rates for the given base currency and symbols.
+     * Get the exchange rates from the active provider.
      *
-     * @param string $base_currency
-     * @param array $symbols
+     * @since 1.0.0
+     *
+     * @param string   $base_currency Currency code the rates are relative to.
+     * @param string[] $symbols       Currency codes to fetch rates for.
      * @return ExchangeRateDTO
      */
     public function get_rates(string $base_currency, array $symbols)
@@ -72,7 +100,12 @@ class CurrencyExchangeManager
     }
 
     /**
-     * Sync the exchange rates.
+     * Update stored currency exchange rates from the active provider.
+     *
+     * Updates only currencies whose rate changed, then records the provider
+     * usage and the last and next sync times in the currency settings.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -124,10 +157,14 @@ class CurrencyExchangeManager
     }
 
     /**
-     * Get the next sync at time.
+     * Calculate when the next sync is due for the given update frequency.
      *
-     * @param string $frequency
-     * @return string
+     * Falls back to a 24 hour interval for unrecognised frequencies.
+     *
+     * @since 1.0.0
+     *
+     * @param string $frequency One of the UpdateFrequency constants.
+     * @return string Date-time string.
      */
     protected function get_next_sync_at(string $frequency)
     {

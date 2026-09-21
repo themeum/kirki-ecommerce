@@ -5,8 +5,18 @@ namespace Kirki\Ecommerce\App\Http\Requests\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
+/**
+ * Validates and sanitizes the email template settings used to send a test email.
+ *
+ * @since 1.0.0
+ */
 class SendTestEmailRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -36,6 +46,11 @@ class SendTestEmailRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

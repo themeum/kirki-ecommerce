@@ -7,8 +7,20 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating a single variant.
+ *
+ * @since 1.0.0
+ */
 class UpdateVariantRequest extends Request
 {
+    /**
+     * Convert the price and cost of goods fields to minor units before validation.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $payload = [];
@@ -24,6 +36,11 @@ class UpdateVariantRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -60,6 +77,11 @@ class UpdateVariantRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

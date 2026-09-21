@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Converts the enum columns of the coupons table to strings.
+ *
+ * @since 1.0.0
+ */
 class AlterCouponsEnumColumnsToString implements Migration
 {
+    /**
+     * Convert the coupon method, discount, eligible item and spend condition columns from enums to strings.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_coupons', function (Structure $table) {
@@ -43,6 +55,13 @@ class AlterCouponsEnumColumnsToString implements Migration
         });
     }
 
+    /**
+     * Convert the coupon method, discount, eligible item and spend condition columns back to enums.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_coupons', function (Structure $table) {

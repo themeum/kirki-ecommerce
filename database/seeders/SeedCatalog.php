@@ -2,13 +2,19 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+/**
+ * Static catalog of curated demo data (brands, tags, products, coupons, customers) shared by the seeders.
+ *
+ * @since 1.0.0
+ */
 class SeedCatalog
 {
     /**
      * Curated fashion brands matching the product catalog.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Brand rows with id, name, slug and description.
      */
     public static function get_brands()
     {
@@ -37,8 +43,9 @@ class SeedCatalog
     /**
      * Curated merchandising and descriptive tags.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Tag rows with id, name, slug and description.
      */
     public static function get_tags()
     {
@@ -67,8 +74,9 @@ class SeedCatalog
     /**
      * Customer segment tags for customer records.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return string[] Tag slugs.
      */
     public static function get_customer_tags()
     {
@@ -78,8 +86,9 @@ class SeedCatalog
     /**
      * Product catalog with deterministic relationships.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Product definitions with title, brand, category and tag IDs, prices, status and variant scheme.
      */
     public static function get_products()
     {
@@ -575,8 +584,9 @@ class SeedCatalog
     /**
      * Curated coupon definitions for seed data.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Coupon rows plus product_ids, category_ids, customer_ids and exclude_customer_ids relations.
      */
     public static function get_coupons()
     {
@@ -843,8 +853,9 @@ class SeedCatalog
     /**
      * Curated customer records for seed data.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Customer records with name, email, phone, comma-separated tags and note.
      */
     public static function get_customers()
     {
@@ -935,10 +946,10 @@ class SeedCatalog
     /**
      * Resolve brand name by identifier.
      *
-     * @param int $brand_id Brand identifier.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param int $brand_id Brand identifier.
+     * @return string Brand name, or 'Unknown' when no brand matches.
      */
     public static function get_brand_name($brand_id)
     {
@@ -954,10 +965,10 @@ class SeedCatalog
     /**
      * Resolve category label by type key.
      *
-     * @param string $category_type Category type key.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param string $category_type Category type key.
+     * @return string Human-readable label, or 'products' for an unknown type.
      */
     public static function get_category_label($category_type)
     {

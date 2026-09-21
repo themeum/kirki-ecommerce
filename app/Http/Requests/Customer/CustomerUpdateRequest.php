@@ -6,20 +6,26 @@ use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating a customer.
+ *
+ * @since 1.0.0
+ */
 class CustomerUpdateRequest extends Request
 {
     use ValidatesAddressFields;
 
     /**
-     * Give the optional address fields a concrete empty value.
+     * Give the optional fields of each submitted address an empty value.
      *
-     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country
-     * that uses neither now legitimately submits an address without them, so
-     * coerce the absent value rather than widening the schema - an empty
-     * string is what every existing row already holds for "no subdivision".
+     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * uses neither can legitimately submit an address without them, so the absent
+     * value is coerced to an empty string rather than widening the schema.
      *
      * Runs before validation, which treats an empty string as missing, so a
      * country that does require the field still fails.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -42,6 +48,11 @@ class CustomerUpdateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         $shipping_country = $this->address_block_country('shipping_address');
@@ -84,6 +95,11 @@ class CustomerUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function messages()
     {
         return [
@@ -92,6 +108,11 @@ class CustomerUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

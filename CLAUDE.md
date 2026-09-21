@@ -213,33 +213,52 @@ surrounding class already does. When you do add them, PHP 7.4 syntax only
 
 ### Docblocks
 
-Docblocks are common on public-facing methods (`@param`, `@return`, occasionally
-`@throws`) but not present on every single method — smaller/obvious internal
-methods are often left undocumented. When you add a docblock:
+Every class, interface, trait, method, function and property in `app/` and
+`database/` has a docblock, whatever its visibility. Class constants and
+closures don't need one. Spec: `openspec/changes/standardize-php-docblocks/`.
 
-- `@return` should be included (use `@return void` when the method returns nothing)
-- `@param` for each parameter, aligned per PHPCS conventions
-- `@throws` only when the method can actually throw
-- **`@since` is not used in practice in this codebase** (only a handful of
-  files have it) — don't add it unless the surrounding file already uses it
+- One-line summary: imperative for methods/functions ("Get all online
+  gateways."), descriptive for classes. Add a description paragraph only when
+  behavior isn't obvious from the summary and signature.
+- Order: summary, blank line, `@since`, blank line, `@param`, `@return`, `@throws`
+- `@since` on every class, interface, trait, method and function. Declarations
+  that predate this standard use `@since 1.0.0`; new ones use the version they ship in
+- `@param` for each parameter in signature order, aligned per PHPCS conventions
+- `@return` always, except on constructors/destructors (use `@return void` when the method returns nothing)
+- `@throws` only when the method itself throws (including via `throw_if()`/`throw_anyway()`)
+- Properties get `@var` only, no `@since`; single-line `/** @var Type */` is fine
+- Overrides and interface implementations use `@inheritDoc` plus `@since`,
+  unless the contract changes
+- Types: `Type[]` for lists, `array<string, mixed>` for maps, `Type|null` for
+  nullables, `mixed` when the type can't be established — never guess
+- Docblocks are documentation only: don't turn them into native type
+  declarations as part of documenting
 
 ```php
 /**
- * Get all online gateways.
+ * Manages the registered payment gateways.
  *
- * @return PaymentGateway[]
+ * @since 1.0.0
  */
-public function get_all_online_gateways()
+class PaymentManager
 {
-    return collection($this->gateways_registry)
-        ->reject(fn($gateway) => $gateway->is_manual())
-        ->all();
-}
+    /**
+     * Get all online gateways.
+     *
+     * @since 1.0.0
+     *
+     * @return PaymentGateway[]
+     */
+    public function get_all_online_gateways()
+    {
+        return collection($this->gateways_registry)
+            ->reject(fn($gateway) => $gateway->is_manual())
+            ->all();
+    }
 
-/**
- * @var array<string, PaymentGateway>
- */
-protected $gateways_registry = [];
+    /** @var array<string, PaymentGateway> */
+    protected $gateways_registry = [];
+}
 ```
 
 ### Money and Pricing Fields

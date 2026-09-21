@@ -8,6 +8,11 @@ use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Renders legal consent messages, resolving page tokens into links.
+ *
+ * @since 1.0.0
+ */
 class LegalConsentService
 {
     /**
@@ -15,11 +20,16 @@ class LegalConsentService
      */
     protected const TOKEN_PATTERN = '/\{([a-z0-9_]+)\}/i';
 
-    /**
-     * @var PageService
-     */
+    /** @var PageService */
     protected $page_service;
 
+    /**
+     * Create the service.
+     *
+     * @since 1.0.0
+     *
+     * @param PageService $page_service Looks up the pages that consent message tokens link to.
+     */
     public function __construct(PageService $page_service)
     {
         $this->page_service = $page_service;
@@ -31,9 +41,10 @@ class LegalConsentService
      * Tokens across every consent are resolved in one query - resolving them
      * per consent would mean a query per token on every page render.
      *
-     * @param string $location
+     * @since 1.0.0
      *
-     * @return array<int, array{id: string, method: string, html: string}>
+     * @param string $location Location the consents are displayed at.
+     * @return array<int, array{id: string, method: string, html: string}> Empty when no consent is enabled there.
      */
     public function get_renderable(string $location)
     {
@@ -61,9 +72,10 @@ class LegalConsentService
     /**
      * Get the ids of the enabled mandatory consents at a location.
      *
-     * @param string $location
+     * @since 1.0.0
      *
-     * @return string[]
+     * @param string $location Location the consents are displayed at.
+     * @return string[] IDs of the consents that use the mandatory checkbox method.
      */
     public function get_mandatory_ids(string $location)
     {
@@ -83,9 +95,10 @@ class LegalConsentService
     /**
      * Render a single consent message to escaped HTML.
      *
-     * @param string $message
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $message Raw consent message, possibly containing page tokens.
+     * @return string Escaped HTML with tokens replaced by page links.
      */
     public function render_message(string $message)
     {
@@ -95,9 +108,10 @@ class LegalConsentService
     /**
      * Get the enabled consents configured for a location.
      *
-     * @param string $location
+     * @since 1.0.0
      *
-     * @return array<int, array>
+     * @param string $location Location the consents are displayed at.
+     * @return array<int, array<string, mixed>> Consent settings entries.
      */
     protected function get_enabled_for(string $location)
     {
@@ -134,10 +148,11 @@ class LegalConsentService
      * already neutralised. Substituting first and escaping the remaining
      * fragments afterwards would leave a missed fragment unescaped.
      *
-     * @param string $message
-     * @param array<string, object> $pages Keyed by page slug.
+     * @since 1.0.0
      *
-     * @return string
+     * @param string                                          $message Raw consent message.
+     * @param array<string, \Kirki\Ecommerce\App\Models\Page> $pages   Resolved pages keyed by page slug.
+     * @return string Escaped HTML.
      */
     protected function render_with_pages(string $message, array $pages)
     {
@@ -155,10 +170,11 @@ class LegalConsentService
     /**
      * Render a single token as a link, or as readable text when unresolved.
      *
-     * @param string $token
-     * @param array<string, object> $pages
+     * @since 1.0.0
      *
-     * @return string
+     * @param string                                          $token Token name without braces.
+     * @param array<string, \Kirki\Ecommerce\App\Models\Page> $pages Resolved pages keyed by page slug.
+     * @return string Escaped HTML.
      */
     protected function render_token(string $token, array $pages)
     {
@@ -179,9 +195,10 @@ class LegalConsentService
     /**
      * Collect every token slug used across a set of consents.
      *
-     * @param array<int, array> $consents
+     * @since 1.0.0
      *
-     * @return string[]
+     * @param array<int, array<string, mixed>> $consents Consent settings entries.
+     * @return string[] Unique page slugs.
      */
     protected function collect_slugs(array $consents)
     {
@@ -197,9 +214,10 @@ class LegalConsentService
     /**
      * Extract the page slugs referenced by a message's tokens.
      *
-     * @param string $message
+     * @since 1.0.0
      *
-     * @return string[]
+     * @param string $message Raw consent message.
+     * @return string[] Unique page slugs.
      */
     protected function extract_slugs(string $message)
     {
@@ -213,9 +231,10 @@ class LegalConsentService
     /**
      * Look up published pages by slug, keyed by slug.
      *
-     * @param string[] $slugs
+     * @since 1.0.0
      *
-     * @return array<string, object>
+     * @param string[] $slugs Page slugs to look up.
+     * @return array<string, \Kirki\Ecommerce\App\Models\Page> Pages keyed by slug.
      */
     protected function resolve_pages(array $slugs)
     {
@@ -235,9 +254,10 @@ class LegalConsentService
     /**
      * Convert a token to the page slug it refers to.
      *
-     * @param string $token
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $token Token name without braces.
+     * @return string Slug with underscores turned into dashes.
      */
     protected static function token_to_slug(string $token)
     {
@@ -247,9 +267,10 @@ class LegalConsentService
     /**
      * Turn a slug into readable text, for a token that resolves to no page.
      *
-     * @param string $slug
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $slug Page slug.
+     * @return string Title-cased text.
      */
     protected static function humanize_slug(string $slug)
     {

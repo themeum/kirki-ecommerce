@@ -11,12 +11,19 @@ use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 
+/**
+ * Model for a placed order with its totals, addresses and payment and fulfillment state.
+ *
+ * @since 1.0.0
+ */
 class Order extends Model
 {
     use HasDateRangeFilter;
 
+    /** @inheritDoc */
     protected $table = 'kirki_ecommerce_orders';
 
+    /** @inheritDoc */
     protected $fillable = [
         'uuid',
         'order_number',
@@ -99,6 +106,7 @@ class Order extends Model
         'updated_by',
     ];
 
+    /** @inheritDoc */
     protected $casts = [
         'id' => 'integer',
         'customer_id' => 'integer',
@@ -121,8 +129,9 @@ class Order extends Model
     /**
      * Store flags as a comma separated string.
      *
-     * @param array|string|null $value Flags to persist.
+     * @since 1.0.0
      *
+     * @param array|string|null $value Flags to persist.
      * @return void
      */
     public function set_flags_attribute($value)
@@ -140,8 +149,9 @@ class Order extends Model
     /**
      * Expose flags as an array.
      *
-     * @param string|null $value Stored comma separated flags.
+     * @since 1.0.0
      *
+     * @param string|null $value Stored comma separated flags.
      * @return string[]
      */
     public function get_flags_attribute($value)
@@ -153,36 +163,85 @@ class Order extends Model
         return array_values(array_filter(array_map('trim', explode(',', $value)), 'strlen'));
     }
 
+    /**
+     * Define the line items of this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function items()
     {
         return $this->has_many(OrderItem::class, 'order_id');
     }
 
+    /**
+     * Define the customer who placed this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsTo
+     */
     public function customer()
     {
         return $this->belongs_to(Customer::class, 'customer_id');
     }
 
+    /**
+     * Define the coupons applied to this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function order_coupons()
     {
         return $this->has_many(OrderCoupon::class, 'order_id');
     }
 
+    /**
+     * Define the refunds issued against this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function refunds()
     {
         return $this->has_many(Refund::class, 'order_id');
     }
 
+    /**
+     * Define the activity log entries of this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function activities()
     {
         return $this->has_many(OrderActivity::class, 'order_id');
     }
 
+    /**
+     * Define all tax lines of this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function taxes()
     {
         return $this->has_many(OrderTax::class, 'order_id');
     }
 
+    /**
+     * Define the shipping tax lines of this order.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function shipping_taxes()
     {
         return $this->has_many(OrderTax::class, 'order_id')->where('type', OrderTaxType::SHIPPING);
@@ -197,9 +256,10 @@ class Order extends Model
      * order_status, since order_status is the (fulfillment, payment) pair and
      * has no independent column of its own.
      *
-     * @param QueryBuilder $query
-     * @param string       $status
+     * @since 1.0.0
      *
+     * @param QueryBuilder $query  Query being scoped.
+     * @param string|null  $status An OrderListStatus value; an empty or unknown value leaves the query unchanged.
      * @return QueryBuilder
      */
     public function scope_apply_status_filter(QueryBuilder $query, $status)

@@ -18,12 +18,19 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages customer addresses: lookup, CRUD and default shipping/billing flags.
+ *
+ * @since 1.0.0
+ */
 class AddressService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -46,10 +53,12 @@ class AddressService
     }
 
     /**
-     * Return every address belonging to the given customer.
+     * Get every address belonging to the given customer, newest first.
      *
-     * @param int $customer_id
-     * @return \Kirki\Ecommerce\Framework\Collections\Collection
+     * @since 1.0.0
+     *
+     * @param int $customer_id Customer ID.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of Address models.
      */
     public function all_for_customer(int $customer_id)
     {
@@ -59,10 +68,12 @@ class AddressService
     /**
      * Find an address by ID, scoped to the given customer.
      *
-     * @param int $id
-     * @param int $customer_id
+     * @since 1.0.0
+     *
+     * @param int $id          Address ID.
+     * @param int $customer_id Customer ID that must own the address.
      * @return Address
-     * @throws NotFoundException
+     * @throws NotFoundException When the customer has no address with that ID.
      */
     public function find_for_customer(int $id, int $customer_id)
     {
@@ -75,9 +86,11 @@ class AddressService
         return $address;
     }
     /**
-     * Return all addresses.
+     * List addresses, optionally searched and sorted by the given filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search term and sorting.
      * @return Paginator
      */
     public function all(ListFilterDTO $filters)
@@ -107,9 +120,11 @@ class AddressService
     /**
      * Find an address by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Address ID.
      * @return Address
-     * @throws NotFoundException
+     * @throws NotFoundException When the address does not exist.
      */
     public function find(int $id)
     {
@@ -121,14 +136,16 @@ class AddressService
     }
 
     /**
-     * Create a new address.
+     * Create a new address inside a transaction.
      *
      * When the new address is marked as a default, every other address of
      * the same customer has that default flag unset in the same transaction.
      *
-     * @param CreateAddressDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateAddressDTO $data Address data.
      * @return Address
-     * @throws Throwable
+     * @throws Throwable When persisting fails; the transaction is rolled back first.
      */
     public function create(CreateAddressDTO $data)
     {
@@ -148,10 +165,13 @@ class AddressService
     }
 
     /**
-     * Create a new address without opening its own transaction - for
-     * callers (e.g. CreateOrderAction) that are already inside one.
+     * Create a new address without opening its own transaction.
      *
-     * @param CreateAddressDTO $data
+     * For callers (e.g. CreateOrderAction) that are already inside one.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateAddressDTO $data Address data.
      * @return Address
      */
     public function create_without_transaction(CreateAddressDTO $data)
@@ -164,15 +184,17 @@ class AddressService
     }
 
     /**
-     * Updates an address's details.
+     * Update an address's details.
      *
      * Leaves is_default_shipping/is_default_billing untouched when the
      * request omits them; when either is explicitly submitted (true or
      * false), it is set the same way set_default() sets it.
      *
-     * @param UpdateAddressDTO $data
-     * @throws NotFoundException
+     * @since 1.0.0
+     *
+     * @param UpdateAddressDTO $data Address data including the ID.
      * @return Address
+     * @throws NotFoundException When the address does not exist or cannot be updated.
      */
     public function update(UpdateAddressDTO $data)
     {
@@ -180,12 +202,16 @@ class AddressService
     }
 
     /**
-     * Update an address without opening its own transaction - for callers
-     * (e.g. CreateOrderAction) that are already inside one.
+     * Update an address without opening its own transaction.
      *
-     * @param UpdateAddressDTO $data
-     * @throws NotFoundException
+     * For callers (e.g. CreateOrderAction) that are already inside one.
+     * Dispatches AddressUpdated after a successful update.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateAddressDTO $data Address data including the ID.
      * @return Address
+     * @throws NotFoundException When the address does not exist or cannot be updated.
      */
     public function update_without_transaction(UpdateAddressDTO $data)
     {
@@ -217,17 +243,18 @@ class AddressService
     }
 
     /**
-     * Marks an address as the default address for one purpose (shipping or
-     * billing), unsetting that flag on every other address of the same
-     * customer in the same transaction. The other purpose's current default,
-     * if any, is left unchanged - call this again with the other purpose to
-     * set both.
+     * Mark an address as the customer's default for one purpose.
      *
-     * @param int $id
-     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
-     * @throws NotFoundException
-     * @throws Throwable
+     * Unsets that flag on every other address of the same customer in the same
+     * transaction. The other purpose's current default, if any, is left
+     * unchanged - call this again with the other purpose to set both.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $id      Address ID.
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING.
      * @return Address
+     * @throws Throwable When the address does not exist or persisting fails; the transaction is rolled back first.
      */
     public function set_default(int $id, string $purpose)
     {
@@ -247,13 +274,16 @@ class AddressService
     }
 
     /**
-     * Set an address as default without opening its own transaction - for
-     * callers (e.g. CreateOrderAction) that are already inside one.
+     * Mark an address as default for one purpose without opening its own transaction.
      *
-     * @param int $id
-     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING
-     * @throws NotFoundException
+     * For callers (e.g. CreateOrderAction) that are already inside one.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $id      Address ID.
+     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING.
      * @return Address
+     * @throws NotFoundException When the address does not exist.
      */
     public function set_default_without_transaction(int $id, string $purpose)
     {
@@ -276,13 +306,17 @@ class AddressService
     }
 
     /**
-     * Unsets is_default_shipping/is_default_billing on every address of the
+     * Unset the default flags on the customer's other addresses.
+     *
+     * Clears is_default_shipping/is_default_billing on every address of the
      * given customer other than $except_id, for each purpose being claimed.
      *
-     * @param int $customer_id
-     * @param int $except_id
-     * @param bool $unset_shipping
-     * @param bool $unset_billing
+     * @since 1.0.0
+     *
+     * @param int  $customer_id    Customer ID.
+     * @param int  $except_id      Address ID that keeps its flags.
+     * @param bool $unset_shipping Whether to clear the default shipping flag.
+     * @param bool $unset_billing  Whether to clear the default billing flag.
      * @return void
      */
     protected function unset_current_default(int $customer_id, int $except_id, bool $unset_shipping, bool $unset_billing)
@@ -301,11 +335,16 @@ class AddressService
     }
 
     /**
-     * Deletes an address by ID.
+     * Delete an address by ID.
      *
-     * @param int $id The ID of the address to delete.
-     * @return bool True if the address was deleted successfully, false otherwise.
-     * @throws NotFoundException If the address could not be found or deleted.
+     * When the deleted address was the default billing or shipping address, the
+     * customer's first remaining address becomes the new default for that purpose.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id Address ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When the address does not exist or cannot be deleted.
      */
     public function delete(int $id)
     {
@@ -331,11 +370,13 @@ class AddressService
     }
 
     /**
-     * Deletes multiple addresses by their IDs.
+     * Delete multiple addresses by their IDs.
      *
-     * @param array $ids The IDs of the addresses to delete.
-     * @return bool True if the addresses were deleted successfully, false otherwise.
-     * @throws NotFoundException If the addresses could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Address IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no address was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -347,9 +388,11 @@ class AddressService
     }
 
     /**
-     * Deletes all addresses.
+     * Delete every address.
      *
-     * @return bool True if all addresses were deleted successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @return bool
      */
     public function delete_all()
     {

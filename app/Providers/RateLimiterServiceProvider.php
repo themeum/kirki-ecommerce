@@ -9,13 +9,16 @@ use Kirki\Ecommerce\Framework\RateLimiting\Limit;
 use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\Framework\Supports\Facades\RateLimiter;
 
+/**
+ * Registers the application rate limiters, currently the login limiter.
+ *
+ * @since 1.0.0
+ */
 class RateLimiterServiceProvider extends ServiceProvider
 {
     /**
-     * Register the settings services.
+     * @inheritDoc
      *
-     * @return void
-     * 
      * @since 1.0.0
      */
     public function register()
@@ -24,11 +27,8 @@ class RateLimiterServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot the service prodiver. Here we are going to register
-     * all the rate limiters.
-     * 
-     * @return void
-     * 
+     * @inheritDoc
+     *
      * @since 1.0.0
      */
     public function boot()

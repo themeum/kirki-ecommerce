@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants\Order;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Types of entries recorded in an order activity timeline.
+ *
+ * @since 1.0.0
+ */
 final class OrderActivityType
 {
     use HasConstants;
@@ -26,11 +31,11 @@ final class OrderActivityType
     const COMMENT_ADDED = 'comment-added';
 
     /**
-     * Get the list of order activity types.
+     * Get all order activity types.
      *
      * @since 1.0.0
-     * 
-     * @return array<string, string>
+     *
+     * @return array<string, string> Translated labels keyed by activity type.
      */
     public static function get_list(): array
     {
@@ -55,12 +60,12 @@ final class OrderActivityType
     }
 
     /**
-     * Get the formatted order activity type.
+     * Get the translated label for an order activity type.
      *
      * @since 1.0.0
-     * 
-     * @param string $type
-     * @return string
+     *
+     * @param string $type Activity type key.
+     * @return string Label, or an empty string for an unknown type.
      */
     public static function get_formatted( $type )
     {

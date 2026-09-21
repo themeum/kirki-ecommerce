@@ -6,8 +6,20 @@ use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the curated two-level category tree (Men, Women, Kids, Accessories).
+ *
+ * @since 1.0.0
+ */
 class CategorySeeder extends Seeder
 {
+    /**
+     * Insert the curated categories with fixed IDs and parent links.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function run(): void
     {
         $categories = [

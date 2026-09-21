@@ -16,31 +16,25 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Services\MiniCartService;
 
 /**
- * Class MiniCartShortcode
+ * Registers the [kecom_mini_cart] shortcode, which renders the mini cart.
  *
  * @since 1.0.0
- *
- * Usage [kecom_mini_cart]
  */
 class MiniCartShortcode
 {
     /**
-     * Name of shortcode
-     *
-     * @since 1.0.0
+     * Shortcode tag.
      *
      * @var string
      */
     protected $name = 'kecom_mini_cart';
 
     /**
-     * Constructor
+     * Register the shortcode, rendering its output through the mini cart service.
      *
      * @since 1.0.0
      *
-     * @param MiniCartService $service service.
-     *
-     * @return void
+     * @param MiniCartService $service Mini cart service.
      */
     public function __construct(MiniCartService $service)
     {

@@ -8,8 +8,20 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for an order in the customer's order list on the storefront.
+ *
+ * @since 1.0.0
+ */
 class OrderListResource extends Resource
 {
+    /**
+     * Convert the order resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The order summary, with item images and a customer-facing fulfillment status and description.
+     */
     public function to_array()
     {
         return [
@@ -43,11 +55,11 @@ class OrderListResource extends Resource
     }
 
     /**
-     * Get items images.
+     * Get the image URLs of the order's items.
      *
      * @since 1.0.0
      *
-     * @return array
+     * @return string[] Image URLs, or the fallback product image when no item has one.
      */
     protected function get_items_images(): array
     {
@@ -66,11 +78,11 @@ class OrderListResource extends Resource
     }
 
     /**
-     * Get fulfillment status description.
+     * Get the customer-facing description of the fulfillment status.
      *
      * @since 1.0.0
      *
-     * @return string
+     * @return string Translated description, or an empty string for an unknown status.
      */
     protected function get_fulfillment_status_desc()
     {
@@ -99,7 +111,9 @@ class OrderListResource extends Resource
     /**
      * Build the customer name from the customer name pair.
      *
-     * @return string|null
+     * @since 1.0.0
+     *
+     * @return string|null Null when both name parts are empty.
      */
     protected function resolve_customer_name()
     {

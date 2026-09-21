@@ -6,8 +6,18 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating one or more currencies.
+ *
+ * @since 1.0.0
+ */
 class CurrencyCreateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -21,6 +31,11 @@ class CurrencyCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

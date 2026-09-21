@@ -15,17 +15,42 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * REST controller for the activity log and comments of an order.
+ *
+ * @since 1.0.0
+ */
 class OrderActivityController
 {
+    /** @var OrderService */
     protected $order_service;
+    /** @var OrderActivityService */
     protected $order_activity_service;
 
+    /**
+     * Create the controller with the order and order activity services.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderService         $order_service
+     * @param OrderActivityService $order_activity_service
+     */
     public function __construct(OrderService $order_service, OrderActivityService $order_activity_service)
     {
         $this->order_service = $order_service;
         $this->order_activity_service = $order_activity_service;
     }
 
+    /**
+     * List the activities of an order, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every activity is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated activities with a success message.
+     */
     public function get(Request $request)
     {
         $order_id = $request->int('order_id');
@@ -51,6 +76,14 @@ class OrderActivityController
         ]);
     }
 
+    /**
+     * Add a comment to an order on behalf of the current user.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderActivityCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created activity with a 201 status.
+     */
     public function store(OrderActivityCreateRequest $request)
     {
         $order_id = $request->int('order_id');
@@ -65,6 +98,14 @@ class OrderActivityController
         ], 201);
     }
 
+    /**
+     * Delete a comment from an order.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->order_activity_service->delete_comment($request->int('order_id'), $request->int('id'));

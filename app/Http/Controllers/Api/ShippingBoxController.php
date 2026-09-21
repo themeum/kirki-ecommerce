@@ -18,15 +18,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing shipping boxes.
+ *
+ * @since 1.0.0
+ */
 class ShippingBoxController
 {
+    /** @var ShippingBoxService */
     protected $service;
 
+    /**
+     * Create the controller with its shipping box service.
+     *
+     * @since 1.0.0
+     *
+     * @param ShippingBoxService $service
+     */
     public function __construct(ShippingBoxService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List shipping boxes, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated shipping boxes with a success message.
+     */
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
@@ -49,6 +72,14 @@ class ShippingBoxController
         ]);
     }
 
+    /**
+     * Create a shipping box from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param ShippingBoxCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created shipping box with a 201 status.
+     */
     public function create(ShippingBoxCreateRequest $request)
     {
         $payload = CreateShippingBoxDTO::from_request($request);
@@ -61,6 +92,14 @@ class ShippingBoxController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single shipping box by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The shipping box resource.
+     */
     public function show(Request $request)
     {
         $shipping_box = $this->service->find($request->int('id'));
@@ -71,6 +110,14 @@ class ShippingBoxController
         ]);
     }
 
+    /**
+     * Update a shipping box from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param ShippingBoxUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated shipping box.
+     */
     public function update(ShippingBoxUpdateRequest $request)
     {
         $payload = UpdateShippingBoxDTO::from_request($request);
@@ -83,6 +130,14 @@ class ShippingBoxController
         ]);
     }
 
+    /**
+     * Delete a single shipping box by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -93,6 +148,16 @@ class ShippingBoxController
         ]);
     }
 
+    /**
+     * Run a bulk action on shipping boxes.
+     *
+     * Supports deleting the given IDs or deleting every shipping box matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->all();

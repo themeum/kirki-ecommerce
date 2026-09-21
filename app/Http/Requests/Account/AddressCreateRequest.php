@@ -7,10 +7,20 @@ use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for adding an address to the customer's account.
+ *
+ * @since 1.0.0
+ */
 class AddressCreateRequest extends Request
 {
     use ValidatesAddressFields;
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         $country = (string) $this->input('country');
@@ -33,6 +43,11 @@ class AddressCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -53,6 +68,11 @@ class AddressCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function messages()
     {
         $country = (string) $this->input('country');
@@ -65,16 +85,15 @@ class AddressCreateRequest extends Request
     /**
      * Give the optional address fields a concrete empty value.
      *
-     * `addresses.state` and `addresses.postal_code` are NOT NULL. Before this
-     * change the browser always sent an empty string, so an omitted field
-     * never reached the database. Now that a country can legitimately leave
-     * one out, coerce the absent value rather than widening the schema - an
-     * empty string is what every existing row already holds for "no
-     * subdivision", so this keeps one representation instead of two.
+     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * uses neither can legitimately submit an address without them, so the absent
+     * value is coerced to an empty string rather than widening the schema.
      *
-     * Runs before validation so the value reaches `sanitized()`, which is what
-     * the DTO reads. That is safe because the validator treats an empty string
-     * as missing, so a country that requires the field still fails.
+     * Runs before validation so the value reaches `sanitized()`, which is what the
+     * DTO reads. The validator treats an empty string as missing, so a country that
+     * requires the field still fails.
+     *
+     * @since 1.0.0
      *
      * @return void
      */

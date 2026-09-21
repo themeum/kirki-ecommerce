@@ -19,12 +19,19 @@ use Exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages product collections: listing, lookup and CRUD.
+ *
+ * @since 1.0.0
+ */
 class CollectionService
 {
     use HasSortableColumns;
 
     /**
-     * @return string
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function default_sort_by()
     {
@@ -32,7 +39,9 @@ class CollectionService
     }
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -50,9 +59,11 @@ class CollectionService
     }
 
     /**
-     * Return paginated collections.
+     * Get a page of collections, with product counts, matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range, sorting and pagination.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -61,10 +72,12 @@ class CollectionService
     }
 
     /**
-     * Return all collections
+     * Get every collection, with product counts, matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return DataCollection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range and sorting.
+     * @return DataCollection Collection of Collection models.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -72,11 +85,13 @@ class CollectionService
     }
 
     /**
-     * Find a collection by ID.
+     * Find a collection, with its product count, by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Collection ID.
      * @return Collection
-     * @throws NotFoundException
+     * @throws NotFoundException When the collection does not exist.
      */
     public function find(int $id)
     {
@@ -90,7 +105,12 @@ class CollectionService
     /**
      * Create a new collection.
      *
-     * @param CreateCollectionDTO $data
+     * If no slug is provided, it will be generated from the title. The current
+     * user is recorded as creator and updater.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateCollectionDTO $data Collection data.
      * @return Collection
      */
     public function create(CreateCollectionDTO $data)
@@ -108,10 +128,14 @@ class CollectionService
     /**
      * Update a collection.
      *
-     * @param UpdateCollectionDTO $data
-     * @return Collection
-     * @throws NotFoundException
-     * @throws Exception
+     * If no slug is provided, it will be generated from the title.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateCollectionDTO $data Collection data including the ID.
+     * @return Collection The refreshed collection with its product count.
+     * @throws NotFoundException When the collection does not exist.
+     * @throws Exception When the update fails.
      */
     public function update(UpdateCollectionDTO $data)
     {
@@ -135,9 +159,11 @@ class CollectionService
     /**
      * Delete a collection by ID.
      *
-     * @param int $id
-     * @return bool
-     * @throws Exception
+     * @since 1.0.0
+     *
+     * @param int $id Collection ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no collection was deleted.
      */
     public function delete(int $id)
     {
@@ -149,11 +175,13 @@ class CollectionService
     }
 
     /**
-     * Bulk delete collections.
+     * Delete multiple collections by their IDs.
      *
-     * @param array $ids
-     * @return bool
-     * @throws Exception
+     * @since 1.0.0
+     *
+     * @param int[] $ids Collection IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no collection was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -167,16 +195,26 @@ class CollectionService
 
 
     /**
-     * Deletes all collections.
+     * Delete every collection matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and date range filters.
+     * @return bool True when at least one collection was deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the collection list query with product counts, search, date range and sorting applied.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = Collection::with_count('products')

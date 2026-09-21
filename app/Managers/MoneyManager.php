@@ -24,6 +24,10 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
+ * Converts, formats and resolves currency amounts on top of Brick\Money.
+ *
+ * @since 1.0.0
+ *
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
  * @method static \Brick\Money\Money max(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
  * @method static \Brick\Money\Money total(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
@@ -66,15 +70,22 @@ class MoneyManager
      */
     protected static $currency_symbols;
 
+    /**
+     * Create the manager and load the store's base currency.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->load_base_currency();
     }
 
     /**
-     * Load the base currency.
+     * Load the store's base currency code into the manager.
      *
-     * @return static
+     * @since 1.0.0
+     *
+     * @return $this
      */
     public function load_base_currency()
     {
@@ -84,7 +95,9 @@ class MoneyManager
     }
 
     /**
-     * Get the base currency.
+     * Get the store's base currency code.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
@@ -94,9 +107,12 @@ class MoneyManager
     }
 
     /**
-     * Resolve the display currency requested by the current visitor via the
-     * currency cookie or the X-Currency header, falling back to the base
-     * currency when nothing valid was requested.
+     * Resolve the currency code to display amounts in for the current visitor.
+     *
+     * Uses the currency cookie or the display currency request header, falling
+     * back to the base currency when nothing valid was requested.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
@@ -109,7 +125,10 @@ class MoneyManager
      * Resolve the currency code explicitly requested by the current visitor.
      *
      * Returns null when no currency was requested, the requested currency
-     * does not exist or is inactive, or it matches the base currency.
+     * does not exist or is inactive, or it matches the base currency. The
+     * result is cached for the rest of the request.
+     *
+     * @since 1.0.0
      *
      * @return string|null
      */
@@ -136,7 +155,9 @@ class MoneyManager
     /**
      * Read the currency code requested via cookie or header, if any.
      *
-     * @return string|null
+     * @since 1.0.0
+     *
+     * @return string|null Uppercased, sanitized code, or null when none was sent.
      */
     protected function get_requested_currency_code()
     {
@@ -154,13 +175,15 @@ class MoneyManager
     }
 
     /**
-     * Convert the given amount to minor units.
+     * Convert the given amount to minor units in the given currency.
      *
-     * @param mixed $amount
-     * @param mixed $currency
-     * @param int $rounding
-     * @param \Brick\Money\Context $context
-     * @return int
+     * @since 1.0.0
+     *
+     * @param mixed                     $amount   Amount in major units.
+     * @param mixed                     $currency Currency code or object; defaults to the base currency.
+     * @param int                       $rounding Brick RoundingMode constant.
+     * @param \Brick\Money\Context|null $context  Brick money context.
+     * @return int Amount in minor units.
      */
     public static function to_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
     {
@@ -174,12 +197,14 @@ class MoneyManager
     }
 
     /**
-     * Convert the given minor amount to major units.
+     * Build a Money object from an amount given in minor units.
      *
-     * @param mixed $amount
-     * @param mixed $currency
-     * @param int $rounding
-     * @param \Brick\Money\Context $context
+     * @since 1.0.0
+     *
+     * @param mixed                     $amount   Amount in minor units.
+     * @param mixed                     $currency Currency code or object; defaults to the base currency.
+     * @param int                       $rounding Brick RoundingMode constant.
+     * @param \Brick\Money\Context|null $context  Brick money context.
      * @return Money
      */
     public static function from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
@@ -194,7 +219,9 @@ class MoneyManager
     }
 
     /**
-     * Format the given amount.
+     * Format a Money object using the store's separator, position and symbol settings.
+     *
+     * @since 1.0.0
      *
      * @param Money $money
      * @return string
@@ -235,12 +262,14 @@ class MoneyManager
     }
 
     /**
-     * Format the given amount from storage.
+     * Format an amount given in minor units.
      *
-     * @param mixed $amount
-     * @param mixed $currency
-     * @param int $rounding
-     * @param \Brick\Money\Context $context
+     * @since 1.0.0
+     *
+     * @param mixed                     $amount   Amount in minor units.
+     * @param mixed                     $currency Currency code or object; defaults to the base currency.
+     * @param int                       $rounding Brick RoundingMode constant.
+     * @param \Brick\Money\Context|null $context  Brick money context.
      * @return string
      */
     public function format_from_minor($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
@@ -256,12 +285,14 @@ class MoneyManager
     }
 
     /**
-     * Format the given amount from decimal.
+     * Format an amount given in major (decimal) units.
      *
-     * @param mixed $amount
-     * @param mixed $currency
-     * @param int $rounding
-     * @param \Brick\Money\Context $context
+     * @since 1.0.0
+     *
+     * @param mixed                     $amount   Amount in major units.
+     * @param mixed                     $currency Currency code or object; defaults to the base currency.
+     * @param int                       $rounding Brick RoundingMode constant.
+     * @param \Brick\Money\Context|null $context  Brick money context.
      * @return string
      */
     public function format_from_decimal($amount, $currency = null, $rounding = RoundingMode::HALF_UP, $context = null)
@@ -277,7 +308,7 @@ class MoneyManager
     }
 
     /**
-     * Get the currency symbol.
+     * Get the display symbol for a currency code.
      *
      * Prefers the symbol stored against the currency in the database, since
      * it reflects the actual symbol for that currency (e.g. BDT's ৳) rather
@@ -285,7 +316,9 @@ class MoneyManager
      * commonly used/displayed in the US and otherwise falls back to the
      * plain currency code.
      *
-     * @param string $code
+     * @since 1.0.0
+     *
+     * @param string $code Currency code.
      * @return string
      */
     public static function get_currency_symbol($code)
@@ -305,11 +338,13 @@ class MoneyManager
     }
 
     /**
-     * Convert the given amount from base currency to the target currency.
+     * Convert a Money amount to another currency.
      *
-     * @param Money $money
-     * @param string $currency
-     * @param float $exchange_rate
+     * @since 1.0.0
+     *
+     * @param Money      $money
+     * @param string     $currency      Target currency code.
+     * @param float|null $exchange_rate Rate to apply; defaults to the stored rate for the target currency.
      * @return Money
      */
     public function convert_to_currency(Money $money, string $currency, $exchange_rate = null)
@@ -318,9 +353,11 @@ class MoneyManager
     }
 
     /**
-     * Create a zero amount.
+     * Create a zero Money amount.
      *
-     * @param string $currency
+     * @since 1.0.0
+     *
+     * @param string|null $currency Currency code; defaults to the base currency.
      * @return Money
      */
     public function zero($currency = null)
@@ -329,10 +366,13 @@ class MoneyManager
     }
 
     /**
-     * Prepare money object for display purpose.
+     * Build a Money object from a minor amount, optionally converted to a target currency.
      *
-     * @param int|float $amount
-     * @param string|null $currency_code
+     * @since 1.0.0
+     *
+     * @param int|float   $amount          Amount in minor units.
+     * @param string|null $currency_code   Currency the amount is in; defaults to the base currency.
+     * @param string|null $target_currency Currency to convert to, if any.
      * @return Money
      */
     public function prepare_money_from_minor($amount, $currency_code = null, $target_currency = null)
@@ -347,10 +387,13 @@ class MoneyManager
     }
 
     /**
-     * Prepare amount from minor unit.
+     * Get a minor amount as a float in major units, optionally converted to a target currency.
      *
-     * @param int|float $amount
-     * @param string|null $currency_code
+     * @since 1.0.0
+     *
+     * @param int|float   $amount          Amount in minor units.
+     * @param string|null $currency_code   Currency the amount is in; defaults to the base currency.
+     * @param string|null $target_currency Currency to convert to, if any.
      * @return float
      */
     public function prepare_amount_from_minor($amount, $currency_code = null, $target_currency = null)
@@ -359,11 +402,13 @@ class MoneyManager
     }
 
     /**
-     * Prepare amount object.
+     * Build a MoneyDTO from a minor amount, optionally converted to a target currency.
      *
-     * @param int|float $amount
-     * @param string|null $currency_code
-     * @param string|null $target_currency
+     * @since 1.0.0
+     *
+     * @param int|float   $amount          Amount in minor units.
+     * @param string|null $currency_code   Currency the amount is in; defaults to the base currency.
+     * @param string|null $target_currency Currency to convert to, if any.
      * @return MoneyDTO
      */
     public function prepare_amount_object_from_minor($amount, $currency_code = null, $target_currency = null)
@@ -372,10 +417,12 @@ class MoneyManager
     }
 
     /**
-     * Create a zero amount.
+     * Build a MoneyDTO with the raw amount, formatted display string and currency from a minor amount.
      *
-     * @param int $minor_amount
-     * @param string|null $currency
+     * @since 1.0.0
+     *
+     * @param int         $minor_amount Amount in minor units.
+     * @param string|null $currency     Currency the amount is in; defaults to the base currency.
      * @return MoneyDTO
      */
     public function to_dto($minor_amount, $currency = null)
@@ -395,12 +442,18 @@ class MoneyManager
 
 
     /**
-     * Handle dynamic method calls to the Money class.
+     * Forward a call to the Money method of the same name.
      *
-     * @param string $method
-     * @param array $parameters
+     * The method name is camel-cased, and the base currency is used when the
+     * currency argument is empty.
+     *
+     * @since 1.0.0
+     *
+     * @param string $method     Method name to call on Money.
+     * @param array  $parameters Arguments passed to the Money method.
      * @return Money
-     * @throws BadMethodCallException
+     * @throws BadMethodCallException When Money has no such method.
+     * @throws InvalidArgumentException When no arguments are given.
      */
     public function __call($method, $parameters)
     {
