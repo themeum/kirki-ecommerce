@@ -59,7 +59,10 @@ class AdminLowStockMail extends Mailer
             'variant_name' => collection($variant['attribute_value_labels'])->join(', '),
             'sku' => $this->variant->sku,
             'available_quantity' => $this->variant->available_quantity,
-            'product_restock_link' => $product_edit_url,
+            'product_restock_link' => $this->get_content('emails.parts.link', [
+                'label' => __('Restock Now', 'kirki-ecommerce'),
+                'link' => $product_edit_url,
+            ]),
             'product_restock_link_button' => $this->get_content('emails.parts.link-button', [
                 'label' => __('Restock Now', 'kirki-ecommerce'),
                 'link' => $product_edit_url,

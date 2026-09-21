@@ -1,4 +1,7 @@
 <?php
+
+use Kirki\Ecommerce\App\Constants\EmailDefaultTemplate;
+
 defined('ABSPATH') || exit;
 
 use function Kirki\Ecommerce\Framework\view_data;
@@ -6,8 +9,8 @@ use function Kirki\Ecommerce\Framework\view_data;
 $data = view_data();
 $default_template = $data['default_template'] ?? [];
 $colors = $default_template['colors'] ?? [];
-$button_text_color = $colors['button']['text'] ?? '#ffffff';
-$button_bg_color = $colors['button']['background'] ?? '#000000';
+$button_text_color = $colors['button']['text'] ?? EmailDefaultTemplate::BUTTON_COLOR_TEXT;
+$button_bg_color = $colors['button']['background'] ?? EmailDefaultTemplate::BUTTON_COLOR_BACKGROUND;
 ?>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>

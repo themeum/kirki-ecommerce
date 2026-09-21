@@ -11,21 +11,43 @@ use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Email sent to a customer when their order is cancelled.
+ *
+ * @since 1.0.0
+ */
 class CustomerOrderCancelMail extends Mailer
 {
     /** @var Order */
     protected $order;
 
+    /**
+     * Create the mail for the given order.
+     *
+     * @since 1.0.0
+     *
+     * @param Order $order Order the email is about.
+     */
     public function __construct(Order $order)
     {
         $this->order = $order;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function option_key()
     {
         return 'customer_emails.order_notifications.cancelled_order';
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function with()
     {
         $order = OrderResource::make($this->order);
@@ -42,7 +64,10 @@ class CustomerOrderCancelMail extends Mailer
             ]),
             'order_detail' => $this->get_content('emails.parts.order.order-details', ['order' => $order]),
             'shipping_tracking_number' => $order['shipping_tracking']['tracking_number'] ?? '',
-            'shipping_tracking_url' => $order['shipping_tracking']['tracking_url'] ?? '',
+            'shipping_tracking_url' => $this->get_content('emails.parts.link', [
+                'label' => $order['shipping_tracking']['tracking_url'] ?? '',
+                'link' => $order['shipping_tracking']['tracking_url'] ?? '',
+            ]),
             'customer_name' => collection([$order['customer']['first_name'] ?? '', $order['customer']['last_name'] ?? ''])->filter(fn($name) => !empty($name))->join(' '),
             'customer_note' => $this->get_content('emails.parts.order.customer-note', ['order' => $order]),
         ];

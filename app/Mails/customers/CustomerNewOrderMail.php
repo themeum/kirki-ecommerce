@@ -65,7 +65,10 @@ class CustomerNewOrderMail extends Mailer
                 'link' => Url::get_order_tracking_url($order['uuid']),
             ]),
             'shipping_tracking_number' => $order['shipping_tracking']['tracking_number'] ?? '',
-            'shipping_tracking_url' => $order['shipping_tracking']['tracking_url'] ?? '',
+            'shipping_tracking_url' => $this->get_content('emails.parts.link', [
+                'label' => $order['shipping_tracking']['tracking_url'] ?? '',
+                'link' => $order['shipping_tracking']['tracking_url'] ?? '',
+            ]),
             'customer_name' => collection([$order['customer']['first_name'] ?? '', $order['customer']['last_name'] ?? ''])->filter(fn($name) => !empty($name))->join(' '),
             'customer_note' => $this->get_content('emails.parts.order.customer-note', ['order' => $order]),
         ];

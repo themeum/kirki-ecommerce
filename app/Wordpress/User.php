@@ -4,7 +4,8 @@ namespace Kirki\Ecommerce\App\Wordpress;
 
 use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\App\Constants\UserRoles;
-use Kirki\Ecommerce\App\Services\EmailService;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
+use Kirki\Ecommerce\App\Services\MailerService;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
@@ -288,7 +289,7 @@ class User extends FrameworkUser
             'token'  => $token,
         ]);
 
-        return app(EmailService::class)->send_verification_email($this, $verify_url);
+        return app(MailerService::class)->send(CustomerEmailConfirmationMail::make($this, $verify_url), $this->get_email());
     }
 
     /**

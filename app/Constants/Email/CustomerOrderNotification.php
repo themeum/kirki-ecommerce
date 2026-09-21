@@ -6,6 +6,11 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Order notification keys in the customer email settings.
+ *
+ * @since 1.0.0
+ */
 class CustomerOrderNotification
 {
     use HasConstants;
@@ -19,11 +24,25 @@ class CustomerOrderNotification
     const ORDER_NOTE = 'order_note';
     const ORDER_SHIPPED = 'order_shipped';
 
+    /**
+     * Get the email settings type these notifications belong to.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     public static function get_type()
     {
         return 'customer_emails';
     }
 
+    /**
+     * Get the email settings group these notifications belong to.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     public static function get_group()
     {
         return 'order_notifications';
