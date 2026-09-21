@@ -9,7 +9,7 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
-use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -146,25 +146,16 @@ class Redsys extends PaymentProvider
     {
         $payload = $this->verify_and_parse_notification();
 
-        $allowed_event_types = [
-            SquareConstant::EVENT_PAYMENT_UPDATE
-        ];
-
-        if (!in_array($payload->type, $allowed_event_types, true)) {
-            return false;
-        }
-
-        $order = OrderManager::find_by_uuid($reference_id);
-
+        $order = OrderManager::find_by_uuid($payload->Ds_MerchantData);
         if (!$order) {
-            throw new Exception(__('Square Error: Order Not Found.', 'kirki-ecommerce-square'));
+            throw new Exception(__('Redsys Error: Order Not Found.', 'kirki-ecommerce-redsys'));
         }
 
         if ($order->payment_status === PaymentStatus::PAID) {
             return false;
         }
 
-        $this->handle_transaction_response($payment, $order);
+        $this->handle_transaction_response($payload, $order);
         return true;
     }
 
@@ -192,28 +183,29 @@ class Redsys extends PaymentProvider
         return $this->client = new RedsysClient($merchant_code, $terminal, $signature_key, $sandbox);
     }
 
-    /**
-     * Read the raw webhook payload, verify its signature, and decode it.
-     *
-     * @return object
-     * @throws Exception If the payload is empty or its signature is invalid.
-     */
-    protected function verify_and_parse_notification(): object
+    protected function verify_and_parse_notification()
     {
-        $payload = file_get_contents('php://input');
+        $payload = Request::capture();
 
         // Respond with a 200 status code to acknowledge the notification.
         http_response_code(200);
 
         if (empty($payload)) {
-            throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-square'));
+            throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-redsys'));
         }
 
-        if (!$this->get_client()->is_verified($payload, $this->webhook_url())) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
+        $this->client = $this->get_client();
+        $builder = new RedsysTransactionBuilder();
+
+        $merchant_params_string_B64 = $payload->get('Ds_MerchantParameters', '', 'string');
+        $merchant_params_string = $builder->base64_url_decode_safe($merchant_params_string_B64);
+        $merchant_params = json_decode($merchant_params_string);
+
+        if (!$this->client->is_verified($merchant_params_string_B64, $merchant_params->Ds_Order, $payload->Ds_Signature)) {
+            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-redsys'));
         }
 
-        return json_decode($payload);
+        return $merchant_params;
     }
 
     /**
@@ -226,26 +218,21 @@ class Redsys extends PaymentProvider
      */
     protected function handle_transaction_response(object $payload, Order $order)
     {
-        $status = $payload->status ?? PaymentStatus::UNPAID;
+        $status = intval($payload->Ds_Response) <= 99 ? PaymentStatus::PAID : PaymentStatus::CANCELLED;
 
         DB::begin_transaction();
 
         try {
             switch ($status) {
-                case SquareConstant::PAYMENT_COMPLETED:
+                case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
                     break;
 
-                case SquareConstant::PAYMENT_CANCELED:
-                case SquareConstant::PAYMENT_FAILED:
+                case PaymentStatus::CANCELLED:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_failed($order->id);
                     break;
-
-                case SquareConstant::PAYMENT_APPROVED:
-                case SquareConstant::PAYMENT_PENDING:
-                    OrderManager::mark_payment_as_unpaid($order->id);
             }
 
             DB::commit();
@@ -253,7 +240,7 @@ class Redsys extends PaymentProvider
             DB::rollback();
 
             throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-square'), $e->getMessage())
+                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-redsys'), $e->getMessage())
             );
         }
     }
@@ -268,7 +255,7 @@ class Redsys extends PaymentProvider
      */
     protected function record_transaction(Order $order, object $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->id);
+        OrderManager::set_transaction_id($order->id, $payload->Ds_AuthorisationCode);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }

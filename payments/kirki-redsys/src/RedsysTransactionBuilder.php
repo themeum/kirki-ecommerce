@@ -107,4 +107,10 @@ class RedsysTransactionBuilder
         $sha = hash_hmac('sha512', $data, $key, true);
         return $sha;
     }
+
+    public function base64_url_decode_safe(string $input)
+    {
+        $str = str_pad($input, strlen($input) + (4 - strlen($input) % 4) % 4, '=', STR_PAD_RIGHT);
+        return base64_decode(strtr($str, '-_', '+/'));
+    }
 }

@@ -31,25 +31,12 @@ class RedsysClient
         $this->sandbox = $sandbox;
     }
 
-    /**
-     * Verify a webhook payload against Square's HMAC-SHA256 signature header.
-     *
-     * @param string $raw_payload The raw webhook request body.
-     * @param string $webhook_url The notification URL configured in Square, as sent to it verbatim.
-     * @return bool
-     */
-    public function is_verified(string $raw_payload, string $webhook_url): bool
+    public function is_verified($merchant_params_string_B64, $ds_Order, $signature): bool
     {
-        $given_signature = $_SERVER['HTTP_X_SQUARE_HMACSHA256_SIGNATURE'] ?? $_SERVER['HTTP_X_SQUARE_SIGNATURE'] ?? '';
+        $builder = new RedsysTransactionBuilder();
 
-        if ('' === $raw_payload || '' === $given_signature) {
-            return false;
-        }
-
-        $hash = hash_hmac('sha256', $webhook_url . $raw_payload, $this->signature_key, true);
-        $expected_signature = base64_encode($hash);
-
-        return $expected_signature === $given_signature;
+        $computed_signature = $builder->create_merchant_signature($this->signature_key, $merchant_params_string_B64, $ds_Order);
+        return strcasecmp($computed_signature, $signature) === 0;
     }
 
     /**
