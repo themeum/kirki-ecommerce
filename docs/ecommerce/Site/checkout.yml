@@ -1,0 +1,415 @@
+info:
+  name: Checkout
+  type: http
+  seq: 2
+  tags:
+    - site
+
+http:
+  method: POST
+  url: "{{baseUrl}}/checkout"
+  body:
+    type: json
+    data: |-
+      {
+        "items": [
+          {
+            "variant_id": 1,
+            "quantity": 2
+          }
+        ],
+        "currency_code": "USD",
+        "payment_provider": "stripe",
+        "shipping_method": "method-0001",
+        "shipping_first_name": "John",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "123 Main St",
+        "shipping_city": "New York",
+        "shipping_state": "NY",
+        "shipping_postal_code": "10001",
+        "shipping_country": "US",
+        "shipping_phone": "+1 555-000-2000",
+        "billing_first_name": "John",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "123 Main St",
+        "billing_city": "New York",
+        "billing_state": "NY",
+        "billing_postal_code": "10001",
+        "billing_country": "US",
+        "customer_email": "jane.doe@example.com",
+        "customer_notes": null
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    description: Order placed for an item bought on sale. The item's invoiced_strikethrough_price_money_object is the regular price total (2 x $29.99), struck through next to the sale-priced invoiced_subtotal_money_object (2 x $19.99).
+    request:
+      url: "{{baseUrl}}/checkout"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "variant_id": 1,
+                "quantity": 2
+              }
+            ],
+            "currency_code": "USD",
+            "payment_provider": "stripe",
+            "shipping_method": "method-0001",
+            "shipping_first_name": "John",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "123 Main St",
+            "shipping_city": "New York",
+            "shipping_state": "NY",
+            "shipping_postal_code": "10001",
+            "shipping_country": "US",
+            "shipping_phone": "+1 555-000-2000",
+            "billing_first_name": "John",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "123 Main St",
+            "billing_city": "New York",
+            "billing_state": "NY",
+            "billing_postal_code": "10001",
+            "billing_country": "US",
+            "customer_email": "jane.doe@example.com",
+            "customer_notes": null
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 1,
+              "uuid": "9958096c-cee1-4f6f-bcad-2d3dc8b2b88b",
+              "order_number": "000001",
+              "invoice_number": "000001",
+              "customer_id": null,
+              "status": "pending",
+              "fulfillment_status": "unfulfilled",
+              "is_refund_initiated": false,
+              "is_manual": false,
+              "currency_code": "USD",
+              "pricing": {
+                "invoiced_items_subtotal_money_object": {
+                  "raw": 39.98,
+                  "display": "$39.98",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "invoiced_order_discount_money_object": {
+                  "raw": 0,
+                  "display": "$0.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "invoiced_order_total_money_object": {
+                  "raw": 39.98,
+                  "display": "$39.98",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "invoiced_tax_total_money_object": {
+                  "raw": 0,
+                  "display": "$0.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "coupons": [],
+                "invoiced_shipping_amount_money_object": {
+                  "raw": 10,
+                  "display": "$10.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "invoiced_shipping_strikethrough_money_object": {
+                  "raw": 10,
+                  "display": "$10.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "invoiced_total_money_object": {
+                  "raw": 49.98,
+                  "display": "$49.98",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "tax_lines": []
+              },
+              "items_count": 2,
+              "items": [
+                {
+                  "id": 1,
+                  "product_id": 1,
+                  "variant_id": 1,
+                  "product_name": "Test Product",
+                  "variant_name": "",
+                  "sku": "SKU-G0yzzl",
+                  "image": null,
+                  "quantity": 2,
+                  "invoiced_subtotal_money_object": {
+                    "raw": 39.98,
+                    "display": "$39.98",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "invoiced_strikethrough_price_money_object": {
+                    "raw": 59.98,
+                    "display": "$59.98",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "invoiced_tax_total_money_object": {
+                    "raw": 0,
+                    "display": "$0.00",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "tax_lines": [],
+                  "applied_product_coupons": []
+                }
+              ],
+              "shipping_address": {
+                "first_name": "John",
+                "last_name": "Doe",
+                "address_line1": "123 Main St",
+                "address_line2": null,
+                "city": "New York",
+                "state": "NY",
+                "country": "US",
+                "postal_code": "10001",
+                "phone": "+1 555-000-2000",
+                "email": null
+              },
+              "billing_address": {
+                "first_name": "John",
+                "last_name": "Doe",
+                "address_line1": "123 Main St",
+                "address_line2": null,
+                "city": "New York",
+                "state": "NY",
+                "country": "US",
+                "postal_code": "10001",
+                "phone": null,
+                "email": null
+              },
+              "payment_provider": "stripe",
+              "payment_provider_name": "Stripe",
+              "payment_provider_icon": null,
+              "payment_provider_is_offline": false,
+              "payment_status": "unpaid",
+              "shipping_method": "method-0001",
+              "shipping_method_name": "Standard Delivery",
+              "shipping_method_type": "flat_rate",
+              "customer_notes": null,
+              "flags": null,
+              "shipping_tracking": {
+                "carrier": null,
+                "tracking_number": null,
+                "tracking_url": null
+              },
+              "refunds": [],
+              "archived_at": null,
+              "created_at": "2026-09-21T10:34:23.000000Z",
+              "updated_at": "2026-09-21T10:34:23.000000Z",
+              "shipping_country": {
+                "name": "United States",
+                "code": "US",
+                "phone_code": "1",
+                "currency": "USD",
+                "currency_name": "United States dollar",
+                "currency_symbol": "$",
+                "flag": "🇺🇸",
+                "states": [
+                  {
+                    "id": 1456,
+                    "name": "Alabama"
+                  },
+                  {
+                    "id": 1400,
+                    "name": "Alaska"
+                  }
+                ],
+                "numeric_code": "840",
+                "group": "general"
+              },
+              "billing_country": {
+                "name": "United States",
+                "code": "US",
+                "phone_code": "1",
+                "currency": "USD",
+                "currency_name": "United States dollar",
+                "currency_symbol": "$",
+                "flag": "🇺🇸",
+                "states": [
+                  {
+                    "id": 1456,
+                    "name": "Alabama"
+                  },
+                  {
+                    "id": 1400,
+                    "name": "Alaska"
+                  }
+                ],
+                "numeric_code": "840",
+                "group": "general"
+              },
+              "formatted_status": "Unfulfilled",
+              "payment_next_step": null,
+              "item_product_data": [
+                {
+                  "product": {
+                    "id": 1,
+                    "title": "Test Product",
+                    "slug": "test-product",
+                    "status": "published",
+                    "ribbon": null,
+                    "currency_id": 1,
+                    "brand_id": null,
+                    "short_description": null,
+                    "description": null,
+                    "additional_info": [],
+                    "seo_title": null,
+                    "seo_description": null,
+                    "seo_keywords": [],
+                    "og_title": null,
+                    "og_description": null,
+                    "og_image": null,
+                    "schema_id": null,
+                    "llm_instructions": null,
+                    "has_variants": false,
+                    "published_at": "2026-09-21 10:34:23",
+                    "trashed_at": null,
+                    "created_by": "2",
+                    "updated_by": "2",
+                    "created_at": "2026-09-21 10:34:23",
+                    "updated_at": "2026-09-21 10:34:23",
+                    "media": [],
+                    "categories": []
+                  },
+                  "variant": {
+                    "id": 1,
+                    "product_id": 1,
+                    "media": null,
+                    "sku": "SKU-G0yzzl",
+                    "barcode": null,
+                    "base_price": 2999,
+                    "show_unit_price": false,
+                    "base_unit": null,
+                    "base_unit_amount": null,
+                    "total_unit": null,
+                    "total_unit_amount": null,
+                    "base_sale_price": 1999,
+                    "base_cost_of_goods": null,
+                    "weight": null,
+                    "weight_unit": null,
+                    "charge_taxes": false,
+                    "allow_back_order": false,
+                    "track_inventory": false,
+                    "available_quantity": 100,
+                    "in_stock": true,
+                    "committed_quantity": 0,
+                    "low_stock_threshold": null,
+                    "has_limit_per_order": false,
+                    "max_per_order": null,
+                    "tax_profile_id": null,
+                    "shipping_profile_id": null,
+                    "shipping_box_id": null,
+                    "is_visible": true,
+                    "is_physical_product": true,
+                    "is_default": true,
+                    "created_by": 2,
+                    "updated_by": 2,
+                    "created_at": "2026-09-21 10:34:23",
+                    "updated_at": "2026-09-21 10:34:23",
+                    "product": {
+                      "id": 1,
+                      "title": "Test Product",
+                      "slug": "test-product",
+                      "status": "published",
+                      "ribbon": null,
+                      "currency_id": 1,
+                      "brand_id": null,
+                      "short_description": null,
+                      "description": null,
+                      "additional_info": [],
+                      "seo_title": null,
+                      "seo_description": null,
+                      "seo_keywords": [],
+                      "og_title": null,
+                      "og_description": null,
+                      "og_image": null,
+                      "schema_id": null,
+                      "llm_instructions": null,
+                      "has_variants": false,
+                      "published_at": "2026-09-21 10:34:23",
+                      "trashed_at": null,
+                      "created_by": "2",
+                      "updated_by": "2",
+                      "created_at": "2026-09-21 10:34:23",
+                      "updated_at": "2026-09-21 10:34:23",
+                      "media": [],
+                      "categories": []
+                    },
+                    "attribute_values": []
+                  }
+                }
+              ],
+              "customer": []
+            },
+            "message": "Order created successfully."
+          }
+
+docs: |-
+  # Checkout
+
+  ## 1. Detailed description of the API function
+  Places an order for the current shopper (guest or logged-in) from the payload and returns the order as the storefront sees it. Every amount in the response is an `invoiced_*` money object in the order's own currency; base-currency amounts are never exposed on this endpoint.
+
+  ## 2. Item strikethrough price
+  Each entry in `data.items` may carry `invoiced_strikethrough_price_money_object`, the amount the storefront should render struck through beside the item's `invoiced_subtotal_money_object`:
+
+  1. An item-scoped (product) coupon reduced the item: the strikethrough amount is the item's subtotal before that coupon, which is already the sale price if the item was also bought on sale.
+  2. Otherwise, the item was bought on sale: the strikethrough amount is the regular price multiplied by the quantity.
+  3. Otherwise it is `null`.
+
+  An order-wide coupon never sets it. Orders placed before the regular price was recorded have no sale strikethrough; an item reduced by an item-scoped coupon still gets the coupon-based one.
+
+  ## 3. Notes
+  The country objects list only a couple of `states` here; the real response lists every state of the country.

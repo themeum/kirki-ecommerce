@@ -173,9 +173,7 @@ class OrderResource extends Resource
                 'image' => MediaAttachment::make($item->product_image),
                 'quantity' => $item->quantity,
                 'invoiced_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_subtotal - $invoiced_product_coupon_discount, $this->currency_code),
-                'invoiced_strikethrough_price_money_object' => $invoiced_product_coupon_discount > 0
-                    ? Money::prepare_amount_object_from_minor($item->invoiced_subtotal, $this->currency_code)
-                    : null,
+                'invoiced_strikethrough_price_money_object' => $this->prepare_strikethrough_price($item, $invoiced_product_coupon_discount),
                 'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_tax_total, $this->currency_code),
                 'tax_lines' => $this->format_tax_breakdown(($item->taxes ?: collection())->all()),
                 'applied_product_coupons' => $this->format_applied_product_coupons($item_discounts),
@@ -183,6 +181,34 @@ class OrderResource extends Resource
         }
 
         return $order_items;
+    }
+
+    /**
+     * The line item's "was" price before its current invoiced subtotal - the
+     * sale-adjusted subtotal if a product coupon further discounted it,
+     * otherwise the regular price total if it was bought on sale. Null when
+     * neither applies, so nothing should render as struck through. The sale
+     * check compares the base amounts so currency conversion rounding can't
+     * make an item that wasn't on sale look discounted; an item with no
+     * recorded regular price is never treated as on sale.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem $item                            Order item to price.
+     * @param int                                   $invoiced_product_coupon_discount Discount from item-scoped coupons, in minor units.
+     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO|null Null when nothing should be struck through.
+     */
+    protected function prepare_strikethrough_price($item, $invoiced_product_coupon_discount)
+    {
+        if ($invoiced_product_coupon_discount > 0) {
+            $strikethrough_amount = $item->invoiced_subtotal;
+        } elseif ($item->base_regular_price > $item->base_price) {
+            $strikethrough_amount = $item->invoiced_regular_price * $item->quantity;
+        } else {
+            return null;
+        }
+
+        return Money::prepare_amount_object_from_minor($strikethrough_amount, $this->currency_code);
     }
 
     /**
