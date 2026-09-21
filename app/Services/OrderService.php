@@ -555,7 +555,7 @@ class OrderService
             $dto = new CreateCustomerDTO();
             $dto->user_id = $user_id;
             $dto->first_name = $user->get_first_name();
-            $dto->last_name = $user->get_first_name();
+            $dto->last_name = $user->get_last_name();
             $dto->email = $user->get_email();
             $customer = $customer_service->create($dto);
         }
@@ -565,7 +565,7 @@ class OrderService
             $order_ids = $guest_orders->pluck('id')->to_array();
             if (!empty($order_ids)) {
                 Order::where_in('id', $order_ids)->update([
-                'customer_id' => $customer->id,
+                    'customer_id' => $customer->id,
                 ]);
             }
         }

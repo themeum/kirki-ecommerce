@@ -715,6 +715,9 @@ class CreateOrderAction
         $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
         $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
 
+        $item_dto->invoiced_regular_price = $this->convert_amount($variant->base_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $variant->base_price;
+
         $item_dto->quantity = $calculated_item->quantity;
 
         $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);

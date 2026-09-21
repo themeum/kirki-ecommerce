@@ -395,10 +395,13 @@ class UpdateOrderAction
         $item_dto->variant_name = $variant->attribute_values->pluck('value')->join(', ');
         $item_dto->sku = $variant->sku;
         $item_dto->barcode = $variant->barcode;
-        $item_dto->product_image = $variant->media ?? $product->media->first()->id;
+        $item_dto->product_image = $variant->media ?? $product->media->first()->id ?? null;
 
         $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
         $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
+
+        $item_dto->invoiced_regular_price = $this->convert_amount($variant->base_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $variant->base_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
@@ -454,6 +457,9 @@ class UpdateOrderAction
 
         $item_dto->invoiced_price = $existing_item->invoiced_price;
         $item_dto->base_price = $existing_item->base_price;
+
+        $item_dto->invoiced_regular_price = $existing_item->invoiced_regular_price;
+        $item_dto->base_regular_price = $existing_item->base_regular_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 

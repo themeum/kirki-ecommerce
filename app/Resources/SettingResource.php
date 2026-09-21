@@ -52,6 +52,7 @@ class SettingResource extends Resource
                 break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
+                break;
             case OptionKeys::EMAIL_SETTINGS:
                 $data = $this->get_email_settings($data);
             default:

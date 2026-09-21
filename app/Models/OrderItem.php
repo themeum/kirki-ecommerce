@@ -30,6 +30,8 @@ class OrderItem extends Model
         'base_discount_amount',
         'invoiced_price',
         'base_price',
+        'invoiced_regular_price',
+        'base_regular_price',
         'quantity',
         'invoiced_subtotal',
         'base_subtotal',

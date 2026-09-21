@@ -292,7 +292,7 @@ class CustomerService
 
             return $is_deleted;
         } catch (Exception $e) {
-            DB::roll_back();
+            DB::rollback();
             throw $e;
         }
     }

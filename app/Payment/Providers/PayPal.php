@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -296,21 +297,95 @@ class PayPal extends PaymentProvider
     }
 
     /**
-     * Handle a PayPal webhook event.
-     *
-     * Dispatches CHECKOUT.ORDER.APPROVED, PAYMENT.CAPTURE.COMPLETED and
-     * PAYMENT.CAPTURE.REFUNDED events; other event types are ignored.
+     * Get the raw body of the current request.
      *
      * @since 1.0.0
      *
-     * @return bool False when the payload is empty or invalid, or handling threw.
+     * @return string
+     */
+    protected function get_request_body()
+    {
+        return (string) @file_get_contents('php://input');
+    }
+
+    /**
+     * Verify a webhook with PayPal before it is acted on.
+     *
+     * Sends the request's PayPal signature headers, the configured Webhook ID
+     * and the unmodified event body to PayPal's verify-webhook-signature
+     * endpoint. Anything short of an explicit SUCCESS, including missing
+     * headers, an empty Webhook ID or a failed call, counts as not verified.
+     *
+     * @since 1.0.0
+     *
+     * @param string $payload Raw webhook request body, already confirmed to be valid JSON.
+     * @return bool True only when PayPal reports the signature as valid.
+     */
+    protected function verify_webhook($payload)
+    {
+        $webhook_id = trim((string) ($this->settings['webhook_id'] ?? ''));
+
+        if ($webhook_id === '') {
+            return false;
+        }
+
+        $header_map = [
+            'auth_algo' => 'HTTP_PAYPAL_AUTH_ALGO',
+            'cert_url' => 'HTTP_PAYPAL_CERT_URL',
+            'transmission_id' => 'HTTP_PAYPAL_TRANSMISSION_ID',
+            'transmission_sig' => 'HTTP_PAYPAL_TRANSMISSION_SIG',
+            'transmission_time' => 'HTTP_PAYPAL_TRANSMISSION_TIME',
+        ];
+
+        $verification = ['webhook_id' => $webhook_id];
+
+        foreach ($header_map as $field => $server_key) {
+            $value = Superglobals::server($server_key, '');
+
+            if ($value === '') {
+                return false;
+            }
+
+            $verification[$field] = $value;
+        }
+
+        try {
+            $token = $this->get_access_token();
+
+            $body = substr(wp_json_encode($verification), 0, -1) . ',"webhook_event":' . $payload . '}';
+
+            $response = Http::with_token($token)
+                ->with_body($body)
+                ->post($this->get_base_url() . '/v1/notifications/verify-webhook-signature');
+        } catch (Exception $e) {
+            return false;
+        }
+
+        return $response->successful() && $response->json('verification_status') === 'SUCCESS';
+    }
+
+    /**
+     * Handle a PayPal webhook event.
+     *
+     * The event is verified with PayPal first and rejected, without touching any
+     * order, when it cannot be verified. A verified CHECKOUT.ORDER.APPROVED,
+     * PAYMENT.CAPTURE.COMPLETED or PAYMENT.CAPTURE.REFUNDED event is then
+     * dispatched; other event types are ignored.
+     *
+     * @since 1.0.0
+     *
+     * @return bool False when the payload is empty or invalid, PayPal does not verify it, or handling threw.
      */
     public function webhook()
     {
-        $payload = @file_get_contents('php://input');
+        $payload = $this->get_request_body();
         $event = json_decode($payload, true);
 
         if (!$event) {
+            return false;
+        }
+
+        if (!$this->verify_webhook($payload)) {
             return false;
         }
 

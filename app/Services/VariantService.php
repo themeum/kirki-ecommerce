@@ -212,7 +212,7 @@ class VariantService
             $updated_variant = $this->update_variant($variant['id'], $variant);
 
             if (!$updated_variant) {
-                DB::roll_back();
+                DB::rollback();
 
                 throw_anyway(
                     sprintf(
@@ -220,7 +220,8 @@ class VariantService
                         __('Variant with id %s could not be updated.', 'kirki-ecommerce'),
                         $variant['id']
                     ),
-                    NotFoundException::class
+                    NotFoundException::class,
+                    Response::NOT_FOUND
                 );
             }
 
