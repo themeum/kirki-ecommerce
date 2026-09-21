@@ -1,9 +1,10 @@
-import { assert, describe, expect, it } from 'vitest';
+import { assert, beforeEach, describe, expect, it } from 'vitest';
 
 import {
   OrderCalculationRequestSchema,
   OrderFormSchema,
 } from '@/features/orders/schemas/forms/order-form';
+import { cacheAddressRules } from '@/libs/address-rules';
 import { getDefaults } from '@/libs/zod';
 
 describe('OrderFormSchema', () => {
@@ -210,20 +211,111 @@ describe('OrderFormSchema', () => {
     expect(OrderFormSchema.safeParse({ ...base, shipping_method: '' }).success).toBe(false);
   });
 
-  it('rejects a blank value in any required shipping field', () => {
+  it('rejects a blank value in any shipping field every country needs', () => {
     const requiredShippingFields = [
       'shipping_first_name',
       'shipping_last_name',
       'shipping_address_line1',
       'shipping_city',
-      'shipping_state',
-      'shipping_postal_code',
       'shipping_country',
     ] as const;
 
     requiredShippingFields.forEach((field) => {
       expect(OrderFormSchema.safeParse({ ...base, [field]: '   ' }).success).toBe(false);
       expect(OrderFormSchema.safeParse({ ...base, [field]: null }).success).toBe(false);
+    });
+  });
+
+  describe('state and postal code follow the country', () => {
+    beforeEach(() => {
+      cacheAddressRules([
+        {
+          name: 'Japan',
+          code: 'JP',
+          states: [],
+          address_rules: {
+            state: { mode: 'required', label: 'Prefecture' },
+            postal_code: { mode: 'required' },
+          },
+        },
+        {
+          name: 'Singapore',
+          code: 'SG',
+          states: [],
+          address_rules: {
+            state: { mode: 'hidden', label: 'Council' },
+            postal_code: { mode: 'required' },
+          },
+        },
+        {
+          name: 'Hong Kong',
+          code: 'HK',
+          states: [],
+          address_rules: {
+            state: { mode: 'required', label: 'Region' },
+            postal_code: { mode: 'hidden' },
+          },
+        },
+      ]);
+    });
+
+    it('accepts an order with no state when the country has none', () => {
+      const result = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'SG',
+        shipping_state: null,
+      });
+
+      assert(result.success);
+      expect(result.data.shipping_state).toBeNull();
+    });
+
+    it('rejects a missing state when the country requires one', () => {
+      expect(
+        OrderFormSchema.safeParse({ ...base, shipping_country: 'JP', shipping_state: null }).success,
+      ).toBe(false);
+    });
+
+    /**
+     * `sprintf` is the identity-ish fallback from `@/wpi18n` here (no
+     * `window.wp.i18n` in the test environment), so this asserts the term
+     * that reaches the message rather than the assembled sentence.
+     */
+    it('names the country term in the error rather than "State"', () => {
+      const result = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'JP',
+        shipping_state: '   ',
+      });
+
+      assert(!result.success);
+      const issue = result.error.issues.find((item) => item.path.join('.') === 'shipping_state');
+      expect(issue?.message).toContain('Prefecture');
+      expect(issue?.message).not.toContain('State');
+    });
+
+    it('accepts an order with no postal code when the country has none', () => {
+      const result = OrderFormSchema.safeParse({
+        ...base,
+        shipping_country: 'HK',
+        shipping_postal_code: null,
+      });
+
+      assert(result.success);
+      expect(result.data.shipping_postal_code).toBeNull();
+    });
+
+    it('applies the billing country rules, not the shipping ones', () => {
+      const withoutBillingState = {
+        ...separateBilling,
+        billing_country: 'SG',
+        billing_state: null,
+      };
+
+      expect(OrderFormSchema.safeParse(withoutBillingState).success).toBe(true);
+      expect(
+        OrderFormSchema.safeParse({ ...withoutBillingState, billing_country: 'JP' }).success,
+      ).toBe(false);
     });
   });
 

@@ -12,12 +12,17 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use function Kirki\Ecommerce\Framework\config;
 
+/**
+ * Registers the currency exchange factory and manager, configured from the currency settings.
+ *
+ * @since 1.0.0
+ */
 class CurrencyServiceProvider extends ServiceProvider
 {
     /**
-     * Register the services.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {

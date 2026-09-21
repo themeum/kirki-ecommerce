@@ -8,11 +8,27 @@ use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CustomerService;
 
+/**
+ * Creates an address for a logged-in account, provisioning the customer record on demand.
+ *
+ * @since 1.0.0
+ */
 class CreateAccountAddressAction
 {
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var AddressService */
     protected $address_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerService $customer_service Customer lookup and creation service.
+     * @param AddressService  $address_service  Address persistence service.
+     */
     public function __construct(CustomerService $customer_service, AddressService $address_service)
     {
         $this->customer_service = $customer_service;
@@ -28,9 +44,11 @@ class CreateAccountAddressAction
      * address itself may have no email/phone, but customers.email is not
      * nullable, so the customer record can't rely on the address alone.
      *
-     * @param CreateAddressDTO $data
-     * @param int $user_id
-     * @return Address
+     * @since 1.0.0
+     *
+     * @param CreateAddressDTO $data    Address payload; its customer_id is set to the resolved customer.
+     * @param int              $user_id WordPress user ID.
+     * @return Address The created address.
      */
     public function execute(CreateAddressDTO $data, int $user_id)
     {

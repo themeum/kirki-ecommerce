@@ -7,15 +7,20 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 
 use function Kirki\Ecommerce\Framework\with_prefix;
 
+/**
+ * Adds the ability to kick off the scheduler's async worker request.
+ *
+ * @since 1.0.0
+ */
 trait HasAsyncWorker
 {
     /**
      * Trigger the async worker.
      *
-     * This method initiates an asynchronous background process by sending a non-blocking
-     * HTTP POST request to the WordPress AJAX handler. It uses a very short timeout
-     * to ensure the current request continues execution immediately without waiting
-     * for the worker to complete its task.
+     * Sends a non-blocking POST to the WordPress AJAX handler with a very short timeout,
+     * so the current request continues without waiting for the worker to finish.
+     *
+     * @since 1.0.0
      *
      * @return void
      */

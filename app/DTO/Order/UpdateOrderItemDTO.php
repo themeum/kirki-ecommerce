@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Order;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating an order item with its price, tax and product snapshot.
+ *
+ * @since 1.0.0
+ */
 class UpdateOrderItemDTO extends DTO
 {
     /** @var int */
@@ -38,6 +43,12 @@ class UpdateOrderItemDTO extends DTO
 
     /** @var float */
     public $base_price;
+
+    /** @var int */
+    public $invoiced_regular_price;
+
+    /** @var int */
+    public $base_regular_price;
 
     /** @var int */
     public $quantity;

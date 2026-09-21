@@ -6,6 +6,10 @@ use Kirki\Ecommerce\Framework\Facade;
 
 
 /**
+ * Facade for the money manager, wrapping Brick Money with minor-unit and currency helpers.
+ *
+ * @since 1.0.0
+ *
  * @method static \Brick\Money\Money min(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
  * @method static \Brick\Money\Money max(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
  * @method static \Brick\Money\Money total(\Brick\Money\Money $money, \Brick\Money\Money ...$monies)
@@ -32,6 +36,11 @@ use Kirki\Ecommerce\Framework\Facade;
  */
 class Money extends Facade
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public static function get_accessor()
     {
         return 'money';

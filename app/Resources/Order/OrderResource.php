@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a full order (admin), with totals, items, coupons, addresses and refunds.
+ *
+ * @since 1.0.0
+ */
 class OrderResource extends Resource
 {
+    /**
+     * Convert the order resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The order data, with amounts in the invoiced currency and the base currency.
+     */
     public function to_array()
     {
         return [
@@ -192,9 +204,11 @@ class OrderResource extends Resource
      * Format a set of persisted order_taxes rows (an item's, or the order's
      * shipping) into API tax lines.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $taxes
-     * @param string $currency_code
-     * @return array
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $taxes         Persisted order tax rows.
+     * @param string                                 $currency_code Currency code the order was invoiced in.
+     * @return array|\Kirki\Ecommerce\Framework\Collections\Collection Empty array when there are no taxes, otherwise a collection of tax lines.
      */
     protected function format_order_taxes($taxes, $currency_code)
     {

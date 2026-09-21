@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants\Decision;
 
+/**
+ * Actions a decision rule can apply to shipping and tax calculation.
+ *
+ * @since 1.0.0
+ */
 final class Actions
 {
     const SET_SHIPPING_COST = 'set_shipping_cost';

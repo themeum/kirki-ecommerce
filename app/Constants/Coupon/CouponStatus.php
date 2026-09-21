@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants\Coupon;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Lifecycle statuses of a coupon.
+ *
+ * @since 1.0.0
+ */
 class CouponStatus
 {
     use HasConstants;

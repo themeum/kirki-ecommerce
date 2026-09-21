@@ -12,11 +12,27 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Updates a customer together with its shipping and billing addresses in one transaction.
+ *
+ * @since 1.0.0
+ */
 class UpdateCustomerAction
 {
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var AddressService */
     protected $address_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerService $customer_service Customer persistence service.
+     * @param AddressService  $address_service  Address persistence service.
+     */
     public function __construct(
         CustomerService $customer_service,
         AddressService $address_service
@@ -26,16 +42,19 @@ class UpdateCustomerAction
     }
 
     /**
-     * Updates a customer with the given address.
+     * Update a customer with the given shipping and billing addresses.
      *
-     * The customer and address will be updated in a single transaction.
-     * If either the customer or address cannot be updated, a Throwable will be thrown.
+     * The customer and addresses will be updated in a single transaction.
+     * If either the customer or an address cannot be updated, a Throwable will be thrown.
+     * Each address payload is matched to the customer's existing address of that kind.
      *
-     * @param UpdateCustomerDTO $customer_payload
-     * @param UpdateAddressDTO $billing_address_payload
-     * @param UpdateAddressDTO $shipping_address_payload
-     * @return Customer
-     * @throws Throwable
+     * @since 1.0.0
+     *
+     * @param UpdateCustomerDTO $customer_payload         Customer data to save.
+     * @param UpdateAddressDTO  $shipping_address_payload Shipping address data to save.
+     * @param UpdateAddressDTO  $billing_address_payload  Billing address data to save.
+     * @return Customer The updated customer.
+     * @throws Throwable When the customer or an address cannot be updated; the transaction is rolled back.
      */
     public function execute(UpdateCustomerDTO $customer_payload, UpdateAddressDTO $shipping_address_payload, UpdateAddressDTO $billing_address_payload)
     {

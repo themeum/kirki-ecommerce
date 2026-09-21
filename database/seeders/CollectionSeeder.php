@@ -6,13 +6,19 @@ use Kirki\Ecommerce\App\Models\Collection;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the curated storefront collections.
+ *
+ * @since 1.0.0
+ */
 class CollectionSeeder extends Seeder
 {
     /**
      * Seed curated collection records.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

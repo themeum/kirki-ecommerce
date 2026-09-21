@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\ShippingBox;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating a shipping box.
+ *
+ * @since 1.0.0
+ */
 class UpdateShippingBoxDTO extends DTO
 {
     /** @var int */

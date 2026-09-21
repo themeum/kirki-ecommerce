@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Default style values for email templates: sizes, position and colors.
+ *
+ * @since 1.0.0
+ */
 class EmailDefaultTemplate
 {
     use HasConstants;

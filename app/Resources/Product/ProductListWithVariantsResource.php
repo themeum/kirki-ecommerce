@@ -10,12 +10,21 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * API resource for a product in list views that also includes its variants and attributes.
+ *
+ * @since 1.0.0
+ */
 class ProductListWithVariantsResource extends Resource
 {
     /**
      * Convert the product resource to an array.
      *
-     * @return array The product data as an associative array.
+     * Prices are the lowest across the product's variants and inventory sums the tracked variants.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The product summary, with availability, prices, attributes and variants.
      */
     public function to_array()
     {
@@ -61,6 +70,17 @@ class ProductListWithVariantsResource extends Resource
         ];
     }
 
+    /**
+     * Group attribute values under their attributes.
+     *
+     * Combines the product's own attribute values with any values used only by its variants.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>> $attributes       Attribute rows of the product.
+     * @param array<int, array<string, mixed>> $attribute_values Attribute value rows of the product.
+     * @return array<int, array<string, mixed>> Attributes, each with its list of values.
+     */
     protected function format_attributes($attributes, $attribute_values)
     {
         $attribute_values_map = [];

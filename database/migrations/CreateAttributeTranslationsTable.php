@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_attribute_translations table, which stores per-language attribute names.
+ *
+ * @since 1.0.0
+ */
 class CreateAttributeTranslationsTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_attribute_translations table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_attribute_translations', function (Structure $table) {
@@ -31,6 +43,13 @@ class CreateAttributeTranslationsTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_attribute_translations table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_attribute_translations');

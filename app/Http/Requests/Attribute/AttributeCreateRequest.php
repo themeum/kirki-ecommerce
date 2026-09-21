@@ -6,8 +6,18 @@ use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating a product attribute.
+ *
+ * @since 1.0.0
+ */
 class AttributeCreateRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -17,6 +27,11 @@ class AttributeCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

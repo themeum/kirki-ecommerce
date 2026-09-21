@@ -16,12 +16,19 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages product schemas: listing, lookup, creation, updates and deletion.
+ *
+ * @since 1.0.0
+ */
 class ProductSchemaService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -35,9 +42,11 @@ class ProductSchemaService
     }
 
     /**
-     * Return paginated product schemas
+     * Get a page of product schemas matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -46,10 +55,12 @@ class ProductSchemaService
     }
 
     /**
-     * Return all product schemas
+     * Get all product schemas matching the filters, without pagination.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return Collection Collection of ProductSchema.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -57,11 +68,13 @@ class ProductSchemaService
     }
 
     /**
-     * Find a product schema by ID.
+     * Find a product schema by ID or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Product schema ID.
      * @return ProductSchema
-     * @throws NotFoundException
+     * @throws NotFoundException When the product schema does not exist.
      */
     public function find(int $id)
     {
@@ -75,7 +88,9 @@ class ProductSchemaService
     /**
      * Create a new product schema.
      *
-     * @param CreateProductSchemaDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateProductSchemaDTO $data Product schema data.
      * @return ProductSchema
      */
     public function create(CreateProductSchemaDTO $data)
@@ -86,11 +101,13 @@ class ProductSchemaService
     }
 
     /**
-     * Updates a product schema.
+     * Update a product schema.
      *
-     * @param UpdateProductSchemaDTO $data
-     * @throws NotFoundException
-     * @return ProductSchema
+     * @since 1.0.0
+     *
+     * @param UpdateProductSchemaDTO $data Product schema data, including its ID.
+     * @return ProductSchema|null The reloaded product schema.
+     * @throws NotFoundException When the product schema does not exist or could not be updated.
      */
     public function update(UpdateProductSchemaDTO $data)
     {
@@ -106,11 +123,13 @@ class ProductSchemaService
     }
 
     /**
-     * Deletes a product schema by ID.
+     * Delete a product schema by ID.
      *
-     * @param int $id The ID of the product schema to delete.
-     * @return bool True if the product schema was deleted successfully, false otherwise.
-     * @throws NotFoundException If the product schema could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Product schema ID.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no product schema was deleted.
      */
     public function delete(int $id)
     {
@@ -122,11 +141,13 @@ class ProductSchemaService
     }
 
     /**
-     * Deletes multiple product schemas by their IDs.
+     * Delete multiple product schemas by their IDs.
      *
-     * @param array $ids The IDs of the product schemas to delete.
-     * @return bool True if the product schemas were deleted successfully, false otherwise.
-     * @throws NotFoundException If the product schemas could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the product schemas to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no product schema was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -138,16 +159,26 @@ class ProductSchemaService
     }
 
     /**
-     * Deletes all product schemas.
+     * Delete all product schemas matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter selecting the product schemas.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the filtered and sorted query for the list of product schemas.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = ProductSchema::when($filters->search, function (QueryBuilder $query, $search) {

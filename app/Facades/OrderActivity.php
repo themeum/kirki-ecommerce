@@ -6,6 +6,10 @@ use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Managers\OrderActivityManager;
 
 /**
+ * Facade for the order activity manager.
+ *
+ * @since 1.0.0
+ *
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity log(\Kirki\Ecommerce\App\Models\Order $order, string $activity_type)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity partially_refunded(\Kirki\Ecommerce\App\Models\Order $order, \Kirki\Ecommerce\App\Models\Refund $refund)
  * @method static \Kirki\Ecommerce\App\Models\OrderActivity refunded(\Kirki\Ecommerce\App\Models\Order $order, \Kirki\Ecommerce\App\Models\Refund $refund)
@@ -19,9 +23,9 @@ use Kirki\Ecommerce\App\Managers\OrderActivityManager;
 class OrderActivity extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public static function get_accessor()
     {

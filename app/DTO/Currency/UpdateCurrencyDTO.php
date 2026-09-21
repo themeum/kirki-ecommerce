@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Currency;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating a currency.
+ *
+ * @since 1.0.0
+ */
 class UpdateCurrencyDTO extends DTO
 {
     /** @var int */
@@ -21,9 +26,9 @@ class UpdateCurrencyDTO extends DTO
     /** @var float|null */
     public $exchange_rate;
 
-    /** @var string|null */
+    /** @var bool|null */
     public $is_base;
 
-    /** @var string */
+    /** @var bool */
     public $is_active;
 }

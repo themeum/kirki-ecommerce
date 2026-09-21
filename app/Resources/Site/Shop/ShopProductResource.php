@@ -21,8 +21,6 @@ use Kirki\Ecommerce\Framework\Resource;
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * Class ShopProductResource
- *
  * Transforms a Product model into the data shape expected by the
  * site/shop/parts/product-card.php template.
  *
@@ -33,7 +31,9 @@ class ShopProductResource extends Resource
     /**
      * Convert the product to an array for the product-card template.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> Card data, or an empty array when the product has no usable variant.
      */
     public function to_array(): array
     {
@@ -46,7 +46,7 @@ class ShopProductResource extends Resource
 
         $has_variants = (bool) $this->has_variants;
         $variant_id   = intval($variant->id);
-        $out_of_stock = $this->resolve_stock_status($variant_id);
+        $out_of_stock = ! $this->resolve_has_stock($variants);
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
         $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 
@@ -72,9 +72,10 @@ class ShopProductResource extends Resource
     /**
      * Resolve the default variant from the variants collection.
      *
-     * @param Collection $variants
+     * @since 1.0.0
      *
-     * @return \Kirki\Ecommerce\App\Models\Variant|null
+     * @param Collection|null $variants Variants of the product.
+     * @return \Kirki\Ecommerce\App\Models\Variant|null Null when there are no variants or none is marked default.
      */
     private function resolve_default_variant($variants)
     {
@@ -90,11 +91,12 @@ class ShopProductResource extends Resource
      * For single-variant products: compares base_price vs base_sale_price.
      * For multi-variant products: shows a price range across all variants.
      *
-     * @param object $variant     The first (representative) variant.
-     * @param object $variants    The full variants collection.
-     * @param bool   $has_variants Whether the product has multiple variants.
+     * @since 1.0.0
      *
-     * @return array{ display_price: string, formatted_regular_price: string, in_sale: bool }
+     * @param object     $variant      The representative variant.
+     * @param Collection $variants     The full variants collection.
+     * @param bool       $has_variants Whether the product has multiple variants.
+     * @return array{display_price: string, formatted_regular_price: string, in_sale: bool} Formatted prices and the sale flag.
      */
     private function resolve_pricing($variant, $variants, bool $has_variants): array
     {
@@ -119,9 +121,11 @@ class ShopProductResource extends Resource
      * Returns a tuple of [display_price, in_sale]. Sale is always false for
      * multi-variant products since we show a range instead of a struck price.
      *
-     * @param object $variants The full variants collection.
+     * @since 1.0.0
      *
-     * @return array{ 0: string, 1: bool }
+     * @param Collection  $variants         The full variants collection.
+     * @param string|null $display_currency Currency code to display the prices in.
+     * @return array{0: string, 1: bool} The price or price range, and the sale flag.
      */
     private function resolve_variant_price_range($variants, $display_currency = null): array
     {
@@ -138,21 +142,32 @@ class ShopProductResource extends Resource
     }
 
     /**
-     * Check whether the given variant is out of stock.
+     * Check whether any variant is in stock.
      *
-     * @param int $variant_id
+     * @since 1.0.0
      *
-     * @return bool
+     * @param Collection $variants Variants of the product.
+     * @return bool True when at least one variant has one unit available.
      */
-    private function resolve_stock_status(int $variant_id): bool
+    private function resolve_has_stock(Collection $variants): bool
     {
-        return ! app()->make(InventoryService::class)->has_stock($variant_id, 1);
+        $has_stock = false;
+        $inventory_service = app()->make(InventoryService::class);
+        foreach ($variants as $variant) {
+            if ($inventory_service->has_stock($variant->id, 1)) {
+                $has_stock = true;
+                break;
+            }
+        }
+        return $has_stock;
     }
 
     /**
      * Resolve the product thumbnail URL, falling back to the placeholder image.
      *
-     * @return string
+     * @since 1.0.0
+     *
+     * @return string Large image URL, an empty string if the attachment has no URL, or the placeholder when no media is set.
      */
     private function resolve_image_url(): string
     {
@@ -171,6 +186,8 @@ class ShopProductResource extends Resource
     /**
      * Return the name of the primary category, or an empty string if none.
      *
+     * @since 1.0.0
+     *
      * @return string
      */
     private function resolve_category_name(): string
@@ -186,9 +203,10 @@ class ShopProductResource extends Resource
      * Out-of-stock products always show the stock label, overriding any
      * custom ribbon the merchant may have set.
      *
-     * @param bool $out_of_stock
+     * @since 1.0.0
      *
-     * @return string
+     * @param bool $out_of_stock Whether no variant is in stock.
+     * @return string Badge text, empty when no ribbon applies.
      */
     private function resolve_ribbon_text(bool $out_of_stock): string
     {

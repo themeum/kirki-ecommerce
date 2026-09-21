@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Types of shipping method.
+ *
+ * @since 1.0.0
+ */
 class ShippingMethodTypes
 {
     use HasConstants;

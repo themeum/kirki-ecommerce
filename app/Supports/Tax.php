@@ -7,13 +7,21 @@ use Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy;
 use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;
 use Throwable;
 
+/**
+ * Static helpers that read the tax settings and resolve the tax strategy for an address.
+ *
+ * @since 1.0.0
+ */
 class Tax
 {
     /**
      * Get tax strategy for a given address.
      *
-     * @param array $address
+     * Returns null when the address is empty or no strategy can be made for it.
      *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $address Address data, including its country.
      * @return AbstractTaxStrategy|null
      */
     public static function get_tax_strategy($address)
@@ -46,7 +54,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when at least one tax region is set up.
      */
     public static function is_tax_configured()
     {
@@ -58,7 +66,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return array
+     * @return array[] Configured tax regions, empty when none exist.
      */
     public static function get_tax_regions()
     {
@@ -70,7 +78,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when catalog prices already include tax.
      */
 
     public static function is_tax_inclusive()
@@ -83,7 +91,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when tax is enabled and at least one tax region is configured.
      */
     public static function should_calculate_tax()
     {
@@ -95,7 +103,7 @@ class Tax
      *
      * @since 1.0.0
      *
-     * @return bool
+     * @return bool True when tax is calculated, prices are tax-inclusive and the inclusive-price display setting is on.
      */
     public static function should_show_incl_tax_on_shop_page()
     {

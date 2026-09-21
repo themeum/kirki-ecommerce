@@ -17,6 +17,11 @@ use Kirki\Ecommerce\Framework\Supports\Str;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * Seeds the onboarding starter products and imports their bundled imagery.
+ *
+ * @since 1.0.0
+ */
 class ProductSeeder extends Seeder
 {
     /**
@@ -24,16 +29,14 @@ class ProductSeeder extends Seeder
      */
     const STARTING_QUANTITY = 25;
 
-    /**
-     * @var MediaImporter
-     */
+    /** @var MediaImporter */
     protected $importer;
 
     /**
      * Attachment ids keyed by bundled filename, so an image shared by a product
      * and one of its variants is imported once.
      *
-     * @var array
+     * @var array<string, int|null>
      */
     protected $attachments = [];
 
@@ -47,8 +50,9 @@ class ProductSeeder extends Seeder
     /**
      * Seed the starter products and import their imagery.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -73,11 +77,13 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @param array    $product     Catalog entry.
-     * @param int|null $currency_id The base currency id.
+     * Build the create-product payload for a catalog entry.
      *
-     * @return CreateProductDTO
      * @since 1.0.0
+     *
+     * @param array<string, mixed> $product     Catalog entry.
+     * @param int|null             $currency_id The base currency id.
+     * @return CreateProductDTO Product payload for the create action.
      */
     protected function make_product_data(array $product, $currency_id)
     {
@@ -99,10 +105,12 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @param array $product Catalog entry.
+     * Build the variant payloads for a catalog entry.
      *
-     * @return CreateVariantDTO[]
      * @since 1.0.0
+     *
+     * @param array<string, mixed> $product Catalog entry.
+     * @return CreateVariantDTO[] One variant payload per catalog variant.
      */
     protected function make_variant_data(array $product)
     {
@@ -134,10 +142,10 @@ class ProductSeeder extends Seeder
      * Matching on name rather than slug because a repeated name is slugged with a
      * parent prefix, which the catalog paths do not carry.
      *
-     * @param array $path Category names from the top level down.
-     *
-     * @return int|null
      * @since 1.0.0
+     *
+     * @param string[] $path Category names from the top level down.
+     * @return int|null ID of the deepest category, or null when a name cannot be resolved.
      */
     protected function resolve_category_id(array $path)
     {
@@ -167,10 +175,10 @@ class ProductSeeder extends Seeder
     /**
      * Build the product's attribute payload from names.
      *
-     * @param array $attributes Value names keyed by attribute name.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array<string, string[]> $attributes Value names keyed by attribute name.
+     * @return array<int, array<string, mixed>> Entries with the attribute id and its value ids.
      */
     protected function resolve_attributes(array $attributes)
     {
@@ -202,10 +210,10 @@ class ProductSeeder extends Seeder
     /**
      * Build a variant's attribute value id list from names.
      *
-     * @param array $selection Value name keyed by attribute name.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array<string, string> $selection Value name keyed by attribute name.
+     * @return int[] Attribute value ids.
      */
     protected function resolve_attribute_values(array $selection)
     {
@@ -229,10 +237,12 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @param string $name The attribute name.
+     * Find an attribute by the slug of its name.
      *
-     * @return Attribute|null
      * @since 1.0.0
+     *
+     * @param string $name The attribute name.
+     * @return Attribute|null
      */
     protected function find_attribute($name)
     {
@@ -240,11 +250,13 @@ class ProductSeeder extends Seeder
     }
 
     /**
+     * Find a value of an attribute by its label.
+     *
+     * @since 1.0.0
+     *
      * @param int    $attribute_id The owning attribute id.
      * @param string $value        The value name.
-     *
      * @return AttributeValue|null
-     * @since 1.0.0
      */
     protected function find_attribute_value($attribute_id, $value)
     {
@@ -255,8 +267,11 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @return int|null
+     * Look up the base currency id.
+     *
      * @since 1.0.0
+     *
+     * @return int|null Null when no base currency exists.
      */
     protected function resolve_base_currency_id()
     {
@@ -266,10 +281,12 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @param array $filenames Bundled image filenames.
+     * Import several bundled images, skipping any that fail.
      *
-     * @return array Attachment ids, in the given order.
      * @since 1.0.0
+     *
+     * @param string[] $filenames Bundled image filenames.
+     * @return int[] Attachment ids, in the given order.
      */
     protected function import_many(array $filenames)
     {
@@ -289,10 +306,10 @@ class ProductSeeder extends Seeder
     /**
      * Import a bundled image, reusing the attachment if it was already imported.
      *
-     * @param string $filename The bundled image filename.
-     *
-     * @return int|null
      * @since 1.0.0
+     *
+     * @param string $filename The bundled image filename.
+     * @return int|null Attachment ID, or null when the import failed.
      */
     protected function import($filename)
     {
@@ -308,8 +325,11 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * @return string
+     * Get the directory holding the bundled product images.
+     *
      * @since 1.0.0
+     *
+     * @return string Absolute directory path.
      */
     protected function bundled_images_path()
     {
@@ -324,8 +344,9 @@ class ProductSeeder extends Seeder
      * there. Skipped when anything failed to import, so a later run can still
      * read the source files.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     protected function cleanup_bundled_images()
     {

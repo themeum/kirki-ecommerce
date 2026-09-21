@@ -8,21 +8,43 @@ use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Wordpress\User;
 
+/**
+ * Email sent to a customer with a link to reset their password.
+ *
+ * @since 1.0.0
+ */
 class CustomerResetPasswordMail extends Mailer
 {
     /** @var User */
     protected $user;
 
+    /**
+     * Create the mail for the given user.
+     *
+     * @since 1.0.0
+     *
+     * @param User $user User who requested the password reset.
+     */
     public function __construct(User $user)
     {
         $this->user = $user;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function option_key()
     {
         return 'customer_emails.user_notifications.reset_password';
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function with()
     {
         // @todo: add reset password url

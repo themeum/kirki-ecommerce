@@ -6,6 +6,10 @@ use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 
 /**
+ * Facade for the payment manager.
+ *
+ * @since 1.0.0
+ *
  * @method static void init_registry()
  * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_all_providers()
  * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_online_providers()
@@ -20,9 +24,9 @@ use Kirki\Ecommerce\App\Payment\PaymentManager;
 class Payment extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public static function get_accessor()
     {

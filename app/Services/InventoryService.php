@@ -9,17 +9,22 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Checks and adjusts variant stock: availability, limits and reservations.
+ *
+ * @since 1.0.0
+ */
 class InventoryService
 {
-    /**
-     * @var VariantService
-     */
+    /** @var VariantService */
     protected $variant_service;
 
     /**
-     * InventoryService constructor.
+     * Set up the service with the variant service.
      *
-     * @param VariantService $variant_service
+     * @since 1.0.0
+     *
+     * @param VariantService $variant_service Variant lookup and quantity updates.
      */
     public function __construct(VariantService $variant_service)
     {
@@ -27,11 +32,15 @@ class InventoryService
     }
 
     /**
-     * Check if sufficient stock exists.
+     * Check whether enough stock exists for a quantity of a variant.
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
+     * Always true for untracked in-stock variants and variants that allow back orders.
+     *
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Quantity wanted.
+     * @return bool False when the variant does not exist.
      */
     public function has_stock(int $variant_id, int $quantity)
     {
@@ -53,11 +62,13 @@ class InventoryService
     }
 
     /**
-     * Check if within limit per order.
+     * Check whether a quantity is within the variant's per-order limit.
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Quantity wanted.
+     * @return bool False when the variant does not exist.
      */
     public function is_within_limit(int $variant_id, int $quantity)
     {
@@ -75,12 +86,14 @@ class InventoryService
     }
 
     /**
-     * Increase available quantity.
+     * Increase the available quantity of a variant.
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
-     * @throws NotFoundException
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Amount to add.
+     * @return bool True when a row was updated.
+     * @throws NotFoundException When the variant does not exist.
      */
     public function increment_stock(int $variant_id, int $quantity)
     {
@@ -93,13 +106,15 @@ class InventoryService
     }
 
     /**
-     * Decrease available quantity.
+     * Decrease the available quantity of a variant.
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
-     * @throws NotFoundException
-     * @throws ValidationException
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Amount to subtract.
+     * @return bool True when a row was updated.
+     * @throws NotFoundException When the variant does not exist.
+     * @throws ValidationException When a tracked variant without back orders lacks the stock.
      */
     public function decrement_stock(int $variant_id, int $quantity)
     {
@@ -114,13 +129,17 @@ class InventoryService
     }
 
     /**
-     * Reserve stock: Move quantity from available to committed.
+     * Reserve stock: move quantity from available to committed.
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
-     * @throws NotFoundException
-     * @throws ValidationException
+     * Does nothing for variants that do not track inventory.
+     *
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Amount to reserve.
+     * @return bool True when the quantities were updated, or the variant is untracked.
+     * @throws NotFoundException When the variant does not exist.
+     * @throws ValidationException When the variant lacks the stock and does not allow back orders.
      */
     public function reserve_stock(int $variant_id, int $quantity)
     {
@@ -139,12 +158,17 @@ class InventoryService
     }
 
     /**
-     * Release reserved stock: Move quantity from committed back to available.
+     * Release reserved stock: move quantity from committed back to available.
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
-     * @throws NotFoundException
+     * Releases at most the currently committed quantity. Does nothing for
+     * variants that do not track inventory.
+     *
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Amount to release.
+     * @return bool True when the quantities were updated, or the variant is untracked.
+     * @throws NotFoundException When the variant does not exist.
      */
     public function release_reserved_stock(int $variant_id, int $quantity)
     {
@@ -164,12 +188,17 @@ class InventoryService
     }
 
     /**
-     * Confirm reserved stock: Decrease committed quantity (e.g. order fulfilled).
+     * Confirm reserved stock: decrease committed quantity (e.g. order fulfilled).
      *
-     * @param int $variant_id
-     * @param int $quantity
-     * @return bool
-     * @throws NotFoundException
+     * Confirms at most the currently committed quantity. Does nothing for
+     * variants that do not track inventory.
+     *
+     * @since 1.0.0
+     *
+     * @param int $variant_id Variant ID.
+     * @param int $quantity   Amount to confirm.
+     * @return bool True when the quantity was updated, or the variant is untracked.
+     * @throws NotFoundException When the variant does not exist.
      */
     public function confirm_reserved_stock(int $variant_id, int $quantity)
     {
@@ -189,9 +218,11 @@ class InventoryService
     }
 
     /**
-     * Release all reserved stock for an order.
+     * Release the reserved stock of every item in an order.
      *
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param Order $order Order whose items are released.
      * @return void
      */
     public function release_all_reserved_stock(Order $order)
@@ -202,9 +233,11 @@ class InventoryService
     }
 
     /**
-     * Confirm all reserved stock for an order.
+     * Confirm the reserved stock of every item in an order.
      *
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param Order $order Order whose items are confirmed.
      * @return void
      */
     public function confirm_all_reserved_stock(Order $order)

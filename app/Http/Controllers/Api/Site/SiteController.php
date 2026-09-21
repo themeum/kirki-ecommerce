@@ -21,21 +21,22 @@ use function Kirki\Ecommerce\Framework\include_view;
 use function Kirki\Ecommerce\Framework\response;
 
 /**
- * Class SiteController
+ * REST controller serving storefront data for the shop page.
  *
  * @since 1.0.0
  */
 class SiteController
 {
     /**
-     * Get products as HTML or JSON for shop list.
+     * List shop products, with their filters and pagination, as JSON or rendered HTML.
+     *
+     * With `format=html` the product list and pagination are rendered through the shop views instead of returned as data.
      *
      * @since 1.0.0
      *
-     * @param ShopPageFilterRequest $request request.
-     * @param ProductService $product_service service.
-     *
-     * @return Response JSON response.
+     * @param ShopPageFilterRequest $request
+     * @param ProductService        $product_service
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Items, pagination and available filters.
      */
     public function products(ShopPageFilterRequest $request, ProductService $product_service)
     {

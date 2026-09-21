@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants\Product;
 
+/**
+ * Lookup tables for converting measurement units to their group base unit.
+ *
+ * @since 1.0.0
+ */
 class UnitConversion
 {
     /**

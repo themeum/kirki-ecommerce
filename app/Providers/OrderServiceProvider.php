@@ -9,12 +9,17 @@ use Kirki\Ecommerce\App\Actions\Order\UpdateOrderAction;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 
+/**
+ * Registers the order manager singleton.
+ *
+ * @since 1.0.0
+ */
 class OrderServiceProvider extends ServiceProvider
 {
     /**
-     * Register the hooks to the application.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {

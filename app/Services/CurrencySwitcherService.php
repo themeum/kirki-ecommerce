@@ -5,24 +5,22 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Supports\Utils;
+use Kirki\Ecommerce\App\Supports\CountryData;
 
 use function Kirki\Ecommerce\Framework\include_view;
 
 /**
- * Class CurrencySwitcherService
+ * Renders the storefront currency switcher for the active currencies.
  *
  * @since 1.0.0
  */
 class CurrencySwitcherService
 {
-    /**
-     * @var CurrencyService
-     */
+    /** @var CurrencyService */
     protected $currency_service;
 
     /**
-     * Loaded countries data.
+     * Loaded countries data, null until first needed.
      *
      * @var array|null
      */
@@ -31,16 +29,16 @@ class CurrencySwitcherService
     /**
      * Cache for currency code to flag mapping.
      *
-     * @var array
+     * @var array<string, string>
      */
     protected $currency_flags = [];
 
     /**
-     * Constructor
+     * Set up the switcher with the currency service.
      *
      * @since 1.0.0
      *
-     * @param CurrencyService $currency_service
+     * @param CurrencyService $currency_service Source of the active currencies.
      */
     public function __construct(CurrencyService $currency_service)
     {
@@ -48,13 +46,12 @@ class CurrencySwitcherService
     }
 
     /**
-     * Get currency switcher html
+     * Render the currency switcher markup.
      *
      * @since 1.0.0
      *
-     * @param array $attributes attributes.
-     *
-     * @return string currency switcher html.
+     * @param array<string, mixed> $attributes Display attributes, such as class and align.
+     * @return string The switcher HTML, or an empty string when at most one currency is active.
      */
     public function get_currency_switcher_html($attributes)
     {
@@ -124,13 +121,12 @@ class CurrencySwitcherService
     }
 
     /**
-     * Get flag emoji for a given currency code.
+     * Get the flag emoji for a currency code.
      *
      * @since 1.0.0
      *
      * @param string $currency_code Currency code.
-     *
-     * @return string Flag emoji or empty string.
+     * @return string Flag emoji, or an empty string when none matches.
      */
     protected function get_currency_flag(string $currency_code): string
     {
@@ -145,7 +141,7 @@ class CurrencySwitcherService
         }
 
         if ($this->countries === null) {
-            $this->countries = Utils::get_countries();
+            $this->countries = CountryData::index();
         }
 
         $alpha2 = substr($code, 0, 2);

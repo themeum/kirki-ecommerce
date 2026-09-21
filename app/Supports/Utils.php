@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\PageKeys;
@@ -22,19 +23,21 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
- * Class Utils
+ * General-purpose helpers for nonces, site pages, account routes and status badges.
  *
  * @since 1.0.0
  */
 class Utils
 {
     /**
-     * Check nonce is valid or not.
+     * Check whether the request carries a valid plugin nonce.
+     *
+     * Reads the `kecom_nonce` value from the POST data for POST requests and from
+     * the query string otherwise.
      *
      * @since 1.0.0
      *
-     * @param string $request_method request method.
-     *
+     * @param string|null $request_method Request method, defaults to the current request's method.
      * @return bool
      */
     public static function is_nonce_verified($request_method = null): bool
@@ -51,7 +54,7 @@ class Utils
      *
      * @since 1.0.0
      *
-     * @return int The shop page id.
+     * @return int The shop page id, 0 when none is set.
      */
     public static function get_shop_page_id()
     {
@@ -59,11 +62,13 @@ class Utils
     }
 
     /**
-     * Get site pages
+     * Get the site pages the plugin manages.
+     *
+     * The result can be modified through the `CustomHookNames::SITE_PAGES` filter.
      *
      * @since 1.0.0
      *
-     * @return array The site pages.
+     * @return array<string, string> Page titles keyed by their settings key (`advance.pages.*`).
      */
     public static function get_site_pages()
     {
@@ -73,7 +78,7 @@ class Utils
             $pages['advance.pages.' . $key] = $name;
         }
 
-        $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
+        $pages = apply_filters(CustomHookNames::SITE_PAGES, $pages);
 
         return $pages;
     }
@@ -81,9 +86,13 @@ class Utils
     /**
      * Get account route config.
      *
+     * Each entry describes an account page route and, for menu entries, its title,
+     * icon, URL and active state. The result can be modified through the
+     * `CustomHookNames::ACCOUNT_ROUTE_CONFIG` filter.
+     *
      * @since 1.0.0
      *
-     * @return array The account route config.
+     * @return array<string, array<string, mixed>> The account route config keyed by route key.
      */
     public static function get_account_route_config()
     {
@@ -167,7 +176,7 @@ class Utils
             ],
         ];
 
-        $route_config = apply_filters('kirki_ecommerce_account_route_config', $route_config);
+        $route_config = apply_filters(CustomHookNames::ACCOUNT_ROUTE_CONFIG, $route_config);
 
         return $route_config;
     }
@@ -175,9 +184,12 @@ class Utils
     /**
      * Get account menu items.
      *
+     * Picks the menu entries from the account route config. The result can be
+     * modified through the `CustomHookNames::ACCOUNT_MENU_ITEMS` filter.
+     *
      * @since 1.0.0
      *
-     * @return array The account menu items.
+     * @return array<string, array<string, mixed>> The account menu items keyed by route key.
      */
     public static function get_account_menu_items()
     {
@@ -190,19 +202,21 @@ class Utils
             }
         }
 
-        $menu_items = apply_filters('kirki_ecommerce_account_menu_items', $menu_items);
+        $menu_items = apply_filters(CustomHookNames::ACCOUNT_MENU_ITEMS, $menu_items);
 
         return $menu_items;
     }
 
     /**
-     * Generate site pages
+     * Generate site pages.
+     *
+     * Creates a published page for every site page setting that has none, and
+     * publishes the page already stored in the others. Failures are written to
+     * the PHP error log instead of being thrown.
      *
      * @since 1.0.0
      *
      * @return void
-     *
-     * @throws \Exception if page creation fails.
      */
     public static function generate_site_pages()
     {
@@ -240,7 +254,7 @@ class Utils
      *
      * @since 1.0.0
      *
-     * @return int The cart page id.
+     * @return int The cart page id, 0 when none is set.
      */
     public static function get_cart_page_id()
     {
@@ -252,7 +266,7 @@ class Utils
      *
      * @since 1.0.0
      *
-     * @return int The checkout page id.
+     * @return int The checkout page id, 0 when none is set.
      */
     public static function get_checkout_page_id()
     {
@@ -264,14 +278,7 @@ class Utils
      *
      * @since 1.0.0
      *
-     * @return int The account page id.
-     */
-    /**
-     * Get account page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The account page id.
+     * @return int The account page id, 0 when none is set.
      */
     public static function get_account_page_id()
     {
@@ -294,7 +301,6 @@ class Utils
      *
      * @param string|null $sub_path Optional sub-path to match. Supports `*` as
      *                              a wildcard (e.g. 'orders/*').
-     *
      * @return bool
      */
     public static function is_account_page(?string $sub_path = null): bool
@@ -340,7 +346,7 @@ class Utils
      *
      * @since 1.0.0
      *
-     * @return int The design system page id.
+     * @return int The design system page id, 0 when none is set.
      */
     public static function get_design_system_page_id()
     {
@@ -348,16 +354,15 @@ class Utils
     }
 
     /**
-     * Get countries.
+     * Get the country list with each country's states nested inside it.
      *
      * @since 1.0.0
      *
-     * @return mixed The country list.
+     * @return array[] The country list.
      */
     public static function get_countries()
     {
-        $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
-        return json_decode($countries_json, true);
+        return CountryData::nested();
     }
 
     /**
@@ -365,7 +370,7 @@ class Utils
      *
      * @since 1.0.0
      *
-     * @return bool True if user can register, false otherwise.
+     * @return int 1 if user registration is enabled, 0 otherwise.
      */
     public static function registration_enabled()
     {
@@ -373,12 +378,14 @@ class Utils
     }
 
     /**
-     * Get status badge class.
+     * Get the badge CSS class for an order status.
+     *
+     * Accepts a fulfillment or payment status and falls back to the default badge
+     * class for any other value.
      *
      * @since 1.0.0
      *
      * @param string $status The status.
-     *
      * @return string The badge class.
      */
     public static function get_status_badge_class(string $status): string
@@ -420,11 +427,12 @@ class Utils
     }
 
     /**
-     * Get page url by page key.
+     * Get the storefront URL of a plugin page by its page key.
      *
-     * @param string $page_key page key.
+     * @since 1.0.0
      *
-     * @return string|null page url.
+     * @param string $page_key One of the PageKeys constants: shop, cart, checkout or account.
+     * @return string|null The page URL, null for any other key.
      */
     public static function get_page_url_by_key(string $page_key)
     {

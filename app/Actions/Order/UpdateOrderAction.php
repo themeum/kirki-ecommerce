@@ -30,20 +30,52 @@ use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Edits an existing order: recalculates totals, syncs items and stock, coupons and taxes.
+ *
+ * @since 1.0.0
+ */
 class UpdateOrderAction
 {
     use PersistsOrderCoupons;
     use PersistsOrderTaxes;
 
+    /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
+
+    /** @var VariantService */
     protected $variant_service;
+
+    /** @var OrderService */
     protected $order_service;
+
+    /** @var InventoryService */
     protected $inventory_service;
+
+    /** @var ShippingService */
     protected $shipping_service;
+
+    /** @var CouponService */
     protected $coupon_service;
+
+    /** @var array<int, \Kirki\Ecommerce\App\Models\Variant> Variants loaded while building the calculation items, keyed by variant ID. */
     protected $variants_map = [];
+
+    /** @var string */
     protected $base_currency_code;
 
+    /**
+     * Set up the action and capture the store's base currency code.
+     *
+     * @since 1.0.0
+     *
+     * @param RecalculateCartAction $recalculate_cart_action Totals calculator.
+     * @param VariantService        $variant_service         Variant lookup service.
+     * @param OrderService          $order_service           Order persistence service.
+     * @param InventoryService      $inventory_service       Stock checks and reservation.
+     * @param ShippingService       $shippingService         Shipping method validation.
+     * @param CouponService         $coupon_service          Coupon service.
+     */
     public function __construct(
         RecalculateCartAction $recalculate_cart_action,
         VariantService $variant_service,
@@ -61,6 +93,19 @@ class UpdateOrderAction
         $this->base_currency_code = base_currency()->code;
     }
 
+    /**
+     * Update an order from the payload.
+     *
+     * Totals are recalculated server-side, order items are added, changed or removed with
+     * matching stock reservation, and coupons and taxes are re-synced in one transaction.
+     * Fails when the shipping method is invalid or stock is short.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateOrderPayloadDTO $dto Order ID with the new addresses, items, coupons and shipping method.
+     * @return Order The updated order with its items and coupons loaded.
+     * @throws Throwable When persisting the update fails; the transaction is rolled back.
+     */
     public function execute(UpdateOrderPayloadDTO $dto)
     {
         // @todo Should we allow to edit the order if its status is cancelled or refunded?
@@ -94,6 +139,21 @@ class UpdateOrderAction
         }
     }
 
+    /**
+     * Bring the order's items in line with the recalculated items.
+     *
+     * Adds new items, updates changed quantities, and removes items no longer present,
+     * reserving or releasing stock for the difference. Fails when stock is short.
+     *
+     * @since 1.0.0
+     *
+     * @param Order                $order             Order with its items loaded.
+     * @param CalculationResultDTO $calculated_result Recalculated totals and items.
+     * @param string               $currency_code     Order currency code.
+     * @param float                $exchange_rate     Rate from the base currency to the order currency.
+     * @return void
+     * @throws \Exception When stock is short for a new or increased item quantity.
+     */
     protected function sync_order_items(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
     {
         $existing_items_map = [];
@@ -148,6 +208,20 @@ class UpdateOrderAction
         }
     }
 
+    /**
+     * Build the order update DTO from the recalculated totals and payload.
+     *
+     * Stores every amount both in the base currency and converted to the order's currency.
+     *
+     * @since 1.0.0
+     *
+     * @param Order                 $order             Order being updated.
+     * @param CalculationResultDTO  $calculated_result Recalculated totals.
+     * @param UpdateOrderPayloadDTO $dto               Update payload.
+     * @param CalculationContextDTO $context           Calculation context used for the totals.
+     * @param float                 $exchange_rate     Rate from the base currency to the order currency.
+     * @return UpdateOrderDTO Order data ready to persist.
+     */
     protected function prepare_update_order_dto($order, CalculationResultDTO $calculated_result, UpdateOrderPayloadDTO $dto, CalculationContextDTO $context, float $exchange_rate)
     {
         $order_dto = new UpdateOrderDTO();
@@ -215,6 +289,14 @@ class UpdateOrderAction
         return $order_dto;
     }
 
+    /**
+     * Build the price calculation context from the payload.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateOrderPayloadDTO $dto Update payload.
+     * @return CalculationContextDTO Context ready for RecalculateCartAction.
+     */
     protected function prepare_calculation_context_dto(UpdateOrderPayloadDTO $dto)
     {
         $context = new CalculationContextDTO();
@@ -247,6 +329,17 @@ class UpdateOrderAction
         return $context;
     }
 
+    /**
+     * Build the calculation items for the payload's line items.
+     *
+     * Records each variant in the variants map. Fails when a variant is missing.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateOrderPayloadDTO $dto Update payload.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO.
+     * @throws \Exception When a variant is missing.
+     */
     protected function prepare_context_items(UpdateOrderPayloadDTO $dto)
     {
         $items = collection();
@@ -276,6 +369,19 @@ class UpdateOrderAction
         return $items;
     }
 
+    /**
+     * Build an order item DTO for an item newly added to the order.
+     *
+     * Snapshots the product and variant data, and stores amounts in both the base and order currency.
+     *
+     * @since 1.0.0
+     *
+     * @param int                $order_id        ID of the order the item belongs to.
+     * @param CalculationItemDTO $calculated_item Recalculated item.
+     * @param string             $currency_code   Order currency code.
+     * @param float              $exchange_rate   Rate from the base currency to the order currency.
+     * @return CreateOrderItemDTO Order item data ready to persist.
+     */
     protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
         $variant = $this->variants_map[$calculated_item->variant_id];
@@ -289,10 +395,13 @@ class UpdateOrderAction
         $item_dto->variant_name = $variant->attribute_values->pluck('value')->join(', ');
         $item_dto->sku = $variant->sku;
         $item_dto->barcode = $variant->barcode;
-        $item_dto->product_image = $variant->media ?? $product->media->first()->id;
+        $item_dto->product_image = $variant->media ?? $product->media->first()->id ?? null;
 
         $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
         $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
+
+        $item_dto->invoiced_regular_price = $this->convert_amount($variant->base_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $variant->base_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
@@ -320,6 +429,19 @@ class UpdateOrderAction
         return $item_dto;
     }
 
+    /**
+     * Build an order item update DTO for an item already on the order.
+     *
+     * Keeps the item's original product and price snapshot and refreshes quantity and totals.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderItem          $existing_item   Item currently on the order.
+     * @param CalculationItemDTO $calculated_item Recalculated item.
+     * @param string             $currency_code   Order currency code.
+     * @param float              $exchange_rate   Rate from the base currency to the order currency.
+     * @return UpdateOrderItemDTO Order item data ready to persist.
+     */
     protected function prepare_update_order_item_dto(OrderItem $existing_item, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
         $item_dto = new UpdateOrderItemDTO();
@@ -335,6 +457,9 @@ class UpdateOrderAction
 
         $item_dto->invoiced_price = $existing_item->invoiced_price;
         $item_dto->base_price = $existing_item->base_price;
+
+        $item_dto->invoiced_regular_price = $existing_item->invoiced_regular_price;
+        $item_dto->base_regular_price = $existing_item->base_regular_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
@@ -359,6 +484,16 @@ class UpdateOrderAction
         return $item_dto;
     }
 
+    /**
+     * Convert a base currency minor amount into the target currency.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $amount               Amount in base currency minor units.
+     * @param string $target_currency_code Currency to convert to.
+     * @param float  $exchange_rate        Rate from the base currency to the target currency.
+     * @return int Amount in the target currency's minor units; unchanged when the target is the base currency.
+     */
     protected function convert_amount($amount, $target_currency_code, $exchange_rate)
     {
         if ($target_currency_code === $this->base_currency_code) {

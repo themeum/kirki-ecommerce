@@ -2,11 +2,58 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Customer;
 
+use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
+use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating a customer.
+ *
+ * @since 1.0.0
+ */
 class CustomerCreateRequest extends Request
 {
+    use ValidatesAddressFields;
+
+    /**
+     * Give the optional fields of each submitted address an empty value.
+     *
+     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * uses neither can legitimately submit an address without them, so the absent
+     * value is coerced to an empty string rather than widening the schema.
+     *
+     * Runs before validation, which treats an empty string as missing, so a
+     * country that does require the field still fails.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    protected function prepare_for_validation()
+    {
+        foreach (['shipping_address', 'billing_address'] as $address_key) {
+            $address = $this->input($address_key);
+
+            if (!is_array($address)) {
+                continue;
+            }
+
+            foreach (['state', 'postal_code'] as $field) {
+                if (($address[$field] ?? null) === null) {
+                    $address[$field] = '';
+                }
+            }
+
+            $this->merge([$address_key => $address]);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -28,8 +75,8 @@ class CustomerCreateRequest extends Request
             'shipping_address.address_line1' => $this->required_when_address_present('shipping_address'),
             'shipping_address.address_line2' => 'nullable|string',
             'shipping_address.city'          => $this->required_when_address_present('shipping_address'),
-            'shipping_address.state'         => $this->required_when_address_present('shipping_address'),
-            'shipping_address.postal_code'      => $this->required_when_address_present('shipping_address'),
+            'shipping_address.state'         => $this->address_field_when_address_present('shipping_address', 'state'),
+            'shipping_address.postal_code'      => $this->address_field_when_address_present('shipping_address', 'postal_code'),
             'shipping_address.country'       => $this->required_when_address_present('shipping_address'),
             'billing_address'               => 'nullable|array',
             'billing_address.first_name'    => $this->required_when_address_present('billing_address'),
@@ -39,20 +86,22 @@ class CustomerCreateRequest extends Request
             'billing_address.address_line1' => $this->required_when_address_present('billing_address'),
             'billing_address.address_line2' => 'nullable|string',
             'billing_address.city'          => $this->required_when_address_present('billing_address'),
-            'billing_address.state'         => $this->required_when_address_present('billing_address'),
-            'billing_address.postal_code'   => $this->required_when_address_present('billing_address'),
+            'billing_address.state'         => $this->address_field_when_address_present('billing_address', 'state'),
+            'billing_address.postal_code'   => $this->address_field_when_address_present('billing_address', 'postal_code'),
             'billing_address.country'       => $this->required_when_address_present('billing_address'),
         ];
     }
 
     /**
-     * Build a closure rule requiring a string field only when the given
-     * top-level address block was submitted at all - shipping_address and
-     * billing_address are both optional as a whole, but their fields are
-     * still required together when either block is present.
+     * Build a closure rule requiring a field only when its address block is submitted.
      *
-     * @param string $address_key
-     * @return \Closure
+     * shipping_address and billing_address are optional as a whole, but their fields
+     * are required together once either block is present.
+     *
+     * @since 1.0.0
+     *
+     * @param string $address_key Top-level address block, `shipping_address` or `billing_address`.
+     * @return \Closure Rule callback returning true when the value is acceptable, false otherwise.
      */
     protected function required_when_address_present(string $address_key)
     {
@@ -65,6 +114,50 @@ class CustomerCreateRequest extends Request
         };
     }
 
+    /**
+     * Build a closure rule for an address field that the selected country may not use.
+     *
+     * Layers the country's own rule on top of the address-present check, so a
+     * country with no subdivisions or postal codes is never asked for them. The
+     * callback returns true when valid, a state-required message string for a
+     * missing state, or false for any other missing field.
+     *
+     * @since 1.0.0
+     *
+     * @param string $address_key Top-level address block, `shipping_address` or `billing_address`.
+     * @param string $field       Either `state` or `postal_code`.
+     * @return \Closure Rule callback.
+     */
+    protected function address_field_when_address_present(string $address_key, string $field)
+    {
+        return function ($value, $key, $data) use ($address_key, $field) {
+            if (empty($data[$address_key])) {
+                return true;
+            }
+
+            $country = (string) ($data[$address_key]['country'] ?? '');
+
+            if (!AddressRules::is_required($country, $field)) {
+                return true;
+            }
+
+            if (is_string($value) && $value !== '') {
+                return true;
+            }
+
+            if ($field === 'state') {
+                return static::state_required_message($country);
+            }
+
+            return false;
+        };
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

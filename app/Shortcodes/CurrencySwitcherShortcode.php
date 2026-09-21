@@ -16,31 +16,25 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Services\CurrencySwitcherService;
 
 /**
- * Class CurrencySwitcherShortcode
+ * Registers the [kecom_currency_switcher] shortcode, which renders the currency switcher.
  *
  * @since 1.0.0
- *
- * Usage [kecom_currency_switcher]
  */
 class CurrencySwitcherShortcode
 {
     /**
-     * Name of shortcode
-     *
-     * @since 1.0.0
+     * Shortcode tag.
      *
      * @var string
      */
     protected $name = 'kecom_currency_switcher';
 
     /**
-     * Constructor
+     * Register the shortcode, rendering its output through the currency switcher service.
      *
      * @since 1.0.0
      *
-     * @param CurrencySwitcherService $service service.
-     *
-     * @return void
+     * @param CurrencySwitcherService $service Currency switcher service.
      */
     public function __construct(CurrencySwitcherService $service)
     {

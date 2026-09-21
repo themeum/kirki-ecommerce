@@ -2,13 +2,62 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Customer;
 
+use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating a customer.
+ *
+ * @since 1.0.0
+ */
 class CustomerUpdateRequest extends Request
 {
+    use ValidatesAddressFields;
+
+    /**
+     * Give the optional fields of each submitted address an empty value.
+     *
+     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * uses neither can legitimately submit an address without them, so the absent
+     * value is coerced to an empty string rather than widening the schema.
+     *
+     * Runs before validation, which treats an empty string as missing, so a
+     * country that does require the field still fails.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    protected function prepare_for_validation()
+    {
+        foreach (['shipping_address', 'billing_address'] as $address_key) {
+            $address = $this->input($address_key);
+
+            if (!is_array($address)) {
+                continue;
+            }
+
+            foreach (['state', 'postal_code'] as $field) {
+                if (($address[$field] ?? null) === null) {
+                    $address[$field] = '';
+                }
+            }
+
+            $this->merge([$address_key => $address]);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
+        $shipping_country = $this->address_block_country('shipping_address');
+        $billing_country = $this->address_block_country('billing_address');
+
         return [
             'id' => 'required|integer',
             'first_name' => 'required|string',
@@ -29,8 +78,8 @@ class CustomerUpdateRequest extends Request
             'shipping_address.address_line1' => 'required|string',
             'shipping_address.address_line2' => 'nullable|string',
             'shipping_address.city' => 'required|string',
-            'shipping_address.state' => 'required|string',
-            'shipping_address.postal_code' => 'required|string',
+            'shipping_address.state' => static::address_field_rule($shipping_country, 'state'),
+            'shipping_address.postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
             'shipping_address.country' => 'required|string',
             'billing_address' => 'required|array',
             'billing_address.first_name' => 'required|string',
@@ -40,12 +89,30 @@ class CustomerUpdateRequest extends Request
             'billing_address.address_line1' => 'required|string',
             'billing_address.address_line2' => 'nullable|string',
             'billing_address.city' => 'required|string',
-            'billing_address.state' => 'required|string',
-            'billing_address.postal_code' => 'required|string',
+            'billing_address.state' => static::address_field_rule($billing_country, 'state'),
+            'billing_address.postal_code' => static::address_field_rule($billing_country, 'postal_code'),
             'billing_address.country' => 'required|string',
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function messages()
+    {
+        return [
+            'shipping_address.state.required' => static::state_required_message($this->address_block_country('shipping_address')),
+            'billing_address.state.required' => static::state_required_message($this->address_block_country('billing_address')),
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

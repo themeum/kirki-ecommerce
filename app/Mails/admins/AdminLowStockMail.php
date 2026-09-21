@@ -11,21 +11,43 @@ use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Email sent to the store admin when a variant's stock runs low.
+ *
+ * @since 1.0.0
+ */
 class AdminLowStockMail extends Mailer
 {
     /** @var Variant */
     protected $variant;
 
+    /**
+     * Create the mail for the given low-stock variant.
+     *
+     * @since 1.0.0
+     *
+     * @param Variant $variant Variant whose stock is low.
+     */
     public function __construct(Variant $variant)
     {
         $this->variant = $variant;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function option_key()
     {
         return 'admin_emails.inventory_notifications.low_stock';
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function with()
     {
         $product_edit_url = Url::get_product_edit_url($this->variant->product_id);

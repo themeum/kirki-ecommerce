@@ -47,24 +47,68 @@ use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\uuid;
 
+/**
+ * Places an order from a checkout or manual-order payload, reserving stock and persisting totals, coupons and taxes.
+ *
+ * @since 1.0.0
+ */
 class CreateOrderAction
 {
     use PersistsOrderCoupons;
     use PersistsOrderTaxes;
 
+    /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
+
+    /** @var VariantService */
     protected $variant_service;
+
+    /** @var OrderService */
     protected $order_service;
+
+    /** @var InventoryService */
     protected $inventory_service;
+
+    /** @var ShippingService */
     protected $shipping_service;
+
+    /** @var CouponService */
     protected $coupon_service;
+
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var CreateCustomerAction */
     protected $create_customer_action;
+
+    /** @var CartService */
     protected $cart_service;
+
+    /** @var AddressService */
     protected $address_service;
+
+    /** @var array<int, \Kirki\Ecommerce\App\Models\Variant> Variants loaded while building the calculation items, keyed by variant ID. */
     protected $variants_map = [];
+
+    /** @var string */
     protected $base_currency_code;
 
+    /**
+     * Set up the action and capture the store's base currency code.
+     *
+     * @since 1.0.0
+     *
+     * @param RecalculateCartAction $recalculate_cart_action Totals calculator.
+     * @param VariantService        $variant_service         Variant lookup service.
+     * @param OrderService          $order_service           Order persistence service.
+     * @param InventoryService      $inventory_service       Stock checks and reservation.
+     * @param ShippingService       $shipping_service        Shipping method validation.
+     * @param CouponService         $coupon_service          Coupon service.
+     * @param CustomerService       $customer_service        Customer lookup service.
+     * @param CreateCustomerAction  $create_customer_action  Provisions the checkout customer.
+     * @param CartService           $cart_service            Cart lookup and clearing service.
+     * @param AddressService        $address_service         Address persistence service.
+     */
     public function __construct(
         RecalculateCartAction $recalculate_cart_action,
         VariantService $variant_service,
@@ -91,6 +135,20 @@ class CreateOrderAction
         $this->base_currency_code = base_currency()->code;
     }
 
+    /**
+     * Create an order from the payload.
+     *
+     * For storefront checkouts the items and coupons come from the shopper's cart, which is
+     * emptied after the order is placed. Totals are recalculated server-side, stock is
+     * reserved per item, and everything is written in one transaction. Fails when the
+     * shipping method is invalid, the cart is empty, or stock is short.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Checkout or manual order data; addresses, customer and cart fields may be filled in.
+     * @return Order The created order with its items and coupons loaded.
+     * @throws Throwable When persisting the order fails; the transaction is rolled back.
+     */
     public function execute(CreateOrderPayloadDTO $dto)
     {
         $this->resolve_billing_and_shipping_addresses($dto);
@@ -161,7 +219,9 @@ class CreateOrderAction
      * If the order is marked as "billing same as shipping", copy the
      * shipping address fields to the billing address fields.
      *
-     * @param CreateOrderPayloadDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload, modified in place.
      * @return void
      */
     protected function resolve_billing_and_shipping_addresses(CreateOrderPayloadDTO $dto)
@@ -196,8 +256,10 @@ class CreateOrderAction
      * a nested START TRANSACTION would implicitly commit the order insert
      * early.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto   Order payload; its shipping_id and billing_id are filled in.
+     * @param Order                 $order Order that was just created.
      * @return void
      */
     protected function sync_address(CreateOrderPayloadDTO $dto, $order)
@@ -219,6 +281,18 @@ class CreateOrderAction
         }
     }
 
+    /**
+     * Load the shopper's cart into the payload.
+     *
+     * Copies the cart's items, coupon codes, cart token and shipping method onto the payload.
+     * Fails when the cart is missing or empty.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload, modified in place.
+     * @return void
+     * @throws \Exception When the cart is missing or empty.
+     */
     protected function resolve_checkout_cart(CreateOrderPayloadDTO $dto): void
     {
         $cart = $this->cart_service->get_cart($dto->user_id, $dto->cart_token);
@@ -250,8 +324,11 @@ class CreateOrderAction
      * Customer record (with addresses) for the authenticated user placing
      * the order if one doesn't already exist for their WordPress user_id.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @return int
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload; its shipping_id and billing_id are filled in when a customer is created.
+     * @return int Customer ID.
+     * @throws UniqueConstraintViolationException When creating the customer fails on a unique constraint and no customer exists for the user.
      */
     protected function resolve_checkout_customer_id(CreateOrderPayloadDTO $dto)
     {
@@ -287,8 +364,10 @@ class CreateOrderAction
      * single address covering both defaults when billing is the same as
      * shipping, otherwise a separate address for each.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @return CreateAddressDTO[]
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return CreateAddressDTO[] One or two default addresses.
      */
     protected function prepare_checkout_customer_addresses(CreateOrderPayloadDTO $dto)
     {
@@ -307,14 +386,15 @@ class CreateOrderAction
      * Create a new default shipping/billing address for the customer from
      * the checkout request's shipping/billing fields.
      *
-     * @param CreateOrderPayloadDTO $dto
-     * @param int $customer_id
-     * @param string $purpose AddressPurpose::SHIPPING or AddressPurpose::BILLING -
-     * which request field prefix to read and which default flag to set.
-     * Unrelated to the Address's own type (home/office/others), which
-     * defaults to home here.
-     * @return Address
-     * @throws Throwable
+     * The purpose only selects the field prefix and default flag; it is unrelated
+     * to the address's own type (home/office/others), which defaults to home here.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto         Order payload.
+     * @param int                   $customer_id Customer to attach the address to.
+     * @param string                $purpose     AddressPurpose::SHIPPING or AddressPurpose::BILLING, which selects the request field prefix and the default flag to set.
+     * @return Address The created address.
      */
     protected function create_address(CreateOrderPayloadDTO $dto, $customer_id, $purpose)
     {
@@ -324,6 +404,16 @@ class CreateOrderAction
         return $this->address_service->create_without_transaction($address_dto);
     }
 
+    /**
+     * Build the customer payload for the user placing the order.
+     *
+     * Uses the WordPress user's profile, falling back to the billing details.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return CreateCustomerDTO Customer data without addresses.
+     */
     protected function prepare_checkout_customer_dto(CreateOrderPayloadDTO $dto)
     {
         $wp_user = get_userdata($dto->created_by) ?: null;
@@ -342,7 +432,9 @@ class CreateOrderAction
      * Resolve the order's customer contact snapshot from the placing
      * WordPress user's profile when they have an account, else billing.
      *
-     * @param CreateOrderPayloadDTO $dto
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
      * @return array{first_name: ?string, last_name: ?string, email: ?string, phone: ?string}
      */
     protected function resolve_customer_contact_details(CreateOrderPayloadDTO $dto)
@@ -357,6 +449,18 @@ class CreateOrderAction
         ];
     }
 
+    /**
+     * Build an address DTO from the payload's shipping or billing fields.
+     *
+     * New addresses are typed as home and flagged as the default for the given prefix.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto       Order payload.
+     * @param string                $prefix    Field prefix to read, shipping or billing.
+     * @param bool                  $is_update Whether to build an update DTO instead of a create DTO.
+     * @return CreateAddressDTO|UpdateAddressDTO Address data.
+     */
     protected function prepare_checkout_address_dto(CreateOrderPayloadDTO $dto, string $prefix, bool $is_update = false)
     {
         $address_payload = $is_update ? new UpdateAddressDTO() : new CreateAddressDTO();
@@ -379,6 +483,17 @@ class CreateOrderAction
         return $address_payload;
     }
 
+    /**
+     * Build the price calculation context from the payload.
+     *
+     * Includes the customer's active order count, addresses, coupon codes,
+     * shipping method and the priced item list.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return CalculationContextDTO Context ready for RecalculateCartAction.
+     */
     protected function prepare_calculation_context_dto(CreateOrderPayloadDTO $dto)
     {
         $context = new CalculationContextDTO();
@@ -418,6 +533,18 @@ class CreateOrderAction
         return $context;
     }
 
+    /**
+     * Build the calculation items for the payload's line items.
+     *
+     * Records each variant in the variants map. Fails when a variant or its
+     * product is missing, or the per-order limit is exceeded.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOrderPayloadDTO $dto Order payload.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO.
+     * @throws \Exception When a variant or its product is missing, or the per-order limit is exceeded.
+     */
     protected function prepare_context_items(CreateOrderPayloadDTO $dto)
     {
         $items = collection();
@@ -456,6 +583,18 @@ class CreateOrderAction
         return $items;
     }
 
+    /**
+     * Build the order DTO from the calculated totals and payload.
+     *
+     * Stores every amount both in the base currency and converted to the order's currency.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationResultDTO  $calculated_result Recalculated totals.
+     * @param CreateOrderPayloadDTO $dto               Order payload.
+     * @param CalculationContextDTO $context           Calculation context used for the totals.
+     * @return CreateOrderDTO Order data ready to persist.
+     */
     protected function prepare_create_order_dto(CalculationResultDTO $calculated_result, CreateOrderPayloadDTO $dto, CalculationContextDTO $context)
     {
         $target_currency_code = $dto->currency_code;
@@ -534,6 +673,21 @@ class CreateOrderAction
         return $order_dto;
     }
 
+    /**
+     * Build an order item DTO from a calculated item and its variant.
+     *
+     * Snapshots the product and variant data, and stores amounts in both the base and order currency.
+     * Fails when the variant's product is missing.
+     *
+     * @since 1.0.0
+     *
+     * @param int                $order_id        ID of the order the item belongs to.
+     * @param CalculationItemDTO $calculated_item Recalculated item.
+     * @param string             $currency_code   Order currency code.
+     * @param float              $exchange_rate   Rate from the base currency to the order currency.
+     * @return CreateOrderItemDTO Order item data ready to persist.
+     * @throws \Exception When the variant's product is missing.
+     */
     protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
         $variant = $this->variants_map[$calculated_item->variant_id];
@@ -561,6 +715,9 @@ class CreateOrderAction
         $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
         $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
 
+        $item_dto->invoiced_regular_price = $this->convert_amount($variant->base_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $variant->base_price;
+
         $item_dto->quantity = $calculated_item->quantity;
 
         $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
@@ -587,6 +744,16 @@ class CreateOrderAction
         return $item_dto;
     }
 
+    /**
+     * Convert a base currency minor amount into the target currency.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $amount               Amount in base currency minor units.
+     * @param string $target_currency_code Currency to convert to.
+     * @param float  $exchange_rate        Rate from the base currency to the target currency.
+     * @return int Amount in the target currency's minor units; unchanged when the target is the base currency.
+     */
     protected function convert_amount($amount, $target_currency_code, $exchange_rate)
     {
         if ($target_currency_code === $this->base_currency_code) {
@@ -596,6 +763,14 @@ class CreateOrderAction
         return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $target_currency_code, $exchange_rate)->getMinorAmount()->toInt();
     }
 
+    /**
+     * Build the payment provider snapshot stored on the order.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $payment_provider_id Payment provider ID.
+     * @return array<string, mixed>|null Provider id, name, icon and offline flag; null when the provider is unknown.
+     */
     protected function build_payment_provider_snapshot($payment_provider_id)
     {
         $provider = Payment::get_provider($payment_provider_id);
@@ -614,6 +789,14 @@ class CreateOrderAction
         ];
     }
 
+    /**
+     * Build the shipping method snapshot stored on the order.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Calculation context with the selected shipping method.
+     * @return array<string, mixed>|null Shipping method id, name and type; null when no method is selected.
+     */
     protected function build_shipping_method_snapshot(CalculationContextDTO $context)
     {
         $method = $this->shipping_service->get_selected_shipping_method($context);

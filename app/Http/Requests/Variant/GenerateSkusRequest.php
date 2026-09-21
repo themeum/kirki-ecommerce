@@ -5,8 +5,18 @@ namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the variant IDs for generating SKUs in bulk.
+ *
+ * @since 1.0.0
+ */
 class GenerateSkusRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -15,6 +25,11 @@ class GenerateSkusRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

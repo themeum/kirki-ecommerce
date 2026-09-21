@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\Database\Seeders\OnBoarding;
 
+/**
+ * Imports images bundled with the plugin into the WordPress media library.
+ *
+ * @since 1.0.0
+ */
 class MediaImporter
 {
     /**
@@ -19,10 +24,10 @@ class MediaImporter
      * write to the uploads directory still gets its catalog - just without
      * imagery - instead of a fatal during the version update.
      *
-     * @param string $absolute_path Absolute path to the bundled source file.
-     *
-     * @return int|null The attachment ID, or null when the import failed.
      * @since 1.0.0
+     *
+     * @param string $absolute_path Absolute path to the bundled source file.
+     * @return int|null The attachment ID, or null when the import failed.
      */
     public function import($absolute_path)
     {
@@ -64,10 +69,10 @@ class MediaImporter
     /**
      * Find an attachment previously imported from the same bundled filename.
      *
-     * @param string $filename The bundled source filename.
-     *
-     * @return int|null
      * @since 1.0.0
+     *
+     * @param string $filename The bundled source filename.
+     * @return int|null The existing attachment ID, or null when none was imported.
      */
     protected function find_existing($filename)
     {
@@ -87,11 +92,11 @@ class MediaImporter
     /**
      * Register an uploaded file as an attachment post.
      *
+     * @since 1.0.0
+     *
      * @param string $file     Absolute path to the uploaded file.
      * @param string $filename The original filename.
-     *
-     * @return int|null
-     * @since 1.0.0
+     * @return int|null The new attachment ID, or null when insertion failed.
      */
     protected function create_attachment($file, $filename)
     {
@@ -117,11 +122,11 @@ class MediaImporter
      * wp_generate_attachment_metadata() lives in an admin include that is not
      * guaranteed to be loaded during admin_init, where the version update runs.
      *
+     * @since 1.0.0
+     *
      * @param int    $attachment_id The attachment ID.
      * @param string $file          Absolute path to the uploaded file.
-     *
      * @return void
-     * @since 1.0.0
      */
     protected function generate_metadata($attachment_id, $file)
     {

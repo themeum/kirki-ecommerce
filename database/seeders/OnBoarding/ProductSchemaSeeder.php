@@ -6,6 +6,11 @@ use Kirki\Ecommerce\App\Models\ProductSchema;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the onboarding product schema profiles when none exist yet.
+ *
+ * @since 1.0.0
+ */
 class ProductSchemaSeeder extends Seeder
 {
     /**
@@ -14,8 +19,9 @@ class ProductSchemaSeeder extends Seeder
      * The schema column is encoded here because the bulk insert bypasses the
      * model's set_schema_attribute mutator.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

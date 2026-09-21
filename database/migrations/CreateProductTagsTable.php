@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_product_tags table, the pivot linking products to tags.
+ *
+ * @since 1.0.0
+ */
 class CreateProductTagsTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_product_tags table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_product_tags', function (Structure $table) {
@@ -28,6 +40,13 @@ class CreateProductTagsTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_product_tags table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_product_tags');

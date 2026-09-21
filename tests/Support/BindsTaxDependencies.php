@@ -41,8 +41,8 @@ trait BindsTaxDependencies
      * Boots the real `Application` (not the lighter container
      * `bind_tax_dependencies()` uses) because `TaxStrategyFactory` reads
      * `config('tax-strategies')`, which needs a real `config_path()`. The
-     * real EU country dataset loads along with it - `EuropeanCountryChecker`
-     * needs no faking.
+     * real country dataset loads along with it, and `EuropeanCountryChecker`
+     * reads EU membership straight out of it - so it needs no faking.
      *
      * @param array $tax_regions Same shape the tax settings UI persists:
      *        each entry a region (`code`, `is_enabled`, plus its rate/rule

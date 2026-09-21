@@ -9,13 +9,21 @@ use Kirki\Ecommerce\Framework\Supports\Str;
 
 use function Kirki\Ecommerce\Framework\uuid;
 
+/**
+ * Seeds one active cart for each of a few seeded customers.
+ *
+ * @since 1.0.0
+ */
 class CartSeeder extends Seeder
 {
     /**
      * Seed curated shopping carts for seeded customers.
      *
-     * @return void
+     * Creates a cart with two variants of product 1 for customers 1, 3 and 5.
+     *
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

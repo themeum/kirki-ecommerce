@@ -11,18 +11,44 @@ use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use PHPMailer\PHPMailer\PHPMailer;
 
+/**
+ * Configures WordPress' PHPMailer with the SMTP settings saved in the plugin's email settings.
+ *
+ * @since 1.0.0
+ */
 class SMTPConfig extends BaseHook
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::WP_PHP_MAILER_INIT;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Apply the configured SMTP host, credentials and encryption to the mailer.
+     *
+     * Runs on the `phpmailer_init` action. Does nothing unless SMTP is the selected mailer;
+     * misconfiguration is written to the PHP error log and the mailer is left unchanged.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments; the first must be the PHPMailer instance.
+     * @return void
+     */
     public function handle(...$args)
     {
         if (empty($args)) {

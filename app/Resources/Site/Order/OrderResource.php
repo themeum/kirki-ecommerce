@@ -19,12 +19,21 @@ use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * API resource for a single order as shown to the customer on the storefront.
+ *
+ * @since 1.0.0
+ */
 class OrderResource extends Resource
 {
     /**
      * Convert the order resource to an array.
      *
-     * @return array
+     * Amounts are money objects in the order's invoiced currency, and the next payment step is resolved for unsettled orders.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The customer-facing order data.
      */
     public function to_array()
     {
@@ -138,9 +147,13 @@ class OrderResource extends Resource
     }
 
     /**
-     * @param \Kirki\Ecommerce\App\Models\OrderItem[] $items
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @return array
+     * Build the customer-facing line items with net subtotals, tax lines and applied product coupons.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem[]   $items         Items of the order.
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return array<int, array<string, mixed>> Line item data.
      */
     protected function prepare_items($items, $order_coupons)
     {
@@ -160,9 +173,7 @@ class OrderResource extends Resource
                 'image' => MediaAttachment::make($item->product_image),
                 'quantity' => $item->quantity,
                 'invoiced_subtotal_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_subtotal - $invoiced_product_coupon_discount, $this->currency_code),
-                'invoiced_strikethrough_price_money_object' => $invoiced_product_coupon_discount > 0
-                    ? Money::prepare_amount_object_from_minor($item->invoiced_subtotal, $this->currency_code)
-                    : null,
+                'invoiced_strikethrough_price_money_object' => $this->prepare_strikethrough_price($item, $invoiced_product_coupon_discount),
                 'invoiced_tax_total_money_object' => Money::prepare_amount_object_from_minor($item->invoiced_tax_total, $this->currency_code),
                 'tax_lines' => $this->format_tax_breakdown(($item->taxes ?: collection())->all()),
                 'applied_product_coupons' => $this->format_applied_product_coupons($item_discounts),
@@ -173,8 +184,40 @@ class OrderResource extends Resource
     }
 
     /**
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @return array
+     * The line item's "was" price before its current invoiced subtotal - the
+     * sale-adjusted subtotal if a product coupon further discounted it,
+     * otherwise the regular price total if it was bought on sale. Null when
+     * neither applies, so nothing should render as struck through. The sale
+     * check compares the base amounts so currency conversion rounding can't
+     * make an item that wasn't on sale look discounted; an item with no
+     * recorded regular price is never treated as on sale.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem $item                            Order item to price.
+     * @param int                                   $invoiced_product_coupon_discount Discount from item-scoped coupons, in minor units.
+     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO|null Null when nothing should be struck through.
+     */
+    protected function prepare_strikethrough_price($item, $invoiced_product_coupon_discount)
+    {
+        if ($invoiced_product_coupon_discount > 0) {
+            $strikethrough_amount = $item->invoiced_subtotal;
+        } elseif ($item->base_regular_price > $item->base_price) {
+            $strikethrough_amount = $item->invoiced_regular_price * $item->quantity;
+        } else {
+            return null;
+        }
+
+        return Money::prepare_amount_object_from_minor($strikethrough_amount, $this->currency_code);
+    }
+
+    /**
+     * Build the applied coupon summaries with their invoiced discount and snapshot fields.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\Framework\Collections\Collection $order_coupons Coupons applied to the order.
+     * @return array<int, array<string, mixed>> Coupon details.
      */
     protected function format_coupon_results($order_coupons)
     {
@@ -194,8 +237,10 @@ class OrderResource extends Resource
      * `find_product_coupon_discounts_for_item()`) into per-item coupon
      * badges, dropping any discount clamped down to zero.
      *
-     * @param array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> $item_discounts
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> $item_discounts Coupon and discount row pairs for one item.
+     * @return array<int, array<string, mixed>> Coupon badge data.
      */
     protected function format_applied_product_coupons($item_discounts)
     {
@@ -224,8 +269,10 @@ class OrderResource extends Resource
      * converted here using the order's own frozen `exchange_rate` - not a
      * live rate lookup, since this is historical order data.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon $order_coupon
-     * @return array
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon $order_coupon Coupon applied to the order.
+     * @return array<string, mixed> Discount value type, percentage and fixed amount as a money object.
      */
     protected function format_coupon_snapshot_fields($order_coupon)
     {
@@ -246,8 +293,10 @@ class OrderResource extends Resource
      * currency using the order's frozen `exchange_rate` - never a live
      * rate, since the order's own conversion rate is fixed at checkout.
      *
-     * @param int $base_amount
-     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO
+     * @since 1.0.0
+     *
+     * @param int $base_amount Amount in the base currency's minor units.
+     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO Amount in the order's invoiced currency.
      */
     protected function convert_base_amount_to_invoiced($base_amount)
     {
@@ -262,9 +311,11 @@ class OrderResource extends Resource
      * coupons only - order-wide coupons are excluded so a line item's
      * subtotal never reflects an order-wide discount.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @param int $order_item_id
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @param int                                       $order_item_id Order item ID.
+     * @return int Discount in minor units.
      */
     protected function get_product_coupon_discount_for_item($order_coupons, $order_item_id)
     {
@@ -276,8 +327,10 @@ class OrderResource extends Resource
      * `find_product_coupon_discounts_for_item()`) into the item's total
      * product-scoped discount.
      *
-     * @param array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> $item_discounts
-     * @return int
+     * @since 1.0.0
+     *
+     * @param array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> $item_discounts Coupon and discount row pairs for one item.
+     * @return int Discount in minor units.
      */
     protected function sum_product_coupon_discounts($item_discounts)
     {
@@ -300,9 +353,11 @@ class OrderResource extends Resource
      * Each entry is `[OrderCoupon $coupon, OrderItemCoupon $item_discount]`
      * - the coupon and the discount row it recorded for this item.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @param int $order_item_id
-     * @return array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}>
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @param int                                       $order_item_id Order item ID.
+     * @return array<int, array{0: \Kirki\Ecommerce\App\Models\OrderCoupon, 1: \Kirki\Ecommerce\App\Models\OrderItemCoupon}> Coupon and discount row pairs.
      */
     protected function find_product_coupon_discounts_for_item($order_coupons, $order_item_id)
     {
@@ -329,9 +384,11 @@ class OrderResource extends Resource
      * excluded so the root items subtotal matches the sum of what each
      * item's own subtotal shows.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderItem[] $items
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem[]   $items         Items of the order.
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return int Subtotal in minor units.
      */
     protected function get_items_subtotal($items, $order_coupons)
     {
@@ -352,8 +409,10 @@ class OrderResource extends Resource
      * at all (`order-coupon-attribution`), so it's naturally excluded here
      * and belongs to the shipping discount instead.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return int Discount in minor units.
      */
     protected function get_order_coupon_discount($order_coupons)
     {
@@ -381,8 +440,10 @@ class OrderResource extends Resource
      * for a free-shipping order-coupon, which has no item attributions at
      * all).
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderCoupon[] $order_coupons Coupons applied to the order.
+     * @return int Discount in minor units.
      */
     protected function get_shipping_coupon_discount($order_coupons)
     {
@@ -408,8 +469,10 @@ class OrderResource extends Resource
      * and rate. Entries with a zero amount are dropped so the summary never
      * renders a "Tax: $0.00" line when nothing was actually charged.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $tax_lines
-     * @return array
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderTax[] $tax_lines Tax rows to aggregate.
+     * @return array<int, array<string, mixed>> Tax name, rate and invoiced amount per group.
      */
     protected function format_tax_breakdown(array $tax_lines)
     {
@@ -444,10 +507,12 @@ class OrderResource extends Resource
 
     /**
      * Merge every order item's tax lines into one flat list for order-wide
-     * aggregation by tax name.
+     * aggregation by tax name and rate.
      *
-     * @param \Kirki\Ecommerce\App\Models\OrderItem[] $items
-     * @return \Kirki\Ecommerce\App\Models\OrderTax[]
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\OrderItem[] $items Items of the order.
+     * @return \Kirki\Ecommerce\App\Models\OrderTax[] Every item's tax rows, unaggregated.
      */
     protected function flatten_item_tax_lines($items)
     {
@@ -469,7 +534,9 @@ class OrderResource extends Resource
      * for an order that is still awaiting payment - this resource also renders
      * historical orders in the account area.
      *
-     * @return \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO|null Null when the order is already settled or the gateway returns no action.
      */
     protected function resolve_payment_next_step()
     {

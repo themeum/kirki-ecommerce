@@ -10,13 +10,21 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
 use function Kirki\Ecommerce\App\to_utc_datetime_string;
 
+/**
+ * Model for a discount coupon or automatic discount and its eligibility rules.
+ *
+ * @since 1.0.0
+ */
 class Coupon extends Model
 {
     use HasDateRangeFilter;
 
+    /** @inheritDoc */
     protected $table = 'kirki_ecommerce_coupons';
+    /** @inheritDoc */
     protected $primary_key = 'id';
 
+    /** @inheritDoc */
     protected $casts = [
         'id' => 'integer',
         'has_end_datetime' => 'boolean',
@@ -42,6 +50,7 @@ class Coupon extends Model
         'updated_at' => 'datetime',
     ];
 
+    /** @inheritDoc */
     protected $fillable = [
         'method',
         'title',
@@ -76,6 +85,13 @@ class Coupon extends Model
     ];
 
     // TODO: we need to make get_status_attribute later when accessor is available for custom attribute which is not available in fillable
+    /**
+     * Get the coupon's current lifecycle status from its active flag and schedule.
+     *
+     * @since 1.0.0
+     *
+     * @return string One of the CouponStatus constants: inactive, scheduled, expired or active.
+     */
     public function get_status()
     {
         if (!$this->is_active) {
@@ -95,39 +111,88 @@ class Coupon extends Model
         return CouponStatus::ACTIVE;
     }
 
+    /**
+     * Store the start datetime converted to a UTC datetime string.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $value Start datetime as submitted.
+     * @return void
+     */
     public function set_start_datetime_attribute(?string $value)
     {
         $this->attributes['start_datetime'] = to_utc_datetime_string($value);
     }
 
+    /**
+     * Store the end datetime converted to a UTC datetime string.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $value End datetime as submitted.
+     * @return void
+     */
     public function set_end_datetime_attribute(?string $value)
     {
         $this->attributes['end_datetime'] = to_utc_datetime_string($value);
     }
 
+    /**
+     * Define the categories the coupon is limited to.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsToMany
+     */
     public function categories()
     {
         return $this->belongs_to_many(Category::class, 'kirki_ecommerce_coupon_categories', 'coupon_id', 'category_id');
     }
 
+    /**
+     * Define the products the coupon applies to, with the reward-item flag on the pivot.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsToMany
+     */
     public function products()
     {
         return $this->belongs_to_many(Product::class, 'kirki_ecommerce_coupon_products', 'coupon_id', 'product_id')->with_pivot('is_reward_item');
     }
 
+    /**
+     * Define the customers the coupon is limited to or excluded from, with the exclusion flag on the pivot.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsToMany
+     */
     public function customers()
     {
         return $this->belongs_to_many(Customer::class, 'kirki_ecommerce_coupon_customers', 'coupon_id', 'customer_id')->with_pivot('is_excluded');
     }
 
+    /**
+     * Define the order coupon records created when this coupon was applied to orders.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\HasMany
+     */
     public function order_coupons()
     {
         return $this->has_many(OrderCoupon::class, 'coupon_id', 'id');
     }
 
     /**
-     * @param QueryBuilder $query
-     * @param string $status
+     * Limit the query to coupons in the given lifecycle status.
+     *
+     * @since 1.0.0
+     *
+     * @param QueryBuilder $query  Query being scoped.
+     * @param string|null  $status A CouponStatus value; an empty value leaves the query unchanged.
+     * @return QueryBuilder|null Null when the status is not one of the known values.
      */
     public function scope_apply_status_filter(QueryBuilder $query, $status)
     {

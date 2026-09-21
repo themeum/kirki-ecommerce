@@ -12,20 +12,25 @@ use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\view;
 
+/**
+ * Base class for the plugin's notification emails: builds the subject, HTML body and headers from the email settings.
+ *
+ * @since 1.0.0
+ */
 abstract class Mailer implements Mailable
 {
-    /**
-     * @var array
-     */
+    /** @var array<string, mixed> */
     protected $default_template_settings_overrides = [];
 
-    /**
-     * @var array
-     */
+    /** @var array<string, mixed> */
     protected $email_settings_overrides = [];
 
     /**
-     * @param mixed $args
+     * Create a new instance of the concrete mail.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Constructor arguments of the concrete mail.
      * @return static
      */
     public static function make(...$args)
@@ -36,7 +41,9 @@ abstract class Mailer implements Mailable
     /**
      * Override the default template branding (e.g. unsaved draft settings).
      *
-     * @param array $overrides
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $overrides Values replacing the saved default template settings.
      * @return $this
      */
     public function with_default_template_settings_overrides(array $overrides)
@@ -49,7 +56,9 @@ abstract class Mailer implements Mailable
     /**
      * Override this notification's content (e.g. unsaved draft subject/heading/message).
      *
-     * @param array $overrides
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $overrides Values keyed by setting name, replacing the saved ones.
      * @return $this
      */
     public function with_email_settings_overrides(array $overrides)
@@ -60,7 +69,11 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * @return array
+     * Get the default template settings with any overrides applied.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     protected function get_default_template_settings()
     {
@@ -68,8 +81,12 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * @param string $key
-     * @param mixed  $default
+     * Get a setting of this notification, preferring an override over the saved value.
+     *
+     * @since 1.0.0
+     *
+     * @param string $key     Setting name, such as `subject`, `heading` or `message`.
+     * @param mixed  $default Value returned when the setting is not saved.
      * @return mixed
      */
     protected function get_email_settings_value(string $key, $default = '')
@@ -82,11 +99,19 @@ abstract class Mailer implements Mailable
     }
 
     /**
+     * Get the dot-notation key of this notification within the email settings.
+     *
+     * @since 1.0.0
+     *
      * @return string
      */
     abstract public function option_key();
 
     /**
+     * Get the view name used to render the email body.
+     *
+     * @since 1.0.0
+     *
      * @return string
      */
     protected function template()
@@ -95,6 +120,10 @@ abstract class Mailer implements Mailable
     }
 
     /**
+     * Get the email subject with shortcodes replaced by the mail variables.
+     *
+     * @since 1.0.0
+     *
      * @return string
      */
     public function subject()
@@ -105,12 +134,21 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * return email data
-     * @return array
+     * Get the template variables specific to this notification.
+     *
+     * These are merged over the default variables in get_variables().
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     abstract public function with();
 
     /**
+     * Determine whether this notification is enabled in the email settings.
+     *
+     * @since 1.0.0
+     *
      * @return bool
      */
     protected function is_enabled()
@@ -121,7 +159,13 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * @return array
+     * Get all variables available to the email template and shortcodes.
+     *
+     * Combines heading, body, footer and store details with the notification's own variables.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     public function get_variables()
     {
@@ -153,7 +197,10 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * return email body string
+     * Render the email body HTML with shortcodes replaced by the mail variables.
+     *
+     * @since 1.0.0
+     *
      * @return string
      */
     protected function body()
@@ -166,6 +213,10 @@ abstract class Mailer implements Mailable
     }
 
     /**
+     * Determine whether the email is sent as plain text instead of HTML.
+     *
+     * @since 1.0.0
+     *
      * @return bool
      */
     protected function is_plain_text()
@@ -174,7 +225,11 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * @return array
+     * Get the headers sent with the email.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
      */
     protected function headers()
     {
@@ -186,7 +241,11 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * @return array
+     * Get the file paths attached to the email.
+     *
+     * @since 1.0.0
+     *
+     * @return string[]
      */
     protected function attachments()
     {
@@ -194,7 +253,13 @@ abstract class Mailer implements Mailable
     }
 
     /**
-     * @return bool
+     * Send the email to the given recipient using wp_mail().
+     *
+     * @since 1.0.0
+     *
+     * @param string $to Recipient email address.
+     * @return bool Whether wp_mail() accepted the message.
+     * @throws InvalidArgumentException When the recipient is empty or the resolved subject is empty.
      */
     public function send(string $to)
     {
@@ -209,11 +274,25 @@ abstract class Mailer implements Mailable
         return wp_mail($to, $this->subject(), $this->body(), $this->headers(), $this->attachments());
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_preview_html()
     {
         return $this->body();
     }
 
+    /**
+     * Render a partial view with the default template settings and the given data.
+     *
+     * @since 1.0.0
+     *
+     * @param string               $template View name.
+     * @param array<string, mixed> $data     Variables passed to the view.
+     * @return string
+     */
     protected function get_content(string $template, array $data = [])
     {
         $default_template = $this->get_default_template_settings();

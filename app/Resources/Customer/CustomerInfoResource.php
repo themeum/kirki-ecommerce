@@ -5,8 +5,20 @@ namespace Kirki\Ecommerce\App\Resources\Customer;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for the basic identity details of a customer.
+ *
+ * @since 1.0.0
+ */
 class CustomerInfoResource extends Resource
 {
+    /**
+     * Convert the customer resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The customer name, contact details and photo.
+     */
     public function to_array()
     {
         return [

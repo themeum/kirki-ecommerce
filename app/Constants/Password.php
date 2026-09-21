@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+/**
+ * Default and minimum lengths and character options for generated passwords.
+ *
+ * @since 1.0.0
+ */
 class Password
 {
     /**

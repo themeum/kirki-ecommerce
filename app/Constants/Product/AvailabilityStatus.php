@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants\Product;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Stock availability statuses of a product.
+ *
+ * @since 1.0.0
+ */
 final class AvailabilityStatus
 {
     use HasConstants;
@@ -16,7 +21,9 @@ final class AvailabilityStatus
     /**
      * Get all availability statuses with their translated labels.
      *
-     * @return array<string, string>
+     * @since 1.0.0
+     *
+     * @return array<string, string> Translated labels keyed by status.
      */
     public static function get_list()
     {
@@ -31,9 +38,10 @@ final class AvailabilityStatus
     /**
      * Get the translated label for an availability status.
      *
-     * @param string $status
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $status Availability status key.
+     * @return string Label, or an empty string for an unknown status.
      */
     public static function get_formatted(string $status)
     {

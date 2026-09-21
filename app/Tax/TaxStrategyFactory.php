@@ -9,8 +9,25 @@ use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use function Kirki\Ecommerce\Framework\config;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Picks and builds the tax strategy that matches an address's country.
+ *
+ * @since 1.0.0
+ */
 class TaxStrategyFactory
 {
+    /**
+     * Build the tax strategy for an address.
+     *
+     * Throws through `throw_if()` when the address has no country, or when no
+     * enabled tax region or strategy exists for it.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $address Address data, including its `country` code.
+     * @return \Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy
+     * @throws \Exception When the address has no country, or no tax region or strategy exists for it.
+     */
     public static function make(array $address)
     {
         throw_if(empty($address['country']), __('Country is required', 'kirki-ecommerce'));
@@ -31,6 +48,17 @@ class TaxStrategyFactory
         return new $strategy($address, $region, $tax_settings->get('is_tax_inclusive_price') ?? false, $is_shipping_tax_enabled );
     }
 
+    /**
+     * Find the enabled tax region for a country.
+     *
+     * EU member countries are matched against the shared `EU` region.
+     *
+     * @since 1.0.0
+     *
+     * @param string                           $country      Country code.
+     * @param \Kirki\Ecommerce\App\AppSettings $tax_settings The tax settings.
+     * @return array<string, mixed>|null Null when no enabled region matches.
+     */
     public static function get_tax_settings(string $country, $tax_settings)
     {
         $regions = $tax_settings->get('tax_regions');
@@ -45,6 +73,16 @@ class TaxStrategyFactory
         return null;
     }
 
+    /**
+     * Get the strategy class configured for a country.
+     *
+     * EU member countries use the `EU` strategy, falling back to the `DEFAULT` one.
+     *
+     * @since 1.0.0
+     *
+     * @param string $country Country code.
+     * @return string|null Strategy class name, null when none is configured.
+     */
     public static function get_strategy(string $country)
     {
         $country = strtoupper($country);

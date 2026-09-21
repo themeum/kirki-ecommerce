@@ -40,12 +40,17 @@ use function Kirki\Ecommerce\Framework\json_decoded_data;
 use function Kirki\Ecommerce\Framework\resource_path;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Builds sample-data mailers so notification emails can be previewed.
+ *
+ * @since 1.0.0
+ */
 class EmailPreviewService
 {
     /**
-     * notification key => [ group => [ type => customer mail class, admin mail class ] ].
+     * Mail classes keyed by recipient type, then notification group, then notification key.
      *
-     * @var array
+     * @var array<string, array<string, array<string, string>>>
      */
     protected $notification_classes = [
         'admin' => [
@@ -82,14 +87,14 @@ class EmailPreviewService
     ];
 
     /**
-     * Resolve a recipient type / group / key combination to a ready-to-use
-     * Mailer instance backed by sample data, or null if the combination is
-     * not one of the known notifications.
+     * Resolve a recipient type / group / key combination to a mailer backed by sample data.
      *
-     * @param string $type
-     * @param string $group
-     * @param string $key
-     * @return Mailer|null
+     * @since 1.0.0
+     *
+     * @param string $type  Recipient type: customer or admin.
+     * @param string $group Notification group: order, user or inventory.
+     * @param string $key   Notification key within the group, such as order_confirmation.
+     * @return Mailer|null Null when the combination is not a known notification.
      */
     public function resolve_mailer(string $type, string $group, string $key)
     {
@@ -117,7 +122,9 @@ class EmailPreviewService
     }
 
     /**
-     * Get an in-memory sample order (never persisted).
+     * Get an in-memory sample order, with items and no refunds (never persisted).
+     *
+     * @since 1.0.0
      *
      * @return Order
      */
@@ -140,9 +147,11 @@ class EmailPreviewService
     }
 
     /**
-     * Get an in-memory sample customer (never persisted).
+     * Get the user used as the sample recipient, which is the current user.
      *
-     * @return Customer
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Wordpress\User
      */
     protected function get_sample_user()
     {
@@ -150,7 +159,9 @@ class EmailPreviewService
     }
 
     /**
-     * Get an in-memory sample product variant (never persisted).
+     * Get an in-memory sample product variant, with its product (never persisted).
+     *
+     * @since 1.0.0
      *
      * @return Variant
      */

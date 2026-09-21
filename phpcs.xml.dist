@@ -11,4 +11,9 @@
         <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
         <exclude name="Generic.Files.LineLength.TooLong" />
     </rule>
+
+    <rule ref="phpcs/KirkiEcommerce/Sniffs/Commenting/RequiredDocblockSniff.php">
+        <include-pattern>*/app/*</include-pattern>
+        <include-pattern>*/database/*</include-pattern>
+    </rule>
 </ruleset>

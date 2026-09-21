@@ -2,14 +2,29 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Account;
 
+use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for updating an address in the customer's account.
+ *
+ * @since 1.0.0
+ */
 class AddressUpdateRequest extends Request
 {
+    use ValidatesAddressFields;
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
+        $country = (string) $this->input('country');
+
         return [
             'id' => 'required|integer',
             'type' => 'required|string|in:' . implode(',', [AddressType::HOME, AddressType::OFFICE, AddressType::OTHERS]),
@@ -20,8 +35,8 @@ class AddressUpdateRequest extends Request
             'address_line1' => 'required|string',
             'address_line2' => 'nullable|string',
             'city' => 'required|string',
-            'state' => 'nullable|string',
-            'postal_code' => 'required|string',
+            'state' => static::address_field_rule($country, 'state'),
+            'postal_code' => static::address_field_rule($country, 'postal_code'),
             'country' => 'required|string',
             'label' => 'nullable|string',
             'is_default_shipping' => 'nullable|boolean',
@@ -29,6 +44,11 @@ class AddressUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [
@@ -48,5 +68,49 @@ class AddressUpdateRequest extends Request
             'is_default_shipping' => Sanitizer::BOOL,
             'is_default_billing' => Sanitizer::BOOL,
         ];
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function messages()
+    {
+        $country = (string) $this->input('country');
+
+        return [
+            'state.required' => static::state_required_message($country),
+        ];
+    }
+
+    /**
+     * Give the optional address fields a concrete empty value.
+     *
+     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * uses neither can legitimately submit an address without them, so the absent
+     * value is coerced to an empty string rather than widening the schema.
+     *
+     * Runs before validation so the value reaches `sanitized()`, which is what the
+     * DTO reads. The validator treats an empty string as missing, so a country that
+     * requires the field still fails.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    protected function prepare_for_validation()
+    {
+        $defaults = [];
+
+        foreach (['state', 'postal_code'] as $field) {
+            if ($this->input($field) === null) {
+                $defaults[$field] = '';
+            }
+        }
+
+        if ($defaults) {
+            $this->merge($defaults);
+        }
     }
 }

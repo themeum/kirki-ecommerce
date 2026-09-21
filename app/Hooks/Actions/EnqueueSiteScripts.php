@@ -20,18 +20,16 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * Class EnqueueSiteScripts
+ * Enqueues the storefront script and stylesheet on wp_enqueue_scripts.
  *
  * @since 1.0.0
  */
 class EnqueueSiteScripts extends BaseHook
 {
     /**
-     * Get the hook name.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return string The hook name.
      */
     public function get_name(): string
     {
@@ -39,11 +37,9 @@ class EnqueueSiteScripts extends BaseHook
     }
 
     /**
-     * Get the hook type.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return string The hook type.
      */
     public function get_type(): string
     {
@@ -51,11 +47,9 @@ class EnqueueSiteScripts extends BaseHook
     }
 
     /**
-     * Get the hook priority.
+     * @inheritDoc
      *
      * @since 1.0.0
-     *
-     * @return int The hook priority.
      */
     public function get_priority(): int
     {
@@ -63,12 +57,11 @@ class EnqueueSiteScripts extends BaseHook
     }
 
     /**
-     * Handle the hook.
+     * Enqueue the site script and stylesheet with their inline styles, config and translations.
      *
      * @since 1.0.0
      *
-     * @param array $args Hook arguments.
-     *
+     * @param mixed ...$args Hook arguments, unused.
      * @return void
      */
     public function handle(...$args)

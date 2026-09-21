@@ -11,15 +11,23 @@ use function Kirki\Ecommerce\Framework\collection;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Registry of the available payment providers.
+ *
+ * Holds the offline providers from settings, PayPal, and any providers
+ * added through the payment providers filter, keyed by provider ID.
+ *
+ * @since 1.0.0
+ */
 class PaymentManager
 {
-    /**
-     * @var array<string, PaymentProvider>
-     */
+    /** @var array<string, PaymentProvider> */
     protected $providers_registry = [];
 
     /**
-     * PaymentManager constructor.
+     * Create the manager and populate the provider registry.
+     *
+     * @since 1.0.0
      */
     public function __construct()
     {
@@ -27,7 +35,14 @@ class PaymentManager
     }
 
     /**
-     * Initialize the registry.
+     * Populate the registry with the offline providers and PayPal.
+     *
+     * The list passes through the payment providers filter so extensions can
+     * add or remove providers.
+     *
+     * @since 1.0.0
+     *
+     * @return void
      */
     public function init_registry()
     {
@@ -45,7 +60,9 @@ class PaymentManager
     }
 
     /**
-     * Get all providers.
+     * Get every registered provider.
+     *
+     * @since 1.0.0
      *
      * @return PaymentProvider[]
      */
@@ -55,7 +72,9 @@ class PaymentManager
     }
 
     /**
-     * Get all online providers.
+     * Get the registered providers that are processed online.
+     *
+     * @since 1.0.0
      *
      * @return PaymentProvider[]
      */
@@ -65,7 +84,9 @@ class PaymentManager
     }
 
     /**
-     * Get all offline providers.
+     * Get the registered providers that are offline (manual) payment methods.
+     *
+     * @since 1.0.0
      *
      * @return PaymentProvider[]
      */
@@ -75,7 +96,9 @@ class PaymentManager
     }
 
     /**
-     * Get available providers.
+     * Get the enabled providers.
+     *
+     * @since 1.0.0
      *
      * @return PaymentProvider[]
      */
@@ -85,7 +108,9 @@ class PaymentManager
     }
 
     /**
-     * Get available online providers.
+     * Get the enabled online providers.
+     *
+     * @since 1.0.0
      *
      * @return PaymentProvider[]
      */
@@ -95,7 +120,9 @@ class PaymentManager
     }
 
     /**
-     * Get available offline providers.
+     * Get the enabled offline providers.
+     *
+     * @since 1.0.0
      *
      * @return PaymentProvider[]
      */
@@ -105,10 +132,12 @@ class PaymentManager
     }
 
     /**
-     * Get a specific provider.
+     * Get a provider by its ID.
+     *
+     * @since 1.0.0
      *
      * @param string $id Provider ID.
-     * @return PaymentProvider|null
+     * @return PaymentProvider|null Null when no provider is registered under the ID.
      */
     public function get_provider($id)
     {
@@ -116,10 +145,12 @@ class PaymentManager
     }
 
     /**
-     * Get the next payment step for an order.
+     * Get the next payment step for an order from its payment provider.
+     *
+     * @since 1.0.0
      *
      * @param Order $order Order.
-     * @return PaymentActionDTO|null Null when the order's gateway is missing or manual.
+     * @return PaymentActionDTO|null Null when the order's provider is not registered.
      */
     public function pay(Order $order)
     {
