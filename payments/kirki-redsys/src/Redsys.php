@@ -15,6 +15,9 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 use Throwable;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_unless;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -73,9 +76,7 @@ class Redsys extends PaymentProvider
      */
     public function pay(Order $order)
     {
-        if (!$this->enabled()) {
-            throw new Exception(__('Redsys is not enabled.', 'kirki-ecommerce-redsys'));
-        }
+        throw_unless($this->enabled(), __('Redsys is not enabled.', 'kirki-ecommerce-redsys'));
 
         try {
             $builder = new RedsysTransactionBuilder($order);
@@ -96,7 +97,7 @@ class Redsys extends PaymentProvider
             ]);
         } catch (Exception $e) {
             /* translators: %s: error message. */
-            throw new Exception(sprintf(__('Redsys Payment Error: %s', 'kirki-ecommerce-redsys'), $e->getMessage()));
+            throw_anyway(sprintf(__('Redsys Payment Error: %s', 'kirki-ecommerce-redsys'), $e->getMessage()));
         }
     }
 
@@ -112,11 +113,11 @@ class Redsys extends PaymentProvider
         $order = OrderManager::find_by_uuid((string) ($notification->Ds_MerchantData ?? ''));
 
         if (!$order) {
-            throw new Exception(__('Redsys Error: Order Not Found.', 'kirki-ecommerce-redsys'));
+            throw_anyway(__('Redsys Error: Order Not Found.', 'kirki-ecommerce-redsys'));
         }
 
         if ($order->payment_status === PaymentStatus::PAID) {
-            return false;
+            return true;
         }
 
         $this->handle_transaction_response($notification, $order);
@@ -203,18 +204,18 @@ class Redsys extends PaymentProvider
         $signature = $request->text('Ds_Signature');
 
         if (empty($encoded_parameters) || empty($signature)) {
-            throw new Exception(__('Invalid Payload From Redsys.', 'kirki-ecommerce-redsys'));
+            throw_anyway(__('Invalid Payload From Redsys.', 'kirki-ecommerce-redsys'));
         }
 
         $signer = $this->get_signer();
         $notification = $signer->decode_parameters($encoded_parameters);
 
         if (!$notification) {
-            throw new Exception(__('Invalid Payload From Redsys.', 'kirki-ecommerce-redsys'));
+            throw_anyway(__('Invalid Payload From Redsys.', 'kirki-ecommerce-redsys'));
         }
 
         if (!$signer->verify($encoded_parameters, (string) ($notification->Ds_Order ?? ''), $signature)) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-redsys'));
+            throw_anyway(__('Webhook Notification Is Not Valid', 'kirki-ecommerce-redsys'));
         }
 
         return $notification;
@@ -246,7 +247,7 @@ class Redsys extends PaymentProvider
             DB::rollback();
 
             /* translators: %s: error message. */
-            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-redsys'), $e->getMessage()));
+            throw_anyway(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-redsys'), $e->getMessage()));
         }
     }
 
@@ -297,7 +298,7 @@ class Redsys extends PaymentProvider
         $signature_key = $this->settings['signature_key'] ?? '';
 
         if (empty($merchant_code) || empty($terminal) || empty($signature_key)) {
-            throw new Exception(__('Redsys credentials are missing.', 'kirki-ecommerce-redsys'));
+            throw_anyway(__('Redsys credentials are missing.', 'kirki-ecommerce-redsys'));
         }
 
         return $this->signer = new RedsysSignature($signature_key);
