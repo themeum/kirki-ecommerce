@@ -28,7 +28,7 @@ $divider_color = $default_template['colors']['background']['divider'] ?? EmailDe
             </p>
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                    <td style="padding-bottom: 16px; vertical-align: top; width: 56px;">
+                    <td style="padding-bottom: 16px; vertical-align: center; width: 56px;">
                         <div style="width: 48px; height: 48px; border-radius: 8px; background-color: #F5F5F5;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none">
                                 <path fill="#858b93" d="M15 18a5 5 0 1 1 10 0 5 5 0 0 1-10 0m5-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6" />
@@ -37,7 +37,7 @@ $divider_color = $default_template['colors']['background']['divider'] ?? EmailDe
                             </svg>
                         </div>
                     </td>
-                    <td style="padding-left:14px; padding-bottom: 16px; vertical-align: top;">
+                    <td style="padding-left:14px; padding-bottom: 16px; vertical-align: center;">
                         <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($body_color); ?>;">
                             <?php echo esc_html($product_name); ?>
                         </p>
@@ -47,7 +47,7 @@ $divider_color = $default_template['colors']['background']['divider'] ?? EmailDe
                             </p>
                         <?php endif; ?>
                     </td>
-                    <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: top; text-align: right; white-space: nowrap;">
+                    <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: center; text-align: right; white-space: nowrap;">
                         <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: #D40000;">
                             <?php
                             /* translators: %d: remaining stock quantity. */
