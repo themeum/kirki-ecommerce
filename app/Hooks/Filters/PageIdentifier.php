@@ -17,23 +17,54 @@ use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
+/**
+ * Labels the plugin's shop, cart, checkout, account and design system pages in the admin pages list.
+ *
+ * @since 1.0.0
+ */
 class PageIdentifier extends BaseHook
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::DISPLAY_POST_STATES;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::FILTER;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_args_count()
     {
         return 2;
     }
 
+    /**
+     * Add a post state label when the listed page is one of the plugin's pages.
+     *
+     * Responds to display_post_states. Returns the states unchanged outside wp-admin or when the
+     * request has no post_type query argument.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments: the post states array, then the WP_Post being listed.
+     * @return array<string, string> Post states, keyed by state slug.
+     */
     public function handle(...$args)
     {
         $post_states = $args[0];

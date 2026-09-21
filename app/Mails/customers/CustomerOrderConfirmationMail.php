@@ -11,20 +11,42 @@ use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Email sent to the customer to confirm their order.
+ *
+ * @since 1.0.0
+ */
 class CustomerOrderConfirmationMail extends Mailer
 {
     /** @var Order */
     protected $order;
+    /**
+     * Create the mail for the given order.
+     *
+     * @since 1.0.0
+     *
+     * @param Order $order Order that was placed.
+     */
     public function __construct(Order $order)
     {
         $this->order = $order;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function option_key()
     {
         return 'customer_emails.order_notifications.order_confirmation';
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function with()
     {
         $order = OrderResource::make($this->order);

@@ -12,12 +12,16 @@ use Kirki\Ecommerce\Framework\Database\Contracts\DatabaseSeederContract;
 use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\Framework\Wordpress\User as FrameworkUser;
 
+/**
+ * Registers core singletons, the framework user binding, the database seeder and the shortcode and block registers.
+ *
+ * @since 1.0.0
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register the services to the application.
+     * @inheritDoc
      *
-     * @return void
      * @since 1.0.0
      */
     public function register()
@@ -31,9 +35,8 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Boot the services.
+     * @inheritDoc
      *
-     * @return void
      * @since 1.0.0
      */
     public function boot()

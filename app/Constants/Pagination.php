@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+/**
+ * Default pagination limits.
+ *
+ * @since 1.0.0
+ */
 class Pagination
 {
     /**

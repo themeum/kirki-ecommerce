@@ -26,15 +26,36 @@ use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing customers.
+ *
+ * @since 1.0.0
+ */
 class CustomerController
 {
+    /** @var CustomerService */
     protected $service;
 
+    /**
+     * Create the controller with the customer service.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerService $service
+     */
     public function __construct(CustomerService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List the countries and cities customers ship to, optionally narrowed by the `country` parameter.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The locations with a success message.
+     */
     public function locations(Request $request)
     {
         $country = $request->get('country');
@@ -45,6 +66,16 @@ class CustomerController
         ]);
     }
 
+    /**
+     * List customers, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerListRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated customers with a success message.
+     */
     public function get(CustomerListRequest $request)
     {
         $params = CustomerListFilterDTO::from_array($request->all());
@@ -66,6 +97,15 @@ class CustomerController
         ]);
     }
 
+    /**
+     * Create a customer, with optional shipping and billing addresses, from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerCreateRequest $request
+     * @param CreateCustomerAction  $create_customer_action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created customer with a 201 status.
+     */
     public function create(CustomerCreateRequest $request, CreateCustomerAction $create_customer_action)
     {
         $validated = $request->validated();
@@ -82,11 +122,13 @@ class CustomerController
     }
 
     /**
-     * Build the addresses to create the customer with from the optional
-     * shipping_address/billing_address request blocks - either may be
-     * omitted entirely.
+     * Build the customer's initial addresses from the optional shipping and billing request blocks.
      *
-     * @param array $validated
+     * Either block may be omitted. Each provided block becomes a home address flagged as the default for its kind.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $validated Validated create request data.
      * @return CreateAddressDTO[]
      */
     protected function prepare_customer_addresses(array $validated)
@@ -112,6 +154,14 @@ class CustomerController
         return $addresses;
     }
 
+    /**
+     * Return a single customer by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The customer resource.
+     */
     public function show(Request $request)
     {
         $customer = $this->service->find($request->int('id'));
@@ -122,6 +172,15 @@ class CustomerController
         ]);
     }
 
+    /**
+     * Update a customer and their default shipping and billing addresses from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerUpdateRequest $request
+     * @param UpdateCustomerAction  $update_customer_action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated customer.
+     */
     public function update(CustomerUpdateRequest $request, UpdateCustomerAction $update_customer_action)
     {
         $validated = $request->validated();
@@ -138,6 +197,14 @@ class CustomerController
         ]);
     }
 
+    /**
+     * Delete a single customer by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -148,6 +215,16 @@ class CustomerController
         ]);
     }
 
+    /**
+     * Run a bulk action on customers.
+     *
+     * Supports deleting the given IDs or deleting every customer matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();

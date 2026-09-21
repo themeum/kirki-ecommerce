@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Scheduler\Constants;
 
+/**
+ * Constants for the statuses a scheduler queue job can have.
+ *
+ * @since 1.0.0
+ */
 class JobStatus
 {
     /**

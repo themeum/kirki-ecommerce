@@ -5,8 +5,20 @@ namespace Kirki\Ecommerce\App\Resources\Order;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
+/**
+ * API resource for an order in admin list views.
+ *
+ * @since 1.0.0
+ */
 class OrderListResource extends Resource
 {
+    /**
+     * Convert the order resource to an array.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The order summary, including totals, statuses and payment and shipping method details.
+     */
     public function to_array()
     {
         return [
@@ -40,7 +52,9 @@ class OrderListResource extends Resource
     /**
      * Build the customer name from the customer name pair.
      *
-     * @return string|null
+     * @since 1.0.0
+     *
+     * @return string|null Null when both name parts are empty.
      */
     protected function resolve_customer_name()
     {

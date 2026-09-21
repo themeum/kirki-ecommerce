@@ -7,12 +7,17 @@ use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
+/**
+ * Registers the shipping service singleton, built from the shipping settings.
+ *
+ * @since 1.0.0
+ */
 class ShippingServiceProvider extends ServiceProvider
 {
     /**
-     * Register the hooks to the application.
+     * @inheritDoc
      *
-     * @return void
+     * @since 1.0.0
      */
     public function register()
     {

@@ -18,12 +18,19 @@ use Exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages product categories: listing, lookup and CRUD.
+ *
+ * @since 1.0.0
+ */
 class CategoryService
 {
     use HasSortableColumns;
 
     /**
-     * @return string
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function default_sort_by()
     {
@@ -31,7 +38,9 @@ class CategoryService
     }
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -50,9 +59,11 @@ class CategoryService
     }
 
     /**
-     * Return paginated categories.
+     * Get a page of categories, with product counts, matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -61,10 +72,12 @@ class CategoryService
     }
 
     /**
-     * Return all categories
+     * Get every category, with product counts, matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting.
+     * @return Collection Collection of Category models.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -72,11 +85,13 @@ class CategoryService
     }
 
     /**
-     * Find a category by ID.
+     * Find a category, with its product count, by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Category ID.
      * @return Category
-     * @throws NotFoundException
+     * @throws NotFoundException When the category does not exist.
      */
     public function find(int $id)
     {
@@ -90,9 +105,12 @@ class CategoryService
     /**
      * Create a new category.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the name. The level is
+     * derived from the parent, and is_active and is_deletable default to on.
      *
-     * @param CreateCategoryDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateCategoryDTO $data Category data.
      * @return Category
      */
     public function create(CreateCategoryDTO $data)
@@ -121,14 +139,16 @@ class CategoryService
     }
 
     /**
-     * Updates a category.
+     * Update a category.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the name. The level is
+     * re-derived from the parent.
      *
-     * @param UpdateCategoryDTO $data
-     * @throws NotFoundException
-     * @throws Exception
-     * @return Category
+     * @since 1.0.0
+     *
+     * @param UpdateCategoryDTO $data Category data including the ID.
+     * @return Category The refreshed category with its product count.
+     * @throws NotFoundException When the category does not exist or cannot be updated.
      */
     public function update(UpdateCategoryDTO $data)
     {
@@ -159,11 +179,14 @@ class CategoryService
     }
 
     /**
-     * Deletes a category by ID.
+     * Delete a category by ID.
      *
-     * @param int $id The ID of the category to delete.
-     * @return bool True if the category was deleted successfully, false otherwise.
-     * @throws NotFoundException If the category could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Category ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When the category does not exist.
+     * @throws Exception When the category is not deletable or the delete fails.
      */
     public function delete(int $id)
     {
@@ -181,11 +204,13 @@ class CategoryService
     }
 
     /**
-     * Deletes multiple categories by their IDs.
+     * Delete multiple categories by their IDs.
      *
-     * @param array $ids The IDs of the categories to delete.
-     * @return bool True if the categories were deleted successfully, false otherwise.
-     * @throws Exception If the categories could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Category IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no category was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -199,16 +224,26 @@ class CategoryService
 
 
     /**
-     * Deletes all categories.
+     * Delete every category matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter.
+     * @return bool True when at least one category was deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the category list query with product counts, search and sorting applied.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = Category::with_count('products')

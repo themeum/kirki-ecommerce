@@ -5,15 +5,24 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Models\Variant;
 
+/**
+ * Resolves stock availability statuses for variants and products.
+ *
+ * @since 1.0.0
+ */
 class AvailabilityService
 {
     /**
      * Resolve a single variant's stock state (Layer 1).
      *
-     * @param Variant $variant
-     * @param int $store_default_threshold
+     * Untracked variants follow their in_stock flag; tracked ones are out of
+     * stock at zero, low stock at or below the threshold, otherwise in stock.
      *
-     * @return string One of AvailabilityStatus::IN_STOCK|LOW_STOCK|OUT_OF_STOCK
+     * @since 1.0.0
+     *
+     * @param Variant $variant                 Variant to evaluate.
+     * @param int     $store_default_threshold Low-stock threshold used when the variant sets none.
+     * @return string One of AvailabilityStatus::IN_STOCK|LOW_STOCK|OUT_OF_STOCK.
      */
     public function resolve_variant_status(Variant $variant, int $store_default_threshold = 0)
     {
@@ -39,9 +48,10 @@ class AvailabilityService
      *
      * Order-independent: every OS -> OS, else any LS -> LS, else any OS -> PS, else IS.
      *
-     * @param string[] $statuses
+     * @since 1.0.0
      *
-     * @return string|null One of AvailabilityStatus::* values, or null for an empty set
+     * @param string[] $statuses AvailabilityStatus values, one per variant.
+     * @return string|null One of AvailabilityStatus::* values, or null for an empty set.
      */
     public function resolve_group_status(array $statuses)
     {
@@ -69,11 +79,12 @@ class AvailabilityService
     /**
      * Resolve the group-level status for a collection of variants (Layers 1 and 2 combined).
      *
-     * @param iterable $variants Each element must expose track_inventory, in_stock,
-     *                           available_quantity and low_stock_threshold.
-     * @param int $store_default_threshold
+     * @since 1.0.0
      *
-     * @return string|null One of AvailabilityStatus::* values, or null when $variants is empty
+     * @param iterable $variants                Each element must expose track_inventory, in_stock,
+     *                                          available_quantity and low_stock_threshold.
+     * @param int      $store_default_threshold Low-stock threshold used when a variant sets none.
+     * @return string|null One of AvailabilityStatus::* values, or null when $variants is empty.
      */
     public function resolve_product_status($variants, $store_default_threshold)
     {
@@ -87,16 +98,18 @@ class AvailabilityService
     }
 
     /**
-     * Format a status label, prefixing the quantity for "In Stock" when there
-     * is a tracked amount to show. A zero quantity (nothing tracked) falls
-     * back to the plain label rather than reading "0 In Stock". When
-     * $variant_count is given, the label is suffixed with the variant count
-     * so a glance at the list reveals which products have variants.
+     * Format a status label for display.
      *
-     * @param string $status
-     * @param int $quantity Summed available_quantity of tracked, in-stock variants.
+     * Prefixes the quantity for "In Stock" when there is a tracked amount to
+     * show; a zero quantity falls back to the plain label rather than reading
+     * "0 In Stock". When $variant_count is given, the label is suffixed with
+     * the variant count so a glance at the list reveals which products have variants.
+     *
+     * @since 1.0.0
+     *
+     * @param string   $status        AvailabilityStatus value.
+     * @param int      $quantity      Summed available_quantity of tracked, in-stock variants.
      * @param int|null $variant_count Number of variants, or null for a product without variants.
-     *
      * @return string
      */
     public function format_status_label($status, $quantity = 0, $variant_count = null)

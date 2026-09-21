@@ -7,20 +7,26 @@ use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for creating a customer.
+ *
+ * @since 1.0.0
+ */
 class CustomerCreateRequest extends Request
 {
     use ValidatesAddressFields;
 
     /**
-     * Give the optional address fields a concrete empty value.
+     * Give the optional fields of each submitted address an empty value.
      *
-     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country
-     * that uses neither now legitimately submits an address without them, so
-     * coerce the absent value rather than widening the schema - an empty
-     * string is what every existing row already holds for "no subdivision".
+     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * uses neither can legitimately submit an address without them, so the absent
+     * value is coerced to an empty string rather than widening the schema.
      *
      * Runs before validation, which treats an empty string as missing, so a
      * country that does require the field still fails.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -43,6 +49,11 @@ class CustomerCreateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -82,13 +93,15 @@ class CustomerCreateRequest extends Request
     }
 
     /**
-     * Build a closure rule requiring a string field only when the given
-     * top-level address block was submitted at all - shipping_address and
-     * billing_address are both optional as a whole, but their fields are
-     * still required together when either block is present.
+     * Build a closure rule requiring a field only when its address block is submitted.
      *
-     * @param string $address_key
-     * @return \Closure
+     * shipping_address and billing_address are optional as a whole, but their fields
+     * are required together once either block is present.
+     *
+     * @since 1.0.0
+     *
+     * @param string $address_key Top-level address block, `shipping_address` or `billing_address`.
+     * @return \Closure Rule callback returning true when the value is acceptable, false otherwise.
      */
     protected function required_when_address_present(string $address_key)
     {
@@ -102,16 +115,18 @@ class CustomerCreateRequest extends Request
     }
 
     /**
-     * Build a closure rule for an address field the country may not use.
+     * Build a closure rule for an address field that the selected country may not use.
      *
-     * Layers the country's own rule on top of the address-present check: a
-     * country with no subdivisions, or no postal codes, must not have the
-     * field demanded of it even when the rest of the block was submitted.
+     * Layers the country's own rule on top of the address-present check, so a
+     * country with no subdivisions or postal codes is never asked for them. The
+     * callback returns true when valid, a state-required message string for a
+     * missing state, or false for any other missing field.
      *
-     * @param string $address_key
-     * @param string $field       Either 'state' or 'postal_code'.
+     * @since 1.0.0
      *
-     * @return \Closure
+     * @param string $address_key Top-level address block, `shipping_address` or `billing_address`.
+     * @param string $field       Either `state` or `postal_code`.
+     * @return \Closure Rule callback.
      */
     protected function address_field_when_address_present(string $address_key, string $field)
     {
@@ -138,6 +153,11 @@ class CustomerCreateRequest extends Request
         };
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

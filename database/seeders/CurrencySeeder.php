@@ -6,8 +6,20 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the US Dollar base currency.
+ *
+ * @since 1.0.0
+ */
 class CurrencySeeder extends Seeder
 {
+    /**
+     * Insert the US Dollar as the active base currency.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function run(): void
     {
         $currencies = [

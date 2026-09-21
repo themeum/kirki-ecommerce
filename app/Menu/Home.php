@@ -5,6 +5,11 @@ namespace Kirki\Ecommerce\App\Menu;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
+/**
+ * Registers the Home submenu, which currently points at the products page.
+ *
+ * @since 1.0.0
+ */
 class Home extends Menu
 {
     /** @inheritDoc */
@@ -19,6 +24,11 @@ class Home extends Menu
     /** @inheritDoc */
     protected $parent_slug = 'kirki-ecommerce';
 
+    /**
+     * Set the Home page and menu titles.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->page_title = __('Home', 'kirki-ecommerce');
@@ -27,6 +37,13 @@ class Home extends Menu
         parent::__construct();
     }
 
+    /**
+     * Register the submenu page, then hide the first submenu item with an inline admin style.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function render()
     {
         parent::render();

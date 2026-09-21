@@ -29,15 +29,25 @@ use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
- * Class AddressController
+ * REST controller for the logged-in customer's own address book.
  *
  * @since 1.0.0
  */
 class AddressController
 {
+    /** @var AddressService */
     protected $address_service;
+    /** @var CustomerService */
     protected $customer_service;
 
+    /**
+     * Create the controller with the address and customer services.
+     *
+     * @since 1.0.0
+     *
+     * @param AddressService  $address_service
+     * @param CustomerService $customer_service
+     */
     public function __construct(AddressService $address_service, CustomerService $customer_service)
     {
         $this->address_service = $address_service;
@@ -45,11 +55,12 @@ class AddressController
     }
 
     /**
-     * List the authenticated customer's addresses.
+     * List the logged-in customer's addresses.
      *
-     * @param Request $request Request.
+     * @since 1.0.0
      *
-     * @return Response response.
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Address collection, empty when the user has no customer record.
      */
     public function index(Request $request)
     {
@@ -63,11 +74,12 @@ class AddressController
     }
 
     /**
-     * Show a single address belonging to the authenticated customer.
+     * Show a single address belonging to the logged-in customer.
      *
-     * @param Request $request Request.
+     * @since 1.0.0
      *
-     * @return Response response.
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The address resource.
      */
     public function show(Request $request)
     {
@@ -81,12 +93,13 @@ class AddressController
     }
 
     /**
-     * Create a new address for the authenticated customer.
+     * Create a new address for the logged-in customer.
      *
-     * @param AddressCreateRequest $request Request.
-     * @param CreateAccountAddressAction $action Action.
+     * @since 1.0.0
      *
-     * @return Response response.
+     * @param AddressCreateRequest       $request
+     * @param CreateAccountAddressAction $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created address with a 201 status.
      */
     public function store(AddressCreateRequest $request, CreateAccountAddressAction $action)
     {
@@ -101,11 +114,12 @@ class AddressController
     }
 
     /**
-     * Update an address belonging to the authenticated customer.
+     * Update an address belonging to the logged-in customer.
      *
-     * @param AddressUpdateRequest $request Request.
+     * @since 1.0.0
      *
-     * @return Response response.
+     * @param AddressUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated address.
      */
     public function update(AddressUpdateRequest $request)
     {
@@ -126,11 +140,12 @@ class AddressController
     }
 
     /**
-     * Delete an address belonging to the authenticated customer.
+     * Delete an address belonging to the logged-in customer.
      *
-     * @param Request $request Request.
+     * @since 1.0.0
      *
-     * @return Response response.
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response with `data` set to true.
      */
     public function destroy(Request $request)
     {
@@ -146,12 +161,12 @@ class AddressController
     }
 
     /**
-     * Mark an address as the authenticated customer's default address for
-     * one purpose (shipping or billing).
+     * Mark an address as the logged-in customer's default address for one purpose (shipping or billing).
      *
-     * @param SetDefaultAddressRequest $request Request.
+     * @since 1.0.0
      *
-     * @return Response response.
+     * @param SetDefaultAddressRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated address.
      */
     public function set_default(SetDefaultAddressRequest $request)
     {
@@ -171,12 +186,15 @@ class AddressController
     }
 
     /**
-     * Resolve the authenticated user's Customer record, or fail as not
-     * found - account address endpoints never create a Customer implicitly
-     * except when creating the first address (see CreateAccountAddressAction).
+     * Resolve the logged-in user's Customer record, or fail as not found.
+     *
+     * Account address endpoints never create a Customer implicitly, except when
+     * creating the first address (see CreateAccountAddressAction).
+     *
+     * @since 1.0.0
      *
      * @return Customer
-     * @throws NotFoundException
+     * @throws NotFoundException When the user has no customer record.
      */
     protected function resolve_customer_or_fail()
     {

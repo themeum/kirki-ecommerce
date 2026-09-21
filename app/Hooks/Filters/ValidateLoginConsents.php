@@ -22,15 +22,30 @@ use WP_User;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Rejects a wp-login.php sign-in when a mandatory login consent was not accepted.
+ *
+ * @since 1.0.0
+ */
 class ValidateLoginConsents extends BaseHook
 {
     use RendersLoginConsents;
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::AUTHENTICATE;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::FILTER;
@@ -43,18 +58,35 @@ class ValidateLoginConsents extends BaseHook
      * so a wrong password combined with an unticked box would be reported as
      * a consent failure instead of a bad password.
      *
-     * @return int
+     * @since 1.0.0
+     *
+     * @return int Hook priority.
      */
     public function get_priority()
     {
         return 30;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_args_count()
     {
         return 3;
     }
 
+    /**
+     * Turn a successful authentication into a WP_Error when a mandatory consent is unticked.
+     *
+     * Responds to authenticate. Existing errors and non-login-form requests pass through unchanged.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments: the WP_User or WP_Error so far, then the username and password.
+     * @return WP_User|WP_Error|null The incoming value, or a WP_Error when a mandatory consent was not accepted.
+     */
     public function handle(...$args)
     {
         $user = $args[0];

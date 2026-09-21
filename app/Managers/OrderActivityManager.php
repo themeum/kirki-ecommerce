@@ -13,7 +13,7 @@ use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
- * OrderActivityManager class
+ * Records and describes order activities.
  *
  * A collaborator class recording and describing order activities. Everything
  * needed to record an order-state activity (order-placed, shipped, cancelled,
@@ -22,23 +22,36 @@ use function Kirki\Ecommerce\Framework\user;
  * method per type. Refund and comment activities carry data no order alone
  * has (which specific refund, the comment text), so they keep their own
  * public methods, called directly from their trigger points.
+ *
+ * @since 1.0.0
  */
 class OrderActivityManager
 {
+    /** @var OrderActivityService */
     protected $order_activity_service;
 
+    /**
+     * Create the manager with the service that persists activities.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderActivityService $order_activity_service
+     */
     public function __construct(OrderActivityService $order_activity_service)
     {
         $this->order_activity_service = $order_activity_service;
     }
 
     /**
-     * Record an order-state activity, dispatching to the method for the
-     * given type. Covers every activity type whose metadata is derivable
-     * from the order alone - not refund or comment activities, which carry
-     * data no order alone has and are recorded via their own methods.
+     * Record an order-state activity, dispatching to the method for the given type.
      *
-     * @param Order $order
+     * Covers every activity type whose metadata is derivable from the order
+     * alone. Refund and comment activities carry data no order alone has and
+     * are recorded via their own methods.
+     *
+     * @since 1.0.0
+     *
+     * @param Order  $order
      * @param string $activity_type One of the OrderActivityType constants.
      * @return OrderActivity
      * @throws \InvalidArgumentException When the type has no order-state handler.
@@ -76,6 +89,8 @@ class OrderActivityManager
     /**
      * Record that an order was placed.
      *
+     * @since 1.0.0
+     *
      * @param Order $order
      * @return OrderActivity
      */
@@ -93,6 +108,8 @@ class OrderActivityManager
     /**
      * Record that a payment was completed for an order.
      *
+     * @since 1.0.0
+     *
      * @param Order $order
      * @return OrderActivity
      */
@@ -108,6 +125,8 @@ class OrderActivityManager
     /**
      * Record that a payment attempt failed for an order.
      *
+     * @since 1.0.0
+     *
      * @param Order $order
      * @return OrderActivity
      */
@@ -118,6 +137,8 @@ class OrderActivityManager
 
     /**
      * Record that an order was marked as processing.
+     *
+     * @since 1.0.0
      *
      * @param Order $order
      * @return OrderActivity
@@ -130,6 +151,8 @@ class OrderActivityManager
     /**
      * Record that an order's fulfillment was resumed from hold.
      *
+     * @since 1.0.0
+     *
      * @param Order $order
      * @return OrderActivity
      */
@@ -140,6 +163,8 @@ class OrderActivityManager
 
     /**
      * Record that an order was marked as shipped.
+     *
+     * @since 1.0.0
      *
      * @param Order $order
      * @return OrderActivity
@@ -152,6 +177,8 @@ class OrderActivityManager
     /**
      * Record that an order was marked as delivered.
      *
+     * @since 1.0.0
+     *
      * @param Order $order
      * @return OrderActivity
      */
@@ -162,6 +189,8 @@ class OrderActivityManager
 
     /**
      * Record that an order was cancelled.
+     *
+     * @since 1.0.0
      *
      * @param Order $order
      * @return OrderActivity
@@ -175,6 +204,8 @@ class OrderActivityManager
 
     /**
      * Record that shipping/tracking details were added to an order.
+     *
+     * @since 1.0.0
      *
      * @param Order $order
      * @return OrderActivity
@@ -191,6 +222,8 @@ class OrderActivityManager
     /**
      * Record that an order was archived.
      *
+     * @since 1.0.0
+     *
      * @param Order $order
      * @return OrderActivity
      */
@@ -201,6 +234,8 @@ class OrderActivityManager
 
     /**
      * Record that an order was put on hold.
+     *
+     * @since 1.0.0
      *
      * @param Order $order
      * @return OrderActivity
@@ -213,7 +248,9 @@ class OrderActivityManager
     /**
      * Record a partial refund for an order.
      *
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param Order  $order
      * @param Refund $refund
      * @return OrderActivity
      */
@@ -228,7 +265,9 @@ class OrderActivityManager
     /**
      * Record a full refund for an order.
      *
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param Order  $order
      * @param Refund $refund
      * @return OrderActivity
      */
@@ -243,7 +282,9 @@ class OrderActivityManager
     /**
      * Record that a refund was requested for an order.
      *
-     * @param Order $order
+     * @since 1.0.0
+     *
+     * @param Order  $order
      * @param Refund $refund
      * @return OrderActivity
      */
@@ -259,8 +300,10 @@ class OrderActivityManager
     /**
      * Record that a refund was deleted from an order.
      *
-     * @param Order $order
-     * @param array $refund_snapshot Accepts id, invoiced_amount and currency_code keys.
+     * @since 1.0.0
+     *
+     * @param Order                $order
+     * @param array<string, mixed> $refund_snapshot Accepts id, invoiced_amount and currency_code keys.
      * @return OrderActivity
      */
     public function refund_deleted(Order $order, array $refund_snapshot)
@@ -274,9 +317,11 @@ class OrderActivityManager
     /**
      * Add a comment activity to an order.
      *
-     * @param int $order_id
-     * @param string $message
-     * @param int|null $created_by
+     * @since 1.0.0
+     *
+     * @param int      $order_id
+     * @param string   $message    Comment text, stored verbatim as the description.
+     * @param int|null $created_by Author user ID; defaults to the current user.
      * @return OrderActivity
      */
     public function comment(int $order_id, string $message, ?int $created_by = null)
@@ -296,6 +341,8 @@ class OrderActivityManager
      * Comment activities carry their own description verbatim. Every other
      * activity type is described here, at read time, from its stored
      * metadata, so copy can change without touching stored data.
+     *
+     * @since 1.0.0
      *
      * @param OrderActivity $activity
      * @return string
@@ -344,11 +391,32 @@ class OrderActivityManager
         }
     }
 
+    /**
+     * Persist an order activity through the activity service.
+     *
+     * @since 1.0.0
+     *
+     * @param int                  $order_id
+     * @param string               $type       One of the OrderActivityType constants.
+     * @param array<string, mixed> $metadata   Metadata stored with the activity.
+     * @param int|null             $created_by ID of the user the activity is attributed to.
+     * @return OrderActivity
+     */
     protected function record(int $order_id, string $type, array $metadata, ?int $created_by)
     {
         return $this->order_activity_service->create($order_id, $type, null, $metadata, $created_by);
     }
 
+    /**
+     * Resolve the ID of the user an activity is attributed to.
+     *
+     * Falls back to the current user, or null when nobody is logged in.
+     *
+     * @since 1.0.0
+     *
+     * @param int|null $created_by Explicit author, if any.
+     * @return int|null
+     */
     protected function resolve_author(?int $created_by = null)
     {
         if (!empty($created_by)) {
@@ -360,6 +428,17 @@ class OrderActivityManager
         return !empty($user_id) ? $user_id : null;
     }
 
+    /**
+     * Build a short summary of the order's items for the order-placed message.
+     *
+     * Returns the product name for a single-item order and an item count
+     * otherwise.
+     *
+     * @since 1.0.0
+     *
+     * @param Order $order
+     * @return string
+     */
     protected function build_item_summary(Order $order)
     {
         $items = $order->items;
@@ -376,6 +455,14 @@ class OrderActivityManager
         return sprintf(__('%d items', 'kirki-ecommerce'), $items->count());
     }
 
+    /**
+     * Describe an order-placed activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_order_placed(array $metadata)
     {
         $order_number = $metadata['order_number'] ?? '';
@@ -385,6 +472,14 @@ class OrderActivityManager
         return sprintf(__('Order placed for %1$s #%2$s', 'kirki-ecommerce'), $item_summary, $order_number);
     }
 
+    /**
+     * Describe a payment-completed activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_payment_completed(array $metadata)
     {
         $amount = $this->format_amount($metadata);
@@ -402,6 +497,14 @@ class OrderActivityManager
         return sprintf(__('Payment of %s completed.', 'kirki-ecommerce'), $amount);
     }
 
+    /**
+     * Describe a cancelled activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_cancelled(array $metadata)
     {
         if (!empty($metadata['reason'])) {
@@ -412,6 +515,14 @@ class OrderActivityManager
         return __('Order cancelled.', 'kirki-ecommerce');
     }
 
+    /**
+     * Describe a tracking-added activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_tracking_added(array $metadata)
     {
         if (!empty($metadata['carrier']) && !empty($metadata['tracking_number'])) {
@@ -427,6 +538,14 @@ class OrderActivityManager
         return __('Tracking information added.', 'kirki-ecommerce');
     }
 
+    /**
+     * Describe a partial-refund activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_partially_refunded(array $metadata)
     {
         $amount = $this->format_amount($metadata);
@@ -439,6 +558,14 @@ class OrderActivityManager
         return sprintf(__('Partial refund of %s issued.', 'kirki-ecommerce'), $amount);
     }
 
+    /**
+     * Describe a refunded activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_refunded(array $metadata)
     {
         $amount = $this->format_amount($metadata);
@@ -451,6 +578,14 @@ class OrderActivityManager
         return sprintf(__('Refund of %s issued.', 'kirki-ecommerce'), $amount);
     }
 
+    /**
+     * Describe a refund-requested activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_refund_requested(array $metadata)
     {
         $amount = $this->format_amount($metadata);
@@ -463,6 +598,14 @@ class OrderActivityManager
         return sprintf(__('Refund of %s requested.', 'kirki-ecommerce'), $amount);
     }
 
+    /**
+     * Describe a refund-deleted activity from its stored metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored activity metadata.
+     * @return string
+     */
     protected function describe_refund_deleted(array $metadata)
     {
         $amount = $this->format_amount($metadata);
@@ -475,6 +618,16 @@ class OrderActivityManager
         return sprintf(__('Refund of %s deleted.', 'kirki-ecommerce'), $amount);
     }
 
+    /**
+     * Format the amount held in activity metadata.
+     *
+     * Returns null when the metadata has no amount.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $metadata Stored metadata with an amount in minor units and an optional currency_code.
+     * @return string|null
+     */
     protected function format_amount(array $metadata)
     {
         if (!isset($metadata['amount'])) {

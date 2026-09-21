@@ -41,7 +41,7 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
- * Class SiteController
+ * Serves the storefront pages: shop, single product, cart, checkout, account, and order tracking.
  *
  * @since 1.0.0
  */
@@ -51,11 +51,11 @@ class SiteController
     protected $product_service;
 
     /**
-     * Constructor
+     * Store the product service.
      *
      * @since 1.0.0
      *
-     * @param ProductService $product_service product service.
+     * @param ProductService $product_service Product service.
      */
     public function __construct(ProductService $product_service)
     {
@@ -63,13 +63,12 @@ class SiteController
     }
 
     /**
-     * Shop page
+     * Render the shop page with the filtered, paginated product list, categories and brands.
      *
      * @since 1.0.0
      *
-     * @param ShopPageFilterRequest $request request.
-     *
-     * @return string Template path.
+     * @param ShopPageFilterRequest $request Validated shop filter request.
+     * @return \Kirki\Ecommerce\Framework\View\View Shop view.
      */
     public function shop_page(ShopPageFilterRequest $request)
     {
@@ -96,13 +95,15 @@ class SiteController
     }
 
     /**
-     * Shop single page
+     * Render a single product page, looked up by the slug route parameter.
+     *
+     * Only published products are shown, unless the request carries a valid preview nonce.
+     * Renders the not-found view when no product matches.
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
+     * @param Request $request Current request.
+     * @return \Kirki\Ecommerce\Framework\View\View Single product view, or the not-found view.
      */
     public function shop_single_page(Request $request)
     {
@@ -142,13 +143,13 @@ class SiteController
     }
 
     /**
-     * Cart page
+     * Render the cart page for the current cart, without calculating tax.
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
+     * @param Request     $request      Current request.
+     * @param CartService $cart_service Cart service.
+     * @return \Kirki\Ecommerce\Framework\View\View Cart view.
      */
     public function cart_page(Request $request, CartService $cart_service)
     {
@@ -160,16 +161,18 @@ class SiteController
     }
 
     /**
-     * Checkout page
+     * Render the checkout page, or the order success or failed page when the order query argument says so.
+     *
+     * Redirects to the home page and exits when the finished order cannot be found, and to the
+     * cart page and exits when the cart is empty.
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
-     * @param CartService $cart_service cart service.
-     * @param OrderService $order_service order service.
+     * @param Request        $request         Current request.
+     * @param CartService    $cart_service    Cart service.
+     * @param OrderService   $order_service   Order service.
      * @param AddressService $address_service Address service.
-     *
-     * @return string Template path.
+     * @return \Kirki\Ecommerce\Framework\View\View Checkout, order success or order failed view.
      */
     public function checkout_page(
         Request $request,
@@ -223,13 +226,12 @@ class SiteController
     }
 
     /**
-     * Account page
+     * Render the account page.
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
+     * @param Request $request Current request.
+     * @return \Kirki\Ecommerce\Framework\View\View Account view.
      */
     public function account_page(Request $request)
     {
@@ -237,15 +239,14 @@ class SiteController
     }
 
     /**
-     * Design system page
+     * Render the design system page.
      *
      * @TODO:: Will be removed later
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
+     * @param Request $request Current request.
+     * @return \Kirki\Ecommerce\Framework\View\View Design system view.
      */
     public function design_system_page(Request $request)
     {
@@ -253,13 +254,16 @@ class SiteController
     }
 
     /**
-     * Order tracking page
+     * Render the order tracking page for the order UUID in the request, with its activity timeline.
+     *
+     * Renders the page with an error message when the UUID is missing or matches no order.
      *
      * @since 1.0.0
      *
-     * @param Request $request  request.
-     *
-     * @return string Template path.
+     * @param Request              $request               Current request.
+     * @param OrderService         $order_service         Order service.
+     * @param OrderActivityService $order_activity_service Order activity service.
+     * @return \Kirki\Ecommerce\Framework\View\View Order tracking view.
      */
     public function order_tracking_page(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
     {

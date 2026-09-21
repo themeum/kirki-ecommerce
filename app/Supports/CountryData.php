@@ -15,6 +15,8 @@ use function Kirki\Ecommerce\Framework\resource_path;
  * scope. Translating the names later means calling `__()` while building the
  * index, and doing that before `init` would return untranslated strings and
  * trip WordPress 6.7's early-translation notice.
+ *
+ * @since 1.0.0
  */
 class CountryData
 {
@@ -42,6 +44,8 @@ class CountryData
     /**
      * Get the country index, keyed by country code.
      *
+     * @since 1.0.0
+     *
      * @return array<string, array>
      */
     public static function index()
@@ -56,9 +60,10 @@ class CountryData
     /**
      * Get a single country's index entry, or null when the code is unknown.
      *
-     * @param string $code Country code, in any casing.
+     * @since 1.0.0
      *
-     * @return array|null
+     * @param string $code Country code, in any casing.
+     * @return array<string, mixed>|null
      */
     public static function find_index_entry(string $code)
     {
@@ -71,9 +76,10 @@ class CountryData
     /**
      * Get the states for a country.
      *
-     * @param string $code Country code, in any casing.
+     * @since 1.0.0
      *
-     * @return array
+     * @param string $code Country code, in any casing.
+     * @return array[] Empty when the country has no states.
      */
     public static function states_for(string $code)
     {
@@ -87,7 +93,9 @@ class CountryData
     /**
      * Get the full country list with each country's states nested inside it.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array[] Countries sorted by name.
      */
     public static function nested()
     {
@@ -101,9 +109,10 @@ class CountryData
     /**
      * Get a single country with its states nested, or null when unknown.
      *
-     * @param string $code Country code, in any casing.
+     * @since 1.0.0
      *
-     * @return array|null
+     * @param string $code Country code, in any casing.
+     * @return array<string, mixed>|null
      */
     public static function find_nested(string $code)
     {
@@ -119,7 +128,9 @@ class CountryData
     /**
      * Reassemble the public list from the index and the states file.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array[] Countries sorted by name.
      */
     protected static function build_nested()
     {
@@ -140,9 +151,10 @@ class CountryData
      * `has_states`. Key order is part of the contract: it survives into
      * json_encode, so appending `states` instead would change the wire format.
      *
-     * @param array $country An index entry.
+     * @since 1.0.0
      *
-     * @return array
+     * @param array<string, mixed> $country An index entry.
+     * @return array<string, mixed>
      */
     protected static function with_states(array $country)
     {
@@ -167,9 +179,10 @@ class CountryData
      * files: `__()` returns the translated name, so the stored order is only
      * alphabetical in the source language.
      *
-     * @param array $rows Rows each carrying a `name`.
+     * @since 1.0.0
      *
-     * @return array Sequentially indexed.
+     * @param array[] $rows Rows each carrying a `name`.
+     * @return array[] Sequentially indexed.
      */
     protected static function sort_by_name(array $rows)
     {
@@ -198,8 +211,9 @@ class CountryData
      * Sort names by locale, keeping their keys, and fall back when ext-intl
      * is missing or its ICU data is broken.
      *
-     * @param array $names Names keyed by their row's position.
+     * @since 1.0.0
      *
+     * @param string[] $names Names keyed by their row's position, sorted in place.
      * @return void
      */
     protected static function asort_by_locale(array &$names)
@@ -224,8 +238,9 @@ class CountryData
      * Folding accents first matters: a plain byte comparison puts every
      * accented name after `Z`, so `Aland Islands` would sort after `Zimbabwe`.
      *
-     * @param array $names Names keyed by their row's position.
+     * @since 1.0.0
      *
+     * @param string[] $names Names keyed by their row's position, sorted in place.
      * @return void
      */
     protected static function asort_without_collator(array &$names)
@@ -242,6 +257,8 @@ class CountryData
 
     /**
      * Drop the cached data.
+     *
+     * @since 1.0.0
      *
      * @return void
      */

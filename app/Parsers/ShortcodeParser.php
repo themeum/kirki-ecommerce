@@ -7,13 +7,32 @@ defined('ABSPATH') || exit;
 use InvalidArgumentException;
 use Kirki\Ecommerce\App\Contracts\Parsable;
 
+/**
+ * Replaces `{tag}` placeholders in a string with values from a variables map.
+ *
+ * @since 1.0.0
+ */
 class ShortcodeParser implements Parsable
 {
+    /**
+     * Replacement values keyed by placeholder tag.
+     *
+     * @var array<string, mixed>
+     */
     protected $variables = [];
+    /**
+     * Regular expression whose first capture group is the tag name of a placeholder.
+     *
+     * @var string
+     */
     protected $pattern = '/\{([a-zA-Z0-9_]+)\}/';
 
     /**
-     * Create a new instance
+     * Create a new parser instance.
+     *
+     * @since 1.0.0
+     *
+     * @return static
      */
     public static function create()
     {
@@ -21,9 +40,11 @@ class ShortcodeParser implements Parsable
     }
 
     /**
-     * Attach the variables to parser
+     * Set the variables the placeholders are replaced with.
      *
-     * @param array $variables
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $variables Replacement values keyed by placeholder tag.
      * @return static
      */
     public function with(array $variables)
@@ -34,9 +55,11 @@ class ShortcodeParser implements Parsable
     }
 
     /**
-     * Explicitly set the pattern
+     * Override the regular expression used to find placeholders.
      *
-     * @param string $pattern
+     * @since 1.0.0
+     *
+     * @param string $pattern Regular expression whose first capture group is the tag name.
      * @return static
      */
     public function pattern(string $pattern)
@@ -47,10 +70,15 @@ class ShortcodeParser implements Parsable
     }
 
     /**
-     * Parse the content
+     * Replace each placeholder in the content that has a matching variable.
      *
-     * @param string $content
-     * @return string
+     * Placeholders without a matching variable are left untouched.
+     *
+     * @since 1.0.0
+     *
+     * @param string $content Content containing placeholders.
+     * @return string Content with known placeholders replaced.
+     * @throws InvalidArgumentException When the placeholder pattern is empty.
      */
     public function parse(string $content)
     {

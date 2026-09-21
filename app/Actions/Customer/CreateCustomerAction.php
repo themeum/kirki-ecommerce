@@ -13,11 +13,27 @@ use Throwable;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Creates a customer with its WordPress user and optional addresses in one transaction.
+ *
+ * @since 1.0.0
+ */
 class CreateCustomerAction
 {
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var AddressService */
     protected $address_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerService $customer_service Customer persistence service.
+     * @param AddressService  $address_service  Address persistence service.
+     */
     public function __construct(
         CustomerService $customer_service,
         AddressService $address_service
@@ -37,9 +53,11 @@ class CreateCustomerAction
      * first) as default billing are resolved independently - an address
      * winning both is persisted once, with both flags true.
      *
-     * @param CreateCustomerDTO $customer_payload
-     * @return Customer
-     * @throws Throwable
+     * @since 1.0.0
+     *
+     * @param CreateCustomerDTO $customer_payload Customer data, including user ID and addresses.
+     * @return Customer The created customer with its relations loaded.
+     * @throws Throwable When the user, customer or an address cannot be created; the transaction is rolled back.
      */
     public function execute(CreateCustomerDTO $customer_payload)
     {
@@ -76,8 +94,10 @@ class CreateCustomerAction
      * to match - forcing false on every non-winning address regardless of
      * what the caller submitted.
      *
-     * @param CreateAddressDTO[] $addresses
-     * @return CreateAddressDTO[]
+     * @since 1.0.0
+     *
+     * @param CreateAddressDTO[] $addresses Addresses submitted with the customer.
+     * @return CreateAddressDTO[] The same addresses with default flags resolved; empty when none were supplied.
      */
     protected function resolve_addresses(array $addresses)
     {
@@ -97,9 +117,13 @@ class CreateCustomerAction
     }
 
     /**
-     * @param CreateAddressDTO[] $addresses
-     * @param string $flag
-     * @return CreateAddressDTO|null
+     * Find the first address whose given default flag is set.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateAddressDTO[] $addresses Addresses to search.
+     * @param string             $flag      Address property to test, e.g. is_default_shipping.
+     * @return CreateAddressDTO|null Null when no address has the flag set.
      */
     protected function find_default(array $addresses, string $flag)
     {
@@ -112,6 +136,18 @@ class CreateCustomerAction
         return null;
     }
 
+    /**
+     * Resolve the WordPress user ID for the customer.
+     *
+     * Verifies the given user exists, otherwise inserts a new subscriber
+     * user from the customer's name and email.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateCustomerDTO $customer Customer payload.
+     * @return int WordPress user ID.
+     * @throws \Exception When the given user does not exist or the new user cannot be inserted.
+     */
     protected function create_user(CreateCustomerDTO $customer)
     {
         if (!empty($customer->user_id)) {
@@ -138,6 +174,15 @@ class CreateCustomerAction
         return $user_id;
     }
 
+    /**
+     * Persist an address for the customer.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateAddressDTO $address_payload Address data with customer_id set.
+     * @return bool Always true; failure to create the address is thrown instead.
+     * @throws \Exception When the address cannot be created.
+     */
     protected function create_address(CreateAddressDTO $address_payload)
     {
         $is_created_billing_address = $this->address_service->create($address_payload);

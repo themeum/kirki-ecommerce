@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Base filters for paginated, searchable and sortable list queries.
+ *
+ * @since 1.0.0
+ */
 class ListFilterDTO extends DTO
 {
     /** @var string|null */

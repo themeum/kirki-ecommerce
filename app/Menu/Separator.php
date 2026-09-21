@@ -5,6 +5,11 @@ namespace Kirki\Ecommerce\App\Menu;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
+/**
+ * Registers a non-clickable divider line between submenu items.
+ *
+ * @since 1.0.0
+ */
 class Separator extends Menu
 {
     /** @inheritDoc */
@@ -19,6 +24,11 @@ class Separator extends Menu
     /** @inheritDoc */
     protected $parent_slug = 'kirki-ecommerce';
 
+    /**
+     * Set the Separator page title and a menu title that renders the divider.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->page_title = __('Separator', 'kirki-ecommerce');
@@ -27,6 +37,13 @@ class Separator extends Menu
         parent::__construct();
     }
 
+    /**
+     * Register the divider as a submenu page and print its inline admin styles.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function render()
     {
         add_submenu_page(

@@ -9,12 +9,21 @@ use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * API resource for a product in admin list views, with lowest prices and stock availability.
+ *
+ * @since 1.0.0
+ */
 class ProductListResource extends Resource
 {
     /**
      * Convert the product resource to an array.
      *
-     * @return array The product data as an associative array.
+     * Prices are the lowest across the product's variants and inventory sums the tracked variants.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The product summary, with availability and prices in base and display currencies.
      */
     public function to_array()
     {

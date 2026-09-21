@@ -5,12 +5,19 @@ namespace Kirki\Ecommerce\App\Resources;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a product collection.
+ *
+ * @since 1.0.0
+ */
 class CollectionResource extends Resource
 {
     /**
      * Convert the collection resource to an array.
      *
-     * @return array The collection data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The collection data, including its product count.
      */
     public function to_array()
     {

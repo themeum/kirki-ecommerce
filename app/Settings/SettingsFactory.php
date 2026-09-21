@@ -14,21 +14,25 @@ use Exception;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Resolves and caches the settings group instances by option key.
+ *
+ * @since 1.0.0
+ */
 class SettingsFactory
 {
-    /**
-     * Cache the setting classes
-     *
-     * @var array
-     */
+    /** @var array<string, AppSettings> Settings instances keyed by option key. */
     protected static $cache = [];
 
     /**
-     * Get all settings instances
+     * Get a settings group by key, or a single value when the key contains a dot path.
      *
-     * @param string $key
-     * @param mixed $default
-     * @return AppSettings|mixed
+     * @since 1.0.0
+     *
+     * @param string $key     Settings group key, optionally followed by a dot path such as `general.store_name`.
+     * @param mixed  $default Value (or callable resolved with value()) returned when a dot path is unknown or null.
+     * @return AppSettings|mixed|null Settings instance (null for an unknown group), or the value at the dot path.
+     * @throws Exception When the key has no path after the dot.
      */
     public function get(string $key, $default = null)
     {
@@ -49,11 +53,14 @@ class SettingsFactory
     }
 
     /**
-     * Update settings values
+     * Update a whole settings group, or a single value addressed by a dot path.
      *
-     * @param string $key
-     * @param mixed $value
+     * @since 1.0.0
+     *
+     * @param string $key   Settings group key, optionally followed by a dot path such as `general.store_name`.
+     * @param mixed  $value Array of settings for a group key, or the value to set at the dot path.
      * @return void
+     * @throws Exception When the key has no path after the dot or the settings group is unknown.
      */
     public function update(string $key, $value)
     {
@@ -76,11 +83,12 @@ class SettingsFactory
     }
 
     /**
-     * Get the settings instance for the given key.
+     * Get the cached settings instance for the given option key.
      *
-     * @param string $key
-     * @return AppSettings|null
-     * @throws Exception
+     * @since 1.0.0
+     *
+     * @param string $key Option key of the settings group.
+     * @return AppSettings|null Null when the key does not match a known settings group.
      */
     public function get_settings_instance(string $key)
     {

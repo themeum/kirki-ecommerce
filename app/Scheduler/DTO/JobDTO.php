@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Scheduler\DTO;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for a claimed queue job handed to the runner.
+ *
+ * @since 1.0.0
+ */
 class JobDTO extends DTO
 {
     /**

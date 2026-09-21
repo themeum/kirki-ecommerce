@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Discount;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Combined outcome of applying every coupon: per-coupon results, invalid coupons and summed discounts.
+ *
+ * @since 1.0.0
+ */
 class DiscountCalculationResultDTO extends DTO
 {
     /** @var CouponDiscountResultDTO[] One entry per successfully applied coupon */

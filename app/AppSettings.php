@@ -8,27 +8,44 @@ use Kirki\Ecommerce\Framework\Concerns\DeepGettable;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Base class for a settings group stored in one WordPress option, layered over the JSON defaults.
+ *
+ * @since 1.0.0
+ */
 abstract class AppSettings
 {
     use DeepGettable;
 
-    /**
-     * Settings values
-     * @var array
-     */
+    /** @var array<string, mixed> */
     protected $settings = [];
 
+    /**
+     * Load the settings, merging the stored values over the defaults.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->refresh();
     }
 
+    /**
+     * Get the option key under which this settings group is stored.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     abstract public function get_option_key();
 
     /**
-     * Get settings values or a specific value by key
+     * Get a setting value by its dot-notation key.
      *
-     * @param string|null $key
+     * @since 1.0.0
+     *
+     * @param string|string[]|null $key     Dot-notation key or list of key segments.
+     * @param mixed                $default Value returned when the key is missing or empty.
      * @return mixed
      */
     public function get($key = null, $default = null) // phpcs:ignore
@@ -37,8 +54,11 @@ abstract class AppSettings
     }
 
     /**
-     * Convert settings to array
-     * @return array
+     * Get all settings values.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
      */
     public function to_array()
     {
@@ -46,9 +66,14 @@ abstract class AppSettings
     }
 
     /**
-     * Set settings values
+     * Merge the given values into the stored settings and persist them.
      *
-     * @param array $value
+     * Top-level keys in `$value` replace existing ones. Dispatches SettingsChanged unless disabled.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $value         Settings values to merge in.
+     * @param bool                 $trigger_event Whether to dispatch the SettingsChanged event.
      * @return void
      */
     public function set($value, bool $trigger_event = true)
@@ -63,10 +88,13 @@ abstract class AppSettings
     }
 
     /**
-     * Get default settings
-     * @param string|null $key
-     * @param mixed $default
-     * @return array
+     * Get the default settings from the bundled JSON file for this option key.
+     *
+     * @since 1.0.0
+     *
+     * @param string|string[]|null $key     Dot-notation key, or null for all defaults.
+     * @param mixed                $default Value returned when the key is missing from the defaults.
+     * @return mixed All defaults as an array when no key is given, otherwise the value at the key.
      */
     public function get_default($key = null, $default = null)
     {
@@ -80,8 +108,11 @@ abstract class AppSettings
     }
 
     /**
-     * Refresh settings values
-     * @return static
+     * Reload the settings from the stored option, merged over the defaults.
+     *
+     * @since 1.0.0
+     *
+     * @return $this
      */
     public function refresh()
     {

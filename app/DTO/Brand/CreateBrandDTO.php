@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Brand;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a product brand.
+ *
+ * @since 1.0.0
+ */
 class CreateBrandDTO extends DTO
 {
     /** @var string */
@@ -21,6 +26,6 @@ class CreateBrandDTO extends DTO
     /** @var string|null */
     public $website_url;
 
-    /** @var string */
+    /** @var bool */
     public $is_active = 1;
 }

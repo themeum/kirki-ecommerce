@@ -9,6 +9,11 @@ use Kirki\Ecommerce\Framework\Supports\Arr;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * Resolves plugin asset URLs and paths and builds the admin JavaScript config.
+ *
+ * @since 1.0.0
+ */
 class Assets
 {
     const ADMIN_PAGE = 'kirki-ecommerce';
@@ -19,7 +24,6 @@ class Assets
      * @since 1.0.0
      *
      * @param string $path Path to append to the assets URL.
-     *
      * @return string
      */
     public static function get_url($path = '')
@@ -34,7 +38,6 @@ class Assets
      * @since 1.0.0
      *
      * @param string $path Path to append to the assets path.
-     *
      * @return string
      */
     public static function get_path($path = '')
@@ -49,7 +52,7 @@ class Assets
      *
      * @since 1.0.0
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<string, mixed>> Empty when the manifest is missing or invalid.
      */
     public static function get_manifest()
     {
@@ -71,6 +74,13 @@ class Assets
         return $manifest = is_array($decoded) ? $decoded : [];
     }
 
+    /**
+     * Check whether the current request is the plugin's admin page.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     public static function is_admin_page()
     {
         if (!is_admin()) {
@@ -86,6 +96,15 @@ class Assets
         return static::ADMIN_PAGE === $page;
     }
 
+    /**
+     * Build the inline script that exposes the plugin config to the admin app.
+     *
+     * The config can be modified through the `CustomHookNames::CONFIG_DATA` filter.
+     *
+     * @since 1.0.0
+     *
+     * @return string JavaScript assigning the config to `window.kirki_ecommerce`.
+     */
     public static function get_kirki_ecommerce_configs()
     {
         $config_data = [

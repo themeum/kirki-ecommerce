@@ -6,13 +6,32 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Makes deleting a variant delete its cart items instead of nulling their variant.
+ *
+ * @since 1.0.0
+ */
 class AlterCartItemsVariantForeignKeyToCascade implements Migration
 {
+    /**
+     * Recreate the cart items variant foreign key to cascade on delete.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         $this->replace_variant_foreign_key('cascade_on_delete');
     }
 
+    /**
+     * Recreate the cart items variant foreign key to set null on delete.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         $this->replace_variant_foreign_key('null_on_delete');
@@ -25,8 +44,9 @@ class AlterCartItemsVariantForeignKeyToCascade implements Migration
      * additions ahead of drops inside a single ALTER, so doing both in one call would ask the
      * database to add a constraint whose name the statement has not dropped yet.
      *
-     * @param string $delete_rule The ForeignKeyDefinition method naming the ON DELETE behaviour.
+     * @since 1.0.0
      *
+     * @param string $delete_rule The ForeignKeyDefinition method naming the ON DELETE behaviour.
      * @return void
      */
     protected function replace_variant_foreign_key(string $delete_rule)

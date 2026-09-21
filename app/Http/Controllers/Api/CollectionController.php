@@ -18,15 +18,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing collections.
+ *
+ * @since 1.0.0
+ */
 class CollectionController
 {
+    /** @var CollectionService */
     protected $service;
 
+    /**
+     * Create the controller with its collection service.
+     *
+     * @since 1.0.0
+     *
+     * @param CollectionService $service
+     */
     public function __construct(CollectionService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List collections, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated collections with a success message.
+     */
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
@@ -48,6 +71,14 @@ class CollectionController
         ]);
     }
 
+    /**
+     * Create a collection from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CollectionCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created collection with a 201 status.
+     */
     public function create(CollectionCreateRequest $request)
     {
         $payload = CreateCollectionDTO::from_request($request);
@@ -60,6 +91,14 @@ class CollectionController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single collection by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The collection resource.
+     */
     public function show(Request $request)
     {
         $collection = $this->service->find($request->int('id'));
@@ -70,6 +109,14 @@ class CollectionController
         ]);
     }
 
+    /**
+     * Update a collection from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CollectionUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated collection.
+     */
     public function update(CollectionUpdateRequest $request)
     {
         $payload = UpdateCollectionDTO::from_request($request);
@@ -82,6 +129,14 @@ class CollectionController
         ]);
     }
 
+    /**
+     * Delete a single collection by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -92,6 +147,16 @@ class CollectionController
         ]);
     }
 
+    /**
+     * Run a bulk action on collections.
+     *
+     * Supports deleting the given IDs or deleting every collection matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();

@@ -20,25 +20,21 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use function Kirki\Ecommerce\Framework\request;
 
 /**
- * Class Template
+ * Renders theme-aware page wrappers and the storefront filter and pagination markup.
  *
  * @since 1.0.0
  */
 class Template
 {
     /**
-     * Store block theme header.
-     *
-     * @since 1.0.0
+     * Rendered block theme header markup, kept for the current request.
      *
      * @var string
      */
     protected static string $block_header = '';
 
     /**
-     * Store block theme footer.
-     *
-     * @since 1.0.0
+     * Rendered block theme footer markup, printed by `get_footer()`.
      *
      * @var string
      */
@@ -57,7 +53,11 @@ class Template
     }
 
     /**
-     * Load the header template.
+     * Print the page header and open the page wrapper.
+     *
+     * For block themes, prints the document head, opens the body and site
+     * wrapper, and renders the theme's header template part. Other themes use
+     * their own `get_header()`.
      *
      * @since 1.0.0
      *
@@ -98,7 +98,11 @@ class Template
         }
 
         /**
-         * Load the footer template.
+         * Print the page footer and close the page wrapper.
+         *
+         * For block themes, prints the footer template part built by `get_header()`
+         * and closes the wrapper, body and html tags. Other themes use their own
+         * `get_footer()`.
          *
          * @since 1.0.0
          *
@@ -122,14 +126,16 @@ class Template
         }
 
         /**
-         * Render category filter.
+         * Print the active category tree as a checkbox filter.
+         *
+         * Checks the categories listed in the `category_ids` request value and prints
+         * nothing when there are no active categories.
          *
          * @since 1.0.0
          *
-         * @param string $title The title of the category filter.
-         * @param string $css_class The CSS class of the category filter.
-         * @param int $max_level The maximum level of the category filter.
-         *
+         * @param string $title     Heading text, omitted when empty.
+         * @param string $css_class CSS class of the wrapper element.
+         * @param int    $max_level Deepest category level to print, 0 for no limit.
          * @return void
          */
         public static function render_category_filter($title = 'Categories', $css_class = '', $max_level = 0)
@@ -178,16 +184,15 @@ class Template
             }
 
             /**
-             * Render category nodes.
+             * Print the categories under a parent as a nested list.
              *
              * @since 1.0.0
              *
-             * @param array $tree The category tree.
-             * @param int $parent_id The parent ID.
-             * @param int $level The level.
-             * @param int $max_level The maximum level.
-             * @param array $selected The selected categories.
-             *
+             * @param array<int, Category[]> $tree      Categories grouped by parent ID, 0 for top level.
+             * @param int                    $parent_id Parent whose children are printed.
+             * @param int                    $level     Depth of the list being printed, starting at 1.
+             * @param int                    $max_level Deepest level to print, 0 for no limit.
+             * @param int[]                  $selected  IDs of the checked categories.
              * @return void
              */
             protected static function render_category_nodes(
@@ -252,13 +257,15 @@ class Template
             }
 
             /**
-             * Render attribute filters.
+             * Print the attribute values as a checkbox filter grouped by attribute.
+             *
+             * Checks the values listed in the `attribute_value_ids` request value and
+             * prints nothing when no attributes exist.
              *
              * @since 1.0.0
              *
-             * @param string $title The title of the attribute filters.
-             * @param string $css_class The CSS class of the attribute filters.
-             *
+             * @param string $title     Heading text, omitted when empty.
+             * @param string $css_class Extra CSS class of the wrapper element.
              * @return void
              */
             public static function render_attribute_filters($title = 'Filter by', $css_class = '')
@@ -326,13 +333,22 @@ class Template
             }
 
             /**
-             * Render pagination.
+             * Print the pagination links for a paginator.
+             *
+             * Keeps the current query string in each link and prints nothing when there
+             * is only one page.
              *
              * @since 1.0.0
              *
-             * @param Paginator $paginator The paginator.
-             * @param array $options Options for rendering pagination.
+             * @param Paginator            $paginator The paginator.
+             * @param array<string, mixed> $options {
+             *     Options for rendering pagination.
              *
+             *     @type string $base_url    URL path used for the links, defaults to the current request path.
+             *     @type string $page_param  Query parameter holding the page number, defaults to 'current_page'.
+             *     @type string $class       CSS class of the wrapper element, defaults to 'kecom-pagination'.
+             *     @type int    $page_window Page count up to which every page is listed, defaults to 5.
+             * }
              * @return void
              */
             public static function render_pagination(Paginator $paginator, array $options = [])
@@ -416,14 +432,13 @@ class Template
             }
 
             /**
-             * Render page link.
+             * Print a single page number, as plain text when it is the current page.
              *
              * @since 1.0.0
              *
-             * @param int $page The page number.
-             * @param int $current_page The current page number.
-             * @param callable $url The URL callback.
-             *
+             * @param int      $page         The page number.
+             * @param int      $current_page The current page number.
+             * @param callable $url          Callback that returns the URL for a page number.
              * @return void
              */
             protected static function render_page_link(int $page, int $current_page, callable $url): void

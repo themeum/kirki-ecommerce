@@ -9,13 +9,22 @@ use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
  *
  * The rule DSL validates each field in isolation, so the relationships between
  * `attributes` and `variants.*.attribute_values` are checked here instead.
+ *
+ * @since 1.0.0
  */
 trait ValidatesVariantMatrix
 {
     /**
-     * @return void
+     * Validate that variants reference the product's attribute values consistently.
      *
-     * @throws ValidationException
+     * Each variant must list one value per attribute, only values belonging to the
+     * product's attributes, and a combination no other variant uses; exactly one
+     * variant must be the default.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     * @throws ValidationException When any of those checks fail.
      */
     protected function validate_variant_matrix()
     {

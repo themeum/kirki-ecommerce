@@ -5,12 +5,19 @@ namespace Kirki\Ecommerce\App\Resources\Customer;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a customer with addresses and tags.
+ *
+ * @since 1.0.0
+ */
 class CustomerResource extends Resource
 {
     /**
      * Convert the customer resource to an array.
      *
-     * @return array The customer data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The customer data, including addresses and tags.
      */
     public function to_array()
     {

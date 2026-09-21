@@ -20,15 +20,36 @@ use Exception;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing the store currencies.
+ *
+ * @since 1.0.0
+ */
 class CurrencyController
 {
+    /** @var CurrencyService */
     protected $service;
 
+    /**
+     * Create the controller with the currency service.
+     *
+     * @since 1.0.0
+     *
+     * @param CurrencyService $service
+     */
     public function __construct(CurrencyService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List the currencies from the bundled catalog that can be added to the store.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Available currency collection with a success message.
+     */
     public function list(Request $request)
     {
         $data = $this->service->list();
@@ -39,6 +60,16 @@ class CurrencyController
         ]);
     }
 
+    /**
+     * List the store currencies, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated currencies with a success message.
+     */
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
@@ -60,6 +91,14 @@ class CurrencyController
         ]);
     }
 
+    /**
+     * Add the currencies listed in the request `items` to the store.
+     *
+     * @since 1.0.0
+     *
+     * @param CurrencyCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse An empty `data` array with a 201 status.
+     */
     public function create(CurrencyCreateRequest $request)
     {
         $items = $request->input('items') ?? [];
@@ -72,6 +111,14 @@ class CurrencyController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single currency by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The currency resource.
+     */
     public function show(Request $request)
     {
         $currency = $this->service->find($request->int('id'));
@@ -82,6 +129,16 @@ class CurrencyController
         ]);
     }
 
+    /**
+     * Update each currency listed in the request `items`, collecting per-item failures.
+     *
+     * Responds with 422 when every item failed and reports the failure count when only some did.
+     *
+     * @since 1.0.0
+     *
+     * @param CurrencyUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated currencies, plus any error messages, with a 201 status; or a 422 response when none could be updated.
+     */
     public function update(CurrencyUpdateRequest $request)
     {
         $items = $request->input('items') ?? [];
@@ -122,6 +179,14 @@ class CurrencyController
         ], Response::CREATED);
     }
 
+    /**
+     * Remove a single currency by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the removal result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -132,6 +197,16 @@ class CurrencyController
         ]);
     }
 
+    /**
+     * Run a bulk action on currencies.
+     *
+     * Supports removing the given IDs or removing every currency matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();

@@ -4,14 +4,21 @@ namespace Kirki\Ecommerce\App\Supports;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Helpers for building and printing CSS declarations and style blocks from arrays.
+ *
+ * @since 1.0.0
+ */
 class HtmlStyle
 {
     /**
      * Merge one or more associative arrays of CSS declarations into a CSS declaration string.
+     *
      * Later arrays take precedence over earlier ones for the same property.
      *
-     * @param array ...$styles CSS property => value pairs.
+     * @since 1.0.0
      *
+     * @param array<string, string> ...$styles CSS property => value pairs.
      * @return string
      */
     public static function merge(array ...$styles)
@@ -27,10 +34,13 @@ class HtmlStyle
     }
 
     /**
-     * Default CSS declarations applied to the direct children of a rich text
-     * wrapper, so the spacing matches what the rich text editor shows.
+     * Get the default CSS declarations for the direct children of a rich text wrapper.
      *
-     * @return array
+     * Keeps the spacing matching what the rich text editor shows.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, string>> CSS declarations keyed by selector.
      */
     public static function richtext_styles()
     {
@@ -43,13 +53,18 @@ class HtmlStyle
 
 
     /**
-     * Build a CSS style block from one or more [ selector => styles ] arrays, without
-     * printing anything or wrapping the result in a <style> tag.
+     * Build a CSS style block from one or more [ selector => styles ] arrays.
      *
-     * @param array ...$selector_array One or more associative arrays of selector => CSS property/value pairs.
-     *                        Can be passed as a single array with multiple selectors, or as
-     *                        multiple single-selector arrays.
+     * Does not print anything or wrap the result in a <style> tag. Each
+     * selector's declarations are escaped with `esc_attr()`.
      *
+     * @since 1.0.0
+     *
+     * @param array<string, array<string, string>> ...$selector_array One or more associative arrays of
+     *                                                                selector => CSS property/value pairs.
+     *                                                                Can be passed as a single array with
+     *                                                                multiple selectors, or as multiple
+     *                                                                single-selector arrays.
      * @return string
      */
     public static function build_style_block(array ...$selector_array)
@@ -66,13 +81,15 @@ class HtmlStyle
     }
 
     /**
-     * print CSS style block from one or more [ selector => styles ] arrays, wrapped
-     * in a <style> tag.
+     * Print a CSS style block wrapped in a <style> tag.
      *
-     * @param array ...$selector_array One or more associative arrays of selector => CSS property/value pairs.
-     *                        Can be passed as a single array with multiple selectors, or as
-     *                        multiple single-selector arrays.
+     * @since 1.0.0
      *
+     * @param array<string, array<string, string>> ...$selector_array One or more associative arrays of
+     *                                                                selector => CSS property/value pairs.
+     *                                                                Can be passed as a single array with
+     *                                                                multiple selectors, or as multiple
+     *                                                                single-selector arrays.
      * @return void
      */
     public static function print_style_block(array ...$selector_array)
@@ -84,11 +101,13 @@ class HtmlStyle
     }
 
     /**
-     * print inline CSS from one or more associative arrays of CSS declarations into a CSS declaration string.
+     * Print merged CSS declarations as an escaped inline style string.
+     *
      * Later arrays take precedence over earlier ones for the same property.
      *
-     * @param array ...$styles CSS property => value pairs.
+     * @since 1.0.0
      *
+     * @param array<string, string> ...$styles CSS property => value pairs.
      * @return void
      */
     public static function print_inline(array ...$styles)

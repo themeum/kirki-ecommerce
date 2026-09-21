@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Adds is_excluded to the coupon customers primary key so a customer can be both included and excluded.
+ *
+ * @since 1.0.0
+ */
 class AlterCouponCustomersCompositePrimaryKey implements Migration
 {
+    /**
+     * Replace the coupon customers primary key with one that includes is_excluded, and drop the is_excluded index.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_coupon_customers', function (Structure $table) {
@@ -18,6 +30,13 @@ class AlterCouponCustomersCompositePrimaryKey implements Migration
         });
     }
 
+    /**
+     * Restore the coupon and customer primary key and the is_excluded index on the coupon customers table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_coupon_customers', function (Structure $table) {

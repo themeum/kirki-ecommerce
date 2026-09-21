@@ -19,20 +19,43 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Renders the signup-location legal consents on the wp-login.php registration form.
+ *
+ * @since 1.0.0
+ */
 class RenderRegisterConsents extends BaseHook
 {
     use RendersLoginConsents;
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::REGISTER_FORM;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Echo the consents configured for the signup location. Responds to register_form.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments, unused.
+     * @return void
+     */
     public function handle(...$args)
     {
         $this->render_consents(ConsentLocations::SIGNUP);

@@ -9,15 +9,36 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
 
+/**
+ * Validates and sanitizes the payload for updating an order.
+ *
+ * @since 1.0.0
+ */
 class OrderUpdateRequest extends Request
 {
     use ValidatesAddressFields;
 
+    /**
+     * Restrict order updates to admins.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     public function authorize()
     {
         return customer()->is_admin();
     }
 
+    /**
+     * Default the customer ID and currency code before validation.
+     *
+     * A missing customer ID becomes 0 and a missing currency falls back to the display currency.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $customer_id = $this->input('customer_id') ?? null;
@@ -28,6 +49,11 @@ class OrderUpdateRequest extends Request
         ]);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         $shipping_country = (string) $this->input('shipping_country');
@@ -79,6 +105,11 @@ class OrderUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function messages()
     {
         return [
@@ -87,6 +118,11 @@ class OrderUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

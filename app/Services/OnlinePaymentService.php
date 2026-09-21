@@ -24,19 +24,32 @@ use function Kirki\Ecommerce\Framework\json_decoded_data;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages online payment providers: discovery, installation, settings and enabling.
+ *
+ * @since 1.0.0
+ */
 class OnlinePaymentService
 {
+    /** @var \Kirki\Ecommerce\App\AppSettings */
     protected $settings;
 
+    /**
+     * Create the service and load the payment settings.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->settings = Settings::get(OptionKeys::PAYMENT_SETTINGS);
     }
 
     /**
-     * Return all installable online payment providers
+     * Get all installable online payment providers.
      *
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @return Collection Collection of PaymentProvider.
      */
     public function all_installable_providers() // @todo: replace this with real providers later
     {
@@ -55,10 +68,12 @@ class OnlinePaymentService
     }
 
     /**
-     * Discover installable online payment providers
+     * Discover installable online payment providers from the bundled payments.json.
      *
-     * @todo: will be removed later and discover from remote server instead
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array|null Decoded provider definitions, null when the file is missing.
+     * @todo Replace with discovery from a remote server.
      */
     protected function __discover_installable_providers()
     {
@@ -67,9 +82,14 @@ class OnlinePaymentService
     }
 
     /**
-     * Install an online payment provider
+     * Install an online payment provider.
      *
-     * @return PaymentProvider
+     * @since 1.0.0
+     *
+     * @param string $id Payment provider ID.
+     * @return PaymentProvider|null
+     * @throws Exception When the provider is already installed.
+     * @throws NotFoundException When the provider package could not be installed.
      */
     public function install(string $id)
     {
@@ -86,7 +106,9 @@ class OnlinePaymentService
     }
 
     /**
-     * Return all online payment providers
+     * Get all online payment providers.
+     *
+     * @since 1.0.0
      *
      * @return Collection<PaymentProvider>
      */
@@ -98,8 +120,10 @@ class OnlinePaymentService
     /**
      * Find an online payment provider by ID.
      *
-     * @param string $id
-     * @return PaymentProvider|null
+     * @since 1.0.0
+     *
+     * @param string $id Payment provider ID.
+     * @return PaymentProvider|null Null when the provider does not exist or is an offline one.
      */
     public function find(string $id)
     {
@@ -115,9 +139,11 @@ class OnlinePaymentService
     /**
      * Find an online payment provider by ID or throw an exception.
      *
-     * @param string $id
+     * @since 1.0.0
+     *
+     * @param string $id Payment provider ID.
      * @return PaymentProvider
-     * @throws NotFoundException
+     * @throws NotFoundException When no online provider has that ID.
      */
     public function find_or_fail(string $id)
     {
@@ -129,13 +155,14 @@ class OnlinePaymentService
     }
 
     /**
-     * Updates an online payment provider.
+     * Update an online payment provider's settings.
      *
-     * If no slug is provided, it will be generated from the name.
+     * @since 1.0.0
      *
-     * @param array $data
-     * @throws NotFoundException
+     * @param string               $id   Payment provider ID.
+     * @param array<string, mixed> $data Settings to save.
      * @return PaymentProvider
+     * @throws NotFoundException When no online provider has that ID.
      */
     public function update(string $id, array $data)
     {
@@ -147,12 +174,14 @@ class OnlinePaymentService
     }
 
     /**
-     * Toggle an online payment provider.
+     * Enable or disable an online payment provider.
      *
-     * @param string $id
-     * @param bool $is_enabled
-     * @return bool
-     * @throws NotFoundException
+     * @since 1.0.0
+     *
+     * @param string $id         Payment provider ID.
+     * @param bool   $is_enabled Whether the provider should be enabled.
+     * @return bool Always true.
+     * @throws NotFoundException When no online provider has that ID.
      */
     public function set_enabled(string $id, bool $is_enabled)
     {
@@ -164,6 +193,16 @@ class OnlinePaymentService
     }
 
     //@todo remove this later as its just to mock the zip download
+    /**
+     * Stream a provider's folder to the client as a zip download, then exit.
+     *
+     * @since 1.0.0
+     *
+     * @param string $id Payment provider ID.
+     * @return void
+     * @throws Exception When the zip file cannot be created.
+     * @todo Remove once providers are downloaded from a real source.
+     */
     public function mock_download_provider_zip(string $id)
     {
         $name = 'kirki-' . $id;

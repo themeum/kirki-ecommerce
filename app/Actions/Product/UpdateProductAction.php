@@ -13,11 +13,27 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Updates a product together with its variants in one transaction.
+ *
+ * @since 1.0.0
+ */
 class UpdateProductAction
 {
+    /** @var ProductService */
     protected $product_service;
+
+    /** @var VariantService */
     protected $variant_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductService $product_service Product persistence service.
+     * @param VariantService $variant_service Variant persistence service.
+     */
     public function __construct(
         ProductService $product_service,
         VariantService $variant_service
@@ -29,13 +45,17 @@ class UpdateProductAction
     /**
      * Update a product and its variants.
      *
-     * The product and its variants will be created in a single transaction.
-     * If either the product or its variants cannot be created, a Throwable will be thrown.
+     * The product and its variants will be updated in a single transaction.
+     * Variants missing from the payload are deleted, variants with an ID are
+     * updated, and the rest are created. If the product or any variant cannot
+     * be saved, a Throwable will be thrown.
      *
-     * @param UpdateProductDTO $product_payload
-     * @param UpdateVariantDTO[] $variants
-     * @return Product
-     * @throws Throwable
+     * @since 1.0.0
+     *
+     * @param UpdateProductDTO   $product_payload Product data; has_variants is derived from its attributes.
+     * @param UpdateVariantDTO[] $variants        The full set of variants the product should end up with.
+     * @return Product The updated product.
+     * @throws Throwable When the product or a variant cannot be saved; the transaction is rolled back.
      */
     public function execute(UpdateProductDTO $product_payload, array $variants)
     {

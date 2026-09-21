@@ -1,14 +1,5 @@
 <?php
 
-/**
- * Shared rendering and reading of consents on the wp-login.php forms.
- *
- * @package Kirki\Ecommerce\App\Concerns
- * @author Themeum <support@themeum.com>
- * @link https://themeum.com
- * @since 1.0.0
- */
-
 namespace Kirki\Ecommerce\App\Concerns;
 
 use Kirki\Ecommerce\App\Constants\ConsentMethods;
@@ -20,10 +11,17 @@ use function Kirki\Ecommerce\Framework\app;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Shared rendering and reading of consents on the wp-login.php forms.
+ *
+ * @since 1.0.0
+ */
 trait RendersLoginConsents
 {
     /**
      * The field the consent checkboxes are posted under.
+     *
+     * @var string
      */
     protected static $consent_field = 'kecom_consents';
 
@@ -33,8 +31,9 @@ trait RendersLoginConsents
      * Styles are inlined because wp_enqueue_scripts does not fire on
      * wp-login.php, so the storefront bundle is not present there.
      *
-     * @param string $location
+     * @since 1.0.0
      *
+     * @param string $location Login form location to render consents for.
      * @return void
      */
     protected function render_consents(string $location)
@@ -66,8 +65,9 @@ trait RendersLoginConsents
     /**
      * Get the ids of the mandatory consents the request did not accept.
      *
-     * @param string $location
+     * @since 1.0.0
      *
+     * @param string $location Login form location the consents were shown at.
      * @return string[]
      */
     protected function get_unaccepted_consent_ids(string $location)

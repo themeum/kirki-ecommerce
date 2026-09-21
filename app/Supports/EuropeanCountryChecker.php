@@ -3,10 +3,15 @@
 namespace Kirki\Ecommerce\App\Supports;
 
 
+/**
+ * Tells whether a country belongs to the European Union, using the country dataset.
+ *
+ * @since 1.0.0
+ */
 class EuropeanCountryChecker
 {
     /**
-     * @var array
+     * @var array<int, array<string, string>>
      */
     protected static $eu_countries = [];
 
@@ -16,6 +21,8 @@ class EuropeanCountryChecker
      * Membership is recorded once, as `group` in the country index, rather
      * than in a second file that can drift out of step with it. Reads the
      * index rather than the nested list so the states file stays untouched.
+     *
+     * @since 1.0.0
      *
      * @return void
      */
@@ -45,7 +52,9 @@ class EuropeanCountryChecker
      * than a code, because it changes with the active locale. Prefer
      * `is_eu_by_code()` wherever a code is available.
      *
-     * @param string $country_name
+     * @since 1.0.0
+     *
+     * @param string $country_name Country name, compared case-insensitively.
      * @return bool
      */
     public static function is_eu_by_name(string $country_name): bool
@@ -64,7 +73,9 @@ class EuropeanCountryChecker
     /**
      * Check if a country is in the EU by its code.
      *
-     * @param string $country_code
+     * @since 1.0.0
+     *
+     * @param string $country_code Country code, in any casing.
      * @return bool
      */
     public static function is_eu_by_code(string $country_code): bool

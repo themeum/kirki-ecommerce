@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Drops the tax rate and breakdown columns from the order items table.
+ *
+ * @since 1.0.0
+ */
 class AlterOrderItemsDropTaxColumns implements Migration
 {
+    /**
+     * Drop the tax_rate and tax_breakdown columns from the order items table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_order_items', function (Structure $table) {
@@ -15,6 +27,13 @@ class AlterOrderItemsDropTaxColumns implements Migration
         });
     }
 
+    /**
+     * Re-add the tax_rate and tax_breakdown columns to the order items table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_order_items', function (Structure $table) {

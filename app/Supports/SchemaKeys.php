@@ -15,6 +15,8 @@ use function Kirki\Ecommerce\Framework\throw_if;
  * Framework 2.1.15 emitted foreign keys with no CONSTRAINT clause, so every foreign key created
  * before framework 3.x carries an engine-assigned name that differs from what the same migration
  * source produces today.
+ *
+ * @since 1.0.0
  */
 class SchemaKeys
 {
@@ -58,6 +60,8 @@ class SchemaKeys
     /**
      * Get every table this plugin owns, without the WordPress table prefix.
      *
+     * @since 1.0.0
+     *
      * @return array<int, string>
      */
     public static function get_tables()
@@ -79,8 +83,9 @@ class SchemaKeys
     /**
      * Get every non-primary index on a table, with the columns it covers in order.
      *
-     * @param string $table The table name, without the WordPress table prefix.
+     * @since 1.0.0
      *
+     * @param string $table The table name, without the WordPress table prefix.
      * @return array<int, array{name: string, columns: array<int, string>, unique: bool}>
      */
     public static function get_indexes($table)
@@ -110,8 +115,9 @@ class SchemaKeys
      * Only constraints whose child table belongs to this plugin are returned, so a foreign key
      * another plugin declares against one of our tables is never touched.
      *
-     * @param string $table The table name, without the WordPress table prefix.
+     * @since 1.0.0
      *
+     * @param string $table The table name, without the WordPress table prefix.
      * @return array<int, array{name: string, column: string, references: string, on: string, on_delete: string, on_update: string}>
      */
     public static function get_foreign_keys($table)
@@ -153,13 +159,16 @@ class SchemaKeys
      * which this plugin shares with WordPress core and every other plugin, so the namespace is what
      * keeps a name like fk_kirki_ecommerce_products_brand_id from colliding with someone else's.
      *
-     * @param string $table The table name, without the WordPress table prefix.
-     * @param array $columns The columns the key covers, in order.
-     * @param string $type One of foreign, unique or index.
+     * Throws through `throw_if()` for an unknown key type, or when a derived name exceeds the
+     * identifier limit and has no entry in `$name_overrides`.
      *
+     * @since 1.0.0
+     *
+     * @param string   $table   The table name, without the WordPress table prefix.
+     * @param string[] $columns The columns the key covers, in order.
+     * @param string   $type    One of foreign, unique or index.
      * @return string
-     *
-     * @throws Exception
+     * @throws Exception When the key type is unknown, or the derived name exceeds the identifier limit without an override.
      */
     public static function expected_name($table, array $columns, $type)
     {
@@ -194,6 +203,8 @@ class SchemaKeys
     /**
      * Get the WordPress table prefix.
      *
+     * @since 1.0.0
+     *
      * @return string
      */
     protected static function get_table_prefix()
@@ -204,9 +215,10 @@ class SchemaKeys
     /**
      * Remove a leading prefix from a name when present.
      *
-     * @param string $name The name.
-     * @param string $prefix The prefix to remove.
+     * @since 1.0.0
      *
+     * @param string $name   The name.
+     * @param string $prefix The prefix to remove.
      * @return string
      */
     protected static function strip_prefix($name, $prefix)

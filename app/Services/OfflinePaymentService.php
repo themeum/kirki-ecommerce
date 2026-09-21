@@ -16,19 +16,32 @@ use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages the store's offline payment methods kept in the payment settings.
+ *
+ * @since 1.0.0
+ */
 class OfflinePaymentService
 {
+    /** @var \Kirki\Ecommerce\App\AppSettings */
     protected $settings;
 
+    /**
+     * Create the service and load the payment settings.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->settings = Settings::get(OptionKeys::PAYMENT_SETTINGS);
     }
 
     /**
-     * Return all offline payment providers
+     * Get all offline payment providers.
      *
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @return Collection Collection of PaymentProvider.
      */
     public function get()
     {
@@ -40,8 +53,10 @@ class OfflinePaymentService
     /**
      * Find an offline payment provider by ID.
      *
-     * @param string $id
-     * @return PaymentProvider|null
+     * @since 1.0.0
+     *
+     * @param string $id Offline payment method ID.
+     * @return PaymentProvider|null Null when no method has that ID.
      */
     public function find(string $id)
     {
@@ -59,9 +74,11 @@ class OfflinePaymentService
     /**
      * Find an offline payment provider by ID or throw an exception.
      *
-     * @param string $id
+     * @since 1.0.0
+     *
+     * @param string $id Offline payment method ID.
      * @return PaymentProvider
-     * @throws NotFoundException
+     * @throws NotFoundException When no method has that ID.
      */
     public function find_or_fail(string $id)
     {
@@ -75,7 +92,11 @@ class OfflinePaymentService
     /**
      * Create a new offline payment provider.
      *
-     * @param CreateOfflinePaymentDTO $data
+     * Generates a UUID as the ID when the DTO has none.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateOfflinePaymentDTO $data Offline payment method data.
      * @return PaymentProvider
      */
     public function create(CreateOfflinePaymentDTO $data)
@@ -94,10 +115,11 @@ class OfflinePaymentService
     }
 
     /**
-     * Updates an offline payment provider.
+     * Update an offline payment provider.
      *
-     * @param UpdateOfflinePaymentDTO $data
-     * @throws NotFoundException
+     * @since 1.0.0
+     *
+     * @param UpdateOfflinePaymentDTO $data Offline payment method data, including the ID of the method to replace.
      * @return PaymentProvider
      */
     public function update(UpdateOfflinePaymentDTO $data)
@@ -119,11 +141,13 @@ class OfflinePaymentService
     }
 
     /**
-     * Deletes an offline payment provider by ID.
+     * Delete an offline payment provider by ID.
      *
-     * @param string $id The ID of the offline payment provider to delete.
-     * @return bool True if it was deleted successfully, false otherwise.
-     * @throws NotFoundException If it could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param string $id ID of the offline payment method to delete.
+     * @return bool True when it was deleted.
+     * @throws NotFoundException When no method has that ID.
      */
     public function delete(string $id)
     {

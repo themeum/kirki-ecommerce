@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants\Hooks;
 
+/**
+ * Names of the hooks fired by the plugin itself.
+ *
+ * @since 1.0.0
+ */
 class CustomHookNames
 {
     public const ECOMMERCE_PAYMENT_PROVIDERS = 'kirki_ecommerce_payment_providers';

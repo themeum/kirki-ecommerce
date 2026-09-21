@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Fallback behaviours when an automatic exchange rate update fails.
+ *
+ * @since 1.0.0
+ */
 class CurrencyUpdateFallback
 {
     use HasConstants;

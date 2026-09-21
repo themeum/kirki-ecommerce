@@ -25,12 +25,19 @@ use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\with_prefix;
 
+/**
+ * Manages products: listing and filtering, creation, updates, trashing, restoring and deletion.
+ *
+ * @since 1.0.0
+ */
 class ProductService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -49,9 +56,11 @@ class ProductService
     }
 
     /**
-     * Return paginated products
+     * Get a page of products matching the filters, with their categories, variants and media.
      *
-     * @param ProductListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ProductListFilterDTO $filters Search, status, price, taxonomy, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(ProductListFilterDTO $filters)
@@ -62,9 +71,11 @@ class ProductService
     }
 
     /**
-     * Return paginated products with variants
+     * Get a page of products matching the filters, with their attributes, variants and media.
      *
-     * @param ProductListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ProductListFilterDTO $filters Search, status, price, taxonomy, sorting and pagination filters.
      * @return Paginator
      */
     public function paginate_with_variants(ProductListFilterDTO $filters)
@@ -76,10 +87,12 @@ class ProductService
     }
 
     /**
-     * Return all products
+     * Get all products matching the filters, without pagination.
      *
-     * @param ProductListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ProductListFilterDTO $filters Search, status, price, taxonomy and sorting filters.
+     * @return Collection Collection of Product.
      */
     public function all(ProductListFilterDTO $filters)
     {
@@ -89,11 +102,13 @@ class ProductService
     }
 
     /**
-     * Find a product by ID.
+     * Find a product by ID, with its relations, or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Product ID.
      * @return Product
-     * @throws NotFoundException
+     * @throws NotFoundException When the product does not exist.
      */
     public function find(int $id)
     {
@@ -105,11 +120,13 @@ class ProductService
     }
 
     /**
-     * Create a new product.
+     * Create a new product and sync its media, taxonomies and attributes.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the title.
      *
-     * @param CreateProductDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateProductDTO $data Product data.
      * @return Product
      */
     public function create(CreateProductDTO $data)
@@ -149,13 +166,16 @@ class ProductService
     }
 
     /**
-     * Updates a product.
+     * Update a product and sync its media, taxonomies and attributes.
      *
-     * If no slug is provided, it will be generated from the name.
+     * If no slug is provided, it will be generated from the title. A change of
+     * status also updates the published and trashed timestamps.
      *
-     * @param UpdateProductDTO $data
-     * @throws NotFoundException
+     * @since 1.0.0
+     *
+     * @param UpdateProductDTO $data Product data, including its ID.
      * @return Product
+     * @throws NotFoundException When the product does not exist or could not be updated.
      */
     public function update(UpdateProductDTO $data)
     {
@@ -207,11 +227,13 @@ class ProductService
     }
 
     /**
-     * Deletes a product by ID.
+     * Delete a product by ID.
      *
-     * @param int $id The ID of the product to delete.
-     * @return bool True if the product was deleted successfully, false otherwise.
-     * @throws NotFoundException If the product could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Product ID.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no product was deleted.
      */
     public function delete(int $id)
     {
@@ -223,11 +245,13 @@ class ProductService
     }
 
     /**
-     * Deletes multiple products by their IDs.
+     * Delete the trashed products among the given IDs.
      *
-     * @param array $ids The IDs of the products to delete.
-     * @return bool True if the products were deleted successfully, false otherwise.
-     * @throws NotFoundException If the products could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the products to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no IDs are given or no trashed product was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -244,10 +268,12 @@ class ProductService
     }
 
     /**
-     * Deletes all products.
+     * Delete all trashed products matching the filters.
      *
-     * @param ProductListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ProductListFilterDTO $filters Filters selecting the products; the status is forced to trashed.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(ProductListFilterDTO $filters)
     {
@@ -260,11 +286,13 @@ class ProductService
     }
 
     /**
-     * Trash multiple products by their IDs.
+     * Move multiple products to the trash by their IDs.
      *
-     * @param array $ids The IDs of the products to trash.
-     * @return bool True if the products were trashed successfully, false otherwise.
-     * @throws NotFoundException If the products could not be found or trashed.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the products to trash.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no IDs are given or no product was trashed.
      */
     public function bulk_trash(array $ids)
     {
@@ -283,10 +311,12 @@ class ProductService
     }
 
     /**
-     * Trashes all products.
+     * Move all products matching the filters to the trash.
      *
-     * @param ProductListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ProductListFilterDTO $filters Filters selecting the products.
+     * @return bool True when rows were updated.
      */
     public function trash_all(ProductListFilterDTO $filters)
     {
@@ -301,11 +331,13 @@ class ProductService
     }
 
     /**
-     * Restore multiple products by their IDs.
+     * Restore multiple trashed products to draft by their IDs.
      *
-     * @param array $ids The IDs of the products to trash.
-     * @return bool True if the products were trashed successfully, false otherwise.
-     * @throws NotFoundException If the products could not be found or trashed.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the products to restore.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no IDs are given or no trashed product was restored.
      */
     public function bulk_restore(array $ids)
     {
@@ -326,10 +358,12 @@ class ProductService
     }
 
     /**
-     * Restores all products.
+     * Restore all trashed products matching the filters to draft.
      *
-     * @param ProductListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ProductListFilterDTO $filters Filters selecting the products; the status is forced to trashed.
+     * @return bool True when rows were updated.
      */
     public function restore_all(ProductListFilterDTO $filters)
     {
@@ -346,6 +380,13 @@ class ProductService
             ]);
     }
 
+    /**
+     * Build the base query for the product list, with categories, variants and media.
+     *
+     * @since 1.0.0
+     *
+     * @return QueryBuilder
+     */
     protected function list_query()
     {
         $query = Product::query()->with(['categories', 'variants', 'media']);
@@ -361,8 +402,10 @@ class ProductService
      * product column, and fixes the direction itself, so those two values are
      * resolved here rather than through the sortable column map.
      *
-     * @param QueryBuilder $query
-     * @param ProductListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param QueryBuilder         $query   Query to order.
+     * @param ProductListFilterDTO $filters Filters carrying the sort field and direction.
      * @return QueryBuilder
      */
     protected function apply_product_sorting(QueryBuilder $query, ProductListFilterDTO $filters)
@@ -384,6 +427,17 @@ class ProductService
         return $this->apply_sorting($query, $filters);
     }
 
+    /**
+     * Apply the list filters and sorting to a product query.
+     *
+     * Trashed products are excluded unless a status is requested.
+     *
+     * @since 1.0.0
+     *
+     * @param QueryBuilder         $query   Query to filter.
+     * @param ProductListFilterDTO $filters Search, availability, brand, attribute, price, taxonomy, status, date and sorting filters.
+     * @return QueryBuilder
+     */
     protected function apply_filters(QueryBuilder $query, ProductListFilterDTO $filters)
     {
         $query->when($filters->search, function (QueryBuilder $query, $search) {
@@ -452,8 +506,10 @@ class ProductService
      * stocked; otherwise in stock. See AvailabilityService for the canonical
      * definition this mirrors in SQL.
      *
-     * @param QueryBuilder $query
-     * @param string|null $availability_status
+     * @since 1.0.0
+     *
+     * @param QueryBuilder $query               Query to filter.
+     * @param string|null  $availability_status One of the AvailabilityStatus constants; no filtering when empty.
      * @return void
      */
     protected function apply_availability_status_filter(QueryBuilder $query, $availability_status)
@@ -525,10 +581,12 @@ class ProductService
     }
 
     /**
-     * Format the ordering of the given IDs.
+     * Map IDs to sync data that stores each ID's position as its ordering.
      *
-     * @param array $ids
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<int, int|string> $ids IDs in display order.
+     * @return array<int|string, array{ordering: int}> Pivot data keyed by ID.
      */
     protected function format_ordering($ids)
     {
@@ -542,16 +600,14 @@ class ProductService
     }
 
     /**
-     * Get shop page data.
+     * Get the products and filters for the storefront shop page.
+     *
+     * Lists 12 published products per page.
      *
      * @since 1.0.0
      *
-     * @param array $filters filters.
-     *
-     * @return array{
-     *      products: Paginator,
-     *      filters: array
-     * }
+     * @param array<string, mixed> $filters Request filters; `current_page` selects the page.
+     * @return array{products: Paginator, filters: array<string, mixed>}
      */
     public function shop_page_data(array $filters = [])
     {
@@ -575,11 +631,12 @@ class ProductService
     }
 
     /**
-     * Get product preview URL.
+     * Get the preview URL of a product for the logged-in user.
      *
-     * @param string $slug
+     * @since 1.0.0
      *
-     * @return string|null
+     * @param string $slug Product slug.
+     * @return string|null Null when nobody is logged in.
      */
     public function get_preview_url(string $slug)
     {
@@ -596,11 +653,12 @@ class ProductService
     }
 
     /**
-     * Verify product preview nonce.
-     * 
-     * @param string $slug
-     * @param string $nonce
-     * 
+     * Verify a product preview nonce for the current user.
+     *
+     * @since 1.0.0
+     *
+     * @param string $slug  Product slug.
+     * @param string $nonce Nonce from the preview URL.
      * @return bool
      */
     public function verify_product_preview_nonce(string $slug, string $nonce)

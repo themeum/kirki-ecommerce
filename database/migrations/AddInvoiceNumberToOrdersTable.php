@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Adds an indexed invoice number column to the orders table.
+ *
+ * @since 1.0.0
+ */
 class AddInvoiceNumberToOrdersTable implements Migration
 {
+    /**
+     * Add the invoice_number column and its index to the orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_orders', function (Structure $table) {
@@ -16,6 +28,13 @@ class AddInvoiceNumberToOrdersTable implements Migration
         });
     }
 
+    /**
+     * Drop the invoice_number index and column from the orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_orders', function (Structure $table) {

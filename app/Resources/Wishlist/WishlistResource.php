@@ -6,12 +6,21 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\App\Supports\Url;
 
+/**
+ * API resource for a wishlist entry, presented as a product card for its variant.
+ *
+ * @since 1.0.0
+ */
 class WishlistResource extends ShopProductResource
 {
     /**
      * Convert the wishlist resource to an array.
      *
-     * @return array
+     * Fills the product card data from the wishlisted variant and its product, then adds variant, URL and pricing fields.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> Card data with variant and price fields, or an empty array when there is no resource.
      */
     public function to_array(): array
     {
@@ -57,16 +66,16 @@ class WishlistResource extends ShopProductResource
     }
 
     /**
-     * Resolve the display price, formatted regular price, and sale flag.
+     * Resolve the formatted regular price and the display price of the wishlisted variant.
      *
-     * For single-variant products: compares base_price vs base_sale_price.
-     * For multi-variant products: shows a price range across all variants.
+     * The display price is the sale price when the variant is on sale, otherwise the regular price.
      *
-     * @param int $regular_price
-     * @param int $sale_price
-     * @param bool $in_sale
+     * @since 1.0.0
      *
-     * @return array{ display_price: string, formatted_regular_price: string, in_sale: bool }
+     * @param int  $regular_price Regular price in minor units.
+     * @param int  $sale_price    Sale price in minor units.
+     * @param bool $in_sale       Whether the sale price applies.
+     * @return array{display_price: string, formatted_regular_price: string, in_sale: bool} Formatted prices and the sale flag.
      */
     private function resolve_pricing($regular_price, $sale_price, $in_sale): array
     {

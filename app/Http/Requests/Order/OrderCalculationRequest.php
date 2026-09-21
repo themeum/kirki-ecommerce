@@ -5,8 +5,18 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the payload for calculating order totals.
+ *
+ * @since 1.0.0
+ */
 class OrderCalculationRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -53,6 +63,11 @@ class OrderCalculationRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

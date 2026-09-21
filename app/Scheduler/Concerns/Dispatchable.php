@@ -8,12 +8,21 @@ use Kirki\Ecommerce\App\Scheduler\Repositories\QueueRepository;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
+/**
+ * Adds static dispatching and database storage to a queueable job.
+ *
+ * @since 1.0.0
+ */
 trait Dispatchable
 {
     /**
      * Dispatch the job with the given arguments.
      *
-     * @param mixed $values
+     * The returned dispatcher stores the job when it is destroyed.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed $values Arguments for the job's handle method; a non-array value falls back to all passed arguments.
      * @return DeferredDispatcher
      */
     public static function dispatch($values = [])
@@ -24,7 +33,9 @@ trait Dispatchable
     }
 
     /**
-     * Get the queue repository instance.
+     * Get a queue repository instance.
+     *
+     * @since 1.0.0
      *
      * @return QueueRepository
      */
@@ -34,9 +45,11 @@ trait Dispatchable
     }
 
     /**
-     * Create a new deferred dispatcher instance.
+     * Create a job instance with the given arguments wrapped in a deferred dispatcher.
      *
-     * @param array $values
+     * @since 1.0.0
+     *
+     * @param array $values Arguments for the job's handle method.
      * @return DeferredDispatcher
      */
     protected static function new_deferred_dispatcher(array $values)
@@ -48,7 +61,9 @@ trait Dispatchable
     }
 
     /**
-     * Store the job into the storage via the queue repository.
+     * Store the job as a pending row in the scheduler queue table.
+     *
+     * @since 1.0.0
      *
      * @return void
      */

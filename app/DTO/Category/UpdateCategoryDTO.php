@@ -4,8 +4,14 @@ namespace Kirki\Ecommerce\App\DTO\Category;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating a product category.
+ *
+ * @since 1.0.0
+ */
 class UpdateCategoryDTO extends DTO
 {
+    /** @inheritDoc */
     protected static $base_fields = [];
 
     /** @var int */
@@ -32,9 +38,9 @@ class UpdateCategoryDTO extends DTO
     /** @var int */
     public $ordering = 0;
 
-    /** @var string */
+    /** @var bool */
     public $is_active = 1;
 
-    /** @var string */
+    /** @var bool */
     public $is_deletable = 1;
 }

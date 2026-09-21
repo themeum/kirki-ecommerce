@@ -28,15 +28,38 @@ use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * REST controller for product variants, inventory and SKU generation.
+ *
+ * @since 1.0.0
+ */
 class VariantController
 {
+    /** @var VariantService */
     protected $service;
 
+    /**
+     * Create the controller with the variant service.
+     *
+     * @since 1.0.0
+     *
+     * @param VariantService $service
+     */
     public function __construct(VariantService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List variants as inventory rows, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param VariantListRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated inventory with a success message.
+     */
     public function get(VariantListRequest $request)
     {
         $filters = VariantListFilterDTO::from_array($request->all());
@@ -58,6 +81,14 @@ class VariantController
         ]);
     }
 
+    /**
+     * Return the variants whose IDs are given as a comma-separated `ids` parameter.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Variant collection with a success message.
+     */
     public function get_by_ids(Request $request)
     {
         $ids = explode(',', $request->string('ids')) ?? [];
@@ -69,6 +100,14 @@ class VariantController
         ]);
     }
 
+    /**
+     * Return a single variant by the route ID, along with its product's storefront preview URL.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The variant resource.
+     */
     public function show(Request $request)
     {
         $variant = $this->service->find($request->int('id'));
@@ -79,6 +118,14 @@ class VariantController
         ]);
     }
 
+    /**
+     * Get the storefront preview URL of the product a variant belongs to.
+     *
+     * @since 1.0.0
+     *
+     * @param Variant $variant
+     * @return string|null Null when the variant has no product slug.
+     */
     protected function preview_url_for($variant)
     {
         $slug = $variant->product->slug ?? null;
@@ -90,6 +137,14 @@ class VariantController
         return app()->make(ProductService::class)->get_preview_url($slug);
     }
 
+    /**
+     * Partially update a variant from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateVariantRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated variant.
+     */
     public function update(UpdateVariantRequest $request)
     {
         $data = $request->sanitized();
@@ -104,6 +159,14 @@ class VariantController
         ]);
     }
 
+    /**
+     * Update several variants at once from the request `variants` list.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkUpdateVariantRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated variants.
+     */
     public function bulk_update(BulkUpdateVariantRequest $request)
     {
         $data = $request->all();
@@ -116,6 +179,17 @@ class VariantController
         ]);
     }
 
+    /**
+     * Generate a SKU for a single variant, saved or still a draft.
+     *
+     * When `variant_id` is given the sources come from that saved variant; otherwise they are resolved from the draft product identifiers in the request.
+     *
+     * @since 1.0.0
+     *
+     * @param GenerateSkuRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The generated SKU.
+     * @throws NotFoundException When a given `variant_id` matches no variant.
+     */
     public function generate_sku(GenerateSkuRequest $request)
     {
         $variant_id = $request->int('variant_id');
@@ -134,14 +208,16 @@ class VariantController
      * Compose one SKU per requested variant, numbered consecutively.
      *
      * A batch rather than repeated single calls because the sequence is read
-     * from the stored SKUs and nothing is persisted here — N separate requests
+     * from the stored SKUs and nothing is persisted here - N separate requests
      * would each read the same maximum and return the same number.
      *
      * Ids with no matching variant are skipped rather than failing the batch,
      * so a stale row in the grid cannot cost the merchant every other SKU.
      *
+     * @since 1.0.0
+     *
      * @param GenerateSkusRequest $request
-     * @return \Kirki\Ecommerce\Framework\Http\Response
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The generated SKUs, each paired with its variant ID.
      */
     public function generate_skus(GenerateSkusRequest $request)
     {
@@ -183,9 +259,11 @@ class VariantController
     /**
      * Read the SKU sources off a saved variant and the product owning it.
      *
+     * @since 1.0.0
+     *
      * @param int $variant_id
-     * @return array
-     * @throws NotFoundException
+     * @return array<string, mixed> Title, attribute values, brand and category used to compose the SKU.
+     * @throws NotFoundException When no variant has the given ID.
      */
     protected function sources_from_variant(int $variant_id)
     {
@@ -199,8 +277,12 @@ class VariantController
     }
 
     /**
-     * @param \Kirki\Ecommerce\App\Models\Variant $variant
-     * @return array
+     * Extract the SKU sources from an already loaded variant.
+     *
+     * @since 1.0.0
+     *
+     * @param Variant $variant Variant with its product, brand, categories and attribute values loaded.
+     * @return array<string, mixed> Title, attribute values, brand and category used to compose the SKU.
      */
     protected function sources_from_variant_record($variant)
     {
@@ -219,12 +301,15 @@ class VariantController
     }
 
     /**
-     * Resolve the SKU sources for a product that has not been saved yet. Only
-     * identifiers are trusted from the client; the text itself is read back
+     * Resolve the SKU sources for a product that has not been saved yet.
+     *
+     * Only identifiers are trusted from the client; the text itself is read back
      * from the records they point at.
      *
+     * @since 1.0.0
+     *
      * @param GenerateSkuRequest $request
-     * @return array
+     * @return array<string, mixed> Title, attribute values, brand and category used to compose the SKU.
      */
     protected function sources_from_draft(GenerateSkuRequest $request)
     {
@@ -244,8 +329,10 @@ class VariantController
     /**
      * Resolve attribute value labels, preserving the order the ids arrived in.
      *
-     * @param array $attribute_value_ids
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<int, int|string> $attribute_value_ids
+     * @return string[] Value (or color) label of each attribute value that exists.
      */
     protected function attribute_value_labels(array $attribute_value_ids)
     {

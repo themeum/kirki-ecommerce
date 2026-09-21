@@ -7,12 +7,19 @@ use Kirki\Ecommerce\App\Scheduler\Models\SchedulerQueue;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
+/**
+ * Reads and updates the scheduler jobs table: claiming, status changes and cleanup.
+ *
+ * @since 1.0.0
+ */
 class QueueRepository
 {
     /**
      * Create a new job in the queue.
      *
-     * @param array $data
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $data Column values for the new job row.
      * @return SchedulerQueue
      */
     public function create(array $data)
@@ -21,7 +28,9 @@ class QueueRepository
     }
 
     /**
-     * Get jobs associated with a specific claim ID.
+     * Get the jobs claimed with the given claim ID, ordered by priority.
+     *
+     * @since 1.0.0
      *
      * @param string $claim_id
      * @return \Kirki\Ecommerce\Framework\Collections\Collection
@@ -34,11 +43,13 @@ class QueueRepository
     }
 
     /**
-     * Lock pending jobs for a specific claim ID.
+     * Claim due pending jobs for the given claim ID and mark them as processing.
      *
-     * @param string $claim_id
-     * @param int $batch
-     * @return int
+     * @since 1.0.0
+     *
+     * @param string $claim_id Unique ID identifying this run.
+     * @param int    $batch    Maximum number of jobs to claim.
+     * @return int Number of jobs claimed.
      */
     public function lock_jobs(string $claim_id, int $batch)
     {
@@ -56,11 +67,13 @@ class QueueRepository
     }
 
     /**
-     * Update the status of a specific job.
+     * Set the status of a job and release its claim.
      *
-     * @param int $id
-     * @param string $status
-     * @return int
+     * @since 1.0.0
+     *
+     * @param int    $id     Job ID.
+     * @param string $status New status.
+     * @return int Number of rows updated.
      */
     protected function update_status(int $id, string $status)
     {
@@ -73,8 +86,10 @@ class QueueRepository
     /**
      * Mark a job as completed.
      *
-     * @param int $id
-     * @return int
+     * @since 1.0.0
+     *
+     * @param int $id Job ID.
+     * @return int Number of rows updated.
      */
     public function mark_as_completed(int $id)
     {
@@ -82,11 +97,16 @@ class QueueRepository
     }
 
     /**
-     * Mark a job as failed and handle retry logic.
+     * Handle a failed job execution by requeueing it or marking it as failed.
      *
-     * @param int $id
-     * @param int $retry
-     * @return int|void
+     * While the attempt count is below `$retry` the job goes back to pending with the count
+     * incremented; otherwise it is marked failed. A `$retry` of 0 fails it immediately.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id    Job ID.
+     * @param int $retry Maximum number of retries allowed for the job.
+     * @return int|null Rows updated when the job is marked failed; null when the job is missing or requeued.
      */
     public function mark_as_failed(int $id, int $retry = 3)
     {
@@ -114,11 +134,16 @@ class QueueRepository
     }
 
     /**
-     * Reset jobs that have been stuck in processing status.
+     * Requeue or fail jobs that have been in processing status for longer than the timeout.
      *
-     * @param int $timeout
-     * @param int $max_retries
-     * @return int
+     * Jobs with fewer than `$max_retries` attempts go back to pending with the count incremented;
+     * the rest are marked failed.
+     *
+     * @since 1.0.0
+     *
+     * @param int $timeout     Seconds a job may stay in processing status.
+     * @param int $max_retries Maximum number of attempts before a job is failed.
+     * @return int Number of rows updated.
      */
     public function reset_stuck_jobs(int $timeout, int $max_retries = 3)
     {
@@ -146,7 +171,9 @@ class QueueRepository
     }
 
     /**
-     * Check if there are any pending jobs ready to be processed.
+     * Determine whether any pending jobs are due to be processed.
+     *
+     * @since 1.0.0
      *
      * @return bool
      */
@@ -160,14 +187,14 @@ class QueueRepository
     }
 
     /**
-     * Cleanup jobs that have been completed or failed for a specific status.
+     * Delete jobs with the given status that were scheduled at least the given number of days ago.
      *
-     * This method chunks the jobs by ID to reduce the load on the database 
-     * and deletes them in batches. It also includes a sleep delay to prevent 
-     * overwhelming the database with too many queries.
+     * Deletes in chunks of 1000 IDs with a short sleep between chunks to reduce database load.
      *
-     * @param string $status
-     * @param int $days
+     * @since 1.0.0
+     *
+     * @param string $status Job status to delete.
+     * @param int    $days   Minimum age in days.
      * @return bool
      */
     public function cleanup($status, $days)

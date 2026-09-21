@@ -9,13 +9,19 @@ use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the curated coupons and their customer, product and category eligibility.
+ *
+ * @since 1.0.0
+ */
 class CouponSeeder extends Seeder
 {
     /**
      * Seed curated coupons with deterministic relationships.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
