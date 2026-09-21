@@ -1,6 +1,7 @@
 {
-  "id": 1,
+  "id": 0,
   "title": "Sample Product",
+  "variant_name": "Colorful | Porcelain | Smooth",
   "sku": "CT-SHIRT-001",
   "available_quantity": 3,
   "low_stock_threshold": 5

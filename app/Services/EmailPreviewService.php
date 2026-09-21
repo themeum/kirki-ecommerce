@@ -11,6 +11,9 @@ use Kirki\Ecommerce\App\Constants\Email\CustomerOrderNotification;
 use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Mails\Admins\AdminLowStockMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminNewOrderMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminOrderCancelledMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminOrderFailedMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminOutOfStockMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerNewAccountMail;
@@ -29,6 +32,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
+use WP_CLI\Context\Admin;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\json_decoded_data;
@@ -46,12 +50,15 @@ class EmailPreviewService
         'admin' => [
             'order' => [
                 AdminOrderNotification::NEW_ORDER => AdminNewOrderMail::class,
+                AdminOrderNotification::CANCELLED_ORDER => AdminOrderCancelledMail::class,
+                AdminOrderNotification::FAILED_ORDER => AdminOrderFailedMail::class,
             ],
             'user' => [
                 AdminUserNotification::RESET_PASSWORD => AdminResetPasswordMail::class,
             ],
             'inventory' => [
                 AdminInventoryNotification::LOW_STOCK => AdminLowStockMail::class,
+                AdminInventoryNotification::OUT_OF_STOCK => AdminOutOfStockMail::class,
             ],
         ],
         'customer' => [

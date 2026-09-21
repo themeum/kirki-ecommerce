@@ -8,7 +8,7 @@ use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\Url;
 
-class AdminLowStockMail extends Mailer
+class AdminOutOfStockMail extends Mailer
 {
     /** @var Variant */
     protected $variant;
@@ -20,7 +20,7 @@ class AdminLowStockMail extends Mailer
 
     public function option_key()
     {
-        return 'admin_emails.inventory_notifications.low_stock';
+        return 'admin_emails.inventory_notifications.out_of_stock';
     }
 
     public function with()

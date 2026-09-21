@@ -37,7 +37,6 @@ class CustomerResetPasswordMail extends Mailer
             'user_name' => $this->user->get_username(),
             'user_email' => $this->user->get_email(),
             'user_info_table' => $this->get_content('emails.parts.user.info-table', ['user_name' => $this->user->get_username()]),
-
             'reset_link' => '#', // @todo: add reset password url
             'reset_link_button' => $this->get_content('emails.parts.link-button', [
                 'label' => __('Reset Your Password', 'kirki-ecommerce'),
