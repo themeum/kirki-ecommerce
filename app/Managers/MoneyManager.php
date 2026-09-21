@@ -421,11 +421,11 @@ class MoneyManager
      * Get the ISO 4217 numeric code of the currency, zero-padded to 3 digits (e.g. EUR => '978', AUD => '036').
      *
      * @param string $code
-     * @return string
+     * @return int
      * @throws \Brick\Money\Exception\UnknownCurrencyException If the currency code is not a known ISO 4217 code.
      */
     public static function get_currency_numeric_code($code)
     {
-        return sprintf('%03d', BrickCurrency::of(strtoupper($code))->getNumericCode());
+        return BrickCurrency::of(strtoupper($code))->getNumericCode();
     }
 }

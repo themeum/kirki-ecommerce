@@ -98,10 +98,25 @@ class RedsysSignature
         return base64_encode($encrypted);
     }
 
+    /**
+     * Encodes binary data as Base64URL without padding.
+     *
+     * @param string $input Raw bytes to encode, e.g. an HMAC digest.
+     *
+     * @return string Unpadded Base64URL string.
+     */
     protected function base64_url_encode(string $input): string
     {
         return $this->to_url_safe(base64_encode($input));
     }
+
+    /**
+     * Decodes a Base64URL string back into raw bytes.
+     *
+     * @param string $input Base64URL-encoded string, e.g. Ds_MerchantParameters.
+     *
+     * @return string Decoded bytes, or an empty string if decoding fails.
+     */
 
     protected function base64_url_decode(string $input): string
     {
@@ -110,6 +125,13 @@ class RedsysSignature
         return (string) base64_decode(strtr($padded, '-_', '+/'));
     }
 
+    /**
+     * Converts a standard Base64 string to unpadded Base64URL.
+     *
+     * @param string $base64 Standard or URL-safe Base64 string.
+     *
+     * @return string Unpadded Base64URL string.
+     */
     protected function to_url_safe(string $base64): string
     {
         return str_replace('=', '', strtr($base64, '+/', '-_'));
