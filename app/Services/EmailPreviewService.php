@@ -93,7 +93,7 @@ class EmailPreviewService
      *
      * @param string $type  Recipient type: customer or admin.
      * @param string $group Notification group: order, user or inventory.
-     * @param string $key   Notification key within the group, such as order_confirmation.
+     * @param string $key   Notification key within the group, such as new_order.
      * @return Mailer|null Null when the combination is not a known notification.
      */
     public function resolve_mailer(string $type, string $group, string $key)
