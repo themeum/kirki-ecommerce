@@ -25,7 +25,7 @@ class WebhookController
         if ($result instanceof WebhookResult) {
             add_filter('rest_pre_serve_request', function () use ($result) {
                 $content_type = Sanitizer::apply_rule($result->content_type(), Sanitizer::MIME_TYPE) ?: 'text/plain'; 
-
+ 
                 header('Content-Type: ' . $content_type . '; charset=UTF-8');
                 echo $result->raw_body(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
