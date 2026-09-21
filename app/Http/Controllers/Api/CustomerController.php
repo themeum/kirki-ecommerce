@@ -12,7 +12,6 @@ use Kirki\Ecommerce\App\Resources\Customer\CustomerResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Request;
-use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\DTO\Customer\CustomerListFilterDTO;
@@ -240,7 +239,7 @@ class CustomerController
                     'message' => __('Customer deleted', 'kirki-ecommerce'),
                 ]);
             case BulkActions::DELETE_ALL:
-                $params = ListFilterDTO::from_array($request->all());
+                $params = CustomerListFilterDTO::from_array($request->all());
                 $result = $this->service->delete_all($params);
                 return response()->json([
                     'data' => $result,
