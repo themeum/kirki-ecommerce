@@ -61,7 +61,7 @@ class CustomizeAdminBar extends BaseHook
             $wp_admin_bar->add_node([
                 'id'    => 'edit',
                 'title' => __('Edit Product', 'kirki-ecommerce'),
-                'href'  => Url::get_admin_product_edit_url($product['id']),
+                'href'  => Url::get_product_edit_url($product['id']),
             ]);
         }
     }
