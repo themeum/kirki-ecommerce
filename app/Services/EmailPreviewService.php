@@ -12,6 +12,8 @@ use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Mails\Admins\AdminLowStockMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminNewOrderMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminResetPasswordMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerNewAccountMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerNewOrderMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderCancelMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderCompletedMail;
@@ -65,6 +67,8 @@ class EmailPreviewService
             ],
             'user' => [
                 CustomerUserNotification::RESET_PASSWORD => CustomerResetPasswordMail::class,
+                CustomerUserNotification::NEW_CUSTOMER_ACCOUNT => CustomerNewAccountMail::class,
+                CustomerUserNotification::CONFIRM_EMAIL_ADDRESS => CustomerEmailConfirmationMail::class,
             ],
         ],
     ];

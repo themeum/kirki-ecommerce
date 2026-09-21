@@ -505,8 +505,116 @@
         "is_enabled": true,
         "subject": "Reset Password",
         "heading": "Reset your password",
-        "message": "<div>Hi there! </div><div>Someone has requested a new password for the following account on {store_name}</div>",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Someone has requested a new password for the following account on {store_name}:</span></div><div>{user_info_table}</div><div>{reset_link_button}</div>",
         "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "User Table",
+            "value": "{user_info_table}"
+          },
+          {
+            "label": "Reset Link",
+            "value": "{reset_link}"
+          },
+          {
+            "label": "Reset Link Button",
+            "value": "{reset_link_button}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "new_account": {
+        "is_enabled": true,
+        "subject": "New Account",
+        "heading": "Welcome to {store_name}",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Thanks for creating an account on {store_name}. Here’s a copy of your user details.</span></div><div>{user_info_table}</div>",
+        "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "User Table",
+            "value": "{user_info_table}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "confirm_email_address": {
+        "is_enabled": true,
+        "subject": "Confirm your email address",
+        "heading": "Confirm your email address",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {full_name}</span></div><div><span style=\"font-size: 13px;\">Once you've confirmed that {user_email} is your email address, we'll link any past orders to your account.</span></div><div>{verification_link_button}</div>",
+        "shortcodes": [
+          {
+            "label": "Full Name",
+            "value": "{full_name}"
+          },
+          {
+            "label": "Email",
+            "value": "{user_email}"
+          },
+          {
+            "label": "Username",
+            "value": "{user_name}"
+          },
+          {
+            "label": "Verification Link",
+            "value": "{verification_link}"
+          },
+          {
+            "label": "Verification Link Button",
+            "value": "{verification_link_button}"
+          },
           {
             "label": "Store Name",
             "value": "{store_name}"
