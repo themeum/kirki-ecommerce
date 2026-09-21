@@ -42,6 +42,12 @@ class CreateOrderItemDTO extends DTO
     public $base_price;
 
     /** @var int */
+    public $invoiced_regular_price;
+
+    /** @var int */
+    public $base_regular_price;
+
+    /** @var int */
     public $quantity;
 
     /** @var float */

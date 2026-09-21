@@ -33,6 +33,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderItemCoupon;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 use Kirki\Ecommerce\App\Payment\Providers\PayPal;
 use Kirki\Ecommerce\App\Services\CartService;
@@ -328,6 +329,112 @@ class OrderApiTest extends RestTestCase
         $this->assertIsArray($item->product_data);
         $this->assertArrayHasKey('product', $item->product_data);
         $this->assertArrayHasKey('variant', $item->product_data);
+    }
+
+    /**
+     * An item bought while a sale price is active records the regular price
+     * next to the sale price it was charged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_price_for_item_bought_on_sale(): void
+    {
+        $regular_price = Variant::find($this->variant_id)->base_price;
+        Variant::find($this->variant_id)->update(['base_sale_price' => $regular_price - 1000]);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals($regular_price - 1000, $item->base_price);
+        $this->assertEquals($regular_price, $item->base_regular_price);
+        $this->assertEquals($regular_price, $item->invoiced_regular_price);
+    }
+
+    /**
+     * An item bought with no sale price records a regular price equal to its
+     * charged price.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_price_equal_to_price_when_not_on_sale(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals($item->base_price, $item->base_regular_price);
+        $this->assertEquals($item->invoiced_price, $item->invoiced_regular_price);
+    }
+
+    /**
+     * Editing an order keeps an existing item's recorded regular price when
+     * its quantity changes or the variant is repriced, and records the
+     * current regular price for an item added in the edit.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_keeps_existing_regular_price_and_records_it_for_added_items(): void
+    {
+        $original_regular_price = Variant::find($this->variant_id)->base_price;
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        Variant::find($this->variant_id)->update(['base_price' => $original_regular_price + 500]);
+
+        $added_variant_id = $this->default_variant_id($this->create_product());
+        $added_regular_price = Variant::find($added_variant_id)->base_price;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $existing_item = OrderItem::find($existing_item_id);
+        $this->assertEquals(2, $existing_item->quantity);
+        $this->assertEquals($original_regular_price, $existing_item->base_regular_price);
+        $this->assertEquals($original_regular_price, $existing_item->invoiced_regular_price);
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+        $this->assertEquals($added_regular_price, $added_item->base_regular_price);
+    }
+
+    /**
+     * Adding an item to an existing order works when its product has no media,
+     * leaving the item without an image instead of failing the update.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_adds_item_for_product_without_media(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+        $added_variant_id = $this->default_variant_id($this->create_product());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'items' => [
+                ['id' => $order['items'][0]['id'], 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+        $this->assertNotNull($added_item);
+        $this->assertNull($added_item->product_image);
     }
 
     /**

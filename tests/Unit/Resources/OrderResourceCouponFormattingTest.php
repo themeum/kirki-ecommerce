@@ -69,6 +69,17 @@ class OrderResourceCouponFormattingTest extends TestCase
         return $item;
     }
 
+    protected function make_priced_order_item(int $base_regular_price, int $base_price, int $quantity, int $invoiced_subtotal, ?int $invoiced_regular_price = null): OrderItem
+    {
+        $item = $this->make_order_item(101, $invoiced_subtotal);
+        $item->base_regular_price = $base_regular_price;
+        $item->invoiced_regular_price = $invoiced_regular_price ?? $base_regular_price;
+        $item->base_price = $base_price;
+        $item->quantity = $quantity;
+
+        return $item;
+    }
+
     protected function call(string $method, ...$arguments)
     {
         $reflection = new \ReflectionClass(OrderResource::class);
@@ -316,5 +327,97 @@ class OrderResourceCouponFormattingTest extends TestCase
         $this->assertSame(270, $this->call('get_order_coupon_discount', $order_coupons));
         // shipping discount (unattributed remainder): 0 (order_coupon, fully attributed) + 500 (free shipping) = 500
         $this->assertSame(500, $this->call('get_shipping_coupon_discount', $order_coupons));
+    }
+
+    // prepare_strikethrough_price
+
+    public function test_strikethrough_is_the_regular_price_total_when_only_a_sale_applied(): void
+    {
+        $item = $this->make_priced_order_item(2000, 1500, 3, 4500);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0);
+
+        $this->assertSame(60.0, $strikethrough->raw);
+        $this->assertSame('USD', $strikethrough->currency->code);
+    }
+
+    public function test_strikethrough_is_the_subtotal_before_the_coupon_when_only_a_product_coupon_applied(): void
+    {
+        $item = $this->make_priced_order_item(2000, 2000, 1, 2000);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 500);
+
+        $this->assertSame(20.0, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_is_the_sale_adjusted_subtotal_when_a_sale_and_a_product_coupon_both_applied(): void
+    {
+        $item = $this->make_priced_order_item(2000, 1500, 2, 3000);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 500);
+
+        $this->assertSame(30.0, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_is_null_when_only_an_order_scoped_coupon_discounted_the_item(): void
+    {
+        $item = $this->make_priced_order_item(2000, 2000, 1, 2000);
+        $order_coupon = $this->make_order_coupon('ORDER10', DiscountTarget::ORDER, 300, [
+            ['order_item_id' => 101, 'invoiced_discount_amount' => 300],
+        ]);
+
+        $product_coupon_discount = $this->call('get_product_coupon_discount_for_item', collection([$order_coupon]), 101);
+
+        $this->assertNull($this->call('prepare_strikethrough_price', $item, $product_coupon_discount));
+    }
+
+    public function test_strikethrough_is_null_when_there_is_no_sale_and_no_product_coupon(): void
+    {
+        $item = $this->make_priced_order_item(2000, 2000, 2, 4000);
+
+        $this->assertNull($this->call('prepare_strikethrough_price', $item, 0));
+    }
+
+    public function test_strikethrough_is_null_for_an_item_with_no_recorded_regular_price(): void
+    {
+        $item = $this->make_priced_order_item(0, 1500, 1, 1500);
+
+        $this->assertNull($this->call('prepare_strikethrough_price', $item, 0));
+    }
+
+    public function test_strikethrough_still_shows_the_product_coupon_baseline_for_an_item_with_no_recorded_regular_price(): void
+    {
+        $item = $this->make_priced_order_item(0, 1500, 1, 1500);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 300);
+
+        $this->assertSame(15.0, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_sale_check_ignores_invoiced_rounding_differences(): void
+    {
+        $item = $this->make_priced_order_item(1000, 1000, 3, 33333, 11112);
+
+        $this->assertNull($this->call('prepare_strikethrough_price', $item, 0));
+    }
+
+    public function test_sale_strikethrough_is_in_the_orders_invoiced_currency(): void
+    {
+        $resource = new OrderResource([
+            'currency_code' => 'BDT',
+            'base_currency_code' => 'USD',
+            'exchange_rate' => 110.0,
+        ]);
+        $item = $this->make_priced_order_item(2000, 1500, 2, 330000, 220000);
+
+        $reflection = new \ReflectionClass(OrderResource::class);
+        $method = $reflection->getMethod('prepare_strikethrough_price');
+        $method->setAccessible(true);
+
+        $strikethrough = $method->invoke($resource, $item, 0);
+
+        // 220000 minor BDT per unit * 2 = 440000 minor BDT = 4400.00 BDT.
+        $this->assertSame(4400.0, $strikethrough->raw);
+        $this->assertSame('BDT', $strikethrough->currency->code);
     }
 }
