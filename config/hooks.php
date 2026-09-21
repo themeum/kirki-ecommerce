@@ -3,6 +3,7 @@
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Hooks\Actions\AddWpHeadMeta;
+use Kirki\Ecommerce\App\Hooks\Actions\CustomizeAdminBar;
 use Kirki\Ecommerce\App\Hooks\Actions\EnqueueSiteScripts;
 use Kirki\Ecommerce\App\Hooks\Actions\MergeGuestOrder;
 use Kirki\Ecommerce\App\Hooks\Actions\RenderLoginConsents;
@@ -26,6 +27,7 @@ return [
         RemoveDuplicateSubmenu::class,
         RegisterRestApi::class,
         AddWpHeadMeta::class,
+        CustomizeAdminBar::class,
         SMTPConfig::class,
         MergeGuestOrder::class,
         RenderLoginConsents::class,
