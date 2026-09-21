@@ -1,6 +1,7 @@
 import { Copy, Eye } from 'lucide-react';
 
 import SelectField from '@/components/form/select-field';
+import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
@@ -83,6 +84,11 @@ const RightPanel = ({ mode, product, onDuplicate, isDuplicating = false }: Right
                 label={mode === 'create' ? __('Status', 'kirki-ecommerce') : null}
                 options={statusOptions}
               />
+              <TextField
+                name="slug"
+                label={__('Slug', 'kirki-ecommerce')}
+                placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
+              />
               {isDefined(product) && (
                 <Flex align="center" justify="space-between">
                   <Button variant="link" onClick={onDuplicate} loading={isDuplicating}>
@@ -117,6 +123,16 @@ const RightPanel = ({ mode, product, onDuplicate, isDuplicating = false }: Right
           <CardContent cssOverride={styles.fields}>
             <Tags />
             <Collections />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent cssOverride={styles.fields}>
+            <TextField
+              name="ribbon"
+              label={__('Ribbon', 'kirki-ecommerce')}
+              placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
+            />
             <Brand />
           </CardContent>
         </Card>

@@ -41,7 +41,6 @@ class SettingsApiTest extends RestTestCase
                 'dimension_unit' => 'cm',
                 'is_enabled_reviews' => true,
                 'is_enabled_star_ratings' => true,
-                'is_unit_price_visible' => false,
                 'low_stock_threshold' => 5,
             ],
         ]);
@@ -49,7 +48,6 @@ class SettingsApiTest extends RestTestCase
         $payload = $this->assert_api_success($response);
         $this->assertEquals('kg', $payload['data']['weight_unit']);
         $this->assertEquals('cm', $payload['data']['dimension_unit']);
-        $this->assertFalse($payload['data']['is_unit_price_visible']);
     }
 
     /**

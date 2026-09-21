@@ -5,14 +5,13 @@ namespace Kirki\Ecommerce\App\Supports;
 use Kirki\Ecommerce\App\Constants\Product\UnitConversion;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Variant;
-use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 class UnitPrice
 {
     /**
      * Build the formatted unit price for a variant, e.g. "$30.00/1kg", in the
-     * given display currency. Returns null when unit pricing is disabled or
-     * the variant's unit data cannot produce a valid computation.
+     * given display currency. Returns null when the variant's unit data cannot
+     * produce a valid computation.
      *
      * @param Variant $variant
      * @param string|null $display_currency
@@ -20,10 +19,6 @@ class UnitPrice
      */
     public static function make(Variant $variant, ?string $display_currency = null)
     {
-        if (!$variant->show_unit_price || Settings::get('product.is_unit_price_visible', false) === false) {
-            return null;
-        }
-
         $base_unit = $variant->base_unit;
         $base_unit_amount = $variant->base_unit_amount;
         $total_unit = $variant->total_unit;

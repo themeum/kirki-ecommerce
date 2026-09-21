@@ -107,7 +107,7 @@ foreach ($media as $media_item) {
                             <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
                             <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
                         </div>
-                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.show_unit_price && selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
+                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
                         <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
                             <div class="kecom-product-tax-info">
                                 <?php esc_html_e('Incl. VAT', 'kirki-ecommerce'); ?>

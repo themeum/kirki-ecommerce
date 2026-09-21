@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
@@ -14,7 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { VariantFormInput } from '@/features/inventory/schemas/forms/variant-form';
+import {
+  useVariantField,
+  useVariantValues,
+} from '@/features/products/components/variant-sections/use-variant-field';
 import { CreateProfilePopup, useShippingProfilesQuery } from '@/features/settings';
 import { PlusCircleIcon } from '@/icons';
 import { theme } from '@/theme';
@@ -26,8 +29,9 @@ import { __ } from '@/wpi18n';
 const ADD_SHIPPING_PROFILE_VALUE = '__add_shipping_profile__';
 
 const ShippingProfile = () => {
-  const { setValue, control } = useFormContext<VariantFormInput>();
-  const shippingProfileId = useWatch({ control, name: 'shipping_profile_id' });
+  const { setValue } = useFormContext();
+  const field = useVariantField();
+  const { shipping_profile_id: shippingProfileId } = useVariantValues(['shipping_profile_id']);
   const { data: shippingProfiles } = useShippingProfilesQuery({ limit: -1 });
   const [shippingProfileList, setShippingProfileList] = useState<SelectOption[]>([]);
   const [openAddProfilePopup, setOpenAddProfilePopup] = useState(false);
@@ -50,7 +54,7 @@ const ShippingProfile = () => {
   const handleToggle = (checked: boolean) => {
     setShow(checked);
     if (!checked) {
-      setValue('shipping_profile_id', null, { shouldDirty: true });
+      setValue(field('shipping_profile_id'), null, { shouldDirty: true });
     }
   };
 
@@ -79,7 +83,9 @@ const ShippingProfile = () => {
                 setOpenAddProfilePopup(true);
                 return;
               }
-              setValue('shipping_profile_id', value, { shouldDirty: true });
+              setValue(field('shipping_profile_id'), value, {
+                shouldDirty: true,
+              });
             }}
           >
             <SelectTrigger style={{ visibility: show ? 'visible' : 'hidden' }}>
@@ -105,7 +111,11 @@ const ShippingProfile = () => {
       <CreateProfilePopup
         isOpen={openAddProfilePopup}
         onClose={() => setOpenAddProfilePopup(false)}
-        onSave={(id) => setValue('shipping_profile_id', id, { shouldDirty: true })}
+        onSave={(id) =>
+          setValue(field('shipping_profile_id'), id, {
+            shouldDirty: true,
+          })
+        }
       />
     </Card>
   );

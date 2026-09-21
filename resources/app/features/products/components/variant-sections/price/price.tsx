@@ -1,5 +1,5 @@
 import { type ReactElement, useState } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import CreatableSelectField from '@/components/form/creatable-select-field';
@@ -11,11 +11,14 @@ import Input from '@/components/ui/input';
 import Label from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
-import type { VariantFormInput } from '@/features/inventory/schemas/forms/variant-form';
-import { BaseUnitPopover, type UnitPriceValue } from '@/features/products';
+import BaseUnitPopover from '@/features/products/components/variant-sections/price/base-unit-popover';
+import {
+  useVariantField,
+  useVariantValues,
+} from '@/features/products/components/variant-sections/use-variant-field';
+import type { UnitPriceValue } from '@/features/products/types';
 import { TaxProfilePopup, useTaxProfilesQuery } from '@/features/settings';
 import { useBaseCurrencySymbol } from '@/hooks';
-import { useSettingsQuery } from '@/services/settings';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
@@ -23,14 +26,23 @@ import { calculateProfit } from '@/utils/common';
 import { __ } from '@/wpi18n';
 
 const Price = () => {
-  const { control, setValue } = useFormContext<VariantFormInput>();
+  const { setValue } = useFormContext();
+  const field = useVariantField();
   const [openTaxProfilePopup, setOpenTaxProfilePopup] = useState(false);
   const { data: taxProfiles } = useTaxProfilesQuery({ limit: -1 });
-  const { data: productSettingsData } = useSettingsQuery('product');
 
-  const showUnitPrice = Boolean(useWatch({ control, name: 'show_unit_price' }));
-  const chargeTaxes = Boolean(useWatch({ control, name: 'charge_taxes' }));
-  const variant = useWatch({ control });
+  const variant = useVariantValues([
+    'base_price',
+    'base_sale_price',
+    'base_cost_of_goods',
+    'charge_taxes',
+    'total_unit_amount',
+    'total_unit',
+    'base_unit_amount',
+    'base_unit',
+  ]);
+
+  const chargeTaxes = Boolean(variant.charge_taxes);
   const currencySymbol = useBaseCurrencySymbol();
 
   const taxProfileList = (taxProfiles ?? []).map((item) => ({
@@ -39,10 +51,18 @@ const Price = () => {
   }));
 
   const handleUnitPriceChange = (value: UnitPriceValue) => {
-    setValue('total_unit_amount', value?.total_unit_amount ?? null, { shouldDirty: true });
-    setValue('total_unit', value?.total_unit ?? null, { shouldDirty: true });
-    setValue('base_unit_amount', value?.base_unit_amount ?? null, { shouldDirty: true });
-    setValue('base_unit', value?.base_unit ?? null, { shouldDirty: true });
+    setValue(field('total_unit_amount'), value?.total_unit_amount ?? null, {
+      shouldDirty: true,
+    });
+    setValue(field('total_unit'), value?.total_unit ?? null, {
+      shouldDirty: true,
+    });
+    setValue(field('base_unit_amount'), value?.base_unit_amount ?? null, {
+      shouldDirty: true,
+    });
+    setValue(field('base_unit'), value?.base_unit ?? null, {
+      shouldDirty: true,
+    });
   };
 
   const TaxProfilePopupView = TaxProfilePopup as (props: {
@@ -59,13 +79,13 @@ const Price = () => {
       <CardContent cssOverride={styles.cardContent}>
         <Grid columns={2}>
           <MoneyField
-            name="base_price"
+            name={field('base_price')}
             label={__('Regular price', 'kirki-ecommerce')}
             placeholder={__('0.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
           />
           <MoneyField
-            name="base_sale_price"
+            name={field('base_sale_price')}
             label={__('Sale price', 'kirki-ecommerce')}
             placeholder={__('0.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
@@ -73,46 +93,32 @@ const Price = () => {
         </Grid>
 
         <Flex direction="column" gap={2}>
-          {productSettingsData?.is_unit_price_visible && (
-            <Card cssOverride={cardStyles.innerDarkCard} noShadow>
-              <CardContent cssOverride={styles.innerDarkRowContent}>
-                <Flex align="center" justify="space-between" gap={2}>
-                  <CheckboxField
-                    name="show_unit_price"
-                    label={__('Show unit price', 'kirki-ecommerce')}
-                    infoText={__(
-                      'Display the price per unit on the product page.',
-                      'kirki-ecommerce',
-                    )}
-                  />
-                  {showUnitPrice && (
-                    <Flex gap={2} align="center" justify="flex-end" shrink={0}>
-                      <Text color="secondary" variant="small">
-                        {__('Base price per unit', 'kirki-ecommerce')}
-                      </Text>
-                      <BaseUnitPopover
-                        data={variant as never}
-                        currencySymbol={currencySymbol}
-                        onChange={handleUnitPriceChange}
-                      />
-                    </Flex>
-                  )}
-                </Flex>
-              </CardContent>
-            </Card>
-          )}
+          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
+            <CardContent cssOverride={styles.innerDarkRowContent}>
+              <Flex align="center" justify="space-between" gap={2}>
+                <Text color="secondary" variant="small">
+                  {__('Base price per unit', 'kirki-ecommerce')}
+                </Text>
+                <BaseUnitPopover
+                  data={variant as never}
+                  currencySymbol={currencySymbol}
+                  onChange={handleUnitPriceChange}
+                />
+              </Flex>
+            </CardContent>
+          </Card>
 
           <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex align="center" justify="space-between" gap={2}>
                 <CheckboxField
-                  name="charge_taxes"
+                  name={field('charge_taxes')}
                   label={__('Charge tax on this product', 'kirki-ecommerce')}
                   infoText={__('Apply tax to this product using a tax profile.', 'kirki-ecommerce')}
                 />
                 {chargeTaxes && (
                   <CreatableSelectField
-                    name="tax_profile_id"
+                    name={field('tax_profile_id')}
                     options={taxProfileList}
                     placeholder={__('Add Tax Profile', 'kirki-ecommerce')}
                     addNewLabel={__('Add Tax Profile', 'kirki-ecommerce')}
@@ -130,7 +136,7 @@ const Price = () => {
 
         <Grid columns={3}>
           <MoneyField
-            name="base_cost_of_goods"
+            name={field('base_cost_of_goods')}
             label={__('Cost of goods', 'kirki-ecommerce')}
             placeholder={__('0.00', 'kirki-ecommerce')}
             currencySymbol={currencySymbol}
@@ -163,7 +169,11 @@ const Price = () => {
       <TaxProfilePopupView
         isOpen={openTaxProfilePopup}
         onClose={() => setOpenTaxProfilePopup(false)}
-        onSave={(value) => setValue('tax_profile_id', value as number, { shouldDirty: true })}
+        onSave={(value) =>
+          setValue(field('tax_profile_id'), value as number, {
+            shouldDirty: true,
+          })
+        }
       />
     </Card>
   );
@@ -192,7 +202,7 @@ const styles = defineStyles({
   },
   inputLeftSymbol: {
     ...flexCenter(),
-    color: theme.colors.text.primary,
+    color: theme.colors.text.secondary,
     position: 'absolute',
     left: theme.spacing[3],
     top: '50%',

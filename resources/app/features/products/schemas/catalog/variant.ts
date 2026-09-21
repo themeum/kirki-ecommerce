@@ -24,7 +24,6 @@ export const VariantSchema = z.object({
   base_price_money_object: MoneyObjectSchema,
   display_price: MoneyAmountSchema,
   display_price_money_object: MoneyObjectSchema,
-  show_unit_price: z.boolean().nullish(),
   base_unit: z.string().nullish(),
   base_unit_amount: MoneyAmountSchema.nullish(),
   total_unit: z.string().nullish(),

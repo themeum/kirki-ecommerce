@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,16 +11,16 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Grid from '@/components/ui/grid';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { Separator } from '@/components/ui/separator';
 import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
-import Inventory from '@/features/products/components/product-form/sections/inventory/inventory';
-import Price from '@/features/products/components/product-form/sections/price/price';
 import RightPanel from '@/features/products/components/product-form/sections/right-panel/right-panel';
 import SEOSettings from '@/features/products/components/product-form/sections/seo-settings/seo-settings';
-import Shipping from '@/features/products/components/product-form/sections/shipping/shipping';
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
+import VariantFieldScope from '@/features/products/components/variant-sections/field-scope';
+import Inventory from '@/features/products/components/variant-sections/inventory/inventory';
+import Price from '@/features/products/components/variant-sections/price/price';
+import Shipping from '@/features/products/components/variant-sections/shipping/shipping';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
 import type { Product } from '@/features/products/schemas/catalog/product';
 import {
@@ -59,6 +60,8 @@ const ProductForm = ({
     discardChanges,
     shakeSignal,
     handleSave,
+    generateSku,
+    isGeneratingSku,
   } = useProductForm({
     initialValues,
     onSubmit,
@@ -127,49 +130,43 @@ const ProductForm = ({
                 <Card cssOverride={cardStyles.formCard}>
                   <CardContent>
                     <Flex direction="column" gap={4}>
-                      <Grid gap={3} template="2fr 1fr">
-                        <TextField
-                          name="title"
-                          label={__('Title', 'kirki-ecommerce')}
-                          placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
-                        />
-                        <TextField
-                          name="ribbon"
-                          label={__('Ribbon', 'kirki-ecommerce')}
-                          placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
-                        />
-                      </Grid>
                       <TextField
-                        name="slug"
-                        label={__('Slug', 'kirki-ecommerce')}
-                        placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
+                        name="title"
+                        label={__('Title', 'kirki-ecommerce')}
+                        placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
                       />
-                      <MediaGalleryField
-                        name="media"
-                        label={__('Images and videos', 'kirki-ecommerce')}
+
+                      <RichTextField
+                        name="description"
+                        label={__('Description', 'kirki-ecommerce')}
+                        placeholder={__('Write product description here...', 'kirki-ecommerce')}
                       />
+
+                      <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
+
+                      <Separator marginTop={0} marginBottom={0} />
+
                       <TextareaField
                         name="short_description"
                         label={__('Short description', 'kirki-ecommerce')}
                         rows={3}
                         placeholder={__('Brief product summary...', 'kirki-ecommerce')}
                       />
-                      <RichTextField
-                        name="description"
-                        label={__('Description', 'kirki-ecommerce')}
-                        placeholder={__('Write product description here...', 'kirki-ecommerce')}
-                      />
-                      <Separator marginTop={0} marginBottom={0} />
+
                       <AdditionalInfo />
+                      <Button variant="tertiary">
+                        <Plus />
+                        {__('Information')}
+                      </Button>
                     </Flex>
                   </CardContent>
                 </Card>
                 {showSimpleVariantSections && (
-                  <>
+                  <VariantFieldScope prefix="variants.0.">
                     <Price />
-                    <Inventory />
+                    <Inventory onGenerateSku={generateSku} isGeneratingSku={isGeneratingSku} />
                     <Shipping />
-                  </>
+                  </VariantFieldScope>
                 )}
                 <Variants />
                 <SEOSettings />

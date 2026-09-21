@@ -19,7 +19,6 @@ class CreateVariantsTable implements Migration
             $table->string('barcode', 100)->nullable();
 
             $table->integer('base_price')->default(0);
-            $table->boolean('show_unit_price')->default(0)->comment('Whether to show unit price');
             $table->string('base_unit', 10)->nullable()->comment('Unit of measurement for weight. Example: g, kg, lb, oz');
             $table->float('base_unit_amount')->nullable()->comment('Base unit amount');
             $table->string('total_unit', 10)->nullable()->comment('The unit of total unit amount in an item');

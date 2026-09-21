@@ -705,7 +705,6 @@ class ProductSeeder extends Seeder
             'sku' => $sku_prefix . '-' . $variant_label,
             'barcode' => $faker->ean13(),
             'base_price' => $product['price'],
-            'show_unit_price' => false,
             'base_unit' => null,
             'base_unit_amount' => null,
             'total_unit' => null,

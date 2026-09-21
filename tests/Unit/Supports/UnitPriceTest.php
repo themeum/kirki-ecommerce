@@ -2,7 +2,6 @@
 
 namespace Kirki\Ecommerce\Tests\Unit\Supports;
 
-use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\UnitPrice;
@@ -16,9 +15,7 @@ class UnitPriceTest extends TestCase
     {
         parent::setUp();
 
-        $this->bind_money_dependencies('USD', [], [], [
-            OptionKeys::PRODUCT_SETTINGS => ['is_unit_price_visible' => true],
-        ]);
+        $this->bind_money_dependencies('USD');
         app()->alias('money', MoneyManager::class);
     }
 
@@ -39,7 +36,6 @@ class UnitPriceTest extends TestCase
     public function test_formats_price_per_compatible_base_unit(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_sale_price' => null,
             'base_unit' => 'kg',
@@ -57,7 +53,6 @@ class UnitPriceTest extends TestCase
     public function test_prefers_sale_price_over_base_price(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_sale_price' => 2000,
             'base_unit' => 'kg',
@@ -72,7 +67,6 @@ class UnitPriceTest extends TestCase
     public function test_normalizes_different_units_within_the_same_measurement_group(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_sale_price' => null,
             'base_unit' => 'g',
@@ -84,24 +78,9 @@ class UnitPriceTest extends TestCase
         $this->assertSame('$3.00/100g', UnitPrice::make($variant, null));
     }
 
-    public function test_returns_null_when_unit_pricing_disabled(): void
-    {
-        $variant = $this->make_variant([
-            'show_unit_price' => false,
-            'base_price' => 3000,
-            'base_unit' => 'kg',
-            'base_unit_amount' => 1,
-            'total_unit' => 'kg',
-            'total_unit_amount' => 1,
-        ]);
-
-        $this->assertNull(UnitPrice::make($variant, 'USD'));
-    }
-
     public function test_returns_null_for_unrecognized_unit_code(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_unit' => 'lb',
             'base_unit_amount' => 1,
@@ -115,7 +94,6 @@ class UnitPriceTest extends TestCase
     public function test_returns_null_for_incompatible_measurement_groups(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_unit' => 'kg',
             'base_unit_amount' => 1,
@@ -129,7 +107,6 @@ class UnitPriceTest extends TestCase
     public function test_returns_null_for_zero_base_unit_amount(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_unit' => 'kg',
             'base_unit_amount' => 0,
@@ -143,7 +120,6 @@ class UnitPriceTest extends TestCase
     public function test_returns_null_when_unit_fields_are_missing(): void
     {
         $variant = $this->make_variant([
-            'show_unit_price' => true,
             'base_price' => 3000,
             'base_unit' => null,
             'base_unit_amount' => null,

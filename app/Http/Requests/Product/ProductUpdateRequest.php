@@ -102,7 +102,6 @@ class ProductUpdateRequest extends Request
             'variants.*.barcode' => 'string|nullable|max:100',
 
             'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number|min:0',
-            'variants.*.show_unit_price' => 'boolean|nullable',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
@@ -189,7 +188,6 @@ class ProductUpdateRequest extends Request
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
             'variants.*.base_price' => Sanitizer::INT,
-            'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,

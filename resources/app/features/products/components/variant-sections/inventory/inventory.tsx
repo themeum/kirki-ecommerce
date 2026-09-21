@@ -1,4 +1,4 @@
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
 import NumberField from '@/components/form/number-field';
@@ -10,8 +10,10 @@ import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Input from '@/components/ui/input';
-import { useGenerateSkuMutation } from '@/features/inventory';
-import type { VariantFormInput } from '@/features/inventory/schemas/forms/variant-form';
+import {
+  useVariantField,
+  useVariantValues,
+} from '@/features/products/components/variant-sections/use-variant-field';
 import { WandIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -19,36 +21,23 @@ import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type InventoryProps = {
+  onGenerateSku: () => void;
+  isGeneratingSku: boolean;
   committedQuantity?: number | null;
 };
 
-const Inventory = ({ committedQuantity }: InventoryProps) => {
-  const { control, setValue, getValues } = useFormContext<VariantFormInput>();
-  const generateSkuMutation = useGenerateSkuMutation();
-  const trackInventory = Boolean(useWatch({ control, name: 'track_inventory' }));
-  const hasLimitPerOrder = Boolean(useWatch({ control, name: 'has_limit_per_order' }));
+const Inventory = ({ onGenerateSku, isGeneratingSku, committedQuantity }: InventoryProps) => {
+  const field = useVariantField();
+  const { setValue } = useFormContext();
+  const variant = useVariantValues(['track_inventory', 'has_limit_per_order']);
+
+  const trackInventory = Boolean(variant.track_inventory);
+  const hasLimitPerOrder = Boolean(variant.has_limit_per_order);
 
   const handleTrackInventoryChange = (checked: boolean) => {
     if (!checked) {
-      setValue('available_quantity', 0, { shouldDirty: true });
+      setValue(field('available_quantity'), 0, { shouldDirty: true });
     }
-  };
-
-  const handleGenerateSku = () => {
-    const variantId = getValues().id;
-
-    if (!variantId) {
-      return;
-    }
-
-    generateSkuMutation.mutate(
-      { variant_id: variantId },
-      {
-        onSuccess: (response) => {
-          setValue('sku', response.data.sku, { shouldDirty: true, shouldTouch: true });
-        },
-      },
-    );
   };
 
   return (
@@ -58,7 +47,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
       </CardHeader>
       <CardContent cssOverride={styles.cardContent}>
         <CheckboxField
-          name="track_inventory"
+          name={field('track_inventory')}
           label={__('Track quantity', 'kirki-ecommerce')}
           onCheckedChange={handleTrackInventoryChange}
         />
@@ -68,9 +57,9 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
             <CardContent cssOverride={cardStyles.innerContent}>
               <Grid columns={3}>
                 <NumberField
-                  name="available_quantity"
+                  name={field('available_quantity')}
                   label={__('Available', 'kirki-ecommerce')}
-                  placeholder={__('600', 'kirki-ecommerce')}
+                  placeholder={__('0', 'kirki-ecommerce')}
                 />
                 <Field>
                   <FieldLabel htmlFor="committed_quantity">
@@ -79,23 +68,24 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
                   <Input
                     id="committed_quantity"
                     type="number"
-                    value={committedQuantity ?? 0}
+                    value={committedQuantity ?? ''}
+                    placeholder={__('0', 'kirki-ecommerce')}
                     readOnly
                     disabled
                   />
                 </Field>
                 <NumberField
-                  name="low_stock_threshold"
+                  name={field('low_stock_threshold')}
                   label={__('Low stock threshold', 'kirki-ecommerce')}
                   infoText={__('Notify when stock falls below this amount.', 'kirki-ecommerce')}
-                  placeholder={__('600', 'kirki-ecommerce')}
+                  placeholder={__('0', 'kirki-ecommerce')}
                 />
               </Grid>
             </CardContent>
           </Card>
         ) : (
           <SelectField
-            name="in_stock"
+            name={field('in_stock')}
             label={__('Status', 'kirki-ecommerce')}
             placeholder={__('In Stock', 'kirki-ecommerce')}
             options={[
@@ -107,28 +97,34 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
 
         <Flex direction="column" gap={1}>
           <Flex justify="space-between" align="center">
-            <FieldLabel htmlFor="sku" infoText={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}>
+            <FieldLabel
+              htmlFor={field('sku')}
+              infoText={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
+            >
               {__('SKU', 'kirki-ecommerce')}
             </FieldLabel>
             <Button
               type="button"
               variant="ghost"
               size="icon"
-              onClick={handleGenerateSku}
-              loading={generateSkuMutation.isPending}
+              onClick={onGenerateSku}
+              loading={isGeneratingSku}
               aria-label={__('Generate SKU', 'kirki-ecommerce')}
             >
               <WandIcon />
             </Button>
           </Flex>
-          <TextField name="sku" placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')} />
+          <TextField
+            name={field('sku')}
+            placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')}
+          />
         </Flex>
 
         <Grid gap={2} template="1fr 2fr">
           <Card cssOverride={cardStyles.innerDarkCard} noShadow>
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <CheckboxField
-                name="allow_back_order"
+                name={field('allow_back_order')}
                 label={__('Sell when out of stock', 'kirki-ecommerce')}
               />
             </CardContent>
@@ -138,7 +134,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
             <CardContent cssOverride={styles.innerDarkRowContent}>
               <Flex align="center" justify="space-between" gap={2}>
                 <CheckboxField
-                  name="has_limit_per_order"
+                  name={field('has_limit_per_order')}
                   label={__('Limit orders to number of item', 'kirki-ecommerce')}
                   infoText={__(
                     'Limit the number of items a customer can purchase in a single order.',
@@ -146,7 +142,7 @@ const Inventory = ({ committedQuantity }: InventoryProps) => {
                   )}
                 />
                 {hasLimitPerOrder && (
-                  <NumberField name="max_per_order" cssOverride={styles.maxPerOrderField} />
+                  <NumberField name={field('max_per_order')} cssOverride={styles.maxPerOrderField} />
                 )}
               </Flex>
             </CardContent>

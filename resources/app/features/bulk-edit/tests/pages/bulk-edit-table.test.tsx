@@ -5,6 +5,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { endpoints } from '@/config/endpoints';
+import { AppConfigProvider } from '@/contexts/app-config-context';
 import BulkEditPage from '@/features/bulk-edit/pages/bulk-edit';
 import { server } from '@/tests/msw/server';
 
@@ -20,7 +21,6 @@ const buildVariant = (id: number, overrides: Record<string, unknown> = {}) => ({
   base_price_money_object: { raw: id * 100, display: `$${id * 100}`, currency: { code: 'USD', symbol: '$' } },
   display_price: id * 100,
   display_price_money_object: { raw: id * 100, display: `$${id * 100}`, currency: { code: 'USD', symbol: '$' } },
-  show_unit_price: false,
   base_unit: null,
   base_unit_amount: null,
   total_unit: null,
@@ -89,7 +89,9 @@ const renderBulkEditPage = (variants: ReturnType<typeof buildVariant>[]) => {
 
   render(
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <AppConfigProvider>
+        <RouterProvider router={router} />
+      </AppConfigProvider>
     </QueryClientProvider>,
   );
 

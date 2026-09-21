@@ -56,7 +56,6 @@ class VariantResource extends Resource
             'display_price' => Money::prepare_amount_from_minor($this->base_price, null, $display_currency),
             'display_price_money_object' => Money::prepare_amount_object_from_minor($this->base_price, null, $display_currency),
             'display_unit_price' => UnitPrice::make($this->resource, $display_currency),
-            'show_unit_price' => (bool) $this->show_unit_price,
             'base_unit' => $this->base_unit,
             'base_unit_amount' => $this->base_unit_amount,
             'total_unit' => $this->total_unit,

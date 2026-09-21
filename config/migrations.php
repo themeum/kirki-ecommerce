@@ -58,6 +58,7 @@ use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
+use Kirki\Ecommerce\Database\Migrations\DropShowUnitPriceFromVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 use Kirki\Ecommerce\Database\Migrations\DropCouponUsageTable;
@@ -147,4 +148,6 @@ return [
     CreateOrderTaxesTable::class,
     AlterOrdersAddShippingTaxColumns::class,
     AlterOrderItemsDropTaxColumns::class,
+
+    DropShowUnitPriceFromVariantsTable::class,
 ];

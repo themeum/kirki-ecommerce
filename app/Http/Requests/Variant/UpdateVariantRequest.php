@@ -33,7 +33,6 @@ class UpdateVariantRequest extends Request
             'sku' => 'string|nullable|max:100',
 
             'base_price' => 'number|min:0|nullable',
-            'show_unit_price' => 'boolean|nullable',
             'base_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
             'base_unit_amount' => 'number|min:0|nullable',
             'total_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
@@ -67,7 +66,6 @@ class UpdateVariantRequest extends Request
             'media' => Sanitizer::INT,
             'sku' => Sanitizer::TEXT,
             'base_price' => Sanitizer::INT,
-            'show_unit_price' => Sanitizer::BOOL,
             'base_unit' => Sanitizer::TEXT,
             'base_unit_amount' => Sanitizer::INT,
             'total_unit' => Sanitizer::TEXT,

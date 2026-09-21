@@ -14,41 +14,14 @@ import {
 import type { ProductVariant } from '@/features/products/schemas/catalog/variant';
 import { ProductBasicsFormSchema } from '@/features/products/schemas/forms/product-basics-form';
 import { ProductSeoFormSchema } from '@/features/products/schemas/forms/product-seo-form';
-import { booleanish, mediaId, moneyOrNull, numberOrNull, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
+import { VariantFieldsShape } from '@/features/products/schemas/forms/variant-fields';
+import { pickFormValues, prepareFormSchema } from '@/libs/zod';
 import { MediaRefSchema } from '@/schemas/shared/media';
-import { isDefined } from '@/utils/object';
-import { __ } from '@/wpi18n';
 
-const ProductFormVariantShape = z.object({
-  id: z.number().optional(),
+const ProductFormVariantShape = VariantFieldsShape.extend({
   name: z.string().nullish().default(''),
-  media: mediaId(),
-  sku: z.string().nullish(),
   barcode: z.string().nullish(),
-  base_price: moneyOrNull(),
-  show_unit_price: z.boolean().nullish().default(false),
-  base_unit: z.string().nullish(),
-  base_unit_amount: numberOrNull(),
-  total_unit: z.string().nullish(),
-  total_unit_amount: numberOrNull(),
-  base_sale_price: requiredWhen(moneyOrNull(), (values) => isDefined(values.base_sale_price) && isDefined(values.base_price) && Number(values.base_sale_price) > Number(values.base_price), __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce')),
-  base_cost_of_goods: moneyOrNull(),
-  weight: numberOrNull(),
-  weight_unit: z.string().nullish(),
   dimension_unit: z.string().nullish(),
-  charge_taxes: z.boolean().nullish(),
-  allow_back_order: z.boolean().nullish(),
-  track_inventory: z.boolean().nullish(),
-  available_quantity: numberOrNull(),
-  in_stock: booleanish(false),
-  low_stock_threshold: numberOrNull(),
-  has_limit_per_order: z.boolean().nullish(),
-  max_per_order: numberOrNull(),
-  tax_profile_id: numberOrNull(),
-  shipping_profile_id: numberOrNull(),
-  shipping_box_id: numberOrNull(),
-  is_visible: z.boolean().nullish(),
-  is_physical_product: z.boolean().nullish(),
   is_default: z.boolean().nullish(),
   attribute_values: z.array(z.number()).default([]),
 });
@@ -60,7 +33,6 @@ export const ProductFormVariantSchema = prepareFormSchema(ProductFormVariantShap
   sku: values.sku || null,
   barcode: values.barcode || null,
   base_price: values.base_price ?? null,
-  show_unit_price: values.show_unit_price ?? false,
   base_unit: values.base_unit || null,
   base_unit_amount: values.base_unit_amount ?? null,
   total_unit: values.total_unit || null,
@@ -148,7 +120,6 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
   sku: null,
   barcode: null,
   base_price: 0,
-  show_unit_price: false,
   base_unit: null,
   base_unit_amount: null,
   total_unit: null,
