@@ -16,10 +16,23 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Performs an order lifecycle action such as shipping, cancelling or sending an invoice.
+ *
+ * @since 1.0.0
+ */
 class PerformOrderAction
 {
+    /** @var OrderService */
     protected $order_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param OrderService $order_service Order lookup service.
+     */
     public function __construct(OrderService $order_service)
     {
         $this->order_service = $order_service;
@@ -28,10 +41,14 @@ class PerformOrderAction
     /**
      * Perform a lifecycle action on an order.
      *
-     * @param PerformOrderActionDTO $dto
+     * The action must be allowed for the order's current state, and runs in a transaction.
      *
-     * @return Order
-     * @throws ValidationException When the action is not allowed for the current order state.
+     * @since 1.0.0
+     *
+     * @param PerformOrderActionDTO $dto Order ID, the action to perform and its parameters.
+     * @return Order The order reloaded with its refunds, items and coupons.
+     * @throws ValidationException When the action is not allowed for the current order state or is unknown.
+     * @throws Exception When performing the action fails; the transaction is rolled back.
      */
     public function execute(PerformOrderActionDTO $dto)
     {
@@ -118,11 +135,12 @@ class PerformOrderAction
     /**
      * Reject an action that the order's current state does not allow.
      *
-     * @param Order $order
-     * @param string $action
+     * @since 1.0.0
      *
+     * @param Order  $order  Order the action targets.
+     * @param string $action Action to check.
      * @return void
-     * @throws ValidationException
+     * @throws ValidationException When a refund is in progress or the order's status does not allow the action.
      */
     protected function guard(Order $order, string $action)
     {

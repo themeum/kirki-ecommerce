@@ -19,20 +19,43 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Renders the login-location legal consents on the wp-login.php login form.
+ *
+ * @since 1.0.0
+ */
 class RenderLoginConsents extends BaseHook
 {
     use RendersLoginConsents;
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::LOGIN_FORM;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Echo the consents configured for the login location. Responds to login_form.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments, unused.
+     * @return void
+     */
     public function handle(...$args)
     {
         $this->render_consents(ConsentLocations::LOGIN);

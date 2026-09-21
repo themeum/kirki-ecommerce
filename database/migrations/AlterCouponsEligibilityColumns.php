@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Replaces the coupon customer eligibility columns with include and exclude eligibility and adds a target country type.
+ *
+ * @since 1.0.0
+ */
 class AlterCouponsEligibilityColumns implements Migration
 {
+    /**
+     * Add the country and include/exclude eligibility columns to the coupons table and drop the old customer eligibility columns.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_coupons', function (Structure $table) {
@@ -35,6 +47,13 @@ class AlterCouponsEligibilityColumns implements Migration
         });
     }
 
+    /**
+     * Drop the country and include/exclude eligibility columns from the coupons table and restore the old customer eligibility columns.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_coupons', function (Structure $table) {

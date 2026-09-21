@@ -18,12 +18,19 @@ use Exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages product tags: listing, lookup, creation, updates and deletion.
+ *
+ * @since 1.0.0
+ */
 class TagService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -40,9 +47,11 @@ class TagService
     }
 
     /**
-     * Return paginated tags
+     * Get a page of tags matching the filters, with their product counts.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -51,10 +60,12 @@ class TagService
     }
 
     /**
-     * Return all tags
+     * Get all tags matching the filters, without pagination.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return Collection Collection of Tag.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -62,11 +73,13 @@ class TagService
     }
 
     /**
-     * Find a tag by ID.
+     * Find a tag by ID, with its product count, or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Tag ID.
      * @return Tag
-     * @throws NotFoundException
+     * @throws NotFoundException When the tag does not exist.
      */
     public function find(int $id)
     {
@@ -82,7 +95,9 @@ class TagService
      *
      * If no slug is provided, it will be generated from the name.
      *
-     * @param CreateTagDTO $data
+     * @since 1.0.0
+     *
+     * @param CreateTagDTO $data Tag data.
      * @return Tag
      */
     public function create(CreateTagDTO $data)
@@ -98,13 +113,16 @@ class TagService
     }
 
     /**
-     * Updates a tag.
+     * Update a tag.
      *
      * If no slug is provided, it will be generated from the name.
      *
-     * @throws NotFoundException
-     * @throws Exception
-     * @return Tag
+     * @since 1.0.0
+     *
+     * @param UpdateTagDTO $data Tag data, including its ID.
+     * @return Tag The reloaded tag.
+     * @throws NotFoundException When the tag does not exist.
+     * @throws Exception         When the tag could not be updated.
      */
     public function update(UpdateTagDTO $data)
     {
@@ -126,12 +144,13 @@ class TagService
     }
 
     /**
-     * Deletes a tag by ID.
+     * Delete a tag by ID.
      *
-     * @param int $id The ID of the tag to delete.
-     * @return bool True if the tag was deleted successfully, false otherwise.
-     * @throws NotFoundException If the tag could not be found or deleted.
-     * @throws Exception If the tag could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Tag ID.
+     * @return bool Always true; failure throws.
+     * @throws Exception When no tag was deleted.
      */
     public function delete(int $id)
     {
@@ -143,11 +162,13 @@ class TagService
     }
 
     /**
-     * Deletes multiple tags by their IDs.
+     * Delete multiple tags by their IDs.
      *
-     * @param array $ids The IDs of the tags to delete.
-     * @return bool True if the tags were deleted successfully, false otherwise.
-     * @throws Exception If the tags could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the tags to delete.
+     * @return bool Always true; failure throws.
+     * @throws Exception When no tag was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -161,9 +182,12 @@ class TagService
 
 
     /**
-     * Deletes all tags.
+     * Delete all tags matching the filters.
      *
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter selecting the tags.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
@@ -171,9 +195,11 @@ class TagService
     }
 
     /**
-     * Get the query builder for the list of tags.
+     * Build the filtered and sorted query for the list of tags, with product counts.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
      * @return QueryBuilder
      */
     protected function list_query(ListFilterDTO $filters)

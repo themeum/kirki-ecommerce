@@ -30,19 +30,19 @@ use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
 /**
- * Class WishlistController
+ * REST controller for the logged-in customer's wishlist.
  *
  * @since 1.0.0
  */
 class WishlistController
 {
-    /**
-     * @var WishlistService
-     */
+    /** @var WishlistService */
     protected $wishlist_service;
 
     /**
-     * WishlistController constructor.
+     * Create the controller with the wishlist service.
+     *
+     * @since 1.0.0
      *
      * @param WishlistService $wishlist_service
      */
@@ -52,11 +52,14 @@ class WishlistController
     }
 
     /**
-     * Get paginated wishlist items for the authenticated user.
+     * List the logged-in user's wishlist items.
      *
-     * @param Request $request Request.
+     * When the requested limit equals Pagination::ALL, every item is returned as a single page. Otherwise items are paged nine at a time from `current_page`, and `format=html` renders them through the product card view.
      *
-     * @return Response JSON response.
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The wishlist items and pagination, or rendered HTML.
      */
     public function get(Request $request)
     {
@@ -111,7 +114,9 @@ class WishlistController
     }
 
     /**
-     * Check variant is valid or not.
+     * Tell whether a variant exists and belongs to a published product.
+     *
+     * @since 1.0.0
      *
      * @param int $variant_id
      * @return bool
@@ -133,11 +138,12 @@ class WishlistController
     }
 
     /**
-     * Add an item to the authenticated user's wishlist.
+     * Add a variant to the logged-in user's wishlist.
      *
-     * @param Request $request Request.
+     * @since 1.0.0
      *
-     * @return Response JSON response.
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The wishlist entry with a 201 status, or a 404 response when the variant is missing or unpublished.
      */
     public function add_item(Request $request)
     {
@@ -159,11 +165,14 @@ class WishlistController
     }
 
     /**
-     * Remove an item from the authenticated user's wishlist.
+     * Remove a variant from the logged-in user's wishlist.
      *
-     * @param Request $request Request.
+     * The route `id` is the variant ID.
      *
-     * @return Response JSON response.
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response, or a 404 response when the variant is not on the wishlist.
      */
     public function remove_item(Request $request)
     {
@@ -187,11 +196,12 @@ class WishlistController
     }
 
     /**
-     * Clear all wishlist items for the authenticated user.
+     * Remove every item from the logged-in user's wishlist.
      *
-     * @param Request $request Request.
+     * @since 1.0.0
      *
-     * @return Response JSON response.
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response with `data` set to true.
      */
     public function empty_wishlist(Request $request)
     {

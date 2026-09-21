@@ -19,18 +19,44 @@ use Kirki\Ecommerce\App\Supports\Utils;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
+/**
+ * Replaces the document title on product, account, login and register pages.
+ *
+ * @since 1.0.0
+ */
 class ReplaceSiteTitle extends BaseHook
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::PRE_GET_DOCUMENT_TITLE;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::FILTER;
     }
 
+    /**
+     * Resolve the document title for the current route.
+     *
+     * Responds to pre_get_document_title. Uses the product SEO title (or its title plus the
+     * site name), or the account, login and register page title plus the site name.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments; the first is the title so far.
+     * @return string The replacement title, or the incoming title when no route matches.
+     */
     public function handle(...$args)
     {
         $title = $args[0];

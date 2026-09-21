@@ -9,13 +9,34 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\App\customer;
 
+/**
+ * Validates and sanitizes the payload for running an action on an order.
+ *
+ * @since 1.0.0
+ */
 class OrderActionRequest extends Request
 {
+    /**
+     * Restrict order actions to admins.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     public function authorize()
     {
         return customer()->is_admin();
     }
 
+    /**
+     * Convert the submitted amount to minor units.
+     *
+     * Skipped when the amount is empty.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $amount = $this->input('amount');
@@ -25,6 +46,11 @@ class OrderActionRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -40,6 +66,11 @@ class OrderActionRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

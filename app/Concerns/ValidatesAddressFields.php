@@ -11,16 +11,19 @@ use Kirki\Ecommerce\App\Supports\AddressRules;
  * fields demanded of it. Every request that accepts an address asks here
  * rather than hard-coding `required`, so a customer gets the same answer
  * wherever the address is submitted from.
+ *
+ * @since 1.0.0
  */
 trait ValidatesAddressFields
 {
     /**
      * Build a validation rule for an address field from the country's rules.
      *
+     * @since 1.0.0
+     *
      * @param string $country Country code from the submitted address.
      * @param string $field   Either 'state' or 'postal_code'.
-     *
-     * @return string
+     * @return string Validation rule string, required only when the country demands the field.
      */
     protected static function address_field_rule(string $country, string $field)
     {
@@ -30,8 +33,9 @@ trait ValidatesAddressFields
     /**
      * Build the "field is required" message naming the country's own term.
      *
-     * @param string $country Country code from the submitted address.
+     * @since 1.0.0
      *
+     * @param string $country Country code from the submitted address.
      * @return string
      */
     protected static function state_required_message(string $country)
@@ -46,9 +50,10 @@ trait ValidatesAddressFields
     /**
      * Read the country code out of a nested address block.
      *
-     * @param string $address_key Either 'shipping_address' or 'billing_address'.
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $address_key Either 'shipping_address' or 'billing_address'.
+     * @return string Country code, or an empty string when the block or its country is missing.
      */
     protected function address_block_country(string $address_key)
     {

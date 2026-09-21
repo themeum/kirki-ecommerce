@@ -7,13 +7,22 @@ use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the curated customers together with their shipping and billing addresses.
+ *
+ * @since 1.0.0
+ */
 class CustomerSeeder extends Seeder
 {
     /**
      * Seed curated customer records with realistic addresses.
      *
-     * @return void
+     * Even-indexed customers get one address used for both shipping and billing;
+     * the others get a separate billing address.
+     *
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -61,11 +70,11 @@ class CustomerSeeder extends Seeder
     /**
      * Build address data for a customer.
      *
-     * @param array $customer Customer record.
-     * @param array $overrides Address field overrides.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array<string, mixed> $customer  Customer record.
+     * @param array<string, mixed> $overrides Address field overrides.
+     * @return array<string, mixed> Address row with the customer's contact details and the overrides applied.
      */
     protected function make_address_data(array $customer, array $overrides)
     {
@@ -89,11 +98,11 @@ class CustomerSeeder extends Seeder
     /**
      * Resolve street address by customer index.
      *
-     * @param int $index Customer index.
-     * @param string $type Address type.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param int    $index Customer index.
+     * @param string $type  Address type; 'billing' prefixes the street with "Billing: ".
+     * @return string Street address line.
      */
     protected function get_address_line($index, $type)
     {
@@ -122,10 +131,10 @@ class CustomerSeeder extends Seeder
     /**
      * Resolve city by customer index.
      *
-     * @param int $index Customer index.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param int $index Customer index.
+     * @return string City name.
      */
     protected function get_city($index)
     {
@@ -148,10 +157,10 @@ class CustomerSeeder extends Seeder
     /**
      * Resolve state by customer index.
      *
-     * @param int $index Customer index.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param int $index Customer index.
+     * @return string State code.
      */
     protected function get_state($index)
     {
@@ -174,10 +183,10 @@ class CustomerSeeder extends Seeder
     /**
      * Resolve country by customer index.
      *
-     * @param int $index Customer index.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param int $index Customer index.
+     * @return string Country code, BD for index 9 and US otherwise.
      */
     protected function get_country($index)
     {
@@ -187,10 +196,10 @@ class CustomerSeeder extends Seeder
     /**
      * Resolve postal code by customer index.
      *
-     * @param int $index Customer index.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param int $index Customer index.
+     * @return string Postal code.
      */
     protected function get_postal_code($index)
     {

@@ -7,8 +7,18 @@ use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes the filters for listing products.
+ *
+ * @since 1.0.0
+ */
 class ProductListRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -21,6 +31,11 @@ class ProductListRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

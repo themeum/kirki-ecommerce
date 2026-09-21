@@ -12,12 +12,20 @@ use function Kirki\Ecommerce\Framework\response;
 
 use Kirki\Ecommerce\App\Resources\CurrencyExchange\CurrencyProviderResource;
 
+/**
+ * REST controller for currency exchange rate providers and rate syncing.
+ *
+ * @since 1.0.0
+ */
 class CurrencyExchangeController
 {
     /**
-     * Get all available currency exchange providers.
+     * List the currency exchange providers that can be configured.
+     *
+     * @since 1.0.0
      *
      * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Provider collection with a success message.
      */
     public function get_providers(Request $request)
     {
@@ -32,9 +40,12 @@ class CurrencyExchangeController
     /**
      * Pull fresh exchange rates from the configured provider on demand.
      *
-     * @param Request $request
+     * Responds with 400 when no provider is configured or the sync fails.
      *
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The last sync time, next sync time and usage, or a 400 response on failure.
      */
     public function sync(Request $request)
     {

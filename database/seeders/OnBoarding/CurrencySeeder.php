@@ -6,6 +6,11 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the US Dollar base currency for a newly installed store.
+ *
+ * @since 1.0.0
+ */
 class CurrencySeeder extends Seeder
 {
     /**
@@ -17,8 +22,9 @@ class CurrencySeeder extends Seeder
     /**
      * Give the store a base currency to price against.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -26,8 +32,11 @@ class CurrencySeeder extends Seeder
     }
 
     /**
-     * @return void
+     * Create the US Dollar base currency unless it already exists.
+     *
      * @since 1.0.0
+     *
+     * @return void
      */
     protected function seed_base_currency()
     {

@@ -18,15 +18,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing categories.
+ *
+ * @since 1.0.0
+ */
 class CategoryController
 {
+    /** @var CategoryService */
     protected $service;
 
+    /**
+     * Create the controller with its category service.
+     *
+     * @since 1.0.0
+     *
+     * @param CategoryService $service
+     */
     public function __construct(CategoryService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List categories, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated categories with a success message.
+     */
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
@@ -48,6 +71,14 @@ class CategoryController
         ]);
     }
 
+    /**
+     * Create a category from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CategoryCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created category with a 201 status.
+     */
     public function create(CategoryCreateRequest $request)
     {
         $payload = CreateCategoryDTO::from_request($request);
@@ -60,6 +91,14 @@ class CategoryController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single category by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The category resource.
+     */
     public function show(Request $request)
     {
         $category = $this->service->find($request->int('id'));
@@ -70,6 +109,14 @@ class CategoryController
         ]);
     }
 
+    /**
+     * Update a category from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CategoryUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated category.
+     */
     public function update(CategoryUpdateRequest $request)
     {
         $payload = UpdateCategoryDTO::from_request($request);
@@ -82,6 +129,14 @@ class CategoryController
         ]);
     }
 
+    /**
+     * Delete a single category by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -92,6 +147,16 @@ class CategoryController
         ]);
     }
 
+    /**
+     * Run a bulk action on categories.
+     *
+     * Supports deleting the given IDs or deleting every category matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();

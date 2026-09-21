@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+/**
+ * PHP date format strings and date interval specifications used across the plugin.
+ *
+ * @since 1.0.0
+ */
 class DateTimeFormats
 {
     const DB_DATE = 'Y-m-d';

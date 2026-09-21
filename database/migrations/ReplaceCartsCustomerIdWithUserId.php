@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Replaces the customer reference on carts with a WordPress user reference.
+ *
+ * @since 1.0.0
+ */
 class ReplaceCartsCustomerIdWithUserId implements Migration
 {
+    /**
+     * Replace the carts customer_id column with a user_id column referencing WordPress users.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_carts', function (Structure $table) {
@@ -26,6 +38,13 @@ class ReplaceCartsCustomerIdWithUserId implements Migration
         });
     }
 
+    /**
+     * Replace the carts user_id column with a customer_id column referencing customers.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_carts', function (Structure $table) {

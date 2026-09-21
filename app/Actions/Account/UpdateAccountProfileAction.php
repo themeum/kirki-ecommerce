@@ -12,11 +12,27 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Throwable;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Updates a logged-in account's customer profile and WordPress user in one transaction.
+ *
+ * @since 1.0.0
+ */
 class UpdateAccountProfileAction
 {
+    /** @var CustomerService */
     protected $customer_service;
+
+    /** @var UserService */
     protected $user_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CustomerService $customer_service Customer lookup and update service.
+     * @param UserService     $user_service     WordPress user update service.
+     */
     public function __construct(CustomerService $customer_service, UserService $user_service)
     {
         $this->customer_service = $customer_service;
@@ -27,10 +43,14 @@ class UpdateAccountProfileAction
      * Update the profile of the customer linked to the WordPress user in the
      * payload, including their WordPress display name.
      *
-     * @param UpdateProfilePayloadDTO $data
-     * @return Customer
-     * @throws NotFoundException
-     * @throws Throwable
+     * Creates the Customer record first when the user has none. The customer
+     * and WordPress user updates run in a single transaction.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateProfilePayloadDTO $data Profile payload including the WordPress user ID.
+     * @return Customer The updated customer.
+     * @throws Throwable When either update fails; the transaction is rolled back.
      */
     public function execute(UpdateProfilePayloadDTO $data)
     {

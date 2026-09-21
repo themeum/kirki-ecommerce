@@ -6,6 +6,11 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Models\Variant;
 
+/**
+ * Generates variant SKUs from product details and the next unused sequence number.
+ *
+ * @since 1.0.0
+ */
 class SkuGenerator
 {
     protected const SEGMENT_LENGTH = 3;
@@ -14,7 +19,9 @@ class SkuGenerator
     /**
      * Compose a SKU from the given product sources.
      *
-     * @param array $sources {
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $sources {
      *     @type string|null $title            Product title.
      *     @type string[]    $attribute_values Variant attribute values, in assigned order.
      *     @type string|null $brand            Brand name.
@@ -36,9 +43,11 @@ class SkuGenerator
      * the merchant saves, so N separate calls would all read the same maximum
      * and hand back the same number N times.
      *
-     * @param array $sources_list Sources keyed however the caller needs the
-     *                            results keyed back.
-     * @return array
+     * @since 1.0.0
+     *
+     * @param array<int|string, array<string, mixed>> $sources_list Sources keyed however the caller needs the
+     *                                                              results keyed back.
+     * @return array<int|string, string> SKUs under the same keys as `$sources_list`.
      */
     public static function generate_many(array $sources_list)
     {
@@ -57,8 +66,10 @@ class SkuGenerator
      * Join the segments derived from the given sources with the sequence
      * number, dropping every source that yields no characters.
      *
-     * @param array $sources
-     * @param int   $sequence
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $sources  Same shape as the `generate()` sources.
+     * @param int                  $sequence Sequence number appended as the last segment.
      * @return string
      */
     protected static function compose(array $sources, int $sequence)
@@ -84,6 +95,8 @@ class SkuGenerator
     /**
      * Reduce a source to at most three uppercase alphanumeric characters.
      *
+     * @since 1.0.0
+     *
      * @param string|null $source
      * @return string
      */
@@ -95,6 +108,10 @@ class SkuGenerator
     }
 
     /**
+     * Left-pad a sequence number with zeros to the SKU sequence width.
+     *
+     * @since 1.0.0
+     *
      * @param int $sequence
      * @return string
      */
@@ -115,6 +132,8 @@ class SkuGenerator
      * needs MySQL 8.0 and would break the MySQL 5.7 floor this plugin supports.
      * A trailing segment that is not numeric casts to 0 and so never raises the
      * sequence.
+     *
+     * @since 1.0.0
      *
      * @return int
      */

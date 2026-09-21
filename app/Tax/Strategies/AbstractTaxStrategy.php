@@ -10,13 +10,32 @@ use Kirki\Ecommerce\App\Facades\Money;
 
 use function Kirki\Ecommerce\App\decision_engine;
 
+/**
+ * Base class for country-specific tax calculation strategies.
+ *
+ * @since 1.0.0
+ */
 abstract class AbstractTaxStrategy
 {
+    /** @var array<string, mixed> Shipping address the tax is calculated for. */
     protected $address;
+    /** @var array<string, mixed> Tax region configuration for the address's country. */
     protected $settings;
+    /** @var bool */
     protected $is_tax_inclusive_price;
+    /** @var bool */
     protected $is_shipping_tax_enabled;
 
+    /**
+     * Create a new tax strategy instance.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $address                 Shipping address, including its country.
+     * @param array<string, mixed> $country_settings        Tax region configuration for the address's country.
+     * @param bool                 $is_tax_inclusive_price  Whether catalog prices already include tax.
+     * @param bool                 $is_shipping_tax_enabled Whether shipping is taxed.
+     */
     public function __construct(array $address, array $country_settings, bool $is_tax_inclusive_price, bool $is_shipping_tax_enabled)
     {
         $this->address = $address;
@@ -29,6 +48,8 @@ abstract class AbstractTaxStrategy
      * Calculate every tax line the cart accrues - per item and for shipping -
      * in one pass.
      *
+     * @since 1.0.0
+     *
      * @param TaxCalculationContextDTO $context
      * @return TaxCalculationResultDTO
      */
@@ -38,9 +59,11 @@ abstract class AbstractTaxStrategy
      * The tax amount for one line: extracted from the base amount when prices
      * are tax-inclusive, added on top of it otherwise.
      *
-     * @param float $rate
-     * @param int $base_amount
-     * @return int
+     * @since 1.0.0
+     *
+     * @param float $rate        Tax rate as a percentage.
+     * @param int   $base_amount Line amount in minor units.
+     * @return int Tax amount in minor units.
      */
     protected function calculate_tax_amount(float $rate, int $base_amount): int
     {
@@ -59,9 +82,11 @@ abstract class AbstractTaxStrategy
      * setting for products - a shipping fee is never itself quoted
      * tax-inclusive.
      *
-     * @param float $rate
-     * @param int $base_amount
-     * @return int
+     * @since 1.0.0
+     *
+     * @param float $rate        Tax rate as a percentage.
+     * @param int   $base_amount Shipping charge in minor units.
+     * @return int Tax amount in minor units.
      */
     protected function calculate_shipping_tax_amount(float $rate, int $base_amount): int
     {
@@ -69,11 +94,13 @@ abstract class AbstractTaxStrategy
     }
 
     /**
-     * Apply rules using Decision Engine
+     * Apply rules using Decision Engine.
      *
-     * @param DecisionContext $context
-     * @param array $rules
-     * @return DecisionContext
+     * @since 1.0.0
+     *
+     * @param DecisionContext      $context
+     * @param array<string, mixed> $rules   Decision rules to apply, none when empty.
+     * @return DecisionContext The same context, updated by the rules.
      */
     protected function apply_rules(DecisionContext $context, array $rules)
     {
@@ -88,9 +115,11 @@ abstract class AbstractTaxStrategy
     }
 
     /**
-     * Prepare decision context for rule evaluation
+     * Prepare decision context for rule evaluation.
      *
-     * @param array $context_data
+     * @since 1.0.0
+     *
+     * @param array<string, mixed> $context_data Values the rules can read and change.
      * @return DecisionContext
      */
     protected function prepare_decision_context(array $context_data)

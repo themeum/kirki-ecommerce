@@ -18,18 +18,43 @@ use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 
 use function Kirki\Ecommerce\Framework\view_data;
 
+/**
+ * Prints SEO and Open Graph meta tags for the single product page on wp_head.
+ *
+ * @since 1.0.0
+ */
 class AddWpHeadMeta extends BaseHook
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return WPHookNames::WP_HEAD;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Echo the description, keywords and Open Graph meta tags of the product being viewed.
+     *
+     * Does nothing outside the single product route.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments, unused.
+     * @return void
+     */
     public function handle(...$args)
     {
         if (! Route::is('shop.single')) {

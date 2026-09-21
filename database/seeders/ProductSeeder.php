@@ -13,13 +13,17 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\faker;
 
+/**
+ * Seeds the curated product catalog with variants and generated placeholder images.
+ *
+ * @since 1.0.0
+ */
 class ProductSeeder extends Seeder
 {
     /**
      * Color attribute value labels, keyed by attribute value id.
      *
-     * @var array
-     * @since 1.0.0
+     * @var array<int, string>
      */
     protected $color_codes = [
         1 => 'BLS',
@@ -41,8 +45,7 @@ class ProductSeeder extends Seeder
      * combinations below pair one of each so a product's variants read as
      * a light/dark set rather than two same-weight tones.
      *
-     * @var array
-     * @since 1.0.0
+     * @var array<int, string>
      */
     protected $color_hex = [
         1 => '#E3A9A0',
@@ -63,7 +66,6 @@ class ProductSeeder extends Seeder
      * two colors.
      *
      * @var array<int, array{0:int,1:int}>
-     * @since 1.0.0
      */
     protected $color_pair_rotation = [
         [1, 2],
@@ -80,7 +82,6 @@ class ProductSeeder extends Seeder
      * Rotation of three-color id sets used by the accessory-color scheme.
      *
      * @var array<int, array{0:int,1:int,2:int}>
-     * @since 1.0.0
      */
     protected $color_triple_rotation = [
         [1, 4, 6],
@@ -91,8 +92,7 @@ class ProductSeeder extends Seeder
     /**
      * Size attribute value labels, keyed by attribute value id.
      *
-     * @var array
-     * @since 1.0.0
+     * @var array<int, string>
      */
     protected $size_codes = [
         9 => 'XS',
@@ -106,8 +106,7 @@ class ProductSeeder extends Seeder
     /**
      * Shoe size attribute value labels, keyed by attribute value id.
      *
-     * @var array
-     * @since 1.0.0
+     * @var array<int, string>
      */
     protected $shoe_size_codes = [
         15 => '7',
@@ -125,15 +124,15 @@ class ProductSeeder extends Seeder
      * color so a size range does not re-generate or re-upload the same photo.
      *
      * @var array<string, int|null>
-     * @since 1.0.0
      */
     protected $image_cache = [];
 
     /**
      * Seed products with deterministic catalog data.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -156,12 +155,12 @@ class ProductSeeder extends Seeder
      * yields a single empty combination, producing exactly one variant
      * with no attribute values.
      *
-     * @param string $variant_scheme Variant scheme key.
-     * @param int $product_index Position of the product in the catalog, used to
-     *                           rotate which colors this product is sold in.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param string $variant_scheme Variant scheme key.
+     * @param int    $product_index  Position of the product in the catalog, used to
+     *                               rotate which colors this product is sold in.
+     * @return int[][] Attribute value id combinations, one per variant.
      */
     protected function get_combinations($variant_scheme, $product_index = 0)
     {
@@ -199,12 +198,12 @@ class ProductSeeder extends Seeder
     /**
      * Resolve the product-level attribute definitions for a variant scheme.
      *
-     * @param string $variant_scheme Variant scheme key.
-     * @param int $product_index Position of the product in the catalog, used to
-     *                           rotate which colors this product is sold in.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param string $variant_scheme Variant scheme key.
+     * @param int    $product_index  Position of the product in the catalog, used to
+     *                               rotate which colors this product is sold in.
+     * @return array<int, array<string, mixed>> Attribute definitions with an id and value ids.
      */
     protected function get_attributes_for_scheme($variant_scheme, $product_index = 0)
     {
@@ -234,10 +233,10 @@ class ProductSeeder extends Seeder
     /**
      * Rotate to a light/dark color-id pair for a two-color variant scheme.
      *
-     * @param int $product_index Position of the product in the catalog.
-     *
-     * @return array{0:int,1:int}
      * @since 1.0.0
+     *
+     * @param int $product_index Position of the product in the catalog.
+     * @return array{0:int,1:int} Two color attribute value ids.
      */
     protected function get_color_pair($product_index)
     {
@@ -247,10 +246,10 @@ class ProductSeeder extends Seeder
     /**
      * Rotate to a three-color id set for the accessory-color scheme.
      *
-     * @param int $product_index Position of the product in the catalog.
-     *
-     * @return array{0:int,1:int,2:int}
      * @since 1.0.0
+     *
+     * @param int $product_index Position of the product in the catalog.
+     * @return array{0:int,1:int,2:int} Three color attribute value ids.
      */
     protected function get_color_triple($product_index)
     {
@@ -260,12 +259,12 @@ class ProductSeeder extends Seeder
     /**
      * Build product DTO data for seeding.
      *
-     * @param \Faker\Generator $faker Faker instance.
-     * @param array $product Product catalog entry.
-     * @param int $product_index Position of the product in the catalog.
-     *
-     * @return \Kirki\Ecommerce\App\DTO\Product\CreateProductDTO
      * @since 1.0.0
+     *
+     * @param \Faker\Generator     $faker         Faker instance.
+     * @param array<string, mixed> $product       Product catalog entry.
+     * @param int                  $product_index Position of the product in the catalog.
+     * @return CreateProductDTO Product payload for the create action.
      */
     protected function make_product_data($faker, array $product, $product_index = 0)
     {
@@ -309,12 +308,12 @@ class ProductSeeder extends Seeder
     /**
      * Build the product gallery: one generated photo per color the product is sold in.
      *
-     * @param array $product Product catalog entry.
-     * @param string $brand_name Brand name.
-     * @param int $product_index Position of the product in the catalog.
-     *
-     * @return int[]
      * @since 1.0.0
+     *
+     * @param array  $product       Product catalog entry.
+     * @param string $brand_name    Brand name.
+     * @param int    $product_index Position of the product in the catalog.
+     * @return int[] Unique attachment IDs of the generated photos.
      */
     protected function make_product_media(array $product, $brand_name, $product_index = 0)
     {
@@ -331,10 +330,10 @@ class ProductSeeder extends Seeder
     /**
      * Resolve collection ids for a product based on its gender and pricing.
      *
-     * @param array $product Product catalog entry.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array $product Product catalog entry.
+     * @return int[] Collection IDs.
      */
     protected function make_collections(array $product)
     {
@@ -357,12 +356,12 @@ class ProductSeeder extends Seeder
     /**
      * Build product description from catalog entry.
      *
-     * @param array $product Product catalog entry.
-     * @param string $brand_name Brand name.
-     * @param string $category_label Category label.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param array  $product        Product catalog entry.
+     * @param string $brand_name     Brand name.
+     * @param string $category_label Category label.
+     * @return string Product description text.
      */
     protected function make_description(array $product, $brand_name, $category_label)
     {
@@ -379,11 +378,11 @@ class ProductSeeder extends Seeder
     /**
      * Build additional info rows based on product category type.
      *
-     * @param array $product Product catalog entry.
-     * @param string $category_label Category label.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array  $product        Product catalog entry.
+     * @param string $category_label Category label.
+     * @return array<int, array<string, string>> Rows with title and description.
      */
     protected function make_additional_info(array $product, $category_label)
     {
@@ -426,11 +425,11 @@ class ProductSeeder extends Seeder
     /**
      * Build the SKU suffix label for a variant combination.
      *
-     * @param array $values Attribute value ids for the combination.
-     * @param string $variant_scheme Variant scheme key.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param array  $values         Attribute value ids for the combination.
+     * @param string $variant_scheme Variant scheme key.
+     * @return string Label such as 'BLS-M', or 'STD' when no combination applies.
      */
     protected function make_variant_label(array $values, $variant_scheme)
     {
@@ -458,11 +457,11 @@ class ProductSeeder extends Seeder
      * Combinations with no color attribute (the 'none' scheme) fall back to
      * the product's curated accent color.
      *
-     * @param array $values Attribute value ids for the combination.
-     * @param array $product Product catalog entry.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param array $values  Attribute value ids for the combination.
+     * @param array $product Product catalog entry.
+     * @return string Hex color.
      */
     protected function resolve_swatch_color(array $values, array $product)
     {
@@ -476,12 +475,12 @@ class ProductSeeder extends Seeder
     /**
      * Get (or generate) the placeholder photo attachment for a variant combination.
      *
-     * @param array $values Attribute value ids for the combination.
-     * @param array $product Product catalog entry.
-     * @param string $brand_name Brand name.
-     *
-     * @return int|null
      * @since 1.0.0
+     *
+     * @param array  $values     Attribute value ids for the combination.
+     * @param array  $product    Product catalog entry.
+     * @param string $brand_name Brand name.
+     * @return int|null Attachment ID, or null when generation failed.
      */
     protected function get_or_create_variant_image(array $values, array $product, $brand_name)
     {
@@ -506,12 +505,12 @@ class ProductSeeder extends Seeder
      * background with the brand and product type printed on top. It is registered
      * through the same wp_insert_attachment flow WordPress uses for any upload.
      *
-     * @param string $brand_name Brand name to print on the card.
-     * @param string $label Product type label to print on the card.
-     * @param string $hex Background color, e.g. '#1F2A44'.
-     *
-     * @return int|null The attachment id, or null if generation or upload failed.
      * @since 1.0.0
+     *
+     * @param string $brand_name Brand name to print on the card.
+     * @param string $label      Product type label to print on the card.
+     * @param string $hex        Background color, e.g. '#1F2A44'.
+     * @return int|null The attachment id, or null if generation or upload failed.
      */
     protected function generate_placeholder_attachment($brand_name, $label, $hex)
     {
@@ -571,12 +570,12 @@ class ProductSeeder extends Seeder
      * built-in bitmap font has a single fixed size — scaling is what makes the
      * label readable at 800x800 without shipping a bundled font file.
      *
-     * @param string $brand_name Brand name to print on the card.
-     * @param string $label Product type label to print on the card.
-     * @param string $hex Background color, e.g. '#1F2A44'.
-     *
-     * @return string|null Raw JPEG bytes, or null on failure.
      * @since 1.0.0
+     *
+     * @param string $brand_name Brand name to print on the card.
+     * @param string $label      Product type label to print on the card.
+     * @param string $hex        Background color, e.g. '#1F2A44'.
+     * @return string|null Raw JPEG bytes, or null on failure.
      */
     protected function render_placeholder_image($brand_name, $label, $hex)
     {
@@ -622,16 +621,16 @@ class ProductSeeder extends Seeder
     /**
      * Draw a horizontally centered string with GD's built-in bitmap font.
      *
-     * @param \GdImage $canvas Target image.
-     * @param int $font GD built-in font identifier.
-     * @param string $text Text to draw.
-     * @param int $canvas_width Canvas width in pixels.
-     * @param float $y Vertical position in pixels.
-     * @param int $font_width Width of a single character for the chosen font.
-     * @param int $color Allocated GD color identifier.
-     *
-     * @return void
      * @since 1.0.0
+     *
+     * @param \GdImage $canvas       Target image.
+     * @param int      $font         GD built-in font identifier.
+     * @param string   $text         Text to draw.
+     * @param int      $canvas_width Canvas width in pixels.
+     * @param float    $y            Vertical position in pixels.
+     * @param int      $font_width   Width of a single character for the chosen font.
+     * @param int      $color        Allocated GD color identifier.
+     * @return void
      */
     protected function draw_centered_string($canvas, $font, $text, $canvas_width, $y, $font_width, $color)
     {
@@ -642,13 +641,13 @@ class ProductSeeder extends Seeder
     /**
      * Pick a readable text color (near-black or near-white) for a background color.
      *
-     * @param \GdImage $canvas Target image.
-     * @param int $r Background red channel.
-     * @param int $g Background green channel.
-     * @param int $b Background blue channel.
-     *
-     * @return int Allocated GD color identifier.
      * @since 1.0.0
+     *
+     * @param \GdImage $canvas Target image.
+     * @param int      $r      Background red channel.
+     * @param int      $g      Background green channel.
+     * @param int      $b      Background blue channel.
+     * @return int Allocated GD color identifier.
      */
     protected function contrasting_color($canvas, $r, $g, $b)
     {
@@ -662,10 +661,10 @@ class ProductSeeder extends Seeder
     /**
      * Convert a '#RRGGBB' hex color into an [r, g, b] triple.
      *
-     * @param string $hex Hex color, e.g. '#1F2A44'.
-     *
-     * @return int[]
      * @since 1.0.0
+     *
+     * @param string $hex Hex color, e.g. '#1F2A44'.
+     * @return int[] Red, green and blue channels.
      */
     protected function hex_to_rgb($hex)
     {
@@ -681,14 +680,14 @@ class ProductSeeder extends Seeder
     /**
      * Build variant data for a single combination.
      *
-     * @param array $values Attribute value identifiers.
-     * @param \Faker\Generator $faker Faker instance.
-     * @param array $product Product catalog entry.
-     * @param string $brand_name Brand name.
-     * @param bool $is_default Whether this variant is the product's default.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array            $values     Attribute value identifiers.
+     * @param \Faker\Generator $faker      Faker instance.
+     * @param array            $product    Product catalog entry.
+     * @param string           $brand_name Brand name.
+     * @param bool             $is_default Whether this variant is the product's default.
+     * @return array<string, mixed> Variant fields for CreateVariantDTO.
      */
     protected function make_variant_data(array $values, $faker, array $product, $brand_name, $is_default)
     {
@@ -729,10 +728,10 @@ class ProductSeeder extends Seeder
     /**
      * Resolve default weight (kg) by category type.
      *
-     * @param string $category_type Category type key.
-     *
-     * @return float
      * @since 1.0.0
+     *
+     * @param string $category_type Category type key.
+     * @return float Weight in kilograms.
      */
     protected function get_weight_for_category($category_type)
     {
@@ -752,12 +751,12 @@ class ProductSeeder extends Seeder
     /**
      * Build variant DTO list for a product.
      *
-     * @param \Faker\Generator $faker Faker instance.
-     * @param array $product Product catalog entry.
-     * @param int $product_index Position of the product in the catalog.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param \Faker\Generator $faker         Faker instance.
+     * @param array            $product       Product catalog entry.
+     * @param int              $product_index Position of the product in the catalog.
+     * @return CreateVariantDTO[] One variant DTO per combination; the first is the default.
      */
     protected function make_variant_list_data($faker, array $product, $product_index = 0)
     {

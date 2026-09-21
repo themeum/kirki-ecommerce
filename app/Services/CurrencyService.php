@@ -21,12 +21,19 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages currencies: listing, lookup, CRUD and base currency selection.
+ *
+ * @since 1.0.0
+ */
 class CurrencyService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -44,9 +51,11 @@ class CurrencyService
     }
 
     /**
-     * Get base currency
+     * Get the store's base currency.
      *
-     * @return Currency
+     * @since 1.0.0
+     *
+     * @return Currency|null Null when no currency is marked as base.
      */
     public function get_base_currency()
     {
@@ -55,6 +64,8 @@ class CurrencyService
 
     /**
      * Get currency symbols keyed by currency code (uppercase).
+     *
+     * @since 1.0.0
      *
      * @return array<string, string>
      */
@@ -67,10 +78,13 @@ class CurrencyService
     }
 
     /**
-     * Set base currency.
+     * Make the currency with the given code the base currency.
      *
-     * @param string $code
-     * @return bool
+     * @since 1.0.0
+     *
+     * @param string $code Currency code.
+     * @return bool True when the currency is the base after the call.
+     * @throws NotFoundException When no currency has that code.
      */
     public function set_base(string $code)
     {
@@ -88,9 +102,11 @@ class CurrencyService
     }
 
     /**
-     * Return all available currencies
+     * Get the bundled list of all known currencies from the currencies data file.
      *
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @return Collection Collection of currency definitions; empty when the data file is missing.
      */
     public function list()
     {
@@ -98,9 +114,11 @@ class CurrencyService
     }
 
     /**
-     * Return paginated currencies
+     * Get a page of stored currencies matching the filters, base currency first.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -109,10 +127,12 @@ class CurrencyService
     }
 
     /**
-     * Return all currencies
+     * Get every stored currency matching the filters, base currency first.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting.
+     * @return Collection Collection of Currency models.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -122,9 +142,11 @@ class CurrencyService
     /**
      * Find a currency by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Currency ID.
      * @return Currency
-     * @throws NotFoundException
+     * @throws NotFoundException When the currency does not exist.
      */
     public function find(int $id)
     {
@@ -136,11 +158,13 @@ class CurrencyService
     }
 
     /**
-     * Find a currency by code.
+     * Find a currency by its code.
      *
-     * @param string $code
+     * @since 1.0.0
+     *
+     * @param string $code Currency code.
      * @return Currency
-     * @throws NotFoundException
+     * @throws NotFoundException When no currency has that code.
      */
     public function find_by_code(string $code)
     {
@@ -152,12 +176,12 @@ class CurrencyService
     }
 
     /**
-     * Create a new currency.
+     * Insert several currencies in a single query.
      *
-     * If no slug is provided, it will be generated from the name.
+     * @since 1.0.0
      *
-     * @param CreateCurrencyDTO[] $items
-     * @return mixed
+     * @param array<int, CreateCurrencyDTO|array<string, mixed>> $items Currency DTOs or attribute arrays.
+     * @return bool
      */
     public function insert(array $items)
     {
@@ -171,9 +195,9 @@ class CurrencyService
     /**
      * Create a new currency.
      *
-     * If no slug is provided, it will be generated from the name.
+     * @since 1.0.0
      *
-     * @param CreateCurrencyDTO $data
+     * @param CreateCurrencyDTO $data Currency data.
      * @return Currency
      */
     public function create(CreateCurrencyDTO $data)
@@ -184,14 +208,14 @@ class CurrencyService
     }
 
     /**
-     * Updates a currency.
+     * Update a currency.
      *
-     * If no slug is provided, it will be generated from the name.
+     * @since 1.0.0
      *
-     * @param UpdateCurrencyDTO $data
-     * @throws NotFoundException
-     * @throws Exception
-     * @return Currency
+     * @param UpdateCurrencyDTO $data Currency data including the ID.
+     * @return Currency The refreshed currency.
+     * @throws NotFoundException When the currency does not exist.
+     * @throws Exception When the new code is already used by another currency, or the update fails.
      */
     public function update(UpdateCurrencyDTO $data)
     {
@@ -213,12 +237,13 @@ class CurrencyService
     }
 
     /**
-     * Deletes a currency by ID.
+     * Delete a currency by ID.
      *
-     * @param int $id The ID of the currency to delete.
-     * @return bool True if the currency was deleted successfully, false otherwise.
-     * @throws NotFoundException If the currency could not be found or deleted.
-     * @throws Exception If the currency could not be deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Currency ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no currency was deleted.
      */
     public function delete(int $id)
     {
@@ -230,11 +255,13 @@ class CurrencyService
     }
 
     /**
-     * Deletes multiple currencies by their IDs.
+     * Delete multiple currencies by their IDs.
      *
-     * @param array $ids The IDs of the currencies to delete.
-     * @return bool True if the currencies were deleted successfully, false otherwise.
-     * @throws Exception If the currencies could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Currency IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws Exception When no currency was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -246,16 +273,26 @@ class CurrencyService
     }
 
     /**
-     * Deletes all currencies.
+     * Delete every currency matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter.
+     * @return bool True when at least one currency was deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the currency list query with search applied, base currency first, then sorting.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = Currency::when($filters->search, function (QueryBuilder $query, $search) {
@@ -265,6 +302,13 @@ class CurrencyService
         return $this->apply_sorting($query, $filters);
     }
 
+    /**
+     * Read the currency definitions from the bundled currencies data file.
+     *
+     * @since 1.0.0
+     *
+     * @return array Decoded definitions; empty when the file is missing or invalid.
+     */
     protected function get_all_currencies()
     {
         $path = app()->resource_path('data/currencies.json');
@@ -279,11 +323,11 @@ class CurrencyService
     }
 
     /**
-     * Get active currencies from database.
+     * Get the active currencies from the database.
      *
      * @since 1.0.0
      *
-     * @return Collection
+     * @return Collection Collection of Currency models.
      */
     public function get_active_currencies()
     {

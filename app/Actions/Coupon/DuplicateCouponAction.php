@@ -12,11 +12,27 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Duplicates a coupon under a newly generated code.
+ *
+ * @since 1.0.0
+ */
 class DuplicateCouponAction
 {
+    /** @var CouponService */
     protected $coupon_service;
+
+    /** @var CreateCouponAction */
     protected $create_coupon_action;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponService      $coupon_service       Coupon service used to generate the new code.
+     * @param CreateCouponAction $create_coupon_action Creates the copy.
+     */
     public function __construct(CouponService $coupon_service, CreateCouponAction $create_coupon_action)
     {
         $this->coupon_service = $coupon_service;
@@ -26,9 +42,14 @@ class DuplicateCouponAction
     /**
      * Duplicate a coupon along with its category, product, and customer associations.
      *
-     * @param int $id
-     * @return Coupon
-     * @throws Throwable
+     * The copy gets a new generated code and " - Copy" appended to its title.
+     * Fails with a not-found error when the coupon does not exist.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id ID of the coupon to duplicate.
+     * @return Coupon The newly created copy.
+     * @throws NotFoundException When the coupon does not exist.
      */
     public function execute(int $id)
     {

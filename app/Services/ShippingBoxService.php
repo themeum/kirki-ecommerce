@@ -16,12 +16,19 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages shipping boxes and keeps exactly one of them as the default.
+ *
+ * @since 1.0.0
+ */
 class ShippingBoxService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -38,9 +45,11 @@ class ShippingBoxService
     }
 
     /**
-     * Return paginated shipping boxes
+     * Get a page of shipping boxes matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -49,10 +58,12 @@ class ShippingBoxService
     }
 
     /**
-     * Return all shipping boxes
+     * Get all shipping boxes matching the filters, without pagination.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return Collection Collection of ShippingBox.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -60,11 +71,13 @@ class ShippingBoxService
     }
 
     /**
-     * Find a shipping box by ID.
+     * Find a shipping box by ID or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Shipping box ID.
      * @return ShippingBox
-     * @throws NotFoundException
+     * @throws NotFoundException When the shipping box does not exist.
      */
     public function find(int $id)
     {
@@ -76,9 +89,11 @@ class ShippingBoxService
     }
 
     /**
-     * Find default shipping box.
+     * Find the default shipping box.
      *
-     * @return ShippingBox
+     * @since 1.0.0
+     *
+     * @return ShippingBox|null Null when no box is marked as default.
      */
     public function find_default()
     {
@@ -88,7 +103,11 @@ class ShippingBoxService
     /**
      * Create a new shipping box.
      *
-     * @param CreateShippingBoxDTO $data
+     * The box becomes the default only when no default exists yet.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateShippingBoxDTO $data Shipping box data.
      * @return ShippingBox
      */
     public function create(CreateShippingBoxDTO $data)
@@ -107,11 +126,16 @@ class ShippingBoxService
     }
 
     /**
-     * Updates a shipping box.
+     * Update a shipping box.
      *
-     * @param UpdateShippingBoxDTO $data
-     * @throws NotFoundException
-     * @return ShippingBox
+     * Marking a box as default clears the flag on the previous default, and the
+     * current default cannot be unmarked directly.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateShippingBoxDTO $data Shipping box data, including its ID.
+     * @return ShippingBox|null The reloaded shipping box.
+     * @throws NotFoundException When the box does not exist, could not be updated, or is the default being unmarked.
      */
     public function update(UpdateShippingBoxDTO $data)
     {
@@ -135,11 +159,13 @@ class ShippingBoxService
     }
 
     /**
-     * Deletes a shipping box by ID.
+     * Delete a shipping box by ID.
      *
-     * @param int $id The ID of the shipping box to delete.
-     * @return bool True if the shipping box was deleted successfully, false otherwise.
-     * @throws NotFoundException If the shipping box could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Shipping box ID.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no shipping box was deleted.
      */
     public function delete(int $id)
     {
@@ -151,11 +177,13 @@ class ShippingBoxService
     }
 
     /**
-     * Deletes multiple shipping boxes by their IDs.
+     * Delete multiple shipping boxes by their IDs.
      *
-     * @param array $ids The IDs of the shipping boxes to delete.
-     * @return bool True if the shipping boxes were deleted successfully, false otherwise.
-     * @throws NotFoundException If the shipping boxes could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the shipping boxes to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no shipping box was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -167,16 +195,26 @@ class ShippingBoxService
     }
 
     /**
-     * Deletes all tax profiles.
+     * Delete all shipping boxes matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter selecting the shipping boxes.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the filtered and sorted query for the list of shipping boxes.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = ShippingBox::when($filters->search, function (QueryBuilder $query, $search) {

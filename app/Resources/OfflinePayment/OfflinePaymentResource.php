@@ -4,12 +4,19 @@ namespace Kirki\Ecommerce\App\Resources\OfflinePayment;
 
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a single offline payment gateway.
+ *
+ * @since 1.0.0
+ */
 class OfflinePaymentResource extends Resource
 {
     /**
-     * Convert the offline payment resource to an array.
+     * Convert the offline payment gateway to an array.
      *
-     * @return array The offline payment data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The gateway ID, name, icon, enabled state and description.
      */
     public function to_array()
     {

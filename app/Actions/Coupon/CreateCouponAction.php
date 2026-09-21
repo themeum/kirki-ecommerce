@@ -10,10 +10,23 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Creates a coupon together with its category, product and customer relationships in one transaction.
+ *
+ * @since 1.0.0
+ */
 class CreateCouponAction
 {
+    /** @var CouponService */
     protected $coupon_service;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponService $coupon_service Coupon persistence service.
+     */
     public function __construct(CouponService $coupon_service)
     {
         $this->coupon_service = $coupon_service;
@@ -25,9 +38,11 @@ class CreateCouponAction
      * The coupon and its relationships will be created in a single transaction.
      * If either the coupon or its relationships cannot be created, a Throwable will be thrown.
      *
-     * @param CreateCouponDTO $payload
-     * @return Coupon
-     * @throws Throwable
+     * @since 1.0.0
+     *
+     * @param CreateCouponDTO $payload Coupon data with the category, product, reward product and customer ID lists.
+     * @return Coupon The created coupon with its relations loaded.
+     * @throws Throwable When the coupon or a relationship cannot be created; the transaction is rolled back.
      */
     public function execute(CreateCouponDTO $payload)
     {

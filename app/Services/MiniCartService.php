@@ -9,20 +9,19 @@ use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Url;
 
 /**
- * Class MiniCartService
+ * Renders the mini cart link with the current cart's item count.
  *
  * @since 1.0.0
  */
 class MiniCartService extends CartService
 {
     /**
-     * Get mini cart html
+     * Render the mini cart link for the current shopper's cart.
      *
      * @since 1.0.0
      *
-     * @param array $attributes attributes.
-     *
-     * @return string mini cart html.
+     * @param array<string, mixed> $attributes Element attributes; supports a `class` entry.
+     * @return string Mini cart HTML.
      */
     public function get_mimi_cart_html($attributes)
     {

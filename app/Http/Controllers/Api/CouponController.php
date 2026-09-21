@@ -23,15 +23,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing coupons.
+ *
+ * @since 1.0.0
+ */
 class CouponController
 {
+    /** @var CouponService */
     protected $service;
 
+    /**
+     * Create the controller with the coupon service.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponService $service
+     */
     public function __construct(CouponService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List coupons, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponListRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated coupons with a success message.
+     */
     public function get(CouponListRequest $request)
     {
         $params = CouponFilterDTO::from_array($request->all());
@@ -53,6 +76,15 @@ class CouponController
         ]);
     }
 
+    /**
+     * Create a coupon from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponCreateRequest $request
+     * @param CreateCouponAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created coupon with a 201 status.
+     */
     public function create(CouponCreateRequest $request, CreateCouponAction $action)
     {
         $coupon = $action->execute(CreateCouponDTO::from_request($request));
@@ -63,6 +95,14 @@ class CouponController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single coupon by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The coupon resource.
+     */
     public function show(Request $request)
     {
         $coupon = $this->service->find($request->int('id'));
@@ -73,6 +113,15 @@ class CouponController
         ]);
     }
 
+    /**
+     * Update a coupon from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param CouponUpdateRequest $request
+     * @param UpdateCouponAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated coupon.
+     */
     public function update(CouponUpdateRequest $request, UpdateCouponAction $action)
     {
         $coupon = $action->execute(UpdateCouponDTO::from_request($request));
@@ -83,6 +132,14 @@ class CouponController
         ]);
     }
 
+    /**
+     * Delete a single coupon by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -93,6 +150,16 @@ class CouponController
         ]);
     }
 
+    /**
+     * Run a bulk action on coupons.
+     *
+     * Supports deleting the given IDs or deleting every coupon matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->validated();
@@ -122,6 +189,14 @@ class CouponController
         }
     }
 
+    /**
+     * Generate a new unique coupon code.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The generated code.
+     */
     public function generate_new_code(Request $request)
     {
         $code = $this->service->generate_new_code();
@@ -132,6 +207,14 @@ class CouponController
         ]);
     }
 
+    /**
+     * Check whether a coupon code is still available for use on a new coupon.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse True in `data` when the `code` parameter is not yet used.
+     */
     public function validate_code(Request $request)
     {
         $is_valid = $this->service->validate_code($request->string('code'));
@@ -142,6 +225,15 @@ class CouponController
         ]);
     }
 
+    /**
+     * Duplicate, activate or deactivate a coupon depending on the `action` parameter.
+     *
+     * @since 1.0.0
+     *
+     * @param Request               $request
+     * @param DuplicateCouponAction $duplicate_action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The affected coupon, or a 400 response for an unsupported action.
+     */
     public function action(Request $request, DuplicateCouponAction $duplicate_action)
     {
         switch ($request->string('action')) {

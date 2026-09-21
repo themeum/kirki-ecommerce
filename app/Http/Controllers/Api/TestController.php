@@ -16,8 +16,21 @@ use function Kirki\Ecommerce\Framework\response;
 
 // This controller is used for testing purpose only.
 // Hit {{base_url}}/test for accessing this.
+/**
+ * Development-only controller for ad hoc endpoint testing.
+ *
+ * @since 1.0.0
+ */
 class TestController
 {
+    /**
+     * Return a sample payload used to try out framework features.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Sample money, date and settings data.
+     */
     public function test(Request $request)
     {
         // CurrencyExchange::sync();

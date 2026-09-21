@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants\Hooks;
 
+/**
+ * Names of WordPress core hooks the plugin attaches to, extending the framework hook list.
+ *
+ * @since 1.0.0
+ */
 class WPHookNames extends \Kirki\Ecommerce\Framework\Wordpress\Constants\HookNames
 {
     public const WP_HEAD = 'wp_head';

@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Customer;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a customer with optional addresses.
+ *
+ * @since 1.0.0
+ */
 class CreateCustomerDTO extends DTO
 {
     /** @var int|null */

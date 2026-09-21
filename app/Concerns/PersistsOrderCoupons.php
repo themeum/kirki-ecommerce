@@ -14,10 +14,11 @@ use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
- * Keeps an order's coupon-attribution tables (`order_coupons`/`order_item_coupons`)
- * reconciled with its latest calculation. Used by both order creation and order
- * editing, since both recalculate an order's items/discounts and both need the
- * attribution tables to reflect the result exactly.
+ * Keeps an order's coupon-attribution tables reconciled with its latest calculation.
+ *
+ * Used by both order creation and order editing, since both recalculate an
+ * order's items/discounts and both need the attribution tables
+ * (`order_coupons`/`order_item_coupons`) to reflect the result exactly.
  *
  * Expects the using class to provide:
  * - a `convert_amount($amount, $target_currency_code, $exchange_rate)` method,
@@ -28,6 +29,8 @@ use function Kirki\Ecommerce\Framework\throw_if;
  * - a `$coupon_service` property (CouponService), for adjusting
  *   `coupons.current_usage_count` as coupons are added to or removed from
  *   an order by this sync.
+ *
+ * @since 1.0.0
  */
 trait PersistsOrderCoupons
 {
@@ -41,11 +44,14 @@ trait PersistsOrderCoupons
      * never counted), and a coupon that's no longer applied decrements
      * usage unless it was already reversed.
      *
-     * @param Order $order
-     * @param CalculationResultDTO $calculated_result
-     * @param string $currency_code
-     * @param float $exchange_rate
-     * @return OrderCoupon[]
+     * @since 1.0.0
+     *
+     * @param Order                $order             Order whose coupon rows are rebuilt.
+     * @param CalculationResultDTO $calculated_result Latest calculation for the order.
+     * @param string               $currency_code     Order's transaction currency code.
+     * @param float                $exchange_rate     Rate from the base currency to the transaction currency.
+     * @return OrderCoupon[] The newly created order coupons.
+     * @throws Exception When a discounted variant has no matching order item, or the rows do not reconcile with the calculation.
      */
     protected function sync_order_coupons(Order $order, CalculationResultDTO $calculated_result, string $currency_code, float $exchange_rate)
     {
@@ -137,6 +143,8 @@ trait PersistsOrderCoupons
     }
 
     /**
+     * Assert the persisted order coupons add up to the calculated discount totals.
+     *
      * The base-currency sum is checked for exact equality: `base_discount_amount`
      * is never independently rounded (it's the discount engine's own minor-unit
      * total, copied as-is), so it must match exactly.
@@ -150,10 +158,13 @@ trait PersistsOrderCoupons
      * still catches a genuinely wrong or missing invoiced amount (which is off
      * by far more than that) without failing on ordinary rounding.
      *
-     * @param OrderCoupon[] $order_coupons
-     * @param int $expected_base_total
-     * @param int $expected_invoiced_total
-     * @throws Exception
+     * @since 1.0.0
+     *
+     * @param OrderCoupon[] $order_coupons           Order coupons just persisted.
+     * @param int           $expected_base_total     Calculated discount total in minor units of the base currency.
+     * @param int           $expected_invoiced_total Calculated discount total in minor units of the order currency.
+     * @return void
+     * @throws Exception When either sum does not match its expected total.
      */
     protected function assert_order_coupons_reconcile(array $order_coupons, int $expected_base_total, int $expected_invoiced_total)
     {

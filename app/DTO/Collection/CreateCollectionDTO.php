@@ -4,8 +4,14 @@ namespace Kirki\Ecommerce\App\DTO\Collection;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a product collection.
+ *
+ * @since 1.0.0
+ */
 class CreateCollectionDTO extends DTO
 {
+    /** @inheritDoc */
     protected static $base_fields = [];
 
     /** @var string */
@@ -29,7 +35,7 @@ class CreateCollectionDTO extends DTO
     /** @var string|null */
     public $seo_keywords;
 
-    /** @var string */
+    /** @var bool */
     public $is_active = 1;
 
     /** @var int|null */

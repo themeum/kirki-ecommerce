@@ -6,8 +6,21 @@ use Kirki\Ecommerce\App\Events\AddressUpdated;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Listener;
 
+/**
+ * Listener for AddressUpdated that keeps the customer's cart addresses in sync with the saved address.
+ *
+ * @since 1.0.0
+ */
 class SyncCartAddress extends Listener
 {
+    /**
+     * Refresh the cart's shipping and billing address when it references the updated address.
+     *
+     * @since 1.0.0
+     *
+     * @param AddressUpdated $event The dispatched event.
+     * @return void
+     */
     public function handle(AddressUpdated $event)
     {
         $cart_service = new CartService();

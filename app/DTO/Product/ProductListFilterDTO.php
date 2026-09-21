@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Product;
 
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
+/**
+ * Filters for listing products, adding catalog, price and availability filters to the shared list filters.
+ *
+ * @since 1.0.0
+ */
 class ProductListFilterDTO extends ListFilterDTO
 {
     /** @var string|null */

@@ -8,6 +8,11 @@ use Kirki\Ecommerce\Framework\Wordpress\Menu;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * Registers the top-level eCommerce admin menu and loads the admin app shell assets.
+ *
+ * @since 1.0.0
+ */
 class Root extends Menu
 {
     /** @inheritDoc */
@@ -19,10 +24,17 @@ class Root extends Menu
     /** @inheritDoc */
     protected $menu_slug = 'kirki-ecommerce';
 
+    /** @inheritDoc */
     protected $position = 2;
 
+    /** @inheritDoc */
     protected $icon_url = 'dashicons-kirki-ecommerce';
 
+    /**
+     * Set the menu titles and page callback, and hook the admin asset enqueueing.
+     *
+     * @since 1.0.0
+     */
     public function __construct()
     {
         $this->page_title = __('eCommerce', 'kirki-ecommerce');
@@ -34,6 +46,15 @@ class Root extends Menu
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets'], 20);
     }
 
+    /**
+     * Enqueue the menu icon style on every admin page and the app shell assets on the plugin's page.
+     *
+     * Hooked to `admin_enqueue_scripts`.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function enqueue_admin_assets()
     {
         $menu_style_handle = app()->prefix() . 'admin-menu';
@@ -83,11 +104,25 @@ class Root extends Menu
         );
     }
 
+    /**
+     * Determine whether the current admin request is the plugin's admin page.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     protected function is_ecommerce_admin_page()
     {
         return Assets::is_admin_page();
     }
 
+    /**
+     * Get the handle of the admin app script: the dev-server script in dev mode, the bundle otherwise.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     protected function get_app_script_handle()
     {
         if (app()->is_dev_mode()) {
@@ -97,6 +132,13 @@ class Root extends Menu
         return app()->prefix() . 'bundle';
     }
 
+    /**
+     * Get the inline CSS that shows the plugin logo as the menu icon.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     protected function get_dashicon_inline_styles()
     {
         $logo_url = esc_url(KIRKI_ECOMMERCE_ASSETS_URL . '/images/logo.svg');
@@ -112,6 +154,13 @@ class Root extends Menu
         );
     }
 
+    /**
+     * Get the inline CSS for the app mount element: font family, font warm-up and hidden state until ready.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     protected function get_root_shell_inline_styles()
     {
         return '.kirki-ecommerce-root {
@@ -145,6 +194,17 @@ class Root extends Menu
             }';
     }
 
+    /**
+     * Add preconnect hints for the Google Fonts hosts on the plugin's admin page.
+     *
+     * Hooked to the `wp_resource_hints` filter.
+     *
+     * @since 1.0.0
+     *
+     * @param array  $urls          URLs to print for the resource hint type.
+     * @param string $relation_type Resource hint type, such as `preconnect`.
+     * @return array
+     */
     public function add_font_resource_hints($urls, $relation_type)
     {
         if ('preconnect' !== $relation_type || !$this->is_ecommerce_admin_page()) {
@@ -163,6 +223,13 @@ class Root extends Menu
         return $urls;
     }
 
+    /**
+     * Print the mount element for the admin app.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function render_page()
     {
         printf(

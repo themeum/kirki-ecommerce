@@ -6,8 +6,20 @@ use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the Color, Size, Shoe Size and Material attributes with their values.
+ *
+ * @since 1.0.0
+ */
 class AttributeSeeder extends Seeder
 {
+    /**
+     * Create the curated attributes and their values.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function run(): void
     {
         $data = [

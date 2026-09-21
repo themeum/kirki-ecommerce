@@ -6,6 +6,11 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 defined('ABSPATH') || exit;
 
+/**
+ * Keys of the storefront pages managed by the plugin.
+ *
+ * @since 1.0.0
+ */
 class PageKeys
 {
     use HasConstants;
@@ -20,7 +25,7 @@ class PageKeys
      *
      * @since 1.0.0
      *
-     * @return array<string, string>
+     * @return array<string, string> Translated labels keyed by page key.
      */
     public static function get_list()
     {

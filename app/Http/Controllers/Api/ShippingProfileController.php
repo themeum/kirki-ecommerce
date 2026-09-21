@@ -18,15 +18,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing shipping profiles.
+ *
+ * @since 1.0.0
+ */
 class ShippingProfileController
 {
+    /** @var ShippingProfileService */
     protected $service;
 
+    /**
+     * Create the controller with its shipping profile service.
+     *
+     * @since 1.0.0
+     *
+     * @param ShippingProfileService $service
+     */
     public function __construct(ShippingProfileService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List shipping profiles, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated shipping profiles with a success message.
+     */
     public function get(Request $request)
     {
         $params = ListFilterDTO::from_array($request->all());
@@ -49,6 +72,14 @@ class ShippingProfileController
         ]);
     }
 
+    /**
+     * Create a shipping profile from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param ShippingProfileCreateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created shipping profile with a 201 status.
+     */
     public function create(ShippingProfileCreateRequest $request)
     {
         $payload = CreateShippingProfileDTO::from_request($request);
@@ -61,6 +92,14 @@ class ShippingProfileController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single shipping profile by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The shipping profile resource.
+     */
     public function show(Request $request)
     {
         $shipping_profile = $this->service->find($request->int('id'));
@@ -71,6 +110,14 @@ class ShippingProfileController
         ]);
     }
 
+    /**
+     * Update a shipping profile from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param ShippingProfileUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated shipping profile.
+     */
     public function update(ShippingProfileUpdateRequest $request)
     {
         $payload = UpdateShippingProfileDTO::from_request($request);
@@ -83,6 +130,14 @@ class ShippingProfileController
         ]);
     }
 
+    /**
+     * Delete a single shipping profile by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -93,6 +148,16 @@ class ShippingProfileController
         ]);
     }
 
+    /**
+     * Run a bulk action on shipping profiles.
+     *
+     * Supports deleting the given IDs or deleting every shipping profile matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $validated = $request->all();

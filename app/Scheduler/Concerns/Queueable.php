@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Scheduler\Concerns;
 
 use Kirki\Ecommerce\App\Scheduler\Constants\Config;
 
+/**
+ * Adds the queue settings (arguments, priority, delay, retries, batch size) to a scheduler job.
+ *
+ * @since 1.0.0
+ */
 trait Queueable
 {
     use Dispatchable, HasAsyncWorker;
@@ -23,9 +28,9 @@ trait Queueable
     protected $priority = 10;
 
     /**
-     * The delay in seconds before the job should be processed.
+     * The moment at which the job becomes due, or null to run it immediately.
      *
-     * @var int|null
+     * @var mixed
      */
     protected $delay = null;
 
@@ -46,6 +51,8 @@ trait Queueable
     /**
      * Get the class name of the job resolver.
      *
+     * @since 1.0.0
+     *
      * @return string
      */
     public function get_resolver()
@@ -56,7 +63,9 @@ trait Queueable
     /**
      * Set the arguments for the job.
      *
-     * @param array|mixed $values
+     * @since 1.0.0
+     *
+     * @param array|mixed $values Arguments for the job's handle method; a non-array value falls back to all passed arguments.
      * @return $this
      */
     public function args($values = [])
@@ -70,6 +79,8 @@ trait Queueable
     /**
      * Get the arguments assigned to the job.
      *
+     * @since 1.0.0
+     *
      * @return array
      */
     public function get_args()
@@ -80,7 +91,9 @@ trait Queueable
     /**
      * Set the job priority.
      *
-     * @param int $priority
+     * @since 1.0.0
+     *
+     * @param int $priority Lower numbers run first.
      * @return $this
      */
     public function priority(int $priority)
@@ -93,6 +106,8 @@ trait Queueable
     /**
      * Get the job priority, clamped between 0 and 255.
      *
+     * @since 1.0.0
+     *
      * @return int
      */
     public function get_priority()
@@ -103,7 +118,9 @@ trait Queueable
     /**
      * Set the delay for the job execution.
      *
-     * @param int|null $moment
+     * @since 1.0.0
+     *
+     * @param mixed $moment The moment at which the job becomes due, or null to run it immediately.
      * @return $this
      */
     public function delay($moment = null)
@@ -116,7 +133,9 @@ trait Queueable
     /**
      * Get the delay before the job is executed.
      *
-     * @return int|null
+     * @since 1.0.0
+     *
+     * @return mixed Null when the job has no delay.
      */
     public function get_delay()
     {
@@ -125,6 +144,8 @@ trait Queueable
 
     /**
      * Set the number of items per batch.
+     *
+     * @since 1.0.0
      *
      * @param int $size
      * @return $this
@@ -139,6 +160,8 @@ trait Queueable
     /**
      * Get the batch size.
      *
+     * @since 1.0.0
+     *
      * @return int
      */
     public function get_batch()
@@ -148,6 +171,8 @@ trait Queueable
 
     /**
      * Set the number of times the job should be retried on failure.
+     *
+     * @since 1.0.0
      *
      * @param int $attempts
      * @return $this
@@ -161,6 +186,8 @@ trait Queueable
 
     /**
      * Get the number of times the job should be retried on failure.
+     *
+     * @since 1.0.0
      *
      * @return int
      */

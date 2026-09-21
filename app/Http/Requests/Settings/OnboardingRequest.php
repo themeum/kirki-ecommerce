@@ -5,8 +5,18 @@ namespace Kirki\Ecommerce\App\Http\Requests\Settings;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;
 
+/**
+ * Validates and sanitizes the store onboarding payload.
+ *
+ * @since 1.0.0
+ */
 class OnboardingRequest extends Request
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -24,6 +34,11 @@ class OnboardingRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

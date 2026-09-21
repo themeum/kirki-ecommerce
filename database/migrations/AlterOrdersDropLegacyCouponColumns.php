@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Drops the legacy coupon code and discount details columns from the orders table.
+ *
+ * @since 1.0.0
+ */
 class AlterOrdersDropLegacyCouponColumns implements Migration
 {
+    /**
+     * Drop the coupon_code and discount_details columns from the orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_orders', function (Structure $table) {
@@ -15,6 +27,13 @@ class AlterOrdersDropLegacyCouponColumns implements Migration
         });
     }
 
+    /**
+     * Re-add the coupon_code and discount_details columns to the orders table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_orders', function (Structure $table) {

@@ -9,6 +9,11 @@ use Kirki\Ecommerce\Framework\Wordpress\Models\Option as OptionModel;
 
 use function Kirki\Ecommerce\Framework\with_prefix;
 
+/**
+ * Generates formatted order and invoice numbers from the general settings.
+ *
+ * @since 1.0.0
+ */
 class OrderNumberGenerator
 {
     protected const ORDER_NUMBER_PADDING = 6;
@@ -17,7 +22,9 @@ class OrderNumberGenerator
      * Generate an order number from the order's own auto-increment id and
      * the general.order_number prefix/suffix settings.
      *
-     * @param int $order_id
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID, zero-padded to 6 digits.
      * @return string
      */
     public static function generate_order_number(int $order_id)
@@ -32,6 +39,8 @@ class OrderNumberGenerator
     /**
      * Generate an invoice number from the general.invoice_number settings,
      * advancing the persisted running counter.
+     *
+     * @since 1.0.0
      *
      * @return string
      */
@@ -62,7 +71,9 @@ class OrderNumberGenerator
      * Reset the invoice counter to just below the configured starting
      * sequence when the calendar year has rolled over since its last use.
      *
-     * @param int $starting_sequence
+     * @since 1.0.0
+     *
+     * @param int $starting_sequence Configured first invoice sequence number.
      * @return void
      */
     protected static function maybe_reset_yearly_counter(int $starting_sequence)
@@ -82,7 +93,11 @@ class OrderNumberGenerator
      * Atomically increment the persisted invoice counter and return the
      * new value.
      *
-     * @param int $starting_sequence
+     * Stores the starting sequence and returns it when no counter exists yet.
+     *
+     * @since 1.0.0
+     *
+     * @param int $starting_sequence Configured first invoice sequence number.
      * @return int
      */
     protected static function increment_last_invoice_number(int $starting_sequence)

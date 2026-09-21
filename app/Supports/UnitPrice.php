@@ -7,6 +7,11 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
+/**
+ * Builds the per-unit price label shown for variants sold by weight or volume.
+ *
+ * @since 1.0.0
+ */
 class UnitPrice
 {
     /**
@@ -14,8 +19,10 @@ class UnitPrice
      * given display currency. Returns null when unit pricing is disabled or
      * the variant's unit data cannot produce a valid computation.
      *
-     * @param Variant $variant
-     * @param string|null $display_currency
+     * @since 1.0.0
+     *
+     * @param Variant     $variant
+     * @param string|null $display_currency Currency code to display the price in, or null for the default.
      * @return string|null
      */
     public static function make(Variant $variant, ?string $display_currency = null)

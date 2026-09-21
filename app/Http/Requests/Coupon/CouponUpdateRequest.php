@@ -17,8 +17,22 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Supports\Somoy;
 
+/**
+ * Validates and sanitizes the payload for updating a coupon.
+ *
+ * @since 1.0.0
+ */
 class CouponUpdateRequest extends Request
 {
+    /**
+     * Convert a non-percentage discount amount to minor units.
+     *
+     * Skipped when the discount value type is percentage or the amount is empty.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $discount_amount = $this->input('discount_amount');
@@ -28,6 +42,11 @@ class CouponUpdateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -70,6 +89,11 @@ class CouponUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

@@ -26,15 +26,38 @@ use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for managing products.
+ *
+ * @since 1.0.0
+ */
 class ProductController
 {
+    /** @var ProductService */
     protected $service;
 
+    /**
+     * Create the controller with the product service.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductService $service
+     */
     public function __construct(ProductService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * List products, paginated by the request filters.
+     *
+     * When the requested limit equals Pagination::ALL, every match is returned as a single page.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductListRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated products with a success message.
+     */
     public function get(ProductListRequest $request)
     {
         $params = ProductListFilterDTO::from_array($request->all());
@@ -56,6 +79,14 @@ class ProductController
         ]);
     }
 
+    /**
+     * List products together with their variants, paginated by the request filters.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductListRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Paginated products with their variants.
+     */
     public function get_products_with_variants(ProductListRequest $request)
     {
         $params = ProductListFilterDTO::from_array($request->all());
@@ -68,6 +99,15 @@ class ProductController
         ]);
     }
 
+    /**
+     * Create a product and its variants from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductCreateRequest $request
+     * @param CreateProductAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created product with a 201 status.
+     */
     public function create(ProductCreateRequest $request, CreateProductAction $action)
     {
         $data = $request->all();
@@ -84,6 +124,14 @@ class ProductController
         ], Response::CREATED);
     }
 
+    /**
+     * Return a single product by the route ID, along with its storefront preview URL.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The product resource.
+     */
     public function show(Request $request)
     {
         $product = $this->service->find($request->int('id'));
@@ -94,6 +142,15 @@ class ProductController
         ]);
     }
 
+    /**
+     * Update a product and its variants from the validated request.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductUpdateRequest $request
+     * @param UpdateProductAction  $action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated product.
+     */
     public function update(ProductUpdateRequest $request, UpdateProductAction $action)
     {
         $data = $request->all();
@@ -110,6 +167,14 @@ class ProductController
         ]);
     }
 
+    /**
+     * Permanently delete a single product by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success response carrying the deletion result.
+     */
     public function delete(Request $request)
     {
         $result = $this->service->delete($request->int('id'));
@@ -120,6 +185,16 @@ class ProductController
         ]);
     }
 
+    /**
+     * Run a bulk action on products.
+     *
+     * Supports deleting, trashing and restoring either the given IDs or every product matching the list filters. Any other action gets a 400 response.
+     *
+     * @since 1.0.0
+     *
+     * @param BulkActionRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The result message, or a 400 response for an unsupported action.
+     */
     public function bulk_actions(BulkActionRequest $request)
     {
         $data = $request->all();
@@ -175,6 +250,15 @@ class ProductController
         }
     }
 
+    /**
+     * Duplicate the product identified by the route ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Request                $request
+     * @param DuplicateProductAction $duplicate_action
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The new product with a 201 status.
+     */
     public function duplicate(Request $request, DuplicateProductAction $duplicate_action)
     {
         $product = $duplicate_action->execute($request->int('id'));
