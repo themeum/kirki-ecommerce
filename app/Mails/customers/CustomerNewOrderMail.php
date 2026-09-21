@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Mails\Admins;
+namespace Kirki\Ecommerce\App\Mails\Customers;
 
 defined('ABSPATH') || exit;
 
@@ -11,10 +11,11 @@ use Kirki\Ecommerce\App\Supports\Url;
 
 use function Kirki\Ecommerce\Framework\collection;
 
-class AdminOrderConfirmationMail extends Mailer
+class CustomerNewOrderMail extends Mailer
 {
     /** @var Order */
     protected $order;
+
     public function __construct(Order $order)
     {
         $this->order = $order;
@@ -22,7 +23,7 @@ class AdminOrderConfirmationMail extends Mailer
 
     public function option_key()
     {
-        return 'admin_emails.order_notifications.order_confirmation';
+        return 'customer_emails.order_notifications.new_order';
     }
 
     public function with()
@@ -36,8 +37,8 @@ class AdminOrderConfirmationMail extends Mailer
             'order_date' => $order['created_at'],
             'order_detail' => $this->get_content('emails.parts.order.order-details', ['order' => $order]),
             'order_view_button' => $this->get_content('emails.parts.link-button', [
-                'label' => __('View this Order', 'kirki-ecommerce'),
-                'link' => Url::get_order_edit_url($order['id']),
+                'label' => __('View Your Order', 'kirki-ecommerce'),
+                'link' => Url::get_order_tracking_url($order['uuid']),
             ]),
             'shipping_tracking_number' => $order['shipping_tracking']['tracking_number'] ?? '',
             'shipping_tracking_url' => $order['shipping_tracking']['tracking_url'] ?? '',

@@ -8,6 +8,11 @@ use Kirki\Ecommerce\App\Constants\CurrencyFormat;
 use Kirki\Ecommerce\App\Constants\CurrencyPosition;
 use Kirki\Ecommerce\App\Constants\CurrencyUpdateFallback;
 use Kirki\Ecommerce\App\Constants\DecimalSeparator;
+use Kirki\Ecommerce\App\Constants\Email\AdminInventoryNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminUserNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Constants\MailEncryption;
 use Kirki\Ecommerce\App\Constants\Mailer;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
@@ -674,7 +679,36 @@ class SettingsUpdateRequest extends Request
 
     protected function get_email_settings_rules()
     {
-        return [
+        $notification_classes = [
+            AdminOrderNotification::class,
+            AdminInventoryNotification::class,
+            AdminUserNotification::class,
+            CustomerOrderNotification::class,
+            CustomerUserNotification::class,
+        ];
+
+        $email_template_rules = [
+            'data.admin_emails' => 'nullable|array',
+            'data.customer_emails' => 'nullable|array',
+        ];
+
+        foreach ($notification_classes as $notification_class) {
+            $options = $notification_class::get_constant_values();
+            $email_template_rules[sprintf('data.%s.%s', $notification_class::get_type(), $notification_class::get_group())] = 'nullable|array';
+
+            foreach ($options as $option) {
+                $email_template_rules = [
+                    sprintf('data.%s.%s.%s', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|array',
+                    sprintf('data.%s.%s.%s.is_enabled', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|boolean',
+                    sprintf('data.%s.%s.%s.subject', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|string',
+                    sprintf('data.%s.%s.%s.heading', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|string',
+                    sprintf('data.%s.%s.%s.message', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|string',
+                ];
+            }
+        }
+
+
+        return array_merge([
             // Default template settings
             'data.default_template' => 'nullable|array',
             'data.default_template.logo' => 'nullable|integer',
@@ -709,68 +743,40 @@ class SettingsUpdateRequest extends Request
             'data.mail_configuration.is_authentication_enabled' => 'nullable|boolean',
             'data.mail_configuration.username' => 'nullable|string',
             'data.mail_configuration.password' => 'nullable|string',
-
-            // Customer emails
-            'data.customer_emails' => 'nullable|array',
-
-            // Customer order notifications
-            'data.customer_emails.order_notifications' => 'nullable|array',
-
-            // Customer order confirmation
-            'data.customer_emails.order_notifications.order_confirmation' => 'nullable|array',
-            'data.customer_emails.order_notifications.order_confirmation.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.order_notifications.order_confirmation.subject' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_confirmation.heading' => 'nullable|string',
-            'data.customer_emails.order_notifications.order_confirmation.message' => 'nullable|string',
-
-            // Customer user notifications
-            'data.customer_emails.user_notifications' => 'nullable|array',
-
-            // Customer reset password
-            'data.customer_emails.user_notifications.reset_password' => 'nullable|array',
-            'data.customer_emails.user_notifications.reset_password.is_enabled' => 'nullable|boolean',
-            'data.customer_emails.user_notifications.reset_password.subject' => 'nullable|string',
-            'data.customer_emails.user_notifications.reset_password.heading' => 'nullable|string',
-            'data.customer_emails.user_notifications.reset_password.message' => 'nullable|string',
-
-            // Admin emails
-            'data.admin_emails' => 'nullable|array',
-
-            // Admin order notifications
-            'data.admin_emails.order_notifications' => 'nullable|array',
-
-            // Admin order confirmation
-            'data.admin_emails.order_notifications.order_confirmation' => 'nullable|array',
-            'data.admin_emails.order_notifications.order_confirmation.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.order_notifications.order_confirmation.subject' => 'nullable|string',
-            'data.admin_emails.order_notifications.order_confirmation.heading' => 'nullable|string',
-            'data.admin_emails.order_notifications.order_confirmation.message' => 'nullable|string',
-
-            // Admin inventory notifications
-            'data.admin_emails.inventory_notifications' => 'nullable|array',
-
-            // Admin inventory low stock
-            'data.admin_emails.inventory_notifications.low_stock' => 'nullable|array',
-            'data.admin_emails.inventory_notifications.low_stock.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.inventory_notifications.low_stock.subject' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.low_stock.heading' => 'nullable|string',
-            'data.admin_emails.inventory_notifications.low_stock.message' => 'nullable|string',
-
-            // Admin user notifications
-            'data.admin_emails.user_notifications' => 'nullable|array',
-
-            // Admin reset password
-            'data.admin_emails.user_notifications.reset_password' => 'nullable|array',
-            'data.admin_emails.user_notifications.reset_password.is_enabled' => 'nullable|boolean',
-            'data.admin_emails.user_notifications.reset_password.subject' => 'nullable|string',
-            'data.admin_emails.user_notifications.reset_password.heading' => 'nullable|string',
-            'data.admin_emails.user_notifications.reset_password.message' => 'nullable|string',
-        ];
+        ], $email_template_rules);
     }
 
     protected function get_email_settings_filters()
     {
-        return [
+        $notification_classes = [
+            AdminOrderNotification::class,
+            AdminInventoryNotification::class,
+            AdminUserNotification::class,
+            CustomerOrderNotification::class,
+            CustomerUserNotification::class,
+        ];
+
+        $email_template_filters = [
+            'data.admin_emails' => Sanitizer::ARRAY,
+            'data.customer_emails' => Sanitizer::ARRAY
+        ];
+
+        foreach ($notification_classes as $notification_class) {
+            $options = $notification_class::get_constant_values();
+            $email_template_filters[sprintf('data.%s.%s', $notification_class::get_type(), $notification_class::get_group())] = Sanitizer::ARRAY;
+
+            foreach ($options as $option) {
+                $email_template_filters = [
+                    sprintf('data.%s.%s.%s', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::ARRAY,
+                    sprintf('data.%s.%s.%s.is_enabled', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::BOOL,
+                    sprintf('data.%s.%s.%s.subject', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::TEXT,
+                    sprintf('data.%s.%s.%s.heading', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::TEXT,
+                    sprintf('data.%s.%s.%s.message', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::RICH_TEXT,
+                ];
+            }
+        }
+
+        return array_merge([
             // Default template settings
             'data.default_template' => Sanitizer::ARRAY,
             'data.default_template.logo' => Sanitizer::INT,
@@ -805,63 +811,7 @@ class SettingsUpdateRequest extends Request
             'data.mail_configuration.is_authentication_enabled' => Sanitizer::BOOL,
             'data.mail_configuration.username' => Sanitizer::TEXT,
             'data.mail_configuration.password' => Sanitizer::TEXT,
-
-            // Customer emails
-            'data.customer_emails' => Sanitizer::ARRAY,
-
-            // Customer order notifications
-            'data.customer_emails.order_notifications' => Sanitizer::ARRAY,
-
-            // Customer order confirmation
-            'data.customer_emails.order_notifications.order_confirmation' => Sanitizer::ARRAY,
-            'data.customer_emails.order_notifications.order_confirmation.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.order_notifications.order_confirmation.subject' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_confirmation.heading' => Sanitizer::TEXT,
-            'data.customer_emails.order_notifications.order_confirmation.message' => Sanitizer::RICH_TEXT,
-
-            // Customer user notifications
-            'data.customer_emails.user_notifications' => Sanitizer::ARRAY,
-
-            // Customer reset password
-            'data.customer_emails.user_notifications.reset_password' => Sanitizer::ARRAY,
-            'data.customer_emails.user_notifications.reset_password.is_enabled' => Sanitizer::BOOL,
-            'data.customer_emails.user_notifications.reset_password.subject' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.reset_password.heading' => Sanitizer::TEXT,
-            'data.customer_emails.user_notifications.reset_password.message' => Sanitizer::RICH_TEXT,
-
-            // Admin emails
-            'data.admin_emails' => Sanitizer::ARRAY,
-
-            // Admin order notifications
-            'data.admin_emails.order_notifications' => Sanitizer::ARRAY,
-
-            // Admin order confirmation
-            'data.admin_emails.order_notifications.order_confirmation' => Sanitizer::ARRAY,
-            'data.admin_emails.order_notifications.order_confirmation.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.order_notifications.order_confirmation.subject' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.order_confirmation.heading' => Sanitizer::TEXT,
-            'data.admin_emails.order_notifications.order_confirmation.message' => Sanitizer::RICH_TEXT,
-
-            // Admin inventory notifications
-            'data.admin_emails.inventory_notifications' => Sanitizer::ARRAY,
-
-            // Admin inventory low stock
-            'data.admin_emails.inventory_notifications.low_stock' => Sanitizer::ARRAY,
-            'data.admin_emails.inventory_notifications.low_stock.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.inventory_notifications.low_stock.subject' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.low_stock.heading' => Sanitizer::TEXT,
-            'data.admin_emails.inventory_notifications.low_stock.message' => Sanitizer::RICH_TEXT,
-
-            // Admin user notifications
-            'data.admin_emails.user_notifications' => Sanitizer::ARRAY,
-
-            // Admin reset password
-            'data.admin_emails.user_notifications.reset_password' => Sanitizer::ARRAY,
-            'data.admin_emails.user_notifications.reset_password.is_enabled' => Sanitizer::BOOL,
-            'data.admin_emails.user_notifications.reset_password.subject' => Sanitizer::TEXT,
-            'data.admin_emails.user_notifications.reset_password.heading' => Sanitizer::TEXT,
-            'data.admin_emails.user_notifications.reset_password.message' => Sanitizer::RICH_TEXT,
-        ];
+        ], $email_template_filters);
     }
 
     /**

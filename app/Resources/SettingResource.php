@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+use Kirki\Ecommerce\App\Constants\Email\AdminInventoryNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminUserNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\Framework\Resource;
@@ -9,13 +14,9 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Page;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Utils;
-use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
-use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
-use Kirki\Ecommerce\Framework\Supports\Somoy;
 
 use function Kirki\Ecommerce\Framework\collection;
-use function Kirki\Ecommerce\Framework\dd;
 
 class SettingResource extends Resource
 {
@@ -189,7 +190,6 @@ class SettingResource extends Resource
     protected function get_email_settings($data)
     {
         $header_logo = MediaAttachment::make($data['default_template']['logo'] ?? null);
-        $order_confirmation_shortcodes = Settings::get(OptionKeys::EMAIL_SETTINGS)->get_default('customer_emails.order_notifications.order_confirmation.shortcodes') ?? [];
 
         $data = array_merge($data ?? [], [
             'default_template' => array_merge($data['default_template'] ?? [], [
@@ -197,7 +197,32 @@ class SettingResource extends Resource
             ])
         ]);
 
-        $data['customer_emails']['order_notifications']['order_confirmation']['shortcodes'] = $order_confirmation_shortcodes;
+        $notification_classes = [
+            AdminOrderNotification::class,
+            AdminInventoryNotification::class,
+            AdminUserNotification::class,
+            CustomerOrderNotification::class,
+            CustomerUserNotification::class,
+        ];
+
+        foreach ($notification_classes as $notification_class) {
+            $type = $notification_class::get_type();
+            $group = $notification_class::get_group();
+            $options = $notification_class::get_constant_values();
+
+            foreach ($options as $option) {
+                $short_codes = Settings::get(OptionKeys::EMAIL_SETTINGS)->get_default(sprintf('%s.%s.%s.shortcodes', $type, $group, $option)) ?? [];
+
+                $data[$type][$group][$option] = [
+                    'is_enabled' => $data[$type][$group][$option]['is_enabled'] ?? false,
+                    'subject' => $data[$type][$group][$option]['subject'] ?? '',
+                    'heading' => $data[$type][$group][$option]['heading'] ?? '',
+                    'message' => $data[$type][$group][$option]['message'] ?? '',
+                    'shortcodes' => $short_codes,
+                ];
+            }
+        }
+
         return $data;
     }
 

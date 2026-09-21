@@ -27,7 +27,7 @@
   },
   "customer_emails": {
     "order_notifications": {
-      "order_confirmation": {
+      "new_order": {
         "is_enabled": true,
         "subject": "Order Confirmation",
         "heading": "Thank you for your order!",
@@ -117,7 +117,7 @@
   },
   "admin_emails": {
     "order_notifications": {
-      "order_confirmation": {
+      "new_order": {
         "is_enabled": true,
         "subject": "Order Confirmation",
         "heading": "Thank you for your order!",

@@ -5,9 +5,9 @@ namespace Kirki\Ecommerce\App\Services;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Mails\Admins\AdminLowStockMail;
-use Kirki\Ecommerce\App\Mails\Admins\AdminOrderConfirmationMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminNewOrderMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminResetPasswordMail;
-use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderConfirmationMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerNewOrderMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Models\Customer;
@@ -31,7 +31,7 @@ class EmailPreviewService
     protected $notification_classes = [
         'admin' => [
             'order' => [
-                'order_confirmation' => AdminOrderConfirmationMail::class,
+                'new_order' => AdminNewOrderMail::class,
             ],
             'user' => [
                 'reset_password' => AdminResetPasswordMail::class,
@@ -42,7 +42,7 @@ class EmailPreviewService
         ],
         'customer' => [
             'order' => [
-                'order_confirmation' => CustomerOrderConfirmationMail::class,
+                'new_order' => CustomerNewOrderMail::class,
             ],
             'user' => [
                 'reset_password' => CustomerResetPasswordMail::class,
