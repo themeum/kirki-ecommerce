@@ -83,7 +83,7 @@ examples:
                 },
                 {
                   "name": "signature_key",
-                  "label": "Signature Key",
+                  "label": "Signature Key (HMAC-SHA512)",
                   "type": "password",
                   "required": true
                 },

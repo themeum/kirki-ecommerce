@@ -55,7 +55,7 @@ class Redsys extends PaymentProvider
             ],
             [
                 'name' => 'signature_key',
-                'label' => __('Signature Key', 'kirki-ecommerce-redsys'),
+                'label' => __('Signature Key (HMAC-SHA512)', 'kirki-ecommerce-redsys'),
                 'type' => 'password',
                 'required' => true,
             ],
