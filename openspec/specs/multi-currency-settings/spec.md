@@ -180,7 +180,7 @@ automatic-updates toggle.
 
 ### Requirement: Exactly one base currency exists
 
-The store SHALL keep exactly one currency flagged as the base currency. Saving a currency as the base SHALL demote every other currency, whether or not the request names them and in whatever order rows arrive. A request that clears the flag on the current base without making another currency the base SHALL NOT leave the store without a base currency.
+The store SHALL keep exactly one currency flagged as the base currency. Saving a currency as the base SHALL demote every other currency, whether or not the request names them and in whatever order rows arrive. A request that clears the flag on the current base without making another currency the base SHALL NOT leave the store without a base currency. A create request that flags more than one currency as base SHALL be rejected as invalid, and none of its currencies SHALL be inserted.
 
 #### Scenario: Setting a new base with a single-row request
 
@@ -207,3 +207,9 @@ The store SHALL keep exactly one currency flagged as the base currency. Saving a
 
 - **WHEN** a currency is created with the base flag while another currency is the base
 - **THEN** the new currency is the only base
+
+#### Scenario: Creating two base currencies in one request
+
+- **WHEN** a create request flags two or more of its currencies as base
+- **THEN** the request is rejected with a validation error
+- **AND** none of its currencies is inserted and the existing base is unchanged

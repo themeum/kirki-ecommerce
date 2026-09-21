@@ -26,9 +26,33 @@ class CurrencyCreateRequest extends Request
             'items.*.name' => 'required|string',
             'items.*.symbol' => 'required|string',
             'items.*.exchange_rate' => 'required|float',
-            'items.*.is_base' => 'nullable|boolean',
+            'items.*.is_base' => ['nullable', 'boolean', $this->at_most_one_base_currency()],
             'items.*.is_active' => 'nullable|boolean',
         ];
+    }
+
+    /**
+     * Build a closure rule that rejects a request flagging more than one currency as base.
+     *
+     * @since 1.0.0
+     *
+     * @return \Closure Rule callback returning true when at most one item is a base currency, or an error message.
+     */
+    protected function at_most_one_base_currency()
+    {
+        return function ($is_base, $key, $data) {
+            $items = is_array($data['items'] ?? null) ? $data['items'] : [];
+
+            $base_items = array_filter($items, function ($item) {
+                return is_array($item) && Sanitizer::apply_rule($item['is_base'] ?? false, Sanitizer::BOOL);
+            });
+
+            if (count($base_items) <= 1) {
+                return true;
+            }
+
+            return __('Only one currency can be the base currency.', 'kirki-ecommerce');
+        };
     }
 
     /**

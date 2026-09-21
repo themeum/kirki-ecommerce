@@ -355,6 +355,34 @@ class CurrencyApiTest extends RestTestCase
     }
 
     /**
+     * Creating two base currencies in one request is rejected and inserts nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_creating_two_base_currencies_in_one_request_is_rejected(): void
+    {
+        $existing_base = $this->create_currency(['name' => 'Existing Base', 'is_base' => true]);
+        $first_code = $this->unique_currency_code();
+        $second_code = $this->unique_currency_code();
+
+        $response = $this->request('POST', 'currencies', [
+            'items' => [
+                ['code' => $first_code, 'name' => 'First', 'symbol' => '$', 'exchange_rate' => 1.0, 'is_active' => true, 'is_base' => true],
+                ['code' => $second_code, 'name' => 'Second', 'symbol' => '$', 'exchange_rate' => 1.0, 'is_active' => true, 'is_base' => true],
+            ],
+        ]);
+
+        $this->assert_validation_error($response);
+        $this->assertSame([$existing_base['id']], $this->base_currency_ids());
+
+        foreach ([$first_code, $second_code] as $code) {
+            $list = $this->assert_api_success($this->request('GET', 'currencies', ['search' => $code]));
+            $this->assertCount(0, $list['data']['results']);
+        }
+    }
+
+    /**
      * Create currency.
      * @param array $overrides Overrides.
      *
