@@ -1,3 +1,4 @@
+import { Edit3 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { useNavigate, useOutletContext } from 'react-router';
@@ -23,7 +24,6 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { Edit3 } from 'lucide-react';
 
 type TaxRegionsProps = {
   handleSave: (updatedRegions?: TaxRegion[]) => void | Promise<void>;

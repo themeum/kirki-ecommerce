@@ -166,9 +166,7 @@ export const ShippingMethod = ({
                         variant="outline"
                         size="icon-sm"
                         aria-label={__('Delete', 'kirki-ecommerce')}
-                        cssOverride={mergeCss(styles.actionButton, {
-                          '& svg': { color: theme.colors.icon.critical },
-                        })}
+                        cssOverride={styles.actionButton}
                         onClick={() => handleDeleteMethodItem(item)}
                       >
                         <TrashIcon />

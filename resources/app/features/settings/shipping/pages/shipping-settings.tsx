@@ -194,9 +194,7 @@ const ShippingSettings = () => {
                                           variant="outline"
                                           size="icon-sm"
                                           aria-label={__('Delete', 'kirki-ecommerce')}
-                                          cssOverride={mergeCss(styles.deleteButton, {
-                                            '& svg': { color: theme.colors.icon.critical },
-                                          })}
+                                          cssOverride={styles.actionButton}
                                           onClick={() => handleDeleteMethod(method)}
                                         >
                                           <TrashIcon />
@@ -284,11 +282,5 @@ const styles = defineStyles({
   },
   actionButton: {
     padding: theme.spacing[1],
-  },
-  deleteButton: {
-    padding: theme.spacing[1],
-    '& svg': {
-      color: theme.colors.icon.critical,
-    },
   },
 });

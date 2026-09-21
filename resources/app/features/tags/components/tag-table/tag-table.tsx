@@ -8,7 +8,7 @@ import DataTable from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
 import TagAddEditDialog from '@/features/tags/components/tag-add-edit-dialog';
-import { tagColumns } from '@/features/tags/components/tag-table/columns';
+import { createTagColumns } from '@/features/tags/components/tag-table/columns';
 import TagTableFilters from '@/features/tags/components/tag-table/tag-table-filters';
 import type { Tag } from '@/features/tags/schemas/catalog/tag';
 import {
@@ -63,7 +63,7 @@ const TagTable = () => {
 
   const columns = useMemo<ColumnDef<Tag>[]>(
     () => [
-      ...tagColumns,
+      ...createTagColumns({ onEdit: setEditingItem }),
       {
         id: 'actions',
         header: '',

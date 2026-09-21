@@ -70,9 +70,12 @@ const CustomerDetails = () => {
         });
       } else {
         const result = await createMutation.mutateAsync(payload);
-        void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: result.data.id }), {
-          replace: true,
-        });
+        void navigate(
+          RouteConfig.Customers.get('CustomerDetail').buildLink({ id: result.data.id }),
+          {
+            replace: true,
+          },
+        );
       }
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
@@ -84,9 +87,10 @@ const CustomerDetails = () => {
   };
 
   return (
-    <Page>
+    <Page containerSize="lg">
       <Form {...form}>
         <PageHeading
+          sticky
           text={
             isNew ? __('New Customer', 'kirki-ecommerce') : __('Edit Customer', 'kirki-ecommerce')
           }
@@ -110,7 +114,7 @@ const CustomerDetails = () => {
         {isLoadingCustomer ? (
           <CustomerDetailsSkeleton />
         ) : (
-                  <PageContent>
+          <PageContent>
             <Flex gap={4}>
               <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
                 <CustomerOverview />
@@ -137,7 +141,7 @@ const CustomerDetails = () => {
                       name="tags"
                       valueAs="strings"
                       label={__('Tags', 'kirki-ecommerce')}
-                      placeholder={__('i.e VIP, Wholsale, Local', 'kirki-ecommerce')}
+                      placeholder={__('e.g. VIP, Wholsale, Local', 'kirki-ecommerce')}
                       createLabel={__('Add Tag', 'kirki-ecommerce')}
                       creatable
                       options={[]}

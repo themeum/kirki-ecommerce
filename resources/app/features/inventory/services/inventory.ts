@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { z } from 'zod';
 
 import { endpoints } from '@/config/endpoints';
 import { bulkEditKeys } from '@/features/bulk-edit';
@@ -51,6 +52,33 @@ const useVariantQuery = (id: number, enabled = true) => {
   });
 };
 
+const GenerateSkuResponseSchema = z.object({
+  sku: z.string(),
+});
+
+type GenerateSkuPayload = {
+  variant_id?: number;
+  title?: string | null;
+  brand_id?: number | null;
+  category_ids?: number[];
+  attribute_value_ids?: number[];
+};
+
+const generateSku = (payload: GenerateSkuPayload) => {
+  return apiClient
+    .post(endpoints.VARIANT_GENERATE_SKU, payload)
+    .then((response) => parseResponse(GenerateSkuResponseSchema, response));
+};
+
+const useGenerateSkuMutation = () => {
+  return useMutation({
+    mutationFn: generateSku,
+    onError(error) {
+      toastMutationError(error);
+    },
+  });
+};
+
 const useUpdateVariantMutation = () => {
   const queryClient = useQueryClient();
 
@@ -70,9 +98,12 @@ const useUpdateVariantMutation = () => {
 };
 
 export {
+  generateSku,
+  type GenerateSkuPayload,
   getInventory,
   getVariant,
   updateVariant,
+  useGenerateSkuMutation,
   useInventoryQuery,
   useUpdateVariantMutation,
   useVariantQuery,

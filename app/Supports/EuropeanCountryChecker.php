@@ -2,9 +2,6 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
-use function Kirki\Ecommerce\Framework\app;
-use function Kirki\Ecommerce\Framework\json_decoded_data;
-use function Kirki\Ecommerce\Framework\resource_path;
 
 class EuropeanCountryChecker
 {
@@ -14,7 +11,11 @@ class EuropeanCountryChecker
     protected static $eu_countries = [];
 
     /**
-     * Load the EU countries data.
+     * Load the EU countries from the country dataset.
+     *
+     * Membership is recorded once, as `group` in the country index, rather
+     * than in a second file that can drift out of step with it. Reads the
+     * index rather than the nested list so the states file stays untouched.
      *
      * @return void
      */
@@ -24,11 +25,25 @@ class EuropeanCountryChecker
             return;
         }
 
-        static::$eu_countries = json_decoded_data(resource_path('data/european_union_countries.json')) ?? [];
+        foreach (CountryData::index() as $country) {
+            if (($country['group'] ?? null) !== 'eu') {
+                continue;
+            }
+
+            static::$eu_countries[] = [
+                'name' => $country['name'],
+                'code' => $country['code'],
+            ];
+        }
     }
 
     /**
      * Check if a country is in the EU by its name.
+     *
+     * Both sides of the comparison now come from the same dataset, so this is
+     * consistent under translation - but a displayed name is still a weaker key
+     * than a code, because it changes with the active locale. Prefer
+     * `is_eu_by_code()` wherever a code is available.
      *
      * @param string $country_name
      * @return bool

@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Page;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Contracts\SomoyInterface;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
@@ -42,6 +43,8 @@ class SettingResource extends Resource
                 break;
             case OptionKeys::CURRENCY_SETTINGS:
                 $data = $this->get_currency_settings($data);
+            case OptionKeys::EMAIL_SETTINGS:
+                $data = $this->get_email_settings($data);
             default:
                 break;
         }
@@ -174,6 +177,28 @@ class SettingResource extends Resource
                 'reset_at' =>  $data['usage']['reset_at'] ?? null,
             ] : null
         ];
+    }
+
+    /**
+     * Get the email settings.
+     * 
+     * @param array $data
+     * 
+     * @return array
+     */
+    protected function get_email_settings($data)
+    {
+        $header_logo = MediaAttachment::make($data['default_template']['logo'] ?? null);
+        $order_confirmation_shortcodes = Settings::get(OptionKeys::EMAIL_SETTINGS)->get_default('customer_emails.order_notifications.order_confirmation.shortcodes') ?? [];
+
+        $data = array_merge($data ?? [], [
+            'default_template' => array_merge($data['default_template'] ?? [], [
+                'logo' => $header_logo
+            ])
+        ]);
+
+        $data['customer_emails']['order_notifications']['order_confirmation']['shortcodes'] = $order_confirmation_shortcodes;
+        return $data;
     }
 
     /**

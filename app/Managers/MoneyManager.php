@@ -211,6 +211,14 @@ class MoneyManager
             'currency_position' => $currency->get('currency_position', 'before'),
         ];
 
+        if ($currency_settings['thousand_separator'] === 'space') {
+            $currency_settings['thousand_separator'] = ' ';
+        }
+
+        if ($currency_settings['decimal_separator'] === 'space') {
+            $currency_settings['decimal_separator'] = ' ';
+        }
+
         $decimals = $money->getCurrency()->getDefaultFractionDigits();
 
         $formatted_amount = number_format(

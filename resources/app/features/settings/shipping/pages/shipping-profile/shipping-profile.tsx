@@ -27,7 +27,7 @@ import { useConfirmDelete } from '@/hooks';
 import { EditPenIcon, TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const SHIPPING_PROFILES_PARAMS = { limit: -1 };
@@ -117,9 +117,7 @@ const ShippingProfile = () => {
                           variant="outline"
                           size="icon-sm"
                           aria-label={__('Delete', 'kirki-ecommerce')}
-                          cssOverride={mergeCss(styles.deleteButton, {
-                            '& svg': { color: theme.colors.icon.critical },
-                          })}
+                          cssOverride={styles.actionButton}
                           onClick={() => handleDeleteShippingProfile(item)}
                         >
                           <TrashIcon />
@@ -160,11 +158,5 @@ export default ShippingProfile;
 const styles = defineStyles({
   actionButton: {
     padding: theme.spacing[1],
-  },
-  deleteButton: {
-    padding: theme.spacing[1],
-    '& svg': {
-      color: theme.colors.icon.critical,
-    },
   },
 });

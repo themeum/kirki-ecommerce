@@ -5,42 +5,75 @@ import { EmailTemplateFormSchema } from '@/features/settings/email/schemas/forms
 describe('EmailTemplateFormSchema', () => {
   it('produces the exact payload for a fully filled form', () => {
     const result = EmailTemplateFormSchema.parse({
-      logo: 'https://x/logo.png',
+      logo: { id: 5, url: 'https://x/logo.png' },
       height: 75,
       position: 'center',
       colors: {
-        background: '#fff',
-        text: '#000',
-        link: '#00f',
-        label: '#333',
-        button: '#0a0',
-        button_bg: '#eee',
+        background: {
+          email_body: '#fff',
+          outer_area: '#eee',
+          info_cards: '#ddd',
+          divider: '#ccc',
+        },
+        typography: {
+          headings: '#000',
+          body: '#111',
+          muted: '#222',
+          link: '#00f',
+          exceptions: '#f00',
+        },
+        button: {
+          background: '#0a0',
+          text: '#fff',
+        },
       },
+      additional_description: '<p>Hello</p>',
+      footer: '<p>Bye</p>',
     });
 
-    expect(result.logo).toBe('https://x/logo.png');
-    expect(result.height).toBe('75px');
+    expect(result.logo).toBe(5);
+    expect(result.height).toBe(75);
     expect(result.position).toBe('center');
-    expect(result.colors.background).toBe('#fff');
+    expect(result.colors.background.email_body).toBe('#fff');
+    expect(result.colors.typography.headings).toBe('#000');
+    expect(result.colors.button.background).toBe('#0a0');
+    expect(result.additional_description).toBe('<p>Hello</p>');
+    expect(result.footer).toBe('<p>Bye</p>');
   });
 
-  it('suffixes height with px and defaults to 50 when blank', () => {
-    const result = EmailTemplateFormSchema.parse({ logo: '', height: null, position: '', colors: {} });
-    expect(result.height).toBe('50px');
+  it('defaults the height to 50 and the position to center when blank', () => {
+    const result = EmailTemplateFormSchema.parse({
+      logo: null,
+      height: null,
+      position: null,
+      colors: { background: {}, typography: {}, button: {} },
+    });
+    expect(result.height).toBe(50);
+    expect(result.position).toBe('center');
   });
 
-  it('extracts the url from a media object logo', () => {
+  it('extracts the id from a media object logo', () => {
     const result = EmailTemplateFormSchema.parse({
       logo: { id: 5, url: 'https://x/media.png' },
       height: 50,
       position: 'start',
-      colors: {},
+      colors: { background: {}, typography: {}, button: {} },
     });
-    expect(result.logo).toBe('https://x/media.png');
+    expect(result.logo).toBe(5);
   });
 
-  it('sends null for blank color fields', () => {
-    const result = EmailTemplateFormSchema.parse({ logo: '', height: 50, position: 'start', colors: {} });
-    expect(result.colors.background).toBeNull();
+  it('sends null for a missing logo and blank content fields, and falls back color fields to the mockup defaults', () => {
+    const result = EmailTemplateFormSchema.parse({
+      logo: null,
+      height: 50,
+      position: 'start',
+      colors: { background: {}, typography: {}, button: {} },
+    });
+    expect(result.logo).toBeNull();
+    expect(result.colors.background.email_body).toBe('#FFFFFF');
+    expect(result.colors.typography.exceptions).toBe('#0078CE');
+    expect(result.colors.button.text).toBe('#FFFFFF');
+    expect(result.additional_description).toBeNull();
+    expect(result.footer).toBeNull();
   });
 });

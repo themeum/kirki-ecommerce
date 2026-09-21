@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
@@ -28,13 +29,12 @@ import {
   useUpdateCollectionMutation,
 } from '@/features/collections/services/collection';
 import CollectionDetailsSkeleton from '@/features/collections/skeletons/collection-details-skeleton';
-import { PlusIcon, ProductIcon } from '@/icons';
+import { ProductIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const CollectionDetails = () => {
@@ -100,8 +100,11 @@ const CollectionDetails = () => {
     <Page containerSize="md">
       <Form {...form}>
         <PageHeading
+          sticky
           text={
-            isNew ? __('New Collection', 'kirki-ecommerce') : __('Edit Collection', 'kirki-ecommerce')
+            isNew
+              ? __('New Collection', 'kirki-ecommerce')
+              : __('Edit Collection', 'kirki-ecommerce')
           }
           actions={
             <>
@@ -124,9 +127,9 @@ const CollectionDetails = () => {
         {isLoadingCollection ? (
           <CollectionDetailsSkeleton />
         ) : (
-                  <PageContent>
+          <PageContent>
             <Flex direction="column" gap={4}>
-              <Card cssOverride={cardStyles.formCard}>
+              <Card>
                 <CardContent>
                   <Flex direction="column" gap={4}>
                     <Grid>
@@ -155,25 +158,25 @@ const CollectionDetails = () => {
                 </CardContent>
               </Card>
 
-              <Card cssOverride={mergeCss(cardStyles.formCard, styles.productPlaceholderCard)}>
+              <Card cssOverride={styles.productPlaceholderCard}>
                 <CardContent>
                   <Flex direction="column" gap={3} align="center" justify="center">
                     <ProductIcon />
                     <Button variant="secondary">
-                      <PlusIcon />
+                      <Plus />
                       {__('Select Products', 'kirki-ecommerce')}
                     </Button>
                   </Flex>
                 </CardContent>
               </Card>
 
-              <Card cssOverride={cardStyles.formCard}>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
+                </CardHeader>
                 <CardContent>
                   <Flex direction="column" gap={4}>
-                    <CardHeader>
-                      <CardTitle>{__('SEO Settings', 'kirki-ecommerce')}</CardTitle>
-                    </CardHeader>
-                    <Card cssOverride={mergeCss(cardStyles.innerCard, { padding: theme.spacing[2] })}>
+                    <Card noShadow>
                       <CardContent>
                         <Flex gap={4} justify="space-between">
                           <Flex direction="column" gap={2}>
@@ -240,5 +243,6 @@ const styles = defineStyles({
   },
   seoSeparator: {
     margin: `auto -${theme.spacing[4]}`,
+    width: 'calc(100% + 32px)',
   },
 });

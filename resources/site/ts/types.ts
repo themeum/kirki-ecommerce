@@ -12,6 +12,13 @@ export type ShippingMethod = {
   };
 };
 
+export type AddressFieldMode = 'hidden' | 'optional' | 'required';
+
+export type AddressRule = {
+  state: { mode: AddressFieldMode; label: string };
+  postal_code: { mode: AddressFieldMode };
+};
+
 export type KirkiEcommerceConfig = {
   checkout_consents?: {
     id: string;
@@ -46,6 +53,7 @@ export type KirkiEcommerceConfig = {
   };
   currency?: string;
   countries?: { code: string; name: string; states: { id: string; name: string }[] }[];
+  address_rules?: Record<string, AddressRule>;
   cart_token_cookie_name: string;
   cart_token_header_name: string;
   header_skip_tax: string;

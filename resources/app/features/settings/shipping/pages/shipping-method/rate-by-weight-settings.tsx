@@ -35,7 +35,10 @@ const RateByWeightSettings = () => {
       />
       <CheckboxField
         name="is_free_shipping_enabled"
-        label={__('Offer free shipping when a customer buys over a certain amount', 'kirki-ecommerce')}
+        label={__(
+          'Offer free shipping when a customer buys over a certain amount',
+          'kirki-ecommerce',
+        )}
       />
       {isFreeShippingEnabled && (
         <MoneyField

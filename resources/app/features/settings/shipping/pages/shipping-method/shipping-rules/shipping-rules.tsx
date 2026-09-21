@@ -216,7 +216,6 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                           <Button
                             variant="outline"
                             size="icon-sm"
-                            cssOverride={{ '& svg': { color: theme.colors.icon.critical } }}
                             onClick={() => handleDeleteRules(index)}
                           >
                             <Trash2 />

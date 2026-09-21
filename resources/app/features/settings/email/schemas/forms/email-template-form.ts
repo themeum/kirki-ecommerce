@@ -1,51 +1,43 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
+import {
+  EMAIL_DEFAULT_TEMPLATE,
+  EmailDefaultTemplateShape,
+} from '@/features/settings/email/schemas/catalog/email-template';
 import { prepareFormSchema } from '@/libs/zod';
 
-export const EmailTemplateColorsSchema = z.object({
-  background: z.string().nullish().default(''),
-  text: z.string().nullish().default(''),
-  link: z.string().nullish().default(''),
-  label: z.string().nullish().default(''),
-  button: z.string().nullish().default(''),
-  button_bg: z.string().nullish().default(''),
-});
-
-type LogoValue = string | { id?: string | number; url?: string } | null | undefined;
-
-const resolveLogoUrl = (logo: LogoValue): string => {
-  if (!logo) {
-    return '';
-  }
-  if (typeof logo === 'string') {
-    return logo;
-  }
-  return String(logo.url ?? '');
-};
-
-const EmailTemplateFormShape = z.object({
-  logo: z
-    .union([z.string(), z.object({ id: z.union([z.string(), z.number()]).optional(), url: z.string().optional() }).passthrough(), z.null()])
-    .nullish()
-    .default(''),
-  height: z.coerce.number().nullish().default(50),
-  position: z.string().nullish().default('start'),
-  colors: EmailTemplateColorsSchema.default({}),
-});
-
-export const EmailTemplateFormSchema = prepareFormSchema(EmailTemplateFormShape).transform((values) => ({
-  logo: resolveLogoUrl(values.logo),
-  height: `${values.height ?? 50}px`,
-  position: values.position || 'start',
-  colors: {
-    background: values.colors.background || null,
-    text: values.colors.text || null,
-    link: values.colors.link || null,
-    label: values.colors.label || null,
-    button: values.colors.button || null,
-    button_bg: values.colors.button_bg || null,
-  },
-}));
+export const EmailTemplateFormSchema = prepareFormSchema(EmailDefaultTemplateShape).transform(
+  (values) => ({
+    logo: values.logo?.id ?? null,
+    height: values.height ?? 50,
+    position: values.position || 'center',
+    colors: {
+      background: {
+        email_body:
+          values.colors.background.email_body || EMAIL_DEFAULT_TEMPLATE.background.email_body,
+        outer_area:
+          values.colors.background.outer_area || EMAIL_DEFAULT_TEMPLATE.background.outer_area,
+        info_cads:
+          values.colors.background.info_cads || EMAIL_DEFAULT_TEMPLATE.background.info_cads,
+        divider: values.colors.background.divider || EMAIL_DEFAULT_TEMPLATE.background.divider,
+      },
+      typography: {
+        headings: values.colors.typography.headings || EMAIL_DEFAULT_TEMPLATE.typography.headings,
+        body: values.colors.typography.body || EMAIL_DEFAULT_TEMPLATE.typography.body,
+        muted: values.colors.typography.muted || EMAIL_DEFAULT_TEMPLATE.typography.muted,
+        link: values.colors.typography.link || EMAIL_DEFAULT_TEMPLATE.typography.link,
+        exceptions:
+          values.colors.typography.exceptions || EMAIL_DEFAULT_TEMPLATE.typography.exceptions,
+      },
+      button: {
+        background: values.colors.button.background || EMAIL_DEFAULT_TEMPLATE.button.background,
+        text: values.colors.button.text || EMAIL_DEFAULT_TEMPLATE.button.text,
+      },
+    },
+    additional_description: values.additional_description || null,
+    footer: values.footer || null,
+  }),
+);
 
 export type EmailTemplateFormInput = z.input<typeof EmailTemplateFormSchema>;
 

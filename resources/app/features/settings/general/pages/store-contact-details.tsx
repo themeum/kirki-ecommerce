@@ -34,10 +34,7 @@ const StoreContactDetails = () => {
             label={__('Store Logo', 'kirki-ecommerce')}
             infoText={__('Shown on your storefront, invoices and emails.', 'kirki-ecommerce')}
             btnText={__('Upload logo', 'kirki-ecommerce')}
-            placeholder={__(
-              'Supported formats: SVG, PNG, JPG. Maximum file size: 200KB',
-              'kirki-ecommerce',
-            )}
+            // placeholder={__('Drop or Upload image.', 'kirki-ecommerce')}
           />
 
           <TextField

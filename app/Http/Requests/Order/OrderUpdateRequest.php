@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
@@ -10,6 +11,8 @@ use function Kirki\Ecommerce\App\customer;
 
 class OrderUpdateRequest extends Request
 {
+    use ValidatesAddressFields;
+
     public function authorize()
     {
         return customer()->is_admin();
@@ -27,6 +30,9 @@ class OrderUpdateRequest extends Request
 
     public function rules()
     {
+        $shipping_country = (string) $this->input('shipping_country');
+        $billing_country = (string) $this->input('billing_country');
+
         return [
             'id' => 'required|integer',
             'customer_id' => 'nullable|integer',
@@ -46,8 +52,8 @@ class OrderUpdateRequest extends Request
             'shipping_address_line1' => 'required|string',
             'shipping_address_line2' => 'nullable|string',
             'shipping_city' => 'required|string',
-            'shipping_state' => 'required|string',
-            'shipping_postal_code' => 'required|string',
+            'shipping_state' => static::address_field_rule($shipping_country, 'state'),
+            'shipping_postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
             'shipping_country' => 'required|string',
             'shipping_phone' => 'nullable|string',
             'shipping_email' => 'nullable|email',
@@ -58,8 +64,8 @@ class OrderUpdateRequest extends Request
             'billing_address_line1' => 'required|string',
             'billing_address_line2' => 'nullable|string',
             'billing_city' => 'required|string',
-            'billing_state' => 'required|string',
-            'billing_postal_code' => 'required|string',
+            'billing_state' => static::address_field_rule($billing_country, 'state'),
+            'billing_postal_code' => static::address_field_rule($billing_country, 'postal_code'),
             'billing_country' => 'required|string',
             'billing_phone' => 'nullable|string',
             'billing_email' => 'nullable|email',
@@ -70,6 +76,14 @@ class OrderUpdateRequest extends Request
             'admin_notes' => 'nullable|string',
             'flags' => 'nullable|array',
             'flags.*' => 'string',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'shipping_state.required' => static::state_required_message((string) $this->input('shipping_country')),
+            'billing_state.required' => static::state_required_message((string) $this->input('billing_country')),
         ];
     }
 

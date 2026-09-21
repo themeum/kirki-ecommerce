@@ -30,6 +30,7 @@ class SettingsController
         ]);
     }
 
+
     public function update(SettingsUpdateRequest $request)
     {
         $key = $request->string('key');

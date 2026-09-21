@@ -127,6 +127,53 @@ describe('VariantFormSchema', () => {
     expect(result.weight_unit).toBeNull();
   });
 
+  it('sends null for every numeric field the merchant cleared', () => {
+    const result = VariantFormSchema.parse({
+      ...base,
+      base_price: '',
+      base_unit_amount: '',
+      total_unit_amount: '',
+      base_sale_price: '',
+      base_cost_of_goods: '',
+      weight: '',
+    });
+
+    expect(result.base_price).toBeNull();
+    expect(result.base_unit_amount).toBeNull();
+    expect(result.total_unit_amount).toBeNull();
+    expect(result.base_sale_price).toBeNull();
+    expect(result.base_cost_of_goods).toBeNull();
+    expect(result.weight).toBeNull();
+  });
+
+  it('keeps a zero value rather than treating it as blank', () => {
+    const result = VariantFormSchema.parse({
+      ...base,
+      base_price: 0,
+      base_sale_price: '0',
+      weight: 0,
+    });
+
+    expect(result.base_price).toBe(0);
+    expect(result.base_sale_price).toBe('0');
+    expect(result.weight).toBe(0);
+  });
+
+  it('keeps a money amount as typed but coerces a weight and unit amount to numbers', () => {
+    const result = VariantFormSchema.parse({
+      ...base,
+      base_price: '29.99',
+      weight: '500',
+      base_unit_amount: '100',
+      total_unit_amount: '250',
+    });
+
+    expect(result.base_price).toBe('29.99');
+    expect(result.weight).toBe(500);
+    expect(result.base_unit_amount).toBe(100);
+    expect(result.total_unit_amount).toBe(250);
+  });
+
   it('applies the defaults the product form applies for absent booleans', () => {
     const result = VariantFormSchema.parse(base);
 

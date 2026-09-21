@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\PageKeys;
@@ -73,7 +74,7 @@ class Utils
             $pages['advance.pages.' . $key] = $name;
         }
 
-        $pages = apply_filters('kirki_ecommerce_site_pages', $pages);
+        $pages = apply_filters(CustomHookNames::SITE_PAGES, $pages);
 
         return $pages;
     }
@@ -167,7 +168,7 @@ class Utils
             ],
         ];
 
-        $route_config = apply_filters('kirki_ecommerce_account_route_config', $route_config);
+        $route_config = apply_filters(CustomHookNames::ACCOUNT_ROUTE_CONFIG, $route_config);
 
         return $route_config;
     }
@@ -190,7 +191,7 @@ class Utils
             }
         }
 
-        $menu_items = apply_filters('kirki_ecommerce_account_menu_items', $menu_items);
+        $menu_items = apply_filters(CustomHookNames::ACCOUNT_MENU_ITEMS, $menu_items);
 
         return $menu_items;
     }
@@ -356,8 +357,7 @@ class Utils
      */
     public static function get_countries()
     {
-        $countries_json = file_get_contents(plugin_dir_path(__FILE__) . '../../resources/data/countries.json');
-        return json_decode($countries_json, true);
+        return CountryData::nested();
     }
 
     /**

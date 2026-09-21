@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\InventoryType;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
@@ -88,6 +89,8 @@ class VariantApiTest extends RestTestCase
      */
     public function test_show_variant_includes_formatted_unit_price(): void
     {
+        Settings::update('product.is_unit_price_visible', true);
+
         $product = $this->create_product([
             'variants' => [
                 [

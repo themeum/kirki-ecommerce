@@ -52,13 +52,13 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
   const VARIANT_UI: Record<ConfirmationVariant, VariantUi> = {
     default: {
       confirmText: __('Leave', 'kirki-ecommerce'),
-      confirmVariant: 'primary',
+      confirmVariant: 'destructive',
       icon: <Info size={20} aria-hidden="true" />,
       iconBg: theme.colors.background.fillSpecial2Secondary,
     },
     warning: {
       confirmText: __('Proceed', 'kirki-ecommerce'),
-      confirmVariant: 'secondary',
+      confirmVariant: 'destructive',
       icon: <Info size={20} aria-hidden="true" />,
       iconBg: theme.colors.background.fillSpecial2Secondary,
     },
@@ -115,7 +115,7 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
           )}
         </DialogHeader>
         <DialogFooter cssOverride={styles.footer}>
-          <Button cssOverride={styles.action} variant="outline" onClick={onCancel}>
+          <Button cssOverride={styles.action} variant="tertiary" onClick={onCancel}>
             {cancelText}
           </Button>
           <Button cssOverride={styles.action} variant={ui.confirmVariant} onClick={onConfirm}>
