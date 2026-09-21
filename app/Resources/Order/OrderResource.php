@@ -178,8 +178,13 @@ class OrderResource extends Resource
                 ];
             }),
 
+            'estimated_delivery_date' => $this->estimated_delivery_date,
             'archived_at' => $this->archived_at,
             'created_at' => $this->created_at,
+            'cancelled_at' => $this->cancelled_at,
+            'paid_at' => $this->paid_at,
+            'shipped_at' => $this->shipped_at,
+            'fulfilled_at' => $this->fulfilled_at,
         ];
     }
 

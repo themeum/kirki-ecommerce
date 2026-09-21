@@ -128,7 +128,7 @@ const CUSTOMER_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
 
 const CUSTOMER_USER_NOTIFICATION_LABELS: Record<string, string> = {
   reset_password: __('Password Reset', 'kirki-ecommerce'),
-  new_customer_registered: __('New Customer Registered', 'kirki-ecommerce'),
+  new_account: __('New Customer Account', 'kirki-ecommerce'),
   confirm_email_address: __('Confirm Email Address', 'kirki-ecommerce'),
 };
 

@@ -79,7 +79,7 @@
   "ip_address": null,
   "user_agent": null,
   "customer_notes": "This is a customer note. Customers can add a note to their order on checkout.\n\nIt can be multiple lines. If there's no note, this section is hidden.",
-  "admin_notes": null,
+  "admin_notes": "” This is an order note sent from the Admin to the customer during fulfillment when you add a new Order Note and choose to send it to the customer. ”",
   "flags": null,
   "cancellation_reason": null,
   "paid_at": "2025-08-29 10:05:00",

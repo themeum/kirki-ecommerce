@@ -31,7 +31,419 @@
         "is_enabled": true,
         "subject": "Order Confirmation",
         "heading": "Thank you for your order!",
-        "message": "<div><span style=\"font-size: 13px;\">Hi there!</span> </div><div><span style=\"font-size: 13px;\">New order on the site {store_name}</span> </div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span></div><div><span style=\"font-size: 13px;\">We've received it and it's being prepared.</span></div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "cancelled_order": {
+        "is_enabled": true,
+        "subject": "Order cancelled",
+        "heading": "Order cancelled",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">We’re getting in touch to let you know that your order has been cancelled.</span> </div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Cancel Date",
+            "value": "{order_cancel_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "failed_order": {
+        "is_enabled": true,
+        "subject": "Order Failed",
+        "heading": "Sorry, your order was unsuccessful",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">Unfortunately, we couldn't complete your order due to an issue with your payment method.</span></div><div><span style=\"font-size: 13px;\">If you'd like to continue with your purchase, please return to IONI Store and try a different method of payment.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_on_hold": {
+        "is_enabled": true,
+        "subject": "Order on hold",
+        "heading": "Thank you for your order!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">We’ve received your order and it’s currently on hold until we can confirm your payment has been processed.</span></div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_processing": {
+        "is_enabled": true,
+        "subject": "Order processing",
+        "heading": "Thank you for your order!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">Your order has been confirmed and is now being prepared.</span></div><div>{order_view_button}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_completed": {
+        "is_enabled": true,
+        "subject": "Order Delivered",
+        "heading": "Your order has been delivered!",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">We have finished processing your order.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_note": {
+        "is_enabled": true,
+        "subject": "Order Note",
+        "heading": "A note has been added to your order",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">The following note has been added to your order:</span></div><div>{admin_order_note}</div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
+        "shortcodes": [
+          {
+            "label": "Order Summary",
+            "value": "{order_summary}"
+          },
+          {
+            "label": "Order Number",
+            "value": "{order_number}"
+          },
+          {
+            "label": "Order Date",
+            "value": "{order_date}"
+          },
+          {
+            "label": "Order Details",
+            "value": "{order_detail}"
+          },
+          {
+            "label": "Order View Button",
+            "value": "{order_view_button}"
+          },
+          {
+            "label": "Order Note",
+            "value": "{admin_order_note}"
+          },
+          {
+            "label": "Tracking Number",
+            "value": "{shipping_tracking_number}"
+          },
+          {
+            "label": "Tracking Link",
+            "value": "{shipping_tracking_url}"
+          },
+          {
+            "label": "Customer Name",
+            "value": "{customer_name}"
+          },
+          {
+            "label": "Customer Note",
+            "value": "{customer_note}"
+          },
+          {
+            "label": "Store Name",
+            "value": "{store_name}"
+          },
+          {
+            "label": "Store Email",
+            "value": "{store_email}"
+          },
+          {
+            "label": "Store Phone",
+            "value": "{store_phone}"
+          },
+          {
+            "label": "Store Address",
+            "value": "{store_address}"
+          }
+        ]
+      },
+      "order_shipped": {
+        "is_enabled": true,
+        "subject": "Order shipped",
+        "heading": "Order shipped",
+        "message": "<div><span style=\"font-size: 13px;\">Hi {customer_name}</span> </div><div><span style=\"font-size: 13px;\">Your order has shipped and is headed your way.</span></div><div>{order_summary}</div><div>{customer_note}</div><div>{order_detail}</div>",
         "shortcodes": [
           {
             "label": "Order Summary",

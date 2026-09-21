@@ -11,7 +11,7 @@ class CustomerUserNotification
     use HasConstants;
 
     const RESET_PASSWORD = 'reset_password';
-    const NEW_CUSTOMER_REGISTERED = 'new_customer_registered';
+    const NEW_CUSTOMER_ACCOUNT = 'new_account';
     const CONFIRM_EMAIL_ADDRESS = 'confirm_email_address';
 
     public static function get_type()

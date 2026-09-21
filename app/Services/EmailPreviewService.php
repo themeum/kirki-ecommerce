@@ -4,10 +4,22 @@ namespace Kirki\Ecommerce\App\Services;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Email\AdminInventoryNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminUserNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Mails\Admins\AdminLowStockMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminNewOrderMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerNewOrderMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderCancelMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderCompletedMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderFailedMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderNoteMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderOnHoldMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderProcessingMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderShippedMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Models\Customer;
@@ -31,21 +43,28 @@ class EmailPreviewService
     protected $notification_classes = [
         'admin' => [
             'order' => [
-                'new_order' => AdminNewOrderMail::class,
+                AdminOrderNotification::NEW_ORDER => AdminNewOrderMail::class,
             ],
             'user' => [
-                'reset_password' => AdminResetPasswordMail::class,
+                AdminUserNotification::RESET_PASSWORD => AdminResetPasswordMail::class,
             ],
             'inventory' => [
-                'low_stock' => AdminLowStockMail::class,
+                AdminInventoryNotification::LOW_STOCK => AdminLowStockMail::class,
             ],
         ],
         'customer' => [
             'order' => [
-                'new_order' => CustomerNewOrderMail::class,
+                CustomerOrderNotification::NEW_ORDER => CustomerNewOrderMail::class,
+                CustomerOrderNotification::CANCELLED_ORDER => CustomerOrderCancelMail::class,
+                CustomerOrderNotification::FAILED_ORDER => CustomerOrderFailedMail::class,
+                CustomerOrderNotification::ORDER_ON_HOLD => CustomerOrderOnHoldMail::class,
+                CustomerOrderNotification::ORDER_PROCESSING => CustomerOrderProcessingMail::class,
+                CustomerOrderNotification::ORDER_COMPLETED => CustomerOrderCompletedMail::class,
+                CustomerOrderNotification::ORDER_NOTE => CustomerOrderNoteMail::class,
+                CustomerOrderNotification::ORDER_SHIPPED => CustomerOrderShippedMail::class,
             ],
             'user' => [
-                'reset_password' => CustomerResetPasswordMail::class,
+                CustomerUserNotification::RESET_PASSWORD => CustomerResetPasswordMail::class,
             ],
         ],
     ];
