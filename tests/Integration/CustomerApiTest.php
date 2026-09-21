@@ -533,6 +533,88 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
+     * Delete-all filtered by country removes only the customers in that country.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_delete_all_filtered_by_country_deletes_only_matching_customers(): void
+    {
+        $us_new_york = $this->create_customer_in('US', 'New York');
+        $us_boston = $this->create_customer_in('US', 'Boston');
+        $ca_toronto = $this->create_customer_in('CA', 'Toronto');
+
+        $response = $this->request('POST', 'customers/bulk', [
+            'action' => BulkActions::DELETE_ALL,
+            'country' => 'US',
+        ]);
+        $this->assert_api_success($response);
+
+        $this->assertFalse($this->customer_exists($us_new_york));
+        $this->assertFalse($this->customer_exists($us_boston));
+        $this->assertTrue($this->customer_exists($ca_toronto));
+    }
+
+    /**
+     * Delete-all filtered by country and city removes only the customers matching both.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_delete_all_filtered_by_country_and_city_deletes_only_customers_matching_both(): void
+    {
+        $us_boston = $this->create_customer_in('US', 'Boston');
+        $ca_boston = $this->create_customer_in('CA', 'Boston');
+        $us_new_york = $this->create_customer_in('US', 'New York');
+
+        $response = $this->request('POST', 'customers/bulk', [
+            'action' => BulkActions::DELETE_ALL,
+            'country' => 'US',
+            'city' => 'Boston',
+        ]);
+        $this->assert_api_success($response);
+
+        $this->assertFalse($this->customer_exists($us_boston));
+        $this->assertTrue($this->customer_exists($ca_boston));
+        $this->assertTrue($this->customer_exists($us_new_york));
+    }
+
+    /**
+     * Delete-all without filters removes every customer.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_delete_all_without_filters_deletes_every_customer(): void
+    {
+        $us_customer = $this->create_customer_in('US', 'New York');
+        $ca_customer = $this->create_customer_in('CA', 'Toronto');
+        $unlocated_customer = $this->create_customer_without_addresses();
+
+        $response = $this->request('POST', 'customers/bulk', [
+            'action' => BulkActions::DELETE_ALL,
+        ]);
+        $this->assert_api_success($response);
+
+        $this->assertFalse($this->customer_exists($us_customer));
+        $this->assertFalse($this->customer_exists($ca_customer));
+        $this->assertFalse($this->customer_exists($unlocated_customer));
+    }
+
+    /**
+     * Whether a customer can still be retrieved.
+     *
+     * @param int $id Customer identifier.
+     *
+     * @return bool
+     * @since 1.0.0
+     */
+    protected function customer_exists(int $id): bool
+    {
+        return $this->request('GET', 'customers/' . $id)->get_status() === 200;
+    }
+
+    /**
      * Create a customer whose default shipping address is in a known place.
      *
      * @param string $country Shipping country.

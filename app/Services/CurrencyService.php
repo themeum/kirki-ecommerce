@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
-use Kirki\Ecommerce\App\Facades\CurrencyExchange;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Support\Arrayable;
@@ -15,6 +14,7 @@ use Kirki\Ecommerce\App\DTO\Currency\UpdateCurrencyDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
 
 use function Kirki\Ecommerce\Framework\app;
@@ -178,37 +178,58 @@ class CurrencyService
     /**
      * Insert several currencies in a single query.
      *
+     * When any of the items is flagged as base, the existing base currency is demoted in the same transaction.
+     *
      * @since 1.0.0
      *
      * @param array<int, CreateCurrencyDTO|array<string, mixed>> $items Currency DTOs or attribute arrays.
      * @return bool
+     * @throws Exception When a base currency is inserted and the transaction fails; it is rolled back first.
      */
     public function insert(array $items)
     {
         $items_array = collection($items)->map(fn($item) => $item instanceof Arrayable ? $item->to_array() : $item)->all();
 
-        $currency = Currency::insert($items_array);
+        $insert = function () use ($items_array) {
+            return Currency::insert($items_array);
+        };
 
-        return $currency;
+        if (empty(array_filter(array_column($items_array, 'is_base')))) {
+            return $insert();
+        }
+
+        return $this->with_demoted_bases($insert);
     }
 
     /**
      * Create a new currency.
      *
+     * When the currency is flagged as base, the existing base currency is demoted in the same transaction.
+     *
      * @since 1.0.0
      *
      * @param CreateCurrencyDTO $data Currency data.
      * @return Currency
+     * @throws Exception When a base currency is created and the transaction fails; it is rolled back first.
      */
     public function create(CreateCurrencyDTO $data)
     {
-        $currency = Currency::create($data->to_array());
+        $create = function () use ($data) {
+            return Currency::create($data->to_array());
+        };
 
-        return $currency;
+        if (!$data->is_base) {
+            return $create();
+        }
+
+        return $this->with_demoted_bases($create);
     }
 
     /**
      * Update a currency.
+     *
+     * Setting the base flag on a currency that is not the base demotes every other currency in the same
+     * transaction. Clearing the flag on the current base is ignored, so the store always keeps one base.
      *
      * @since 1.0.0
      *
@@ -225,13 +246,24 @@ class CurrencyService
 
         throw_if($currency->code !== $data->code && Currency::where('code', $data->code)->first(), __('Currency code already exists.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
-        $is_updated = (bool) $currency->update($data->to_array());
+        $was_base = (bool) $currency->is_base;
+        $attributes = $data->to_array();
 
-        if ($data->is_base && !$currency->is_base) {
-            CurrencyExchange::sync();
+        if ($was_base) {
+            $attributes['is_base'] = true;
         }
 
-        throw_if(!$is_updated, __('Currency could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
+        $update = function () use ($currency, $attributes) {
+            $is_updated = (bool) $currency->update($attributes);
+
+            throw_if(!$is_updated, __('Currency could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
+        };
+
+        if (!$was_base && $data->is_base) {
+            $this->with_demoted_bases($update);
+        } else {
+            $update();
+        }
 
         return Currency::find($data->id);
     }
@@ -283,6 +315,33 @@ class CurrencyService
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
+    }
+
+    /**
+     * Demote every base currency, then run the save that makes another currency the base, in one transaction.
+     *
+     * @since 1.0.0
+     *
+     * @param callable $save Saves the new base currency.
+     * @return mixed Whatever the callback returns.
+     * @throws Exception When the demotion or the callback fails; the transaction is rolled back first.
+     */
+    protected function with_demoted_bases(callable $save)
+    {
+        DB::begin_transaction();
+
+        try {
+            Currency::base()->update(['is_base' => 0]);
+
+            $result = $save();
+
+            DB::commit();
+
+            return $result;
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
     /**
