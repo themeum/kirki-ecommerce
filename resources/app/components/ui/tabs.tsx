@@ -68,7 +68,6 @@ const styles = defineStyles({
     alignItems: 'center',
     backgroundColor: theme.colors.background.surfaceAlt,
     borderRadius: theme.radius.lg,
-    padding: 2,
     minHeight: '28px',
     maxHeight: '28px',
     color: theme.colors.text.secondary,
@@ -76,21 +75,21 @@ const styles = defineStyles({
   trigger: {
     flex: 1,
     height: '100%',
-    minHeight: '24px',
-    maxHeight: '24px',
     padding: `${theme.spacing[1]} ${theme.spacing[3]}`,
     border: 'none',
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.lg,
     backgroundColor: 'transparent',
     ...theme.typography.small('medium'),
-    color: theme.colors.text.subdued,
+    color: theme.colors.text.secondary,
     cursor: 'pointer',
     ...flexCenter(),
     whiteSpace: 'nowrap',
-    '&[data-state="active"]': {
-      backgroundColor: theme.colors.background.surface,
+    '&:hover': {
       color: theme.colors.text.primary,
-      boxShadow: theme.shadow.sm,
+    },
+    '&[data-state="active"]': {
+      backgroundColor: theme.colors.background.fillSecondary,
+      color: theme.colors.text.emphasis,
     },
     '&:focus-visible': {
       ...uiFocusRing(theme),

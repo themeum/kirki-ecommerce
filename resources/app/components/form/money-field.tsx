@@ -65,7 +65,7 @@ const MoneyField = <
               {showSymbol && (
                 <span
                   css={scoped({
-                    color: theme.colors.text.subdued,
+                    color: field.value ? theme.colors.text.primary : theme.colors.text.subdued,
                     position: 'absolute',
                     left: theme.spacing[3],
                     top: '50%',

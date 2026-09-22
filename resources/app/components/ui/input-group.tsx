@@ -156,6 +156,7 @@ const InputGroupInput = forwardRef<HTMLInputElement, InputGroupInputProps>((prop
       {...('value' in props ? { value: value ?? '' } : {})}
       onKeyDown={preventStepKeys}
       onWheel={preventStepScroll}
+      onFocus={(event) => event.target.select()}
     />
   );
 });

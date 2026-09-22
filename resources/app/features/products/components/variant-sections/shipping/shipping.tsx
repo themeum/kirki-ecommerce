@@ -1,9 +1,8 @@
 import WeightField from '@/components/form/weight-field';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import ShippingProfile from '@/features/products/components/variant-sections/shipping/shipping-profile';
 import { useVariantField } from '@/features/products/components/variant-sections/use-variant-field';
-import { ShippingBoxField } from '@/features/settings';
+import { ShippingBoxField, ShippingProfileField } from '@/features/settings';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
@@ -23,7 +22,7 @@ const Shipping = () => {
             label={__('Weight', 'kirki-ecommerce')}
           />
           <ShippingBoxField name={field('shipping_box_id')} />
-          <ShippingProfile />
+          <ShippingProfileField name={field('shipping_profile_id')} />
         </Flex>
       </CardContent>
     </Card>
