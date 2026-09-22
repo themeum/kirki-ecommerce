@@ -6,11 +6,10 @@
  * @package Kirki\Ecommerce\Templates
  */
 
+use Kirki\Ecommerce\Framework\Route;
+
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Supports\Url;
-
-$checkout_url = Url::get_checkout_url();
 ?>
 
 <div class="kecom-cart-summary">
@@ -24,10 +23,10 @@ $checkout_url = Url::get_checkout_url();
         <span class="kecom-cart-summary-total-value" x-text="cartData.pricing.display_total_money_object.display"></span>
     </div>
     <a
-        href="<?php echo esc_url($checkout_url); ?>"
+        href="<?php echo esc_url(Route::site_url('cart.handle_checkout')); ?>"
         class="kecom-btn kecom-btn-primary kecom-btn-block"
-        :class="{ 'kecom-btn-disabled': !cartData.items_count }"
-        :aria-disabled="!cartData.items_count"
+        :class="{ 'kecom-btn-disabled': !cartData.items_count || invalidItems.length > 0 }"
+        :aria-disabled="!cartData.items_count || invalidItems.length > 0"
     >
         <?php esc_html_e('Proceed to Checkout', 'kirki-ecommerce'); ?>
     </a>

@@ -11,19 +11,22 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Supports\Icon;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Url;
 
 
 use function Kirki\Ecommerce\Framework\include_view;
+use function Kirki\Ecommerce\Framework\session;
 use function Kirki\Ecommerce\Framework\view_data;
 
 $cart = view_data('cart');
 $items = $cart['items'] ?? [];
+$errors = session('errors');
 
 ?>
 <?php Template::get_header(); ?>
-<div class="kecom-cart-page" x-data='cart()'>
+<div class="kecom-cart-page" x-data='cart(<?php echo wp_json_encode($errors['invalid_item_ids'] ?? []) ?>)'>
     <?php if (!empty($items)) : ?>
         <div class="kecom-cart-grid">
             <!-- Left Part -->
@@ -37,6 +40,13 @@ $items = $cart['items'] ?? [];
                         <a href="<?php echo esc_url(Url::get_shop_url()); ?>" class="kecom-cart-items-header-actions-link"><?php esc_html_e('Continue Shopping', 'kirki-ecommerce'); ?></a>
                     </div>
                 </div>
+                <template x-if="invalidItems.length > 0">
+                <div class="kecom-alert kecom-alert-warning kecom-mb-10">
+                    <?php Icon::render('information-fill', ['size' => 20]); ?>
+                    <p><?php echo esc_html($errors['label']); ?></p>
+                    <a href="#" class="kecom-alert-item-remove" x-text="loading ? '' : removeLinkText" :class="loading ? 'kecom-btn-loading' : ''" @click.prevent="removeInvalidItems()"></a>
+                </div>
+                </template>
                 <?php foreach ($items as $item) : ?>
                     <?php include_view('site.cart.parts.cart-item', ['item' => $item]); ?>
                 <?php endforeach; ?>

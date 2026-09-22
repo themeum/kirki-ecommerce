@@ -38,6 +38,7 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -158,6 +159,49 @@ class SiteController
         $cart_resource = CartResource::make($cart, $calculate_tax);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
+    }
+
+    /**
+     * Add Backend Check before going to checkout page.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Current request.
+     * @param CartService $cart_service Cart service.
+     * @return void
+     */
+    public function handle_checkout(Request $request, CartService $cart_service)
+    {
+        $cart = $cart_service->get_current_cart();
+        $cart_resource = CartResource::make($cart);
+
+        $invalid_items = [];
+        $errors = [];
+
+        if (!empty($cart_resource)) {
+            $items = $cart_resource['items'] ?? [];
+            foreach ($items as $item) {
+                $product = $item['product'] ?? [];
+
+                if (isset($product['in_stock']) && !$product['in_stock']) {
+                    $invalid_items[$item['id']] =  __('Out of Stock', 'kirki-ecommerce');
+                    $errors['invalid_item_ids'][] = $item['id'];
+                }
+
+                if (isset($product['is_available']) && !$product['is_available']) {
+                    $invalid_items[$item['id']] =  __('Not Available', 'kirki-ecommerce');
+                    $errors['invalid_item_ids'][] = $item['id'];
+                }
+            }
+        }
+
+        if (! empty($errors)) {
+            $errors['label'] = __('Remove unavailable items to complete checkout.', 'kirki-ecommerce');
+            $errors['invalid_items'] = $invalid_items;
+            return redirect(Url::get_cart_url())->with('errors', $errors);
+        }
+
+        return redirect(Url::get_checkout_url());
     }
 
     /**

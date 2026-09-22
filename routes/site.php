@@ -49,6 +49,10 @@ Route::site(function () {
         ->name('checkout')
         ->match_page();
 
+    Route::get('cart/handle-checkout', [SiteController::class, 'handle_checkout'])
+        ->name('cart.handle_checkout')
+        ->template_redirect();
+
     if (app()->is_dev_mode()) {
         Route::get('design-system', [SiteController::class, 'design_system_page']);
     }
