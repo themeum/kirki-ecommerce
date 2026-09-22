@@ -1,0 +1,152 @@
+info:
+  name: PayU copy
+  type: http
+  seq: 10
+  tags:
+    - online-payments
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/online-payments/payu"
+  body:
+    type: json
+    data: |-
+      {
+        "data": {
+          "pos_id": "484557",
+          "client_id": "484557",
+          "second_key": "2c393b157dc7154b20cf4f77766f0075",
+          "client_secret": "56b237c1ce649ab2ea0d107e46023e46",
+          "sandbox": true
+        }
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    description: Success
+    request:
+      url: "{{baseUrl}}/online-payments/payu"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "pos_id": "484557",
+              "client_id": "484557",
+              "second_key": "2c393b157dc7154b20cf4f77766f0075",
+              "client_secret": "56b237c1ce649ab2ea0d107e46023e46",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "data": {
+              "id": "payu",
+              "name": "PayU GPO Europe",
+              "icon": "payu",
+              "is_enabled": true,
+              "is_offline": false,
+              "description": "PayU GPO Europe payment gateway",
+              "settings": {
+                "pos_id": "484557",
+                "client_id": "484557",
+                "second_key": "2c393b157dc7154b20cf4f77766f0075",
+                "client_secret": "56b237c1ce649ab2ea0d107e46023e46",
+                "sandbox": true
+              },
+              "fields": [
+                {
+                  "name": "pos_id",
+                  "label": "POS ID",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "client_id",
+                  "label": "OAuth - Client ID",
+                  "type": "text",
+                  "required": true
+                },
+                {
+                  "name": "second_key",
+                  "label": "Second key (MD5)",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "client_secret",
+                  "label": "OAuth - Client Secret",
+                  "type": "password",
+                  "required": true
+                },
+                {
+                  "name": "sandbox",
+                  "label": "Sandbox",
+                  "type": "checkbox",
+                  "required": true
+                }
+              ],
+              "webhook_url": "http://droip.local/wp-json/droip/ecommerce/v1/payment/webhook/payu",
+              "webhook_events": [
+
+              ]
+            },
+            "message": "Payment method updated successfully.",
+            "success": true
+          }
+  - name: 404 Response
+    description: Failure
+    request:
+      url: "{{baseUrl}}/online-payments/paymongo"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+           "data": {
+              "pos_id": "484557",
+              "client_id": "484557",
+              "second_key": "2c393b157dc7154b20cf4f77766f0075",
+              "client_secret": "56b237c1ce649ab2ea0d107e46023e46",
+              "sandbox": true
+            }
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {
+              "name": [
+                "The name field is required."
+              ]
+            },
+            "message": "Validation failed!"
+          }
+
+docs: |-
+  ## Edit Payment Method
+  Updates an existing resource with the provided data.
