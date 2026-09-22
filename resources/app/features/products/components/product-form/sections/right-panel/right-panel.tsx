@@ -73,71 +73,69 @@ const statusOptions: { value: ProductStatus; label: string }[] = [
 
 const RightPanel = ({ mode, product, onDuplicate, isDuplicating = false }: RightPanelProps) => {
   return (
-    <div style={{ width: '30%' }}>
-      <Flex direction="column" gap={4}>
-        <Card cssOverride={cardStyles.formCard}>
-          <CardContent>
-            <Flex direction="column" gap={3}>
-              {isDefined(product) && <StatusBadge product={product} />}
-              <SelectField
-                name="status"
-                label={mode === 'create' ? __('Status', 'kirki-ecommerce') : null}
-                options={statusOptions}
-              />
-              <TextField
-                name="slug"
-                label={__('Slug', 'kirki-ecommerce')}
-                placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
-              />
-              {isDefined(product) && (
-                <Flex align="center" justify="space-between">
-                  <Button variant="link" onClick={onDuplicate} loading={isDuplicating}>
-                    <Copy size={16} css={scoped({ color: theme.colors.text.emphasis })} />
+    <Flex direction="column" gap={4}>
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent>
+          <Flex direction="column" gap={3}>
+            {isDefined(product) && <StatusBadge product={product} />}
+            <SelectField
+              name="status"
+              label={mode === 'create' ? __('Status', 'kirki-ecommerce') : null}
+              options={statusOptions}
+            />
+            <TextField
+              name="slug"
+              label={__('Slug', 'kirki-ecommerce')}
+              placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
+            />
+            {isDefined(product) && (
+              <Flex align="center" justify="space-between">
+                <Button variant="link" onClick={onDuplicate} loading={isDuplicating}>
+                  <Copy size={16} css={scoped({ color: theme.colors.text.emphasis })} />
+                  <Text variant="tiny" weight="medium" color="emphasis">
+                    {__('Duplicate', 'kirki-ecommerce')}
+                  </Text>
+                </Button>
+                {isDefined(product.preview_url) && (
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      if (!isDefined(product.preview_url)) {
+                        return;
+                      }
+                      window.open(product.preview_url, '_blank');
+                    }}
+                  >
+                    <Eye size={16} css={scoped({ color: theme.colors.text.emphasis })} />
                     <Text variant="tiny" weight="medium" color="emphasis">
-                      {__('Duplicate', 'kirki-ecommerce')}
+                      {__('Preview', 'kirki-ecommerce')}
                     </Text>
                   </Button>
-                  {isDefined(product.preview_url) && (
-                    <Button
-                      variant="link"
-                      onClick={() => {
-                        if (!isDefined(product.preview_url)) {
-                          return;
-                        }
-                        window.open(product.preview_url, '_blank');
-                      }}
-                    >
-                      <Eye size={16} css={scoped({ color: theme.colors.text.emphasis })} />
-                      <Text variant="tiny" weight="medium" color="emphasis">
-                        {__('Preview', 'kirki-ecommerce')}
-                      </Text>
-                    </Button>
-                  )}
-                </Flex>
-              )}
-            </Flex>
-          </CardContent>
-        </Card>
-        <Categories />
-        <Card cssOverride={cardStyles.formCard}>
-          <CardContent cssOverride={styles.fields}>
-            <Tags />
-            <Collections />
-          </CardContent>
-        </Card>
+                )}
+              </Flex>
+            )}
+          </Flex>
+        </CardContent>
+      </Card>
+      <Categories />
+      <Card cssOverride={cardStyles.formCard}>
+        <CardContent cssOverride={styles.fields}>
+          <Tags />
+          <Collections />
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardContent cssOverride={styles.fields}>
-            <TextField
-              name="ribbon"
-              label={__('Ribbon', 'kirki-ecommerce')}
-              placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
-            />
-            <Brand />
-          </CardContent>
-        </Card>
-      </Flex>
-    </div>
+      <Card>
+        <CardContent cssOverride={styles.fields}>
+          <TextField
+            name="ribbon"
+            label={__('Ribbon', 'kirki-ecommerce')}
+            placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
+          />
+          <Brand />
+        </CardContent>
+      </Card>
+    </Flex>
   );
 };
 

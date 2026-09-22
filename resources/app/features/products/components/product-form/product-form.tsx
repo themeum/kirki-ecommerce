@@ -11,6 +11,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
+import Grid from '@/components/ui/grid';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { Separator } from '@/components/ui/separator';
 import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
@@ -21,6 +22,7 @@ import VariantFieldScope from '@/features/products/components/variant-sections/f
 import Inventory from '@/features/products/components/variant-sections/inventory/inventory';
 import Price from '@/features/products/components/variant-sections/price/price';
 import Shipping from '@/features/products/components/variant-sections/shipping/shipping';
+import { useVariantField } from '@/features/products/components/variant-sections/use-variant-field';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
 import type { Product } from '@/features/products/schemas/catalog/product';
 import {
@@ -29,6 +31,8 @@ import {
 } from '@/features/products/schemas/forms/product-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
+
+const RIGHT_SIDE_PANEL_WIDTH = '320px';
 
 type ProductFormProps = {
   mode: 'create' | 'edit';
@@ -51,6 +55,8 @@ const ProductForm = ({
 }: ProductFormProps) => {
   const isCreate = mode === 'create';
   const [duplicateBlockedByUnsaved, setDuplicateBlockedByUnsaved] = useState(false);
+
+  const field = useVariantField();
 
   const {
     form,
@@ -103,7 +109,7 @@ const ProductForm = ({
   }, [duplicateBlockedByUnsaved, handleSave, onDuplicate]);
 
   return (
-    <Page containerSize="xl">
+    <Page containerSize="lg">
       <Form {...form}>
         <PageHeading
           onBack={handleBack}
@@ -124,61 +130,60 @@ const ProductForm = ({
           hasBack
         />
         <PageContent>
-          <div style={{ display: 'flex', gap: 16, width: '100%' }}>
-            <div style={{ width: '70%' }}>
-              <Flex direction="column" gap={4}>
-                <Card cssOverride={cardStyles.formCard}>
-                  <CardContent>
-                    <Flex direction="column" gap={4}>
-                      <TextField
-                        name="title"
-                        label={__('Title', 'kirki-ecommerce')}
-                        placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
-                      />
+          <Grid template={`1fr ${RIGHT_SIDE_PANEL_WIDTH}`} gap={4}>
+            <Flex direction="column" gap={4}>
+              <Card cssOverride={cardStyles.formCard}>
+                <CardContent>
+                  <Flex direction="column" gap={4}>
+                    <TextField
+                      name="title"
+                      label={__('Title', 'kirki-ecommerce')}
+                      placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
+                    />
 
-                      <RichTextField
-                        name="description"
-                        label={__('Description', 'kirki-ecommerce')}
-                        placeholder={__('Write product description here...', 'kirki-ecommerce')}
-                      />
+                    <RichTextField
+                      name="description"
+                      label={__('Description', 'kirki-ecommerce')}
+                      placeholder={__('Write product description here...', 'kirki-ecommerce')}
+                    />
 
-                      <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
+                    <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
 
-                      <Separator marginTop={0} marginBottom={0} />
+                    <Separator marginTop={0} marginBottom={0} />
 
-                      <TextareaField
-                        name="short_description"
-                        label={__('Short description', 'kirki-ecommerce')}
-                        rows={3}
-                        placeholder={__('Brief product summary...', 'kirki-ecommerce')}
-                      />
+                    <TextareaField
+                      name="short_description"
+                      label={__('Short description', 'kirki-ecommerce')}
+                      rows={3}
+                      placeholder={__('Brief product summary...', 'kirki-ecommerce')}
+                    />
 
-                      <AdditionalInfo />
-                      <Button variant="tertiary">
-                        <Plus />
-                        {__('Information')}
-                      </Button>
-                    </Flex>
-                  </CardContent>
-                </Card>
-                {showSimpleVariantSections && (
-                  <VariantFieldScope prefix="variants.0.">
-                    <Price />
-                    <Inventory onGenerateSku={generateSku} isGeneratingSku={isGeneratingSku} />
-                    <Shipping />
-                  </VariantFieldScope>
-                )}
-                <Variants />
-                <SEOSettings />
-              </Flex>
-            </div>
+                    <AdditionalInfo />
+                    <Button variant="tertiary">
+                      <Plus />
+                      {__('Information')}
+                    </Button>
+                  </Flex>
+                </CardContent>
+              </Card>
+              {showSimpleVariantSections && (
+                <VariantFieldScope prefix="variants.0.">
+                  <Price />
+                  <Inventory onGenerateSku={generateSku} isGeneratingSku={isGeneratingSku} />
+                  <Shipping />
+                </VariantFieldScope>
+              )}
+              <Variants />
+              <SEOSettings />
+            </Flex>
+
             <RightPanel
               mode={mode}
               product={product}
               onDuplicate={handleDuplicateClick}
               isDuplicating={isDuplicating}
             />
-          </div>
+          </Grid>
         </PageContent>
         <FloatingBar
           visible={(isBlocked || duplicateBlockedByUnsaved) && isDirty}

@@ -33,6 +33,7 @@ const VariantFieldsShape = z.object({
   allow_back_order: z.boolean().nullish(),
   track_inventory: z.boolean().nullish(),
   available_quantity: numberOrNull(),
+  committed_quantity: numberOrNull(),
   in_stock: booleanish(false),
   low_stock_threshold: numberOrNull(),
   has_limit_per_order: z.boolean().nullish(),
@@ -48,4 +49,4 @@ type VariantFieldsInput = z.input<typeof VariantFieldsShape>;
 
 type VariantFieldKey = keyof VariantFieldsInput;
 
-export { type VariantFieldKey, type VariantFieldsInput, VariantFieldsShape };
+export { VariantFieldsShape, type VariantFieldKey, type VariantFieldsInput };

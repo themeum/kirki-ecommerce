@@ -16,7 +16,8 @@ import { Form } from '@/components/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   calculateBasePricePerUnit,
-  DEFAULT_UNIT,
+  DEFAULT_BASE_UNIT,
+  DEFAULT_TOTAL_UNIT,
   getSpecifiedUnitList,
   getUnitShortText,
   unitGroups,
@@ -34,6 +35,7 @@ import { applyServerErrors } from '@/libs/form-errors';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types/pages/common';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 type BaseUnitPopoverProps = {
@@ -50,8 +52,9 @@ const getInitialValues = (data?: ProductVariant | null): BaseUnitFormInput => {
 
   return {
     ...values,
-    total_unit: values.total_unit ?? DEFAULT_UNIT,
-    base_unit: values.base_unit ?? DEFAULT_UNIT,
+    total_unit: values.total_unit ?? DEFAULT_TOTAL_UNIT,
+    base_unit: values.base_unit ?? DEFAULT_BASE_UNIT,
+    base_unit_amount: values.base_unit_amount ?? 1,
   };
 };
 
@@ -140,10 +143,12 @@ const BaseUnitPopover = ({
     savedBasePricePerUnit === null
       ? __('Add', 'kirki-ecommerce')
       : sprintf(
-          '%s%s / %s%s',
+          '%s%s/%s%s',
           symbol,
           savedBasePricePerUnit.toFixed(2),
-          data?.base_unit_amount ?? '',
+          isDefined(data?.base_unit_amount) && Number(data.base_unit_amount) > 1
+            ? data.base_unit_amount
+            : '',
           data?.base_unit ?? '',
         );
 
@@ -154,13 +159,12 @@ const BaseUnitPopover = ({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          {...buttonProps}
           cssOverride={{
-            width: 240,
-            height: 36,
+            width: '100%',
             justifyContent: 'space-between',
             backgroundColor: theme.colors.background.fill,
           }}
-          {...buttonProps}
         >
           {btnText}
           <ChevronDown
@@ -186,7 +190,7 @@ const BaseUnitPopover = ({
               )}
               name="total_unit_amount"
               unitName="total_unit"
-              placeholder="5"
+              placeholder="0"
               unitShortText={(value) => getUnitShortText(value as string)}
               onUnitChange={handleTotalUnitChange}
               unitOptions={unitGroups.map((group) => ({
@@ -216,17 +220,36 @@ const BaseUnitPopover = ({
                 endSlot: item.subText,
               }))}
             />
-            <Flex gap={2} justify="flex-end">
-              <Button variant="ghost" onClick={() => setOpenUnitPopover(false)}>
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
+            <Flex justify="space-between">
               <Button
-                variant="primary"
-                disabled={calculateBasePricePerUnit(unitData) === null}
-                onClick={form.handleSubmit(handleSaveUnitData)}
+                variant="link"
+                size="sm"
+                cssOverride={{ color: theme.colors.text.critical }}
+                onClick={() => {
+                  handleSaveUnitData({
+                    total_unit_amount: null,
+                    total_unit: 'g',
+                    base_unit_amount: null,
+                    base_unit: 'kg',
+                    base_price: null,
+                  });
+                }}
               >
-                {__('Okay', 'kirki-ecommerce')}
+                {__('Clear', 'kirki-ecommerce')}
               </Button>
+              <Flex>
+                <Button variant="ghost" size="sm" onClick={() => setOpenUnitPopover(false)}>
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={calculateBasePricePerUnit(unitData) === null}
+                  onClick={form.handleSubmit(handleSaveUnitData)}
+                >
+                  {__('Okay', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
             </Flex>
           </Flex>
         </Form>

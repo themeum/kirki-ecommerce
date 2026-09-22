@@ -22,6 +22,7 @@ type MoneyFieldProps<
   disabled?: boolean;
   cssOverride?: CSSObject;
   autoFocus?: boolean;
+  ariaLabel?: string;
 };
 
 const MoneyField = <
@@ -38,6 +39,7 @@ const MoneyField = <
   disabled,
   cssOverride,
   autoFocus = false,
+  ariaLabel,
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const baseCurrencySymbol = useBaseCurrencySymbol();
@@ -87,6 +89,7 @@ const MoneyField = <
                 name={field.name}
                 ref={field.ref}
                 error={Boolean(fieldState.error)}
+                aria-label={ariaLabel}
                 aria-invalid={fieldState.invalid}
                 onFocus={(event) => event.target.select()}
                 // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus

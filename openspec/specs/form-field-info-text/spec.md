@@ -1,8 +1,10 @@
+# form-field-info-text Specification
+
 ## Purpose
 
 Provides optional label-adjacent info tooltips for form fields so editors can explain a control without crowding the layout with always-visible helper text.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Field labels support optional info text
 The system SHALL allow a field label to accept optional `infoText`. When `infoText` is provided, the system MUST show a fixed info icon beside the label and MUST show the `infoText` content in a tooltip on hover (and keyboard focus where the tooltip supports it). When `infoText` is omitted, the system MUST NOT show the info icon.

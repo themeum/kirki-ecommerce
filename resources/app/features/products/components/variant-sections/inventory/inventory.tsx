@@ -14,11 +14,11 @@ import {
   useVariantField,
   useVariantValues,
 } from '@/features/products/components/variant-sections/use-variant-field';
-import { WandIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { RefreshCcw } from 'lucide-react';
 
 type InventoryProps = {
   onGenerateSku: () => void;
@@ -26,13 +26,14 @@ type InventoryProps = {
   committedQuantity?: number | null;
 };
 
-const Inventory = ({ onGenerateSku, isGeneratingSku, committedQuantity }: InventoryProps) => {
+const Inventory = ({ onGenerateSku, isGeneratingSku }: InventoryProps) => {
   const field = useVariantField();
-  const { setValue } = useFormContext();
+  const { setValue, getValues } = useFormContext();
   const variant = useVariantValues(['track_inventory', 'has_limit_per_order']);
 
   const trackInventory = Boolean(variant.track_inventory);
   const hasLimitPerOrder = Boolean(variant.has_limit_per_order);
+  const committedQuantity = getValues(field('committed_quantity'));
 
   const handleTrackInventoryChange = (checked: boolean) => {
     if (!checked) {
@@ -53,36 +54,32 @@ const Inventory = ({ onGenerateSku, isGeneratingSku, committedQuantity }: Invent
         />
 
         {trackInventory ? (
-          <Card cssOverride={cardStyles.innerCard}>
-            <CardContent cssOverride={cardStyles.innerContent}>
-              <Grid columns={3}>
-                <NumberField
-                  name={field('available_quantity')}
-                  label={__('Available', 'kirki-ecommerce')}
-                  placeholder={__('0', 'kirki-ecommerce')}
-                />
-                <Field>
-                  <FieldLabel htmlFor="committed_quantity">
-                    {__('Committed', 'kirki-ecommerce')}
-                  </FieldLabel>
-                  <Input
-                    id="committed_quantity"
-                    type="number"
-                    value={committedQuantity ?? ''}
-                    placeholder={__('0', 'kirki-ecommerce')}
-                    readOnly
-                    disabled
-                  />
-                </Field>
-                <NumberField
-                  name={field('low_stock_threshold')}
-                  label={__('Low stock threshold', 'kirki-ecommerce')}
-                  infoText={__('Notify when stock falls below this amount.', 'kirki-ecommerce')}
-                  placeholder={__('0', 'kirki-ecommerce')}
-                />
-              </Grid>
-            </CardContent>
-          </Card>
+          <Grid columns={3}>
+            <NumberField
+              name={field('available_quantity')}
+              label={__('Available', 'kirki-ecommerce')}
+              placeholder={__('0', 'kirki-ecommerce')}
+            />
+            <Field>
+              <FieldLabel htmlFor="committed_quantity">
+                {__('Committed', 'kirki-ecommerce')}
+              </FieldLabel>
+              <Input
+                id="committed_quantity"
+                type="number"
+                value={committedQuantity ?? ''}
+                placeholder={__('0', 'kirki-ecommerce')}
+                readOnly
+                disabled
+              />
+            </Field>
+            <NumberField
+              name={field('low_stock_threshold')}
+              label={__('Low stock threshold', 'kirki-ecommerce')}
+              infoText={__('Notify when stock falls below this amount.', 'kirki-ecommerce')}
+              placeholder={__('0', 'kirki-ecommerce')}
+            />
+          </Grid>
         ) : (
           <SelectField
             name={field('in_stock')}
@@ -101,53 +98,44 @@ const Inventory = ({ onGenerateSku, isGeneratingSku, committedQuantity }: Invent
               htmlFor={field('sku')}
               infoText={__('SKU (Stock Keeping Unit)', 'kirki-ecommerce')}
             >
-              {__('SKU', 'kirki-ecommerce')}
+              {__('SKU (Stock keeping unit)', 'kirki-ecommerce')}
             </FieldLabel>
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={onGenerateSku}
               loading={isGeneratingSku}
               aria-label={__('Generate SKU', 'kirki-ecommerce')}
+              cssOverride={{
+                color: theme.colors.icon.brand,
+                '&:hover': {
+                  color: theme.colors.icon.brand,
+                },
+              }}
             >
-              <WandIcon />
+              <RefreshCcw />
+              {__('Generate', 'kirki-ecommerce')}
             </Button>
           </Flex>
-          <TextField
-            name={field('sku')}
-            placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')}
-          />
+          <TextField name={field('sku')} placeholder={__('BLU-RED-NIK-001', 'kirki-ecommerce')} />
         </Flex>
 
-        <Grid gap={2} template="1fr 2fr">
-          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
-            <CardContent cssOverride={styles.innerDarkRowContent}>
-              <CheckboxField
-                name={field('allow_back_order')}
-                label={__('Sell when out of stock', 'kirki-ecommerce')}
-              />
-            </CardContent>
-          </Card>
-
-          <Card cssOverride={cardStyles.innerDarkCard} noShadow>
-            <CardContent cssOverride={styles.innerDarkRowContent}>
-              <Flex align="center" justify="space-between" gap={2}>
-                <CheckboxField
-                  name={field('has_limit_per_order')}
-                  label={__('Limit orders to number of item', 'kirki-ecommerce')}
-                  infoText={__(
-                    'Limit the number of items a customer can purchase in a single order.',
-                    'kirki-ecommerce',
-                  )}
-                />
-                {hasLimitPerOrder && (
-                  <NumberField name={field('max_per_order')} cssOverride={styles.maxPerOrderField} />
-                )}
-              </Flex>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Flex direction="column" gap={4}>
+          <CheckboxField
+            name={field('has_limit_per_order')}
+            label={__('Limit orders to number of item', 'kirki-ecommerce')}
+            infoText={__(
+              'Limit the number of items a customer can purchase in a single order.',
+              'kirki-ecommerce',
+            )}
+          />
+          {hasLimitPerOrder && <NumberField name={field('max_per_order')} placeholder="0" />}
+          <CheckboxField
+            name={field('allow_back_order')}
+            label={__('Sell when out of stock', 'kirki-ecommerce')}
+          />
+        </Flex>
       </CardContent>
     </Card>
   );
