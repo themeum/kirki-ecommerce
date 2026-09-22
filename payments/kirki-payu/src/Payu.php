@@ -14,6 +14,9 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 
+use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_unless;
+
 defined('ABSPATH') || exit;
 
 /**
@@ -21,7 +24,7 @@ defined('ABSPATH') || exit;
  */
 class Payu extends PaymentProvider
 {
-    protected ?SquareClient $client = null;
+    protected ?PayuClient $client = null;
 
     public function __construct()
     {
@@ -78,46 +81,25 @@ class Payu extends PaymentProvider
      */
     public function pay(Order $order)
     {
-        if (!$this->enabled()) {
-            throw new Exception(__('PayU GPO Europe is not enabled.', 'kirki-ecommerce-payu'));
-        }
+        throw_unless($this->enabled(), __('PayU GPO Europe is not enabled.', 'kirki-ecommerce-payu'));
 
         try {
-            $payload = [
-                'idempotency_key' => SquareConstant::PREFIX . $order->uuid,
-                'order' => [
-                    'location_id' => $this->settings['location_id'],
-                    'reference_id' => $order->uuid,
-                    'line_items' => SquareTransactionBuilder::build_line_items($order),
-                ],
-                'checkout_options' => [
-                    'redirect_url' => Url::get_checkout_success_url($order->uuid),
-                    'enable_coupon' => false,
-                ],
-                'pre_populated_data' => [
-                    'buyer_email' => $order->billing_email ?? null,
-                    'buyer_address' => [
-                        'address_line_1' => $order->billing_address_line1 ?? null,
-                        'address_line_2' => $order->billing_address_line2 ?? null,
-                        'postal_code' => $order->billing_postal_code ?? null,
-                        'country' => $order->billing_country ?? null,
-                        'first_name' => $order->billing_first_name ?? null,
-                        'last_name' => $order->billing_last_name ?? null
-                    ]
-                ]
-            ];
+            $builder = new PayuTransactionBuilder($order);
+            $payload = $builder->build_order_payload();
+            $payload['notifyUrl'] = $this->webhook_url();
+            $payload['merchantPosId'] = $this->settings['pos_id'];
 
-            $response = $this->get_client()->create_payment_link($payload);
 
             if (empty($response['payment_link']['long_url'])) {
                 throw new Exception(__('Square checkout link not found.', 'kirki-ecommerce-square'));
             }
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => $response['payment_link']['long_url'],
+                'value' => '',//$response['payment_link']['long_url'],
             ]);
         } catch (Exception $e) {
-            throw new Exception(sprintf(__('Square Payment Error: %s', 'kirki-ecommerce-square'), $e->getMessage()));
+            /* translators: %s: Error message */
+            throw_anyway(sprintf(__('PayU Payment Error: %s', 'kirki-ecommerce-payu'), $e->getMessage()));
         }
     }
 
@@ -132,9 +114,10 @@ class Payu extends PaymentProvider
         parent::validate_settings($settings);
 
         Validator::make($settings, [
-            'location_id' => 'sometimes|string',
-            'access_token' => 'sometimes|string',
-            'signature_key' => 'sometimes|string',
+            'pos_id' => 'sometimes|string',
+            'client_id' => 'sometimes|string',
+            'second_key' => 'sometimes|string',
+            'client_secret' => 'sometimes|string',
             'sandbox' => 'sometimes|boolean',
         ])->validate();
 
@@ -152,9 +135,10 @@ class Payu extends PaymentProvider
         $parent_settings = parent::sanitize_settings($settings);
 
         $data = Sanitizer::make($settings, [
-            'location_id' => Sanitizer::TEXT,
-            'access_token' => Sanitizer::TEXT,
-            'signature_key' => Sanitizer::TEXT,
+            'pos_id' => Sanitizer::TEXT,
+            'client_id' => Sanitizer::TEXT,
+            'second_key' => Sanitizer::TEXT,
+            'client_secret' => Sanitizer::TEXT,
             'sandbox' => Sanitizer::BOOL,
         ])->get_sanitized_data();
 
@@ -214,22 +198,23 @@ class Payu extends PaymentProvider
      * @return SquareClient
      * @throws Exception If credentials are missing.
      */
-    protected function get_client(): SquareClient
+    protected function get_client(): PayuClient
     {
         if ($this->client) {
             return $this->client;
         }
 
-        $location_id = $this->settings['location_id'] ?? '';
-        $access_token = $this->settings['access_token'] ?? '';
-        $signature_key = $this->settings['signature_key'] ?? '';
+        $pos_id = $this->settings['pos_id'] ?? '';
+        $client_id = $this->settings['client_id'] ?? '';
+        $second_key = $this->settings['second_key'] ?? '';
+        $client_secret = $this->settings['client_secret'] ?? '';
         $sandbox = (bool) ($this->settings['sandbox'] ?? true);
 
-        if (empty($location_id) || empty($access_token) || empty($signature_key)) {
+        if (empty($pos_id) || empty($client_id) || empty($second_key) || empty($client_secret)) {
             throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
         }
 
-        return $this->client = new SquareClient($location_id, $access_token, $signature_key, $sandbox);
+        return $this->client = new PayuClient($pos_id, $client_id, $second_key, $client_secret, $sandbox);
     }
 
     /**

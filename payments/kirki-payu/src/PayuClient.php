@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use HttpRequest;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -12,22 +13,26 @@ defined('ABSPATH') || exit;
  */
 class PayuClient
 {
-    protected string $location_id;
-    protected string $access_token;
+    protected string $pos_id;
+    protected string $client_id;
     protected bool $sandbox;
-    protected string $signature_key;
+    protected string $second_key;
+    protected string $client_secret;
+    protected string $access_token;
 
     /**
-     * @param string $location_id Square location ID.
-     * @param string $access_token Square API access token.
-     * @param string $signature_key Signature key used to verify webhook notifications.
+     * @param string $pos_id Square location ID.
+     * @param string $client_id Square API access token.
+     * @param string $second_key Signature key used to verify webhook notifications.
+     * @param string $client_secret
      * @param bool $sandbox Whether to use the sandbox API endpoint.
      */
-    public function __construct(string $location_id, string $access_token, string $signature_key, bool $sandbox = false)
+    public function __construct(string $pos_id, string $client_id, string $second_key, string $client_secret, bool $sandbox = false)
     {
-        $this->location_id = $location_id;
-        $this->access_token = $access_token;
-        $this->signature_key = $signature_key;
+        $this->pos_id = $pos_id;
+        $this->client_id = $client_id;
+        $this->second_key = $second_key;
+        $this->client_secret = $client_secret;
         $this->sandbox = $sandbox;
     }
 
@@ -85,13 +90,16 @@ class PayuClient
      * @return array The decoded JSON response.
      * @throws Exception If the API request fails.
      */
-    protected function send(string $endpoint, string $method, array $payload = []): array
+    protected function send(string $endpoint, string $method, array $payload = [], $content_type = 'application/json'): array
     {
-        $request = Http::with_token($this->access_token)
-                    ->with_headers(['Square-Version' => SquareConstant::SQUARE_VERSION]);
+        $request = new Http();
+        if ($this->access_token) {
+            $request = $request->with_token($this->access_token);
+        }
 
+        //$payload = () need to add form-urlencode condition.
         $response = SquareConstant::POST_METHOD === $method
-            ? $request->with_body(wp_json_encode($payload))->post($endpoint)
+            ? $request->with_body(wp_json_encode($payload), $content_type)->post($endpoint)
             : $request->get($endpoint);
 
         if ($response->failed()) {
@@ -99,15 +107,6 @@ class PayuClient
         }
 
         return $response->json();
-    }
-
-    /**
-     * Endpoint for creating a new payment link.
-     * @return string
-     */
-    protected function payment_link_url(): string
-    {
-        return $this->get_base_url() . SquareConstant::PAYMENT_LINK;
     }
 
     /**
@@ -126,6 +125,17 @@ class PayuClient
      */
     protected function get_base_url(): string
     {
-        return $this->sandbox ? SquareConstant::SANDBOX_BASE_URL : SquareConstant::PRODUCTION_BASE_URL;
+        return $this->sandbox ? PayuConstant::SANDBOX_BASE_URL : PayuConstant::PRODUCTION_BASE_URL;
     }
+
+    protected function get_access_token()
+    {
+        if ($this->access_token) {
+            return $access_token;
+        }
+
+        $this->access_token = $this->create_access_token();
+    }
+
+    protected function create_access_token() {}
 }
