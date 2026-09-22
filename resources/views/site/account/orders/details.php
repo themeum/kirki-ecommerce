@@ -13,9 +13,8 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
-use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Icon;
-
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
@@ -37,7 +36,7 @@ $shipping = $pricing['invoiced_shipping_amount_money_object'] ?? null;
 $total = $pricing['invoiced_total_money_object'] ?? null;
 $tax_lines = $pricing['tax_lines'] ?? [];
 $tax_total = $pricing['invoiced_tax_total_money_object'] ?? null;
-$is_tax_inclusive = Settings::get('tax.is_tax_inclusive_price');
+$is_tax_inclusive = Tax::is_tax_inclusive();
 
 
 $order_activities = $data['activities'] ?? [];
@@ -204,15 +203,15 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                 <!-- Order Items List -->
                 <div class="kecom-product-list-wrapper" x-ref="list_wrapper" :class="expanded ? 'scrollable': ''" @scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
                     <div class="kecom-product-list">
-                            <?php foreach ($items as $key => $item) :
-                                $inv_price_obj = $item['invoiced_subtotal_money_object'] ?? null;
-                                $inv_strikethrough_price_obj = $item['invoiced_strikethrough_price_money_object'] ?? null;
-                                $item_product = $items_product_data[$key]['product'] ?? [];
-                                $product_image = $item_product['media'][0] ?? [];
-                                $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
-                                $image = $item['image'] ? $item['image'] : $product_first_image;
-                                $applied_coupons = $item['applied_product_coupons'] ?? [];
-                                ?>
+                        <?php foreach ($items as $key => $item) :
+                            $inv_price_obj = $item['invoiced_subtotal_money_object'] ?? null;
+                            $inv_strikethrough_price_obj = $item['invoiced_strikethrough_price_money_object'] ?? null;
+                            $item_product = $items_product_data[$key]['product'] ?? [];
+                            $product_image = $item_product['media'][0] ?? [];
+                            $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
+                            $image = $item['image'] ? $item['image'] : $product_first_image;
+                            $applied_coupons = $item['applied_product_coupons'] ?? [];
+                            ?>
                             <div class="kecom-product-item">
                                 <div class="kecom-product-image-wrapper">
                                     <?php if (!empty($image) && isset($image['url'])) : ?>
@@ -251,7 +250,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <?php endforeach; ?>
+                        <?php endforeach; ?>
                     </div>
                     <div class="kecom-collapse-button" x-show="expanded" x-cloak>
                         <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php esc_html_e('Show Less', 'kirki-ecommerce'); ?></button>
@@ -267,12 +266,12 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                 <div class="kecom-order-pricing-breakdown" :class="expanded && !isAtBottom ? 'expanded' : ''">
                     <?php if (! empty($coupons)) : ?>
                         <div class="kecom-applied-coupons">
-                        <?php foreach ($coupons as $coupon) : ?>
-                            <div class="kecom-tag">
-                                <span class="kecom-tag-icon"><?php Icon::render('tag'); ?></span>
-                                <span class="kecom-tag-text"><?php echo esc_html($coupon['code'] ?? ''); ?></span>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php foreach ($coupons as $coupon) : ?>
+                                <div class="kecom-tag">
+                                    <span class="kecom-tag-icon"><?php Icon::render('tag'); ?></span>
+                                    <span class="kecom-tag-text"><?php echo esc_html($coupon['code'] ?? ''); ?></span>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                     <div class="kecom-pricing-row">
@@ -303,7 +302,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                             <div class="kecom-pricing-row">
                                 <span class="kecom-pricing-label">
                                     <?php echo esc_html($tax['name'] ?? ''); ?>
-                                 </span>
+                                </span>
                                 <span class="kecom-pricing-value">
                                     <?php echo esc_html($tax['invoiced_amount_money_object']->display ?? ''); ?>
                                 </span>
