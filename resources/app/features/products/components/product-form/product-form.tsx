@@ -22,7 +22,6 @@ import VariantFieldScope from '@/features/products/components/variant-sections/f
 import Inventory from '@/features/products/components/variant-sections/inventory/inventory';
 import Price from '@/features/products/components/variant-sections/price/price';
 import Shipping from '@/features/products/components/variant-sections/shipping/shipping';
-import { useVariantField } from '@/features/products/components/variant-sections/use-variant-field';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
 import type { Product } from '@/features/products/schemas/catalog/product';
 import {
@@ -33,6 +32,7 @@ import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const RIGHT_SIDE_PANEL_WIDTH = '320px';
+const LEFT_SIDE_PANEL_WIDTH = '624px';
 
 type ProductFormProps = {
   mode: 'create' | 'edit';
@@ -55,8 +55,6 @@ const ProductForm = ({
 }: ProductFormProps) => {
   const isCreate = mode === 'create';
   const [duplicateBlockedByUnsaved, setDuplicateBlockedByUnsaved] = useState(false);
-
-  const field = useVariantField();
 
   const {
     form,
@@ -130,7 +128,7 @@ const ProductForm = ({
           hasBack
         />
         <PageContent>
-          <Grid template={`1fr ${RIGHT_SIDE_PANEL_WIDTH}`} gap={4}>
+          <Grid template={`${LEFT_SIDE_PANEL_WIDTH} ${RIGHT_SIDE_PANEL_WIDTH}`} gap={4}>
             <Flex direction="column" gap={4}>
               <Card cssOverride={cardStyles.formCard}>
                 <CardContent>

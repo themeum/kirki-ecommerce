@@ -33,6 +33,7 @@ class Product extends Model
         'slug',
         'status',
         'ribbon',
+        'ribbon_color',
         'currency_id',
         'brand_id',
         'short_description',

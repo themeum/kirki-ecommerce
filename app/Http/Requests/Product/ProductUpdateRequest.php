@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Http\Requests\Product;
 
 use Kirki\Ecommerce\App\Concerns\ValidatesVariantMatrix;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
@@ -51,6 +52,7 @@ class ProductUpdateRequest extends Request
             'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug,' . $this->int('id'),
             'status' => 'string|nullable|in:' . ProductStatus::join(),
             'ribbon' => 'string|nullable|max:100',
+            'ribbon_color' => 'string|nullable|in:' . RibbonColor::join(),
             'currency_id' => 'integer|nullable',
             'brand_id' => 'integer|nullable',
             'description' => 'string|nullable',
@@ -152,6 +154,7 @@ class ProductUpdateRequest extends Request
             'slug' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
             'ribbon' => Sanitizer::TEXT,
+            'ribbon_color' => Sanitizer::TEXT,
             'currency_id' => Sanitizer::INT,
             'brand_id' => Sanitizer::INT,
             'description' => Sanitizer::TEXT,

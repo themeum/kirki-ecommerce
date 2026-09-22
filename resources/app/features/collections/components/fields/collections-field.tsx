@@ -22,7 +22,6 @@ type CollectionsFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   placeholder?: string;
-  createLabel?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
@@ -45,8 +44,7 @@ const CollectionsField = <
   label,
   description,
   infoText,
-  placeholder = __('Type to add collections..', 'kirki-ecommerce'),
-  createLabel = __('Add Collection', 'kirki-ecommerce'),
+  placeholder = __('Add collections', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: CollectionsFieldProps<TFieldValues, TName>) => {
@@ -117,8 +115,8 @@ const CollectionsField = <
               value={selected}
               onChange={handleChange}
               onCreate={handleCreate}
-              createLabel={createLabel}
               placeholder={placeholder}
+              selectedPlaceholder={__('Search', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

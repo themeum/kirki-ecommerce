@@ -11,6 +11,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
@@ -26,6 +27,7 @@ $product = view_data();
 $media           = $product['media'] ?? [];
 $product_image   = array_shift($media) ?? [];
 $ribbon          = $product['ribbon'] ?? '';
+$ribbon_color    = $product['ribbon_color'] ?? RibbonColor::get_default();
 $attributes      = $product['attributes'] ?? [];
 $additional_info = $product['additional_info'] ?? [];
 
@@ -96,7 +98,7 @@ foreach ($media as $media_item) {
             <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
-                        <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
+                        <span class="kecom-product-ribbon" style="--kecom-ribbon-color: <?php echo esc_attr($ribbon_color); ?>;"><?php echo esc_html($ribbon); ?></span>
                     <?php endif; ?>
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>

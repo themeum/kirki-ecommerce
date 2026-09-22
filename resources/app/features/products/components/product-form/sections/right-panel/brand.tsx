@@ -1,130 +1,100 @@
-import { Minus } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import ActionGroup from '@/components/ui/action-group';
-import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import Combobox from '@/components/ui/combobox';
 import { Field, FieldLabel } from '@/components/ui/field';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
-import Text from '@/components/ui/text';
-import type { Brand as BrandEntity } from '@/features/brands';
+import MultiSelect, { type MultiSelectOption } from '@/components/ui/multi-select';
 import { BrandAddEditPopover, useBrandsQuery } from '@/features/brands';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { theme } from '@/theme';
-import { cardStyles } from '@/theme/card-styles';
-import { mergeCss } from '@/theme/mixins';
-import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
-type BrandSuggestion = SelectOption & BrandEntity;
+type ProductBrand = NonNullable<ProductFormInput['brand']>;
 
+type BrandOption = MultiSelectOption & {
+  logo: ProductBrand['logo'];
+};
+
+const toLogo = (logo: unknown): ProductBrand['logo'] =>
+  logo && typeof logo === 'object' ? (logo as ProductBrand['logo']) : null;
+
+/**
+ * Image is rendered whether or not the brand has a logo — it falls back to
+ * the shared placeholder, which keeps every name in the list starting at
+ * the same place.
+ */
+const renderBrand = (option: BrandOption) => (
+  <Flex gap={2} align="center">
+    <Image src={option.logo} width={20} height={20} />
+    {option.title}
+  </Flex>
+);
+
+/**
+ * Brand picker. A product has one brand, so this is the shared token box in
+ * its single-selection mode: choosing replaces whatever was held, closes the
+ * panel, and leaves one full-width chip in place of the text cursor.
+ *
+ * @returns Brand element.
+ * @since 1.0.0
+ */
 const Brand = () => {
   const { watch, setValue } = useFormContext<ProductFormInput>();
   const productBrand = watch('brand');
   const { data: brandData } = useBrandsQuery({ limit: -1 });
-  const [suggestionArray, setSuggestionArray] = useState<BrandSuggestion[]>([]);
-  const [openBrandCreatePopup, setOpenBrandCreatePopup] = useState(false);
-  const [brandTitle, setBrandTitle] = useState('');
+  const [pendingName, setPendingName] = useState<string | null>(null);
 
-  useEffect(() => {
-    const suggestionList = brandData?.results.map((item) => ({
-      value: item.id,
-      title: item.name,
-      id: item.id,
-      name: item.name,
-      slug: item.slug,
-      description: item.description,
-      count: item.count,
-      logo: item.logo,
-    }));
-    setSuggestionArray(suggestionList ?? []);
-  }, [productBrand, brandData]);
-
-  const comboboxOptions = useMemo(
+  const options: BrandOption[] = useMemo(
     () =>
-      suggestionArray.map((item) => ({
-        label: item.title,
-        value: String(item.value),
+      (brandData?.results ?? []).map((brand) => ({
+        value: brand.id,
+        title: brand.name,
+        logo: toLogo(brand.logo),
       })),
-    [suggestionArray],
+    [brandData],
   );
 
-  const handleRemoveBrand = () => {
-    setValue('brand', null, { shouldDirty: true, shouldValidate: true });
-  };
+  // The form holds the brand itself; the component works in option arrays,
+  // so a held brand is a one-element array on the way out and `next[0]` on
+  // the way back.
+  const selected: BrandOption[] = productBrand?.id
+    ? [
+        {
+          value: productBrand.id,
+          title: productBrand.name,
+          logo: toLogo(productBrand.logo),
+        },
+      ]
+    : [];
 
-  const handleAddBrand = (brandValue: string) => {
-    const suggestion = suggestionArray.find((item) => String(item.value) === brandValue);
-    if (!suggestion) {
-      return;
-    }
+  const handleChange = (next: BrandOption[]) => {
+    const option = next[0];
 
     setValue(
       'brand',
-      {
-        id: suggestion.id,
-        name: suggestion.name,
-        logo: suggestion.logo && typeof suggestion.logo === 'object' ? suggestion.logo : null,
-      },
+      option ? { id: Number(option.value), name: option.title, logo: option.logo } : null,
       { shouldDirty: true, shouldValidate: true },
     );
   };
 
-  const handleAddNewBrand = (searchText: string) => {
-    setBrandTitle(searchText);
-    setOpenBrandCreatePopup(true);
-  };
-
-  const brandLogo =
-    productBrand?.logo && typeof productBrand.logo === 'object' ? productBrand.logo : null;
-
   return (
     <>
-      {productBrand?.id ? (
-        <Field>
-          <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
-          <Card
-            cssOverride={mergeCss(cardStyles.innerCard, {
-              minHeight: '48px',
-              maxHeight: '48px',
-              justifyContent: 'center',
-            })}
-          >
-            <CardContent cssOverride={{ paddingInline: theme.spacing[2] }}>
-              <Flex gap={2} align="center">
-                <Image src={brandLogo} width={24} height={24} />
-                <Text variant="small">{productBrand?.name}</Text>
-                <ActionGroup cssOverride={{ cursor: 'pointer' }}>
-                  <Button variant="ghost" size="icon" onClick={handleRemoveBrand}>
-                    <Minus />
-                  </Button>
-                </ActionGroup>
-              </Flex>
-            </CardContent>
-          </Card>
-        </Field>
-      ) : (
-        <Field>
-          <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
-          <Combobox
-            options={comboboxOptions}
-            placeholder={__('Search or Add Brand', 'kirki-ecommerce')}
-            searchPlaceholder={__('Search or Add Brand', 'kirki-ecommerce')}
-            creatable
-            addItemLabel={__('Add Brand', 'kirki-ecommerce')}
-            onChange={(nextValue) => handleAddBrand(String(nextValue))}
-            onAddItem={handleAddNewBrand}
-          />
-        </Field>
-      )}
-      {openBrandCreatePopup && (
-        <BrandAddEditPopover
-          brand={{ name: brandTitle }}
-          onClose={() => setOpenBrandCreatePopup(false)}
+      <Field>
+        <FieldLabel>{__('Brand', 'kirki-ecommerce')}</FieldLabel>
+        <MultiSelect
+          single
+          options={options}
+          value={selected}
+          onChange={handleChange}
+          renderOption={renderBrand}
+          renderChip={renderBrand}
+          onCreate={(query) => setPendingName(query)}
+          placeholder={__('Add brand', 'kirki-ecommerce')}
+          emptyText={__('No brands found.', 'kirki-ecommerce')}
         />
+      </Field>
+      {pendingName !== null && (
+        <BrandAddEditPopover brand={{ name: pendingName }} onClose={() => setPendingName(null)} />
       )}
     </>
   );

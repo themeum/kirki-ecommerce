@@ -42,6 +42,7 @@ class ProductResource extends Resource
             'slug' => $this->slug,
             'status' => $this->status,
             'ribbon' => $this->ribbon,
+            'ribbon_color' => $this->ribbon_color,
 
             'currency' => !$this->currency_id ? null : [
                 'id' => $this->currency_id,

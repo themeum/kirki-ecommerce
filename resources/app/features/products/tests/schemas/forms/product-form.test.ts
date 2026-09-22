@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Product } from '@/features/products/schemas/catalog/product';
+import { RIBBON_COLOR_PALETTE } from '@/features/products/schemas/forms/product-basics-form';
 import {
   getDefaultVariantValues,
   mapProductToFormValues,
@@ -23,6 +24,7 @@ const baseVariantInput = {
 const baseProductInput = {
   title: 'T-Shirt',
   ribbon: '',
+  ribbon_color: RIBBON_COLOR_PALETTE[0],
   slug: 't-shirt',
   short_description: '',
   description: '',
@@ -239,6 +241,25 @@ describe('ProductFormSchema', () => {
     expect(result.ribbon).toBeNull();
     expect(result.slug).toBeNull();
     expect(result.description).toBeNull();
+  });
+
+  it('sends a null ribbon_color when the ribbon text is blank, even if a colour is set', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: '',
+      ribbon_color: RIBBON_COLOR_PALETTE[2],
+    });
+    expect(result.ribbon_color).toBeNull();
+  });
+
+  it('carries the chosen ribbon colour through when the ribbon has text', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: 'Fresh Arrival',
+      ribbon_color: RIBBON_COLOR_PALETTE[3],
+    });
+    expect(result.ribbon).toBe('Fresh Arrival');
+    expect(result.ribbon_color).toBe(RIBBON_COLOR_PALETTE[3]);
   });
 
   it('carries a cleared variant price through to the nested payload as null', () => {

@@ -14,7 +14,6 @@ import {
 import ShippingBoxDialog from '@/features/settings/shipping/pages/shipping-box/shipping-box-dialog';
 import { useShippingBoxesQuery } from '@/features/settings/shipping/services/shipping';
 import { PlusCircleIcon } from '@/icons';
-import { theme } from '@/theme';
 import type { SelectOption } from '@/types/components/common';
 import { __ } from '@/wpi18n';
 
@@ -99,10 +98,7 @@ const ShippingBoxFieldView = ({
         <SelectValue placeholder={__('Select shipping box', 'kirki-ecommerce')} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem
-          value={ADD_SHIPPING_BOX_VALUE}
-          cssOverride={{ marginLeft: `-${theme.spacing[1]}` }}
-        >
+        <SelectItem value={ADD_SHIPPING_BOX_VALUE}>
           <Flex gap={2} align="center">
             <PlusCircleIcon />
             {__('Add shipping box', 'kirki-ecommerce')}

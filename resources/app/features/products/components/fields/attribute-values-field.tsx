@@ -29,7 +29,6 @@ type AttributeValuesFieldProps<
   type?: string | null;
   disabled?: boolean;
   placeholder?: string;
-  addItemLabel?: string;
 };
 
 /**
@@ -53,7 +52,6 @@ const AttributeValuesField = <
   type,
   disabled = false,
   placeholder,
-  addItemLabel = __('Add item', 'kirki-ecommerce'),
 }: AttributeValuesFieldProps<TFieldValues, TName>) => {
   const { control, setError, clearErrors } = useFormContext<TFieldValues>();
   const { data: allAttributesList } = useAttributesQuery({ limit: -1 });
@@ -166,7 +164,6 @@ const AttributeValuesField = <
               value={selected}
               onChange={handleChange}
               onCreate={handleCreate}
-              createLabel={addItemLabel}
               placeholder={placeholder}
               disabled={disabled}
               error={Boolean(fieldState.error)}

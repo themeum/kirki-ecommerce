@@ -47,7 +47,7 @@ export const StandardUnit = () => {
               options={dimensionOptions}
             />
 
-            <Separator />
+            <Separator negativeMargin={16} />
 
             <NumberField
               name="low_stock_threshold"

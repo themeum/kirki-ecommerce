@@ -8,8 +8,9 @@ import Flex from '@/components/ui/flex';
 import LeadingIconBadge from '@/components/ui/leading-icon-badge';
 import Text from '@/components/ui/text';
 import Brand from '@/features/products/components/product-form/sections/right-panel/brand';
-import Categories from '@/features/products/components/product-form/sections/right-panel/categories/categories';
+import Categories from '@/features/products/components/product-form/sections/right-panel/categories';
 import Collections from '@/features/products/components/product-form/sections/right-panel/collections';
+import Ribbon from '@/features/products/components/product-form/sections/right-panel/ribbon';
 import Tags from '@/features/products/components/product-form/sections/right-panel/tags';
 import type { Product, ProductStatus } from '@/features/products/schemas/catalog/product';
 import { DATE_FORMATS, formatDateValue } from '@/libs/date';
@@ -117,22 +118,13 @@ const RightPanel = ({ mode, product, onDuplicate, isDuplicating = false }: Right
           </Flex>
         </CardContent>
       </Card>
-      <Categories />
       <Card cssOverride={cardStyles.formCard}>
         <CardContent cssOverride={styles.fields}>
+          <Categories />
+          <Brand />
           <Tags />
           <Collections />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent cssOverride={styles.fields}>
-          <TextField
-            name="ribbon"
-            label={__('Ribbon', 'kirki-ecommerce')}
-            placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
-          />
-          <Brand />
+          <Ribbon />
         </CardContent>
       </Card>
     </Flex>

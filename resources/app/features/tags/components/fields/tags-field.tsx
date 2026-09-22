@@ -22,7 +22,6 @@ type TagsFieldProps<
   description?: ReactNode;
   infoText?: ReactNode;
   placeholder?: string;
-  createLabel?: string;
   disabled?: boolean;
   cssOverride?: CSSObject;
 };
@@ -45,8 +44,7 @@ const TagsField = <
   label,
   description,
   infoText,
-  placeholder = __('Type to add tags..', 'kirki-ecommerce'),
-  createLabel = __('Add Tag', 'kirki-ecommerce'),
+  placeholder = __('Add tags', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: TagsFieldProps<TFieldValues, TName>) => {
@@ -115,8 +113,9 @@ const TagsField = <
               value={selected}
               onChange={handleChange}
               onCreate={handleCreate}
-              createLabel={createLabel}
+              maxVisibleRows={2}
               placeholder={placeholder}
+              selectedPlaceholder={__('Search', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

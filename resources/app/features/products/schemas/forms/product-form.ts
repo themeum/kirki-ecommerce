@@ -89,6 +89,7 @@ export const ProductFormSchema = prepareFormSchema(ProductFormComposedShape).tra
     slug: values.slug || null,
     status: values.status,
     ribbon: values.ribbon || null,
+    ribbon_color: values.ribbon ? values.ribbon_color : null,
     description: values.description || null,
     short_description: values.short_description || null,
     additional_info: values.additional_info,

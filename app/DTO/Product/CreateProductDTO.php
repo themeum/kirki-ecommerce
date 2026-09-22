@@ -18,6 +18,9 @@ class CreateProductDTO extends DTO
     /** @var string|null */
     public $ribbon;
 
+    /** @var string|null */
+    public $ribbon_color;
+
     /** @var int|null */
     public $currency_id;
 

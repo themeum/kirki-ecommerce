@@ -100,6 +100,7 @@ export const ProductSchema = z.object({
   slug: z.string(),
   status: ProductStatusSchema,
   ribbon: z.string().nullable(),
+  ribbon_color: z.string().nullable(),
   currency: ProductCurrencySchema.nullable(),
   brand: ProductBrandSchema.nullable(),
   description: z.string().nullable(),
