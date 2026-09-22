@@ -29,6 +29,18 @@ class CollectionService
     use HasSortableColumns;
 
     /**
+     * Relations required to render a single collection through CollectionResource.
+     *
+     * @var array
+     */
+    const DETAIL_RELATIONS = [
+        'products.media',
+        'products.attributes',
+        'products.attribute_values',
+        'products.variants.attribute_values',
+    ];
+
+    /**
      * @inheritDoc
      *
      * @since 1.0.0
@@ -95,7 +107,7 @@ class CollectionService
      */
     public function find(int $id)
     {
-        $collection = Collection::with_count('products')->find($id);
+        $collection = Collection::with_count('products')->with(static::DETAIL_RELATIONS)->find($id);
 
         throw_if(empty($collection), __('Collection not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
@@ -153,7 +165,7 @@ class CollectionService
 
         throw_if(!$updated, __('Collection could not be updated.', 'kirki-ecommerce'), Exception::class, Response::BAD_REQUEST);
 
-        return Collection::with_count('products')->find($data->id);
+        return $this->find($data->id);
     }
 
     /**

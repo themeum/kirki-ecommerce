@@ -91,6 +91,7 @@ const OrderCreate = () => {
             onOpenChange={setPickerOpen}
             onAdd={handleAddItems}
             selectedProducts={selections}
+            expandAll
           />
         )}
       </Form>

@@ -43,4 +43,7 @@ class UpdateCollectionDTO extends DTO
 
     /** @var int|null */
     public $ordering;
+
+    /** @var int[] */
+    public $product_ids = [];
 }

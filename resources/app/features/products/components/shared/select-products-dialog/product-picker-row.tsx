@@ -11,7 +11,7 @@ import type {
 } from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { ChevronDownIcon } from '@/icons';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 type ProductPickerRowProps = {
   product: ProductListItem;
@@ -22,10 +22,7 @@ type ProductPickerRowProps = {
   isProductSelected: boolean;
   selectedVariantIds: Set<number>;
   onToggleProduct: (checked: boolean) => void;
-  onToggleVariants: (
-    variants: ProductVariantSelection[],
-    checked: boolean,
-  ) => void;
+  onToggleVariants: (variants: ProductVariantSelection[], checked: boolean) => void;
 };
 
 const ProductPickerRow = ({
@@ -48,9 +45,7 @@ const ProductPickerRow = ({
     ? variants.length > 0 && selectedVariantCount === variants.length
     : isProductSelected;
   const isPartial =
-    selectVariants &&
-    selectedVariantCount > 0 &&
-    selectedVariantCount < variants.length;
+    selectVariants && selectedVariantCount > 0 && selectedVariantCount < variants.length;
 
   const handleToggleAll = (checked: boolean) => {
     if (selectVariants) {
@@ -81,21 +76,30 @@ const ProductPickerRow = ({
                   {product.sku}
                 </Text>
               )}
+              {!selectVariants && variants.length > 1 && (
+                <Text variant="small" color="secondary">
+                  {sprintf(
+                    /* translators: %s: number of variants */
+                    __('%s Variants', 'kirki-ecommerce'),
+                    variants.length,
+                  )}
+                </Text>
+              )}
             </Flex>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={__('Toggle variants', 'kirki-ecommerce')}
-              onClick={onToggleExpand}
-              style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
-            >
-              <ChevronDownIcon />
-            </Button>
+            {selectVariants && (
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                aria-label={__('Toggle variants', 'kirki-ecommerce')}
+                onClick={onToggleExpand}
+                style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
+              >
+                <ChevronDownIcon />
+              </Button>
+            )}
           </Flex>
         </TableCell>
-        <TableCell>
-          {product.availability_label ?? __('Out of Stock', 'kirki-ecommerce')}
-        </TableCell>
+        <TableCell>{product.availability_label ?? __('Out of Stock', 'kirki-ecommerce')}</TableCell>
         <TableCell alignment="right">
           <PriceText
             salePrice={product.base_sale_price_money_object}
@@ -105,25 +109,18 @@ const ProductPickerRow = ({
       </TableRow>
 
       {expanded &&
+        selectVariants &&
         variants.map((variant) => (
           <TableRow key={variant.variantId}>
             <TableCell />
             <TableCell>
               <Flex gap={6} align="center">
-                {selectVariants && (
-                  <Checkbox
-                    checked={selectedVariantIds.has(variant.variantId)}
-                    onCheckedChange={(checked) =>
-                      onToggleVariants([variant], checked === true)
-                    }
-                  />
-                )}
+                <Checkbox
+                  checked={selectedVariantIds.has(variant.variantId)}
+                  onCheckedChange={(checked) => onToggleVariants([variant], checked === true)}
+                />
                 <Flex gap={3} align="center">
-                  <Image
-                    src={variant.thumbnail}
-                    alt={variant.variantLabel}
-                    size="sm"
-                  />
+                  <Image src={variant.thumbnail} alt={variant.variantLabel} size="sm" />
                   <Text variant="small">{variant.variantLabel}</Text>
                 </Flex>
               </Flex>
@@ -134,10 +131,7 @@ const ProductPickerRow = ({
                 : __('Out of Stock', 'kirki-ecommerce')}
             </TableCell>
             <TableCell alignment="right">
-              <PriceText
-                salePrice={variant.salePrice}
-                regularPrice={variant.regularPrice}
-              />
+              <PriceText salePrice={variant.salePrice} regularPrice={variant.regularPrice} />
             </TableCell>
           </TableRow>
         ))}

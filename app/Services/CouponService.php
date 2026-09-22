@@ -67,7 +67,6 @@ class CouponService
         'products.attributes',
         'products.attribute_values',
         'products.variants.attribute_values',
-        'products.variants.product',
     ];
 
     /**
