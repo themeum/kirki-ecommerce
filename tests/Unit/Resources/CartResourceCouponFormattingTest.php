@@ -3,14 +3,21 @@
 namespace Kirki\Ecommerce\Tests\Unit\Resources;
 
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
+use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
+use Kirki\Ecommerce\App\Models\CartItem;
 use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\collection;
 
 class CartResourceCouponFormattingTest extends TestCase
 {
@@ -55,6 +62,47 @@ class CartResourceCouponFormattingTest extends TestCase
         $result->coupon = $coupon;
         $result->item_discounts = $item_discounts;
         $result->total_discount = array_sum($item_discounts);
+
+        return $result;
+    }
+
+    protected function make_cart_item(int $variant_id, string $product_status, bool $is_visible): CartItem
+    {
+        $product = new Product(['title' => 'Widget', 'slug' => 'widget', 'status' => $product_status]);
+        $product->set_relation('categories', collection([]));
+        $product->set_relation('media', collection([]));
+
+        $variant = new Variant([
+            'base_price' => 1000,
+            'base_sale_price' => null,
+            'media' => null,
+            'available_quantity' => 10,
+            'in_stock' => true,
+            'track_inventory' => true,
+            'allow_back_order' => false,
+            'has_limit_per_order' => false,
+            'max_per_order' => null,
+            'is_visible' => $is_visible,
+        ]);
+        $variant->set_relation('product', $product);
+        $variant->set_relation('attribute_values', collection([]));
+
+        $item = new CartItem(['variant_id' => $variant_id, 'quantity' => 1]);
+        $item->set_relation('product', $product);
+        $item->set_relation('variant', $variant);
+
+        return $item;
+    }
+
+    protected function make_calculation_result(int $variant_id): CalculationResultDTO
+    {
+        $calculated_item = new CalculationItemDTO();
+        $calculated_item->variant_id = $variant_id;
+        $calculated_item->base_subtotal = 1000;
+        $calculated_item->base_product_total = 1000;
+
+        $result = new CalculationResultDTO();
+        $result->items = [$variant_id => $calculated_item];
 
         return $result;
     }
@@ -231,5 +279,47 @@ class CartResourceCouponFormattingTest extends TestCase
 
         $this->assertSame(10.0, $product_breakdown[0]['display_amount_money_object']->raw);
         $this->assertSame(1.0, $shipping_breakdown[0]['display_amount_money_object']->raw);
+    }
+
+    // prepare_items - is_available
+
+    public function test_reports_item_as_available_when_product_published_and_variant_visible(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertTrue($items[0]['product']['is_available']);
+    }
+
+    public function test_reports_item_as_unavailable_when_product_is_draft(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::DRAFT, true);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertFalse($items[0]['product']['is_available']);
+    }
+
+    public function test_reports_item_as_unavailable_when_product_is_trashed(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::TRASHED, true);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertFalse($items[0]['product']['is_available']);
+    }
+
+    public function test_reports_item_as_unavailable_when_variant_is_not_visible(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, false);
+        $result = $this->make_calculation_result(101);
+
+        $items = $this->call('prepare_items', [$item], $result, null);
+
+        $this->assertFalse($items[0]['product']['is_available']);
     }
 }

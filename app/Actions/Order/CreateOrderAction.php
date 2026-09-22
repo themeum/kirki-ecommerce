@@ -28,7 +28,10 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderItemDTO;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\UniqueConstraintViolationException;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
@@ -537,13 +540,15 @@ class CreateOrderAction
      * Build the calculation items for the payload's line items.
      *
      * Records each variant in the variants map. Fails when a variant or its
-     * product is missing, or the per-order limit is exceeded.
+     * product is missing, the per-order limit is exceeded, or the item is
+     * no longer available for purchase.
      *
      * @since 1.0.0
      *
      * @param CreateOrderPayloadDTO $dto Order payload.
      * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO.
      * @throws \Exception When a variant or its product is missing, or the per-order limit is exceeded.
+     * @throws ValidationException When an item is no longer available for purchase.
      */
     protected function prepare_context_items(CreateOrderPayloadDTO $dto)
     {
@@ -553,15 +558,18 @@ class CreateOrderAction
             $variant = $this->variant_service->find($item_data['variant_id']);
 
             /* translators: %s: JSON-encoded item data */
-            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)));
+            throw_if(!$variant, sprintf(__('Variant not found for item: %s', 'kirki-ecommerce'), Arr::json_encode($item_data)), NotFoundException::class, Response::NOT_FOUND);
 
             /* translators: %s: variant ID */
-            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id));
+            throw_if($variant->has_limit_per_order && $variant->max_per_order < $item_data['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
             $product = $variant->product;
 
             /* translators: %s: variant ID */
-            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+            throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id), NotFoundException::class, Response::NOT_FOUND);
+
+            /* translators: %s: variant ID */
+            throw_if(!$variant->is_available(), sprintf(__('This item is no longer available: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
             $product->load('categories');
 
