@@ -3,6 +3,9 @@
 namespace Kirki\Ecommerce\Database\Seeders;
 
 use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
+use Kirki\Ecommerce\App\Models\Attribute;
+use Kirki\Ecommerce\App\Models\AttributeValue;
+use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
@@ -21,101 +24,184 @@ use function Kirki\Ecommerce\Framework\faker;
 class ProductSeeder extends Seeder
 {
     /**
-     * Color attribute value labels, keyed by attribute value id.
+     * Names of the curated Color attribute values the product catalog rotates through.
      *
-     * @var array<int, string>
+     * AttributeSeeder now creates its attributes from the Shopify-derived catalog, so
+     * value ids are not known ahead of time - names are resolved to ids at run time by
+     * resolve_attributes() instead of being hardcoded.
+     *
+     * @var string[]
      */
-    protected $color_codes = [
-        1 => 'BLS',
-        2 => 'TER',
-        3 => 'MUS',
-        4 => 'FOR',
-        5 => 'SKY',
-        6 => 'TEA',
-        7 => 'SND',
-        8 => 'PLM',
+    protected $color_names = ['Black', 'Blue', 'Brown', 'Gray', 'Green', 'Navy', 'Red', 'White'];
+
+    /**
+     * Three-letter SKU code for each curated color, by name.
+     *
+     * @var array<string, string>
+     */
+    protected $color_code_by_name = [
+        'Black' => 'BLK',
+        'Blue' => 'BLU',
+        'Brown' => 'BRN',
+        'Gray' => 'GRY',
+        'Green' => 'GRN',
+        'Navy' => 'NVY',
+        'Red' => 'RED',
+        'White' => 'WHT',
     ];
 
     /**
-     * Color attribute hex values, keyed by attribute value id.
-     *
-     * Mirrors the swatches created by AttributeSeeder, so a variant's
-     * generated placeholder image matches its actual Color attribute. Odd
-     * ids are the lighter half of the palette, even ids the darker half —
-     * combinations below pair one of each so a product's variants read as
-     * a light/dark set rather than two same-weight tones.
-     *
-     * @var array<int, string>
-     */
-    protected $color_hex = [
-        1 => '#E3A9A0',
-        2 => '#B5603D',
-        3 => '#D8B45C',
-        4 => '#4F6B4F',
-        5 => '#7FA8C9',
-        6 => '#2F6F6B',
-        7 => '#D9C4A0',
-        8 => '#6B3F52',
-    ];
-
-    /**
-     * Rotation of light/dark color-id pairs used by two-color variant schemes.
+     * Rotation of light/dark color-name pairs used by two-color variant schemes.
      *
      * Indexed by product position (mod count) so different products land on
      * different pairs instead of every product in a scheme sharing the same
      * two colors.
      *
-     * @var array<int, array{0:int,1:int}>
+     * @var array<int, array{0:string,1:string}>
      */
     protected $color_pair_rotation = [
-        [1, 2],
-        [3, 4],
-        [5, 6],
-        [7, 8],
-        [1, 4],
-        [3, 6],
-        [5, 8],
-        [7, 2],
+        ['Black', 'Blue'],
+        ['Brown', 'Gray'],
+        ['Green', 'Navy'],
+        ['Red', 'White'],
+        ['Black', 'Navy'],
+        ['Brown', 'Red'],
+        ['Green', 'White'],
+        ['Blue', 'Gray'],
     ];
 
     /**
-     * Rotation of three-color id sets used by the accessory-color scheme.
+     * Rotation of three-color name sets used by the accessory-color scheme.
      *
-     * @var array<int, array{0:int,1:int,2:int}>
+     * @var array<int, array{0:string,1:string,2:string}>
      */
     protected $color_triple_rotation = [
-        [1, 4, 6],
-        [3, 8, 5],
-        [7, 2, 6],
+        ['Black', 'Green', 'Navy'],
+        ['Brown', 'White', 'Blue'],
+        ['Red', 'Gray', 'Navy'],
     ];
+
+    /**
+     * Names of the curated Size attribute values used for apparel variants.
+     *
+     * @var string[]
+     */
+    protected $size_names = ['Extra small (XS)', 'Small (S)', 'Medium (M)', 'Large (L)', 'Extra large (XL)', 'Double extra large (XXL)'];
+
+    /**
+     * The three Size values an 'apparel-size' product is sold in.
+     *
+     * @var string[]
+     */
+    protected $size_variant_names = ['Small (S)', 'Medium (M)', 'Large (L)'];
+
+    /**
+     * SKU code for each curated size, by name.
+     *
+     * @var array<string, string>
+     */
+    protected $size_code_by_name = [
+        'Extra small (XS)' => 'XS',
+        'Small (S)' => 'S',
+        'Medium (M)' => 'M',
+        'Large (L)' => 'L',
+        'Extra large (XL)' => 'XL',
+        'Double extra large (XXL)' => 'XXL',
+    ];
+
+    /**
+     * Names of the curated Shoe size attribute values used for footwear variants.
+     *
+     * @var string[]
+     */
+    protected $shoe_size_names = ['7', '8', '9', '10', '11', '12'];
+
+    /**
+     * The three Shoe size values a 'footwear-size' product is sold in.
+     *
+     * @var string[]
+     */
+    protected $shoe_size_variant_names = ['9', '10', '11'];
+
+    /**
+     * Attribute id for the Color attribute, resolved at run time.
+     *
+     * @var int
+     */
+    protected $color_attribute_id;
+
+    /**
+     * Attribute id for the Size attribute, resolved at run time.
+     *
+     * @var int
+     */
+    protected $size_attribute_id;
+
+    /**
+     * Attribute id for the Shoe size attribute, resolved at run time.
+     *
+     * @var int
+     */
+    protected $shoe_size_attribute_id;
+
+    /**
+     * Curated Color attribute value ids, keyed by value name.
+     *
+     * @var array<string, int>
+     */
+    protected $color_value_ids = [];
+
+    /**
+     * Curated Size attribute value ids, keyed by value name.
+     *
+     * @var array<string, int>
+     */
+    protected $size_value_ids = [];
+
+    /**
+     * Curated Shoe size attribute value ids, keyed by value name.
+     *
+     * @var array<string, int>
+     */
+    protected $shoe_size_value_ids = [];
+
+    /**
+     * Category id, keyed by slug, resolved at run time.
+     *
+     * @var array<string, int>
+     */
+    protected $category_ids_by_slug = [];
+
+    /**
+     * Color attribute value labels, keyed by attribute value id.
+     *
+     * @var array<int, string>
+     */
+    protected $color_codes = [];
+
+    /**
+     * Color attribute hex values, keyed by attribute value id.
+     *
+     * Mirrors the swatches created by AttributeSeeder, so a variant's
+     * generated placeholder image matches its actual Color attribute.
+     *
+     * @var array<int, string>
+     */
+    protected $color_hex = [];
 
     /**
      * Size attribute value labels, keyed by attribute value id.
      *
      * @var array<int, string>
      */
-    protected $size_codes = [
-        9 => 'XS',
-        10 => 'S',
-        11 => 'M',
-        12 => 'L',
-        13 => 'XL',
-        14 => 'XXL',
-    ];
+    protected $size_codes = [];
 
     /**
      * Shoe size attribute value labels, keyed by attribute value id.
      *
      * @var array<int, string>
      */
-    protected $shoe_size_codes = [
-        15 => '7',
-        16 => '8',
-        17 => '9',
-        18 => '10',
-        19 => '11',
-        20 => '12',
-    ];
+    protected $shoe_size_codes = [];
 
     /**
      * Generated placeholder image attachment ids, keyed by brand + label + color.
@@ -136,6 +222,8 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->resolve_attributes();
+
         $faker = faker();
         $action = app()->make(CreateProductAction::class);
 
@@ -146,6 +234,49 @@ class ProductSeeder extends Seeder
         }
 
         Log::info('ProductSeeder run successfully');
+    }
+
+    /**
+     * Resolve the Color/Size/Shoe size attribute and value ids the curated catalog rotates
+     * through, and every category id by slug.
+     *
+     * AttributeSeeder and CategorySeeder create these from the Shopify-derived catalog, so
+     * their ids are not known ahead of time - this resolves them once by name/slug instead
+     * of assuming a fixed insert order.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    protected function resolve_attributes(): void
+    {
+        $color = Attribute::query()->where('slug', 'color')->first();
+        $size = Attribute::query()->where('slug', 'size')->first();
+        $shoe_size = Attribute::query()->where('slug', 'shoe-size')->first();
+
+        $this->color_attribute_id = $color->id;
+        $this->size_attribute_id = $size->id;
+        $this->shoe_size_attribute_id = $shoe_size->id;
+
+        $this->color_value_ids = $color->values()->where_in('value', $this->color_names)->pluck('id', 'value')->all();
+        $this->size_value_ids = $size->values()->where_in('value', $this->size_names)->pluck('id', 'value')->all();
+        $this->shoe_size_value_ids = $shoe_size->values()->where_in('value', $this->shoe_size_names)->pluck('id', 'value')->all();
+
+        foreach ($this->color_value_ids as $name => $id) {
+            $this->color_codes[$id] = $this->color_code_by_name[$name];
+        }
+
+        foreach ($this->size_value_ids as $name => $id) {
+            $this->size_codes[$id] = $this->size_code_by_name[$name];
+        }
+
+        foreach ($this->shoe_size_value_ids as $name => $id) {
+            $this->shoe_size_codes[$id] = $name;
+        }
+
+        $this->color_hex = AttributeValue::query()->where_in('id', array_values($this->color_value_ids))->pluck('color', 'id')->all();
+
+        $this->category_ids_by_slug = Category::query()->pluck('id', 'slug')->all();
     }
 
     /**
@@ -169,8 +300,8 @@ class ProductSeeder extends Seeder
                 [$color_a, $color_b] = $this->get_color_pair($product_index);
                 $combinations = [];
                 foreach ([$color_a, $color_b] as $color) {
-                    foreach ([10, 11, 12] as $size) {
-                        $combinations[] = [$color, $size];
+                    foreach ($this->size_variant_names as $size_name) {
+                        $combinations[] = [$color, $this->size_value_ids[$size_name]];
                     }
                 }
                 return $combinations;
@@ -179,8 +310,8 @@ class ProductSeeder extends Seeder
                 [$color_a, $color_b] = $this->get_color_pair($product_index);
                 $combinations = [];
                 foreach ([$color_a, $color_b] as $color) {
-                    foreach ([17, 18, 19] as $shoe_size) {
-                        $combinations[] = [$color, $shoe_size];
+                    foreach ($this->shoe_size_variant_names as $shoe_size_name) {
+                        $combinations[] = [$color, $this->shoe_size_value_ids[$shoe_size_name]];
                     }
                 }
                 return $combinations;
@@ -210,19 +341,19 @@ class ProductSeeder extends Seeder
         switch ($variant_scheme) {
             case 'apparel-size':
                 return [
-                    ['id' => 1, 'values' => $this->get_color_pair($product_index)],
-                    ['id' => 2, 'values' => [10, 11, 12]],
+                    ['id' => $this->color_attribute_id, 'values' => $this->get_color_pair($product_index)],
+                    ['id' => $this->size_attribute_id, 'values' => collection($this->size_variant_names)->map(fn($name) => $this->size_value_ids[$name])->all()],
                 ];
 
             case 'footwear-size':
                 return [
-                    ['id' => 1, 'values' => $this->get_color_pair($product_index)],
-                    ['id' => 3, 'values' => [17, 18, 19]],
+                    ['id' => $this->color_attribute_id, 'values' => $this->get_color_pair($product_index)],
+                    ['id' => $this->shoe_size_attribute_id, 'values' => collection($this->shoe_size_variant_names)->map(fn($name) => $this->shoe_size_value_ids[$name])->all()],
                 ];
 
             case 'accessory-color':
                 return [
-                    ['id' => 1, 'values' => $this->get_color_triple($product_index)],
+                    ['id' => $this->color_attribute_id, 'values' => $this->get_color_triple($product_index)],
                 ];
 
             default:
@@ -231,7 +362,7 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * Rotate to a light/dark color-id pair for a two-color variant scheme.
+     * Rotate to a light/dark color-value-id pair for a two-color variant scheme.
      *
      * @since 1.0.0
      *
@@ -240,11 +371,13 @@ class ProductSeeder extends Seeder
      */
     protected function get_color_pair($product_index)
     {
-        return $this->color_pair_rotation[$product_index % count($this->color_pair_rotation)];
+        $names = $this->color_pair_rotation[$product_index % count($this->color_pair_rotation)];
+
+        return [$this->color_value_ids[$names[0]], $this->color_value_ids[$names[1]]];
     }
 
     /**
-     * Rotate to a three-color id set for the accessory-color scheme.
+     * Rotate to a three-color-value-id set for the accessory-color scheme.
      *
      * @since 1.0.0
      *
@@ -253,7 +386,9 @@ class ProductSeeder extends Seeder
      */
     protected function get_color_triple($product_index)
     {
-        return $this->color_triple_rotation[$product_index % count($this->color_triple_rotation)];
+        $names = $this->color_triple_rotation[$product_index % count($this->color_triple_rotation)];
+
+        return collection($names)->map(fn($name) => $this->color_value_ids[$name])->all();
     }
 
     /**
@@ -296,7 +431,7 @@ class ProductSeeder extends Seeder
             'llm_instructions' => 'Recommend ' . $title . ' when customers ask about ' . $category_label . ' from ' . $brand_name . '.',
             'has_variants' => $product['variant_scheme'] !== 'none',
             'media' => $this->make_product_media($product, $brand_name, $product_index),
-            'categories' => $product['categories'],
+            'categories' => collection($product['categories'])->map(fn($slug) => $this->category_ids_by_slug[$slug])->all(),
             'tags' => $product['tags'],
             'collections' => $this->make_collections($product),
             'attributes' => $this->get_attributes_for_scheme($product['variant_scheme'], $product_index),
