@@ -97,7 +97,7 @@ class CustomerService
      */
     public function find(int $id)
     {
-        $customer = Customer::with('billing_address', 'shipping_address')->find($id);
+        $customer = Customer::with('billing_address', 'shipping_address', 'addresses')->find($id);
 
         throw_if(empty($customer), __('Customer not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
@@ -115,6 +115,21 @@ class CustomerService
     public function find_by_user_id(int $user_id)
     {
         $customer = Customer::with('billing_address', 'shipping_address')->where('user_id', $user_id)->first();
+
+        return $customer;
+    }
+
+    /**
+     * Find a customer, with billing and shipping addresses, by email.
+     *
+     * @since 1.0.0
+     *
+     * @param string $email Customer email.
+     * @return Customer|null
+     */
+    public function find_by_email(string $email)
+    {
+        $customer = Customer::with('billing_address', 'shipping_address')->where('email', $email)->first();
 
         return $customer;
     }
@@ -145,8 +160,6 @@ class CustomerService
     /**
      * Update a customer.
      *
-     * Also updates the email of the linked WordPress user.
-     *
      * @since 1.0.0
      *
      * @param UpdateCustomerDTO $data Customer data including the ID.
@@ -155,7 +168,7 @@ class CustomerService
      */
     public function update(UpdateCustomerDTO $data)
     {
-        $customer = Customer::with('billing_address', 'shipping_address')->find($data->id);
+        $customer = Customer::with('billing_address', 'shipping_address', 'addresses')->find($data->id);
 
         throw_if(empty($customer), __('Customer could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
@@ -166,14 +179,53 @@ class CustomerService
 
         throw_if(!$is_updated, __('Customer could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        if (!empty($data->user_id) && $this->find_by_user_id($customer->user_id)) {
-            wp_update_user([
-                'ID' => $customer->user_id,
-                'user_email' => $data->email
-            ]);
+        return $this->find($data->id);
+    }
+
+    /**
+     * Update a customer's email to match its linked WordPress user's new email.
+     *
+     * No-ops when no customer is linked to the given WordPress user.
+     *
+     * @since 1.0.0
+     *
+     * @param int    $user_id WordPress user ID whose email changed.
+     * @param string $email   The WordPress user's new email.
+     * @return void
+     */
+    public function sync_email_from_wordpress_user(int $user_id, string $email)
+    {
+        $customer = $this->find_by_user_id($user_id);
+
+        if (empty($customer)) {
+            return;
         }
 
-        return $this->find($data->id);
+        $customer->update(['email' => $email]);
+    }
+
+    /**
+     * Link an existing, unlinked customer to a newly created WordPress user.
+     *
+     * No-ops when no customer matches the given email, or when the matching
+     * customer already has a linked WordPress user - an existing link is
+     * never overwritten.
+     *
+     * @since 1.0.0
+     *
+     * @param string $email   Email shared by the WordPress user and the customer.
+     * @param int    $user_id Newly created WordPress user ID.
+     * @return void
+     */
+    public function attach_wordpress_user(string $email, int $user_id)
+    {
+        $customer = $this->find_by_email($email);
+
+        if (empty($customer) || !empty($customer->user_id)) {
+            return;
+        }
+
+        $customer->update(['user_id' => $user_id]);
     }
 
     /**

@@ -6,13 +6,17 @@ import Text from '@/components/ui/text';
 import { FileTextIcon } from '@/icons';
 import { __ } from '@/wpi18n';
 
-const CustomerOverview = () => {
+type CustomerOverviewProps = {
+  isNew?: boolean;
+};
+
+const CustomerOverview = ({ isNew = true }: CustomerOverviewProps) => {
   return (
     <Card>
       <CardHeader>
         <Flex gap={2} align="center">
           <FileTextIcon />
-          <Text weight="semibold">{__('Basic Info', 'kirki-ecommerce')}</Text>
+          <Text weight="semibold">{__('Basic info', 'kirki-ecommerce')}</Text>
         </Flex>
       </CardHeader>
       <CardContent>
@@ -32,6 +36,7 @@ const CustomerOverview = () => {
             label={__('Email', 'kirki-ecommerce')}
             type="email"
             placeholder={__('example@yourmail.com', 'kirki-ecommerce')}
+            disabled={!isNew}
           />
           <TextField
             name="phone"
@@ -39,10 +44,13 @@ const CustomerOverview = () => {
             type="tel"
             placeholder={__('+1 (555) 222 4354', 'kirki-ecommerce')}
           />
-          <CheckboxField
-            name="accepts_marketing"
-            label={__('Customer agrees to receive marketing emails', 'kirki-ecommerce')}
-          />
+          {/* Hidden per design for now - accepts_marketing still defaults to false, to be surfaced later */}
+          {isNew && (
+            <CheckboxField
+              name="create_wordpress_user"
+              label={__('Create WordPress user', 'kirki-ecommerce')}
+            />
+          )}
         </Flex>
       </CardContent>
     </Card>

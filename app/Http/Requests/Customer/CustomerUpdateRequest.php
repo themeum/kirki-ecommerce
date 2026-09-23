@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Http\Requests\Customer;
 
 use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
+use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -18,9 +19,10 @@ class CustomerUpdateRequest extends Request
     /**
      * Give the optional fields of each submitted address an empty value.
      *
-     * `addresses.state` and `addresses.postal_code` are NOT NULL. A country that
+     * `addresses.*.state` and `addresses.*.postal_code` are NOT NULL. A country that
      * uses neither can legitimately submit an address without them, so the absent
      * value is coerced to an empty string rather than widening the schema.
+     * `addresses.*.type` is also NOT NULL; a row that omits it defaults to `home`.
      *
      * Runs before validation, which treats an empty string as missing, so a
      * country that does require the field still fails.
@@ -31,9 +33,13 @@ class CustomerUpdateRequest extends Request
      */
     protected function prepare_for_validation()
     {
-        foreach (['shipping_address', 'billing_address'] as $address_key) {
-            $address = $this->input($address_key);
+        $addresses = $this->input('addresses');
 
+        if (!is_array($addresses)) {
+            return;
+        }
+
+        foreach ($addresses as $index => $address) {
             if (!is_array($address)) {
                 continue;
             }
@@ -44,8 +50,14 @@ class CustomerUpdateRequest extends Request
                 }
             }
 
-            $this->merge([$address_key => $address]);
+            if (($address['type'] ?? null) === null) {
+                $address['type'] = 'home';
+            }
+
+            $addresses[$index] = $address;
         }
+
+        $this->merge(['addresses' => $addresses]);
     }
 
     /**
@@ -55,56 +67,34 @@ class CustomerUpdateRequest extends Request
      */
     public function rules()
     {
-        $shipping_country = $this->address_block_country('shipping_address');
-        $billing_country = $this->address_block_country('billing_address');
-
         return [
             'id' => 'required|integer',
             'first_name' => 'required|string',
             'last_name' => 'string|nullable',
             'photo' => 'integer|nullable',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:' . Customer::get_table_name() . ',email,' . $this->int('id'),
             'phone' => 'string|nullable',
             'accepts_marketing' => 'boolean|nullable',
             'notes' => 'string|nullable',
             'language' => 'string|nullable',
             'tags' => 'array|nullable',
             'tags.*' => 'string',
-            'shipping_address' => 'required|array',
-            'shipping_address.first_name' => 'required|string',
-            'shipping_address.last_name' => 'nullable|string',
-            'shipping_address.email' => 'required|string',
-            'shipping_address.phone' => 'required|string',
-            'shipping_address.address_line1' => 'required|string',
-            'shipping_address.address_line2' => 'nullable|string',
-            'shipping_address.city' => 'required|string',
-            'shipping_address.state' => static::address_field_rule($shipping_country, 'state'),
-            'shipping_address.postal_code' => static::address_field_rule($shipping_country, 'postal_code'),
-            'shipping_address.country' => 'required|string',
-            'billing_address' => 'required|array',
-            'billing_address.first_name' => 'required|string',
-            'billing_address.last_name' => 'nullable|string',
-            'billing_address.email' => 'required|string',
-            'billing_address.phone' => 'required|string',
-            'billing_address.address_line1' => 'required|string',
-            'billing_address.address_line2' => 'nullable|string',
-            'billing_address.city' => 'required|string',
-            'billing_address.state' => static::address_field_rule($billing_country, 'state'),
-            'billing_address.postal_code' => static::address_field_rule($billing_country, 'postal_code'),
-            'billing_address.country' => 'required|string',
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     *
-     * @since 1.0.0
-     */
-    public function messages()
-    {
-        return [
-            'shipping_address.state.required' => static::state_required_message($this->address_block_country('shipping_address')),
-            'billing_address.state.required' => static::state_required_message($this->address_block_country('billing_address')),
+            'addresses' => 'array|nullable',
+            'addresses.*.id' => 'integer|nullable',
+            'addresses.*.first_name' => $this->required_when_address_item_present('first_name'),
+            'addresses.*.last_name' => 'nullable|string',
+            'addresses.*.email' => 'nullable|string',
+            'addresses.*.phone' => 'nullable|string',
+            'addresses.*.address_line1' => $this->required_when_address_item_present('address_line1'),
+            'addresses.*.address_line2' => 'nullable|string',
+            'addresses.*.city' => 'nullable|string',
+            'addresses.*.state' => $this->address_item_field_rule('state'),
+            'addresses.*.postal_code' => $this->address_item_field_rule('postal_code'),
+            'addresses.*.country' => 'required|string',
+            'addresses.*.type' => 'nullable|string|in:home,office,others',
+            'addresses.*.label' => $this->required_when_address_item_type('label', 'others'),
+            'addresses.*.is_default_shipping' => 'boolean|nullable',
+            'addresses.*.is_default_billing' => 'boolean|nullable',
         ];
     }
 
@@ -127,28 +117,22 @@ class CustomerUpdateRequest extends Request
             'tags' => Sanitizer::ARRAY,
             'language' => Sanitizer::TEXT,
             'tags.*' => Sanitizer::TEXT,
-            'billing_address' => Sanitizer::ARRAY,
-            'billing_address.first_name' => Sanitizer::TEXT,
-            'billing_address.last_name' => Sanitizer::TEXT,
-            'billing_address.email' => Sanitizer::TEXT,
-            'billing_address.phone' => Sanitizer::TEXT,
-            'billing_address.address_line1' => Sanitizer::TEXT,
-            'billing_address.address_line2' => Sanitizer::TEXT,
-            'billing_address.city' => Sanitizer::TEXT,
-            'billing_address.state' => Sanitizer::TEXT,
-            'billing_address.postal_code' => Sanitizer::TEXT,
-            'billing_address.country' => Sanitizer::TEXT,
-            'shipping_address' => Sanitizer::ARRAY,
-            'shipping_address.first_name' => Sanitizer::TEXT,
-            'shipping_address.last_name' => Sanitizer::TEXT,
-            'shipping_address.email' => Sanitizer::TEXT,
-            'shipping_address.phone' => Sanitizer::TEXT,
-            'shipping_address.address_line1' => Sanitizer::TEXT,
-            'shipping_address.address_line2' => Sanitizer::TEXT,
-            'shipping_address.city' => Sanitizer::TEXT,
-            'shipping_address.state' => Sanitizer::TEXT,
-            'shipping_address.postal_code' => Sanitizer::TEXT,
-            'shipping_address.country' => Sanitizer::TEXT,
+            'addresses' => Sanitizer::ARRAY,
+            'addresses.*.id' => Sanitizer::INT,
+            'addresses.*.first_name' => Sanitizer::TEXT,
+            'addresses.*.last_name' => Sanitizer::TEXT,
+            'addresses.*.email' => Sanitizer::TEXT,
+            'addresses.*.phone' => Sanitizer::TEXT,
+            'addresses.*.address_line1' => Sanitizer::TEXT,
+            'addresses.*.address_line2' => Sanitizer::TEXT,
+            'addresses.*.city' => Sanitizer::TEXT,
+            'addresses.*.state' => Sanitizer::TEXT,
+            'addresses.*.postal_code' => Sanitizer::TEXT,
+            'addresses.*.country' => Sanitizer::TEXT,
+            'addresses.*.type' => Sanitizer::TEXT,
+            'addresses.*.label' => Sanitizer::TEXT,
+            'addresses.*.is_default_shipping' => Sanitizer::BOOL,
+            'addresses.*.is_default_billing' => Sanitizer::BOOL,
         ];
     }
 }

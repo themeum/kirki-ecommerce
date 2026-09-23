@@ -48,7 +48,7 @@ class CustomerApiTest extends RestTestCase
         $this->assertEquals('Jane', $payload['data']['first_name']);
         $this->assertEquals('Smith', $payload['data']['last_name']);
         $this->assertNotEmpty($payload['data']['email']);
-        $this->assertNotEmpty($payload['data']['shipping_address']);
+        $this->assertNotEmpty($payload['data']['addresses']);
 
         $this->customer_id = $payload['data']['id'];
     }
@@ -118,9 +118,9 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
-     * A customer can be created with no shipping_address and no
-     * billing_address submitted at all - addresses are no longer required
-     * up front, since they can be added to the address book later.
+     * A customer can be created with no addresses submitted at all -
+     * addresses are no longer required up front, since they can be added to
+     * the address book later.
      *
      * @return void
      * @since 1.0.0
@@ -134,16 +134,15 @@ class CustomerApiTest extends RestTestCase
         ]);
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertNull($payload['data']['shipping_address']);
-        $this->assertNull($payload['data']['billing_address']);
+        $this->assertSame([], $payload['data']['addresses']);
 
         $this->customer_id = $payload['data']['id'];
     }
 
     /**
-     * A customer created with only a shipping_address submitted (no
-     * billing_address) gets that one address as the default for both
-     * purposes, not just shipping.
+     * A customer created with a single address submitted, with no default
+     * flags set, gets that one address as the default for both purposes, not
+     * just shipping.
      *
      * @return void
      * @since 1.0.0
@@ -156,22 +155,25 @@ class CustomerApiTest extends RestTestCase
             'first_name' => 'Jane',
             'last_name' => 'Smith',
             'email' => 'shipping-only-' . $unique . '@example.com',
-            'shipping_address' => [
-                'first_name' => 'Jane',
-                'last_name' => 'Smith',
-                'email' => 'shipping-only-' . $unique . '@example.com',
-                'phone' => '5550100',
-                'address_line1' => '123 Main St',
-                'city' => 'New York',
-                'state' => 'NY',
-                'postal_code' => '10001',
-                'country' => 'US',
+            'addresses' => [
+                [
+                    'first_name' => 'Jane',
+                    'last_name' => 'Smith',
+                    'email' => 'shipping-only-' . $unique . '@example.com',
+                    'phone' => '5550100',
+                    'address_line1' => '123 Main St',
+                    'city' => 'New York',
+                    'state' => 'NY',
+                    'postal_code' => '10001',
+                    'country' => 'US',
+                ],
             ],
         ]);
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertNotNull($payload['data']['shipping_address']);
-        $this->assertEquals($payload['data']['shipping_address']['id'], $payload['data']['billing_address']['id']);
+        $this->assertCount(1, $payload['data']['addresses']);
+        $this->assertTrue($payload['data']['addresses'][0]['is_default_shipping']);
+        $this->assertTrue($payload['data']['addresses'][0]['is_default_billing']);
 
         $this->customer_id = $payload['data']['id'];
     }
@@ -187,16 +189,18 @@ class CustomerApiTest extends RestTestCase
         $customer = $this->create_customer();
         $this->customer_id = $customer['id'];
 
-        $response = $this->request('PUT', 'customers/' . $this->customer_id, $this->customer_payload([
+        $response = $this->request('PUT', 'customers/' . $this->customer_id, [
             'id' => $this->customer_id,
             'first_name' => 'Updated',
             'last_name' => 'Name',
             'email' => $customer['email'],
-            'shipping_address' => array_merge($customer['shipping_address'], [
-                'first_name' => 'Updated',
-                'last_name' => 'Name',
-            ]),
-        ]));
+            'addresses' => [
+                array_merge($customer['addresses'][0], [
+                    'first_name' => 'Updated',
+                    'last_name' => 'Name',
+                ]),
+            ],
+        ]);
 
         $payload = $this->assert_api_success($response);
         $this->assertEquals('Updated', $payload['data']['first_name']);
@@ -247,6 +251,146 @@ class CustomerApiTest extends RestTestCase
         ]));
 
         $this->assert_validation_error($response);
+    }
+
+    /**
+     * Creating a customer with an email already used by another customer
+     * is rejected with a field-level validation error on `email`.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_with_duplicate_email_returns_validation_error(): void
+    {
+        $existing = $this->create_customer();
+        $this->customer_id = $existing['id'];
+
+        $response = $this->request('POST', 'customers', $this->customer_payload([
+            'email' => $existing['email'],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('email', $data['errors']);
+    }
+
+    /**
+     * Updating a customer's email to one already used by a different
+     * customer is rejected with a field-level validation error on `email`.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_customer_with_duplicate_email_returns_validation_error(): void
+    {
+        $first = $this->create_customer();
+        $second = $this->create_customer();
+        $this->customer_id = $second['id'];
+
+        $response = $this->request('PUT', 'customers/' . $second['id'], [
+            'id' => $second['id'],
+            'first_name' => $second['first_name'],
+            'last_name' => $second['last_name'],
+            'email' => $first['email'],
+            'addresses' => [$second['addresses'][0]],
+        ]);
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('email', $data['errors']);
+    }
+
+    /**
+     * Updating a customer while keeping its own current email is not
+     * rejected as a duplicate.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_customer_with_own_unchanged_email_is_not_rejected(): void
+    {
+        $customer = $this->create_customer();
+        $this->customer_id = $customer['id'];
+
+        $response = $this->request('PUT', 'customers/' . $customer['id'], [
+            'id' => $customer['id'],
+            'first_name' => 'Still',
+            'last_name' => 'Me',
+            'email' => $customer['email'],
+            'addresses' => [$customer['addresses'][0]],
+        ]);
+
+        $this->assert_api_success($response);
+    }
+
+    /**
+     * A touched address row (one with any content field filled in) still
+     * requires its other core fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_with_touched_address_missing_required_field_fails(): void
+    {
+        $response = $this->request('POST', 'customers', $this->customer_payload([
+            'addresses' => [
+                [
+                    'first_name' => '',
+                    'last_name' => 'Doe',
+                    'email' => 'address-' . wp_generate_password(8, false) . '@example.com',
+                    'phone' => '5550100',
+                    'address_line1' => '123 Main St',
+                    'city' => 'New York',
+                    'state' => 'NY',
+                    'postal_code' => '10001',
+                    'country' => 'US',
+                ],
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('addresses.0.first_name', $data['errors']);
+    }
+
+    /**
+     * An address of type "others" without a label is rejected.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_with_others_type_address_missing_label_fails(): void
+    {
+        $response = $this->request('POST', 'customers', $this->customer_payload([
+            'addresses' => [
+                [
+                    'type' => 'others',
+                    'label' => '',
+                ],
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('addresses.0.label', $data['errors']);
+    }
+
+    /**
+     * An address in a country that requires a state/province is rejected
+     * when that field is left blank.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_customer_with_country_requiring_state_missing_fails(): void
+    {
+        $response = $this->request('POST', 'customers', $this->customer_payload([
+            'addresses' => [
+                [
+                    'country' => 'US',
+                    'state' => '',
+                ],
+            ],
+        ]));
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('addresses.0.state', $data['errors']);
     }
 
     /**
@@ -380,42 +524,33 @@ class CustomerApiTest extends RestTestCase
             'last_name' => 'Doe',
             'email' => 'customer-' . $unique . '@example.com',
             'phone' => '5550100',
-            'shipping_address' => [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'customer-' . $unique . '@example.com',
-                'phone' => '5550100',
-                'address_line1' => '123 Main St',
-                'address_line2' => '',
-                'city' => 'New York',
-                'state' => 'NY',
-                'postal_code' => '10001',
-                'country' => 'US',
-            ],
-            'billing_address' => [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'email' => 'customer-' . $unique . '@example.com',
-                'phone' => '5550100',
-                'address_line1' => '123 Main St',
-                'address_line2' => '',
-                'city' => 'New York',
-                'state' => 'NY',
-                'postal_code' => '10001',
-                'country' => 'US',
+            'addresses' => [
+                [
+                    'first_name' => 'John',
+                    'last_name' => 'Doe',
+                    'email' => 'customer-' . $unique . '@example.com',
+                    'phone' => '5550100',
+                    'address_line1' => '123 Main St',
+                    'address_line2' => '',
+                    'city' => 'New York',
+                    'state' => 'NY',
+                    'postal_code' => '10001',
+                    'country' => 'US',
+                    'type' => 'home',
+                ],
             ],
         ];
 
         if (isset($overrides['email'])) {
-            $payload['shipping_address']['email'] = $overrides['email'];
+            $payload['addresses'][0]['email'] = $overrides['email'];
         }
 
         if (isset($overrides['first_name'])) {
-            $payload['shipping_address']['first_name'] = $overrides['first_name'];
+            $payload['addresses'][0]['first_name'] = $overrides['first_name'];
         }
 
         if (isset($overrides['last_name'])) {
-            $payload['shipping_address']['last_name'] = $overrides['last_name'];
+            $payload['addresses'][0]['last_name'] = $overrides['last_name'];
         }
 
         return array_replace_recursive($payload, $overrides);
@@ -626,8 +761,8 @@ class CustomerApiTest extends RestTestCase
     protected function create_customer_in(string $country, string $city): int
     {
         $payload = $this->customer_payload();
-        $payload['shipping_address']['country'] = $country;
-        $payload['shipping_address']['city'] = $city;
+        $payload['addresses'][0]['country'] = $country;
+        $payload['addresses'][0]['city'] = $city;
 
         $customer = $this->create_customer($payload);
 
@@ -635,7 +770,7 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
-     * Create a customer with no shipping_address/billing_address submitted.
+     * Create a customer with no addresses submitted.
      *
      * @return int
      * @since 1.0.0

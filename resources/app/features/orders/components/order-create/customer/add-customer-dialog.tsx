@@ -14,9 +14,15 @@ import {
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import type { CustomerFormInput, CustomerFormPayload } from '@/features/customers';
-import { BillingAddress, CustomerFormSchema, CustomerOverview, ShippingAddress, useCreateCustomerMutation } from '@/features/customers';
+import {
+  CustomerAddressCard,
+  CustomerFormSchema,
+  CustomerOverview,
+  useCreateCustomerMutation,
+} from '@/features/customers';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
+import { getDefaults } from '@/libs/zod';
 import { __ } from '@/wpi18n';
 
 type AddCustomerDialogProps = {
@@ -39,17 +45,8 @@ const AddCustomerDialog = ({
   const form = useForm<CustomerFormInput, unknown, CustomerFormPayload>({
     resolver: zodResolver(CustomerFormSchema),
     defaultValues: {
-      first_name: isEmail ? '' : trimmedSearch,
-      last_name: '',
+      ...getDefaults(CustomerFormSchema),
       email: isEmail ? trimmedSearch : '',
-      phone: '',
-      language: 'english',
-      accepts_marketing: false,
-      photo: null,
-      shipping_address: {},
-      billing_address: {},
-      is_billing_same_as_shipping: false,
-      tags: [],
     },
   });
 
@@ -73,8 +70,7 @@ const AddCustomerDialog = ({
           <DialogBody>
             <Flex direction="column" gap={4}>
               <CustomerOverview />
-              <ShippingAddress />
-              <BillingAddress />
+              <CustomerAddressCard />
             </Flex>
           </DialogBody>
           <DialogFooter>
