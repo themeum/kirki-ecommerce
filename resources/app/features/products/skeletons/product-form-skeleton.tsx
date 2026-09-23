@@ -61,7 +61,7 @@ CardSkeleton.displayName = 'CardSkeleton';
 
 const ProductFormSkeleton = () => {
   return (
-    <Page containerSize="xl">
+    <Page containerSize="lg">
       <PageHeadingSkeleton>
         <Skeleton width={72} height={32} />
         <Skeleton width={72} height={32} />
@@ -73,9 +73,8 @@ const ProductFormSkeleton = () => {
             <CardSkeleton fields={4} />
           </Flex>
           <Flex direction="column" gap={4} cssOverride={styles.sideColumn}>
-            <CardSkeleton fields={1} />
-            <CardSkeleton fields={6} />
             <CardSkeleton fields={3} />
+            <CardSkeleton fields={6} />
           </Flex>
         </Flex>
       </PageContent>

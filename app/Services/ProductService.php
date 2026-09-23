@@ -145,6 +145,8 @@ class ProductService
 
         if ($data->status !== ProductStatus::SCHEDULED) {
             $data_array['scheduled_at'] = null;
+        } else if (!empty($data_array['scheduled_at'])) {
+            $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
         }
 
         $attributes = array_map(function ($attribute) {
@@ -208,6 +210,8 @@ class ProductService
 
         if ($data->status !== ProductStatus::SCHEDULED) {
             $data_array['scheduled_at'] = null;
+        } else if (!empty($data_array['scheduled_at'])) {
+            $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
         }
 
         $is_updated = (bool) $product->update($data_array);

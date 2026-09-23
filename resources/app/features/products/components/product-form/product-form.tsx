@@ -1,4 +1,4 @@
-import { Copy, MinusCircle } from 'lucide-react';
+import { CopyPlus, MinusCircle, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -34,6 +34,7 @@ import {
   type ProductFormInput,
   type ProductFormPayload,
 } from '@/features/products/schemas/forms/product-form';
+import { useConfirmDelete } from '@/hooks';
 import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -50,6 +51,10 @@ type ProductFormProps = {
   isSubmitting?: boolean;
   onDuplicate?: () => void | Promise<void>;
   isDuplicating?: boolean;
+  onTrash?: () => void | Promise<void>;
+  isTrashing?: boolean;
+  onDelete?: () => void | Promise<void>;
+  isDeleting?: boolean;
 };
 
 const ProductForm = ({
@@ -60,9 +65,14 @@ const ProductForm = ({
   isSubmitting = false,
   onDuplicate,
   isDuplicating = false,
+  onTrash,
+  isTrashing = false,
+  onDelete,
+  isDeleting = false,
 }: ProductFormProps) => {
   const isCreate = mode === 'create';
   const [duplicateBlockedByUnsaved, setDuplicateBlockedByUnsaved] = useState(false);
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   const {
     form,
@@ -100,6 +110,20 @@ const ProductForm = ({
       return;
     }
     void onDuplicate?.();
+  };
+
+  const handleDeleteClick = () => {
+    confirmDelete(
+      {
+        title: __('Delete product permanently?', 'kirki-ecommerce'),
+        description: __(
+          'This product will be erased along with its variants. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
+        confirmText: __('Delete permanently', 'kirki-ecommerce'),
+      },
+      () => void onDelete?.(),
+    );
   };
 
   const handleBarDiscard = useCallback(() => {
@@ -142,9 +166,25 @@ const ProductForm = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onSelect={handleDuplicateClick} disabled={isDuplicating}>
-                      <Copy size={16} />
+                      <CopyPlus size={16} />
                       {__('Duplicate', 'kirki-ecommerce')}
                     </DropdownMenuItem>
+                    {onTrash && product?.status !== 'trashed' && (
+                      <DropdownMenuItem onSelect={() => void onTrash()} disabled={isTrashing}>
+                        <Trash2 size={16} />
+                        {__('Move to trash', 'kirki-ecommerce')}
+                      </DropdownMenuItem>
+                    )}
+                    {onDelete && (
+                      <DropdownMenuItem
+                        onSelect={handleDeleteClick}
+                        disabled={isDeleting}
+                        cssOverride={{ color: theme.colors.text.critical }}
+                      >
+                        <Trash2 size={16} />
+                        {__('Delete permanently', 'kirki-ecommerce')}
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -252,6 +292,7 @@ const ProductForm = ({
           </Button>
         </FloatingBar>
       </Form>
+      {deleteConfirmation}
     </Page>
   );
 };

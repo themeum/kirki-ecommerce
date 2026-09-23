@@ -194,8 +194,8 @@ const RightPanel = ({ mode, product }: RightPanelProps) => {
               </Flex>
             ) : (
               <Flex>
-                <Skeleton width={100} />
-                <Skeleton width={180} />
+                <Skeleton width={100} height={32} />
+                <Skeleton width={180} height={32} />
               </Flex>
             )}
           </Flex>
