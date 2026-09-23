@@ -12,16 +12,27 @@ use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * API resource for the shopper's cart, recalculated with totals, tax lines, coupons and shipping options.
+ *
+ * @since 1.0.0
+ */
 class CartResource extends Resource
 {
     /**
+     * Whether the cart recalculation includes tax.
+     *
      * @var bool
      */
     protected $should_calculate_tax;
 
     /**
-     * @param object|array $resource
-     * @param bool $should_calculate_tax
+     * Create the resource for a cart.
+     *
+     * @since 1.0.0
+     *
+     * @param object|array $resource             Cart to transform.
+     * @param bool         $should_calculate_tax Whether to include tax when recalculating the cart.
      */
     public function __construct($resource, bool $should_calculate_tax = true)
     {
@@ -33,7 +44,11 @@ class CartResource extends Resource
     /**
      * Convert the cart resource to an array.
      *
-     * @return array The cart data as an associative array.
+     * Recalculates the cart first, so totals reflect current prices, coupons, shipping and tax.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The cart data, or an empty array when there is no cart.
      */
     public function to_array()
     {
@@ -114,6 +129,16 @@ class CartResource extends Resource
         ];
     }
 
+    /**
+     * Build the cart line items with product details, net subtotals and applied product coupons.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\CartItem[]                    $items            Items of the cart.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result           Calculation result holding the per-variant totals.
+     * @param string                                                    $display_currency Currency code the amounts are converted to.
+     * @return array<int, array<string, mixed>> Line item data, skipping items missing from the calculation result.
+     */
     protected function prepare_items($items, $result, $display_currency)
     {
         $cart_items = [];
@@ -148,6 +173,7 @@ class CartResource extends Resource
                         })->to_array(),
                         'available_quantity'  => $item->variant->available_quantity,
                         'in_stock'            => $item->variant->in_stock,
+                        'is_available'        => $item->variant->is_available(),
                         'track_inventory'     => (bool) $item->variant->track_inventory,
                         'allow_back_order'    => (bool) $item->variant->allow_back_order,
                         'has_limit_per_order' => (bool) $item->variant->has_limit_per_order,
@@ -165,6 +191,16 @@ class CartResource extends Resource
         return $cart_items;
     }
 
+    /**
+     * Build the applied coupon summaries with their total discount.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results     Coupon results from the calculation.
+     * @param string                                                      $base_currency_code Currency code of the cart amounts.
+     * @param string                                                      $display_currency   Currency code the amounts are converted to.
+     * @return array<int, array<string, mixed>> Coupon details and display discount amounts.
+     */
     protected function format_coupon_results(array $coupon_results, $base_currency_code, $display_currency)
     {
         return array_map(function ($coupon_result) use ($base_currency_code, $display_currency) {
@@ -189,9 +225,11 @@ class CartResource extends Resource
      * coupons only - cart-wide ("order") coupons are excluded so a line
      * item's display price never reflects an order-wide discount.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results
-     * @param int $variant_id
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
+     * @param int                                                         $variant_id     Variant ID of the item.
+     * @return int Discount in minor units.
      */
     protected function get_product_coupon_discount_for_item(array $coupon_results, $variant_id)
     {
@@ -214,9 +252,11 @@ class CartResource extends Resource
      * items subtotal matches the sum of what each item's own display
      * subtotal shows.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Keyed by variant_id
-     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[]   $calculated_items Calculated items, keyed by variant ID.
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results   Coupon results from the calculation.
+     * @return int Subtotal in minor units.
      */
     protected function get_items_subtotal(array $calculated_items, array $coupon_results)
     {
@@ -237,8 +277,10 @@ class CartResource extends Resource
      * is also excluded from `total_discount` here - that portion belongs to
      * the shipping discount, not the items subtotal.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results
-     * @return int
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
+     * @return int Discount in minor units.
      */
     protected function get_order_coupon_discount(array $coupon_results)
     {
@@ -259,11 +301,13 @@ class CartResource extends Resource
      * List the item-scoped coupons that actually discounted this item, for
      * per-item coupon badges. Cart-wide coupons never appear here.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results
-     * @param int $variant_id
-     * @param string $base_currency_code
-     * @param string $display_currency
-     * @return array
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results     Coupon results from the calculation.
+     * @param int                                                         $variant_id         Variant ID of the item.
+     * @param string                                                      $base_currency_code Currency code of the cart amounts.
+     * @param string                                                      $display_currency   Currency code the amounts are converted to.
+     * @return array<int, array<string, mixed>> Coupon details with the discount this item received.
      */
     protected function get_applied_product_coupons_for_item(array $coupon_results, $variant_id, $base_currency_code, $display_currency)
     {
@@ -298,14 +342,16 @@ class CartResource extends Resource
 
     /**
      * Aggregate a flat list of TaxLineDTO entries (e.g. every item's
-     * tax_lines merged together) into one amount per tax name. Entries
+     * tax_lines merged together) into one amount per tax name and rate. Entries
      * with a zero amount are dropped so a checkout summary never renders a
      * "Tax: $0.00" line when nothing was actually charged.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines
-     * @param string $base_currency_code
-     * @param string $display_currency
-     * @return array
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines          Tax lines to aggregate.
+     * @param string                                    $base_currency_code Currency code of the cart amounts.
+     * @param string                                    $display_currency   Currency code the amounts are converted to.
+     * @return array<int, array<string, mixed>> Tax name, rate and display amount per group.
      */
     protected function format_tax_breakdown(array $tax_lines, $base_currency_code, $display_currency)
     {
@@ -344,11 +390,13 @@ class CartResource extends Resource
      * otherwise the regular price if only a sale is active. Null when
      * neither applies, so nothing should render as struck through.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO $calculated_item
-     * @param int $product_coupon_discount
-     * @param string $base_currency_code
-     * @param string $display_currency
-     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO|null
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO $calculated_item         Calculated line item.
+     * @param int                                                     $product_coupon_discount Discount from item-scoped coupons, in minor units.
+     * @param string                                                  $base_currency_code      Currency code of the cart amounts.
+     * @param string                                                  $display_currency        Currency code the amounts are converted to.
+     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO|null Null when nothing should be struck through.
      */
     protected function prepare_strikethrough_price($calculated_item, $product_coupon_discount, $base_currency_code, $display_currency)
     {
@@ -365,10 +413,12 @@ class CartResource extends Resource
 
     /**
      * Merge every calculated item's tax lines into one flat list for
-     * cart-wide aggregation by tax name.
+     * cart-wide aggregation by tax name and rate.
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result
-     * @return \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[]
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result Calculation result holding the items.
+     * @return \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] Every item's tax lines, unaggregated.
      */
     protected function flatten_item_tax_lines($result)
     {

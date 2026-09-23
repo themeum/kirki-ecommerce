@@ -53,6 +53,9 @@ jobs:
       - name: Run WordPress.org required-standards check
         run: composer phpcs:wporg
 
+      - name: Run docblock standard check
+        run: composer phpcs:docblocks
+
   frontend-typecheck:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false

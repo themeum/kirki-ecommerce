@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Currency;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a currency.
+ *
+ * @since 1.0.0
+ */
 class CreateCurrencyDTO extends DTO
 {
     /** @var string|null */
@@ -18,9 +23,9 @@ class CreateCurrencyDTO extends DTO
     /** @var float|null */
     public $exchange_rate;
 
-    /** @var string|null */
+    /** @var bool|null */
     public $is_base;
 
-    /** @var string */
+    /** @var bool */
     public $is_active;
 }

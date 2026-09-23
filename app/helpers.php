@@ -16,13 +16,13 @@ use function Kirki\Ecommerce\Framework\app;
 
 if (!function_exists('Kirki\Ecommerce\App\customer')) {
     /**
-     * Get the customer instance.
+     * Get a customer instance for the given user and customer IDs.
      *
-     * @param int|null $user_id
-     * @param int|null $customer_id
-     *
-     * @return Customer
      * @since 1.0.0
+     *
+     * @param int|null $user_id     WordPress user ID.
+     * @param int|null $customer_id Customer record ID.
+     * @return Customer
      */
     function customer($user_id = null, $customer_id = null)
     {
@@ -32,12 +32,12 @@ if (!function_exists('Kirki\Ecommerce\App\customer')) {
 
 if (!function_exists('Kirki\Ecommerce\App\settings')) {
     /**
-     * Get the settings instance.
+     * Get a settings group by key, or a single value when the key contains a dot path.
      *
-     * @param string $key
-     *
-     * @return AppSettings
      * @since 1.0.0
+     *
+     * @param string $key Settings group key, optionally followed by a dot path such as `general.store_name`.
+     * @return AppSettings|mixed Settings instance (null for an unknown group), or the stored value for a dot path.
      */
     function settings($key)
     {
@@ -47,10 +47,11 @@ if (!function_exists('Kirki\Ecommerce\App\settings')) {
 
 if (!function_exists('Kirki\Ecommerce\App\decision_engine')) {
     /**
-     * Get the decision engine instance.
+     * Get the decision engine instance from the container.
+     *
+     * @since 1.0.0
      *
      * @return DecisionEngine
-     * @since 1.0.0
      */
     function decision_engine()
     {
@@ -60,10 +61,11 @@ if (!function_exists('Kirki\Ecommerce\App\decision_engine')) {
 
 if (!function_exists('Kirki\Ecommerce\App\base_currency')) {
     /**
-     * Get the base currency object/model.
+     * Get the store's base currency.
+     *
+     * @since 1.0.0
      *
      * @return Currency|null
-     * @since 1.0.0
      */
     function base_currency()
     {
@@ -73,9 +75,11 @@ if (!function_exists('Kirki\Ecommerce\App\base_currency')) {
 
 if (!function_exists('Kirki\Ecommerce\resource_path')) {
     /**
-     * Get the path to the resources directory.
+     * Get the absolute path to the plugin's resources directory, optionally with a sub-path appended.
      *
-     * @param string $path
+     * @since 1.0.0
+     *
+     * @param string $path Sub-path to append.
      * @return string
      */
     function resource_path($path = '')
@@ -86,11 +90,13 @@ if (!function_exists('Kirki\Ecommerce\resource_path')) {
 
 if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
     /**
-     * Get the decoded JSON data from a file.
-     * 
-     * @param string $file_path
-     * @param bool $associative
-     * @return mixed
+     * Read a JSON file and decode its contents.
+     *
+     * @since 1.0.0
+     *
+     * @param string $file_path   Absolute path of the JSON file.
+     * @param bool   $associative Whether to decode objects as associative arrays.
+     * @return mixed Decoded data, or null when the file does not exist or holds invalid JSON.
      */
     function json_decoded_data(string $file_path, bool $associative = true)
     {
@@ -108,8 +114,10 @@ if (!function_exists('Kirki\Ecommerce\App\to_utc_date_string')) {
     /**
      * Convert a datetime value to a UTC date string.
      *
-     * @param string|null $value
-     * @return string|null Null when no value was given.
+     * @since 1.0.0
+     *
+     * @param string|null $value Date or datetime string in any format the Date facade parses.
+     * @return string|null Null when the value is empty.
      */
     function to_utc_date_string($value)
     {
@@ -125,8 +133,10 @@ if (!function_exists('Kirki\Ecommerce\App\to_utc_datetime_string')) {
     /**
      * Convert a datetime value to a UTC datetime string.
      *
-     * @param string|null $value
-     * @return string|null Null when no value was given.
+     * @since 1.0.0
+     *
+     * @param string|null $value Date or datetime string in any format the Date facade parses.
+     * @return string|null Null when the value is empty.
      */
     function to_utc_datetime_string($value)
     {

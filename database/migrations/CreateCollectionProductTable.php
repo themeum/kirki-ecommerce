@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_collection_product table, the pivot linking collections to products.
+ *
+ * @since 1.0.0
+ */
 class CreateCollectionProductTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_collection_product table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_collection_product', function (Structure $table) {
@@ -30,6 +42,13 @@ class CreateCollectionProductTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_collection_product table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_collection_product');

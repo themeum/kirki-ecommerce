@@ -7,12 +7,19 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
+/**
+ * API resource for a customer in list views, with spend and order statistics.
+ *
+ * @since 1.0.0
+ */
 class CustomerListResource extends Resource
 {
     /**
      * Convert the customer resource to an array.
      *
-     * @return array The customer data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The customer data, including total spent, order count and location.
      */
     public function to_array()
     {

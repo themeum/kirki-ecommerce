@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Product;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for creating a product.
+ *
+ * @since 1.0.0
+ */
 class CreateProductDTO extends DTO
 {
     /** @var string */
@@ -33,7 +38,7 @@ class CreateProductDTO extends DTO
     /** @var string|null */
     public $description;
 
-    /** @var string|null */
+    /** @var array|null */
     public $additional_info = [];
 
     /** @var string|null */

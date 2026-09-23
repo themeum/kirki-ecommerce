@@ -12,11 +12,27 @@ use Throwable;
 
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Duplicates a product as a draft copy, including its associations and variants.
+ *
+ * @since 1.0.0
+ */
 class DuplicateProductAction
 {
+    /** @var ProductService */
     protected $product_service;
+
+    /** @var CreateProductAction */
     protected $create_product_action;
 
+    /**
+     * Set up the action.
+     *
+     * @since 1.0.0
+     *
+     * @param ProductService      $product_service       Product lookup service.
+     * @param CreateProductAction $create_product_action Creates the copy.
+     */
     public function __construct(
         ProductService $product_service,
         CreateProductAction $create_product_action
@@ -28,9 +44,13 @@ class DuplicateProductAction
     /**
      * Duplicate a product along with its associations and variants.
      *
-     * @param int $id
-     * @return Product
-     * @throws Throwable
+     * The copy is created as a draft with " - Copy" appended to its title.
+     *
+     * @since 1.0.0
+     *
+     * @param int $id ID of the product to duplicate.
+     * @return Product The newly created copy.
+     * @throws Throwable When the copy cannot be created; the transaction is rolled back.
      */
     public function execute(int $id)
     {
@@ -76,8 +96,10 @@ class DuplicateProductAction
      * because they represent real, order-linked state that a freshly
      * duplicated variant does not have yet.
      *
-     * @param Variant $variant
-     * @return CreateVariantDTO
+     * @since 1.0.0
+     *
+     * @param Variant $variant Variant to copy.
+     * @return CreateVariantDTO Create payload for the copy.
      */
     protected function prepare_variant_copy(Variant $variant)
     {
@@ -96,8 +118,10 @@ class DuplicateProductAction
      * CreateProductDTO from the product's loaded attributes/attribute_values
      * relations.
      *
-     * @param Product $product
-     * @return array
+     * @since 1.0.0
+     *
+     * @param Product $product Product with its attributes and attribute values loaded.
+     * @return array<int, array{id: int, values: int[]}> Attribute IDs with their selected value IDs.
      */
     protected function attributes_payload(Product $product)
     {

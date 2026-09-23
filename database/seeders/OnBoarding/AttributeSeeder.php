@@ -6,6 +6,11 @@ use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the onboarding attributes (Color and Material) with their preset values.
+ *
+ * @since 1.0.0
+ */
 class AttributeSeeder extends Seeder
 {
     /**
@@ -14,8 +19,9 @@ class AttributeSeeder extends Seeder
      * Guarded per attribute rather than per seeder, so a run that created Color
      * but died before Material finishes correctly when it is retried.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {

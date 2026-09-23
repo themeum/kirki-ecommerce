@@ -12,10 +12,24 @@ use Kirki\Ecommerce\Framework\Http\Request;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * Validates and sanitizes the payload for creating an order.
+ *
+ * @since 1.0.0
+ */
 class OrderCreateRequest extends Request
 {
     use ValidatesAddressFields;
 
+    /**
+     * Determine whether the current user may create this order.
+     *
+     * Admins always may. Other users may not place an order for a different customer or create a manual order.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
     public function authorize()
     {
         if (customer()->is_admin()) {
@@ -29,6 +43,15 @@ class OrderCreateRequest extends Request
         return !$this->input('is_manual');
     }
 
+    /**
+     * Fill in order defaults before validation.
+     *
+     * Defaults billing to match shipping, resolves the customer ID and guest flag, and falls back to the display currency.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $customer = customer(null, $this->input('customer_id') ?? null);
@@ -41,6 +64,11 @@ class OrderCreateRequest extends Request
         ]);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         $shipping_country = (string) $this->input('shipping_country');
@@ -120,12 +148,13 @@ class OrderCreateRequest extends Request
     /**
      * Build a billing field's rule, honouring the "same as shipping" shortcut.
      *
-     * When billing mirrors shipping the field is not submitted at all, so it
-     * stays nullable; otherwise the billing country's own rules decide whether
-     * it is required, exactly as they do for shipping.
+     * When billing mirrors shipping the field is not submitted at all, so it stays
+     * nullable; otherwise the billing country's own rules decide whether it is
+     * required, exactly as they do for shipping.
      *
-     * @param string $field Either 'state' or 'postal_code'.
+     * @since 1.0.0
      *
+     * @param string $field Either `state` or `postal_code`.
      * @return string
      */
     protected function billing_address_field_rule(string $field)
@@ -137,6 +166,11 @@ class OrderCreateRequest extends Request
         return static::address_field_rule((string) $this->input('billing_country'), $field);
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function messages()
     {
         return [
@@ -145,6 +179,11 @@ class OrderCreateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

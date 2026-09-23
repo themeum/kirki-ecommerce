@@ -11,15 +11,28 @@ use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * API resource for a full product (admin), with taxonomy, media, attributes and variants.
+ *
+ * @since 1.0.0
+ */
 class ProductResource extends Resource
 {
     /**
-     * The preview url
-     * 
-     * @var ?string
+     * Storefront preview URL of the product, when supplied.
+     *
+     * @var string|null
      */
     protected $preview_url;
 
+    /**
+     * Create the resource for a product.
+     *
+     * @since 1.0.0
+     *
+     * @param Product     $product     Product with its relations loaded.
+     * @param string|null $preview_url Storefront preview URL to expose as `preview_url`.
+     */
     public function __construct(Product $product, ?string $preview_url = null)
     {
         $this->preview_url = $preview_url;
@@ -28,7 +41,9 @@ class ProductResource extends Resource
     /**
      * Convert the product resource to an array.
      *
-     * @return array The product data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The product data, including SEO fields, taxonomy, media, attributes and variants.
      */
     public function to_array()
     {
@@ -106,6 +121,17 @@ class ProductResource extends Resource
         ];
     }
 
+    /**
+     * Group attribute values under their attributes.
+     *
+     * Combines the product's own attribute values with any values used only by its variants.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>> $attributes       Attribute rows of the product.
+     * @param array<int, array<string, mixed>> $attribute_values Attribute value rows of the product.
+     * @return array<int, array<string, mixed>> Attributes, each with its list of values.
+     */
     protected function format_attributes($attributes, $attribute_values)
     {
         $attribute_values_map = [];

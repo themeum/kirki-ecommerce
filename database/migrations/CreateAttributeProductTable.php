@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_attribute_product table, the pivot linking products to attributes.
+ *
+ * @since 1.0.0
+ */
 class CreateAttributeProductTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_attribute_product table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_attribute_product', function (Structure $table) {
@@ -30,6 +42,13 @@ class CreateAttributeProductTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_attribute_product table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_attribute_product');

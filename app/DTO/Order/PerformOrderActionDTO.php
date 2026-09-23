@@ -4,55 +4,40 @@ namespace Kirki\Ecommerce\App\DTO\Order;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for performing an action on an order, such as a refund or shipment.
+ *
+ * @since 1.0.0
+ */
 class PerformOrderActionDTO extends DTO
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     public $order_id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $action;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $refund_id;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $amount;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $carrier;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $tracking_number;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $tracking_url;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $reason;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $payment_provider;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     public $updated_by;
 }

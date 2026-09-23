@@ -26,7 +26,7 @@ use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\throw_if;
 
 /**
- * Class OrderActivityController
+ * Serves the order activity timeline endpoint for the logged-in customer's own orders.
  *
  * @since 1.0.0
  */
@@ -35,13 +35,14 @@ class OrderActivityController
     /**
      * Order activity timeline for the current customer's own order.
      *
+     * Returns every activity when the requested limit is Pagination::ALL, otherwise a page of them.
+     *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     * @param OrderService $order_service order service.
-     * @param OrderActivityService $order_activity_service order activity service.
-     *
-     * @return Response response.
+     * @param Request              $request               Current request; the order is read from its id parameter.
+     * @param OrderService         $order_service         Order service.
+     * @param OrderActivityService $order_activity_service Order activity service.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse JSON response with the activities and a message.
      * @throws NotFoundException When the order does not exist or is not owned by the requesting customer.
      */
     public function get(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)

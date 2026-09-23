@@ -36,30 +36,27 @@ use function Kirki\Ecommerce\Framework\user;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
- * Class AccountController
+ * Serves the customer account pages: dashboard, orders, addresses, account details and wishlist.
  *
  * @since 1.0.0
  */
 class AccountController
 {
     /**
-     * Data list limit.
-     *
-     * @since 1.0.0
+     * Number of orders listed on the orders page.
      *
      * @var int
      */
     protected $list_limit = 10;
 
     /**
-     * Dashboard page.
+     * Render the account dashboard with the customer's three most recent orders.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
+     * @param Request      $request       Current request.
      * @param OrderService $order_service Order service.
-     *
-     * @return Response response.
+     * @return \Kirki\Ecommerce\Framework\View\View Account dashboard view.
      */
     public function dashboard(Request $request, OrderService $order_service)
     {
@@ -77,13 +74,15 @@ class AccountController
     }
 
     /**
-     * Handle email verification.
+     * Verify the current user's email with the token in the request.
+     *
+     * Redirects to the account page with a success or error flash message. Does nothing when the
+     * token is empty or the visitor is not logged in.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     *
-     * @return mixed
+     * @param Request $request Current request.
+     * @return \Kirki\Ecommerce\Framework\Http\RedirectResponse|null Redirect to the account page, or null when there is nothing to verify.
      */
     protected function handle_email_verification($request)
     {
@@ -106,13 +105,14 @@ class AccountController
     }
 
     /**
-     * Handle account actions with template redirect hook.
+     * Handle an account action requested via the template redirect hook.
+     *
+     * Runs email verification for the email_verify action; any other action redirects to the account page.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     *
-     * @return mixed
+     * @param Request $request Current request.
+     * @return \Kirki\Ecommerce\Framework\Http\RedirectResponse|null Redirect to the account page, or null when email verification has nothing to verify.
      */
     public function action(Request $request)
     {
@@ -127,14 +127,13 @@ class AccountController
 
 
     /**
-     * Orders page.
+     * Render the customer's orders list.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     * @param OrderService $order_service order service.
-     *
-     * @return Response response.
+     * @param Request      $request       Current request.
+     * @param OrderService $order_service Order service.
+     * @return \Kirki\Ecommerce\Framework\View\View Orders view.
      */
     public function orders(Request $request, OrderService $order_service)
     {
@@ -148,14 +147,16 @@ class AccountController
     }
 
     /**
-     * Order details page.
+     * Render one of the customer's orders, looked up by the UUID route parameter, with its activity timeline.
+     *
+     * Redirects to the orders page and exits when the order is missing or belongs to another customer.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     * @param OrderService $order_service order service.
-     *
-     * @return Response response.
+     * @param Request              $request               Current request.
+     * @param OrderService         $order_service         Order service.
+     * @param OrderActivityService $order_activity_service Order activity service.
+     * @return \Kirki\Ecommerce\Framework\View\View Order details view.
      */
     public function order_details(Request $request, OrderService $order_service, OrderActivityService $order_activity_service)
     {
@@ -179,14 +180,13 @@ class AccountController
     }
 
     /**
-     * Addresses page.
+     * Render the customer's saved addresses and the country list.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
+     * @param Request        $request         Current request.
      * @param AddressService $address_service Address service.
-     *
-     * @return Response response.
+     * @return \Kirki\Ecommerce\Framework\View\View Addresses view.
      */
     public function addresses(Request $request, AddressService $address_service)
     {
@@ -209,13 +209,12 @@ class AccountController
     }
 
     /**
-     * Account details page.
+     * Render the account details page for the current user.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     *
-     * @return Response response.
+     * @param Request $request Current request.
+     * @return \Kirki\Ecommerce\Framework\View\View Account details view.
      */
     public function account_details(Request $request)
     {
@@ -231,14 +230,13 @@ class AccountController
     }
 
     /**
-     * Wishlist page.
+     * Render the current user's paginated wishlist, nine items per page.
      *
      * @since 1.0.0
      *
-     * @param Request $request Request.
-     * @param WishlistService $wishlist_service Wishlist service.
-     *
-     * @return Response response.
+     * @param WishlistFilterRequest $request          Validated wishlist filter request.
+     * @param WishlistService       $wishlist_service Wishlist service.
+     * @return \Kirki\Ecommerce\Framework\View\View Wishlist view.
      */
     public function wishlist(WishlistFilterRequest $request, WishlistService $wishlist_service)
     {

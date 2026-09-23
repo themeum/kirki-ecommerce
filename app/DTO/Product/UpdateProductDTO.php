@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\DTO\Product;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * Data object for updating a product.
+ *
+ * @since 1.0.0
+ */
 class UpdateProductDTO extends DTO
 {
     /** @var int */
@@ -36,7 +41,7 @@ class UpdateProductDTO extends DTO
     /** @var string|null */
     public $description;
 
-    /** @var string|null */
+    /** @var array|null */
     public $additional_info;
 
     /** @var string|null */

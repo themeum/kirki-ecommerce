@@ -10,6 +10,11 @@ use Kirki\Ecommerce\Framework\DTO;
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * Input to a cart or order price calculation: items, addresses, customer and coupon codes.
+ *
+ * @since 1.0.0
+ */
 class CalculationContextDTO extends DTO
 {
     /** @var int|null */
@@ -42,6 +47,13 @@ class CalculationContextDTO extends DTO
     /** @var bool */
     public $should_calculate_tax = true;
 
+    /**
+     * Sum the base unit price times quantity of every item.
+     *
+     * @since 1.0.0
+     *
+     * @return int Subtotal in minor units of the base currency.
+     */
     public function get_subtotal()
     {
         $subtotal = 0;
@@ -51,6 +63,13 @@ class CalculationContextDTO extends DTO
         return $subtotal;
     }
 
+    /**
+     * Sum the quantities of every item.
+     *
+     * @since 1.0.0
+     *
+     * @return int Total number of units across all items.
+     */
     public function get_items_count()
     {
         $count = 0;
@@ -60,6 +79,18 @@ class CalculationContextDTO extends DTO
         return $count;
     }
 
+    /**
+     * Build a calculation context from a cart.
+     *
+     * Copies the cart's addresses, shipping method, coupon codes and items. When the cart
+     * belongs to a user with a customer record, also sets the customer ID and the count of
+     * that customer's orders that are neither failed/cancelled nor refunded.
+     *
+     * @since 1.0.0
+     *
+     * @param Cart $cart Cart to read the context from.
+     * @return static
+     */
     public static function from_cart(Cart $cart)
     {
         $dto = new static();

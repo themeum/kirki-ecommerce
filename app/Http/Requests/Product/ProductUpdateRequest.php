@@ -12,15 +12,34 @@ use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
+/**
+ * Validates and sanitizes the payload for updating a product with its variants.
+ *
+ * @since 1.0.0
+ */
 class ProductUpdateRequest extends Request
 {
     use ValidatesVariantMatrix;
 
+    /**
+     * Check the variant matrix once the field rules have passed.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function passed_validation()
     {
         $this->validate_variant_matrix();
     }
 
+    /**
+     * Convert variant prices and cost of goods to minor units before validation.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $variants = $this->input('variants') ?? [];
@@ -42,6 +61,11 @@ class ProductUpdateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function rules()
     {
         return [
@@ -144,6 +168,11 @@ class ProductUpdateRequest extends Request
         ];
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function filters()
     {
         return [

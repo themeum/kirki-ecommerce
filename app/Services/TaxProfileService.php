@@ -16,12 +16,19 @@ use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Manages tax profiles: listing, lookup, creation, updates and deletion, keeping a single default.
+ *
+ * @since 1.0.0
+ */
 class TaxProfileService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -34,9 +41,11 @@ class TaxProfileService
     }
 
     /**
-     * Return paginated tax profiles
+     * Get a page of tax profiles matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, sorting and pagination filters.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -45,10 +54,12 @@ class TaxProfileService
     }
 
     /**
-     * Return all tax profiles
+     * Get all tax profiles matching the filters, without pagination.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return Collection Collection of TaxProfile.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -56,11 +67,13 @@ class TaxProfileService
     }
 
     /**
-     * Find a tax profile by ID.
+     * Find a tax profile by ID or throw an exception.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Tax profile ID.
      * @return TaxProfile
-     * @throws NotFoundException
+     * @throws NotFoundException When the tax profile does not exist.
      */
     public function find(int $id)
     {
@@ -74,7 +87,9 @@ class TaxProfileService
     /**
      * Find the default tax profile.
      *
-     * @return TaxProfile|null
+     * @since 1.0.0
+     *
+     * @return TaxProfile|null Null when no tax profile is marked as default.
      */
     public function find_default()
     {
@@ -84,7 +99,11 @@ class TaxProfileService
     /**
      * Create a new tax profile.
      *
-     * @param CreateTaxProfileDTO $data
+     * Marking it as default clears the flag on every other tax profile.
+     *
+     * @since 1.0.0
+     *
+     * @param CreateTaxProfileDTO $data Tax profile data.
      * @return TaxProfile
      */
     public function create(CreateTaxProfileDTO $data)
@@ -99,11 +118,15 @@ class TaxProfileService
     }
 
     /**
-     * Updates a tax profile.
+     * Update a tax profile.
      *
-     * @param UpdateTaxProfileDTO $data
-     * @throws NotFoundException
-     * @return TaxProfile
+     * Marking it as default clears the flag on every other tax profile.
+     *
+     * @since 1.0.0
+     *
+     * @param UpdateTaxProfileDTO $data Tax profile data, including its ID.
+     * @return TaxProfile|null The reloaded tax profile.
+     * @throws NotFoundException When the tax profile does not exist or could not be updated.
      */
     public function update(UpdateTaxProfileDTO $data)
     {
@@ -123,11 +146,13 @@ class TaxProfileService
     }
 
     /**
-     * Deletes a tax profile by ID.
+     * Delete a tax profile by ID.
      *
-     * @param int $id The ID of the tax profile to delete.
-     * @return bool True if the tax profile was deleted successfully, false otherwise.
-     * @throws NotFoundException If the tax profile could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Tax profile ID.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no tax profile was deleted.
      */
     public function delete(int $id)
     {
@@ -139,11 +164,13 @@ class TaxProfileService
     }
 
     /**
-     * Deletes multiple tax profiles by their IDs.
+     * Delete multiple tax profiles by their IDs.
      *
-     * @param array $ids The IDs of the tax profiles to delete.
-     * @return bool True if the tax profiles were deleted successfully, false otherwise.
-     * @throws NotFoundException If the tax profiles could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids IDs of the tax profiles to delete.
+     * @return bool Always true; failure throws.
+     * @throws NotFoundException When no tax profile was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -155,16 +182,26 @@ class TaxProfileService
     }
 
     /**
-     * Deletes all tax profiles.
+     * Delete all tax profiles matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully, false otherwise.
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search filter selecting the tax profiles.
+     * @return bool True when rows were deleted.
      */
     public function delete_all(ListFilterDTO $filters)
     {
         return (bool) $this->list_query($filters)->delete();
     }
 
+    /**
+     * Build the filtered and sorted query for the list of tax profiles.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search and sorting filters.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = TaxProfile::when($filters->search, function (QueryBuilder $query, $search) {

@@ -11,11 +11,10 @@
 
 defined('ABSPATH') || exit;
 
-use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Supports\Icon;
-
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
@@ -28,16 +27,21 @@ $first_name = ucfirst($customer['first_name'] ?? '');
 $last_name = ucfirst($customer['last_name'] ?? '');
 $email = $customer['email'] ?? '';
 
-$totals = $order['totals'] ?? [];
-$subtotal = $totals['invoiced_subtotal_money_object'] ?? null;
-$shipping = $totals['invoiced_shipping_money_object'] ?? null;
-$taxes = $totals['invoiced_tax_money_object'] ?? null;
-$discount = $totals['invoiced_discount_money_object'] ?? null;
-$total = $totals['invoiced_total_money_object'] ?? null;
+$pricing = isset($order['pricing']) ? $order['pricing'] : null;
+$subtotal = $pricing['invoiced_items_subtotal_money_object'] ?? null;
+$discount = $pricing['invoiced_order_discount_money_object'] ?? null;
+$order_total = $pricing['invoiced_order_total_money_object'] ?? null;
+$coupons = $pricing['coupons'] ?? [];
+$shipping = $pricing['invoiced_shipping_amount_money_object'] ?? null;
+$total = $pricing['invoiced_total_money_object'] ?? null;
+$tax_lines = $pricing['tax_lines'] ?? [];
+$tax_total = $pricing['invoiced_tax_total_money_object'] ?? null;
+$is_tax_inclusive = Tax::is_tax_inclusive();
+
 
 $order_activities = $data['activities'] ?? [];
 
-$items = isset($order['items']) ? $order['items']->to_array() : [];
+$items = isset($order['items']) ? $order['items'] : [];
 $items_product_data = $order['item_product_data'] ?? [];
 $order_placed = isset($order['created_at']) ? $order['created_at'] : '';
 $shipping_address = $order['shipping_address'] ?? [];
@@ -195,18 +199,19 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
 
         <!-- Right Column (Products List & Total Breakdown) -->
         <div class="kecom-order-details-col-right">
-            <div class="kecom-order-summary-card" x-data="{ expanded: false, isAtBottom: false }">
+            <div class="kecom-order-summary-card" x-data="{ expanded: false, isAtBottom: false }" :class="expanded ? 'expanded' : ''">
                 <!-- Order Items List -->
                 <div class="kecom-product-list-wrapper" x-ref="list_wrapper" :class="expanded ? 'scrollable': ''" @scroll="isAtBottom = $el.scrollHeight - $el.scrollTop <= $el.clientHeight + 1">
                     <div class="kecom-product-list">
-                            <?php foreach ($items as $key => $item) :
-                                $inv_price_obj = $item['invoiced_price_money_object'] ?? null;
-                                $item_product = $items_product_data[$key]['product'] ?? [];
-                                $categories = $item_product['categories'] ?? [];
-                                $product_image = $item_product['media'][0] ?? [];
-                                $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
-                                $image = $item['image'] ? $item['image'] : $product_first_image;
-                                ?>
+                        <?php foreach ($items as $key => $item) :
+                            $inv_price_obj = $item['invoiced_subtotal_money_object'] ?? null;
+                            $inv_strikethrough_price_obj = $item['invoiced_strikethrough_price_money_object'] ?? null;
+                            $item_product = $items_product_data[$key]['product'] ?? [];
+                            $product_image = $item_product['media'][0] ?? [];
+                            $product_first_image = MediaAttachment::make($product_image['ID'] ?? 0);
+                            $image = $item['image'] ? $item['image'] : $product_first_image;
+                            $applied_coupons = $item['applied_product_coupons'] ?? [];
+                            ?>
                             <div class="kecom-product-item">
                                 <div class="kecom-product-image-wrapper">
                                     <?php if (!empty($image) && isset($image['url'])) : ?>
@@ -219,34 +224,71 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
 
                                 <div class="kecom-product-info">
                                     <a href="<?php echo esc_url(Url::get_product_url($item_product['slug'] ?? '')); ?>" class="kecom-product-name"><?php echo esc_html($item['product_name'] ?? ''); ?></a>
-                                    <span class="kecom-product-category"><?php echo esc_html($categories[count($categories) - 1]['name'] ?? ''); ?></span>
                                     <div class="kecom-product-variant">
                                         <?php echo esc_html($item['variant_name'] ?? '') ?>
                                     </div>
+                                    <?php if (!empty($applied_coupons)) : ?>
+                                        <?php foreach ($applied_coupons as $coupon) :
+                                            $code = $coupon['code'] ?? '';
+                                            $discount_type = $coupon['discount_value_type'] ?? '';
+                                            $discount_amount = $coupon['discount_amount_percentage'] ?? '';
+                                            $amount = $coupon['invoiced_discount_amount_money_object'] ?? '';
+                                            $coupon_text = sprintf(__('%1$s %2$s (-%3$s) Discount Applied', 'kirki-ecommerce'), $code, 'percentage' === $discount_type ? $discount_amount . '%' : '', $amount->display);
+                                            ?>
+                                            <div class="kecom-product-coupon">
+                                                <span class="kecom-product-coupon-icon"><?php Icon::render('tag'); ?></span>
+                                                <span class="kecom-product-coupon-text"><?php echo esc_html($coupon_text); ?></span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="kecom-product-price-wrapper">
                                     <span class="kecom-product-price"><?php echo esc_html($inv_price_obj->display ?? ''); ?></span>
+                                    <?php if (!empty($inv_strikethrough_price_obj)) : ?>
+                                        <span class="kecom-product-discount"><?php echo esc_html($inv_strikethrough_price_obj->display ?? ''); ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                            <?php endforeach; ?>
+                        <?php endforeach; ?>
                     </div>
                     <div class="kecom-collapse-button" x-show="expanded" x-cloak>
                         <button @click="expanded = !expanded; $refs.list_wrapper.scrollTop = 0;" class="kecom-btn kecom-btn-link"><?php esc_html_e('Show Less', 'kirki-ecommerce'); ?></button>
                     </div>
                 </div>
                 <?php if (count($items) > 3) : ?>
-                    <div class="kecom-expand-button" x-show="!expanded" x-cloak>
+                    <div class="kecom-expand-button" :class="expanded ? 'expanded' : ''">
                         <?php /* translators: %d: number of additional items */ ?>
                         <button @click="expanded = !expanded" class="kecom-btn kecom-btn-link" x-text="'<?php echo esc_js(sprintf(__('Show More (%d)', 'kirki-ecommerce'), count($items) - 3)); ?>'"></button>
                     </div>
                 <?php endif; ?>
                 <!-- Summary Totals Breakdown -->
                 <div class="kecom-order-pricing-breakdown" :class="expanded && !isAtBottom ? 'expanded' : ''">
+                    <?php if (! empty($coupons)) : ?>
+                        <div class="kecom-applied-coupons">
+                            <?php foreach ($coupons as $coupon) : ?>
+                                <div class="kecom-tag">
+                                    <span class="kecom-tag-icon"><?php Icon::render('tag'); ?></span>
+                                    <span class="kecom-tag-text"><?php echo esc_html($coupon['code'] ?? ''); ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="kecom-pricing-row">
                         <span class="kecom-pricing-label"><?php esc_html_e('Subtotal', 'kirki-ecommerce'); ?></span>
                         <span class="kecom-pricing-value"><?php echo esc_html($subtotal->display ?? ''); ?></span>
                     </div>
+                    <?php if ($discount->raw > 0) : ?>
+                        <div class="kecom-pricing-row kecom-discount-pricing-row">
+                            <span class="kecom-pricing-label"><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
+                            <span class="kecom-pricing-value"><?php echo '-' . esc_html($discount->display ?? ''); ?></span>
+                        </div>
+
+                        <div class="kecom-pricing-row">
+                            <span class="kecom-pricing-label"><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
+                            <span class="kecom-pricing-value"><?php echo esc_html($order_total->display ?? ''); ?></span>
+                        </div>
+                    <?php endif ?>
 
                     <div class="kecom-pricing-row">
                         <span class="kecom-pricing-label">
@@ -255,21 +297,40 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <span class="kecom-pricing-value"><?php echo esc_html($shipping->display ?? ''); ?></span>
                     </div>
 
-                    <div class="kecom-pricing-row">
-                        <span class="kecom-pricing-label">
-                            <?php esc_html_e('Taxes', 'kirki-ecommerce'); ?>
-                        </span>
-                        <span class="kecom-pricing-value"><?php echo esc_html($taxes->display ?? ''); ?></span>
-                    </div>
-
-                    <div class="kecom-pricing-row">
-                        <span class="kecom-pricing-label"><?php esc_html_e('Discount', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-pricing-value"><?php echo esc_html($discount->display ?? ''); ?></span>
-                    </div>
+                    <?php if (! empty($tax_lines) && ! $is_tax_inclusive) : ?>
+                        <?php foreach ($tax_lines as $tax) : ?>
+                            <div class="kecom-pricing-row">
+                                <span class="kecom-pricing-label">
+                                    <?php echo esc_html($tax['name'] ?? ''); ?>
+                                </span>
+                                <span class="kecom-pricing-value">
+                                    <?php echo esc_html($tax['invoiced_amount_money_object']->display ?? ''); ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
 
                     <div class="kecom-pricing-row kecom-pricing-row-total">
-                        <span class="kecom-pricing-label"><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
-                        <span class="kecom-pricing-value"><?php echo esc_html($total->display ?? ''); ?></span>
+                        <div class="kecom-total-label-wrapper">
+                            <span class="kecom-pricing-label"><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
+                            <?php if (! empty($tax_lines) && $is_tax_inclusive) :
+                                /** translators: %s: Tax amount. */
+                                $label = 'VAT' === $tax_lines[0]['name'] ? sprintf(__('Incl. %s VAT', 'kirki-ecommerce'), $tax_total->display ?? '') : sprintf(_n('Incl. %s Tax', 'Incl. %s Taxes', count($tax_lines), 'kirki-ecommerce'), $tax_total->display ?? '');
+                                ?>
+                                <div class="kecom-inclusive-tax-wrapper">
+                                    <span class="kecom-inclusive-tax-summary"><?php echo esc_html($label); ?></span>
+                                    <div class="kecom-inclusive-tax-lines">
+                                        <?php foreach ($tax_lines as $tax) :  ?>
+                                            <div class="kecom-inclusive-tax-line"><?php printf('%d%% %s: %s', esc_html($tax['rate'] ?? ''), esc_html($tax['name'] ?? ''), esc_html($tax['invoiced_amount_money_object']->display ?? '')) ?></div>
+                                        <?php endforeach ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div>
+                            <span class="kecom-total-currency"><?php echo esc_html($order['currency_code'] ?? ''); ?></span>
+                            <span class="kecom-pricing-value"><?php echo esc_html($total->display ?? ''); ?></span>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -5,13 +5,19 @@ namespace Kirki\Ecommerce\Database\Seeders;
 use Kirki\Ecommerce\App\Models\ShippingProfile;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 
+/**
+ * Seeds the demo shipping profiles.
+ *
+ * @since 1.0.0
+ */
 class ShippingProfilesSeeder extends Seeder
 {
     /**
      * Seed shipping profiles for product assignment.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -21,8 +27,9 @@ class ShippingProfilesSeeder extends Seeder
     /**
      * Curated shipping profile definitions.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Profile rows with name and default flag.
      */
     protected function get_shipping_profiles()
     {

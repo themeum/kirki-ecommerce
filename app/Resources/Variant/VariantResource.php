@@ -12,15 +12,28 @@ use Kirki\Ecommerce\App\Supports\UnitPrice;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
+/**
+ * API resource for a product variant with pricing, stock and shipping details.
+ *
+ * @since 1.0.0
+ */
 class VariantResource extends Resource
 {
     /**
      * Public preview URL of the variant's product, when one is available.
      *
-     * @var ?string
+     * @var string|null
      */
     protected $preview_url;
 
+    /**
+     * Create the resource for a variant.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed       $variant     Variant model with its product loaded.
+     * @param string|null $preview_url Public preview URL of the variant's product, if any.
+     */
     public function __construct($variant, ?string $preview_url = null)
     {
         $this->preview_url = $preview_url;
@@ -28,9 +41,11 @@ class VariantResource extends Resource
     }
 
     /**
-     * Convert the product resource to an array.
+     * Convert the variant resource to an array.
      *
-     * @return array The product data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The variant data, with prices in base and display currencies, stock and availability.
      */
     public function to_array()
     {

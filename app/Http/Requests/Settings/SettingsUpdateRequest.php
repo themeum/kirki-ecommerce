@@ -20,8 +20,22 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
+/**
+ * Validates and sanitizes a settings update for one settings group, selected by the `key` input.
+ *
+ * @since 1.0.0
+ */
 class SettingsUpdateRequest extends Request
 {
+    /**
+     * Normalize the shipping and tax settings payload before validation.
+     *
+     * Shipping method and range amounts are converted to minor units. Non-EU tax regions with central tax enabled get their state list emptied.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function prepare_for_validation()
     {
         $data = $this->input('data');
@@ -80,6 +94,15 @@ class SettingsUpdateRequest extends Request
         $this->merge(['data' => $data]);
     }
 
+    /**
+     * Build the validation rules for the settings group named by the `key` input.
+     *
+     * The `key` rule is always included; an unrecognised key adds no group rules.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed>
+     */
     public function rules()
     {
         $rules = [];
@@ -125,6 +148,15 @@ class SettingsUpdateRequest extends Request
         ], $rules);
     }
 
+    /**
+     * Build the sanitizers for the settings group named by the `key` input.
+     *
+     * Returns an empty array when the key is not a known settings group.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     public function filters()
     {
         $key = $this->get_string('key');
@@ -155,6 +187,11 @@ class SettingsUpdateRequest extends Request
         }
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     protected function messages()
     {
         $no_slashes_message = __('Slashes and backslashes are not allowed.', 'kirki-ecommerce');
@@ -168,6 +205,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the general store settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_general_settings_rules()
     {
         return [
@@ -197,6 +241,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the general store settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_general_settings_filters()
     {
         return [
@@ -226,6 +277,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the product settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_product_settings_rules()
     {
         return [
@@ -248,6 +306,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the product settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_product_settings_filters()
     {
         return [
@@ -270,6 +335,15 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the shipping zones and their shipping methods.
+     *
+     * Flat rate and weight based methods must also provide `is_taxable`.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string|callable>
+     */
     protected function get_shipping_settings_rules()
     {
         return [
@@ -347,6 +421,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the shipping zones and their shipping methods.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_shipping_settings_filters()
     {
         return [
@@ -409,6 +490,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the offline payment settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_payment_settings_rules()
     {
         return [
@@ -422,6 +510,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the offline payment settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_payment_settings_filters()
     {
         return [
@@ -436,12 +531,14 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Validation rules for one tax rule list, applied to both a region's
-     * country-wide rules and a state's per-state rules.
+     * Return the validation rules for one tax rule list.
+     *
+     * Applied to both a region's country-wide rules and a state's per-state rules.
+     *
+     * @since 1.0.0
      *
      * @param string $prefix Fully qualified path of the rules array.
-     *
-     * @return array
+     * @return array<string, string>
      */
     protected function get_tax_rules_rules($prefix)
     {
@@ -458,6 +555,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the tax settings, including each region's and state's tax rules.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_tax_settings_rules()
     {
         return array_merge(
@@ -495,11 +599,12 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Sanitizers for one tax rule list, mirroring {@see static::get_tax_rules_rules()}.
+     * Return the sanitizers for one tax rule list, mirroring {@see static::get_tax_rules_rules()}.
+     *
+     * @since 1.0.0
      *
      * @param string $prefix Fully qualified path of the rules array.
-     *
-     * @return array
+     * @return array<string, string>
      */
     protected function get_tax_rules_filters($prefix)
     {
@@ -516,6 +621,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the tax settings, including each region's and state's tax rules.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_tax_settings_filters()
     {
         return array_merge(
@@ -550,6 +662,13 @@ class SettingsUpdateRequest extends Request
         );
     }
 
+    /**
+     * Return the validation rules for the checkout settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_checkout_settings_rules()
     {
         return [
@@ -564,6 +683,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the checkout settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_checkout_settings_filters()
     {
         return [
@@ -578,6 +704,15 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the currency settings.
+     *
+     * The API provider and API config are required only when automatic updates are enabled.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string|array|callable>
+     */
     protected function get_currency_settings_rules()
     {
         return [
@@ -653,6 +788,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the currency settings.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_currency_settings_filters()
     {
         return [
@@ -670,6 +812,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the validation rules for the email settings: default template, mail server and notification emails.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_email_settings_rules()
     {
         return [
@@ -766,6 +915,13 @@ class SettingsUpdateRequest extends Request
         ];
     }
 
+    /**
+     * Return the sanitizers for the email settings: default template, mail server and notification emails.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
     protected function get_email_settings_filters()
     {
         return [
@@ -863,9 +1019,11 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Validation rules for the advanced settings page assignments.
+     * Return the validation rules for the advanced settings page assignments.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, string>
      */
     protected function get_advance_settings_rules()
     {
@@ -881,9 +1039,11 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Sanitizers for the advanced settings page assignments.
+     * Return the sanitizers for the advanced settings page assignments.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, string>
      */
     protected function get_advance_settings_filters()
     {
@@ -899,9 +1059,11 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Validation rules for the legal consents.
+     * Return the validation rules for the legal consents.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, string>
      */
     protected function get_legal_settings_rules()
     {
@@ -918,13 +1080,15 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Sanitizers for the legal consents.
+     * Return the sanitizers for the legal consents.
      *
      * The `data.consents` array rule must stay first: sanitization only keeps
      * the paths listed here, and the array rule seeds the whole subtree that
      * the leaf rules below then overwrite key by key.
      *
-     * @return array
+     * @since 1.0.0
+     *
+     * @return array<string, string>
      */
     protected function get_legal_settings_filters()
     {

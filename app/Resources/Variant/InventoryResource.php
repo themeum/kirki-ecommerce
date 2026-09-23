@@ -11,8 +11,20 @@ use Kirki\Ecommerce\App\Supports\Facades\Settings;
 
 use function Kirki\Ecommerce\Framework\app;
 
+/**
+ * API resource for a variant's stock levels, as listed in the inventory screen.
+ *
+ * @since 1.0.0
+ */
 class InventoryResource extends Resource
 {
+    /**
+     * Convert the variant resource to an inventory row.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The variant stock quantities, availability, display prices and parent product summary.
+     */
     public function to_array()
     {
         $display_currency = Money::resolve_display_currency();

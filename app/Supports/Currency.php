@@ -8,15 +8,27 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Static helpers for converting and formatting amounts between stored currencies.
+ *
+ * @since 1.0.0
+ */
 class Currency
 {
     /**
      * Convert amount from one currency to another.
      *
-     * @param float $amount
-     * @param string $to_currency
-     * @param string|null $from_currency
+     * Falls back to the configured base currency (or USD) when no source is given,
+     * and returns the amount unchanged when either currency is not stored or both
+     * are the same.
+     *
+     * @since 1.0.0
+     *
+     * @param float       $amount
+     * @param string      $to_currency   Code of the currency to convert to.
+     * @param string|null $from_currency Code of the currency to convert from.
      * @return float
+     * @throws \Exception When the source currency has an exchange rate of 0.
      */
     public static function convert(float $amount, string $to_currency, $from_currency = null)
     {
@@ -39,10 +51,15 @@ class Currency
     }
 
     /**
-     * Get exchange rate for a currency from base currency.
+     * Get the stored exchange rate of a currency.
      *
-     * @param string $to_currency
+     * Throws through `throw_if()` when the currency is not found or its rate is 0.
+     *
+     * @since 1.0.0
+     *
+     * @param string $to_currency Currency code.
      * @return float
+     * @throws \Exception When the currency is not found or its exchange rate is 0.
      */
     public static function exchange_rate(string $to_currency)
     {
@@ -56,10 +73,12 @@ class Currency
     }
 
     /**
-     * Resolve currency from code or object.
+     * Look up the stored currency by its code.
+     *
+     * @since 1.0.0
      *
      * @param string $currency_code
-     * @return \Kirki\Ecommerce\App\Models\Currency|null
+     * @return \Kirki\Ecommerce\App\Models\Currency|null Null when no such currency is stored.
      */
     protected static function resolve_currency(string $currency_code)
     {
@@ -69,7 +88,11 @@ class Currency
     /**
      * Format amount with currency symbol.
      *
-     * @param float $amount
+     * Formats to 2 decimals, without a symbol when the currency is not stored.
+     *
+     * @since 1.0.0
+     *
+     * @param float  $amount
      * @param string $currency_code
      * @return string
      */

@@ -4,7 +4,7 @@
 @use '../../tokens' as *;
 @use '../../mixins' as *;
 
-.kecom-order-tracking-page{
+.kecom-order-tracking-page {
   max-width: 1464px;
   margin: 0 auto;
   @include flex-center();
@@ -283,9 +283,7 @@
 // ----------------------------------------------------------------------------
 .kecom-order-details-col-right {
   .kecom-order-summary-card {
-    max-height: 522px;
     @include flex(column, stretch, space-between);
-    min-height: 100%;
     background-color: $background-surface;
     border-radius: $radius-2xl;
     width: 100%;
@@ -293,7 +291,7 @@
   }
 
   .kecom-product-list-wrapper {
-    max-height: 245px;
+    max-height: 255px;
     overflow: hidden;
     scrollbar-gutter: stable both-edges;
     padding-top: $spacing-2;
@@ -316,6 +314,13 @@
     }
   }
 
+  .kecom-expand-button.expanded {
+    opacity: 0;
+    pointer-events: none;
+    padding-top: 0;
+    height: 0;
+  }
+
   .kecom-expand-button {
     padding-top: $spacing-14;
   }
@@ -326,8 +331,8 @@
 
   .kecom-product-list-wrapper.scrollable {
     overflow: auto;
-    max-height: 330px;
     margin: 0 -4px;
+    max-height: calc(255px + 60px);
     @include scrollbar(
       $spacing-2,
       $spacing-19,
@@ -345,7 +350,12 @@
     margin: 0 -8px;
     flex: 1;
     justify-content: flex-end;
-    min-height: 188px;
+  }
+
+  .kecom-applied-coupons {
+    padding-bottom: $spacing-8;
+    border-bottom: 1px solid $border-default;
+    margin-bottom: $spacing-4;
   }
 
   .kecom-order-pricing-breakdown.expanded {
@@ -353,7 +363,7 @@
   }
 
   .kecom-pricing-row {
-    @include flex-between();
+    @include flex(row, start, space-between);
     @include typography(base, normal, $text-secondary);
 
     .kecom-pricing-value {
@@ -366,10 +376,47 @@
       margin-top: $spacing-6;
       border-top: 1px solid $border-default;
 
+      .kecom-total-currency {
+        @include typography(sm, normal, $text-subdued);
+      }
+
       .kecom-pricing-label,
       .kecom-pricing-value {
-        @include typography(md, bold, $text-primary);
+        @include typography(base, bold, $text-primary);
       }
+    }
+
+    &.kecom-discount-pricing-row {
+      padding-bottom: $spacing-6;
+      margin-bottom: $spacing-2;
+      border-bottom: 1px solid $border-default;
+    }
+
+    .kecom-total-label-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .kecom-inclusive-tax-wrapper {
+      @include flex-column();
+      gap: $spacing-1;
+      margin-top: $spacing-1;
+      @include typography(sm, normal, $text-secondary);
+      font-weight: 400;
+    }
+
+    .kecom-inclusive-tax-summary {
+      color: $text-secondary;
+    }
+
+    .kecom-inclusive-tax-lines {
+      @include flex-column();
+      gap: $spacing-1;
+      padding-inline-start: $spacing-3;
+    }
+
+    .kecom-inclusive-tax-line {
+      @include typography(sm, normal, $text-subdued);
     }
   }
 }

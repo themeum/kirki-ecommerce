@@ -21,12 +21,19 @@ use Exception;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * Manages customers: listing with order stats, lookup, CRUD and location options.
+ *
+ * @since 1.0.0
+ */
 class CustomerService
 {
     use HasSortableColumns;
 
     /**
-     * @return array<string, mixed>
+     * @inheritDoc
+     *
+     * @since 1.0.0
      */
     protected function sortable_columns()
     {
@@ -54,9 +61,11 @@ class CustomerService
     }
 
     /**
-     * Return paginated customers
+     * Get a page of customers, with order stats, matching the filters.
      *
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range, location, sorting and pagination.
      * @return Paginator
      */
     public function paginated(ListFilterDTO $filters)
@@ -65,10 +74,12 @@ class CustomerService
     }
 
     /**
-     * Return all customers
+     * Get every customer, with order stats, matching the filters.
      *
-     * @param ListFilterDTO $filters
-     * @return Collection
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range, location and sorting.
+     * @return Collection Collection of Customer models.
      */
     public function all(ListFilterDTO $filters)
     {
@@ -76,11 +87,13 @@ class CustomerService
     }
 
     /**
-     * Find a customer by ID.
+     * Find a customer, with billing and shipping addresses, by ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $id Customer ID.
      * @return Customer
-     * @throws NotFoundException
+     * @throws NotFoundException When the customer does not exist.
      */
     public function find(int $id)
     {
@@ -92,9 +105,11 @@ class CustomerService
     }
 
     /**
-     * Find a customer by their user ID.
+     * Find a customer, with billing and shipping addresses, by WordPress user ID.
      *
-     * @param int $id
+     * @since 1.0.0
+     *
+     * @param int $user_id WordPress user ID.
      * @return Customer|null
      */
     public function find_by_user_id(int $user_id)
@@ -107,10 +122,13 @@ class CustomerService
     /**
      * Create a new customer.
      *
-     * If no slug is provided, it will be generated from the name.
+     * Creator and updater default to the current user.
      *
-     * @param CreateCustomerDTO $data
-     * @return Customer
+     * @since 1.0.0
+     *
+     * @param CreateCustomerDTO $data Customer data.
+     * @return Customer The new customer with its addresses loaded.
+     * @throws Exception When a customer already exists for the given user ID.
      */
     public function create(CreateCustomerDTO $data)
     {
@@ -125,13 +143,15 @@ class CustomerService
     }
 
     /**
-     * Updates a customer.
+     * Update a customer.
      *
-     * If no slug is provided, it will be generated from the name.
+     * Also updates the email of the linked WordPress user.
      *
-     * @param UpdateCustomerDTO $data
-     * @throws NotFoundException
-     * @return Customer
+     * @since 1.0.0
+     *
+     * @param UpdateCustomerDTO $data Customer data including the ID.
+     * @return Customer The refreshed customer.
+     * @throws NotFoundException When the customer does not exist or cannot be updated.
      */
     public function update(UpdateCustomerDTO $data)
     {
@@ -157,7 +177,7 @@ class CustomerService
     }
 
     /**
-     * Partially updates a customer's own record.
+     * Partially update a customer's own record.
      *
      * Unlike update(), this writes only the columns present in $data -
      * anything not present is left untouched. The caller is responsible for
@@ -165,10 +185,12 @@ class CustomerService
      * phone); this method itself does not restrict which fillable Customer
      * columns can be written.
      *
-     * @param int $customer_id
-     * @param array $data
-     * @throws NotFoundException
-     * @return Customer
+     * @since 1.0.0
+     *
+     * @param int                  $customer_id Customer ID.
+     * @param array<string, mixed> $data        Columns to change.
+     * @return Customer The refreshed customer.
+     * @throws NotFoundException When the customer does not exist or cannot be updated.
      */
     public function update_profile(int $customer_id, array $data)
     {
@@ -186,11 +208,13 @@ class CustomerService
     }
 
     /**
-     * Deletes a customer by ID.
+     * Delete a customer by ID, along with the linked WordPress user.
      *
-     * @param int $id The ID of the customer to delete.
-     * @return bool True if the customer was deleted successfully, false otherwise.
-     * @throws NotFoundException If the customer could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int $id Customer ID.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When the customer does not exist or cannot be deleted.
      */
     public function delete(int $id)
     {
@@ -212,11 +236,13 @@ class CustomerService
     }
 
     /**
-     * Deletes multiple customers by their IDs.
+     * Delete multiple customers by their IDs, along with their linked WordPress users.
      *
-     * @param array $ids The IDs of the customers to delete.
-     * @return bool True if the customers were deleted successfully, false otherwise.
-     * @throws NotFoundException If the customers could not be found or deleted.
+     * @since 1.0.0
+     *
+     * @param int[] $ids Customer IDs.
+     * @return bool Always true; failure is signalled by an exception.
+     * @throws NotFoundException When no customer was deleted.
      */
     public function bulk_delete(array $ids)
     {
@@ -237,11 +263,15 @@ class CustomerService
     }
 
     /**
-     * Deletes all customers.
+     * Delete every customer matching the filters, along with their linked WordPress users.
      *
-     * @param ListFilterDTO $filters
-     * @return bool True if successfully
-     * @throws Exception If the customers could not be deleted.
+     * Runs in a transaction that is rolled back on failure.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range and location filters.
+     * @return bool True when at least one customer row was deleted.
+     * @throws Exception When deletion fails.
      */
     public function delete_all(ListFilterDTO $filters)
     {
@@ -262,11 +292,19 @@ class CustomerService
 
             return $is_deleted;
         } catch (Exception $e) {
-            DB::roll_back();
+            DB::rollback();
             throw $e;
         }
     }
 
+    /**
+     * Build the customer list query with order stats, billing address, filters and sorting applied.
+     *
+     * @since 1.0.0
+     *
+     * @param ListFilterDTO $filters Search, date range, location and sorting.
+     * @return QueryBuilder
+     */
     protected function list_query(ListFilterDTO $filters)
     {
         $query = Customer::query()
@@ -292,10 +330,11 @@ class CustomerService
      * default shipping address is the one that decides where an order goes,
      * which is what a merchant means by where a customer is.
      *
-     * @param QueryBuilder $query
-     * @param ListFilterDTO $filters
+     * @since 1.0.0
      *
-     * @return QueryBuilder
+     * @param QueryBuilder  $query   List query to narrow.
+     * @param ListFilterDTO $filters Filters carrying the optional country and city.
+     * @return QueryBuilder The same query when no location is given.
      */
     protected function apply_location_filter(QueryBuilder $query, ListFilterDTO $filters)
     {
@@ -318,15 +357,16 @@ class CustomerService
     }
 
     /**
-     * The distinct locations present on customers' default shipping addresses.
+     * List the distinct locations present on customers' default shipping addresses.
      *
      * The filter controls offer only locations a merchant actually has
      * customers in, so the options come from the address rows themselves
      * rather than from a global reference list.
      *
-     * @param string|null $country Restrict the cities to this country.
+     * @since 1.0.0
      *
-     * @return array{countries: string[], cities: string[]}
+     * @param string|null $country Restrict the cities to this country.
+     * @return array{countries: string[], cities: string[]} Sorted country and city names.
      */
     public function list_locations($country = null)
     {

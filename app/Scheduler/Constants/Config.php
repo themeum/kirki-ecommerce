@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Scheduler\Constants;
 
+/**
+ * Constants for the scheduler's action and cron event names, secret key name and job limits.
+ *
+ * @since 1.0.0
+ */
 final class Config
 {
     /**

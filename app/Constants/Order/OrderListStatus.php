@@ -12,6 +12,8 @@ use Kirki\Ecommerce\Framework\Concerns\HasConstants;
  * fulfillment_status for how far the order has progressed, payment_status for
  * money, and order_status for the refund states that exist only as a composite
  * lifecycle value. Order::scope_apply_status_filter() holds that mapping.
+ *
+ * @since 1.0.0
  */
 final class OrderListStatus
 {

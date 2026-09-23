@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Creates the kirki_ecommerce_variants table, which stores product variants.
+ *
+ * @since 1.0.0
+ */
 class CreateVariantsTable implements Migration
 {
+    /**
+     * Create the kirki_ecommerce_variants table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::create('kirki_ecommerce_variants', function (Structure $table) {
@@ -62,6 +74,13 @@ class CreateVariantsTable implements Migration
         });
     }
 
+    /**
+     * Drop the kirki_ecommerce_variants table.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::drop_if_exists('kirki_ecommerce_variants');

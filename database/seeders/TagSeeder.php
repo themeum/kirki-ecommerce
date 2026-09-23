@@ -7,13 +7,19 @@ use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 
+/**
+ * Seeds the curated tags defined in the seed catalog.
+ *
+ * @since 1.0.0
+ */
 class TagSeeder extends Seeder
 {
     /**
      * Seed curated merchandising and descriptive tags.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run()
     {

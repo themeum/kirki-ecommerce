@@ -10,6 +10,11 @@ use function Kirki\Ecommerce\Framework\resource_path;
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
 
+/**
+ * Composite order lifecycle statuses, each combining a fulfillment and a payment state.
+ *
+ * @since 1.0.0
+ */
 final class OrderStatus
 {
     use HasConstants;
@@ -40,14 +45,18 @@ final class OrderStatus
     const REFUNDED_PARTIALLY = 'refunded_partially';
 
     /**
-     * The order lifecycle state machine, shared with the frontend.
+     * Get the order lifecycle state machine, shared with the frontend.
+     *
+     * Loaded from the order-state-matrix.json resource, keyed by order status.
      *
      * @todo Refund-cluster statuses (REFUND_REQUESTED, REFUND_IN_PROGRESS, REFUNDED,
      * REFUND_DECLINED, RETURNED_PENDING_REFUND, REFUNDED_PARTIALLY) are not part of this
      * matrix yet; refund actions remain unimplemented pending a dedicated refund state
      * machine (see PerformOrderAction::guard()).
      *
-     * @return array<string, array{fulfillment_status: string, payment_status: string, fulfillment_actions: string[], payment_actions: string[], order_actions: string[], transitions: array<string, string>}>
+     * @since 1.0.0
+     *
+     * @return array<string, array{fulfillment_status: string, payment_status: string, fulfillment_actions: string[], payment_actions: string[], order_actions: string[], transitions: array<string, string>}> Empty when the matrix file cannot be read.
      */
     public static function get_transition_matrix()
     {
@@ -57,9 +66,10 @@ final class OrderStatus
     /**
      * Get the state definition for an order status.
      *
-     * @param string $order_status
+     * @since 1.0.0
      *
-     * @return array
+     * @param string $order_status Order status key.
+     * @return array<string, mixed> The matrix entry for the status.
      * @throws Exception When the order status has no matrix entry.
      */
     public static function get_state(string $order_status)
@@ -74,10 +84,11 @@ final class OrderStatus
     /**
      * Find the order status matching a fulfillment/payment status pair.
      *
-     * @param string $fulfillment_status
-     * @param string $payment_status
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $fulfillment_status Fulfillment status key.
+     * @param string $payment_status     Payment status key.
+     * @return string Matching order status key.
      * @throws Exception When no order status matches the given pair.
      */
     public static function find_by_pair(string $fulfillment_status, string $payment_status)
@@ -94,7 +105,9 @@ final class OrderStatus
     /**
      * Get all order statuses.
      *
-     * @return array<string, string>
+     * @since 1.0.0
+     *
+     * @return array<string, string> Translated labels keyed by status.
      */
     public static function get_list()
     {
@@ -127,11 +140,12 @@ final class OrderStatus
     }
 
     /**
-     * Get the formatted status.
+     * Get the translated label for an order status.
      *
-     * @param string $status
+     * @since 1.0.0
      *
-     * @return string
+     * @param string $status Order status key.
+     * @return string Label, or an empty string for an unknown status.
      */
     public static function get_formatted(string $status)
     {

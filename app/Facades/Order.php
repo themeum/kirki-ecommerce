@@ -6,6 +6,10 @@ use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Managers\OrderManager;
 
 /**
+ * Facade for the order manager.
+ *
+ * @since 1.0.0
+ *
  * @method static \Kirki\Ecommerce\App\Models\Order create(\Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO $dto)
  * @method static \Kirki\Ecommerce\App\Models\Order update(\Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO $dto)
  * @method static bool mark_as_cancel(int $id, string|null $reason = null)
@@ -41,9 +45,9 @@ use Kirki\Ecommerce\App\Managers\OrderManager;
 class Order extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public static function get_accessor()
     {

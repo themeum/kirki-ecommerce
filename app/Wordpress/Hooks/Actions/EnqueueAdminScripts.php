@@ -11,7 +11,7 @@ use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 use function Kirki\Ecommerce\Framework\app;
 
 /**
- * This hook is responsible for enqueueing the admin script.
+ * Enqueues the admin app's scripts and styles on the plugin's admin pages.
  *
  * @since 1.0.0
  */
@@ -19,16 +19,37 @@ class EnqueueAdminScripts extends BaseHook
 {
     protected const VITE_DEV_SERVER = 'http://localhost:5173';
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name()
     {
         return WPHookNames::ADMIN_ENQUEUE_SCRIPT;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type()
     {
         return HookTypes::ACTION;
     }
 
+    /**
+     * Enqueue the editor and media assets and the admin app bundle on the plugin's admin pages.
+     *
+     * Runs on the `admin_enqueue_scripts` action. Uses the Vite dev server in dev mode
+     * and the built manifest otherwise.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments, unused.
+     * @return void
+     */
     public function handle(...$args)
     {
         if (!Assets::is_admin_page()) {
@@ -53,6 +74,13 @@ class EnqueueAdminScripts extends BaseHook
         $this->enqueue_production_scripts();
     }
 
+    /**
+     * Enqueue the app's scripts served by the Vite dev server.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function enqueue_vite_dev_scripts()
     {
         $vite_refresh_handle = app()->prefix() . 'vite-refresh';
@@ -92,6 +120,13 @@ class EnqueueAdminScripts extends BaseHook
         add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
     }
 
+    /**
+     * Get the URL of the bundled Vite refresh helper script.
+     *
+     * @since 1.0.0
+     *
+     * @return string
+     */
     protected function get_vite_refresh_script_url()
     {
         return plugins_url(
@@ -100,6 +135,13 @@ class EnqueueAdminScripts extends BaseHook
         );
     }
 
+    /**
+     * Enqueue the built vendor chunks and entry bundle listed in the Vite manifest.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     protected function enqueue_production_scripts()
     {
         $manifest = Assets::get_manifest();
@@ -160,9 +202,10 @@ class EnqueueAdminScripts extends BaseHook
      * the `<script src>` tag, so any tag rewriting there also hits the inline
      * config and localization snippets.
      *
-     * @param array $attributes
+     * @since 1.0.0
      *
-     * @return array
+     * @param array<string, mixed> $attributes Script tag attributes.
+     * @return array<string, mixed> Attributes with `type` set to `module` for the app's handles.
      */
     public function add_module_type_to_scripts($attributes)
     {

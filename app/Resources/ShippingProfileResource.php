@@ -4,12 +4,19 @@ namespace Kirki\Ecommerce\App\Resources;
 
 use Kirki\Ecommerce\Framework\Resource;
 
+/**
+ * API resource for a shipping profile.
+ *
+ * @since 1.0.0
+ */
 class ShippingProfileResource extends Resource
 {
     /**
      * Convert the shipping profile resource to an array.
      *
-     * @return array The shipping profile data as an associative array.
+     * @since 1.0.0
+     *
+     * @return array<string, mixed> The shipping profile data.
      */
     public function to_array()
     {

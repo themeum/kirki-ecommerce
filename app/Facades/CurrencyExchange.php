@@ -6,6 +6,10 @@ use Kirki\Ecommerce\App\Currency\CurrencyExchangeManager;
 use Kirki\Ecommerce\Framework\Facade;
 
 /**
+ * Facade for the currency exchange manager.
+ *
+ * @since 1.0.0
+ *
  * @method static void set_base_currency(string $base_currency)
  * @method static array get_available_providers()
  * @method static \Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider|null get_active_provider()
@@ -17,9 +21,9 @@ use Kirki\Ecommerce\Framework\Facade;
 class CurrencyExchange extends Facade
 {
     /**
-     * Get the registered name of the component.
+     * @inheritDoc
      *
-     * @return string
+     * @since 1.0.0
      */
     public static function get_accessor()
     {

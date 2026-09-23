@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\Database\Seeders\OnBoarding;
 
+/**
+ * Static catalog of the starter categories, attributes, schema profiles and products created on first install.
+ *
+ * @since 1.0.0
+ */
 class OnBoardingCatalog
 {
     /**
@@ -11,8 +16,9 @@ class OnBoardingCatalog
      * at that level only, and inventing copy for 240 leaf categories would add
      * noise without adding meaning.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Nested categories with name, optional description and children.
      */
     public static function get_categories()
     {
@@ -573,8 +579,9 @@ class OnBoardingCatalog
     /**
      * Colour presets seeded as values of the Color attribute.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, string>> Rows with value and hex color.
      */
     public static function get_colors()
     {
@@ -615,8 +622,9 @@ class OnBoardingCatalog
     /**
      * Additional attributes required by the starter catalog.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Attribute definitions with name, slug, type and values.
      */
     public static function get_attributes()
     {
@@ -646,8 +654,9 @@ class OnBoardingCatalog
      * render, so opening and saving a seeded profile never silently drops a
      * field. Product.name and Offer.price are required in every profile.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Profiles with name, is_default and a schema mapping groups to field lists.
      */
     public static function get_schema_profiles()
     {
@@ -679,8 +688,9 @@ class OnBoardingCatalog
      * against the images bundled in assets/images/products. Prices are in
      * minor units.
      *
-     * @return array
      * @since 1.0.0
+     *
+     * @return array<int, array<string, mixed>> Product definitions with copy, category path, media, attributes and variants.
      */
     public static function get_products()
     {

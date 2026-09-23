@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Converts the status column of the scheduler jobs table from an enum to a string.
+ *
+ * @since 1.0.0
+ */
 class AlterSchedulerJobsStatusColumnToString implements Migration
 {
+    /**
+     * Convert the status column of the scheduler jobs table from an enum to a string.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_scheduler_jobs', function (Structure $table) {
@@ -18,6 +30,13 @@ class AlterSchedulerJobsStatusColumnToString implements Migration
         });
     }
 
+    /**
+     * Convert the status column of the scheduler jobs table back to an enum.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_scheduler_jobs', function (Structure $table) {

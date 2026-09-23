@@ -4,21 +4,20 @@ namespace Kirki\Ecommerce\App\DTO\Tax;
 
 use Kirki\Ecommerce\Framework\DTO;
 
+/**
+ * A single tax charge with its name, rate and base-currency amount.
+ *
+ * @since 1.0.0
+ */
 class TaxLineDTO extends DTO
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     public $rate;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     public $base_amount;
 
     /**

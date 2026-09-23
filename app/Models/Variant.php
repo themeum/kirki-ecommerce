@@ -2,16 +2,25 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
+/**
+ * Model for a sellable variant of a product, holding its pricing, inventory and shipping data.
+ *
+ * @since 1.0.0
+ */
 class Variant extends Model
 {
     use HasDateRangeFilter;
-    
+
+    /** @inheritDoc */
     protected $table = 'kirki_ecommerce_variants';
+    /** @inheritDoc */
     protected $primary_key = 'id';
 
+    /** @inheritDoc */
     protected $casts = [
         'id' => 'integer',
         'product_id' => 'integer',
@@ -44,6 +53,7 @@ class Variant extends Model
         'updated_by' => 'integer',
     ];
 
+    /** @inheritDoc */
     protected $fillable = [
         'product_id',
         'media',
@@ -77,23 +87,64 @@ class Variant extends Model
         'updated_by',
     ];
 
+    /**
+     * Define the product this variant belongs to.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsTo
+     */
     public function product()
     {
         return $this->belongs_to(Product::class, 'product_id', 'id');
     }
 
+    /**
+     * Define the media attachment shown for this variant.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsTo
+     */
     public function media()
     {
         return $this->belongs_to(Post::class, 'media', 'id');
     }
 
+    /**
+     * Define the attribute values that identify this variant.
+     *
+     * @since 1.0.0
+     *
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Relations\BelongsToMany
+     */
     public function attribute_values()
     {
         return $this->belongs_to_many(AttributeValue::class, 'kirki_ecommerce_attribute_value_variant', 'variant_id', 'attribute_value_id');
     }
 
+    /**
+     * Limit the query to variants marked visible.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder $query Query being scoped.
+     * @return \Kirki\Ecommerce\Framework\Database\Query\QueryBuilder
+     */
     public function scope_visible($query)
     {
         return $query->where('is_visible', true);
+    }
+
+    /**
+     * Tell whether this variant is currently sellable: its product is published and the variant itself is visible.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function is_available(): bool
+    {
+        return $this->is_visible && $this->product && $this->product->status === ProductStatus::PUBLISHED;
     }
 }

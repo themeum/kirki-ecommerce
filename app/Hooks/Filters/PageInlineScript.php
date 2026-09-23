@@ -28,22 +28,43 @@ use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\view_data;
 
 /**
- * Class PageInlineScript.
+ * Adds route-specific data to the inline window.kirki_ecommerce config for the storefront script.
  *
  * @since 1.0.0
  */
 class PageInlineScript extends BaseHook
 {
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_name(): string
     {
         return CustomHookNames::CONFIG_DATA;
     }
 
+    /**
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
     public function get_type(): string
     {
         return HookTypes::FILTER;
     }
 
+    /**
+     * Add cart identifiers and route-specific page data to the config.
+     *
+     * Responds to the kecom_config_data filter. Cart variant IDs and cart token names are added on
+     * every request; checkout, single product, cart or addresses data only on the matching route.
+     *
+     * @since 1.0.0
+     *
+     * @param mixed ...$args Hook arguments; the first is the config array.
+     * @return array<string, mixed> Updated config.
+     */
     public function handle(...$args)
     {
         $config = $args[0];
@@ -74,10 +95,9 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_addresses_page_data($view_data, $config)
     {
@@ -97,10 +117,9 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_cart_page_data($view_data, $config)
     {
@@ -120,10 +139,9 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_checkout_page_data($view_data, $config)
     {
@@ -178,10 +196,9 @@ class PageInlineScript extends BaseHook
      *
      * @since 1.0.0
      *
-     * @param mixed $view_data  Data from the view context.
-     * @param array $config     Existing config array.
-     *
-     * @return array Updated config.
+     * @param mixed                $view_data Data from the view context.
+     * @param array<string, mixed> $config    Existing config array.
+     * @return array<string, mixed> Updated config.
      */
     protected function set_shop_single_page_data($view_data, $config)
     {

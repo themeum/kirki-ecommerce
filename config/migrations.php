@@ -70,6 +70,7 @@ use Kirki\Ecommerce\Database\Migrations\CreateOrderTaxesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddShippingTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsDropTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AddRibbonColorToProductsTable;
+use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsAddRegularPriceColumns;
 
 return [
     CreateLanguagesTable::class,
@@ -153,4 +154,5 @@ return [
     DropShowUnitPriceFromVariantsTable::class,
 
     AddRibbonColorToProductsTable::class,
+    AlterOrderItemsAddRegularPriceColumns::class,
 ];

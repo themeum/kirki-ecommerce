@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
@@ -795,5 +796,55 @@ class SettingsApiTest extends RestTestCase
         $payload = $this->assert_api_success($response);
 
         $this->assertFalse($payload['data']['is_registration_enabled']);
+    }
+
+    /**
+     * Get currency settings returns only currency fields, with no email
+     * template fields.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_get_currency_settings_has_no_email_template_fields(): void
+    {
+        $response = $this->request('GET', 'settings/' . OptionKeys::CURRENCY_SETTINGS);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertArrayHasKey('currency_format', $payload['data']);
+        $this->assertArrayHasKey('thousand_separator', $payload['data']);
+        $this->assertArrayNotHasKey('default_template', $payload['data']);
+        $this->assertArrayNotHasKey('customer_emails', $payload['data']);
+    }
+
+    /**
+     * Get email settings resolves the header logo and adds the order
+     * confirmation shortcodes.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_get_email_settings_resolves_logo_and_adds_order_confirmation_shortcodes(): void
+    {
+        $attachment_id = static::factory()->attachment->create([
+            'post_mime_type' => 'image/png',
+            'file' => 'email-logo.png',
+        ]);
+        wp_update_attachment_metadata($attachment_id, [
+            'width' => 10,
+            'height' => 10,
+            'file' => 'email-logo.png',
+        ]);
+        Settings::update('email.default_template.logo', $attachment_id);
+
+        $response = $this->request('GET', 'settings/' . OptionKeys::EMAIL_SETTINGS);
+        $payload = $this->assert_api_success($response);
+
+        $logo = $payload['data']['default_template']['logo'];
+        $this->assertIsArray($logo);
+        $this->assertSame((string) $attachment_id, $logo['id']);
+
+        $shortcodes = $payload['data']['customer_emails']['order_notifications']['order_confirmation']['shortcodes'];
+        $this->assertNotEmpty($shortcodes);
+        $this->assertContains('{order_summary}', array_column($shortcodes, 'value'));
     }
 }

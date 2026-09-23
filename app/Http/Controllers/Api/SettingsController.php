@@ -11,8 +11,23 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\Framework\response;
 
+/**
+ * REST controller for reading and saving settings groups.
+ *
+ * @since 1.0.0
+ */
 class SettingsController
 {
+    /**
+     * Return the settings stored under a settings key.
+     *
+     * The `key` parameter must be one of the known option keys.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The settings key with its current values.
+     */
     public function get(Request $request)
     {
         $request->validate([
@@ -31,6 +46,14 @@ class SettingsController
     }
 
 
+    /**
+     * Save the request `data` into the settings stored under a settings key.
+     *
+     * @since 1.0.0
+     *
+     * @param SettingsUpdateRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The settings key with its saved values.
+     */
     public function update(SettingsUpdateRequest $request)
     {
         $key = $request->string('key');

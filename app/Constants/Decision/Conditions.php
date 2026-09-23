@@ -2,6 +2,11 @@
 
 namespace Kirki\Ecommerce\App\Constants\Decision;
 
+/**
+ * Conditions a decision rule can be matched on.
+ *
+ * @since 1.0.0
+ */
 final class Conditions
 {
     const PRODUCT_PROFILE = 'product_profile';

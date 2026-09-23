@@ -11,6 +11,11 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use function Kirki\Ecommerce\Framework\response;
 use function Kirki\Ecommerce\Framework\user;
 
+/**
+ * REST controller for previewing and test-sending email notification templates.
+ *
+ * @since 1.0.0
+ */
 class EmailTemplateController
 {
     /** @var MailerService */
@@ -19,12 +24,31 @@ class EmailTemplateController
     /** @var EmailPreviewService */
     protected $email_preview_service;
 
+    /**
+     * Create the controller with its mailer and preview services.
+     *
+     * @since 1.0.0
+     *
+     * @param MailerService       $mailer_service
+     * @param EmailPreviewService $email_preview_service
+     */
     public function __construct(MailerService $mailer_service, EmailPreviewService $email_preview_service)
     {
         $this->mailer_service = $mailer_service;
         $this->email_preview_service = $email_preview_service;
     }
 
+    /**
+     * Render the HTML preview and available variables of a notification template.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $_request
+     * @param string  $type     Notification type.
+     * @param string  $group    Template group within the type.
+     * @param string  $key      Template key within the group.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The preview HTML and variables, or a 404 response for an unknown template.
+     */
     public function preview(Request $_request, string $type, string $group, string $key)
     {
         $mailer = $this->email_preview_service->resolve_mailer($type, $group, $key);
@@ -44,6 +68,19 @@ class EmailTemplateController
         ]);
     }
 
+    /**
+     * Send a test email of a notification template to the current user.
+     *
+     * The request body overrides the template and email settings for this send only.
+     *
+     * @since 1.0.0
+     *
+     * @param SendTestEmailRequest $request
+     * @param string               $type    Notification type.
+     * @param string               $group   Template group within the type.
+     * @param string               $key     Template key within the group.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse A success message; a 404 response for an unknown template, 422 when the user has no email address, or 500 when sending fails.
+     */
     public function send_test_mail(SendTestEmailRequest $request, string $type, string $group, string $key)
     {
         $mailer = $this->email_preview_service->resolve_mailer($type, $group, $key);

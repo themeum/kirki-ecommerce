@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants\Coupon;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Customer eligibility options for choosing who a coupon applies to.
+ *
+ * @since 1.0.0
+ */
 class CustomerIncludeEligibility
 {
     use HasConstants;

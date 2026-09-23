@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * How often exchange rates are refreshed automatically.
+ *
+ * @since 1.0.0
+ */
 class UpdateFrequency
 {
     use HasConstants;

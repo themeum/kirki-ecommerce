@@ -8,6 +8,11 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
+/**
+ * Seeds the onboarding category tree when the store has no categories yet.
+ *
+ * @since 1.0.0
+ */
 class CategorySeeder extends Seeder
 {
     /**
@@ -17,8 +22,9 @@ class CategorySeeder extends Seeder
      * back and used as the next level's parent_id - the tree carries no hardcoded
      * ids, which is what lets it coexist with a store that already has data.
      *
-     * @return void
      * @since 1.0.0
+     *
+     * @return void
      */
     public function run(): void
     {
@@ -63,10 +69,10 @@ class CategorySeeder extends Seeder
     /**
      * Flatten the nested catalog tree into insert-ordered rows.
      *
-     * @param array $tree The nested category tree.
-     *
-     * @return array
      * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>> $tree The nested category tree.
+     * @return array<int, array<string, mixed>> Rows with name, slug, description, level, ordering and parent_slug, parents before children.
      */
     protected function flatten($tree)
     {
@@ -121,12 +127,12 @@ class CategorySeeder extends Seeder
      * repeat is disambiguated by its parent's name rather than a counter, so the
      * resulting slug is stable and still readable as a URL.
      *
-     * @param string      $name        The category name.
-     * @param string|null $parent_name The parent category name, when there is one.
-     * @param array       $used_slugs  Slugs already taken, by reference.
-     *
-     * @return string
      * @since 1.0.0
+     *
+     * @param string              $name        The category name.
+     * @param string|null         $parent_name The parent category name, when there is one.
+     * @param array<string, bool> $used_slugs  Slugs already taken, by reference.
+     * @return string The unique slug.
      */
     protected function unique_slug($name, $parent_name, array &$used_slugs)
     {
