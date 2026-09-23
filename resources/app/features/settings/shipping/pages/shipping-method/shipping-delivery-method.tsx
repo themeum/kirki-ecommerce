@@ -152,7 +152,17 @@ const ShippingDeliveryMethod = () => {
         `${ShippingRoutes.get('ShippingDeliveryMethod').buildLink()}?methodId=${methodId}&zoneId=${zoneIdParam}`,
       );
     } catch (error) {
-      applyServerErrors(form, error as ErrorResponse);
+      const zoneIndex = updatedShippingZones.findIndex((zone) => String(zone.id) === String(zoneIdParam));
+      const methodIndex = updatedShippingZones[zoneIndex]?.shipping_methods.findIndex(
+        (method) => method.id === shippingMethod.id,
+      );
+
+      applyServerErrors(form, error as ErrorResponse, {
+        stripPrefix:
+          zoneIndex >= 0 && methodIndex !== undefined && methodIndex >= 0
+            ? `data.shipping_zones.${zoneIndex}.shipping_methods.${methodIndex}.`
+            : undefined,
+      });
     }
   };
 
