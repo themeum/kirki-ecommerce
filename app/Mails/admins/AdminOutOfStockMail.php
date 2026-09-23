@@ -12,21 +12,21 @@ use Kirki\Ecommerce\App\Supports\Url;
 use function Kirki\Ecommerce\Framework\collection;
 
 /**
- * Email sent to the store admin when a variant's stock runs low.
+ * Email sent to the store admin when a variant goes out of stock.
  *
  * @since 1.0.0
  */
-class AdminLowStockMail extends Mailer
+class AdminOutOfStockMail extends Mailer
 {
     /** @var Variant */
     protected $variant;
 
     /**
-     * Create the mail for the given low-stock variant.
+     * Create the mail for the given variant.
      *
      * @since 1.0.0
      *
-     * @param Variant $variant Variant whose stock is low.
+     * @param Variant $variant Variant that ran out of stock.
      */
     public function __construct(Variant $variant)
     {
@@ -40,7 +40,7 @@ class AdminLowStockMail extends Mailer
      */
     public function option_key()
     {
-        return 'admin_emails.inventory_notifications.low_stock';
+        return 'admin_emails.inventory_notifications.out_of_stock';
     }
 
     /**

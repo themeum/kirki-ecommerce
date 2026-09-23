@@ -18,16 +18,21 @@ class CustomerResetPasswordMail extends Mailer
     /** @var User */
     protected $user;
 
+    /** @var string */
+    protected $reset_link;
+
     /**
      * Create the mail for the given user.
      *
      * @since 1.0.0
      *
      * @param User $user User who requested the password reset.
+     * @param string $reset_link Password reset link.
      */
-    public function __construct(User $user)
+    public function __construct(User $user, string $reset_link = '')
     {
         $this->user = $user;
+        $this->reset_link = $reset_link;
     }
 
     /**
@@ -48,12 +53,17 @@ class CustomerResetPasswordMail extends Mailer
     public function with()
     {
         return [
-            'user_name' => $this->user->get_display_name(),
+            'full_name' => $this->user->get_display_name(),
+            'user_name' => $this->user->get_username(),
             'user_email' => $this->user->get_email(),
-            'reset_url' => Url::add_query_params(Url::get_login_url(), [
-                'action' => 'reset_password',
-                'key' => 'sample-reset-token',
-                'login' => $this->user->get_email(),
+            'user_info_table' => $this->get_content('emails.parts.user.info-table', ['user_name' => $this->user->get_username()]),
+            'reset_link' => $this->get_content('emails.parts.link', [
+                'label' => __('Reset Your Password', 'kirki-ecommerce'),
+                'link' => $this->reset_link
+            ]),
+            'reset_link_button' => $this->get_content('emails.parts.link-button', [
+                'label' => __('Reset Your Password', 'kirki-ecommerce'),
+                'link' => $this->reset_link
             ]),
         ];
     }

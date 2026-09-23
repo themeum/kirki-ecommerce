@@ -23,7 +23,7 @@ type OptionAccordionProps = {
   leftIcon?: ReactNode;
   children?: ReactNode;
   rightActions?: ReactNode;
-  variant?: 'shipping' | 'inactive';
+  variant?: 'shipping' | 'email' | 'inactive';
   enabled?: boolean;
   disabled?: boolean;
   expandable?: boolean;
@@ -73,7 +73,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
               {leftIcon}
               <Flex direction="column" gap={2}>
                 <Flex gap={1} align="center" cssOverride={{ height: 24 }}>
-                  <Text weight="semibold" variant="heading6" color="primary">
+                  <Text weight="semibold" variant="small" color="primary">
                     {header}
                   </Text>
                   {titleAdornment}
@@ -96,6 +96,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   cardStyles.darkCard,
                   styles.contentCard,
                   variant === 'shipping' && styles.shippingCard,
+                  variant === 'email' && styles.emailCard,
                 )}
                 data-option-accordion-card="true"
               >
@@ -121,7 +122,7 @@ export default OptionAccordion;
 const styles = defineStyles({
   wrapper: {
     borderRadius: theme.radius.xl,
-    border: `1px solid ${theme.colors.icon.inverse}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
   },
   accordion: {
     width: '100%',
@@ -130,7 +131,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[3]} ${theme.spacing[4]} ${theme.spacing[3]} ${theme.spacing[4]}`,
   },
   contentCard: {
-    borderRadius: `${theme.radius.none} ${theme.radius.none} ${theme.radius.lg} ${theme.radius.lg}`,
+    borderRadius: theme.radius.xl,
     display: 'flex',
     flexDirection: 'column',
     boxShadow: 'none',
@@ -148,6 +149,9 @@ const styles = defineStyles({
     backgroundColor: 'transparent',
     border: 'none',
     borderRadius: theme.radius.none,
+  },
+  emailCard: {
+    border: 'none',
   },
   shippingTrigger: {
     '&:has(button[data-state="open"])': {
