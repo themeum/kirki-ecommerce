@@ -19,11 +19,6 @@ request:
     type: basic
     username: "{{auth_username}}"
     password: "{{auth_password}}"
-  variables:
-    - name: auth_username
-      value: admin
-    - name: auth_password
-      value: 9UGO esUs GyFh mq9o Dg90 3l4t
 bundled: false
 extensions:
   bruno:
