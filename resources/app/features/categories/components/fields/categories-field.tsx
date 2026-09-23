@@ -91,7 +91,7 @@ const CategoriesField = <
   label,
   description,
   infoText,
-  placeholder = __('Search or add categories', 'kirki-ecommerce'),
+  placeholder = __('Add categories', 'kirki-ecommerce'),
   disabled,
   cssOverride,
 }: CategoriesFieldProps<TFieldValues, TName>) => {
@@ -219,7 +219,6 @@ const CategoriesField = <
               onChange={handleChange}
               onSearchChange={setSearch}
               onCreate={(query) => setPendingName(query)}
-              createEmptyLabel={__('New category', 'kirki-ecommerce')}
               panel={
                 pendingName !== null ? (
                   <CategoryQuickCreate
@@ -236,6 +235,7 @@ const CategoriesField = <
               placeholder={placeholder}
               selectedPlaceholder={__('Search', 'kirki-ecommerce')}
               emptyText={__('No matching categories', 'kirki-ecommerce')}
+              emptyStateText={__('Add your first category', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}
             />

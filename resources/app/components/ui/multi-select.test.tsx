@@ -27,7 +27,6 @@ const Harness = ({
 }: {
   onCreate?: (query: string) => void | Promise<void>;
   initial?: MultiSelectOption[];
-  createEmptyLabel?: string;
   selectedPlaceholder?: string;
   single?: boolean;
   optionStyle?: (option: MultiSelectOption) => CSSProperties | undefined;
@@ -59,7 +58,7 @@ const optionRow = (title: string) => screen.getByRole('option', { name: new RegE
 
 const removeButtons = () => screen.queryAllByRole('button', { name: 'Remove' });
 
-const createRow = () => screen.queryByRole('button', { name: /Create|New/ });
+const createRow = () => screen.queryByRole('button', { name: /Add/ });
 
 afterEach(cleanup);
 
@@ -205,7 +204,7 @@ describe('MultiSelect create row', () => {
     open();
     type('Shirt');
 
-    expect(createRow()).toHaveTextContent('Create "Shirt"');
+    expect(createRow()).toHaveTextContent('Add "Shirt"');
   });
 
   it('shows the empty message alongside the create row', () => {
@@ -218,20 +217,12 @@ describe('MultiSelect create row', () => {
     expect(createRow()).toBeInTheDocument();
   });
 
-  it('offers nothing to create on an empty input without a standing label', () => {
+  it('offers nothing to create on an empty input', () => {
     render(<Harness onCreate={vi.fn()} />);
 
     open();
 
     expect(createRow()).not.toBeInTheDocument();
-  });
-
-  it('offers the standing label on an empty input when one is supplied', () => {
-    render(<Harness onCreate={vi.fn()} createEmptyLabel="New tag" />);
-
-    open();
-
-    expect(createRow()).toHaveTextContent('New tag');
   });
 
   it('does not offer to create a value that already exists', () => {

@@ -171,7 +171,7 @@ describe('CategoriesField creation', () => {
 
     open();
     type('Beanies');
-    fireEvent.click(screen.getByRole('button', { name: /Create "Beanies"/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Add "Beanies"/ }));
 
     expect(screen.getByDisplayValue('Beanies')).toBeInTheDocument();
     expect(screen.queryByRole('option')).not.toBeInTheDocument();
@@ -186,15 +186,11 @@ describe('CategoriesField creation', () => {
     expect(mutateAsync).toHaveBeenCalledWith(expect.objectContaining({ name: 'Beanies' }));
   });
 
-  it('offers the standing create label with nothing typed, and cancels back to the list', () => {
+  it('offers nothing to create with nothing typed', () => {
     render(<Harness />);
 
     open();
 
-    fireEvent.click(screen.getByRole('button', { name: /New category/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-
-    expect(screen.getAllByRole('option')).toHaveLength(4);
-    expect(mutateAsync).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: /Add|New category/ })).not.toBeInTheDocument();
   });
 });

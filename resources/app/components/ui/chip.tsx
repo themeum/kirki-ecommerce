@@ -68,7 +68,7 @@ export type { ChipProps };
 const styles = defineStyles({
   root: {
     ...flexCenter(),
-    backgroundColor: theme.colors.background.surfaceSecondary,
+    backgroundColor: theme.colors.background.surfaceAlt,
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     borderRadius: theme.radius.sm,
     width: 'max-content',

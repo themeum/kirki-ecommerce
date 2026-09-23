@@ -11,7 +11,7 @@ const Collections = () => {
 
   return (
     <CollapsibleField
-      addLabel={__('Add to collection', 'kirki-ecommerce')}
+      addLabel={__('Collection', 'kirki-ecommerce')}
       hasValue={(collections?.length ?? 0) > 0}
     >
       <CollectionsField name="collections" label={__('Collections', 'kirki-ecommerce')} />

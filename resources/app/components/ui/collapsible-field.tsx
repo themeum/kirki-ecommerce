@@ -52,8 +52,8 @@ const CollapsibleField = ({
   if (!isOpen) {
     return (
       <Button variant="link" cssOverride={styles.addButton} onClick={() => setIsOpen(true)}>
-        <Plus size={16} aria-hidden="true" />
         {addLabel}
+        <Plus size={16} aria-hidden="true" />
       </Button>
     );
   }
@@ -93,7 +93,6 @@ const styles = defineStyles({
     padding: 0,
     gap: theme.spacing[1],
     ...theme.typography.small('medium'),
-    color: theme.colors.text.emphasis,
     '&:hover': {
       textDecoration: 'none',
     },

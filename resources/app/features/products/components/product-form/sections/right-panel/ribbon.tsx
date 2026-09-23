@@ -2,7 +2,6 @@ import { useFormContext } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import CollapsibleField from '@/components/ui/collapsible-field';
-import Flex from '@/components/ui/flex';
 import { RIBBON_COLOR_PALETTE } from '@/features/products/schemas/forms/product-basics-form';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { __ } from '@/wpi18n';
@@ -16,7 +15,7 @@ const Ribbon = () => {
 
   return (
     <CollapsibleField
-      addLabel={__('Add ribbon', 'kirki-ecommerce')}
+      addLabel={__('Ribbon', 'kirki-ecommerce')}
       removeLabel={__('Remove ribbon', 'kirki-ecommerce')}
       label={__('Ribbon', 'kirki-ecommerce')}
       labelFor="ribbon"
@@ -27,15 +26,13 @@ const Ribbon = () => {
       }}
     >
       <TextField name="ribbon" placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')} />
-      <Flex align="center" justify="space-between">
-        <RibbonColorSwatches
-          value={ribbonColor}
-          onChange={(color) =>
-            setValue('ribbon_color', color, { shouldDirty: true, shouldValidate: true })
-          }
-        />
-        <RibbonPreviewBadge text={ribbon ?? ''} color={ribbonColor} />
-      </Flex>
+      <RibbonPreviewBadge text={ribbon ?? ''} color={ribbonColor} />
+      <RibbonColorSwatches
+        value={ribbonColor}
+        onChange={(color) =>
+          setValue('ribbon_color', color, { shouldDirty: true, shouldValidate: true })
+        }
+      />
     </CollapsibleField>
   );
 };

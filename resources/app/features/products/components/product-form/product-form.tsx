@@ -27,6 +27,7 @@ import {
   type ProductFormInput,
   type ProductFormPayload,
 } from '@/features/products/schemas/forms/product-form';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 import { MinusCircle } from 'lucide-react';
@@ -178,7 +179,7 @@ const ProductForm = ({
                             display: !openShortDescription ? 'none' : 'flex',
                           }}
                         >
-                          <MinusCircle />
+                          <MinusCircle color={theme.colors.icon.secondary} />
                         </Button>
                       </Flex>
                       {openShortDescription && (

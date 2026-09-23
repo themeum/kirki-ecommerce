@@ -82,12 +82,6 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
    */
   onCreate?: (query: string) => void | Promise<void>;
   /**
-   * Label for the create row while nothing is typed, for creation that does
-   * not begin from a query. Without it the row appears only once there is an
-   * unmatched query.
-   */
-  createEmptyLabel?: string;
-  /**
    * Replaces the option list and the create row for as long as it is
    * supplied, for a field that needs to ask a follow-up question in place.
    * The panel stays open and cmdk does not act on keys pressed inside it.
@@ -97,6 +91,13 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
   /** Placeholder used once something is selected, where the long one no longer fits. */
   selectedPlaceholder?: string;
   emptyText?: string;
+  /**
+   * Replaces the option list and create row for as long as there is nothing
+   * to pick from and nothing typed yet — e.g. before a single category
+   * exists. Falls back to the normal search/create flow once a query is
+   * typed, since that no longer means "nothing exists", just "no match yet".
+   */
+  emptyStateText?: string;
   disabled?: boolean;
   error?: boolean;
   cssOverride?: CSSObject;
@@ -145,11 +146,11 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   single = false,
   onSearchChange,
   onCreate,
-  createEmptyLabel,
   panel,
   placeholder = __('Type to search..', 'kirki-ecommerce'),
   selectedPlaceholder,
   emptyText = __('No results found.', 'kirki-ecommerce'),
+  emptyStateText,
   disabled = false,
   error = false,
   cssOverride,
@@ -177,8 +178,10 @@ const MultiSelect = <TOption extends MultiSelectOption>({
     (option) => option.title.toLowerCase() === trimmedSearch.toLowerCase(),
   );
   const canCreateQuery = Boolean(onCreate) && trimmedSearch.length > 0 && !exactMatch;
-  const showCreate =
-    canCreateQuery || (Boolean(onCreate) && !trimmedSearch && Boolean(createEmptyLabel));
+  // Nothing to pick and nothing typed reads the same whether the option list
+  // is empty because nothing exists yet or because an empty search matches
+  // everything — either way there is nothing to show.
+  const hasNoOptions = options.length === 0 && !trimmedSearch;
 
   // Both caps collapse to one number here, so everything downstream — the
   // slice, the counter, the expand and collapse controls — is shared. A row
@@ -458,8 +461,25 @@ const MultiSelect = <TOption extends MultiSelectOption>({
             <div role="presentation" css={scoped(styles.panel)} onKeyDown={stopKeys}>
               {panel}
             </div>
+          ) : emptyStateText && hasNoOptions ? (
+            <div css={scoped(styles.emptyState)}>{emptyStateText}</div>
           ) : (
             <>
+              {canCreateQuery && (
+                <div css={scoped(styles.createHeader)}>
+                  <Button
+                    variant="tertiary"
+                    disabled={isCreating}
+                    cssOverride={styles.createButton}
+                    onClick={() => {
+                      void handleCreate();
+                    }}
+                  >
+                    <Plus size={16} aria-hidden="true" />
+                    {sprintf(__('Add "%s"', 'kirki-ecommerce'), trimmedSearch)}
+                  </Button>
+                </div>
+              )}
               <CommandList cssOverride={listCss}>
                 <CommandEmpty>{emptyText}</CommandEmpty>
                 <CommandGroup>
@@ -489,23 +509,6 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                   })}
                 </CommandGroup>
               </CommandList>
-              {showCreate && (
-                <div css={scoped(styles.createFooter)}>
-                  <Button
-                    variant="link"
-                    disabled={isCreating}
-                    cssOverride={styles.createButton}
-                    onClick={() => {
-                      void handleCreate();
-                    }}
-                  >
-                    <Plus size={16} aria-hidden="true" />
-                    {canCreateQuery
-                      ? sprintf(__('Create "%s"', 'kirki-ecommerce'), trimmedSearch)
-                      : createEmptyLabel}
-                  </Button>
-                </div>
-              )}
             </>
           )}
         </PopoverContent>
@@ -613,18 +616,25 @@ const styles = defineStyles({
     flexShrink: 0,
     pointerEvents: 'none',
   },
-  createFooter: {
+  createHeader: {
     padding: theme.spacing[1],
-    borderTop: `1px solid ${theme.colors.border.default}`,
   },
   createButton: {
     justifyContent: 'flex-start',
     width: '100%',
+    height: 'auto',
     gap: theme.spacing[2],
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
+    borderRadius: theme.radius.md,
     ...theme.typography.small('medium'),
   },
   panel: {
     padding: theme.spacing[3],
+  },
+  emptyState: {
+    padding: `${theme.spacing[6]} ${theme.spacing[3]}`,
+    textAlign: 'center',
+    ...theme.typography.small(),
+    color: theme.colors.text.secondary,
   },
 });

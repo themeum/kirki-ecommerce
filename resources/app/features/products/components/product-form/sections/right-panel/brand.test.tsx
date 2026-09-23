@@ -11,11 +11,11 @@ const BRANDS = [
   { id: 2, name: 'Bellweather', slug: 'bellweather', logo: null },
 ];
 
+const mutateAsync = vi.fn();
+
 vi.mock('@/features/brands', () => ({
   useBrandsQuery: () => ({ data: { results: BRANDS } }),
-  BrandAddEditPopover: ({ brand }: { brand: { name: string } }) => (
-    <div data-testid="brand-popover">{brand.name}</div>
-  ),
+  useCreateBrandMutation: () => ({ mutateAsync }),
 }));
 
 type BrandRef = { id: number; name: string; logo: unknown } | null;
@@ -50,6 +50,7 @@ const removeButtons = () => screen.queryAllByRole('button', { name: 'Remove' });
 
 afterEach(() => {
   latest = null;
+  mutateAsync.mockReset();
   cleanup();
 });
 
@@ -132,13 +133,36 @@ describe('Brand field', () => {
     expect(searchInput()).toHaveAttribute('placeholder', 'Add brand');
   });
 
-  it('opens the create popover prefilled with the typed name', () => {
+  it('creates the brand directly from the typed name and holds it as the chip', async () => {
+    mutateAsync.mockResolvedValue({ data: { id: 3, name: 'Cormorant', logo: null } });
+
     const { container } = render(<Harness />);
 
     fireEvent.click(box(container));
     fireEvent.change(searchInput(), { target: { value: 'Cormorant' } });
-    fireEvent.click(screen.getByRole('button', { name: /Create "Cormorant"/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Add "Cormorant"/ }));
 
-    expect(screen.getByTestId('brand-popover')).toHaveTextContent('Cormorant');
+    expect(mutateAsync).toHaveBeenCalledWith({
+      name: 'Cormorant',
+      slug: null,
+      description: null,
+      logo: null,
+    });
+
+    await vi.waitFor(() => expect(latest).toMatchObject({ id: 3, name: 'Cormorant' }));
+
+    expect(box(container)).toHaveTextContent('Cormorant');
+  });
+
+  it('creates the brand on Enter as well', async () => {
+    mutateAsync.mockResolvedValue({ data: { id: 3, name: 'Cormorant', logo: null } });
+
+    const { container } = render(<Harness />);
+
+    fireEvent.click(box(container));
+    fireEvent.change(searchInput(), { target: { value: 'Cormorant' } });
+    fireEvent.keyDown(searchInput(), { key: 'Enter' });
+
+    await vi.waitFor(() => expect(latest).toMatchObject({ id: 3, name: 'Cormorant' }));
   });
 });

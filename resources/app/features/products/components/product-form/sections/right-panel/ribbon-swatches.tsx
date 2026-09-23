@@ -139,7 +139,7 @@ const styles = defineStyles({
     height: '24px',
     minHeight: 'auto',
     padding: 0,
-    borderRadius: theme.radius.full,
+    borderRadius: theme.radius.md,
     border: `1px solid ${theme.colors.border.default}`,
     backgroundColor: 'var(--swatch-color)',
     cursor: 'pointer',

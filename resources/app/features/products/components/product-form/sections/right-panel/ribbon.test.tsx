@@ -22,7 +22,7 @@ const Harness = ({ initial }: { initial?: Partial<RibbonValues> }) => {
   );
 };
 
-const addLink = () => screen.getByRole('button', { name: 'Add ribbon' });
+const addLink = () => screen.getByRole('button', { name: 'Ribbon' });
 const removeButton = () => screen.getByRole('button', { name: 'Remove ribbon' });
 const textInput = () => screen.getByPlaceholderText('e.g. Fresh Arrival');
 const swatch = (color: string) => screen.getByRole('radio', { name: `Ribbon colour ${color}` });
