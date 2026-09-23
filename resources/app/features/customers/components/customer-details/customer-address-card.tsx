@@ -3,7 +3,7 @@ import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
-import AddressCardItem from '@/features/customers/pages/customer-details/address-card-item';
+import AddressCardItem from '@/features/customers/components/customer-details/address-card-item';
 import type {
   AddressFormValues,
   CustomerFormInput,

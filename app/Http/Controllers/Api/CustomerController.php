@@ -22,6 +22,7 @@ use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\Framework\response;
 
@@ -62,6 +63,36 @@ class CustomerController
         return response()->json([
             'data' => $this->service->list_locations(empty($country) ? null : $country),
             'message' => __('Customer locations retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Check whether an email is still available for a customer.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Carries `email` and an optional `id` to exclude from the check.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function check_email(Request $request)
+    {
+        $email = (string) $request->get('email', '', Sanitizer::EMAIL);
+        $id = $request->int('id', null);
+
+        if ($email === '') {
+            return response()->json([
+                'data' => false,
+                'message' => __('The Email has already been taken.', 'kirki-ecommerce'),
+            ]);
+        }
+
+        $is_available = $this->service->is_email_available($email, $id);
+
+        return response()->json([
+            'data' => $is_available,
+            'message' => $is_available
+                ? __('Email is available.', 'kirki-ecommerce')
+                : __('The Email has already been taken.', 'kirki-ecommerce'),
         ]);
     }
 

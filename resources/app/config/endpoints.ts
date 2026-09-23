@@ -23,6 +23,7 @@ export const endpoints = {
 
   CUSTOMERS: '/customers',
   CUSTOMER_LOCATIONS: '/customers/locations',
+  CUSTOMER_CHECK_EMAIL: '/customers/check-email',
   CUSTOMER: (id: string | number) => `/customers/${id}`,
   CUSTOMERS_BULK: '/customers/bulk',
 

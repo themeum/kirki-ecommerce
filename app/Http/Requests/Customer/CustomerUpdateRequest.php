@@ -72,7 +72,12 @@ class CustomerUpdateRequest extends Request
             'first_name' => 'required|string',
             'last_name' => 'string|nullable',
             'photo' => 'integer|nullable',
-            'email' => 'required|email|unique:' . Customer::get_table_name() . ',email,' . $this->int('id'),
+            'email' => [
+                'required',
+                'email',
+                'unique:' . Customer::get_table_name() . ',email,' . $this->int('id'),
+                $this->email_locked_once_linked(),
+            ],
             'phone' => 'string|nullable',
             'accepts_marketing' => 'boolean|nullable',
             'notes' => 'string|nullable',
@@ -96,6 +101,30 @@ class CustomerUpdateRequest extends Request
             'addresses.*.is_default_shipping' => 'boolean|nullable',
             'addresses.*.is_default_billing' => 'boolean|nullable',
         ];
+    }
+
+    /**
+     * Build a closure rule that rejects an email change on a customer already linked to a WordPress user.
+     *
+     * @since 1.0.0
+     *
+     * @return \Closure Rule callback returning true when the email is unchanged or the customer has no linked user, or an error message.
+     */
+    protected function email_locked_once_linked()
+    {
+        return function ($value, $key, $data) {
+            $customer = Customer::find($data['id'] ?? null);
+
+            if (empty($customer) || empty($customer->user_id)) {
+                return true;
+            }
+
+            if ($value === $customer->email) {
+                return true;
+            }
+
+            return __('Email cannot be changed because this customer is linked to a WordPress account.', 'kirki-ecommerce');
+        };
     }
 
     /**

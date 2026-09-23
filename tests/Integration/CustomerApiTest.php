@@ -322,6 +322,55 @@ class CustomerApiTest extends RestTestCase
     }
 
     /**
+     * Changing the email of a customer linked to a WordPress user is
+     * rejected with a field-level validation error on `email`.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_customer_email_linked_to_wordpress_user_returns_validation_error(): void
+    {
+        $customer = $this->create_customer(['create_wordpress_user' => true]);
+        $this->customer_id = $customer['id'];
+        $this->assertNotEmpty($customer['user_id']);
+
+        $response = $this->request('PUT', 'customers/' . $customer['id'], [
+            'id' => $customer['id'],
+            'first_name' => $customer['first_name'],
+            'last_name' => $customer['last_name'],
+            'email' => 'changed-' . wp_generate_password(8, false) . '@example.com',
+            'addresses' => [$customer['addresses'][0]],
+        ]);
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('email', $data['errors']);
+    }
+
+    /**
+     * Changing the email of a customer with no linked WordPress user is
+     * accepted.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_customer_email_without_linked_wordpress_user_is_accepted(): void
+    {
+        $customer = $this->create_customer();
+        $this->customer_id = $customer['id'];
+        $this->assertEmpty($customer['user_id']);
+
+        $response = $this->request('PUT', 'customers/' . $customer['id'], [
+            'id' => $customer['id'],
+            'first_name' => $customer['first_name'],
+            'last_name' => $customer['last_name'],
+            'email' => 'changed-' . wp_generate_password(8, false) . '@example.com',
+            'addresses' => [$customer['addresses'][0]],
+        ]);
+
+        $this->assert_api_success($response);
+    }
+
+    /**
      * A touched address row (one with any content field filled in) still
      * requires its other core fields.
      *

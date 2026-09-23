@@ -135,6 +135,26 @@ class CustomerService
     }
 
     /**
+     * Check whether no other customer is registered with the given email yet.
+     *
+     * @since 1.0.0
+     *
+     * @param string   $email Customer email.
+     * @param int|null $id    Customer id to exclude from the check, e.g. when editing.
+     * @return bool True when the email is free to use.
+     */
+    public function is_email_available(string $email, $id = null)
+    {
+        $query = Customer::query()->where('email', $email);
+
+        if ($id !== null) {
+            $query->where_not('id', $id);
+        }
+
+        return !$query->exists();
+    }
+
+    /**
      * Create a new customer.
      *
      * Creator and updater default to the current user.

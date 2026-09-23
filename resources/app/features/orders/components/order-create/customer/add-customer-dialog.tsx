@@ -16,8 +16,8 @@ import { Form } from '@/components/ui/form';
 import type { CustomerFormInput, CustomerFormPayload } from '@/features/customers';
 import {
   CustomerAddressCard,
+  CustomerBasicInfo,
   CustomerFormSchema,
-  CustomerOverview,
   useCreateCustomerMutation,
 } from '@/features/customers';
 import type { ErrorResponse } from '@/libs/api';
@@ -69,7 +69,7 @@ const AddCustomerDialog = ({
           </DialogHeader>
           <DialogBody>
             <Flex direction="column" gap={4}>
-              <CustomerOverview />
+              <CustomerBasicInfo />
               <CustomerAddressCard />
             </Flex>
           </DialogBody>
