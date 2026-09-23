@@ -87,10 +87,7 @@ const TagsField = <
             const response = await createTagMutation.mutateAsync({
               name: title,
             });
-            field.onChange([
-              { id: response.data.id, name: title },
-              ...selectedTags,
-            ]);
+            field.onChange([{ id: response.data.id, name: title }, ...selectedTags]);
             clearErrors(name);
           } catch (error) {
             const fieldErrors = getErrorsObject((error as ErrorResponse).errors);
@@ -103,10 +100,7 @@ const TagsField = <
         };
 
         return (
-          <Field
-            data-invalid={fieldState.invalid || undefined}
-            cssOverride={cssOverride}
-          >
+          <Field data-invalid={fieldState.invalid || undefined} cssOverride={cssOverride}>
             {label && <FieldLabel infoText={infoText}>{label}</FieldLabel>}
             <MultiSelect
               options={options}
@@ -115,7 +109,7 @@ const TagsField = <
               onCreate={handleCreate}
               maxVisibleRows={2}
               placeholder={placeholder}
-              selectedPlaceholder={__('Search', 'kirki-ecommerce')}
+              selectedPlaceholder={__('Add more', 'kirki-ecommerce')}
               emptyStateText={__('Add your first tag', 'kirki-ecommerce')}
               disabled={disabled}
               error={Boolean(fieldState.error)}

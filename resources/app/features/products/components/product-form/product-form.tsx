@@ -20,7 +20,6 @@ import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
 import Label from '@/components/ui/label';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
-import { Separator } from '@/components/ui/separator';
 import RightPanel from '@/features/products/components/product-form/sections/right-panel/right-panel';
 import SEOSettings from '@/features/products/components/product-form/sections/seo-settings/seo-settings';
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
@@ -216,10 +215,6 @@ const ProductForm = ({
                       placeholder={__('Write product description here...', 'kirki-ecommerce')}
                     />
 
-                    <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
-
-                    <Separator negativeMargin={16} />
-
                     <Flex direction="column" gap={2}>
                       <Flex align="center" justify="space-between">
                         <Label>{__('Short description', 'kirki-ecommerce')}</Label>
@@ -256,11 +251,15 @@ const ProductForm = ({
                         />
                       )}
                     </Flex>
-
-                    {/* <AdditionalInfo /> */}
                   </Flex>
                 </CardContent>
               </Card>
+              <Card>
+                <CardContent>
+                  <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
+                </CardContent>
+              </Card>
+
               {showSimpleVariantSections && (
                 <VariantFieldScope prefix="variants.0.">
                   <Price />

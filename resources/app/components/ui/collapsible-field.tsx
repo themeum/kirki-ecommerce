@@ -1,5 +1,5 @@
 import type { CSSObject } from '@emotion/react';
-import { Plus, X } from 'lucide-react';
+import { MinusCircle, PlusCircle } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 import Button from '@/components/ui/button';
@@ -51,9 +51,9 @@ const CollapsibleField = ({
 
   if (!isOpen) {
     return (
-      <Button variant="link" cssOverride={styles.addButton} onClick={() => setIsOpen(true)}>
+      <Button variant="ghost" cssOverride={styles.addButton} onClick={() => setIsOpen(true)}>
+        <PlusCircle size={14} aria-hidden="true" />
         {addLabel}
-        <Plus size={16} aria-hidden="true" />
       </Button>
     );
   }
@@ -65,14 +65,14 @@ const CollapsibleField = ({
           {label && <FieldLabel htmlFor={labelFor}>{label}</FieldLabel>}
           <Button
             variant="ghost"
-            size="icon-xs"
+            size="icon"
             aria-label={removeLabel ?? addLabel}
             onClick={() => {
               onRemove();
               setIsOpen(false);
             }}
           >
-            <X size={16} aria-hidden="true" />
+            <MinusCircle size={16} aria-hidden="true" />
           </Button>
         </div>
       )}
@@ -88,14 +88,10 @@ export type { CollapsibleFieldProps };
 
 const styles = defineStyles({
   addButton: {
+    width: '100%',
     alignSelf: 'flex-start',
-    height: 'auto',
-    padding: 0,
-    gap: theme.spacing[1],
-    ...theme.typography.small('medium'),
-    '&:hover': {
-      textDecoration: 'none',
-    },
+    justifyContent: 'flex-start',
+    paddingLeft: theme.spacing[1],
   },
   body: {
     display: 'flex',

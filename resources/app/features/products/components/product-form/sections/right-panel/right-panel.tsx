@@ -206,8 +206,10 @@ const RightPanel = ({ mode, product }: RightPanelProps) => {
           <Categories />
           <Brand />
           <Tags />
-          <Collections />
-          <Ribbon />
+          <Flex direction="column" gap={2}>
+            <Collections />
+            <Ribbon />
+          </Flex>
         </CardContent>
       </Card>
     </Flex>

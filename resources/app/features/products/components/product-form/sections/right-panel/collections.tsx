@@ -6,15 +6,21 @@ import type { ProductFormInput } from '@/features/products/schemas/forms/product
 import { __ } from '@/wpi18n';
 
 const Collections = () => {
-  const { watch } = useFormContext<ProductFormInput>();
+  const { watch, setValue } = useFormContext<ProductFormInput>();
   const collections = watch('collections');
 
   return (
     <CollapsibleField
-      addLabel={__('Collection', 'kirki-ecommerce')}
+      addLabel={__('Collections', 'kirki-ecommerce')}
+      label={__('Collections', 'kirki-ecommerce')}
       hasValue={(collections?.length ?? 0) > 0}
+      removeLabel={__('Remove collections', 'kirki-ecommerce')}
+      labelFor="collections"
+      onRemove={() => {
+        setValue('collections', [], { shouldDirty: true, shouldValidate: true });
+      }}
     >
-      <CollectionsField name="collections" label={__('Collections', 'kirki-ecommerce')} />
+      <CollectionsField name="collections" />
     </CollapsibleField>
   );
 };
