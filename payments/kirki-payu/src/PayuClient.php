@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -41,21 +43,36 @@ class PayuClient
      * Verify a webhook payload against Square's HMAC-SHA256 signature header.
      *
      * @param string $raw_payload The raw webhook request body.
-     * @param string $webhook_url The notification URL configured in Square, as sent to it verbatim.
      * @return bool
      */
-    public function is_verified(string $raw_payload, string $webhook_url): bool
+    public function is_verified(string $raw_payload): bool
     {
-        $given_signature = $_SERVER['HTTP_X_SQUARE_HMACSHA256_SIGNATURE'] ?? $_SERVER['HTTP_X_SQUARE_SIGNATURE'] ?? '';
+        $given_signature = Superglobals::server('HTTP_OPENPAYU_SIGNATURE', '', Sanitizer::TEXT) ??
+            Superglobals::server('HTTP_X_OPENPAYU_SIGNATURE', '', Sanitizer::TEXT);
 
-        if ('' === $raw_payload || '' === $given_signature) {
+        if (empty($given_signature)) {
             return false;
         }
 
-        $hash = hash_hmac('sha256', $webhook_url . $raw_payload, $this->signature_key, true);
-        $expected_signature = base64_encode($hash);
+        $sign = $this->parse_signature($given_signature);
+        $algorithm = PayuConstant::ALGORITHMS_TO_HASH[$sign['algorithm']] ?? $sign['algorithm'];
+        $hash_algorithm = strtoupper($algorithm);
 
-        return $expected_signature === $given_signature;
+        if (
+            !in_array($hash_algorithm, [
+                'MD5',
+                'SHA1',
+                'SHA256',
+                'SHA384',
+                'SHA512',
+            ], true)
+        ) {
+            return false;
+        }
+
+        $expected_signature = hash($hash_algorithm, $raw_payload . $this->second_key);
+
+        return hash_equals($expected_signature, $sign['signature']);
     }
 
     /**
@@ -140,5 +157,29 @@ class PayuClient
         }
 
         return $response->json();
+    }
+
+    protected function parse_signature($data)
+    {
+        if (empty($data)) {
+            return null;
+        }
+
+        $signature_data = [];
+
+        $list = explode(';', rtrim($data, ';'));
+        if (empty($list)) {
+            return null;
+        }
+
+        foreach ($list as $value) {
+            $explode = explode('=', $value);
+            if (count($explode) != 2) {
+                return null;
+            }
+            $signature_data[$explode[0]] = $explode[1];
+        }
+
+        return $signature_data;
     }
 }

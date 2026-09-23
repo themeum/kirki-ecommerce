@@ -157,40 +157,21 @@ class Payu extends PaymentProvider
     {
         $payload = $this->verify_and_parse_notification();
 
-        $allowed_event_types = [
-            SquareConstant::EVENT_PAYMENT_UPDATE
-        ];
-
-        if (!in_array($payload->type, $allowed_event_types, true)) {
-            return false;
+        $order_uuid = $payload->order->extOrderId ?? null;
+        if (empty($order_uuid)) {
+            throw_anyway(__('PayU Error: Order UUID Not Found.', 'kirki-ecommerce-payu'));
         }
 
-        $payment = $payload->data->object->payment ?? null;
-        if (empty($payment)) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
-        }
-        $reference_id = $payment->reference_id ?? null;
-
-        if (!$reference_id && !empty($payment->order_id)) {
-            $order_details = $this->get_client()->get_order($payment->order_id);
-            $reference_id = $order_details['order']['reference_id'] ?? null;
-        }
-
-        if (empty($reference_id)) {
-            throw new Exception(__('Square Error: Order UUID Not Found.', 'kirki-ecommerce-square'));
-        }
-
-        $order = OrderManager::find_by_uuid($reference_id);
-
+        $order = OrderManager::find_by_uuid($order_uuid);
         if (!$order) {
-            throw new Exception(__('Square Error: Order Not Found.', 'kirki-ecommerce-square'));
+            throw_anyway(__('PayU Error: Order Not Found.', 'kirki-ecommerce-payu'));
         }
 
         if ($order->payment_status === PaymentStatus::PAID) {
-            return false;
+            return true;
         }
 
-        $this->handle_transaction_response($payment, $order);
+        $this->handle_transaction_response($payload, $order);
         return true;
     }
 
@@ -232,12 +213,12 @@ class Payu extends PaymentProvider
         // Respond with a 200 status code to acknowledge the notification.
         http_response_code(200);
 
-        if (empty($payload)) {
-            throw new Exception(__('Invalid Payload From Square.', 'kirki-ecommerce-square'));
-        }
+        throw_if(empty($payload), __('Invalid Payload From Square.', 'kirki-ecommerce-payu'));
 
-        if (!$this->get_client()->is_verified($payload, $this->webhook_url())) {
-            throw new Exception(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-square'));
+        $this->client = $this->get_client();
+
+        if (!$this->client->is_verified($payload)) {
+            throw_anyway(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-payu'));
         }
 
         return json_decode($payload);
@@ -253,25 +234,23 @@ class Payu extends PaymentProvider
      */
     protected function handle_transaction_response(object $payload, Order $order)
     {
-        $status = $payload->status ?? PaymentStatus::UNPAID;
+        $status = PayuConstant::STATUS_MAP[$payload->order->status] ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
         try {
             switch ($status) {
-                case SquareConstant::PAYMENT_COMPLETED:
+                case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
                     break;
 
-                case SquareConstant::PAYMENT_CANCELED:
-                case SquareConstant::PAYMENT_FAILED:
+                case PaymentStatus::CANCELLED:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_failed($order->id);
                     break;
 
-                case SquareConstant::PAYMENT_APPROVED:
-                case SquareConstant::PAYMENT_PENDING:
+                case PaymentStatus::PENDING:
                     OrderManager::mark_payment_as_unpaid($order->id);
             }
 
@@ -295,7 +274,7 @@ class Payu extends PaymentProvider
      */
     protected function record_transaction(Order $order, object $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->id);
+        OrderManager::set_transaction_id($order->id, $payload->order->orderId);
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }
