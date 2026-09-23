@@ -77,7 +77,7 @@ class CountryService
      * @param string $code Country code.
      * @return array|null Null when the code is unknown.
      */
-    protected function find_by_code(string $code)
+    public function find_by_code(string $code)
     {
         return CountryData::find_nested($code);
     }

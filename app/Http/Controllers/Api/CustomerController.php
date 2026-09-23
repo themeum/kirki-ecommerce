@@ -17,7 +17,6 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\DTO\Customer\CustomerListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Customer\CustomerListRequest;
 use Kirki\Ecommerce\App\Services\CustomerService;
-use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;

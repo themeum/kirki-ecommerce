@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 
+use function Kirki\Ecommerce\Framework\app;
+
 /**
  * Links a newly created WordPress user to a matching, unlinked customer.
  *
@@ -14,21 +16,6 @@ use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
  */
 class AttachCustomerToNewWordPressUser extends BaseHook
 {
-    /** @var CustomerService */
-    protected $customer_service;
-
-    /**
-     * Set up the hook.
-     *
-     * @since 1.0.0
-     *
-     * @param CustomerService $customer_service Customer persistence service.
-     */
-    public function __construct(CustomerService $customer_service)
-    {
-        $this->customer_service = $customer_service;
-    }
-
     /**
      * @inheritDoc
      *
@@ -81,6 +68,6 @@ class AttachCustomerToNewWordPressUser extends BaseHook
             return;
         }
 
-        $this->customer_service->attach_wordpress_user($user->user_email, $user_id);
+        app(CustomerService::class)->attach_wordpress_user($user->user_email, $user_id);
     }
 }

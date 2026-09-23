@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\Framework\Wordpress\Constants\HookTypes;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
 
+use function Kirki\Ecommerce\Framework\app;
+
 /**
  * Pushes a WordPress user's changed email onto its linked customer.
  *
@@ -14,21 +16,6 @@ use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
  */
 class SyncCustomerEmailFromWordPressUser extends BaseHook
 {
-    /** @var CustomerService */
-    protected $customer_service;
-
-    /**
-     * Set up the hook.
-     *
-     * @since 1.0.0
-     *
-     * @param CustomerService $customer_service Customer persistence service.
-     */
-    public function __construct(CustomerService $customer_service)
-    {
-        $this->customer_service = $customer_service;
-    }
-
     /**
      * @inheritDoc
      *
@@ -80,6 +67,6 @@ class SyncCustomerEmailFromWordPressUser extends BaseHook
             return;
         }
 
-        $this->customer_service->sync_email_from_wordpress_user($user_id, $user->user_email);
+        app(CustomerService::class)->sync_email_from_wordpress_user($user_id, $user->user_email);
     }
 }

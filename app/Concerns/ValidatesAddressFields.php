@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\App\Concerns;
 
 use Kirki\Ecommerce\App\Supports\AddressRules;
+use Kirki\Ecommerce\App\Supports\CountryData;
 
 use function Kirki\Ecommerce\Framework\deep_get;
 
@@ -50,6 +51,46 @@ trait ValidatesAddressFields
     }
 
     /**
+     * Build the "state is invalid" message naming the country's own term.
+     *
+     * @since 1.0.0
+     *
+     * @param string $country Country code from the submitted address.
+     * @return string
+     */
+    protected static function state_invalid_message(string $country)
+    {
+        return sprintf(
+            /* translators: %s is the country's term for its subdivision, e.g. State, Prefecture, Emirate. */
+            __('%s is invalid.', 'kirki-ecommerce'),
+            AddressRules::state_label($country)
+        );
+    }
+
+    /**
+     * Check whether a submitted state is not one of the country's known subdivisions.
+     *
+     * A country with no subdivisions in the dataset accepts any value, and an empty
+     * value is left to the required check.
+     *
+     * @since 1.0.0
+     *
+     * @param string $country Country code from the submitted address.
+     * @param mixed  $value   Submitted state value.
+     * @return bool
+     */
+    protected static function state_is_unknown(string $country, $value)
+    {
+        $states = CountryData::states_for($country);
+
+        if (empty($states) || !is_scalar($value) || (string) $value === '') {
+            return false;
+        }
+
+        return !in_array((string) $value, array_map('strval', array_column($states, 'id')), true);
+    }
+
+    /**
      * Read the country code out of a nested address block.
      *
      * @since 1.0.0
@@ -71,7 +112,8 @@ trait ValidatesAddressFields
      * subdivisions or postal codes is never asked for them. Reads the country from the
      * same row as the field being validated, since a wildcard rule's own leaf value
      * cannot see its siblings. The callback returns true when valid, a state-required
-     * message string for a missing state, or false for any other missing field.
+     * or state-invalid message string for a missing or unknown state, or false for any
+     * other missing field.
      *
      * @since 1.0.0
      *
@@ -82,6 +124,10 @@ trait ValidatesAddressFields
     {
         return function ($value, $key, $data) use ($field) {
             $country = (string) deep_get($data, static::address_item_key($key, 'country'), '');
+
+            if ($field === 'state' && static::state_is_unknown($country, $value)) {
+                return static::state_invalid_message($country);
+            }
 
             if (!AddressRules::is_required($country, $field)) {
                 return true;
