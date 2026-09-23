@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -12,9 +11,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
+import Label from '@/components/ui/label';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { Separator } from '@/components/ui/separator';
-import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
 import RightPanel from '@/features/products/components/product-form/sections/right-panel/right-panel';
 import SEOSettings from '@/features/products/components/product-form/sections/seo-settings/seo-settings';
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
@@ -30,6 +29,7 @@ import {
 } from '@/features/products/schemas/forms/product-form';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
+import { MinusCircle } from 'lucide-react';
 
 const RIGHT_SIDE_PANEL_WIDTH = '320px';
 const LEFT_SIDE_PANEL_WIDTH = '624px';
@@ -70,6 +70,10 @@ const ProductForm = ({
     initialValues,
     onSubmit,
   });
+
+  const [openShortDescription, setOpenShortDescription] = useState(
+    !!form.getValues('short_description'),
+  );
 
   useEffect(() => {
     if (!isDirty) {
@@ -147,20 +151,46 @@ const ProductForm = ({
 
                     <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
 
-                    <Separator marginTop={0} marginBottom={0} />
+                    <Separator negativeMargin={16} />
 
-                    <TextareaField
-                      name="short_description"
-                      label={__('Short description', 'kirki-ecommerce')}
-                      rows={3}
-                      placeholder={__('Brief product summary...', 'kirki-ecommerce')}
-                    />
+                    <Flex direction="column" gap={2}>
+                      <Flex align="center" justify="space-between">
+                        <Label>{__('Short description', 'kirki-ecommerce')}</Label>
+                        <Button
+                          variant="tertiary"
+                          onClick={() => setOpenShortDescription(true)}
+                          cssOverride={{
+                            display: openShortDescription ? 'none' : 'flex',
+                          }}
+                        >
+                          {__('Add', 'kirki-ecommerce')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setOpenShortDescription(false);
+                            form.setValue('short_description', null, {
+                              shouldDirty: true,
+                            });
+                          }}
+                          cssOverride={{
+                            display: !openShortDescription ? 'none' : 'flex',
+                          }}
+                        >
+                          <MinusCircle />
+                        </Button>
+                      </Flex>
+                      {openShortDescription && (
+                        <TextareaField
+                          name="short_description"
+                          rows={3}
+                          placeholder={__('Brief product summary...', 'kirki-ecommerce')}
+                        />
+                      )}
+                    </Flex>
 
-                    <AdditionalInfo />
-                    <Button variant="tertiary">
-                      <Plus />
-                      {__('Information')}
-                    </Button>
+                    {/* <AdditionalInfo /> */}
                   </Flex>
                 </CardContent>
               </Card>
