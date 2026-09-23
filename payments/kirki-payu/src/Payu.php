@@ -9,10 +9,11 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
-use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
+use stdClass;
+use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_anyway;
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -21,7 +22,7 @@ use function Kirki\Ecommerce\Framework\throw_unless;
 defined('ABSPATH') || exit;
 
 /**
- * Square payment gateway.
+ * PayU GPO Europe payment gateway.
  */
 class Payu extends PaymentProvider
 {
@@ -66,7 +67,7 @@ class Payu extends PaymentProvider
                 'required' => true,
             ],
             [
-                'name' => 'client_secret',
+                'name' => 'sandbox',
                 'label' => __('Sandbox Mode', 'kirki-ecommerce-payu'),
                 'type' => 'checkbox',
             ],
@@ -78,7 +79,7 @@ class Payu extends PaymentProvider
      *
      * @param Order $order
      * @return PaymentActionDTO
-     * @throws Exception
+     * @throws Exception If the gateway is disabled or PayU rejects the order.
      */
     public function pay(Order $order)
     {
@@ -87,11 +88,10 @@ class Payu extends PaymentProvider
         try {
             $builder = new PayuTransactionBuilder($order);
             $payload = $builder->build_order_payload();
-            $payload['notifyUrl'] = $this->webhook_url();
             $payload['merchantPosId'] = $this->settings['pos_id'];
+            $payload['notifyUrl'] = $this->webhook_url();
 
-            $this->client = $this->get_client();
-            $response = $this->client->create_order($payload);
+            $response = $this->get_client()->create_order($payload);
 
             throw_if(empty($response['redirectUri']), __('PayU checkout link not found.', 'kirki-ecommerce-payu'));
 
@@ -148,35 +148,32 @@ class Payu extends PaymentProvider
     }
 
     /**
-     * Handle a Square webhook notification.
+     * Handle a PayU order notification.
      *
-     * @return bool True if the notification was processed, false if ignored.
-     * @throws Exception If the payload is missing, invalid, or the API lookup fails.
+     * @return bool True if the notification was processed.
+     * @throws Exception If the payload is missing, invalid, or the order is unknown.
      */
     public function webhook()
     {
         $payload = $this->verify_and_parse_notification();
 
-        $order_uuid = $payload->order->extOrderId ?? null;
-        if (empty($order_uuid)) {
-            throw_anyway(__('PayU Error: Order UUID Not Found.', 'kirki-ecommerce-payu'));
-        }
+        $order_uuid = $payload->order->extOrderId ?? '';
+        throw_if(empty($order_uuid), __('PayU Error: Order UUID Not Found.', 'kirki-ecommerce-payu'));
 
         $order = OrderManager::find_by_uuid($order_uuid);
-        if (!$order) {
-            throw_anyway(__('PayU Error: Order Not Found.', 'kirki-ecommerce-payu'));
-        }
+        throw_if(!$order, __('PayU Error: Order Not Found.', 'kirki-ecommerce-payu'));
 
-        if ($order->payment_status === PaymentStatus::PAID) {
+        if (PaymentStatus::PAID === $order->payment_status) {
             return true;
         }
 
         $this->handle_transaction_response($payload, $order);
+
         return true;
     }
 
     /**
-     * Square API client.
+     * PayU API client.
      *
      * @return PayuClient
      * @throws Exception If credentials are missing.
@@ -187,54 +184,55 @@ class Payu extends PaymentProvider
             return $this->client;
         }
 
-        $pos_id = $this->settings['pos_id'] ?? '';
-        $client_id = $this->settings['client_id'] ?? '';
-        $second_key = $this->settings['second_key'] ?? '';
-        $client_secret = $this->settings['client_secret'] ?? '';
-        $sandbox = (bool) ($this->settings['sandbox'] ?? true);
+        $credentials = [
+            'pos_id' => $this->settings['pos_id'] ?? '',
+            'client_id' => $this->settings['client_id'] ?? '',
+            'second_key' => $this->settings['second_key'] ?? '',
+            'client_secret' => $this->settings['client_secret'] ?? '',
+        ];
 
-        if (empty($pos_id) || empty($client_id) || empty($second_key) || empty($client_secret)) {
-            throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
-        }
+        throw_if(in_array('', $credentials, true), __('PayU credentials are missing.', 'kirki-ecommerce-payu'));
 
-        return new PayuClient($pos_id, $client_id, $second_key, $client_secret, $sandbox);
+        $this->client = new PayuClient(
+            $credentials['client_id'],
+            $credentials['client_secret'],
+            $credentials['second_key'],
+            (bool) ($this->settings['sandbox'] ?? true)
+        );
+
+        return $this->client;
     }
 
     /**
-     * Read the raw webhook payload, verify its signature, and decode it.
+     * Read the raw notification body, verify its signature, and decode it.
      *
      * @return object
-     * @throws Exception If the payload is empty or its signature is invalid.
+     * @throws Exception If the payload is empty, unsigned, or not a PayU notification.
      */
     protected function verify_and_parse_notification(): object
     {
-        $payload = file_get_contents('php://input');
+        $raw_payload = file_get_contents('php://input');
 
-        // Respond with a 200 status code to acknowledge the notification.
-        http_response_code(200);
+        throw_if(empty($raw_payload), __('Invalid Payload From PayU.', 'kirki-ecommerce-payu'));
+        throw_unless(
+            $this->get_client()->is_verified($raw_payload),
+            __('Webhook Notification Is Not Valid.', 'kirki-ecommerce-payu')
+        );
 
-        throw_if(empty($payload), __('Invalid Payload From Square.', 'kirki-ecommerce-payu'));
-
-        $this->client = $this->get_client();
-
-        if (!$this->client->is_verified($payload)) {
-            throw_anyway(__('Webhook Notification Is Not Valid.', 'kirki-ecommerce-payu'));
-        }
-
-        return json_decode($payload);
+        return json_decode($raw_payload);
     }
 
     /**
-     * Update the order based on a Square payment event's status.
+     * Update the order to match the notification's payment status.
      *
-     * @param object $payload The payment object from the Square webhook event.
+     * @param object $payload The decoded notification payload.
      * @param Order $order The local order.
      * @return void
      * @throws Exception If the order update fails.
      */
     protected function handle_transaction_response(object $payload, Order $order)
     {
-        $status = PayuConstant::STATUS_MAP[$payload->order->status] ?? PaymentStatus::UNPAID;
+        $status = PayuConstant::PAYMENT_STATUS_MAP[$payload->order->status ?? ''] ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
@@ -252,29 +250,28 @@ class Payu extends PaymentProvider
 
                 case PaymentStatus::PENDING:
                     OrderManager::mark_payment_as_unpaid($order->id);
+                    break;
             }
 
             DB::commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             DB::rollback();
 
-            throw new Exception(
-                sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-square'), $e->getMessage())
-            );
+            /* translators: %s: Error message */
+            throw new Exception(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-payu'), $e->getMessage()));
         }
     }
 
-
     /**
-     * Record the Square payment ID and raw payment payload against the local order.
+     * Record the PayU order ID and raw notification payload against the local order.
      *
      * @param Order $order The local order.
-     * @param object $payload The payment object from the Square webhook event.
+     * @param object $payload The decoded notification payload.
      * @return void
      */
     protected function record_transaction(Order $order, object $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload->order->orderId);
+        OrderManager::set_transaction_id($order->id, $payload->order->orderId ?? '');
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }
