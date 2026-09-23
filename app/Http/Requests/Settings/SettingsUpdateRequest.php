@@ -24,6 +24,7 @@ use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Arr;
 
 /**
  * Validates and sanitizes a settings update for one settings group, selected by the `key` input.
@@ -820,13 +821,13 @@ class SettingsUpdateRequest extends Request
     }
 
     /**
-     * Return the validation rules for the email settings: default template, mail server and notification emails.
-     *
+     * Make email template rules
+     * 
      * @since 1.0.0
-     *
-     * @return array<string, string>
+     * 
+     * @return array
      */
-    protected function get_email_settings_rules()
+    protected function make_email_template_rules()
     {
         $notification_classes = [
             AdminOrderNotification::class,
@@ -836,27 +837,51 @@ class SettingsUpdateRequest extends Request
             CustomerUserNotification::class,
         ];
 
-        $email_template_rules = [
-            'data.admin_emails' => 'nullable|array',
-            'data.customer_emails' => 'nullable|array',
-        ];
+        $email_template_rules = [];
 
         foreach ($notification_classes as $notification_class) {
+            $type_key = 'data.' . $notification_class::get_type();
+
+            if (!isset($email_template_rules[$type_key])) {
+                $email_template_rules[$type_key] = 'nullable|array';
+            }
+
+            $group_key = $type_key . '.' . $notification_class::get_group();
+
+            if (!isset($email_template_rules[$group_key])) {
+                $email_template_rules[$group_key] = 'nullable|array';
+            }
+
+
             $options = $notification_class::get_constant_values();
-            $email_template_rules[sprintf('data.%s.%s', $notification_class::get_type(), $notification_class::get_group())] = 'nullable|array';
 
             foreach ($options as $option) {
-                $email_template_rules = [
-                    sprintf('data.%s.%s.%s', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|array',
-                    sprintf('data.%s.%s.%s.is_enabled', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|boolean',
-                    sprintf('data.%s.%s.%s.subject', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|string',
-                    sprintf('data.%s.%s.%s.heading', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|string',
-                    sprintf('data.%s.%s.%s.message', $notification_class::get_type(), $notification_class::get_group(), $option) => 'nullable|string',
-                ];
+                $option_key = $group_key . '.' . $option;
+
+                if (!isset($email_template_rules[$option_key])) {
+                    $email_template_rules[$option_key] = 'nullable|array';
+                    $email_template_rules = array_merge($email_template_rules, [
+                        $option_key . '.is_enabled' => 'nullable|boolean',
+                        $option_key . '.subject' => 'nullable|string',
+                        $option_key . '.heading' => 'nullable|string',
+                        $option_key . '.message' => 'nullable|string',
+                    ]);
+                }
             }
         }
 
+        return $email_template_rules;
+    }
 
+    /**
+     * Return the validation rules for the email settings: default template, mail server and notification emails.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, string>
+     */
+    protected function get_email_settings_rules()
+    {
         return array_merge([
             // Default template settings
             'data.default_template' => 'nullable|array',
@@ -892,7 +917,60 @@ class SettingsUpdateRequest extends Request
             'data.mail_configuration.is_authentication_enabled' => 'nullable|boolean',
             'data.mail_configuration.username' => 'nullable|string',
             'data.mail_configuration.password' => 'nullable|string',
-        ], $email_template_rules);
+        ], $this->make_email_template_rules());
+    }
+
+    /**
+     * Make email template filters
+     * 
+     * @since 1.0.0
+     * 
+     * @return array
+     */
+    protected function make_email_template_filters()
+    {
+        $notification_classes = [
+            AdminOrderNotification::class,
+            AdminInventoryNotification::class,
+            AdminUserNotification::class,
+            CustomerOrderNotification::class,
+            CustomerUserNotification::class,
+        ];
+
+        $email_template_rules = [];
+
+        foreach ($notification_classes as $notification_class) {
+            $type_key = 'data.' . $notification_class::get_type();
+
+            if (!isset($email_template_rules[$type_key])) {
+                $email_template_rules[$type_key] = Sanitizer::ARRAY;
+            }
+
+            $group_key = $type_key . '.' . $notification_class::get_group();
+
+            if (!isset($email_template_rules[$group_key])) {
+                $email_template_rules[$group_key] = Sanitizer::ARRAY;
+            }
+
+
+            $options = $notification_class::get_constant_values();
+
+            foreach ($options as $option) {
+                $option_key = $group_key . '.' . $option;
+
+                if (!isset($email_template_rules[$option_key])) {
+                    $email_template_rules[$option_key] = Sanitizer::ARRAY;
+                    $email_template_rules = array_merge($email_template_rules, [
+                        $option_key . '.is_enabled' => Sanitizer::BOOL,
+                        $option_key . '.subject' => Sanitizer::TEXT,
+                        $option_key . '.heading' => Sanitizer::TEXT,
+                        $option_key . '.message' => Sanitizer::RICH_TEXT,
+                    ]);
+                }
+            }
+        }
+
+        return $email_template_rules;
     }
 
     /**
@@ -904,34 +982,6 @@ class SettingsUpdateRequest extends Request
      */
     protected function get_email_settings_filters()
     {
-        $notification_classes = [
-            AdminOrderNotification::class,
-            AdminInventoryNotification::class,
-            AdminUserNotification::class,
-            CustomerOrderNotification::class,
-            CustomerUserNotification::class,
-        ];
-
-        $email_template_filters = [
-            'data.admin_emails' => Sanitizer::ARRAY,
-            'data.customer_emails' => Sanitizer::ARRAY
-        ];
-
-        foreach ($notification_classes as $notification_class) {
-            $options = $notification_class::get_constant_values();
-            $email_template_filters[sprintf('data.%s.%s', $notification_class::get_type(), $notification_class::get_group())] = Sanitizer::ARRAY;
-
-            foreach ($options as $option) {
-                $email_template_filters = [
-                    sprintf('data.%s.%s.%s', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::ARRAY,
-                    sprintf('data.%s.%s.%s.is_enabled', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::BOOL,
-                    sprintf('data.%s.%s.%s.subject', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::TEXT,
-                    sprintf('data.%s.%s.%s.heading', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::TEXT,
-                    sprintf('data.%s.%s.%s.message', $notification_class::get_type(), $notification_class::get_group(), $option) => Sanitizer::RICH_TEXT,
-                ];
-            }
-        }
-
         return array_merge([
             // Default template settings
             'data.default_template' => Sanitizer::ARRAY,
@@ -967,7 +1017,7 @@ class SettingsUpdateRequest extends Request
             'data.mail_configuration.is_authentication_enabled' => Sanitizer::BOOL,
             'data.mail_configuration.username' => Sanitizer::TEXT,
             'data.mail_configuration.password' => Sanitizer::TEXT,
-        ], $email_template_filters);
+        ], $this->make_email_template_filters());
     }
 
     /**
