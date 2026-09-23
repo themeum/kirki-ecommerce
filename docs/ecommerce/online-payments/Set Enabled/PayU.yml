@@ -16,6 +16,11 @@ http:
       }
   auth: inherit
 
+runtime:
+  variables:
+    - name: baseUrl
+      value: http://localhost:20100/wp-json/kirki/ecommerce/v1
+
 settings:
   encodeUrl: true
   timeout: 0

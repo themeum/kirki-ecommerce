@@ -42,19 +42,19 @@ class PayuTransactionBuilder
         $line_items = [];
 
         foreach ($this->order->items as $item) {
-            $line_items[] = $this->make_line_item($item->product_name, $item->invoiced_price, $quantity);
+            $line_items[] = $this->make_line_item($item->product_name, (string) $item->invoiced_price, (string) $item->quantity);
         }
 
         if (!empty($this->order->invoiced_shipping_total)) {
             $line_items[] = $this->make_line_item(
                 __('Shipping Charge', 'kirki-ecommerce-payu'),
-                (int) $this->order->invoiced_shipping_total
+                (string) $this->order->invoiced_shipping_total
             );
         }
 
         if (!empty($this->order->invoiced_tax_total)) {
             $tax_without_shipping = $this->order->invoiced_tax_total - $this->order->invoiced_shipping_tax_amount ?? 0;
-            $line_items[] = $this->make_line_item(__('Tax', 'kirki-ecommerce-payu'), (int) $tax_without_shipping);
+            $line_items[] = $this->make_line_item(__('Tax', 'kirki-ecommerce-payu'), (string) $tax_without_shipping);
         }
 
         return $line_items;
@@ -105,7 +105,7 @@ class PayuTransactionBuilder
     protected function get_buyer_info()
     {
         return [
-            'email' => $this->order->billing_email,
+            'email' => $this->order->billing_email ?? $this->order->customer_email,
             'phone' => $this->order->billing_phone,
             'firstName' => $this->order->billing_first_name,
             'lastName' => $this->order->billing_last_name,
@@ -118,12 +118,12 @@ class PayuTransactionBuilder
                 'countryCode' => $this->order->shipping_country,
                 'recipientName' => $this->order->shipping_first_name,
                 'recipientPhone' => $this->order->shipping_phone,
-                'recipientEmail' => $this->order->shipping_email
+                'recipientEmail' => $this->order->shipping_email ?? $this->order->customer_email
             ]
         ];
     }
 
-    protected function make_line_item(string $name, int $amount, int $quantity = 1): array
+    protected function make_line_item(string $name, string $amount, string $quantity = '1'): array
     {
         return [
             'name' => $name,

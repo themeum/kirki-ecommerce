@@ -1,5 +1,5 @@
 info:
-  name: PayU copy
+  name: PayU
   type: http
   seq: 10
   tags:
@@ -21,6 +21,11 @@ http:
         }
       }
   auth: inherit
+
+runtime:
+  variables:
+    - name: baseUrl
+      value: http://localhost:20100/wp-json/kirki/ecommerce/v1
 
 settings:
   encodeUrl: true

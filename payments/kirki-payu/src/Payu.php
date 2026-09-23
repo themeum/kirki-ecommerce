@@ -15,6 +15,7 @@ use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
 
 use function Kirki\Ecommerce\Framework\throw_anyway;
+use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\throw_unless;
 
 defined('ABSPATH') || exit;
@@ -89,13 +90,14 @@ class Payu extends PaymentProvider
             $payload['notifyUrl'] = $this->webhook_url();
             $payload['merchantPosId'] = $this->settings['pos_id'];
 
+            $this->client = $this->get_client();
+            $response = $this->client->create_order($payload);
 
-            if (empty($response['payment_link']['long_url'])) {
-                throw new Exception(__('Square checkout link not found.', 'kirki-ecommerce-square'));
-            }
+            throw_if(empty($response['redirectUri']), __('PayU checkout link not found.', 'kirki-ecommerce-payu'));
+
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::REDIRECT,
-                'value' => '',//$response['payment_link']['long_url'],
+                'value' => $response['redirectUri'],
             ]);
         } catch (Exception $e) {
             /* translators: %s: Error message */
@@ -195,7 +197,7 @@ class Payu extends PaymentProvider
     /**
      * Square API client.
      *
-     * @return SquareClient
+     * @return PayuClient
      * @throws Exception If credentials are missing.
      */
     protected function get_client(): PayuClient
@@ -214,7 +216,7 @@ class Payu extends PaymentProvider
             throw new Exception(__('Square credentials are missing.', 'kirki-ecommerce-square'));
         }
 
-        return $this->client = new PayuClient($pos_id, $client_id, $second_key, $client_secret, $sandbox);
+        return new PayuClient($pos_id, $client_id, $second_key, $client_secret, $sandbox);
     }
 
     /**

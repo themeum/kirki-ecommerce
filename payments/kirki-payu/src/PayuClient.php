@@ -3,8 +3,9 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
-use HttpRequest;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
+
+use function Kirki\Ecommerce\Framework\throw_if;
 
 defined('ABSPATH') || exit;
 
@@ -18,7 +19,7 @@ class PayuClient
     protected bool $sandbox;
     protected string $second_key;
     protected string $client_secret;
-    protected string $access_token;
+    protected ?string $access_token = null;
 
     /**
      * @param string $pos_id Square location ID.
@@ -58,30 +59,6 @@ class PayuClient
     }
 
     /**
-     * Create a Square Payment Link for an order.
-     *
-     * @param array $payload The payment link request payload.
-     * @return array The decoded JSON response, including the payment_link.
-     * @throws Exception If the API request fails.
-     */
-    public function create_payment_link(array $payload): array
-    {
-        return $this->send($this->payment_link_url(), SquareConstant::POST_METHOD, $payload);
-    }
-
-    /**
-     * Fetch an order from Square's Orders API.
-     *
-     * @param string $square_order_id Square's order ID.
-     * @return array The decoded JSON response.
-     * @throws Exception If the API request fails.
-     */
-    public function get_order(string $square_order_id): array
-    {
-        return $this->send($this->order_url($square_order_id), SquareConstant::GET_METHOD);
-    }
-
-    /**
      * Send a request to the Square API and decode the JSON response.
      *
      * @param string $endpoint The full request URL.
@@ -90,16 +67,13 @@ class PayuClient
      * @return array The decoded JSON response.
      * @throws Exception If the API request fails.
      */
-    protected function send(string $endpoint, string $method, array $payload = [], $content_type = 'application/json'): array
+    protected function send(string $endpoint, string $method, array $payload = []): array
     {
-        $request = new Http();
-        if ($this->access_token) {
-            $request = $request->with_token($this->access_token);
-        }
+        $request = Http::with_token($this->get_access_token())
+            ->with_options(['redirection' => 0]);
 
-        //$payload = () need to add form-urlencode condition.
-        $response = SquareConstant::POST_METHOD === $method
-            ? $request->with_body(wp_json_encode($payload), $content_type)->post($endpoint)
+        $response = PayuConstant::POST_METHOD === $method
+            ? $request->with_body(wp_json_encode($payload))->post($endpoint)
             : $request->get($endpoint);
 
         if ($response->failed()) {
@@ -109,15 +83,10 @@ class PayuClient
         return $response->json();
     }
 
-    /**
-     * Endpoint for a specific Square order.
-     *
-     * @param string $square_order_id Square's order ID.
-     * @return string
-     */
-    protected function order_url(string $square_order_id): string
+    public function create_order(array $payload)
     {
-        return $this->get_base_url() . SquareConstant::ORDER_LINK . "/{$square_order_id}";
+        $endpoint = $this->get_base_url() . PayuConstant::API_VERSION . 'orders';
+        return $this->send($endpoint, PayuConstant::POST_METHOD, $payload);
     }
 
     /**
@@ -128,14 +97,48 @@ class PayuClient
         return $this->sandbox ? PayuConstant::SANDBOX_BASE_URL : PayuConstant::PRODUCTION_BASE_URL;
     }
 
-    protected function get_access_token()
+    /**
+     * Get an OAuth access token, fetching one on first use.
+     *
+     * @return string
+     * @throws Exception If the token request fails or returns no token.
+     */
+    protected function get_access_token(): string
     {
         if ($this->access_token) {
-            return $access_token;
+            return $this->access_token;
         }
 
-        $this->access_token = $this->create_access_token();
+        $response = $this->create_access_token();
+        throw_if(empty($response['access_token']), __('Access Token Not Found.', 'kirki-ecommerce-payu'));
+        $this->access_token = $response['access_token'];
+
+        return $this->access_token;
     }
 
-    protected function create_access_token() {}
+    /**
+     * Request a fresh OAuth access token.
+     *
+     * This request is deliberately not routed through send(), which requires a
+     * token of its own.
+     *
+     * @return array The decoded JSON response.
+     * @throws Exception If the API request fails.
+     */
+    protected function create_access_token(): array
+    {
+        $endpoint = $this->get_base_url() . PayuConstant::OAUTH_CONTEXT;
+
+        $response = Http::as_form()->post($endpoint, [
+            'grant_type' => PayuConstant::CLIENT_CREDENTIAL,
+            'client_id' => $this->client_id,
+            'client_secret' => $this->client_secret,
+        ]);
+
+        if ($response->failed()) {
+            throw new Exception($response->body());
+        }
+
+        return $response->json();
+    }
 }
