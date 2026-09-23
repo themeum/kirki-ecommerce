@@ -1,3 +1,4 @@
+export { default as ProductSelectionField } from './components/fields/product-selection-field';
 export { default as BaseUnitPopover } from './components/product-form/sections/price/base-unit-popover';
 export { default as SelectProductsDialog } from './components/shared/select-products-dialog';
 export { buildProductSelection } from './components/shared/select-products-dialog/build-selection';
