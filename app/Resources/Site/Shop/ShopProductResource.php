@@ -46,7 +46,7 @@ class ShopProductResource extends Resource
 
         $has_variants = (bool) $this->has_variants;
         $variant_id   = intval($variant->id);
-        $out_of_stock = ! $this->resolve_has_stock($variants);
+        $out_of_stock = $variants ? !$this->resolve_has_stock($variants) : false;
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
         $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 

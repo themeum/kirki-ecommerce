@@ -173,6 +173,7 @@ class CartResource extends Resource
                         })->to_array(),
                         'available_quantity'  => $item->variant->available_quantity,
                         'in_stock'            => $item->variant->in_stock,
+                        'is_available'        => $item->variant->is_available(),
                         'track_inventory'     => (bool) $item->variant->track_inventory,
                         'allow_back_order'    => (bool) $item->variant->allow_back_order,
                         'has_limit_per_order' => (bool) $item->variant->has_limit_per_order,

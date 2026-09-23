@@ -16,6 +16,7 @@ use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\Order\RefundStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
@@ -30,6 +31,7 @@ use Kirki\Ecommerce\App\Models\CartCoupon;
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderItemCoupon;
@@ -581,6 +583,102 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $this->assert_validation_error($response);
+    }
+
+    /**
+     * Referencing a variant ID that does not exist returns a 404, not a 500.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_returns_404_for_nonexistent_variant(): void
+    {
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'items' => [
+                ['variant_id' => 999999, 'quantity' => 1],
+            ],
+        ]));
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * Requesting more than the variant's per-order limit returns a 422, not a 500.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_returns_422_when_quantity_exceeds_per_order_limit(): void
+    {
+        Variant::find($this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 1]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload([
+            'items' => [
+                ['variant_id' => $this->variant_id, 'quantity' => 2],
+            ],
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An item whose product became draft after being added to the cart blocks checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_rejects_item_whose_product_is_draft(): void
+    {
+        $product_id = Variant::find($this->variant_id)->product_id;
+        Product::find($product_id)->update(['status' => ProductStatus::DRAFT]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An item whose product was trashed after being added to the cart blocks checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_rejects_item_whose_product_is_trashed(): void
+    {
+        $product_id = Variant::find($this->variant_id)->product_id;
+        Product::find($product_id)->update(['status' => ProductStatus::TRASHED]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An item whose variant was made not visible after being added to the cart blocks checkout.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_rejects_item_whose_variant_is_not_visible(): void
+    {
+        Variant::find($this->variant_id)->update(['is_visible' => false]);
+
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
+     * An order with only available items is unaffected by the availability check.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_order_succeeds_when_item_is_available(): void
+    {
+        $response = $this->request('POST', 'orders', $this->order_payload());
+
+        $this->assert_api_success($response, 201);
     }
 
     /**
