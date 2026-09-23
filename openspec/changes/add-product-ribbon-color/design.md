@@ -12,7 +12,10 @@ new value through the full round trip, under CLAUDE.md §2's WP.org rules.
 - Add the swatch row and live preview to the sidebar ribbon disclosure.
 
 **Non-Goals**
-- No free-form colour picking. The palette is fixed at five entries.
+- ~~No free-form colour picking. The palette is fixed at five entries.~~
+  Reversed post-implementation (see tasks.md §6): the sidebar now also
+  offers a custom colour picker beside the five defaults, so validation
+  accepts any hex value rather than only the palette.
 - No redesign of the storefront card beyond drawing the badge in the stored
   colour.
 - No backfill of existing rows.

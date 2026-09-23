@@ -26,6 +26,8 @@ const addLink = () => screen.getByRole('button', { name: 'Add ribbon' });
 const removeButton = () => screen.getByRole('button', { name: 'Remove ribbon' });
 const textInput = () => screen.getByPlaceholderText('e.g. Fresh Arrival');
 const swatch = (color: string) => screen.getByRole('radio', { name: `Ribbon colour ${color}` });
+const customSwatch = () => screen.getByRole('radio', { name: /custom ribbon colour/i });
+const hexInput = () => screen.getByLabelText('Hex color value');
 
 afterEach(() => {
   cleanup();
@@ -69,5 +71,52 @@ describe('Ribbon field', () => {
     expect(latest.ribbon).toBe('');
     expect(latest.ribbon_color).toBeNull();
     expect(addLink()).toBeInTheDocument();
+  });
+
+  it('shows the custom swatch as an empty add control while a default colour is current', () => {
+    render(<Harness initial={{ ribbon: 'Fresh Arrival', ribbon_color: RIBBON_COLOR_PALETTE[0] }} />);
+
+    expect(customSwatch()).toHaveAttribute('aria-checked', 'false');
+    expect(customSwatch()).toHaveAccessibleName('Add a custom ribbon colour');
+  });
+
+  it('marks the custom swatch as current when the stored colour is not a default', () => {
+    render(<Harness initial={{ ribbon: 'Fresh Arrival', ribbon_color: '#123456' }} />);
+
+    expect(customSwatch()).toHaveAttribute('aria-checked', 'true');
+    RIBBON_COLOR_PALETTE.forEach((color) => {
+      expect(swatch(color)).toHaveAttribute('aria-checked', 'false');
+    });
+  });
+
+  it('picking a custom colour from the picker updates the ribbon colour', () => {
+    render(<Harness initial={{ ribbon: 'Fresh Arrival', ribbon_color: RIBBON_COLOR_PALETTE[0] }} />);
+
+    fireEvent.click(customSwatch());
+    fireEvent.change(hexInput(), { target: { value: '#123456' } });
+
+    expect(latest.ribbon_color).toBe('#123456');
+  });
+
+  it('remembers the custom colour after switching to a default swatch', () => {
+    render(<Harness initial={{ ribbon: 'Fresh Arrival', ribbon_color: RIBBON_COLOR_PALETTE[0] }} />);
+
+    fireEvent.click(customSwatch());
+    fireEvent.change(hexInput(), { target: { value: '#123456' } });
+    fireEvent.click(swatch(RIBBON_COLOR_PALETTE[1]));
+
+    expect(latest.ribbon_color).toBe(RIBBON_COLOR_PALETTE[1]);
+    expect(customSwatch()).toHaveAttribute('aria-checked', 'false');
+    expect(customSwatch()).toHaveAccessibleName('Custom ribbon colour #123456, editable');
+
+    fireEvent.click(customSwatch());
+
+    expect(latest.ribbon_color).toBe('#123456');
+  });
+
+  it('marks a remembered custom colour as editable, distinct from the default swatches', () => {
+    render(<Harness initial={{ ribbon: 'Fresh Arrival', ribbon_color: '#123456' }} />);
+
+    expect(customSwatch()).toHaveAccessibleName('Custom ribbon colour #123456, editable');
   });
 });

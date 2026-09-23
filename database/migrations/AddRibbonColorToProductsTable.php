@@ -14,7 +14,7 @@ class AddRibbonColorToProductsTable implements Migration
             $table->string('ribbon_color', 20)
                 ->nullable()
                 ->after('ribbon')
-                ->comment('Supported values: #6d3fe0, #1f6fe5, #1e8e4a, #d9650b, #1d1d1f');
+                ->comment('Hex colour. Default swatches: #6d3fe0, #1f6fe5, #1e8e4a, #d9650b, #1d1d1f; a custom hex is also accepted.');
         });
     }
 

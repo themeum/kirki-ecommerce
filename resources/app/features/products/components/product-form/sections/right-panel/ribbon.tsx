@@ -2,11 +2,11 @@ import { useFormContext } from 'react-hook-form';
 
 import TextField from '@/components/form/text-field';
 import CollapsibleField from '@/components/ui/collapsible-field';
+import Flex from '@/components/ui/flex';
 import { RIBBON_COLOR_PALETTE } from '@/features/products/schemas/forms/product-basics-form';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { __ } from '@/wpi18n';
 
-import Flex from '@/components/ui/flex';
 import { RibbonColorSwatches, RibbonPreviewBadge } from './ribbon-swatches';
 
 const Ribbon = () => {

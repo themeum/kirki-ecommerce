@@ -133,3 +133,85 @@
       the user the visual checks: that the preview badge matches the
       draft's proportions, and that the storefront card badge picks up the
       colour.
+
+## 6. Follow-up: custom colour (post-implementation, reverses design.md's original Non-Goal)
+
+The user asked for a 6th "add a custom colour" swatch with a "+" affordance,
+opening a picker, replacing the "fixed five-entry palette" Non-Goal from
+design.md with "five defaults plus any custom hex".
+
+- [x] 6.1 Widen `ribbon_color` validation: dropped the `in:` palette
+      restriction from `ProductCreateRequest`/`ProductUpdateRequest` in
+      favour of `string|nullable|max:20` — the same minimal pattern this
+      codebase already uses for `AttributeValueCreateRequest`'s free-form
+      `color` field. Removed the now-unused `RibbonColor` import from both
+      request classes (the constant class itself stays — `get_default()` is
+      still used for the null-fallback).
+- [x] 6.2 Widened the frontend schema field the same way:
+      `ribbon_color: z.string()` instead of `z.enum(RIBBON_COLOR_PALETTE)`
+      in `product-basics-form.ts`; removed the now-inaccurate `RibbonColor`
+      TS type alias (the field is no longer restricted to that union).
+- [x] 6.3 Updated the migration's column comment (not yet shipped, so edited
+      in place rather than a new Alter migration) from "Supported values: …"
+      to "Default swatches: …; a custom hex is also accepted" — it was
+      documentation only, never enforced by the DB, but was actively wrong
+      once the `in:` rule was dropped.
+- [x] 6.4 Added a 6th control to `RibbonColorSwatches` built on the existing
+      `ColorPicker`/`ColorPickerTrigger`/`ColorPickerContent`/`ColorPickerArea`/
+      `ColorPickerInput` primitives (`components/ui/color-picker.tsx`,
+      already used for attribute-value colours) rather than a new picker.
+      Shows a dashed circle with a `+` icon when the stored colour is one of
+      the five defaults (or unset); shows the stored colour with a check
+      mark, same as the fixed swatches, when it's a custom value — clicking
+      it again reopens the picker to change it.
+- [x] 6.5 Extended `ribbon.test.tsx`: empty/default state shows the `+`
+      control unchecked, a custom stored colour marks it current and marks
+      every default swatch unchecked, and picking a colour through the
+      picker's hex input updates `ribbon_color`. `npx vitest run`: 7/7 pass.
+- [x] 6.6 Found and fixed a regression while doing this: `RibbonPreviewBadge`
+      had drifted on disk to `text ?? 'Preview'` (dropping the `.toUpperCase()`
+      transform, and — since `ribbon.tsx` passes `''` not `null` for a blank
+      ribbon — `??` no longer caught the blank case at all, so the badge
+      rendered empty instead of the literal "Preview"). Restored the
+      ternary + uppercase version tasks 4.2/4.5 originally established;
+      confirmed via the now-passing `shows "Preview"...`/`updates the
+      preview...` tests, which failed against the drifted version.
+- [x] 6.7 Verification: `npm run typecheck` — clean (same pre-existing
+      unrelated `product-form.tsx` error as the stashed baseline, see 5.1).
+      `eslint` on the touched files — clean after autofixing an import-sort
+      ordering issue on `ribbon.tsx` (a leftover `Flex` import from the same
+      on-disk drift as 6.6). `composer phpcs:wporg` (Herd `php74`) on the
+      touched PHP — clean.
+
+## 7. Follow-up: remembering and marking the custom colour
+
+The user reported two problems with the 6th swatch from §6: (1) picking a
+custom colour and then choosing a default swatch discarded the custom value
+— reopening the picker started from black again; (2) once a custom colour
+was the current choice, its swatch looked identical to a selected default
+swatch, with no indication that (unlike the five fixed defaults) its colour
+could be changed.
+
+- [x] 7.1 `RibbonColorSwatches` now keeps the last custom colour in local
+      state (`customColor`), synced from `value` whenever it is a custom
+      colour. The `ColorPicker`'s own `value` (and so the picker area/hex
+      input's starting point) reads from this remembered colour instead of
+      resetting to `''` when a default swatch becomes current, so reopening
+      the picker resumes from the last custom pick rather than black.
+- [x] 7.2 The custom swatch's `onClick` now also calls `onChange(customColor)`
+      when a default is current and a custom colour is remembered, so a
+      single click both reselects the remembered custom colour and reopens
+      the picker to change it further (Radix composes the passed `onClick`
+      with its own open-toggle, confirmed in
+      `node_modules/@radix-ui/react-popover`).
+- [x] 7.3 Swapped the custom swatch's `Check` icon for a `Pencil` icon,
+      shown whenever a custom colour is remembered (selected or not), so it
+      reads as "editable" rather than looking like a selected default
+      swatch. The five default swatches are unchanged and still use `Check`.
+- [x] 7.4 Extended `ribbon.test.tsx`: picking a custom colour, switching to a
+      default, and clicking the custom swatch again restores the custom
+      colour; a remembered custom colour's accessible name reflects it is
+      editable in both the current and non-current state. `npx vitest run`:
+      9/9 pass.
+- [x] 7.5 Verification: `npm run typecheck` — clean. `eslint` on
+      `ribbon-swatches.tsx` and `ribbon.test.tsx` — clean.

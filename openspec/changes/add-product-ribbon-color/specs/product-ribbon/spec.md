@@ -21,25 +21,25 @@ A product's ribbon SHALL consist of a single line of text and a colour. Either m
 - **WHEN** a product has ribbon text and a colour
 - **THEN** that text is shown as the product's ribbon, drawn in that colour
 
-### Requirement: The ribbon colour comes from a fixed palette
+### Requirement: The ribbon colour offers a fixed set of defaults plus a custom choice
 
-The colour SHALL be one of a fixed, documented set of colours. A value outside that set MUST be rejected when a product is created or updated, with the same error reporting as any other invalid field. The set is defined by the application, so extending it MUST NOT require a database schema change.
+> Superseded post-implementation (see tasks.md §6 and design.md's Non-Goals):
+> the original version of this requirement restricted the colour to
+> exactly the five-entry palette, rejecting anything else. The sidebar now
+> also offers a custom colour picker, so any valid hex colour is accepted;
+> the five entries remain as the default, one-click swatches.
 
-#### Scenario: A colour from the palette
+The colour SHALL default to one of a fixed, documented set of swatches, but a merchant MAY instead choose any custom colour via a colour picker. Any value the product is saved with, default or custom, is persisted as-is.
 
-- **WHEN** a product is saved with a ribbon colour drawn from the palette
+#### Scenario: A colour from the default swatches
+
+- **WHEN** a product is saved with a ribbon colour drawn from the default swatches
 - **THEN** the product is saved and the colour is persisted
 
-#### Scenario: A colour outside the palette
+#### Scenario: A custom colour
 
-- **WHEN** a product is saved with a ribbon colour that is not in the palette
-- **THEN** the save is rejected with a validation error naming the colour field
-- **AND** no part of the product is persisted
-
-#### Scenario: Widening the palette
-
-- **WHEN** a new colour is added to the palette
-- **THEN** products can be saved with it without any database migration
+- **WHEN** a product is saved with a ribbon colour chosen through the custom colour picker
+- **THEN** the product is saved and that exact colour is persisted
 
 ### Requirement: Ribbons saved before colours existed still render
 
