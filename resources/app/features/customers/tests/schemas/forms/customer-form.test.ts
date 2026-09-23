@@ -54,10 +54,12 @@ describe('CustomerFormSchema', () => {
       });
 
       expect(result.success).toBe(false);
-      if (!result.success) {
-        const paths = result.error.issues.map((issue) => issue.path.join('.'));
-        expect(paths).toEqual(['addresses.0.country']);
+      if (result.success) {
+        return;
       }
+
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toEqual(['addresses.0.country']);
     });
 
     it('requires the core fields once any of them is filled in', () => {
@@ -67,11 +69,13 @@ describe('CustomerFormSchema', () => {
       });
 
       expect(result.success).toBe(false);
-      if (!result.success) {
-        const paths = result.error.issues.map((issue) => issue.path.join('.'));
-        expect(paths).toContain('addresses.0.address_line1');
-        expect(paths).toContain('addresses.0.country');
+      if (result.success) {
+        return;
       }
+
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toContain('addresses.0.address_line1');
+      expect(paths).toContain('addresses.0.country');
     });
 
     it('accepts and keeps a touched row with every core field filled in', () => {
@@ -90,9 +94,11 @@ describe('CustomerFormSchema', () => {
       });
 
       expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.addresses).toHaveLength(1);
+      if (!result.success) {
+        return;
       }
+
+      expect(result.data.addresses).toHaveLength(1);
     });
 
     it('requires a label when the type is "others"', () => {
