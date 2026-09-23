@@ -2,7 +2,7 @@ import { cartApi } from '../api/cart';
 import { toastManager } from '../services/toast/runtime';
 import { config } from '../utils';
 
-export function cart(invalid_items: Number[]) {
+export function cart() {
   const { __ } = window.wp.i18n;
 
   return {
@@ -10,7 +10,8 @@ export function cart(invalid_items: Number[]) {
     success: false,
     error: null as string | null,
     cartData: config.cart,
-    invalidItems: invalid_items,
+    invalidItems: config.cart.invalid_item_ids,
+    invalidItemsMessage: config.cart.invalid_items,
     removeLinkText: '',
 
     format_cart_items() {
@@ -74,18 +75,17 @@ export function cart(invalid_items: Number[]) {
 
     async removeInvalidItem(id: number) {
       await this.remove(id);
-      this.invalidItems = this.invalidItems.filter((item: Number) => item !== id);
+      this.invalidItems = this.invalidItems.filter((item: number) => item !== id);
       this.removeLinkText = __('Remove', 'kirki-ecommerce');
       this.removeLinkText += ` (${this.invalidItems.length})`;
     },
 
     removeInvalidItems() {
-      this.invalidItems.forEach((item: Number) => {
-        const removeItemButton = document.querySelector(
-          `.kecom-cart-item-remove[id="${item}"]`,
-        ) as HTMLAnchorElement;
+      this.invalidItems.forEach((item: number) => {
+        const removeItemButton = document.querySelector(`.kecom-cart-item-remove[id="${item}"]`)!;
         if (removeItemButton) {
-          removeItemButton.click();
+          const removeButton = removeItemButton as HTMLAnchorElement;
+          removeButton.click();
         }
       });
     },

@@ -18,11 +18,11 @@ use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Cart\CartResource as SiteCartResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -156,52 +156,9 @@ class SiteController
     {
         $cart = $cart_service->get_current_cart();
         $calculate_tax = false;
-        $cart_resource = CartResource::make($cart, $calculate_tax);
+        $cart_resource = SiteCartResource::make($cart, $calculate_tax);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
-    }
-
-    /**
-     * Add Backend Check before going to checkout page.
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request Current request.
-     * @param CartService $cart_service Cart service.
-     * @return void
-     */
-    public function handle_checkout(Request $request, CartService $cart_service)
-    {
-        $cart = $cart_service->get_current_cart();
-        $cart_resource = CartResource::make($cart);
-
-        $invalid_items = [];
-        $errors = [];
-
-        if (!empty($cart_resource)) {
-            $items = $cart_resource['items'] ?? [];
-            foreach ($items as $item) {
-                $product = $item['product'] ?? [];
-
-                if (isset($product['in_stock']) && !$product['in_stock']) {
-                    $invalid_items[$item['id']] =  __('Out of Stock', 'kirki-ecommerce');
-                    $errors['invalid_item_ids'][] = $item['id'];
-                }
-
-                if (isset($product['is_available']) && !$product['is_available']) {
-                    $invalid_items[$item['id']] =  __('Not Available', 'kirki-ecommerce');
-                    $errors['invalid_item_ids'][] = $item['id'];
-                }
-            }
-        }
-
-        if (! empty($errors)) {
-            $errors['label'] = __('Remove unavailable items to complete checkout.', 'kirki-ecommerce');
-            $errors['invalid_items'] = $invalid_items;
-            return redirect(Url::get_cart_url())->with('errors', $errors);
-        }
-
-        return redirect(Url::get_checkout_url());
     }
 
     /**
@@ -255,7 +212,12 @@ class SiteController
         $customer_id      = $customer ? $customer->get_customer_id() : null;
         $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
         $payment_gateways = Payment::get_available_providers();
-        $cart = CartResource::make($cart);
+        $cart = SiteCartResource::make($cart);
+
+        if (!empty($cart['invalid_item_ids'])) {
+            wp_safe_redirect(Url::get_cart_url());
+            exit;
+        }
 
         $data = [
             'customer'         => $customer,

@@ -11,34 +11,33 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Supports\Icon;
 
-use function Kirki\Ecommerce\Framework\session;
 
 $item             = $data['item'] ?? [];
 $max_quantity     = $data['max_quantity'] ?? 1;
 $initial_quantity = (int) ($item['quantity'] ?? 1);
-$errors = session('errors');
+$invalid_items    = $data['invalid_items'] ?? [];
 
 // Determine if the increase button should be disabled on initial render (before Alpine boots).
 $at_max = $max_quantity !== 'undefined' && $initial_quantity >= (int) $max_quantity;
 ?>
 
 <div class="kecom-cart-item-quantity">
-    <?php if (isset($errors['invalid_item_ids']) && in_array($item['id'], $errors['invalid_item_ids'])) : ?>
-        <span class="kecom-badge <?php echo 'Out of Stock' === $errors['invalid_items'][$item['id']] ?  'kecom-badge-warning-light' : 'kecom-badge-error-light'?>">
-            <?php echo esc_html($errors['invalid_items'][$item['id']]); ?>
+    <?php if (isset($invalid_items[$item['id']]) && !empty($invalid_items[$item['id']])) : ?>
+        <span class="kecom-badge <?php echo 'Out of Stock' === $invalid_items[$item['id']] ? esc_attr('kecom-badge-warning-light') : esc_attr('kecom-badge-error-light') ?>">
+            <?php echo esc_html($invalid_items[$item['id']]); ?>
         </span>
         <button class="kecom-btn kecom-btn-outline kecom-cart-item-remove" id="<?php echo esc_html($item['id']); ?>" type="button" aria-label="Remove item" @click="removeInvalidItem(<?php echo esc_html($item['id']); ?>)" :disabled="loading">
             <?php Icon::render('trash'); ?>
         </button>
     <?php else : ?>
-    <div class="kecom-quantity kecom-quantity-sm">
-        <button class="kecom-quantity-btn" type="button" aria-label="Remove item" @click="remove(<?php echo esc_html($item['id']); ?>)" x-show="quantity === 1"> <?php Icon::render('trash'); ?></button>
-        <button class="kecom-quantity-btn" type="button" aria-label="Decrease" @click.debounce.200ms="decrement" x-show="quantity > 1"><?php Icon::render('minus'); ?></button>
-        <input class="kecom-quantity-input" type="number" :value="quantity" @input.debounce.200ms="setValue($el.value, $el)" @change="handleBlur($el)" onwheel="this.blur()" min="1" max="<?php echo esc_html($max_quantity); ?>" aria-label="Quantity">
-        <button class="kecom-quantity-btn" type="button" aria-label="Increase" @click.debounce.200ms="increment" :disabled="isMax"> <?php Icon::render('plus'); ?></button>
-    </div>
-    <button class="kecom-btn kecom-btn-outline kecom-cart-item-remove" type="button" aria-label="Remove item" x-show="quantity > 1" @click="remove(<?php echo esc_html($item['id']); ?>)" :disabled="loading">
-        <?php Icon::render('trash'); ?>
-    </button>
+        <div class="kecom-quantity kecom-quantity-sm">
+            <button class="kecom-quantity-btn" type="button" aria-label="Remove item" @click="remove(<?php echo esc_html($item['id']); ?>)" x-show="quantity === 1"> <?php Icon::render('trash'); ?></button>
+            <button class="kecom-quantity-btn" type="button" aria-label="Decrease" @click.debounce.200ms="decrement" x-show="quantity > 1"><?php Icon::render('minus'); ?></button>
+            <input class="kecom-quantity-input" type="number" :value="quantity" @input.debounce.200ms="setValue($el.value, $el)" @change="handleBlur($el)" onwheel="this.blur()" min="1" max="<?php echo esc_html($max_quantity); ?>" aria-label="Quantity">
+            <button class="kecom-quantity-btn" type="button" aria-label="Increase" @click.debounce.200ms="increment" :disabled="isMax"> <?php Icon::render('plus'); ?></button>
+        </div>
+        <button class="kecom-btn kecom-btn-outline kecom-cart-item-remove" type="button" aria-label="Remove item" x-show="quantity > 1" @click="remove(<?php echo esc_html($item['id']); ?>)" :disabled="loading">
+            <?php Icon::render('trash'); ?>
+        </button>
     <?php endif; ?>
 </div>
