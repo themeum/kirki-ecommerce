@@ -58,7 +58,6 @@ use Kirki\Ecommerce\Database\Migrations\AddLowStockThresholdToVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\AddPublishedAtAndTrashedAtToProductsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterAddressesTableForAddressBook;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromCustomersTable;
-use Kirki\Ecommerce\Database\Migrations\DropShowUnitPriceFromVariantsTable;
 use Kirki\Ecommerce\Database\Migrations\DropIsBillingSameAsShippingFromOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\AlterSchemaKeysToExplicitNames;
 use Kirki\Ecommerce\Database\Migrations\DropCouponUsageTable;
@@ -71,6 +70,7 @@ use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddShippingTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsDropTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AddRibbonColorToProductsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsAddRegularPriceColumns;
+use Kirki\Ecommerce\Database\Migrations\AddScheduledAtToProductsTable;
 
 return [
     CreateLanguagesTable::class,
@@ -151,8 +151,7 @@ return [
     AlterOrdersAddShippingTaxColumns::class,
     AlterOrderItemsDropTaxColumns::class,
 
-    DropShowUnitPriceFromVariantsTable::class,
-
     AddRibbonColorToProductsTable::class,
     AlterOrderItemsAddRegularPriceColumns::class,
+    AddScheduledAtToProductsTable::class,
 ];

@@ -11,7 +11,7 @@ import { MediaRefSchema } from '@/schemas/shared/media';
 export { AvailabilityStatusSchema };
 export type { AvailabilityStatus } from '@/features/products/schemas/catalog/variant';
 
-export const ProductStatusSchema = z.enum(['draft', 'published', 'trashed']);
+export const ProductStatusSchema = z.enum(['draft', 'published', 'scheduled', 'trashed']);
 
 export type ProductStatus = z.infer<typeof ProductStatusSchema>;
 
@@ -125,6 +125,7 @@ export const ProductSchema = z.object({
   media: z.array(MediaRefSchema),
   preview_url: z.string().nullish(),
   published_at: z.string().nullish(),
+  scheduled_at: z.string().nullish(),
   trashed_at: z.string().nullish(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),

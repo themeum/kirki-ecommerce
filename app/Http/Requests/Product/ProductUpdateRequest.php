@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Somoy;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 /**
@@ -74,6 +75,7 @@ class ProductUpdateRequest extends Request
             'title' => 'required|string|max:500',
             'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug,' . $this->int('id'),
             'status' => 'string|nullable|in:' . ProductStatus::join(),
+            'scheduled_at' => 'required_if:status,' . ProductStatus::SCHEDULED . '|date|format:' . Somoy::ATOM . '|after:now|nullable',
             'ribbon' => 'string|nullable|max:100',
             'ribbon_color' => 'string|nullable|max:20',
             'currency_id' => 'integer|nullable',
@@ -126,7 +128,7 @@ class ProductUpdateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100', // @todo: add unique rule when value supported
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number|min:0',
+            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . ',' . ProductStatus::SCHEDULED . '|nullable|number|min:0',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
@@ -181,6 +183,7 @@ class ProductUpdateRequest extends Request
             'title' => Sanitizer::TEXT,
             'slug' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
+            'scheduled_at' => Sanitizer::TEXT,
             'ribbon' => Sanitizer::TEXT,
             'ribbon_color' => Sanitizer::TEXT,
             'currency_id' => Sanitizer::INT,

@@ -115,6 +115,7 @@ class ProductResource extends Resource
             'preview_url' => $this->preview_url,
 
             'published_at' => $this->published_at,
+            'scheduled_at' => $this->scheduled_at,
             'trashed_at' => $this->trashed_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

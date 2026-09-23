@@ -143,6 +143,10 @@ class ProductService
             $data_array['published_at'] = Date::now()->set_timezone('UTC');
         }
 
+        if ($data->status !== ProductStatus::SCHEDULED) {
+            $data_array['scheduled_at'] = null;
+        }
+
         $attributes = array_map(function ($attribute) {
             return $attribute['id'];
         }, $data->attributes);
@@ -169,7 +173,7 @@ class ProductService
      * Update a product and sync its media, taxonomies and attributes.
      *
      * If no slug is provided, it will be generated from the title. A change of
-     * status also updates the published and trashed timestamps.
+     * status also updates the published, scheduled and trashed timestamps.
      *
      * @since 1.0.0
      *
@@ -200,6 +204,10 @@ class ProductService
                 $data_array['published_at'] = null;
                 $data_array['trashed_at'] = null;
             }
+        }
+
+        if ($data->status !== ProductStatus::SCHEDULED) {
+            $data_array['scheduled_at'] = null;
         }
 
         $is_updated = (bool) $product->update($data_array);

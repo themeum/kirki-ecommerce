@@ -7,6 +7,7 @@ import NumberInput from '@/components/ui/number-input';
 import { useBaseCurrencySymbol } from '@/hooks';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 
 type MoneyFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -65,7 +66,9 @@ const MoneyField = <
               {showSymbol && (
                 <span
                   css={scoped({
-                    color: field.value ? theme.colors.text.primary : theme.colors.text.subdued,
+                    color: isDefined(field.value)
+                      ? theme.colors.text.primary
+                      : theme.colors.text.subdued,
                     position: 'absolute',
                     left: theme.spacing[3],
                     top: '50%',

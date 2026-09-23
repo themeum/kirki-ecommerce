@@ -1,3 +1,4 @@
+import { Copy, MinusCircle } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -8,6 +9,12 @@ import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
@@ -27,10 +34,10 @@ import {
   type ProductFormInput,
   type ProductFormPayload,
 } from '@/features/products/schemas/forms/product-form';
+import { ShowMoreIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
-import { MinusCircle } from 'lucide-react';
 
 const RIGHT_SIDE_PANEL_WIDTH = '320px';
 const LEFT_SIDE_PANEL_WIDTH = '624px';
@@ -122,6 +129,25 @@ const ProductForm = ({
           }
           actions={
             <>
+              {onDuplicate && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="tertiary"
+                      size="icon"
+                      aria-label={__('More options', 'kirki-ecommerce')}
+                    >
+                      <ShowMoreIcon />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={handleDuplicateClick} disabled={isDuplicating}>
+                      <Copy size={16} />
+                      {__('Duplicate', 'kirki-ecommerce')}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Button variant="tertiary" onClick={handleBack} disabled={isSubmitting}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
@@ -206,12 +232,7 @@ const ProductForm = ({
               <SEOSettings />
             </Flex>
 
-            <RightPanel
-              mode={mode}
-              product={product}
-              onDuplicate={handleDuplicateClick}
-              isDuplicating={isDuplicating}
-            />
+            <RightPanel mode={mode} product={product} />
           </Grid>
         </PageContent>
         <FloatingBar

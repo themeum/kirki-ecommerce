@@ -33,6 +33,7 @@ class Product extends Model
         'shipping_profile_id' => 'integer',
         'shipping_box_id' => 'integer',
         'published_at' => 'datetime',
+        'scheduled_at' => 'datetime',
         'trashed_at' => 'datetime',
     ];
 
@@ -58,6 +59,7 @@ class Product extends Model
         'llm_instructions',
         'has_variants',
         'published_at',
+        'scheduled_at',
         'trashed_at',
         'created_by',
         'updated_by',

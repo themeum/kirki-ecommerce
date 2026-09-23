@@ -164,6 +164,7 @@ const BaseUnitPopover = ({
             width: '100%',
             justifyContent: 'space-between',
             backgroundColor: theme.colors.background.fill,
+            ...theme.typography.small(),
           }}
         >
           {btnText}
