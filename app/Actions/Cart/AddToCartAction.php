@@ -7,6 +7,8 @@ use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\DTO\Cart\AddToCartDTO;
 use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;
+use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
+use Kirki\Ecommerce\Framework\Http\Response;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -62,7 +64,8 @@ class AddToCartAction
     {
         $variant = $this->variant_service->find($dto->variant_id);
 
-        throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'));
+        throw_if(!$variant, __('Variant not found.', 'kirki-ecommerce'), ValidationException::class, Response::NOT_FOUND);
+        throw_if(!$variant->is_available(), __('This item is no longer available.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $dto->product_id = $variant->product_id;
 
