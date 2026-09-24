@@ -6,8 +6,20 @@ use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;
 
+/**
+ * Alter the products table and add ribbon_color to the table
+ *
+ * @since 1.0.0
+ */
 class AddRibbonColorToProductsTable implements Migration
 {
+    /**
+     * Add ribbon color field
+     * 
+     * @since 1.0.0
+     * 
+     * @return void
+     */
     public function up()
     {
         Schema::table('kirki_ecommerce_products', function (Structure $table) {
@@ -18,6 +30,13 @@ class AddRibbonColorToProductsTable implements Migration
         });
     }
 
+    /**
+     * Remove ribbon color field on rollbacking
+     * 
+     * @since 1.0.0
+     * 
+     * @return void
+     */
     public function down()
     {
         Schema::table('kirki_ecommerce_products', function (Structure $table) {

@@ -4,6 +4,11 @@ namespace Kirki\Ecommerce\App\Constants\Product;
 
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
+/**
+ * Ribbon preset color constants
+ *
+ * @since 1.0.0
+ */
 class RibbonColor
 {
     use HasConstants;
@@ -17,6 +22,8 @@ class RibbonColor
     /**
      * Get the palette's default colour.
      *
+     * @since 1.0.0
+     * 
      * @return string
      */
     public static function get_default()

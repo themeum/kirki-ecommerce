@@ -232,6 +232,8 @@ class ShopProductResource extends Resource
      * ribbon saved before colours existed has no stored colour, so it falls
      * back to the palette's first entry.
      *
+     * @since 1.0.0
+     *
      * @param bool $out_of_stock
      *
      * @return string
