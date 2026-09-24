@@ -1,4 +1,11 @@
-import { closestCenter, DndContext, type DragEndEvent } from '@dnd-kit/core';
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
+  type UniqueIdentifier,
+} from '@dnd-kit/core';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   arrayMove,
@@ -7,9 +14,11 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import type { CSSObject } from '@emotion/react';
 import { DragHandleDots2Icon } from '@radix-ui/react-icons';
-import { Edit, Trash2 } from 'lucide-react';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { Edit3, Trash2 } from 'lucide-react';
+import { type HTMLAttributes, type ReactNode, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
@@ -30,12 +39,80 @@ import { selectAttributePresets } from '@/features/products/lib/attribute-preset
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
 import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
 import { useAttributesQuery } from '@/features/products/services/attribute';
+import { getPortalContainer } from '@/libs/portal-container';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, flexCenter, mergeCss, scoped, scopedMerge } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type Editing = { kind: 'applied'; id: number } | { kind: 'draft'; source: Attribute | null } | null;
+
+type AttributeCardProps = {
+  item: Attribute;
+  isLocked: boolean;
+  handleProps?: HTMLAttributes<HTMLSpanElement>;
+  cssOverride?: CSSObject;
+  onEdit?: () => void;
+  onRemove?: () => void;
+};
+
+const AttributeCard = ({
+  item,
+  isLocked,
+  handleProps,
+  cssOverride,
+  onEdit,
+  onRemove,
+}: AttributeCardProps) => {
+  return (
+    <Card cssOverride={mergeCss(cardStyles.innerCard, styles.card, cssOverride)}>
+      <CardContent cssOverride={styles.innerContent}>
+        <Flex gap={3} align="center">
+          <span
+            {...handleProps}
+            role="button"
+            aria-label={__('Reorder variation', 'kirki-ecommerce')}
+            css={scopedMerge(styles.svgClass, styles.dragHandler, {
+              opacity: isLocked ? 0.5 : 1,
+            })}
+          >
+            <DragHandleDots2Icon />
+          </span>
+          <Flex direction="column" gap={2}>
+            <Text weight="medium">{item.name}</Text>
+            <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
+              {(item.values ?? []).map((value) => (
+                <Chip gap={2} key={value.id} text={value.value} color={value.color ?? undefined} />
+              ))}
+            </Flex>
+          </Flex>
+          <ActionGroup>
+            <Button
+              variant="tertiary"
+              size="icon"
+              disabled={isLocked}
+              aria-label={sprintf(__('Edit %s', 'kirki-ecommerce'), item.name)}
+              onClick={onEdit}
+            >
+              <Edit3 />
+            </Button>
+            <Button
+              variant="tertiary"
+              size="icon"
+              disabled={isLocked}
+              aria-label={sprintf(__('Delete %s', 'kirki-ecommerce'), item.name)}
+              onClick={onRemove}
+            >
+              <Trash2 />
+            </Button>
+          </ActionGroup>
+        </Flex>
+      </CardContent>
+    </Card>
+  );
+};
+
+AttributeCard.displayName = 'AttributeCard';
 
 type SortableCardProps = {
   item: Attribute;
@@ -54,7 +131,7 @@ const SortableCard = ({
   onEdit,
   onRemove,
 }: SortableCardProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
     disabled: isLocked,
   });
@@ -69,56 +146,14 @@ const SortableCard = ({
       {isEditing ? (
         editor
       ) : (
-        <Card cssOverride={mergeCss(cardStyles.innerCard, styles.card)}>
-          <CardContent cssOverride={styles.innerContent}>
-            <Flex gap={3} align="center">
-              <span
-                {...(!isLocked ? attributes : {})}
-                {...(!isLocked ? listeners : {})}
-                role="button"
-                aria-label={__('Reorder variation', 'kirki-ecommerce')}
-                css={scopedMerge(styles.svgClass, styles.dragHandler, {
-                  opacity: isLocked ? 0.5 : 1,
-                })}
-              >
-                <DragHandleDots2Icon />
-              </span>
-              <Flex direction="column" gap={2}>
-                <Text weight="medium">{item.name}</Text>
-                <Flex gap={2} wrap="wrap" rowGap={3} cssOverride={{ maxWidth: '480px' }}>
-                  {(item.values ?? []).map((value) => (
-                    <Chip
-                      gap={2}
-                      key={value.id}
-                      text={value.value}
-                      color={value.color ?? undefined}
-                    />
-                  ))}
-                </Flex>
-              </Flex>
-              <ActionGroup>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  disabled={isLocked}
-                  aria-label={sprintf(__('Edit %s', 'kirki-ecommerce'), item.name)}
-                  onClick={onEdit}
-                >
-                  <Edit />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  disabled={isLocked}
-                  aria-label={sprintf(__('Delete %s', 'kirki-ecommerce'), item.name)}
-                  onClick={onRemove}
-                >
-                  <Trash2 />
-                </Button>
-              </ActionGroup>
-            </Flex>
-          </CardContent>
-        </Card>
+        <AttributeCard
+          item={item}
+          isLocked={isLocked}
+          handleProps={!isLocked ? { ...attributes, ...listeners } : undefined}
+          cssOverride={isDragging ? styles.placeholder : undefined}
+          onEdit={onEdit}
+          onRemove={onRemove}
+        />
       )}
     </div>
   );
@@ -138,6 +173,7 @@ const AttributeList = () => {
   const [orderedAttributes, setOrderedAttributes] = useState<Attribute[]>([]);
   const [editing, setEditing] = useState<Editing>(null);
   const [pendingRemoval, setPendingRemoval] = useState<MatrixMutation | null>(null);
+  const [draggingId, setDraggingId] = useState<UniqueIdentifier | null>(null);
   const { removeAttribute, reorderAttributes, describeDiscarded } = useVariantMatrix();
 
   useEffect(() => {
@@ -173,8 +209,13 @@ const AttributeList = () => {
     closeEditor();
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setDraggingId(event.active.id);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setDraggingId(null);
 
     if (active.id !== over?.id) {
       const oldIndex = orderedAttributes.findIndex((item) => item.id === active.id);
@@ -186,6 +227,7 @@ const AttributeList = () => {
     }
   };
 
+  const draggingItem = orderedAttributes.find((item) => item.id === draggingId);
   const pendingCount = pendingRemoval ? savedVariants(pendingRemoval.discarded).length : 0;
 
   return (
@@ -194,10 +236,12 @@ const AttributeList = () => {
         {orderedAttributes.length > 0 && (
           <DndContext
             collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
+            onDragCancel={() => setDraggingId(null)}
             modifiers={[restrictToVerticalAxis, restrictToParentElement]}
           >
-            <Flex direction="column" gap={2} cssOverride={{ position: 'relative' }}>
+            <Flex direction="column" gap={3} cssOverride={{ position: 'relative' }}>
               <SortableContext
                 items={orderedAttributes.map((item) => item.id)}
                 strategy={verticalListSortingStrategy}
@@ -223,6 +267,21 @@ const AttributeList = () => {
                 ))}
               </SortableContext>
             </Flex>
+            {/* The page wrapper keeps a transform from its enter animation, which
+                would make the fixed-position overlay measure from the wrapper
+                instead of the viewport and collide against the wrong cards. */}
+            {createPortal(
+              <DragOverlay>
+                {draggingItem && (
+                  <AttributeCard
+                    item={draggingItem}
+                    isLocked={false}
+                    cssOverride={styles.overlay}
+                  />
+                )}
+              </DragOverlay>,
+              getPortalContainer(),
+            )}
           </DndContext>
         )}
         {editing?.kind === 'draft' && (
@@ -268,13 +327,23 @@ export default AttributeList;
 
 const styles = defineStyles({
   innerContent: {
-    padding: theme.spacing[4],
+    padding: theme.spacing[3],
   },
   svgClass: scoped(flexCenter()),
   dragHandler: {
     cursor: 'grab',
     '&:active': {
       cursor: 'grabbing',
+    },
+  },
+  placeholder: {
+    opacity: 0.4,
+  },
+  overlay: {
+    boxShadow: theme.shadow.lg,
+    cursor: 'grabbing',
+    '& [data-action-group]': {
+      visibility: 'hidden',
     },
   },
   card: {
@@ -285,6 +354,9 @@ const styles = defineStyles({
       '& [data-action-group]': {
         visibility: 'visible',
       },
+    },
+    '&:hover': {
+      borderColor: theme.colors.border.default,
     },
   },
 });

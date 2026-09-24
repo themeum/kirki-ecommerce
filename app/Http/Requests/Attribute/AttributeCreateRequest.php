@@ -13,7 +13,7 @@ use Kirki\Ecommerce\Framework\Http\Request;
  */
 class AttributeCreateRequest extends Request
 {
-    public const HEX_COLOR_PATTERN = '/^#(?:[0-9a-fA-F]{3}){1,2}$/';
+    public const HEX_COLOR_PATTERN = '/^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/';
 
     /**
      * @inheritDoc

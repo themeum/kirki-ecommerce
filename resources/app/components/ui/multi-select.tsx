@@ -106,6 +106,8 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
   emptyStateText?: string;
   disabled?: boolean;
   error?: boolean;
+  /** Puts the text cursor in the field on mount, leaving the list closed. */
+  focusOnMount?: boolean;
   cssOverride?: CSSObject;
   listCss?: CSSObject;
   /**
@@ -176,6 +178,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   emptyStateText,
   disabled = false,
   error = false,
+  focusOnMount = false,
   cssOverride,
   listCss,
   virtualized = false,
@@ -240,6 +243,12 @@ const MultiSelect = <TOption extends MultiSelectOption>({
 
     listElement.scrollTop = 0;
   }, [search, virtualized, listElement]);
+
+  useEffect(() => {
+    if (focusOnMount) {
+      inputRef.current?.focus();
+    }
+  }, [focusOnMount]);
 
   // Both caps collapse to one number here, so everything downstream — the
   // slice, the counter, the expand and collapse controls — is shared. A row

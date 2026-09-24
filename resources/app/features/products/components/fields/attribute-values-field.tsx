@@ -5,7 +5,10 @@ import { useController, useFormContext } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Field, FieldError } from '@/components/ui/field';
 import MultiSelect from '@/components/ui/multi-select';
-import { type AttributeValueOption, getAttributeValueType } from '@/features/products/components/attribute-value-types';
+import {
+  type AttributeValueOption,
+  getAttributeValueType,
+} from '@/features/products/components/attribute-value-types';
 import VariationDialog from '@/features/products/components/product-form/sections/variants/variation-dialog';
 import type { AttributeValue } from '@/features/products/schemas/catalog/attribute';
 import type {
@@ -21,6 +24,7 @@ type AttributeValuesFieldProps = {
   existingValues: AttributeValue[];
   type?: string | null;
   placeholder?: string;
+  focusOnMount?: boolean;
 };
 
 const normalize = (name: string) => name.trim().toLowerCase();
@@ -46,7 +50,12 @@ const toOption = (item: ProductAttributeValueInput): AttributeValueOption => ({
  * @returns AttributeValuesField element.
  * @since 1.0.0
  */
-const AttributeValuesField = ({ existingValues, type, placeholder }: AttributeValuesFieldProps) => {
+const AttributeValuesField = ({
+  existingValues,
+  type,
+  placeholder,
+  focusOnMount = false,
+}: AttributeValuesFieldProps) => {
   const { control, clearErrors } = useFormContext<ProductAttributeFormInput>();
   const { field, fieldState } = useController({ control, name: 'values' });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -108,7 +117,12 @@ const AttributeValuesField = ({ existingValues, type, placeholder }: AttributeVa
     if (existing) {
       writeValues([
         ...selected,
-        { id: existing.id, value: existing.value, color: existing.color ?? null, original_color: existing.color ?? null },
+        {
+          id: existing.id,
+          value: existing.value,
+          color: existing.color ?? null,
+          original_color: existing.color ?? null,
+        },
       ]);
       return;
     }
@@ -121,7 +135,9 @@ const AttributeValuesField = ({ existingValues, type, placeholder }: AttributeVa
   };
 
   const handleColorChange = (option: AttributeValueOption, color: string) => {
-    writeValues(selected.map((item) => (optionIdOf(item) === option.value ? { ...item, color } : item)));
+    writeValues(
+      selected.map((item) => (optionIdOf(item) === option.value ? { ...item, color } : item)),
+    );
   };
 
   const openDialog = (title: string) => {
@@ -146,9 +162,12 @@ const AttributeValuesField = ({ existingValues, type, placeholder }: AttributeVa
         onCreate={handleCreate}
         placeholder={placeholder ?? __('Add item', 'kirki-ecommerce')}
         error={fieldState.invalid}
+        focusOnMount={focusOnMount}
         listCss={styles.list}
         renderOption={valueType.renderOption}
-        renderChip={(option) => valueType.renderChip(option, (color) => handleColorChange(option, color))}
+        renderChip={(option) =>
+          valueType.renderChip(option, (color) => handleColorChange(option, color))
+        }
         footer={({ query, create }) => (
           <Button
             variant="tertiary"

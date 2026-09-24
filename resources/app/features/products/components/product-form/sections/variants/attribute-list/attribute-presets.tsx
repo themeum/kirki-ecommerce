@@ -75,7 +75,11 @@ const AttributePresets = ({
           <PopoverTrigger asChild>{addButton}</PopoverTrigger>
           <PopoverContent align="start" cssOverride={styles.content}>
             <Command>
-              <CommandInput placeholder={__('Search attributes', 'kirki-ecommerce')} />
+              <CommandInput
+                placeholder={__('Search attributes', 'kirki-ecommerce')}
+                wrapperCss={styles.searchWrapper}
+                cssOverride={styles.search}
+              />
               <CommandList>
                 <CommandEmpty>{__('No attributes found.', 'kirki-ecommerce')}</CommandEmpty>
                 <CommandGroup>
@@ -126,6 +130,14 @@ const styles = defineStyles({
     padding: 0,
     overflow: 'hidden',
     borderRadius: theme.radius.lg,
+  },
+  searchWrapper: {
+    height: '32px',
+    paddingBlock: 0,
+  },
+  search: {
+    minHeight: 0,
+    height: '100%',
   },
   footer: {
     padding: theme.spacing[1],

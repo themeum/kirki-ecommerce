@@ -28,6 +28,7 @@ The card SHALL show a preset row made of up to three attribute buttons followed 
 
 - **WHEN** a merchant clicks `+ Size`
 - **THEN** a new attribute card opens in edit mode with the name "Size" and no values selected
+- **AND** the value input has focus
 - **AND** nothing is written to the server
 
 ### Requirement: Add popover
@@ -89,6 +90,12 @@ At most one card, preset draft or new-attribute form SHALL be in edit mode at a 
 
 - **WHEN** a merchant drags a card by its handle
 - **THEN** the cards reorder as they do today and no card enters edit mode
+
+#### Scenario: Dragged card floats above the list
+
+- **WHEN** a merchant drags a card by its handle
+- **THEN** a raised copy of the card, without its Edit/Delete buttons, follows the pointer
+- **AND** the card's slot in the list stays in place, faded, until it is dropped
 
 #### Scenario: Only one editor open
 

@@ -90,6 +90,22 @@ describe('AttributeList', () => {
     expect(screen.getByRole('button', { name: 'Add Style variation' })).toBeDisabled();
   });
 
+  it('focuses the value field when a preset opens the card', async () => {
+    renderList();
+    fireEvent.click(await screen.findByRole('button', { name: 'Add Color variation' }));
+
+    expect(valueInput()).toHaveFocus();
+  });
+
+  it('focuses the name field when a brand-new card opens', async () => {
+    renderList();
+    await screen.findByRole('button', { name: 'Add Color variation' });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Add new' }));
+
+    expect(nameInput()).toHaveFocus();
+  });
+
   it('drops the draft on Cancel and returns the preset', async () => {
     renderList();
     fireEvent.click(await screen.findByRole('button', { name: 'Add Size variation' }));

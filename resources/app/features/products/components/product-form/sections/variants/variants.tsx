@@ -9,7 +9,7 @@ const Variants = () => {
   return (
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader>
-        <CardTitle>{__('Product Variations', 'kirki-ecommerce')}</CardTitle>
+        <CardTitle>{__('Variations', 'kirki-ecommerce')}</CardTitle>
       </CardHeader>
       <CardContent>
         <Flex direction="column" gap={4}>

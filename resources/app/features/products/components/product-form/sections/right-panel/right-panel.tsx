@@ -7,7 +7,6 @@ import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Grid from '@/components/ui/grid';
 import LeadingIconBadge from '@/components/ui/leading-icon-badge';
 import Skeleton from '@/components/ui/skeleton';
 import Text from '@/components/ui/text';
@@ -164,19 +163,13 @@ const RightPanel = ({ mode, product }: RightPanelProps) => {
               options={statusOptions}
             />
             {status === 'scheduled' && (
-              <Grid gap={2}>
-                <DateField
-                  name="scheduled_date"
-                  displayFormat={DATE_FORMATS.HUMAN_READABLE_MIDIUM}
-                  mode="date"
-                  placeholder={__('dd/mm/yyyy', 'kirki-ecommerce')}
-                />
-                <DateField
-                  name="scheduled_time"
-                  mode="time"
-                  placeholder={__('hh:mm AM', 'kirki-ecommerce')}
-                />
-              </Grid>
+              <DateField
+                name="scheduled_date"
+                displayFormat={DATE_FORMATS.HUMAN_READABLE_WITH_TIME}
+                mode="datetime"
+                placeholder={__('dd/mm/yyyy hh:mm A', 'kirki-ecommerce')}
+                cssOverride={{ width: '100%' }}
+              />
             )}
             {!isAdvancedSettingsPending ? (
               <Flex align="center">

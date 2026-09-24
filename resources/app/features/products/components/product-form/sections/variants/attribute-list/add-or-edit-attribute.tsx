@@ -70,12 +70,13 @@ const AddOrEditAttribute = ({
   return (
     <Form {...form}>
       <Card cssOverride={cardStyles.innerCard}>
-        <CardContent cssOverride={cardStyles.innerCardContent}>
+        <CardContent cssOverride={{ padding: theme.spacing[3] }}>
           <Flex direction="column" gap={3}>
             <AttributeNameInput attributes={attributes} focusOnMount={isNew} />
             <AttributeValuesField
               existingValues={source?.values ?? applied?.values ?? []}
               type={source?.type ?? 'list'}
+              focusOnMount={!!source && !applied}
             />
             <Flex align="center" justify="space-between" cssOverride={styles.actions}>
               {isNew ? (
@@ -90,7 +91,7 @@ const AddOrEditAttribute = ({
                 </Button>
               )}
               <ActionGroup>
-                <Button variant="secondary" onClick={onClose}>
+                <Button variant="tertiary" onClick={onClose}>
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
                 <Button
