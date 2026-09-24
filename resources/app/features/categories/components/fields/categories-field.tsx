@@ -229,6 +229,7 @@ const CategoriesField = <
                 ) : undefined
               }
               maxVisibleChips={1}
+              virtualized
               renderOption={renderOption}
               optionStyle={optionStyle}
               renderChip={renderChip}

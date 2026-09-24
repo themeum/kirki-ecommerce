@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { type CSSProperties, useState } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import MultiSelect, {
   type ChipCapProps,
@@ -30,6 +30,7 @@ const Harness = ({
   selectedPlaceholder?: string;
   single?: boolean;
   optionStyle?: (option: MultiSelectOption) => CSSProperties | undefined;
+  virtualized?: boolean;
 } & ChipCapProps) => {
   const [value, setValue] = useState<MultiSelectOption[]>(initial);
 
@@ -549,6 +550,68 @@ describe('MultiSelect single selection', () => {
 
     expect(screen.getAllByRole('option')).toHaveLength(1);
     expect(optionRow('Headwear')).toBeInTheDocument();
+  });
+});
+
+describe('MultiSelect virtualization', () => {
+  // jsdom has no layout engine, so @tanstack/react-virtual's element-size
+  // reads (offsetWidth/offsetHeight) are always 0 and it renders zero rows.
+  // Stub the list's size so the virtualizer behaves as it would in a browser.
+  beforeAll(() => {
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      value: 240,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+      configurable: true,
+      value: 320,
+    });
+  });
+
+  it('renders every option through the virtualizer', () => {
+    render(<Harness virtualized />);
+
+    open();
+
+    for (const option of OPTIONS) {
+      expect(optionRow(option.title)).toBeInTheDocument();
+    }
+  });
+
+  it('selects a virtualized option', () => {
+    render(<Harness virtualized />);
+
+    open();
+    fireEvent.click(optionRow('Hoodie'));
+
+    expect(optionRow('Hoodie').querySelector('[data-state]')).toHaveAttribute(
+      'data-state',
+      'checked',
+    );
+  });
+
+  it('carries the row style onto a virtualized row', () => {
+    render(<Harness virtualized optionStyle={(option) => ({ paddingLeft: `${option.value}px` })} />);
+
+    open();
+
+    expect(optionRow('Hoodie').style.paddingLeft).toBe('1px');
+  });
+
+  it('shows the empty message when the caller hands over no options', () => {
+    render(
+      <MultiSelect
+        options={[]}
+        value={[]}
+        onChange={vi.fn()}
+        virtualized
+        placeholder={PLACEHOLDER}
+      />,
+    );
+
+    open();
+
+    expect(screen.getByText('No results found.')).toBeInTheDocument();
   });
 });
 

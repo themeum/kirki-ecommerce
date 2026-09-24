@@ -1,8 +1,22 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import CategoriesField from '@/features/categories/components/fields/categories-field';
+
+// jsdom has no layout engine, so @tanstack/react-virtual's element-size
+// reads (offsetWidth/offsetHeight) are always 0 and it renders zero rows.
+// Stub the list's size so the virtualizer behaves as it would in a browser.
+beforeAll(() => {
+  Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+    configurable: true,
+    value: 240,
+  });
+  Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
+    configurable: true,
+    value: 320,
+  });
+});
 
 const CATEGORIES = [
   { id: 1, name: 'Clothing Tops', parent_id: null },

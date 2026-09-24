@@ -1,4 +1,5 @@
 import { type CSSObject } from '@emotion/react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Command as CommandPrimitive } from 'cmdk';
 import { Plus, X } from 'lucide-react';
 import {
@@ -6,6 +7,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -36,6 +38,10 @@ type MultiSelectOption = {
   value: string | number;
   title: string;
 };
+
+// Fixed so the virtualizer's estimate is exact: it positions rows from this
+// value alone, and a row that measured taller would overlap the next one.
+const VIRTUAL_ROW_HEIGHT = 32;
 
 type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
   options: TOption[];
@@ -102,6 +108,16 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
   error?: boolean;
   cssOverride?: CSSObject;
   listCss?: CSSObject;
+  /**
+   * Virtualizes the option list instead of mounting every row, for a list
+   * large enough that mounting it all would be slow. Requires the caller to
+   * hand over an already filtered, already sorted `options` — cmdk's own
+   * filtering and DOM sort would otherwise fight the virtualizer's absolute
+   * positioning — which in practice means pairing it with `onSearchChange`.
+   * Each row is single-lined and ellipsis-truncated, since the virtualizer
+   * positions rows from a fixed height.
+   */
+  virtualized?: boolean;
 };
 
 /**
@@ -155,6 +171,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   error = false,
   cssOverride,
   listCss,
+  virtualized = false,
 }: MultiSelectProps<TOption>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -168,6 +185,11 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   const contentRef = useRef<HTMLDivElement>(null);
   const passRef = useRef(0);
   const measuredRef = useRef('');
+  // A callback ref, not `useRef`: Radix mounts the popover's content in its
+  // own commit without re-rendering this component, so a ref object would
+  // still read null when the virtualizer's layout effect resolves the scroll
+  // element. Storing the node in state re-renders us so it picks it up.
+  const [listElement, setListElement] = useState<HTMLDivElement | null>(null);
 
   const selectedIds = new Set(value.map(getOptionId));
   // A held single value leaves nothing to type against, so the cursor goes
@@ -182,6 +204,33 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   // is empty because nothing exists yet or because an empty search matches
   // everything — either way there is nothing to show.
   const hasNoOptions = options.length === 0 && !trimmedSearch;
+
+  const virtualizer = useVirtualizer({
+    count: options.length,
+    getScrollElement: () => listElement,
+    estimateSize: () => VIRTUAL_ROW_HEIGHT,
+    // Load-bearing for keyboard navigation, not just paint smoothness: cmdk
+    // moves selection between mounted rows only, so this buffer is what an
+    // arrow key past the viewport lands on before its scroll mounts the next
+    // batch.
+    overscan: 10,
+    getItemKey: (index) => getOptionId(options[index]),
+    // Assumed size until the ResizeObserver reports the real one — avoids a
+    // flash of zero rows on first paint, and (as a side effect) means jsdom,
+    // which never fires ResizeObserver callbacks, still has rows to interact
+    // with in tests.
+    initialRect: { width: 320, height: 240 },
+  });
+
+  // Without this, narrowing a list the merchant has scrolled down leaves them
+  // staring at a blank region past the end of the shorter result set.
+  useEffect(() => {
+    if (!virtualized || !listElement) {
+      return;
+    }
+
+    listElement.scrollTop = 0;
+  }, [search, virtualized, listElement]);
 
   // Both caps collapse to one number here, so everything downstream — the
   // slice, the counter, the expand and collapse controls — is shared. A row
@@ -373,7 +422,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
     // filtering too. Its keydown handler sits on this root, so the input has
     // to be a DOM descendant of it; the list may be portalled away since
     // cmdk looks items up through the list ref.
-    <Command shouldFilter={!onSearchChange} cssOverride={styles.command}>
+    <Command shouldFilter={!onSearchChange && !virtualized} cssOverride={styles.command}>
       <Popover open={isOpen || Boolean(panel)} onOpenChange={setIsOpen}>
         <PopoverAnchor asChild>
           <div
@@ -480,34 +529,84 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                   </Button>
                 </div>
               )}
-              <CommandList cssOverride={listCss}>
-                <CommandEmpty>{emptyText}</CommandEmpty>
-                <CommandGroup>
-                  {options.map((option) => {
-                    const id = getOptionId(option);
+              <CommandList ref={setListElement} cssOverride={listCss}>
+                {/* With `shouldFilter={false}` cmdk cannot tell an empty
+                    result from a list it never scored, so the virtualized
+                    path resolves the empty state itself instead. */}
+                {virtualized
+                  ? options.length === 0 && (
+                      <div css={scoped(styles.emptyState)}>{emptyText}</div>
+                    )
+                  : <CommandEmpty>{emptyText}</CommandEmpty>}
+                {virtualized ? (
+                  options.length > 0 && (
+                    <div
+                      style={{
+                        height: virtualizer.getTotalSize(),
+                        position: 'relative',
+                        width: '100%',
+                      }}
+                    >
+                      {virtualizer.getVirtualItems().map((virtualRow) => {
+                        const option = options[virtualRow.index];
+                        const id = getOptionId(option);
 
-                    return (
-                      <CommandItem
-                        key={id}
-                        value={option.title}
-                        style={optionStyle?.(option)}
-                        onSelect={() => handleToggle(option)}
-                      >
-                        {/* A checkbox offers a selection that combines with
-                            the ones beside it, which a single value cannot. */}
-                        {!single && (
-                          <Checkbox
-                            checked={selectedIds.has(id)}
-                            tabIndex={-1}
-                            aria-hidden="true"
-                            cssOverride={styles.checkbox}
-                          />
-                        )}
-                        {renderOption(option)}
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
+                        return (
+                          <div
+                            key={virtualRow.key}
+                            data-index={virtualRow.index}
+                            css={scoped(styles.virtualRow)}
+                            style={{ transform: `translateY(${virtualRow.start}px)` }}
+                          >
+                            <CommandItem
+                              value={option.title}
+                              style={optionStyle?.(option)}
+                              cssOverride={styles.virtualItem}
+                              onSelect={() => handleToggle(option)}
+                            >
+                              {!single && (
+                                <Checkbox
+                                  checked={selectedIds.has(id)}
+                                  tabIndex={-1}
+                                  aria-hidden="true"
+                                  cssOverride={styles.checkbox}
+                                />
+                              )}
+                              <span css={scoped(styles.virtualLabel)}>{renderOption(option)}</span>
+                            </CommandItem>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                ) : (
+                  <CommandGroup>
+                    {options.map((option) => {
+                      const id = getOptionId(option);
+
+                      return (
+                        <CommandItem
+                          key={id}
+                          value={option.title}
+                          style={optionStyle?.(option)}
+                          onSelect={() => handleToggle(option)}
+                        >
+                          {/* A checkbox offers a selection that combines with
+                              the ones beside it, which a single value cannot. */}
+                          {!single && (
+                            <Checkbox
+                              checked={selectedIds.has(id)}
+                              tabIndex={-1}
+                              aria-hidden="true"
+                              cssOverride={styles.checkbox}
+                            />
+                          )}
+                          {renderOption(option)}
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                )}
               </CommandList>
             </>
           )}
@@ -636,5 +735,25 @@ const styles = defineStyles({
     textAlign: 'center',
     ...theme.typography.small(),
     color: theme.colors.text.secondary,
+  },
+  virtualRow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+  },
+  // Fixed height keeps the virtualizer's estimate exact; the label beside it
+  // is clipped rather than wrapped, since a second line would desynchronise
+  // every offset below it.
+  virtualItem: {
+    height: `${VIRTUAL_ROW_HEIGHT}px`,
+    minHeight: `${VIRTUAL_ROW_HEIGHT}px`,
+    boxSizing: 'border-box',
+  },
+  virtualLabel: {
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
 });

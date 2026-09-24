@@ -1,4 +1,4 @@
-import { CopyPlus, MinusCircle, Trash2 } from 'lucide-react';
+import { CopyPlus, MinusCircle, Trash, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -170,7 +170,7 @@ const ProductForm = ({
                     </DropdownMenuItem>
                     {onTrash && product?.status !== 'trashed' && (
                       <DropdownMenuItem onSelect={() => void onTrash()} disabled={isTrashing}>
-                        <Trash2 size={16} />
+                        <Trash size={16} />
                         {__('Move to trash', 'kirki-ecommerce')}
                       </DropdownMenuItem>
                     )}

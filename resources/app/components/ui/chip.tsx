@@ -40,10 +40,10 @@ const Chip = forwardRef<HTMLDivElement, ChipProps>((props, ref) => {
 
   return (
     <div ref={ref} style={chipStyle} css={scopedMerge(styles.root, cssOverride)} {...rest}>
-      <Flex gap={gap} align="center">
+      <Flex gap={gap} align="center" cssOverride={styles.content}>
         {img}
         {color && <div css={scoped(styles.swatch)} aria-hidden="true" />}
-        {text}
+        {text !== undefined && <span css={scoped(styles.text)}>{text}</span>}
         {subText && <span css={scoped(styles.subtext)}>{subText}</span>}
         {closeIcon && (
           <button
@@ -72,8 +72,22 @@ const styles = defineStyles({
     padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
     borderRadius: theme.radius.sm,
     width: 'max-content',
+    minWidth: 0,
+    overflow: 'hidden',
     gap: theme.spacing[2],
     ...theme.typography.small('medium'),
+  },
+  // Every flex item between the root and a truncating chip label has to
+  // shrink below its content size for that label's own ellipsis to engage —
+  // this is what lets it.
+  content: {
+    minWidth: 0,
+  },
+  text: {
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   subtext: {
     color: theme.colors.text.subdued,
