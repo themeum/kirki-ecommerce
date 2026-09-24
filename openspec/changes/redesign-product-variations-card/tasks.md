@@ -23,22 +23,22 @@
 ## 4. MultiSelect opt-in additions
 
 - [x] 4.1 Add a `footer?: (query) => ReactNode` prop, rendered pinned below the scrollable list; when it's supplied, the built-in create row is suppressed
-- [x] 4.2 Add an `anchorRef?: RefObject<HTMLElement>` prop, which anchors the popover to that element and matches its width — *correction: the panel still opens beneath the field; `anchorRef` only sets its width and aligns its leading edge (anchoring to the card would drop it below the card's action row)*
-- [x] 4.3 Make the chip row wrap: the input uses `flex: 1 1` with a 160px minimum and wraps to full width, with no layout shift — *delivered as opt-in `appearance="inline"` (chips unframed, border on the input alone) so the boxed look of existing consumers is unchanged*
-- [x] 4.4 Tests: existing create-row behavior is unchanged without `footer`; with `footer`, it stays visible while the list is filtered and scrolled; the width follows `anchorRef`
+- [x] 4.2 Add an `anchorRef?: RefObject<HTMLElement>` prop, which anchors the popover to that element and matches its width — *removed in review: the popover takes the input's width, which is `MultiSelect`'s default*
+- [x] 4.3 Make the chip row wrap: the input uses `flex: 1 1` with a 160px minimum and wraps to full width, with no layout shift — *removed in review: the field uses the default boxed look, like Tags*
+- [x] 4.4 Tests: existing create-row behavior is unchanged without `footer`; with `footer`, it stays visible while the list is filtered and scrolled
 - [x] 4.5 Verify: `npm run typecheck && npm test` in `resources/app/` — *53/53 MultiSelect tests pass, lint clean; typecheck errors still confined to the two group-6 files*
 
 ## 5. Value type registry and value field
 
 - [x] 5.1 Replace `createVia` in `attribute-value-types.tsx` with `resolveInlineColor` and `dialogFields`; the `color` renderChip in edit mode wraps the swatch in `ColorPicker` (its pointer events don't open the popover)
 - [x] 5.2 Make `VariationDialog` render the color field only when `dialogFields` includes `color` — *via a `withColor` prop; `product-variation-popover-form.ts` now requires `color` only when `requires_color !== false` (test updated)*
-- [x] 5.3 Rework `AttributeValuesField` into a draft-only field: no server calls; the footer shows `+ Add new value` / `+ Add "<query>"`; Enter or footer-with-query appends a draft (resolving color for color types); an empty query opens the dialog; a case-insensitive match selects the existing value; the popover is anchored to the card; a read-only mode renders chips without remove or picker — *read-only chips are rendered by the view card straight from the registry (`renderChip` without `onColorChange`), so the field has no read-only mode*
+- [x] 5.3 Rework `AttributeValuesField` into a draft-only field: no server calls; the footer shows `+ Add new value` / `+ Add "<query>"`; Enter or footer-with-query appends a draft (resolving color for color types); an empty query opens the dialog; a case-insensitive match selects the existing value; a read-only mode renders chips without remove or picker — *read-only chips are rendered by the view card straight from the registry (`renderChip` without `onColorChange`), so the field has no read-only mode*
 - [x] 5.4 Tests: Enter on list and color (`Light Blue` → `#add8e6`, `Sky` → null), existing-name match, footer label switching, dialog fields per type, recolor updates the draft
 - [x] 5.5 Verify: `npm run typecheck && npm test` in `resources/app/` — *11/11 field tests, schema tests pass, lint clean; typecheck errors still only in the two group-6 files*
 
 ## 6. Attribute card, presets and add popover
 
-- [x] 6.1 Add an inline name input (borderless at rest, border on hover/focus, constant border width) with an on-blur uniqueness check that excludes the source attribute, replacing `attribute-name-field.tsx` (delete it and its test if it becomes unused) — *lives at `components/fields/attribute-name-input.tsx` (the `controller-only-in-fields` lint rule); focus-on-mount via ref instead of `autoFocus` (jsx-a11y); old field + test deleted*
+- [x] 6.1 Add a name input (a regular bordered `Input`, after review) with an on-blur uniqueness check that excludes the source attribute, replacing `attribute-name-field.tsx` (delete it and its test if it becomes unused) — *lives at `components/fields/attribute-name-input.tsx` (the `controller-only-in-fields` lint rule); focus-on-mount via ref instead of `autoFocus` (jsx-a11y); old field + test deleted*
 - [x] 6.2 Add a `useApplyAttribute` hook: validate → pre-compute discards and confirm → create or batch request → build the committed attribute → `add`/`update`/`replace` commit → invalidate; 422s map onto the card and the draft is kept
 - [x] 6.3 Rewrite `add-or-edit-attribute.tsx` into the edit-mode card: name, values, Delete (hidden on the new form; discards never-applied drafts without confirmation; detaches applied ones through the existing confirmation), Cancel (a pure reset), Apply; remove the List/Color toggle
 - [x] 6.4 Update view mode in `attribute-list.tsx`: drag handle, name, read-only chips, and Edit/Delete revealed on hover and `:focus-within`; only Edit enters edit mode; view Delete uses the same detach flow; a single `editingId` covers applied cards, preset drafts (`source_attribute_id`) and the new form

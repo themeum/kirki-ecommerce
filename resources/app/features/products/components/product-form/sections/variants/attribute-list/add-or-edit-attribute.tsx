@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
@@ -45,62 +44,69 @@ type AddOrEditAttributeProps = {
  * @returns AddOrEditAttribute element.
  * @since 1.0.0
  */
-const AddOrEditAttribute = ({ attributes, source = null, applied = null, onClose, onDelete }: AddOrEditAttributeProps) => {
-  const cardRef = useRef<HTMLDivElement>(null);
+const AddOrEditAttribute = ({
+  attributes,
+  source = null,
+  applied = null,
+  onClose,
+  onDelete,
+}: AddOrEditAttributeProps) => {
   const form = useForm<ProductAttributeFormInput, unknown, ProductAttributeFormPayload>({
     resolver: zodResolver(ProductAttributeFormSchema),
     defaultValues: toProductAttributeFormValues(source ?? applied, applied?.values ?? []),
   });
 
-  const { apply, isApplying, pending, confirmPending, cancelPending, describeDiscarded } = useApplyAttribute({
-    form,
-    attributes,
-    appliedId: applied?.id ?? null,
-    onApplied: onClose,
-  });
+  const { apply, isApplying, pending, confirmPending, cancelPending, describeDiscarded } =
+    useApplyAttribute({
+      form,
+      attributes,
+      appliedId: applied?.id ?? null,
+      onApplied: onClose,
+    });
 
   const isNew = !source && !applied;
   const pendingCount = pending ? savedVariants(pending.discarded).length : 0;
 
   return (
     <Form {...form}>
-      <div ref={cardRef}>
-        <Card cssOverride={cardStyles.innerCard}>
-          <CardContent cssOverride={cardStyles.innerCardContent}>
-            <Flex direction="column" gap={3}>
-              <AttributeNameInput attributes={attributes} focusOnMount={isNew} />
-              <AttributeValuesField
-                existingValues={source?.values ?? applied?.values ?? []}
-                type={source?.type ?? 'list'}
-                anchorRef={cardRef}
-              />
-              <Flex align="center" justify="space-between" cssOverride={styles.actions}>
-                {isNew ? (
-                  <span />
-                ) : (
-                  <Button variant="link" cssOverride={styles.delete} onClick={applied ? onDelete : onClose}>
-                    {__('Delete', 'kirki-ecommerce')}
-                  </Button>
-                )}
-                <ActionGroup>
-                  <Button variant="secondary" onClick={onClose}>
-                    {__('Cancel', 'kirki-ecommerce')}
-                  </Button>
-                  <Button
-                    variant="primary"
-                    disabled={isApplying}
-                    onClick={() => {
-                      void apply();
-                    }}
-                  >
-                    {__('Apply', 'kirki-ecommerce')}
-                  </Button>
-                </ActionGroup>
-              </Flex>
+      <Card cssOverride={cardStyles.innerCard}>
+        <CardContent cssOverride={cardStyles.innerCardContent}>
+          <Flex direction="column" gap={3}>
+            <AttributeNameInput attributes={attributes} focusOnMount={isNew} />
+            <AttributeValuesField
+              existingValues={source?.values ?? applied?.values ?? []}
+              type={source?.type ?? 'list'}
+            />
+            <Flex align="center" justify="space-between" cssOverride={styles.actions}>
+              {isNew ? (
+                <span />
+              ) : (
+                <Button
+                  variant="link"
+                  cssOverride={styles.delete}
+                  onClick={applied ? onDelete : onClose}
+                >
+                  {__('Delete', 'kirki-ecommerce')}
+                </Button>
+              )}
+              <ActionGroup>
+                <Button variant="secondary" onClick={onClose}>
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+                <Button
+                  variant="primary"
+                  disabled={isApplying}
+                  onClick={() => {
+                    void apply();
+                  }}
+                >
+                  {__('Apply', 'kirki-ecommerce')}
+                </Button>
+              </ActionGroup>
             </Flex>
-          </CardContent>
-        </Card>
-      </div>
+          </Flex>
+        </CardContent>
+      </Card>
       {!!pending && (
         <ConfirmationDialog
           variant="delete"

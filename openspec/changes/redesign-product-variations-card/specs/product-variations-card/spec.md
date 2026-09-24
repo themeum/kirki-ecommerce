@@ -120,9 +120,9 @@ Delete on an applied card SHALL detach the attribute from the product only. It S
 - **THEN** Size is detached from the product and appears in the preset row or `+ Add` popover again
 - **AND** the Size attribute still exists in the attributes table
 
-### Requirement: Inline attribute name
+### Requirement: Attribute name input
 
-The attribute name in edit mode SHALL be a text input with no visible border at rest, which shows its border on hover and on focus. On blur, the name SHALL be checked against existing attribute names, trimmed and case-insensitive, excluding the attribute the card was opened with. A clash SHALL put the field in an error state saying an attribute with that name already exists, and SHALL block Apply until the name changes. If the server still rejects the name as a duplicate on Apply, that error SHALL be shown on the name field. An empty name SHALL block Apply with a required error.
+The attribute name in edit mode SHALL be a regular bordered text input, aligned with the value input below it. On blur, the name SHALL be checked against existing attribute names, trimmed and case-insensitive, excluding the attribute the card was opened with. A clash SHALL put the field in an error state saying an attribute with that name already exists, and SHALL block Apply until the name changes. If the server still rejects the name as a duplicate on Apply, that error SHALL be shown on the name field. An empty name SHALL block Apply with a required error.
 
 #### Scenario: Duplicate name on blur
 
@@ -153,21 +153,22 @@ When a card's name differs from the attribute it was opened with and the merchan
 
 ### Requirement: Value input layout
 
-The value input SHALL show selected values as chips to the left of a text input on the same line. As chips are added, the text input SHALL shrink until it reaches a minimum width. After that, the input SHALL wrap to its own line at full width. Adding or removing chips SHALL NOT shift layout outside the card.
+The value input SHALL look like the other multi-select fields, such as Tags: one bordered box holding the selected values as chips followed by the text cursor, wrapping onto more lines as chips are added. Each chip's swatch and label SHALL stay on one line. Adding or removing chips SHALL NOT shift layout outside the card.
 
-#### Scenario: Input wraps when space runs out
+#### Scenario: Chips wrap inside the box
 
-- **WHEN** enough chips are selected that the remaining space on the line is below the minimum input width
-- **THEN** the text input moves to the next line and takes the full width
+- **WHEN** more values are selected than fit on one line
+- **THEN** the chips wrap onto the next line inside the same bordered box
+- **AND** each chip keeps its swatch and label side by side
 
 ### Requirement: Value popover
 
-Focusing or clicking the value input SHALL open a popover listing the attribute's values as checkable rows. Several values can be selected, and the input's text filters the rows. The popover SHALL be as wide as the attribute card, and its width SHALL NOT change as the input shrinks or wraps. An add action SHALL be pinned at the bottom of the popover while the value rows scroll above it. With an empty query, the action SHALL read `+ Add new value`. With a query that matches no existing value exactly, it SHALL read `+ Add "<query>"`.
+Focusing or clicking the value input SHALL open a popover listing the attribute's values as checkable rows. Several values can be selected, and the input's text filters the rows. The popover SHALL be as wide as the value input. An add action SHALL be pinned at the bottom of the popover while the value rows scroll above it. With an empty query, the action SHALL read `+ Add new value`. With a query that matches no existing value exactly, it SHALL read `+ Add "<query>"`.
 
-#### Scenario: Popover width is stable
+#### Scenario: Popover matches the input
 
-- **WHEN** the input shrinks after several values are selected and the popover is reopened
-- **THEN** the popover width still equals the card width
+- **WHEN** a merchant opens the value popover
+- **THEN** the popover's width equals the value input's width
 
 #### Scenario: Keyword not found
 
@@ -187,7 +188,7 @@ In edit mode on a `color` attribute, clicking a chip's swatch SHALL open a color
 
 ### Requirement: Variation Values uses the shared multi-select
 
-The value input SHALL be built on the shared `MultiSelect`. It presents the attribute's values as checkable options with chips that are removable in edit mode, not a free-text tag input. It MUST NOT be built by modifying another primitive to reach this design. Any capability `MultiSelect` gains for this, such as a pinned footer action or an external width anchor, SHALL be opt-in and SHALL leave existing consumers unchanged. For `color`-type attributes, each option and chip SHALL display a color swatch, supplied through `MultiSelect`'s render slots.
+The value input SHALL be built on the shared `MultiSelect`. It presents the attribute's values as checkable options with chips that are removable in edit mode, not a free-text tag input. It MUST NOT be built by modifying another primitive to reach this design. Any capability `MultiSelect` gains for this, such as a pinned footer action, SHALL be opt-in and SHALL leave existing consumers unchanged. For `color`-type attributes, each option and chip SHALL display a color swatch, supplied through `MultiSelect`'s render slots.
 
 #### Scenario: Selecting a value
 

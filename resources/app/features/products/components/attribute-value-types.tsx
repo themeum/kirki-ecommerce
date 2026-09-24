@@ -9,7 +9,7 @@ import {
   ColorPickerTrigger,
 } from '@/components/ui/color-picker';
 import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
+import { defineStyles, scoped } from '@/theme/mixins';
 import { getHexFromColorName } from '@/utils/color';
 import { __, sprintf } from '@/wpi18n';
 
@@ -44,12 +44,12 @@ type AttributeValueTypeConfig = {
 };
 
 const withSwatch = (option: AttributeValueOption) => (
-  <>
+  <span css={scoped(styles.swatchLabel)}>
     <ColorPicker value={option.color ?? ''} disabled>
       <ColorPickerSwatch />
     </ColorPicker>
     {option.title}
-  </>
+  </span>
 );
 
 const withEditableSwatch = (option: AttributeValueOption, onColorChange?: (color: string) => void) => {
@@ -58,7 +58,7 @@ const withEditableSwatch = (option: AttributeValueOption, onColorChange?: (color
   }
 
   return (
-    <>
+    <span css={scoped(styles.swatchLabel)}>
       <ColorPicker value={option.color ?? ''} onValueChange={(next) => next && onColorChange(next)}>
         <ColorPickerTrigger
           aria-label={sprintf(__('Change the colour of %s', 'kirki-ecommerce'), option.title)}
@@ -72,7 +72,7 @@ const withEditableSwatch = (option: AttributeValueOption, onColorChange?: (color
         </ColorPickerContent>
       </ColorPicker>
       {option.title}
-    </>
+    </span>
   );
 };
 
@@ -111,6 +111,12 @@ export { attributeValueTypes, getAttributeValueType };
 export type { AttributeValueDialogField, AttributeValueOption, AttributeValueTypeConfig };
 
 const styles = defineStyles({
+  swatchLabel: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+    verticalAlign: 'middle',
+  },
   swatchTrigger: {
     width: 'auto',
     minHeight: 0,

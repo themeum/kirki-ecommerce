@@ -9,8 +9,6 @@ import {
   findAttributeNameClash,
   type ProductAttributeFormInput,
 } from '@/features/products/schemas/forms/product-attribute-form';
-import { theme } from '@/theme';
-import { defineStyles } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 type AttributeNameInputProps = {
@@ -19,8 +17,7 @@ type AttributeNameInputProps = {
 };
 
 /**
- * The attribute's name as an inline, borderless input that only shows its
- * frame on hover and focus. On blur it checks the name against every other
+ * The attribute's name input. On blur it checks the name against every other
  * attribute in the store, so a clash is flagged before Apply is reached.
  *
  * @param props Component props.
@@ -62,7 +59,6 @@ const AttributeNameInput = ({ attributes, focusOnMount = false }: AttributeNameI
             aria-label={__('Variation name', 'kirki-ecommerce')}
             placeholder={__('e.g. Size or Material', 'kirki-ecommerce')}
             error={fieldState.invalid}
-            cssOverride={styles.input}
             onChange={(event) => {
               field.onChange(event.target.value);
 
@@ -85,18 +81,3 @@ const AttributeNameInput = ({ attributes, focusOnMount = false }: AttributeNameI
 AttributeNameInput.displayName = 'AttributeNameInput';
 
 export default AttributeNameInput;
-
-const styles = defineStyles({
-  input: {
-    width: 'auto',
-    minWidth: '240px',
-    maxWidth: '100%',
-    marginInlineStart: `calc(-1 * ${theme.spacing[3]})`,
-    ...theme.typography.paragraph('medium'),
-    borderColor: 'transparent',
-    backgroundColor: 'transparent',
-    '&:hover': {
-      borderColor: theme.colors.border.secondary,
-    },
-  },
-});

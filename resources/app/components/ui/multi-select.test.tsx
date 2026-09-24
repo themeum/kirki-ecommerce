@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { type CSSProperties, type ReactNode, type RefObject, useRef, useState } from 'react';
+import { type CSSProperties, type ReactNode, useState } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import MultiSelect, {
@@ -32,8 +32,6 @@ const Harness = ({
   optionStyle?: (option: MultiSelectOption) => CSSProperties | undefined;
   virtualized?: boolean;
   footer?: (state: { query: string; create: () => void }) => ReactNode;
-  anchorRef?: RefObject<HTMLElement | null>;
-  appearance?: 'boxed' | 'inline';
 } & ChipCapProps) => {
   const [value, setValue] = useState<MultiSelectOption[]>(initial);
 
@@ -697,57 +695,5 @@ describe('MultiSelect footer slot', () => {
     fireEvent.keyDown(searchInput(), { key: 'Enter' });
 
     expect(onCreate).toHaveBeenCalledWith('Beanie');
-  });
-});
-
-describe('MultiSelect anchorRef', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    vi.restoreAllMocks();
-  });
-
-  it('sizes the panel to the anchor element and aligns their leading edges', () => {
-    vi.stubGlobal(
-      'ResizeObserver',
-      class {
-        observe = () => undefined;
-        unobserve = () => undefined;
-        disconnect = () => undefined;
-      },
-    );
-
-    const AnchoredHarness = () => {
-      const anchorRef = useRef<HTMLDivElement>(null);
-
-      return (
-        <div ref={anchorRef} data-testid="card">
-          <Harness anchorRef={anchorRef} />
-        </div>
-      );
-    };
-
-    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
-      this: HTMLElement,
-    ) {
-      const isCard = this.dataset.testid === 'card';
-
-      return { width: isCard ? 600 : 200, left: isCard ? 10 : 26 } as DOMRect;
-    });
-
-    render(<AnchoredHarness />);
-    open();
-
-    const panel = screen.getByRole('listbox').closest<HTMLElement>('[data-radix-popper-content-wrapper] > *')!;
-
-    expect(panel.style.width).toBe('600px');
-  });
-});
-
-describe('MultiSelect inline appearance', () => {
-  it('keeps chips and the input as siblings in the unframed row', () => {
-    render(<Harness initial={[OPTIONS[0]]} appearance="inline" />);
-
-    expect(box()).toHaveTextContent('Hoodie');
-    expect(searchInput().parentElement).toBe(box());
   });
 });

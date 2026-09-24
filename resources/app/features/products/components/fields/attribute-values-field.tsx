@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { type RefObject, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useController, useFormContext } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -20,7 +20,6 @@ import { __, sprintf } from '@/wpi18n';
 type AttributeValuesFieldProps = {
   existingValues: AttributeValue[];
   type?: string | null;
-  anchorRef?: RefObject<HTMLElement | null>;
   placeholder?: string;
 };
 
@@ -47,7 +46,7 @@ const toOption = (item: ProductAttributeValueInput): AttributeValueOption => ({
  * @returns AttributeValuesField element.
  * @since 1.0.0
  */
-const AttributeValuesField = ({ existingValues, type, anchorRef, placeholder }: AttributeValuesFieldProps) => {
+const AttributeValuesField = ({ existingValues, type, placeholder }: AttributeValuesFieldProps) => {
   const { control, clearErrors } = useFormContext<ProductAttributeFormInput>();
   const { field, fieldState } = useController({ control, name: 'values' });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -141,12 +140,10 @@ const AttributeValuesField = ({ existingValues, type, anchorRef, placeholder }: 
   return (
     <Field data-invalid={fieldState.invalid || undefined}>
       <MultiSelect
-        appearance="inline"
         options={options}
         value={selected.map(toOption)}
         onChange={handleChange}
         onCreate={handleCreate}
-        anchorRef={anchorRef}
         placeholder={placeholder ?? __('Add item', 'kirki-ecommerce')}
         error={fieldState.invalid}
         listCss={styles.list}

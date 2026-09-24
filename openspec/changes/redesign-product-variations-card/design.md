@@ -5,7 +5,7 @@ For motivation, see proposal.md. Current state that shapes the approach:
 - `attribute-list.tsx` renders the sortable cards (dnd-kit) and a single `editingId` (`number | 'new' | null`). `add-or-edit-attribute.tsx` owns a nested `react-hook-form` sub-form (`ProductAttributeFormSchema`) and commits through `useVariantMatrix()` (`addAttribute` / `updateAttribute` / `removeAttribute` / `reorderAttributes`). Each of these returns a `MatrixMutation` with `discarded` and `commit()`.
 - `lib/variant-matrix.ts` keys variants by **attribute value id** (`variant.attribute_values`). A rename creates new value ids, so saved variants must be remapped or they fall into `discarded`.
 - `AttributeValuesField` wraps `MultiSelect` and creates values on the server immediately (`useCreateAttributeValueMutation`). `attribute-value-types.tsx` is the per-type registry (`renderOption`, `renderChip`, `createVia`).
-- `MultiSelect` already supports `onCreate`, `panel`, and render slots. It has no pinned footer action and no way to anchor the popover to an element other than its own trigger.
+- `MultiSelect` already supports `onCreate`, `panel`, and render slots. It has no pinned footer action.
 - `useAttributesQuery({ limit: -1 })` already loads every attribute with its values, ordered by `id asc` (`AttributeController::get`). Presets, the add popover and the uniqueness check can all derive from this one cache.
 - The backend has single-row create/update endpoints only. `AttributeService` has no transaction. `AddressService::create` shows the house pattern: `DB::begin_transaction()` / `commit()` / `rollback()`.
 
@@ -95,12 +95,10 @@ This keeps the "single write path" requirement: `replace` is just another `prepa
 
 The popover reuses the `Combobox`/command primitives with a pinned footer item. No new primitive is needed beyond what `MultiSelect` gets in decision 6.
 
-### 6. `MultiSelect` gets two opt-in props
+### 6. `MultiSelect` gets an opt-in footer
 
 - `footer?: (query: string) => ReactNode` renders a sticky action below the scrollable list, outside cmdk's filtered group, so it's always visible. When `footer` is supplied, the built-in create row is suppressed. The field renders `+ Add new value` / `+ Add "<query>"` itself and handles Enter through the existing `onCreate`.
-- `anchorRef?: RefObject<HTMLElement>` sets the popover's anchor and width to that element (the card) instead of the trigger. Radix `Popover.Anchor` supports this directly.
-
-Chip-row wrapping uses a flex-wrap container. The input has `flex: 1 1 <min>` with `min-width: 160px`, so it shrinks until it hits the minimum and then wraps to a full-width line. There's no JS measurement, and no layout shift outside the field.
+The field keeps `MultiSelect`'s default boxed look, the same as Tags: chips and the cursor wrap inside one bordered box, and the popover takes the box's width through `--radix-popover-trigger-width`. No width or layout override is needed.
 
 ### 7. Value creation moves into the type registry
 
@@ -121,9 +119,9 @@ In edit mode on `color` types, `renderChip` wraps the swatch in `ColorPicker` (`
 
 This is a user correction during proposal. The view card keeps today's `ActionGroup` with Edit and Trash, revealed on hover and on `:focus-within`, which adds keyboard reveal to today's hover-only CSS. Edit sets `editingId`. Trash calls the same detach flow as the edit-mode Delete. The card body is not clickable.
 
-### 10. Name field: borderless input, uniqueness on blur
+### 10. Name field: regular input, uniqueness on blur
 
-This is a styled `Input` variant local to the card. It has a transparent border at rest, and shows `theme` border tokens on `:hover` and `:focus-visible`. Border width is constant, so it doesn't shift layout. `onBlur` compares `trim().toLowerCase()` against the cached names, excluding `source_attribute_id`'s own name, and calls `setError('name', …)`. The resolver re-runs the same check on Apply, so a merchant can't Apply past it without blurring.
+This is the regular bordered `Input`, with no local styling, so it lines up with the value box below. `onBlur` compares `trim().toLowerCase()` against the cached names, excluding `source_attribute_id`'s own name, and calls `setError('name', …)`. The resolver re-runs the same check on Apply, so a merchant can't Apply past it without blurring.
 
 ## Risks / Trade-offs
 
@@ -143,8 +141,8 @@ No DB migration. The backend additions are backward compatible: `values` is opti
 - **Name uniqueness is not schema context.** `ProductAttributeFormSchema` stays static, per the canonical form pattern, and `findAttributeNameClash()` in the same module is the check. The name input calls it on blur, and `useApplyAttribute` calls it again before anything else on Apply, so a merchant who never blurs is still caught. The Apply plan carries `replaces`, but the old-to-new value-id map for a rename is built from the create response by name, inside the hook, rather than in the transform.
 - **A case-only rename is not a rename.** The plan compares names case-insensitively, so "size" → "Size" produces a `sync`, not a new attribute. Otherwise the server's `unique:name` rule (case-insensitive under MySQL collations) would reject the copy, because the source attribute still exists.
 - **The draft confirmation uses provisional ids.** Draft values have no id before Apply, so the pre-request discard check gives them temporary negative ids. That way `syncVariantMatrix` still sees the full combination set, and only removals of persisted values surface as discards.
-- **`anchorRef` sizes the popover but does not position it.** Anchoring the value popover to the whole card would open it below the card's Delete/Cancel/Apply row. Instead the popover stays anchored to the field, and `anchorRef` supplies only its width and leading-edge offset (measured while it's open, followed with a `ResizeObserver`).
-- **The inline chip layout is a `MultiSelect` appearance.** In screenshot 2 the chips sit outside a bordered input, which is the only part that shrinks and wraps. That is `appearance="inline"`: box unframed, input bordered with `flex: 1 1 160px`. The default `boxed` look of every other consumer is unchanged.
+- **Review round: the value field is a plain boxed `MultiSelect`.** A first pass added `appearance="inline"` (chips unframed, a bordered input that shrank and wrapped) and an `anchorRef` that sized the popover to the card. On review, the field should look like Tags and the popover should match the input, so both props were removed and the default box is used. The name input's borderless, hover-bordered styling was dropped in the same round for a regular `Input`.
+- **Swatch chips keep one line.** A chip's label sits in a `nowrap` span, and the swatch trigger inside it is a flex box, which broke the swatch onto its own line above the label. The registry now wraps the swatch and label in an `inline-flex` span.
 - **The value dialog's color field is conditional.** `ProductVariationPopoverFormSchema` required `color`. It now requires it only when `requires_color !== false`, via `requiredWhen`, and `VariationDialog` sets that from a new `withColor` prop.
 - **View-mode chips are rendered by the card.** `AttributeValuesField` has no read-only mode. The view card keeps today's `Chip` rendering and only puts the Edit/Delete `ActionGroup` behind `:hover, :focus-within`.
 - **Orphans.** `components/ui/color-swatch.tsx` lost its only consumer (the old registry) and was removed. `ColorPickerSwatch` already renders the empty state the spec asks for.

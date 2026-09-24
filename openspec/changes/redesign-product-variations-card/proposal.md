@@ -7,9 +7,9 @@ Today the Product Variations card makes the merchant pick a List/Color type, fin
 - **Preset row.** Show up to 3 attribute buttons (`+ Color`, `+ Size`, `+ Material`), taken from the attributes table ordered by `id` ascending. Attributes already on the product are skipped and the next ones fill in. A `+ Add` button always follows. The row stays visible under the applied cards.
 - **`+ Add` behavior.** If there are unattached attributes beyond the ones shown as presets, `+ Add` opens a searchable popover listing them, with a pinned `+ Add new` item at the bottom. Otherwise `+ Add` goes straight to the new-attribute form.
 - **Attribute card, edit mode.**
-  - The name is a borderless inline input that shows its border on hover.
-  - Below it sits a tags-style value input: chips on the left, and an input that shrinks to a minimum width and then wraps to a full-width line.
-  - The value popover is as wide as the card, and a `+ Add new value` / `+ Add "<keyword>"` action is pinned at its bottom.
+  - The name is a regular bordered input.
+  - Below it sits a value input that looks like the other multi-select fields (Tags): chips and the text cursor in one bordered box that wraps.
+  - The value popover is as wide as the value input, and a `+ Add new value` / `+ Add "<keyword>"` action is pinned at its bottom.
   - Actions are Delete, Cancel and Apply. The new-attribute form has no Delete.
 - **Attribute card, view mode.** Drag handle, name, and read-only chips, plus the hover-revealed Edit and Delete icon buttons (as today). Only the Edit button opens edit mode. Only one card can be in edit mode at a time.
 - **Value creation.**
@@ -49,7 +49,7 @@ Today the Product Variations card makes the merchant pick a List/Color type, fin
   - `services/attribute.ts` gets the new mutations.
   - `lib/variant-matrix.ts` / `use-variant-matrix.ts` get a replace-attribute mutation that remaps value ids.
   - A new CSS-named-colors lookup util.
-- **Shared UI:** `MultiSelect` may need a pinned footer action and an anchor/width override. Its existing consumers must keep working.
+- **Shared UI:** `MultiSelect` may need a pinned footer action. Its existing consumers must keep working.
 - **Backend:**
   - `AttributeCreateRequest` / `CreateAttributeDTO` / `AttributeService::create` accept `values[]`.
   - A new request, DTO, controller action and route for the value sync, wrapped in `DB::begin_transaction()`.
