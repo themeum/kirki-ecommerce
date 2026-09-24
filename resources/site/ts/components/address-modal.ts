@@ -3,12 +3,12 @@
  * Shared between Account Addresses and Checkout components
  */
 
-import type { AddressRule } from '../types';
-import { getAddressRule } from './checkout-address';
 import { type AccountAddressPayload, accountApi } from '../api/account';
 import { toastManager } from '../services/toast/runtime';
+import type { AddressRule } from '../types';
 import { config } from '../utils';
 import type { CheckoutAddress } from './checkout-address';
+import { getAddressRule } from './checkout-address';
 
 export interface AddressItem {
   id: number | string;
