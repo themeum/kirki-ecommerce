@@ -165,6 +165,24 @@ export const syncVariantMatrix = ({
   return { variants: normalizeDefaultVariant(nextVariants), discarded };
 };
 
+/**
+ * Rewrites each variant's value ids through `valueIdMap`, leaving ids without
+ * an entry untouched. Used when an attribute is replaced by a copy under a new
+ * name, so saved variants follow their values onto the copy instead of being
+ * discarded.
+ */
+export const remapAttributeValues = (
+  variants: ProductFormVariantInput[],
+  valueIdMap: Map<number, number>,
+): ProductFormVariantInput[] => {
+  return variants.map((variant) => ({
+    ...variant,
+    attribute_values: (variant.attribute_values ?? []).map(
+      (valueId) => valueIdMap.get(valueId) ?? valueId,
+    ),
+  }));
+};
+
 export const formatComboLabel = (
   attributes: MatrixAttribute[],
   attributeValues: number[],

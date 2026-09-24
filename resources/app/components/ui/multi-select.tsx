@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
+  type RefObject,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -118,6 +119,25 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
    * positions rows from a fixed height.
    */
   virtualized?: boolean;
+  /**
+   * Pinned below the scrollable option list, so it stays visible however far
+   * the list is filtered or scrolled. Supplying it hides the built-in create
+   * row: the footer owns that action, calling `create` to run `onCreate`
+   * with the typed text exactly as the create row would. Enter still creates.
+   */
+  footer?: (state: { query: string; create: () => void }) => ReactNode;
+  /**
+   * Sizes the option panel to this element's width and lines their leading
+   * edges up, while the panel still opens beneath the field. For a field
+   * whose own width changes as it fills but whose panel should not.
+   */
+  anchorRef?: RefObject<HTMLElement | null>;
+  /**
+   * `boxed` draws one border around the chips and the text cursor. `inline`
+   * leaves the chips unframed and borders the text input alone, which shrinks
+   * beside them to a minimum width and then wraps onto a row of its own.
+   */
+  appearance?: 'boxed' | 'inline';
 };
 
 /**
@@ -172,6 +192,9 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   cssOverride,
   listCss,
   virtualized = false,
+  footer,
+  anchorRef,
+  appearance = 'boxed',
 }: MultiSelectProps<TOption>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -190,6 +213,9 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   // still read null when the virtualizer's layout effect resolves the scroll
   // element. Storing the node in state re-renders us so it picks it up.
   const [listElement, setListElement] = useState<HTMLDivElement | null>(null);
+  const [anchorFrame, setAnchorFrame] = useState<{ width: number; offset: number } | null>(null);
+  const isPanelOpen = isOpen || Boolean(panel);
+  const isInline = appearance === 'inline';
 
   const selectedIds = new Set(value.map(getOptionId));
   // A held single value leaves nothing to type against, so the cursor goes
@@ -231,6 +257,28 @@ const MultiSelect = <TOption extends MultiSelectOption>({
 
     listElement.scrollTop = 0;
   }, [search, virtualized, listElement]);
+
+  useLayoutEffect(() => {
+    const anchor = anchorRef?.current;
+    const box = boxRef.current;
+
+    if (!isPanelOpen || !anchor || !box) {
+      return;
+    }
+
+    const measure = () => {
+      const anchorRect = anchor.getBoundingClientRect();
+      const boxRect = box.getBoundingClientRect();
+      setAnchorFrame({ width: anchorRect.width, offset: anchorRect.left - boxRect.left });
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(anchor);
+
+    return () => observer.disconnect();
+  }, [anchorRef, isPanelOpen]);
 
   // Both caps collapse to one number here, so everything downstream — the
   // slice, the counter, the expand and collapse controls — is shared. A row
@@ -423,14 +471,19 @@ const MultiSelect = <TOption extends MultiSelectOption>({
     // to be a DOM descendant of it; the list may be portalled away since
     // cmdk looks items up through the list ref.
     <Command shouldFilter={!onSearchChange && !virtualized} cssOverride={styles.command}>
-      <Popover open={isOpen || Boolean(panel)} onOpenChange={setIsOpen}>
+      <Popover open={isPanelOpen} onOpenChange={setIsOpen}>
         <PopoverAnchor asChild>
           <div
             ref={boxRef}
             role="presentation"
             data-error={error ? 'true' : undefined}
             data-disabled={disabled ? 'true' : undefined}
-            css={scopedMerge(styles.box, isSingleHeld && styles.boxFilled, cssOverride)}
+            css={scopedMerge(
+              styles.box,
+              isInline && styles.boxInline,
+              isSingleHeld && styles.boxFilled,
+              cssOverride,
+            )}
             onClick={handleBoxClick}
           >
             {/* The chips sit inside cmdk's root, whose keydown handler
@@ -479,7 +532,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
                 value={search}
                 disabled={disabled}
                 placeholder={value.length > 0 ? (selectedPlaceholder ?? placeholder) : placeholder}
-                css={scoped(styles.input)}
+                css={scopedMerge(styles.input, isInline && styles.inputInline)}
                 onKeyDown={handleInputKeyDown}
                 onValueChange={(nextValue) => {
                   setSearch(nextValue);
@@ -497,7 +550,13 @@ const MultiSelect = <TOption extends MultiSelectOption>({
           ref={contentRef}
           align="start"
           sideOffset={4}
+          alignOffset={anchorFrame?.offset}
           cssOverride={styles.content}
+          style={
+            anchorFrame
+              ? { width: anchorFrame.width, minWidth: anchorFrame.width, maxWidth: anchorFrame.width }
+              : undefined
+          }
           onOpenAutoFocus={(event) => event.preventDefault()}
           onCloseAutoFocus={(event) => event.preventDefault()}
           onInteractOutside={(event) => {
@@ -514,7 +573,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
             <div css={scoped(styles.emptyState)}>{emptyStateText}</div>
           ) : (
             <>
-              {canCreateQuery && (
+              {!footer && canCreateQuery && (
                 <div css={scoped(styles.createHeader)}>
                   <Button
                     variant="tertiary"
@@ -610,6 +669,11 @@ const MultiSelect = <TOption extends MultiSelectOption>({
               </CommandList>
             </>
           )}
+          {!panel && footer && (
+            <div css={scoped(styles.footer)}>
+              {footer({ query: trimmedSearch, create: () => void handleCreate() })}
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     </Command>
@@ -661,6 +725,23 @@ const styles = defineStyles({
   boxFilled: {
     cursor: 'pointer',
   },
+  // The chips go unframed and the input carries the field's border and focus
+  // ring. Border width never changes between states, so nothing shifts.
+  boxInline: {
+    gap: theme.spacing[2],
+    padding: 0,
+    border: 'none',
+    backgroundColor: 'transparent',
+    '&:focus-within': {
+      boxShadow: 'none',
+    },
+    '&[data-error="true"] input': {
+      borderColor: theme.colors.background.fillCritical,
+    },
+    '&[data-disabled="true"]': {
+      backgroundColor: 'transparent',
+    },
+  },
   // Keeps the chips and the overflow control as flex children of the box
   // while still giving their keydown a place to stop.
   chipsGuard: {
@@ -702,6 +783,25 @@ const styles = defineStyles({
     minHeight: 0,
     maxHeight: '24px',
     padding: `0 ${theme.spacing[1]}`,
+  },
+  inputInline: {
+    flex: '1 1 160px',
+    minWidth: '160px',
+    maxHeight: 'none',
+    height: '32px',
+    padding: `0 ${theme.spacing[3]}`,
+    border: `1px solid ${theme.colors.border.secondary}`,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.background.fill,
+    '&:focus': {
+      borderColor: theme.colors.background.fillBrand,
+      ...uiFocusRing(theme),
+    },
+  },
+  footer: {
+    flexShrink: 0,
+    padding: theme.spacing[1],
+    borderTop: `1px solid ${theme.colors.border.default}`,
   },
   content: {
     minWidth: 'var(--radix-popover-trigger-width)',
