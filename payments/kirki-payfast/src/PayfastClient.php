@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use InvalidArgumentException;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -33,93 +34,101 @@ class PayfastClient
         $this->sandbox = $sandbox;
     }
 
-    /**
-     * Verify a webhook payload against PayMongo's HMAC-SHA256 signature header.
-     *
-     * @param string $raw_payload The raw webhook request body.
-     * @return bool
-     */
-    public function is_verified(string $raw_payload): bool
+    public function is_verified($payload): bool
     {
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.
-        $header = $_SERVER[PaymongoConstant::SIGNATURE_HEADER] ?? '';
+        $query_string = $this->get_query_string($payload);
+        $is_signature_valid = $this->verify_signature($payload, $query_string);
+        $is_ip_valid = $this->verify_ip();
+        $is_payment_amount_valid = $this->verify_payment_amount($payload);
+        $is_server_confirmed = $this->verify_server_confirmation($query_string);
 
-        if (empty($raw_payload) || empty($header)) {
+        return $is_ip_valid && $is_payment_amount_valid && $is_server_confirmed && $is_signature_valid;
+    }
+
+    public function render_checkout_form($payload)
+    {
+        $form_url = $this->sandbox ? PayfastConstant::SANDBOX_FORM_URL : PayfastConstant::PRODUCTION_FORM_URL;
+
+        ob_start();
+?>
+        <form method="POST" id="payfast-form" action="<?php echo esc_url($form_url); ?>">
+            <?php foreach ($payload as $field => $value) : ?>
+                <input type="hidden" name="<?php echo $field; ?>" value="<?php echo $value; ?>" />
+            <?php endforeach; ?>
+            <input type="hidden" name="signature" value="<?php echo md5(http_build_query($payload)); ?>" />
+        </form>
+        <script>
+            document.getElementById('payfast-form').submit();
+        </script>
+<?php
+        return ob_get_clean();
+    }
+
+    protected function verify_signature($payload, $query_string)
+    {
+        $signature = md5($query_string);
+        return $payload['signature'] === $signature;
+    }
+
+    protected function verify_ip()
+    {
+        $valid_ips = [];
+
+        $valid_hosts = [
+            'www.payfast.co.za',
+            'sandbox.payfast.co.za',
+            'w1w.payfast.co.za',
+            'w2w.payfast.co.za',
+        ];
+
+        $referrer = Superglobals::server('HTTP_REFERER');
+        if (!$referrer) {
             return false;
         }
 
-        // Header looks like: t=TIMESTAMP,te=HASH (test) OR t=TIMESTAMP,li=HASH (live).
-        $segments = [];
-        foreach (explode(',', $header) as $segment) {
-            [$key, $value] = array_pad(explode('=', trim($segment), 2), 2, '');
-            $segments[$key] = $value;
+        foreach ($valid_hosts as $host_name) {
+            $ips = gethostbynamel($host_name);
+
+            if ($ips && is_array($ips)) {
+                array_push($valid_ips, ...$ips);
+            }
         }
 
-        $timestamp = $segments['t'] ?? '';
-        $given_signature = $this->sandbox ? ($segments['te'] ?? '') : ($segments['li'] ?? '');
+        // Remove duplicates
+        $valid_ips   = array_unique($valid_ips);
+        $referrer_ip = gethostbyname(parse_url($referrer)['host']);
 
-        if (empty($timestamp) || empty($given_signature)) {
+        if (in_array($referrer_ip, $valid_ips, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function verify_payment_amount($payload)
+    {
+        if (abs((float) $payload['custom_str1'] - (float) $payload['amount_gross']) > 0.01) {
             return false;
         }
 
-        $expected_signature = hash_hmac('sha256', $timestamp . '.' . $raw_payload, $this->webhook_secret_key);
-
-        return hash_equals($expected_signature, $given_signature);
+        return true;
     }
 
-    /**
-     * Create a PayMongo checkout session for an order.
-     *
-     * @param array $payload The checkout session request payload.
-     * @param string $idempotency_key Key PayMongo uses to collapse retries of the same request.
-     * @return array The decoded JSON response, including the session's checkout_url.
-     * @throws Exception If the API request fails.
-     */
-    public function create_checkout_session(array $payload, string $idempotency_key): array
+    protected function verify_server_confirmation($query_string)
     {
-        return $this->send(
-            PaymongoConstant::POST_METHOD,
-            PaymongoConstant::API_CHECKOUT_SESSIONS_URL,
-            $payload,
-            ['Idempotency-Key' => $idempotency_key]
-        );
-    }
-
-    /**
-     * Send a request to the PayMongo API and decode the JSON response.
-     *
-     * @param string $method One of PaymongoConstant::POST_METHOD or ::GET_METHOD.
-     * @param string $url The full request URL.
-     * @param array $payload The request payload, for 'post' requests.
-     * @param array $headers Extra request headers.
-     * @return array The decoded JSON response.
-     * @throws Exception If the API request fails.
-     */
-    protected function send(string $method, string $url, array $payload = [], array $headers = []): array
-    {
-        $request = Http::with_token($this->get_auth(), 'Basic')->with_headers($headers);
-
-        if (PaymongoConstant::GET_METHOD !== $method) {
-            $request = $request->with_body(wp_json_encode($payload));
-        }
-
-        $response = $request->{$method}($url);
+        $url = $this->sandbox ? PayfastConstant::SANDBOX_SERVER_CONFIRMATION_URL : PayfastConstant::PRODUCTION_SERVER_CONFIRMATION_URL;
+        $response = Http::as_form()->post($url, $query_string);
 
         throw_if($response->failed(), $response->body());
 
-        return $response->json();
+        return $response->body() === 'VALID';
     }
 
-    /**
-     * Build the HTTP Basic Auth token from the configured credentials.
-     *
-     * @return string Base64-encoded "secret_key:", PayMongo sends no password.
-     * @throws InvalidArgumentException If the secret key is missing.
-     */
-    protected function get_auth(): string
+    protected function get_query_string($payload)
     {
-        throw_if(empty($this->secret_key), __('Invalid API Key.', 'kirki-ecommerce-paymongo'), InvalidArgumentException::class);
+        unset($payload['signature']);
+        $payload['passphrase'] = $this->pass_phrase;
 
-        return base64_encode($this->secret_key . ':');
+        return http_build_query($payload);
     }
 }

@@ -6,9 +6,12 @@ use Exception;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
+use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -83,12 +86,31 @@ class Payfast extends PaymentProvider
         );
 
         try {
-            $builder = new PaymongoTransactionBuilder($order);
+            $site_name = html_entity_decode(get_bloginfo('name'), ENT_QUOTES, get_bloginfo('charset'));
+            $total_amount = Money::of_minor($order->invoiced_total, $order->currency_code)->getAmount()->toFloat();
+            $payload = [
+                'merchant_id' => $this->settings['merchant_id'],
+                'merchant_key' => $this->settings['merchant_key'],
+                'return_url' => Url::get_checkout_success_url($order->uuid),
+                'cancel_url' => Url::get_checkout_failed_url($order->uuid),
+                'notify_url' => $this->webhook_url(),
+                'name_first' => $order->customer_first_name ?? $order->billing->billing_first_name ?? '',
+                'name_last' => $order->customer_last_name ?? $order->billing->billing_last_name ?? '',
+                'email_address' => $order->customer_email ?? $order->billing->billing_email ?? '',
+                'm_payment_id' => $order->uuid,
+                'amount' => $total_amount,
+                'item_name' => $site_name . ' - ' . $order->order_number,
+                'custom_str1' => (string) $total_amount,
+                'email_confirmation' => true,
+                'passphrase' => $this->settings['pass_phrase']
+            ];
 
+            $this->client = $this->get_client();
+            $html = $this->client->render_checkout_form($payload);
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::HTML,
-                'value' => '',
+                'value' => $html,
             ]);
         } catch (Exception $e) {
             throw_anyway(sprintf(__('PayFast Payment Error: %s', 'kirki-ecommerce-payfast'), $e->getMessage()));
@@ -144,16 +166,11 @@ class Payfast extends PaymentProvider
     public function webhook()
     {
         http_response_code(200);
+        flush();
 
         try {
-            $event = $this->read_verified_event();
+            $payload = $this->verify_and_parse_notification();
 
-            if (!in_array($event->type, static::HANDLED_EVENTS, true)) {
-                return false;
-            }
-
-            // Checkout sessions carry the order UUID as their reference number; payments only
-            // carry the metadata PayMongo copies over from the session that created them.
             $attributes = $event->data->attributes ?? null;
             $order_uuid = (string) ($attributes->metadata->order_id ?? $attributes->reference_number ?? '');
 
@@ -191,12 +208,12 @@ class Payfast extends PaymentProvider
         $pass_phrase = $this->settings['pass_phrase'] ?? '';
 
         if (empty($merchant_id) || empty($merchant_key) || empty($pass_phrase)) {
-            throw_anyway(__('PayMongo credentials are missing.', 'kirki-ecommerce-payfast'));
+            throw_anyway(__('PayFast credentials are missing.', 'kirki-ecommerce-payfast'));
         }
 
         $this->client = new PayfastClient(
-            $secret_key,
-            $webhook_secret_key,
+            $merchant_id,
+            $merchant_key,
             $pass_phrase,
             (bool) ($this->settings['sandbox'])
         );
@@ -260,27 +277,14 @@ class Payfast extends PaymentProvider
         return $resource->attributes->payments[0] ?? null;
     }
 
-    /**
-     * Read the raw webhook payload, verify its signature, and decode the event it describes.
-     *
-     * @return object The event's attributes: its `type` and the `data` resource it carries.
-     * @throws Exception If the payload is missing, unverified, or malformed.
-     */
-    protected function read_verified_event(): object
+    protected function verify_and_parse_notification()
     {
-        $raw_payload = file_get_contents('php://input');
+        $payload = array_map('stripslashes', Superglobals::post());
 
-        if (empty($raw_payload) || !$this->get_client()->is_verified($raw_payload)) {
-            throw_anyway(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-paymongo'));
+        if (!$this->get_client()->is_verified($payload)) {
+            throw_anyway(__('Invalid Payload From PayFast.', 'kirki-ecommerce-payfast'));
         }
 
-        $payload = json_decode($raw_payload);
-        $event = $payload->data->attributes ?? null;
-
-        if (!is_object($event) || empty($event->type) || !isset($event->data)) {
-            throw_anyway(__('Invalid Payload From PayMongo.', 'kirki-ecommerce-paymongo'));
-        }
-
-        return $event;
+        return $payload;
     }
 }
