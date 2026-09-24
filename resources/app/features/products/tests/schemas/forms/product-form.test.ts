@@ -80,7 +80,7 @@ describe('ProductFormVariantSchema', () => {
       sku: 'SKU-1',
       barcode: null,
       base_price: '19.99',
-          base_unit: null,
+      base_unit: null,
       base_unit_amount: null,
       total_unit: null,
       total_unit_amount: null,
@@ -93,6 +93,7 @@ describe('ProductFormVariantSchema', () => {
       allow_back_order: false,
       track_inventory: false,
       available_quantity: 10,
+      committed_quantity: 0,
       in_stock: true,
       low_stock_threshold: 5,
       has_limit_per_order: false,
@@ -123,7 +124,12 @@ describe('ProductFormVariantSchema', () => {
   it('collapses a video media object to id + poster', () => {
     const result = ProductFormVariantSchema.parse({
       ...baseVariantInput,
-      media: { id: 4, url: 'https://x/v.mp4', mime: 'video/mp4', poster: { id: 2, url: 'https://x/p.png' } },
+      media: {
+        id: 4,
+        url: 'https://x/v.mp4',
+        mime: 'video/mp4',
+        poster: { id: 2, url: 'https://x/p.png' },
+      },
     });
     expect(result.media).toEqual({ id: 4, poster: 2 });
   });
@@ -202,7 +208,10 @@ describe('ProductFormSchema', () => {
   });
 
   it('always sends og_image as null even when the field holds a value', () => {
-    const result = ProductFormSchema.parse({ ...baseProductInput, og_image: { id: 1, url: 'https://x/og.png' } });
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      og_image: { id: 1, url: 'https://x/og.png' },
+    });
     expect(result.og_image).toBeNull();
   });
 
@@ -211,7 +220,10 @@ describe('ProductFormSchema', () => {
       ...baseProductInput,
       brand: { id: 12, name: 'Acme', logo: null },
       currency: { id: 3, code: 'USD', name: 'US Dollar', symbol: '$' },
-      categories: [{ id: 1, name: 'Shoes' }, { id: 2, name: 'Boots' }],
+      categories: [
+        { id: 1, name: 'Shoes' },
+        { id: 2, name: 'Boots' },
+      ],
       tags: [{ id: 5, name: 'Sale' }],
       collections: [{ id: 9, title: 'Winter' }],
     });
@@ -226,7 +238,10 @@ describe('ProductFormSchema', () => {
   it('flattens media to an array of numeric ids', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
-      media: [{ id: 1, url: 'https://x/1.png' }, { id: '2', url: 'https://x/2.png' }],
+      media: [
+        { id: 1, url: 'https://x/1.png' },
+        { id: '2', url: 'https://x/2.png' },
+      ],
     });
     expect(result.media).toEqual([1, 2]);
   });
@@ -235,14 +250,26 @@ describe('ProductFormSchema', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
       attributes: [
-        { id: 1, name: 'Color', values: [{ id: 10, value: 'Red' }, { id: 11, value: 'Blue' }] },
+        {
+          id: 1,
+          name: 'Color',
+          values: [
+            { id: 10, value: 'Red' },
+            { id: 11, value: 'Blue' },
+          ],
+        },
       ],
     });
     expect(result.attributes).toEqual([{ id: 1, values: [10, 11] }]);
   });
 
   it('sends null for blank ribbon, slug, and description rather than empty strings', () => {
-    const result = ProductFormSchema.parse({ ...baseProductInput, ribbon: '', slug: '', description: '' });
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: '',
+      slug: '',
+      description: '',
+    });
     expect(result.ribbon).toBeNull();
     expect(result.slug).toBeNull();
     expect(result.description).toBeNull();
@@ -354,14 +381,12 @@ describe('mapProductToFormValues', () => {
   };
 
   it('falls back to a single default variant when the product has none', () => {
-
     const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.variants).toHaveLength(1);
     expect(formValues.variants?.[0]?.in_stock).toBe(true);
   });
 
   it('converts a null additional_info/seo_keywords into empty arrays', () => {
-
     const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.additional_info).toEqual([]);
     expect(formValues.seo_keywords).toEqual([]);
@@ -378,7 +403,7 @@ describe('mapProductToFormValues', () => {
           sku: null,
           barcode: null,
           base_price: null,
-                  base_unit: null,
+          base_unit: null,
           base_unit_amount: null,
           total_unit: null,
           total_unit_amount: null,
@@ -417,7 +442,7 @@ describe('mapProductToFormValues', () => {
     sku: `SKU-${id}`,
     barcode: null,
     base_price: 10,
-      base_unit: null,
+    base_unit: null,
     base_unit_amount: null,
     total_unit: null,
     total_unit_amount: null,
@@ -450,11 +475,7 @@ describe('mapProductToFormValues', () => {
     };
 
     const formValues = mapProductToFormValues(asProduct(product));
-    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
-      true,
-      false,
-      false,
-    ]);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([true, false, false]);
   });
 
   it('promotes the first variant when a product carries no default', () => {
@@ -464,10 +485,7 @@ describe('mapProductToFormValues', () => {
     };
 
     const formValues = mapProductToFormValues(asProduct(product));
-    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
-      true,
-      false,
-    ]);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([true, false]);
   });
 
   it('leaves a product with exactly one default untouched', () => {
@@ -477,9 +495,6 @@ describe('mapProductToFormValues', () => {
     };
 
     const formValues = mapProductToFormValues(asProduct(product));
-    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
-      false,
-      true,
-    ]);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([false, true]);
   });
 });
