@@ -83,8 +83,9 @@ trait ValidatesAddressFields
     {
         $states = CountryData::states_for($country);
 
-        if (empty($states) || !is_scalar($value) || (string) $value === '') {
-            return false;
+        // An empty value is acceptable for optional fields.
+        if (empty($states)) {
+            return true;
         }
 
         return !in_array((string) $value, array_map('strval', array_column($states, 'id')), true);
@@ -134,6 +135,10 @@ trait ValidatesAddressFields
             }
 
             if (is_string($value) && $value !== '') {
+                if ($field === 'state' && static::state_is_unknown($country, $value)) {
+                    return static::state_invalid_message($country);
+                }
+
                 return true;
             }
 

@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
+use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
@@ -163,7 +164,7 @@ class CustomerApiTest extends RestTestCase
                     'phone' => '5550100',
                     'address_line1' => '123 Main St',
                     'city' => 'New York',
-                    'state' => 'NY',
+                    'state' => '1452',
                     'postal_code' => '10001',
                     'country' => 'US',
                 ],
@@ -388,7 +389,7 @@ class CustomerApiTest extends RestTestCase
                     'phone' => '5550100',
                     'address_line1' => '123 Main St',
                     'city' => 'New York',
-                    'state' => 'NY',
+                    'state' => '1452',
                     'postal_code' => '10001',
                     'country' => 'US',
                 ],
@@ -582,7 +583,7 @@ class CustomerApiTest extends RestTestCase
                     'address_line1' => '123 Main St',
                     'address_line2' => '',
                     'city' => 'New York',
-                    'state' => 'NY',
+                    'state' => '1452',
                     'postal_code' => '10001',
                     'country' => 'US',
                     'type' => 'home',
@@ -811,6 +812,7 @@ class CustomerApiTest extends RestTestCase
     {
         $payload = $this->customer_payload();
         $payload['addresses'][0]['country'] = $country;
+        $payload['addresses'][0]['state'] = (string) CountryData::states_for($country)[0]['id'];
         $payload['addresses'][0]['city'] = $city;
 
         $customer = $this->create_customer($payload);
