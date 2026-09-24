@@ -10,10 +10,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import type { CustomerFormInput } from '@/features/customers/schemas/forms/customer-form';
-import { TrashIcon } from '@/icons';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { Trash2 } from 'lucide-react';
 
 const ADDRESS_TYPE_OPTIONS = [
   { label: __('Home', 'kirki-ecommerce'), value: 'home' },
@@ -39,17 +39,33 @@ const AddressCardItem = ({
   const country = useWatch({ control, name: `addresses.${index}.country` });
 
   return (
-    <Card>
+    <Card
+      cssOverride={{
+        position: 'relative',
+        '&:hover [data-delete-address="true"]': {
+          opacity: 1,
+        },
+      }}
+    >
       <CardContent>
         {showRemove && (
-          <Flex justify="flex-end">
+          <Flex
+            justify="flex-end"
+            cssOverride={{
+              position: 'absolute',
+              right: theme.spacing[4],
+              top: theme.spacing[4],
+              opacity: 0,
+            }}
+            data-delete-address="true"
+          >
             <Button
-              variant="ghost"
-              size="icon-sm"
+              variant="tertiary"
+              size="icon"
               aria-label={__('Remove address', 'kirki-ecommerce')}
               onClick={onRemove}
             >
-              <TrashIcon />
+              <Trash2 />
             </Button>
           </Flex>
         )}
