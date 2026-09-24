@@ -7,7 +7,7 @@ const ShippingMethodTypeSchema = z.enum(['flat_rate', 'local_pickup', 'weight'])
 
 const WeightRangeRowShape = z.object({
   from: required(numberOrNull(), __('From is required', 'kirki-ecommerce')),
-  to: required(numberOrNull(), __('To is required', 'kirki-ecommerce')),
+  to: numberOrNull(),
   base_amount: required(numberOrNull(), __('Rate is required', 'kirki-ecommerce')),
 });
 

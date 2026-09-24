@@ -86,7 +86,7 @@ const WeightRangeField = <
                 <Input
                   value={toField.value ?? ''}
                   type="number"
-                  placeholder={__('e.g. 10', 'kirki-ecommerce')}
+                  placeholder={__('No limit', 'kirki-ecommerce')}
                   disabled={disabled}
                   error={Boolean(fieldState.error)}
                   aria-invalid={fieldState.invalid}

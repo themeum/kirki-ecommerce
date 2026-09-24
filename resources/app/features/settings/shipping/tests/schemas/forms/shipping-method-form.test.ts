@@ -119,6 +119,19 @@ describe('ShippingMethodFormSchema', () => {
     ).toBe(false);
   });
 
+  it('allows a range row with no upper bound', () => {
+    const result = ShippingMethodFormSchema.parse({
+      type: 'weight',
+      name: 'Heavy Items',
+      ranges: [{ from: '10', to: '', base_amount: '15' }],
+    });
+
+    if (result.type !== 'weight') {
+      throw new Error('expected a weight-type result');
+    }
+    expect(result.ranges).toEqual([{ from: 10, to: null, base_amount: 15 }]);
+  });
+
   it('rejects an incomplete range row', () => {
     expect(
       ShippingMethodFormSchema.safeParse({
