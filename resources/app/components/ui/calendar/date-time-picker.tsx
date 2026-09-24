@@ -45,7 +45,7 @@ const DateTimePicker = ({
   displayFormat = DATE_FORMATS.HUMAN_READABLE_WITH_TIME,
   minDate,
   maxDate,
-  hourCycle = 24,
+  hourCycle = 12,
   clearable = false,
   size = 'md',
   disabled = false,
@@ -123,7 +123,11 @@ const DateTimePicker = ({
           endMonth={endDate ?? undefined}
           disabled={disabledDays}
         />
-        <Separator marginTop={theme.spacing[2]} marginBottom={theme.spacing[2]} />
+        <Separator
+          marginTop={theme.spacing[2]}
+          marginBottom={theme.spacing[2]}
+          negativeMargin={8}
+        />
         <Flex align="center" justify="center" cssOverride={styles.footer}>
           <TimePicker
             value={timePart}

@@ -1,0 +1,68 @@
+info:
+  name: Batch (Attribute Values)
+  type: http
+  seq: 7
+  tags:
+    - attribute-values
+
+http:
+  method: POST
+  url: "{{baseUrl}}/attributes/1/values/batch"
+  body:
+    type: json
+    data: |-
+      {
+        "create": [
+          { "value": "Teal", "color": "#008080" }
+        ],
+        "update": [
+          { "id": 12, "color": "#0000cc" }
+        ]
+      }
+  auth: inherit
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Creates and recolors values in one transaction and returns the attribute with all of its values. Any validation failure (a duplicate name, an id from another attribute, a bad hex color) is a 422 and nothing is written; an unknown attribute is a 404.
+    request:
+      url: "{{baseUrl}}/attributes/1/values/batch"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "create": [
+              { "value": "Teal", "color": "#008080" }
+            ],
+            "update": [
+              { "id": 12, "color": "#0000cc" }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "id": 1,
+              "name": "Color",
+              "slug": "color",
+              "type": "color",
+              "values": [
+                { "id": 12, "value": "Blue", "color": "#0000cc", "media": null },
+                { "id": 31, "value": "Teal", "color": "#008080", "media": null }
+              ]
+            },
+            "message": "Attribute values saved"
+          }

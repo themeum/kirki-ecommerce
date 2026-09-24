@@ -93,10 +93,11 @@ const styles = defineStyles({
     color: theme.colors.text.subdued,
   },
   swatch: {
-    borderRadius: theme.radius.full,
-    height: '1rem',
-    width: '1rem',
+    borderRadius: theme.radius.sm,
+    height: '16px',
+    width: '16px',
     backgroundColor: 'var(--chip-swatch-color)',
+    border: `1px solid ${theme.colors.border.default}`,
   },
   close: {
     ...flexCenter(),

@@ -109,6 +109,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
     Route::put('/attributes/{attribute_id}/values/{id}', [AttributeValueController::class, 'update']);
     Route::delete('/attributes/{attribute_id}/values/{id}', [AttributeValueController::class, 'delete']);
     Route::post('/attributes/{attribute_id}/values/bulk', [AttributeValueController::class, 'bulk_actions']);
+    Route::post('/attributes/{attribute_id}/values/batch', [AttributeValueController::class, 'batch']);
 
     // Customers
     Route::get('/customers/locations', [CustomerController::class, 'locations']);

@@ -15,7 +15,7 @@ import type { ProductVariant } from '@/features/products/schemas/catalog/variant
 import { ProductBasicsFormSchema } from '@/features/products/schemas/forms/product-basics-form';
 import { ProductSeoFormSchema } from '@/features/products/schemas/forms/product-seo-form';
 import { VariantFieldsShape } from '@/features/products/schemas/forms/variant-fields';
-import { formatAtomDateTime, mergeDateAndTime, splitIsoDateTime } from '@/libs/date';
+import { DATE_FORMATS, formatAtomDateTime, formatDateValue, parseDateValue } from '@/libs/date';
 import { isEmptyValue, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { MediaRefSchema } from '@/schemas/shared/media';
 import { __ } from '@/wpi18n';
@@ -70,6 +70,9 @@ export type ProductFormVariantPayload = z.output<typeof ProductFormVariantSchema
 
 const isScheduledStatus = (values: Record<string, unknown>) => values.status === 'scheduled';
 
+const parseScheduledDate = (value?: string | null) =>
+  parseDateValue(value, DATE_FORMATS.DATE_TIME_INPUT);
+
 const ProductFormComposedShape = ProductBasicsFormSchema.extend({
   status: ProductStatusSchema.default('draft'),
   scheduled_date: requiredWhen(
@@ -81,21 +84,13 @@ const ProductFormComposedShape = ProductBasicsFormSchema.extend({
       if (isEmptyValue(values.scheduled_date)) {
         return true;
       }
-      if (isEmptyValue(values.scheduled_time)) {
-        return false;
-      }
-      const merged = mergeDateAndTime(String(values.scheduled_date), String(values.scheduled_time));
-      return !merged || merged.getTime() <= Date.now();
+      const scheduledAt = parseScheduledDate(String(values.scheduled_date));
+      return !scheduledAt || scheduledAt.getTime() <= Date.now();
     },
     (values) =>
       isEmptyValue(values.scheduled_date)
         ? __('Scheduled date is required', 'kirki-ecommerce')
         : __('Scheduled date and time must be in the future', 'kirki-ecommerce'),
-  ),
-  scheduled_time: requiredWhen(
-    z.string().nullish().default(null),
-    (values) => isScheduledStatus(values) && isEmptyValue(values.scheduled_time),
-    __('Scheduled time is required', 'kirki-ecommerce'),
   ),
   brand: ProductBrandSchema.nullish().default(null),
   currency: ProductCurrencySchema.nullish().default(null),
@@ -119,7 +114,7 @@ export const ProductFormSchema = prepareFormSchema(ProductFormComposedShape).tra
     status: values.status,
     scheduled_at:
       values.status === 'scheduled'
-        ? formatAtomDateTime(mergeDateAndTime(values.scheduled_date ?? '', values.scheduled_time ?? ''))
+        ? formatAtomDateTime(parseScheduledDate(values.scheduled_date))
         : null,
     ribbon: values.ribbon || null,
     ribbon_color: values.ribbon ? values.ribbon_color : null,
@@ -233,13 +228,12 @@ export const mapProductToFormValues = (product: Product): ProductFormInput => {
       ? [getDefaultVariantValues()]
       : normalizeDefaultVariant(product.variants.map(mapVariantToFormValues));
 
-  const { date: scheduledDate, time: scheduledTime } = splitIsoDateTime(product.scheduled_at);
-
   return pickFormValues(ProductFormSchema, product, {
     variants,
     additional_info: product.additional_info ?? [],
     seo_keywords: product.seo_keywords ?? [],
-    scheduled_date: scheduledDate || null,
-    scheduled_time: scheduledTime || null,
+    scheduled_date: product.scheduled_at
+      ? formatDateValue(new Date(product.scheduled_at), DATE_FORMATS.DATE_TIME_INPUT)
+      : null,
   });
 };

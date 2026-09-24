@@ -189,6 +189,118 @@ class AttributeApiTest extends RestTestCase
     }
 
     /**
+     * Create attribute with values persists both in one request.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_attribute_with_values_returns_values(): void
+    {
+        $response = $this->request('POST', 'attributes', [
+            'name' => 'Fabric ' . wp_generate_password(6, false),
+            'type' => 'list',
+            'values' => [
+                ['value' => 'Cotton'],
+                ['value' => 'Linen', 'color' => '#faf0e6'],
+            ],
+        ]);
+
+        $payload = $this->assert_api_success($response, 201);
+        $values = array_column($payload['data']['values'], 'value');
+        sort($values);
+
+        $this->assertEquals(['Cotton', 'Linen'], $values);
+        foreach ($payload['data']['values'] as $value) {
+            $this->assertNotEmpty($value['id']);
+        }
+    }
+
+    /**
+     * Duplicate attribute name is rejected and creates no values.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_attribute_with_duplicate_name_creates_nothing(): void
+    {
+        $existing = $this->create_attribute(['name' => 'Duplicate Name Attribute']);
+
+        $response = $this->request('POST', 'attributes', [
+            'name' => $existing['name'],
+            'values' => [['value' => 'Orphan Candidate']],
+        ]);
+
+        $this->assert_validation_error($response);
+        $this->assertSame(0, $this->count_values_named('Orphan Candidate'));
+    }
+
+    /**
+     * Repeated value names in the payload are rejected, ignoring case.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_attribute_with_duplicate_values_creates_nothing(): void
+    {
+        $name = 'Dup Values ' . wp_generate_password(6, false);
+
+        $response = $this->request('POST', 'attributes', [
+            'name' => $name,
+            'values' => [['value' => 'Cotton'], ['value' => ' cotton ']],
+        ]);
+
+        $data = $this->assert_validation_error($response);
+        $this->assertArrayHasKey('values', $data['errors']);
+        $this->assertSame(0, $this->count_attributes_named($name));
+    }
+
+    /**
+     * An invalid hex color is rejected and creates nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_attribute_with_invalid_color_creates_nothing(): void
+    {
+        $name = 'Bad Color ' . wp_generate_password(6, false);
+
+        $response = $this->request('POST', 'attributes', [
+            'name' => $name,
+            'type' => 'color',
+            'values' => [['value' => 'Red', 'color' => 'red']],
+        ]);
+
+        $this->assert_validation_error($response);
+        $this->assertSame(0, $this->count_attributes_named($name));
+    }
+
+    /**
+     * Count attributes with the given name.
+     *
+     * @param string $name Attribute name.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function count_attributes_named(string $name): int
+    {
+        return \Kirki\Ecommerce\App\Models\Attribute::where('name', $name)->count();
+    }
+
+    /**
+     * Count attribute values with the given name.
+     *
+     * @param string $value Value name.
+     *
+     * @return int
+     * @since 1.0.0
+     */
+    protected function count_values_named(string $value): int
+    {
+        return \Kirki\Ecommerce\App\Models\AttributeValue::where('value', $value)->count();
+    }
+
+    /**
      * Create attribute.
      * @param array $overrides Overrides.
      *

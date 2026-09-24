@@ -109,6 +109,9 @@ const styles = defineStyles({
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
+    '&[data-error="true"]': {
+      borderColor: theme.colors.background.fillCritical,
+    },
   },
   triggerSizes: {
     sm: {

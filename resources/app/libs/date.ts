@@ -6,7 +6,7 @@ export const DATE_FORMATS = {
   HUMAN_READABLE: 'MMMM d, yyyy',
   HUMAN_READABLE_MIDIUM: 'do MMM, yyyy',
   HUMAN_READABLE_SHORT: 'd MMM, yy',
-  HUMAN_READABLE_WITH_TIME: 'MMMM d, yyyy HH:mm a',
+  HUMAN_READABLE_WITH_TIME: 'MMM do, yyyy hh:mm a',
   DATE_TIME_INPUT: 'yyyy-MM-dd HH:mm',
   DATE_INPUT: 'yyyy-MM-dd',
   TIME_INPUT: 'HH:mm',

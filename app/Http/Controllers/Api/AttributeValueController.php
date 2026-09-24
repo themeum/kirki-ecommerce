@@ -2,13 +2,16 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+use Kirki\Ecommerce\App\Http\Requests\AttributeValue\AttributeValueBatchRequest;
 use Kirki\Ecommerce\App\Http\Requests\AttributeValue\AttributeValueCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\AttributeValue\AttributeValueUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
+use Kirki\Ecommerce\App\Resources\AttributeResource;
 use Kirki\Ecommerce\App\Resources\AttributeValueResource;
 use Kirki\Ecommerce\App\Services\AttributeValueService;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\Framework\Contracts\Request;
+use Kirki\Ecommerce\App\DTO\AttributeValue\BatchAttributeValuesDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\CreateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\UpdateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
@@ -79,6 +82,24 @@ class AttributeValueController
             'data' => AttributeValueResource::make($attribute_value),
             'message' => __('Attribute value created', 'kirki-ecommerce'),
         ], Response::CREATED);
+    }
+
+    /**
+     * Create and recolor several values of an attribute in one transaction.
+     *
+     * @since 1.0.0
+     *
+     * @param AttributeValueBatchRequest $request
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The attribute with all of its values.
+     */
+    public function batch(AttributeValueBatchRequest $request)
+    {
+        $attribute = $this->service->batch(BatchAttributeValuesDTO::from_request($request));
+
+        return response()->json([
+            'data' => AttributeResource::make($attribute),
+            'message' => __('Attribute values saved', 'kirki-ecommerce'),
+        ]);
     }
 
     /**

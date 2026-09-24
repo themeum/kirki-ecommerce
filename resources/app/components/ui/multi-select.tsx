@@ -106,6 +106,8 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
   emptyStateText?: string;
   disabled?: boolean;
   error?: boolean;
+  /** Puts the text cursor in the field on mount, leaving the list closed. */
+  focusOnMount?: boolean;
   cssOverride?: CSSObject;
   listCss?: CSSObject;
   /**
@@ -118,6 +120,13 @@ type MultiSelectBaseProps<TOption extends MultiSelectOption> = {
    * positions rows from a fixed height.
    */
   virtualized?: boolean;
+  /**
+   * Pinned below the scrollable option list, so it stays visible however far
+   * the list is filtered or scrolled. Supplying it hides the built-in create
+   * row: the footer owns that action, calling `create` to run `onCreate`
+   * with the typed text exactly as the create row would. Enter still creates.
+   */
+  footer?: (state: { query: string; create: () => void }) => ReactNode;
 };
 
 /**
@@ -169,9 +178,11 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   emptyStateText,
   disabled = false,
   error = false,
+  focusOnMount = false,
   cssOverride,
   listCss,
   virtualized = false,
+  footer,
 }: MultiSelectProps<TOption>) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -190,6 +201,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   // still read null when the virtualizer's layout effect resolves the scroll
   // element. Storing the node in state re-renders us so it picks it up.
   const [listElement, setListElement] = useState<HTMLDivElement | null>(null);
+  const isPanelOpen = isOpen || Boolean(panel);
 
   const selectedIds = new Set(value.map(getOptionId));
   // A held single value leaves nothing to type against, so the cursor goes
@@ -231,6 +243,12 @@ const MultiSelect = <TOption extends MultiSelectOption>({
 
     listElement.scrollTop = 0;
   }, [search, virtualized, listElement]);
+
+  useEffect(() => {
+    if (focusOnMount) {
+      inputRef.current?.focus();
+    }
+  }, [focusOnMount]);
 
   // Both caps collapse to one number here, so everything downstream — the
   // slice, the counter, the expand and collapse controls — is shared. A row
@@ -423,7 +441,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
     // to be a DOM descendant of it; the list may be portalled away since
     // cmdk looks items up through the list ref.
     <Command shouldFilter={!onSearchChange && !virtualized} cssOverride={styles.command}>
-      <Popover open={isOpen || Boolean(panel)} onOpenChange={setIsOpen}>
+      <Popover open={isPanelOpen} onOpenChange={setIsOpen}>
         <PopoverAnchor asChild>
           <div
             ref={boxRef}
@@ -514,7 +532,7 @@ const MultiSelect = <TOption extends MultiSelectOption>({
             <div css={scoped(styles.emptyState)}>{emptyStateText}</div>
           ) : (
             <>
-              {canCreateQuery && (
+              {!footer && canCreateQuery && (
                 <div css={scoped(styles.createHeader)}>
                   <Button
                     variant="tertiary"
@@ -610,6 +628,11 @@ const MultiSelect = <TOption extends MultiSelectOption>({
               </CommandList>
             </>
           )}
+          {!panel && footer && (
+            <div css={scoped(styles.footer)}>
+              {footer({ query: trimmedSearch, create: () => void handleCreate() })}
+            </div>
+          )}
         </PopoverContent>
       </Popover>
     </Command>
@@ -702,6 +725,11 @@ const styles = defineStyles({
     minHeight: 0,
     maxHeight: '24px',
     padding: `0 ${theme.spacing[1]}`,
+  },
+  footer: {
+    flexShrink: 0,
+    padding: theme.spacing[1],
+    borderTop: `1px solid ${theme.colors.border.default}`,
   },
   content: {
     minWidth: 'var(--radix-popover-trigger-width)',

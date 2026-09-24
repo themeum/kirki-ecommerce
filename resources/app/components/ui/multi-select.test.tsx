@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { type CSSProperties, useState } from 'react';
+import { type CSSProperties, type ReactNode, useState } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import MultiSelect, {
@@ -31,6 +31,7 @@ const Harness = ({
   single?: boolean;
   optionStyle?: (option: MultiSelectOption) => CSSProperties | undefined;
   virtualized?: boolean;
+  footer?: (state: { query: string; create: () => void }) => ReactNode;
 } & ChipCapProps) => {
   const [value, setValue] = useState<MultiSelectOption[]>(initial);
 
@@ -644,5 +645,55 @@ describe('MultiSelect option row styling', () => {
     open();
 
     expect(optionRow('Hoodie')).not.toHaveAttribute('style');
+  });
+});
+
+describe('MultiSelect footer slot', () => {
+  const footer = ({ query, create }: { query: string; create: () => void }) => (
+    <button type="button" onClick={create}>
+      {query ? `Footer add ${query}` : 'Footer add new'}
+    </button>
+  );
+
+  it('keeps the built-in create row when no footer is supplied', () => {
+    render(<Harness onCreate={vi.fn()} />);
+    open();
+    type('Beanie');
+
+    expect(createRow()).toHaveTextContent('Add "Beanie"');
+  });
+
+  it('replaces the create row and stays visible while the list is filtered', () => {
+    render(<Harness onCreate={vi.fn()} footer={footer} />);
+    open();
+
+    expect(screen.getByRole('button', { name: 'Footer add new' })).toBeInTheDocument();
+
+    type('Beanie');
+
+    expect(screen.queryByRole('button', { name: 'Add "Beanie"' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Footer add Beanie' })).toBeInTheDocument();
+  });
+
+  it('runs onCreate with the typed text from the footer', () => {
+    const onCreate = vi.fn();
+    render(<Harness onCreate={onCreate} footer={footer} />);
+    open();
+    type('  Beanie ');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Footer add Beanie' }));
+
+    expect(onCreate).toHaveBeenCalledWith('Beanie');
+  });
+
+  it('still creates on Enter', () => {
+    const onCreate = vi.fn();
+    render(<Harness onCreate={onCreate} footer={footer} />);
+    open();
+    type('Beanie');
+
+    fireEvent.keyDown(searchInput(), { key: 'Enter' });
+
+    expect(onCreate).toHaveBeenCalledWith('Beanie');
   });
 });
