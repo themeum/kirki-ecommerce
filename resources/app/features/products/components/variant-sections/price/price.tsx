@@ -7,7 +7,7 @@ import CreatableSelectField from '@/components/form/creatable-select-field';
 import MoneyField from '@/components/form/money-field';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Grid from '@/components/ui/grid';
 import Label from '@/components/ui/label';
@@ -176,15 +176,18 @@ const Price = () => {
 
   return (
     <Card cssOverride={cardStyles.formCard}>
-      <CardHeader>
-        <CardTitle>{__('Price', 'kirki-ecommerce')}</CardTitle>
-      </CardHeader>
       <CardContent cssOverride={styles.cardContent}>
         <MoneyField
+          label={__('Price', 'kirki-ecommerce')}
           name={field('base_price')}
           ariaLabel={__('Price', 'kirki-ecommerce')}
           placeholder={__('0.00', 'kirki-ecommerce')}
           currencySymbol={currencySymbol}
+          cssOverride={{
+            '& label': {
+              fontWeight: theme.typography.fontWeight.semibold,
+            },
+          }}
         />
 
         {isOpen('sale') && (
