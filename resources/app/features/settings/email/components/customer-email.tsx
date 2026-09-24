@@ -48,22 +48,17 @@ const EmailRow = (props: EmailRowProps) => {
     <StackedItem id={item.key}>
       <StackedItemContent>
         <StackedItemTitle>
-          <Text variant="small" weight="medium">
+          <Text variant="tiny" weight="medium">
             {label}
           </Text>
           {item.is_enabled === false && (
-            <Badge variant="destructive">
-              {__('Inactive', 'kirki-ecommerce')}
-            </Badge>
+            <Badge variant="destructive">{__('Inactive', 'kirki-ecommerce')}</Badge>
           )}
         </StackedItemTitle>
       </StackedItemContent>
       <StackedItemActions>
         <ActionGroup>
-          <Switch
-            checked={Boolean(item.is_enabled)}
-            onCheckedChange={() => onToggle(item)}
-          />
+          <Switch checked={Boolean(item.is_enabled)} onCheckedChange={() => onToggle(item)} />
           <Button
             variant="outline"
             size="icon-sm"
@@ -93,22 +88,19 @@ const CustomerEmail = (props: CustomerEmailProps) => {
     }
 
     return {
-      orderEmails: mapEmailGroup(
-        customerEmails.order_notifications,
-        'customer_order',
-      ),
-      userEmails: mapEmailGroup(
-        customerEmails.user_notifications,
-        'customer_user',
-      ),
+      orderEmails: mapEmailGroup(customerEmails.order_notifications, 'customer_order'),
+      userEmails: mapEmailGroup(customerEmails.user_notifications, 'customer_user'),
     };
   }, [customerEmails]);
 
   return (
     <div>
-      <Card data-search-id="email.customer-emails" data-search-keywords="notification, transactional, receipt, confirmation" cssOverride={styles.roundedCard}>
+      <Card
+        data-search-id="email.customer-emails"
+        data-search-keywords="notification, transactional, receipt, confirmation"
+        cssOverride={styles.roundedCard}
+      >
         <CardContent>
-
           <Flex direction="column" gap={4}>
             <Flex direction="column" gap={2} align="flex-start">
               <Flex gap={2} align="center">
@@ -125,11 +117,10 @@ const CustomerEmail = (props: CustomerEmailProps) => {
 
             <OptionAccordion
               header={__('Order', 'kirki-ecommerce')}
-              subHeader={__(
-                'Customers get updates about their orders.',
-                'kirki-ecommerce',
-              )}
+              subHeader={__('Customers get updates about their orders.', 'kirki-ecommerce')}
               leftIcon={<CartIcon />}
+              open
+              variant="email"
             >
               {orderEmails.length > 0 && (
                 <StackedItems variant="card">
@@ -137,7 +128,9 @@ const CustomerEmail = (props: CustomerEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
-                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'customer_order'))}
+                      label={getNotificationTemplateLabel(
+                        resolveNotificationTemplate(item, 'customer_order'),
+                      )}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />
@@ -147,11 +140,10 @@ const CustomerEmail = (props: CustomerEmailProps) => {
             </OptionAccordion>
             <OptionAccordion
               header={__('User', 'kirki-ecommerce')}
-              subHeader={__(
-                'Customers get updates regarding registration.',
-                'kirki-ecommerce',
-              )}
+              subHeader={__('Customers get updates regarding registration.', 'kirki-ecommerce')}
               leftIcon={<UserIcon />}
+              open
+              variant="email"
             >
               {userEmails.length > 0 && (
                 <StackedItems variant="card">
@@ -159,7 +151,9 @@ const CustomerEmail = (props: CustomerEmailProps) => {
                     <EmailRow
                       key={item.key}
                       item={item}
-                      label={getNotificationTemplateLabel(resolveNotificationTemplate(item, 'customer_user'))}
+                      label={getNotificationTemplateLabel(
+                        resolveNotificationTemplate(item, 'customer_user'),
+                      )}
                       onToggle={handleToggleOrder}
                       onEdit={handleEditOrder}
                     />

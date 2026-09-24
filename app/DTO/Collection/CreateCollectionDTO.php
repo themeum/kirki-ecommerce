@@ -40,4 +40,7 @@ class CreateCollectionDTO extends DTO
 
     /** @var int|null */
     public $ordering = 0;
+
+    /** @var int[] */
+    public $product_ids = [];
 }

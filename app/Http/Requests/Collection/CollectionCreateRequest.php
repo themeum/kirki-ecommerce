@@ -30,6 +30,8 @@ class CollectionCreateRequest extends Request
             'seo_keywords' => 'string|nullable',
             'is_active' => 'boolean|nullable',
             'ordering' => 'integer|nullable',
+            'product_ids' => 'array|nullable',
+            'product_ids.*' => 'integer',
         ];
     }
 
@@ -50,6 +52,8 @@ class CollectionCreateRequest extends Request
             'seo_keywords' => Sanitizer::TEXT,
             'is_active' => Sanitizer::BOOL,
             'ordering' => Sanitizer::INT,
+            'product_ids' => Sanitizer::ARRAY,
+            'product_ids.*' => Sanitizer::INT,
         ];
     }
 }
