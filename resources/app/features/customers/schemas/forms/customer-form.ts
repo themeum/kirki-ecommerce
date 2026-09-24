@@ -11,7 +11,7 @@ const AddressFormShape = z.object({
   last_name: z.string().nullish(),
   email: z.string().nullish(),
   phone: z.string().nullish(),
-  country: required(z.string().default(''), __('Country is required', 'kirki-ecommerce')),
+  country: z.string().nullish().default(''),
   address_line1: z.string().nullish().default(''),
   address_line2: z.string().nullish().default(''),
   city: z.string().nullish().default(''),
@@ -36,6 +36,9 @@ const ADDRESS_CONTENT_FIELDS = [
   'state',
   'postal_code',
   'country',
+  'label',
+  'is_default_shipping',
+  'is_default_billing',
 ] as const;
 
 const isAddressRowTouched = (address: AddressFormValues) =>
@@ -67,8 +70,16 @@ const CustomerFormSchema = prepareFormSchema(CustomerFormShape)
       if (!address.first_name) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['addresses', index, 'address_line1'],
+          path: ['addresses', index, 'first_name'],
           message: __('This field is required', 'kirki-ecommerce'),
+        });
+      }
+
+      if (!address.country) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['addresses', index, 'country'],
+          message: __('Country is required', 'kirki-ecommerce'),
         });
       }
 
