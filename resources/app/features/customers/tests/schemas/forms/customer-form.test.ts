@@ -38,19 +38,55 @@ describe('CustomerFormSchema', () => {
   });
 
   describe('addresses', () => {
-    it('rejects a row left at its defaults (type "home", no country) rather than saving it', () => {
+    it('ignores a row where only the type is set instead of validating or saving it', () => {
       const result = CustomerFormSchema.safeParse({
         ...base,
-        addresses: [{ type: 'home', is_default_shipping: false, is_default_billing: false }],
+        addresses: [{ type: 'office', is_default_shipping: false, is_default_billing: false }],
       });
 
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
+      if (!result.success) {
+        return;
+      }
+
+      expect(result.data.addresses).toHaveLength(0);
     });
 
-    it('does not require every other field just because a blank row is present', () => {
+    it('ignores a completely blank row', () => {
       const result = CustomerFormSchema.safeParse({
         ...base,
         addresses: [{}],
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) {
+        return;
+      }
+
+      expect(result.data.addresses).toHaveLength(0);
+    });
+
+    it.each([
+      ['a ticked default shipping box', { is_default_shipping: true }],
+      ['a ticked default billing box', { is_default_billing: true }],
+      ['a typed label', { type: 'others', label: 'Warehouse' }],
+    ])('validates a row touched only by %s', (_name, row) => {
+      const result = CustomerFormSchema.safeParse({ ...base, addresses: [row] });
+
+      expect(result.success).toBe(false);
+      if (result.success) {
+        return;
+      }
+
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toContain('addresses.0.country');
+      expect(paths).toContain('addresses.0.address_line1');
+    });
+
+    it('reports a missing first name on the first name field', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{ address_line1: '1 Main St', country: 'US' }],
       });
 
       expect(result.success).toBe(false);
@@ -59,7 +95,41 @@ describe('CustomerFormSchema', () => {
       }
 
       const paths = result.error.issues.map((issue) => issue.path.join('.'));
-      expect(paths).toEqual(['addresses.0.country']);
+      expect(paths).toEqual(['addresses.0.first_name']);
+    });
+
+    it('keeps only the touched row when a blank row sits beside a valid one', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [
+          { type: 'home' },
+          { first_name: 'Jane', address_line1: '1 Main St', country: 'US' },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) {
+        return;
+      }
+
+      expect(result.data.addresses).toHaveLength(1);
+      expect(result.data.addresses[0].address_line1).toBe('1 Main St');
+    });
+
+    it('validates only the touched row when a blank row sits beside a partial one', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{ type: 'home' }, { first_name: 'Jane' }],
+      });
+
+      expect(result.success).toBe(false);
+      if (result.success) {
+        return;
+      }
+
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths.length).toBeGreaterThan(0);
+      expect(paths.every((path) => path.startsWith('addresses.1.'))).toBe(true);
     });
 
     it('requires the core fields once any of them is filled in', () => {

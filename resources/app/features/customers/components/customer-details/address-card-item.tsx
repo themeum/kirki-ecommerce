@@ -24,10 +24,16 @@ const ADDRESS_TYPE_OPTIONS = [
 type AddressCardItemProps = {
   index: number;
   onRemove: () => void;
+  showRemove?: boolean;
   onExclusiveDefault: (field: 'is_default_shipping' | 'is_default_billing') => void;
 };
 
-const AddressCardItem = ({ index, onRemove, onExclusiveDefault }: AddressCardItemProps) => {
+const AddressCardItem = ({
+  index,
+  onRemove,
+  onExclusiveDefault,
+  showRemove = false,
+}: AddressCardItemProps) => {
   const { control } = useFormContext<CustomerFormInput>();
   const type = useWatch({ control, name: `addresses.${index}.type` });
   const country = useWatch({ control, name: `addresses.${index}.country` });
@@ -35,16 +41,18 @@ const AddressCardItem = ({ index, onRemove, onExclusiveDefault }: AddressCardIte
   return (
     <Card>
       <CardContent>
-        <Flex justify="flex-end">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={__('Remove address', 'kirki-ecommerce')}
-            onClick={onRemove}
-          >
-            <TrashIcon />
-          </Button>
-        </Flex>
+        {showRemove && (
+          <Flex justify="flex-end">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={__('Remove address', 'kirki-ecommerce')}
+              onClick={onRemove}
+            >
+              <TrashIcon />
+            </Button>
+          </Flex>
+        )}
         <Flex direction="column" gap={4}>
           <RadioGroupField
             name={`addresses.${index}.type`}

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -35,6 +36,12 @@ const CustomerAddressCard = () => {
   const { fields, append, remove, update } = useFieldArray({ control, name: 'addresses' });
   const addresses = (useWatch({ control, name: 'addresses' }) ?? []) as AddressFormValues[];
 
+  useEffect(() => {
+    if (fields.length === 0) {
+      append(NEW_ADDRESS, { shouldFocus: false });
+    }
+  }, [fields, append]);
+
   const handleExclusiveDefault = (
     index: number,
     field: 'is_default_shipping' | 'is_default_billing',
@@ -55,6 +62,7 @@ const CustomerAddressCard = () => {
           key={field.id}
           index={index}
           onRemove={() => remove(index)}
+          showRemove={fields.length > 1}
           onExclusiveDefault={(exclusiveField) => handleExclusiveDefault(index, exclusiveField)}
         />
       ))}
