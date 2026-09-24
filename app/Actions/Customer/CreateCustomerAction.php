@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Actions\Customer;
 
+use Kirki\Ecommerce\App\Concerns\ResolvesAddressDefaults;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;
 use Kirki\Ecommerce\App\Services\CustomerService;
@@ -20,6 +21,8 @@ use function Kirki\Ecommerce\Framework\throw_if;
  */
 class CreateCustomerAction
 {
+    use ResolvesAddressDefaults;
+
     /** @var CustomerService */
     protected $customer_service;
 
@@ -89,64 +92,19 @@ class CreateCustomerAction
     }
 
     /**
-     * Resolve which supplied address is the default shipping address and
-     * which is the default billing address, and set every address's flags
-     * to match - forcing false on every non-winning address regardless of
-     * what the caller submitted.
-     *
-     * @since 1.0.0
-     *
-     * @param CreateAddressDTO[] $addresses Addresses submitted with the customer.
-     * @return CreateAddressDTO[] The same addresses with default flags resolved; empty when none were supplied.
-     */
-    protected function resolve_addresses(array $addresses)
-    {
-        if (empty($addresses)) {
-            return [];
-        }
-
-        $shipping_winner = $this->find_default($addresses, 'is_default_shipping') ?? $addresses[0];
-        $billing_winner = $this->find_default($addresses, 'is_default_billing') ?? $addresses[0];
-
-        foreach ($addresses as $address) {
-            $address->is_default_shipping = $address === $shipping_winner;
-            $address->is_default_billing = $address === $billing_winner;
-        }
-
-        return $addresses;
-    }
-
-    /**
-     * Find the first address whose given default flag is set.
-     *
-     * @since 1.0.0
-     *
-     * @param CreateAddressDTO[] $addresses Addresses to search.
-     * @param string             $flag      Address property to test, e.g. is_default_shipping.
-     * @return CreateAddressDTO|null Null when no address has the flag set.
-     */
-    protected function find_default(array $addresses, string $flag)
-    {
-        foreach ($addresses as $address) {
-            if (!empty($address->{$flag})) {
-                return $address;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Resolve the WordPress user ID for the customer.
      *
-     * Verifies the given user exists, otherwise inserts a new subscriber
-     * user from the customer's name and email.
+     * Attaches to an existing WordPress user found by email when one exists,
+     * regardless of whether a new one was also requested. Otherwise creates a
+     * new subscriber user from the customer's name and email only when the
+     * caller asked for one; when neither applies, the customer is left with
+     * no linked WordPress user.
      *
      * @since 1.0.0
      *
      * @param CreateCustomerDTO $customer Customer payload.
-     * @return int WordPress user ID.
-     * @throws \Exception When the given user does not exist or the new user cannot be inserted.
+     * @return int|null WordPress user ID, or null when no user is linked.
+     * @throws \Exception When the given user ID does not exist or a requested new user cannot be inserted.
      */
     protected function create_user(CreateCustomerDTO $customer)
     {
@@ -154,6 +112,16 @@ class CreateCustomerAction
             throw_if(empty(get_userdata($customer->user_id)), __('User could not be found.', 'kirki-ecommerce'));
 
             return $customer->user_id;
+        }
+
+        $existing_user = get_user_by('email', $customer->email);
+
+        if (!empty($existing_user)) {
+            return $existing_user->ID;
+        }
+
+        if (empty($customer->create_wordpress_user)) {
+            return null;
         }
 
         $new_user = [

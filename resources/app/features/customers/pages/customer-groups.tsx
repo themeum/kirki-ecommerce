@@ -1,6 +1,6 @@
 import Button from '@/components/ui/button';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
-import CustomerGroupTable from '@/features/customers/pages/customer-groups/customer-group-table';
+import CustomerGroupTable from '@/features/customers/components/customer-groups/customer-group-table';
 import { theme } from '@/theme';
 
 const CustomerGroups = () => (

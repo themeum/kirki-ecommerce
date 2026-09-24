@@ -32,6 +32,9 @@ class CreateCustomerDTO extends DTO
     /** @var bool */
     public $accepts_marketing = 0;
 
+    /** @var bool  */
+    public $create_wordpress_user = 0;
+
     /** @var string|null */
     public $notes;
 

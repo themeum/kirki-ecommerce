@@ -16,4 +16,6 @@ class WPHookNames extends \Kirki\Ecommerce\Framework\Wordpress\Constants\HookNam
     public const PRE_GET_DOCUMENT_TITLE = 'pre_get_document_title';
     public const AUTHENTICATE = 'authenticate';
     public const REGISTRATION_ERRORS = 'registration_errors';
+    public const PROFILE_UPDATE = 'profile_update';
+    public const USER_REGISTER = 'user_register';
 }
