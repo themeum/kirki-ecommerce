@@ -138,12 +138,10 @@ const RightPanel = ({ mode, product }: RightPanelProps) => {
     if (status === 'scheduled') {
       return;
     }
-    const current = form.getValues();
-    if (!current.scheduled_date && !current.scheduled_time) {
+    if (!form.getValues('scheduled_date')) {
       return;
     }
     form.setValue('scheduled_date', null, { shouldDirty: true });
-    form.setValue('scheduled_time', null, { shouldDirty: true });
   }, [status, form]);
 
   return (
@@ -168,7 +166,6 @@ const RightPanel = ({ mode, product }: RightPanelProps) => {
                 displayFormat={DATE_FORMATS.HUMAN_READABLE_WITH_TIME}
                 mode="datetime"
                 placeholder={__('dd/mm/yyyy hh:mm A', 'kirki-ecommerce')}
-                cssOverride={{ width: '100%' }}
               />
             )}
             {!isAdvancedSettingsPending ? (

@@ -9,10 +9,10 @@ import {
   ProductFormSchema,
   ProductFormVariantSchema,
 } from '@/features/products/schemas/forms/product-form';
-import { DATE_FORMATS, mergeDateAndTime } from '@/libs/date';
+import { DATE_FORMATS, parseDateValue } from '@/libs/date';
 
-const expectedScheduledAt = (date: string, time: string) =>
-  format(mergeDateAndTime(date, time)!, DATE_FORMATS.ATOM);
+const expectedScheduledAt = (dateTime: string) =>
+  format(parseDateValue(dateTime, DATE_FORMATS.DATE_TIME_INPUT)!, DATE_FORMATS.ATOM);
 
 /**
  * The fixtures below carry only the fields `mapProductToFormValues` reads —
@@ -291,20 +291,18 @@ describe('ProductFormSchema', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
       status: 'draft',
-      scheduled_date: '2999-01-01',
-      scheduled_time: '09:00',
+      scheduled_date: '2999-01-01 09:00',
     });
     expect(result.scheduled_at).toBeNull();
   });
 
-  it('merges scheduled_date and scheduled_time into scheduled_at when status is scheduled', () => {
+  it('converts scheduled_date into an ATOM scheduled_at when status is scheduled', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
       status: 'scheduled',
-      scheduled_date: '2999-01-01',
-      scheduled_time: '09:00',
+      scheduled_date: '2999-01-01 09:00',
     });
-    expect(result.scheduled_at).toBe(expectedScheduledAt('2999-01-01', '09:00'));
+    expect(result.scheduled_at).toBe(expectedScheduledAt('2999-01-01 09:00'));
   });
 
   it('rejects a scheduled product with no scheduled date', () => {
@@ -312,7 +310,6 @@ describe('ProductFormSchema', () => {
       ...baseProductInput,
       status: 'scheduled',
       scheduled_date: null,
-      scheduled_time: null,
     });
     expect(result.success).toBe(false);
   });
@@ -321,8 +318,7 @@ describe('ProductFormSchema', () => {
     const result = ProductFormSchema.safeParse({
       ...baseProductInput,
       status: 'scheduled',
-      scheduled_date: '2000-01-01',
-      scheduled_time: '09:00',
+      scheduled_date: '2000-01-01 09:00',
     });
     expect(result.success).toBe(false);
   });
