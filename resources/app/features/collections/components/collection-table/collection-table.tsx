@@ -3,8 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
-import type { DataTableBulkAction } from '@/components/data-table';
-import type { DataTableSelectionState } from '@/components/data-table';
+import type { DataTableBulkAction, DataTableSelectionState } from '@/components/data-table';
 import DataTable from '@/components/data-table';
 import { actionsColumnMeta } from '@/components/data-table/column-styles';
 import DataTableRowActions from '@/components/data-table/data-table-row-actions';
@@ -78,29 +77,27 @@ const CollectionTable = () => {
         enableSorting: false,
         meta: actionsColumnMeta,
         cell: ({ row }) => (
-          <div role="presentation" onClick={(event) => event.stopPropagation()}>
-            <DataTableRowActions
-              edit={{ onClick: () => handleRowClick(row.original) }}
-              actions={[
-                {
-                  label: __('Delete', 'kirki-ecommerce'),
-                  icon: <Trash2 size={16} />,
-                  destructive: true,
-                  onClick: () =>
-                    confirmDelete(
-                      {
-                        title: __('Delete collection?', 'kirki-ecommerce'),
-                        description: __(
-                          'This collection will be permanently deleted. The products in it are not deleted. This cannot be undone.',
-                          'kirki-ecommerce',
-                        ),
-                      },
-                      () => deleteMutation.mutate(row.original.id),
-                    ),
-                },
-              ]}
-            />
-          </div>
+          <DataTableRowActions
+            edit={{ onClick: () => handleRowClick(row.original) }}
+            actions={[
+              {
+                label: __('Delete', 'kirki-ecommerce'),
+                icon: <Trash2 size={16} />,
+                destructive: true,
+                onClick: () =>
+                  confirmDelete(
+                    {
+                      title: __('Delete collection?', 'kirki-ecommerce'),
+                      description: __(
+                        'This collection will be permanently deleted. The products in it are not deleted. This cannot be undone.',
+                        'kirki-ecommerce',
+                      ),
+                    },
+                    () => deleteMutation.mutate(row.original.id),
+                  ),
+              },
+            ]}
+          />
         ),
       },
     ],
@@ -125,7 +122,6 @@ const CollectionTable = () => {
         bulkActions={collectionBulkActions}
         onBulkApply={handleBulkApply}
         columnPinning={{ right: ['actions'] }}
-        fixed
         onRowClick={handleRowClick}
         toolbar={<CollectionTableFilters />}
       />

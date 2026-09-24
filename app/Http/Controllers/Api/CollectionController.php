@@ -2,10 +2,13 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+use Kirki\Ecommerce\App\Actions\Collection\CreateCollectionAction;
+use Kirki\Ecommerce\App\Actions\Collection\UpdateCollectionAction;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\Collection\CollectionCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Collection\CollectionUpdateRequest;
-use Kirki\Ecommerce\App\Resources\CollectionResource;
+use Kirki\Ecommerce\App\Resources\Collection\CollectionListResource;
+use Kirki\Ecommerce\App\Resources\Collection\CollectionResource;
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Contracts\Request;
@@ -58,7 +61,7 @@ class CollectionController
             $data = $this->service->all($params);
 
             return response()->json([
-                'data' => CollectionResource::paginated(new Paginator($data, $data->count(), $data->count(), 1)),
+                'data' => CollectionListResource::paginated(new Paginator($data, $data->count(), $data->count(), 1)),
                 'message' => __('Collections retrieved successfully.', 'kirki-ecommerce'),
             ]);
         }
@@ -66,7 +69,7 @@ class CollectionController
         $data = $this->service->paginated($params);
 
         return response()->json([
-            'data' => CollectionResource::paginated($data),
+            'data' => CollectionListResource::paginated($data),
             'message' => __('Collections retrieved successfully.', 'kirki-ecommerce'),
         ]);
     }
@@ -77,13 +80,12 @@ class CollectionController
      * @since 1.0.0
      *
      * @param CollectionCreateRequest $request
+     * @param CreateCollectionAction $action
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The created collection with a 201 status.
      */
-    public function create(CollectionCreateRequest $request)
+    public function create(CollectionCreateRequest $request, CreateCollectionAction $action)
     {
-        $payload = CreateCollectionDTO::from_request($request);
-
-        $collection = $this->service->create($payload);
+        $collection = $action->execute(CreateCollectionDTO::from_request($request));
 
         return response()->json([
             'data' => CollectionResource::make($collection),
@@ -115,13 +117,12 @@ class CollectionController
      * @since 1.0.0
      *
      * @param CollectionUpdateRequest $request
+     * @param UpdateCollectionAction $action
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The updated collection.
      */
-    public function update(CollectionUpdateRequest $request)
+    public function update(CollectionUpdateRequest $request, UpdateCollectionAction $action)
     {
-        $payload = UpdateCollectionDTO::from_request($request);
-
-        $collection = $this->service->update($payload);
+        $collection = $action->execute(UpdateCollectionDTO::from_request($request));
 
         return response()->json([
             'data' => CollectionResource::make($collection),

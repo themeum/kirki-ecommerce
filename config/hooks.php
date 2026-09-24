@@ -12,9 +12,11 @@ use Kirki\Ecommerce\App\Hooks\Filters\ReplaceSiteTitle;
 use Kirki\Ecommerce\App\Hooks\Filters\PageInlineScript;
 use Kirki\Ecommerce\App\Hooks\Filters\ValidateLoginConsents;
 use Kirki\Ecommerce\App\Hooks\Filters\ValidateRegisterConsents;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\AttachCustomerToNewWordPressUser;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\EnqueueAdminScripts;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\RemoveDuplicateSubmenu;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SMTPConfig;
+use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SyncCustomerEmailFromWordPressUser;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\MailFromEmail;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Filters\MailFromName;
 use Kirki\Ecommerce\Framework\Wordpress\Hooks\Actions\RegisterAdminMenu;
@@ -32,6 +34,8 @@ return [
         MergeGuestOrder::class,
         RenderLoginConsents::class,
         RenderRegisterConsents::class,
+        SyncCustomerEmailFromWordPressUser::class,
+        AttachCustomerToNewWordPressUser::class,
     ],
     'filters' => [
         ReplaceSiteTitle::class,

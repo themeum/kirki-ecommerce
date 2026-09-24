@@ -12,9 +12,8 @@ import Label from '@/components/ui/label';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
-import BillingAddress from '@/features/customers/pages/customer-details/billing-address';
-import CustomerOverview from '@/features/customers/pages/customer-details/customer-overview';
-import ShippingAddress from '@/features/customers/pages/customer-details/shipping-address';
+import CustomerAddressCard from '@/features/customers/components/customer-details/customer-address-card';
+import CustomerBasicInfo from '@/features/customers/components/customer-details/customer-basic-info';
 import {
   type CustomerFormInput,
   type CustomerFormPayload,
@@ -117,9 +116,12 @@ const CustomerDetails = () => {
           <PageContent>
             <Flex gap={4}>
               <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
-                <CustomerOverview />
-                <ShippingAddress />
-                <BillingAddress />
+                <CustomerBasicInfo
+                  isNew={isNew}
+                  hasWordpressUser={!!customerData?.user_id}
+                  customerId={customerId}
+                />
+                <CustomerAddressCard />
               </Flex>
 
               <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>

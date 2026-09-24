@@ -80,7 +80,7 @@ class ProductService
      */
     public function paginate_with_variants(ProductListFilterDTO $filters)
     {
-        $query = Product::query()->with(['attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'variants.product', 'media']);
+        $query = Product::query()->with(['attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'media']);
         $query->select_raw('*, id as pid');
 
         return $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
@@ -112,7 +112,7 @@ class ProductService
      */
     public function find(int $id)
     {
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($id);
+        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'media'])->find($id);
 
         throw_if(empty($product), __('Product not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
@@ -185,7 +185,7 @@ class ProductService
      */
     public function update(UpdateProductDTO $data)
     {
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($data->id);
+        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'media'])->find($data->id);
 
         throw_if(empty($product), __('Product could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 

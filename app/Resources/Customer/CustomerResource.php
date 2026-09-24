@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Customer;
 
+use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
@@ -29,8 +30,10 @@ class CustomerResource extends Resource
             'email' => $this->email,
             'phone' => $this->phone,
             'photo' => MediaAttachment::make($this->photo),
-            'shipping_address' => $this->shipping_address,
-            'billing_address' => $this->billing_address,
+            'addresses' => AddressResource::collection($this->addresses ?? []),
+            'accepts_marketing' => (bool) $this->accepts_marketing,
+            'notes' => $this->notes,
+            'language' => $this->language,
             'tags' => $this->tags ?? [],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

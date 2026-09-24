@@ -101,11 +101,35 @@ export const resolveNotificationTemplate = (
 type NotificationTemplateDictionaryEntry = NotificationTemplateRef & { label: string };
 
 const ADMIN_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
-  order_confirmation: __('Order Confirmation', 'kirki-ecommerce'),
+  new_order: __('New Order', 'kirki-ecommerce'),
+  cancelled_order: __('Cancelled Order', 'kirki-ecommerce'),
+  failed_order: __('Failed Order', 'kirki-ecommerce'),
+};
+
+const ADMIN_USER_NOTIFICATION_LABELS: Record<string, string> = {
+  reset_password: __('Password Reset', 'kirki-ecommerce'),
+};
+
+const ADMIN_INVENTORY_NOTIFICATION_LABELS: Record<string, string> = {
+  low_stock: __('Low Stock Alert', 'kirki-ecommerce'),
+  out_of_stock: __('Out of Stock Alert', 'kirki-ecommerce'),
 };
 
 const CUSTOMER_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
-  order_confirmation: __('Order Confirmation', 'kirki-ecommerce'),
+  new_order: __('New Order', 'kirki-ecommerce'),
+  cancelled_order: __('Cancelled Order', 'kirki-ecommerce'),
+  failed_order: __('Failed Order', 'kirki-ecommerce'),
+  order_on_hold: __('Order on Hold', 'kirki-ecommerce'),
+  order_processing: __('Order Processing', 'kirki-ecommerce'),
+  order_completed: __('Order Completed', 'kirki-ecommerce'),
+  order_note: __('Order Note', 'kirki-ecommerce'),
+  order_shipped: __('Order Shipped', 'kirki-ecommerce'),
+};
+
+const CUSTOMER_USER_NOTIFICATION_LABELS: Record<string, string> = {
+  reset_password: __('Password Reset', 'kirki-ecommerce'),
+  new_account: __('New Customer Account', 'kirki-ecommerce'),
+  confirm_email_address: __('Confirm Email Address', 'kirki-ecommerce'),
 };
 
 /**
@@ -114,36 +138,36 @@ const CUSTOMER_ORDER_NOTIFICATION_LABELS: Record<string, string> = {
  * label list rows and to build each row's edit route.
  */
 export const NOTIFICATION_TEMPLATES: NotificationTemplateDictionaryEntry[] = [
-  ...Object.entries(CUSTOMER_ORDER_NOTIFICATION_LABELS).map(([key, label]) => ({
-    type: 'customer' as const,
-    group: 'order' as const,
-    key,
-    label,
-  })),
   ...Object.entries(ADMIN_ORDER_NOTIFICATION_LABELS).map(([key, label]) => ({
     type: 'admin' as const,
     group: 'order' as const,
     key,
     label,
   })),
-  {
-    type: 'customer',
-    group: 'user',
-    key: 'reset_password',
-    label: __('Password Reset', 'kirki-ecommerce'),
-  },
-  {
-    type: 'admin',
-    group: 'user',
-    key: 'reset_password',
-    label: __('Password Reset', 'kirki-ecommerce'),
-  },
-  {
-    type: 'admin',
-    group: 'inventory',
-    key: 'low_stock',
-    label: __('Low Stock Alert', 'kirki-ecommerce'),
-  },
+  ...Object.entries(ADMIN_INVENTORY_NOTIFICATION_LABELS).map(([key, label]) => ({
+    type: 'admin' as const,
+    group: 'inventory' as const,
+    key,
+    label,
+  })),
+  ...Object.entries(ADMIN_USER_NOTIFICATION_LABELS).map(([key, label]) => ({
+    type: 'admin' as const,
+    group: 'user' as const,
+    key,
+    label,
+  })),
+  ...Object.entries(CUSTOMER_ORDER_NOTIFICATION_LABELS).map(([key, label]) => ({
+    type: 'customer' as const,
+    group: 'order' as const,
+    key,
+    label,
+  })),
+  ...Object.entries(CUSTOMER_USER_NOTIFICATION_LABELS).map(([key, label]) => ({
+    type: 'customer' as const,
+    group: 'user' as const,
+    key,
+    label,
+  })),
 ];
 
 export const getNotificationTemplateLabel = (ref: NotificationTemplateRef | undefined): string => {

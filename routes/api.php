@@ -112,6 +112,7 @@ Route::group(['middleware' => AuthMiddleware::class], function () {
 
     // Customers
     Route::get('/customers/locations', [CustomerController::class, 'locations']);
+    Route::get('/customers/check-email', [CustomerController::class, 'check_email']);
     Route::get('/customers', [CustomerController::class, 'get']);
     Route::get('/customers/{id}', [CustomerController::class, 'show']);
     Route::post('/customers', [CustomerController::class, 'create']);

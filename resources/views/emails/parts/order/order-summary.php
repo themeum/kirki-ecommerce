@@ -36,7 +36,7 @@ $tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <?php foreach ($items as $item) : ?>
                     <tr>
-                        <td style="padding-bottom: 16px; vertical-align: top; width: 56px;">
+                        <td style="padding-bottom: 16px; vertical-align: center; width: 56px;">
                             <div style="width: 48px; height: 48px; border-radius: 8px; background-color: #F5F5F5;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none">
                                     <path fill="#858b93" d="M15 18a5 5 0 1 1 10 0 5 5 0 0 1-10 0m5-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6" />
@@ -45,7 +45,7 @@ $tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
                                 </svg>
                             </div>
                         </td>
-                        <td style="padding-left:14px; padding-bottom: 16px; vertical-align: top;">
+                        <td style="padding-left:14px; padding-bottom: 16px; vertical-align: center;">
                             <p data-email-part="colors.typography.body" style="margin: 0; font-size: 13px; font-weight: 500; color: <?php echo esc_attr($body_color); ?>;">
                                 <?php
                                 echo esc_html(
@@ -73,7 +73,7 @@ $tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
                                 </p>
                             <?php endif; ?>
                         </td>
-                        <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: top; text-align: right; white-space: nowrap;">
+                        <td style="padding-left: 16px; padding-bottom: 16px; vertical-align: center; text-align: right; white-space: nowrap;">
                             <?php
                             $item_total_display = $item['invoiced_total_money_object']->display ?? '';
                             $item_price_display = $item['invoiced_price_money_object']->display ?? '';
@@ -90,7 +90,7 @@ $tax_rate_display = sprintf('%s%%', $items[0]['tax_rate'] ?? 0);
                     </tr>
                 <?php endforeach; ?>
             </table>
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" data-email-part="colors.background.divider" style="margin-top: 8px; padding-top: 24px; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" data-email-part="colors.background.divider" style="margin-center: 8px; padding-top: 24px; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
                 <tr>
                     <td style="width: 170px;"></td>
                     <td data-email-part="colors.typography.muted" style="padding-bottom: 8px; font-size: 13px; font-weight: 400; color: <?php echo esc_attr($muted_color); ?>;">

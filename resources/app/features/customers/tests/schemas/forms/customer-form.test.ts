@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import { CustomerFormSchema } from '@/features/customers/schemas/forms/customer-form';
+import { cacheAddressRules } from '@/libs/address-rules';
 
 describe('CustomerFormSchema', () => {
   const base = {
@@ -11,76 +12,9 @@ describe('CustomerFormSchema', () => {
     language: 'english',
     accepts_marketing: false,
     photo: null,
-    shipping_address: {
-      country: 'usa',
-      address_line1: '1 Main St',
-      address_line2: '',
-      city: 'Springfield',
-      state: 'IL',
-      postal_code: '62704',
-    },
-    billing_address: {},
-    is_billing_same_as_shipping: false,
+    addresses: [],
     tags: [],
   };
-
-  it('injects the customer identity into the shipping address unconditionally', () => {
-    const result = CustomerFormSchema.parse(base);
-    expect(result.shipping_address.first_name).toBe('Jane');
-    expect(result.shipping_address.last_name).toBe('Doe');
-    expect(result.shipping_address.email).toBe('jane@example.com');
-    expect(result.shipping_address.phone).toBe('555-1234');
-    expect(result.shipping_address.postal_code).toBe('62704');
-  });
-
-  it('injects the customer identity into billing when not same as shipping', () => {
-    const result = CustomerFormSchema.parse({
-      ...base,
-      is_billing_same_as_shipping: false,
-      billing_address: { country: 'usa', city: 'Chicago' },
-    });
-    expect(result.billing_address.first_name).toBe('Jane');
-    expect(result.billing_address.email).toBe('jane@example.com');
-    expect(result.billing_address.city).toBe('Chicago');
-  });
-
-  it('does not inject identity into billing when same as shipping', () => {
-    const result = CustomerFormSchema.parse({
-      ...base,
-      is_billing_same_as_shipping: true,
-      billing_address: {},
-    });
-    expect(result.billing_address.first_name).toBeNull();
-    expect(result.billing_address.email).toBeNull();
-  });
-
-  it('preserves an existing billing record identity when same as shipping and untouched', () => {
-    const result = CustomerFormSchema.parse({
-      ...base,
-      is_billing_same_as_shipping: true,
-      billing_address: { first_name: 'Old', email: 'old@example.com' },
-    });
-    expect(result.billing_address.first_name).toBe('Old');
-    expect(result.billing_address.email).toBe('old@example.com');
-  });
-
-  it('sends null for blank address fields rather than empty strings', () => {
-    const result = CustomerFormSchema.parse({
-      ...base,
-      shipping_address: { country: '', address_line1: '', city: '', state: '', postal_code: '' },
-    });
-    expect(result.shipping_address.country).toBeNull();
-    expect(result.shipping_address.address_line1).toBeNull();
-    expect(result.shipping_address.postal_code).toBeNull();
-  });
-
-  it('collapses a media object photo to its numeric id', () => {
-    const result = CustomerFormSchema.parse({
-      ...base,
-      photo: { id: 4, url: 'https://x/photo.png' },
-    });
-    expect(result.photo).toBe(4);
-  });
 
   it('rejects a blank required first name', () => {
     expect(CustomerFormSchema.safeParse({ ...base, first_name: '  ' }).success).toBe(false);
@@ -91,7 +25,154 @@ describe('CustomerFormSchema', () => {
     expect(CustomerFormSchema.safeParse({ ...base, email: 'not-an-email' }).success).toBe(false);
   });
 
-  it('accepts a valid email', () => {
+  it('accepts a valid email with no addresses submitted', () => {
     expect(CustomerFormSchema.safeParse(base).success).toBe(true);
+  });
+
+  it('collapses a media object photo to its numeric id', () => {
+    const result = CustomerFormSchema.parse({
+      ...base,
+      photo: { id: 4, url: 'https://x/photo.png' },
+    });
+    expect(result.photo).toBe(4);
+  });
+
+  describe('addresses', () => {
+    it('rejects a row left at its defaults (type "home", no country) rather than saving it', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{ type: 'home', is_default_shipping: false, is_default_billing: false }],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('does not require every other field just because a blank row is present', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{}],
+      });
+
+      expect(result.success).toBe(false);
+      if (result.success) {
+        return;
+      }
+
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toEqual(['addresses.0.country']);
+    });
+
+    it('requires the core fields once any of them is filled in', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{ first_name: 'Jane' }],
+      });
+
+      expect(result.success).toBe(false);
+      if (result.success) {
+        return;
+      }
+
+      const paths = result.error.issues.map((issue) => issue.path.join('.'));
+      expect(paths).toContain('addresses.0.address_line1');
+      expect(paths).toContain('addresses.0.country');
+    });
+
+    it('accepts and keeps a touched row with every core field filled in', () => {
+      const result = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [
+          {
+            first_name: 'Jane',
+            email: 'jane@example.com',
+            phone: '555-1234',
+            address_line1: '1 Main St',
+            city: 'Springfield',
+            country: 'US',
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) {
+        return;
+      }
+
+      expect(result.data.addresses).toHaveLength(1);
+    });
+
+    it('requires a label when the type is "others"', () => {
+      const touched = {
+        first_name: 'Jane',
+        email: 'jane@example.com',
+        phone: '555-1234',
+        address_line1: '1 Main St',
+        city: 'Springfield',
+        country: 'US',
+      };
+
+      const withoutLabel = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{ ...touched, type: 'others' }],
+      });
+      expect(withoutLabel.success).toBe(false);
+
+      const withLabel = CustomerFormSchema.safeParse({
+        ...base,
+        addresses: [{ ...touched, type: 'others', label: 'Warehouse' }],
+      });
+      expect(withLabel.success).toBe(true);
+    });
+
+    describe('state follows the country', () => {
+      beforeEach(() => {
+        cacheAddressRules([
+          {
+            name: 'Japan',
+            code: 'JP',
+            states: [],
+            address_rules: {
+              state: { mode: 'required', label: 'Prefecture' },
+              postal_code: { mode: 'required' },
+            },
+          },
+          {
+            name: 'Singapore',
+            code: 'SG',
+            states: [],
+            address_rules: {
+              state: { mode: 'hidden', label: 'Council' },
+              postal_code: { mode: 'optional' },
+            },
+          },
+        ]);
+      });
+
+      const touched = {
+        first_name: 'Jane',
+        email: 'jane@example.com',
+        phone: '555-1234',
+        address_line1: '1 Main St',
+        city: 'Springfield',
+      };
+
+      it('rejects a missing state when the country requires one', () => {
+        const result = CustomerFormSchema.safeParse({
+          ...base,
+          addresses: [{ ...touched, country: 'JP', state: '' }],
+        });
+
+        expect(result.success).toBe(false);
+      });
+
+      it('accepts a missing state when the country has none', () => {
+        const result = CustomerFormSchema.safeParse({
+          ...base,
+          addresses: [{ ...touched, country: 'SG', state: '' }],
+        });
+
+        expect(result.success).toBe(true);
+      });
+    });
   });
 });

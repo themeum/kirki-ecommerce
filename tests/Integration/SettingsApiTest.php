@@ -823,7 +823,7 @@ class SettingsApiTest extends RestTestCase
      * @return void
      * @since 1.0.0
      */
-    public function test_get_email_settings_resolves_logo_and_adds_order_confirmation_shortcodes(): void
+    public function test_get_email_settings_resolves_logo_and_adds_new_order_shortcodes(): void
     {
         $attachment_id = static::factory()->attachment->create([
             'post_mime_type' => 'image/png',
@@ -843,7 +843,7 @@ class SettingsApiTest extends RestTestCase
         $this->assertIsArray($logo);
         $this->assertSame((string) $attachment_id, $logo['id']);
 
-        $shortcodes = $payload['data']['customer_emails']['order_notifications']['order_confirmation']['shortcodes'];
+        $shortcodes = $payload['data']['customer_emails']['order_notifications']['new_order']['shortcodes'];
         $this->assertNotEmpty($shortcodes);
         $this->assertContains('{order_summary}', array_column($shortcodes, 'value'));
     }
