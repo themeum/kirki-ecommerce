@@ -6,6 +6,7 @@ import {
   type FieldValues,
   useFieldArray,
   useFormContext,
+  useWatch,
 } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
@@ -39,6 +40,13 @@ const WeightRangeField = <
 }: WeightRangeFieldProps<TFieldValues, TName>) => {
   const { control, formState } = useFormContext<TFieldValues>();
   const { fields, append, remove } = useFieldArray({ control, name });
+
+  const lastRangeTo = useWatch({
+    control,
+    name: `${name}.${fields.length - 1}.to` as FieldPath<TFieldValues>,
+  });
+  const isLastRangeUnbounded =
+    lastRangeTo === null || lastRangeTo === undefined || lastRangeTo === '';
 
   const arrayError = (formState.errors as Record<string, unknown>)?.[name] as
     | RowErrorMessage
@@ -140,7 +148,7 @@ const WeightRangeField = <
       })}
       <Button
         variant="ghost"
-        disabled={disabled}
+        disabled={disabled || isLastRangeUnbounded}
         onClick={() => append({ from: null, to: null, base_amount: null } as never)}
       >
         <PlusIcon />
