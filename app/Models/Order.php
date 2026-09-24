@@ -75,6 +75,7 @@ class Order extends Model
         'shipping_phone',
         'shipping_email',
         'shipping_company',
+        'is_billing_same_as_shipping',
         'billing_first_name',
         'billing_last_name',
         'billing_address_line1',

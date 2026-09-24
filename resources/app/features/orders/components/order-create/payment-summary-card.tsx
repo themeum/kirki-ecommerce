@@ -150,7 +150,7 @@ const PaymentSummaryCard = ({
             </Flex>
           </Flex>
           <Flex justify="space-between">
-            <Text variant="tiny" color="emphasis" cssOverride={styles.info}>
+            <Text variant="tiny" color="secondary" cssOverride={styles.info}>
               {__('Estimated tax', 'kirki-ecommerce')}
             </Text>
             <Text variant="small">{taxDisplay}</Text>
