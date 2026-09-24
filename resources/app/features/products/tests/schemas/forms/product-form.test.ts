@@ -1,12 +1,18 @@
+import { format } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
 import type { Product } from '@/features/products/schemas/catalog/product';
+import { RIBBON_COLOR_PALETTE } from '@/features/products/schemas/forms/product-basics-form';
 import {
   getDefaultVariantValues,
   mapProductToFormValues,
   ProductFormSchema,
   ProductFormVariantSchema,
 } from '@/features/products/schemas/forms/product-form';
+import { DATE_FORMATS, mergeDateAndTime } from '@/libs/date';
+
+const expectedScheduledAt = (date: string, time: string) =>
+  format(mergeDateAndTime(date, time)!, DATE_FORMATS.ATOM);
 
 /**
  * The fixtures below carry only the fields `mapProductToFormValues` reads —
@@ -23,6 +29,7 @@ const baseVariantInput = {
 const baseProductInput = {
   title: 'T-Shirt',
   ribbon: '',
+  ribbon_color: RIBBON_COLOR_PALETTE[0],
   slug: 't-shirt',
   short_description: '',
   description: '',
@@ -73,8 +80,7 @@ describe('ProductFormVariantSchema', () => {
       sku: 'SKU-1',
       barcode: null,
       base_price: '19.99',
-      show_unit_price: false,
-      base_unit: null,
+          base_unit: null,
       base_unit_amount: null,
       total_unit: null,
       total_unit_amount: null,
@@ -242,6 +248,25 @@ describe('ProductFormSchema', () => {
     expect(result.description).toBeNull();
   });
 
+  it('sends a null ribbon_color when the ribbon text is blank, even if a colour is set', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: '',
+      ribbon_color: RIBBON_COLOR_PALETTE[2],
+    });
+    expect(result.ribbon_color).toBeNull();
+  });
+
+  it('carries the chosen ribbon colour through when the ribbon has text', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: 'Fresh Arrival',
+      ribbon_color: RIBBON_COLOR_PALETTE[3],
+    });
+    expect(result.ribbon).toBe('Fresh Arrival');
+    expect(result.ribbon_color).toBe(RIBBON_COLOR_PALETTE[3]);
+  });
+
   it('carries a cleared variant price through to the nested payload as null', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
@@ -259,6 +284,46 @@ describe('ProductFormSchema', () => {
 
   it('rejects a product with zero variants', () => {
     const result = ProductFormSchema.safeParse({ ...baseProductInput, variants: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it('sends null for scheduled_at when status is not scheduled', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      status: 'draft',
+      scheduled_date: '2999-01-01',
+      scheduled_time: '09:00',
+    });
+    expect(result.scheduled_at).toBeNull();
+  });
+
+  it('merges scheduled_date and scheduled_time into scheduled_at when status is scheduled', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      status: 'scheduled',
+      scheduled_date: '2999-01-01',
+      scheduled_time: '09:00',
+    });
+    expect(result.scheduled_at).toBe(expectedScheduledAt('2999-01-01', '09:00'));
+  });
+
+  it('rejects a scheduled product with no scheduled date', () => {
+    const result = ProductFormSchema.safeParse({
+      ...baseProductInput,
+      status: 'scheduled',
+      scheduled_date: null,
+      scheduled_time: null,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a scheduled product with a scheduled date in the past', () => {
+    const result = ProductFormSchema.safeParse({
+      ...baseProductInput,
+      status: 'scheduled',
+      scheduled_date: '2000-01-01',
+      scheduled_time: '09:00',
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -317,8 +382,7 @@ describe('mapProductToFormValues', () => {
           sku: null,
           barcode: null,
           base_price: null,
-          show_unit_price: false,
-          base_unit: null,
+                  base_unit: null,
           base_unit_amount: null,
           total_unit: null,
           total_unit_amount: null,
@@ -357,8 +421,7 @@ describe('mapProductToFormValues', () => {
     sku: `SKU-${id}`,
     barcode: null,
     base_price: 10,
-    show_unit_price: false,
-    base_unit: null,
+      base_unit: null,
     base_unit_amount: null,
     total_unit: null,
     total_unit_amount: null,

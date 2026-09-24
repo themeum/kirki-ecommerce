@@ -240,7 +240,6 @@ class PageInlineScript extends BaseHook
             $discount_percentage = (! empty($display_price) && ! empty($display_sale_price))
                 ? round((1 - ($display_sale_price / $display_price)) * 100)
                 : null;
-            $show_unit_price     = (bool) ($variant['show_unit_price'] ?? false);
             $display_unit_price  = $variant['display_unit_price'] ?? null;
             $stock               = intval($variant['available_quantity'] ?? 0);
             $available           = $inventory_service->has_stock($variant_id, 1);
@@ -263,7 +262,6 @@ class PageInlineScript extends BaseHook
                 'product_id'          => $product_id,
                 'price'               => $price,
                 'sale_price'          => $sale_price,
-                'show_unit_price'     => $show_unit_price,
                 'display_unit_price'  => $display_unit_price,
                 'discount_percentage' => $discount_percentage,
                 'stock'               => $stock,

@@ -12,12 +12,8 @@ import {
 } from '@/components/ui/calendar/calendar-presets';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger, {
-  type PickerTriggerSize,
-} from '@/components/ui/calendar/picker-trigger';
-import RangePresets, {
-  type RangePresetOption,
-} from '@/components/ui/calendar/range-presets';
+import PickerTrigger, { type PickerTriggerSize } from '@/components/ui/calendar/picker-trigger';
+import RangePresets, { type RangePresetOption } from '@/components/ui/calendar/range-presets';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
 import {
@@ -56,26 +52,27 @@ type DateRangePickerProps = {
 
 const RANGE_DELIMITER = ' – ';
 
-const PresetBar = ({ presets, position, value, onSelect, startDate, endDate }: {
+const PresetBar = ({
+  presets,
+  position,
+  value,
+  onSelect,
+  startDate,
+  endDate,
+}: {
   presets: boolean | DateRangePresetKey[];
   position: DateRangePresetsPosition;
-  onSelect: (option: RangePresetOption) => void
+  onSelect: (option: RangePresetOption) => void;
   value?: DateRangeValue | null;
   startDate: Date | null;
   endDate: Date | null;
 }) => {
   const presetOptions: RangePresetOption[] = useMemo(() => {
-    return resolveRangePresets(presets).map(
-      (preset) => ({
-        key: preset.key,
-        label: preset.label,
-        range: clampPresetRange(
-          preset.getRange(startOfDay(new Date())),
-          startDate,
-          endDate,
-        ),
-      }),
-    );
+    return resolveRangePresets(presets).map((preset) => ({
+      key: preset.key,
+      label: preset.label,
+      range: clampPresetRange(preset.getRange(startOfDay(new Date())), startDate, endDate),
+    }));
   }, [presets, startDate, endDate]);
 
   const activePresetKey = useMemo(() => {
@@ -86,13 +83,11 @@ const PresetBar = ({ presets, position, value, onSelect, startDate, endDate }: {
       return null;
     }
 
-    return presetOptions.find((option) => {
-      return (
-        option.range &&
-        isSameDay(option.range.from, from) &&
-        isSameDay(option.range.to, to)
-      );
-    })?.key ?? null
+    return (
+      presetOptions.find((option) => {
+        return option.range && isSameDay(option.range.from, from) && isSameDay(option.range.to, to);
+      })?.key ?? null
+    );
   }, [presetOptions, value]);
 
   if (!presets) {
@@ -103,13 +98,15 @@ const PresetBar = ({ presets, position, value, onSelect, startDate, endDate }: {
     return null;
   }
 
-  return <RangePresets
-    options={presetOptions}
-    position={position}
-    activeKey={activePresetKey}
-    onSelect={onSelect}
-  />
-}
+  return (
+    <RangePresets
+      options={presetOptions}
+      position={position}
+      activeKey={activePresetKey}
+      onSelect={onSelect}
+    />
+  );
+};
 
 const DateRangePicker = ({
   value,
@@ -135,7 +132,10 @@ const DateRangePicker = ({
   const fromDate = applyTimeToDate(toValidDate(value?.from), START_OF_DAY_TIME);
   const toDate = applyTimeToDate(toValidDate(value?.to), END_OF_DAY_TIME);
   const { startDate, endDate, disabledDays } = useMemo(() => {
-    return getDateBounds(applyTimeToDate(minDate, START_OF_DAY_TIME), applyTimeToDate(maxDate, END_OF_DAY_TIME));
+    return getDateBounds(
+      applyTimeToDate(minDate, START_OF_DAY_TIME),
+      applyTimeToDate(maxDate, END_OF_DAY_TIME),
+    );
   }, [minDate, maxDate]);
 
   const fromLabel = formatDateValue(fromDate, displayFormat);
@@ -143,8 +143,7 @@ const DateRangePicker = ({
   const showClear = clearable && Boolean(fromLabel) && !disabled;
 
   const selectedRange: DateRange | undefined =
-    pendingRange ??
-    (fromDate ? { from: fromDate, to: toDate ?? undefined } : undefined);
+    pendingRange ?? (fromDate ? { from: fromDate, to: toDate ?? undefined } : undefined);
 
   const commitRange = (from: Date, to: Date) => {
     setPendingRange(undefined);
@@ -238,18 +237,17 @@ const DateRangePicker = ({
         cssOverride={cssOverride}
       />
       <PopoverContent id={calendarId} align="start" cssOverride={pickerContentCss}>
-        <Flex
-          direction={presetsPosition === 'bottom' ? 'column' : 'row'}
-          gap={2}
-        >
-          {presetsPosition === 'left' && <PresetBar
-            presets={presets}
-            onSelect={handlePresetSelect}
-            position={presetsPosition}
-            startDate={startDate}
-            endDate={endDate}
-            value={value}
-          />}
+        <Flex direction={presetsPosition === 'bottom' ? 'column' : 'row'} gap={2}>
+          {presetsPosition === 'left' && (
+            <PresetBar
+              presets={presets}
+              onSelect={handlePresetSelect}
+              position={presetsPosition}
+              startDate={startDate}
+              endDate={endDate}
+              value={value}
+            />
+          )}
           <Calendar
             mode="range"
             min={1}
@@ -262,14 +260,16 @@ const DateRangePicker = ({
             disabled={disabledDays}
             resetOnSelect
           />
-          {presetsPosition !== 'left' && <PresetBar
-            presets={presets}
-            onSelect={handlePresetSelect}
-            position={presetsPosition}
-            startDate={startDate}
-            endDate={endDate}
-            value={value}
-          />}
+          {presetsPosition !== 'left' && (
+            <PresetBar
+              presets={presets}
+              onSelect={handlePresetSelect}
+              position={presetsPosition}
+              startDate={startDate}
+              endDate={endDate}
+              value={value}
+            />
+          )}
         </Flex>
       </PopoverContent>
     </Popover>

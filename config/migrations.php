@@ -68,7 +68,9 @@ use Kirki\Ecommerce\Database\Migrations\AddInvoiceNumberToOrdersTable;
 use Kirki\Ecommerce\Database\Migrations\CreateOrderTaxesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddShippingTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsDropTaxColumns;
+use Kirki\Ecommerce\Database\Migrations\AddRibbonColorToProductsTable;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsAddRegularPriceColumns;
+use Kirki\Ecommerce\Database\Migrations\AddScheduledAtToProductsTable;
 
 return [
     CreateLanguagesTable::class,
@@ -148,5 +150,8 @@ return [
     CreateOrderTaxesTable::class,
     AlterOrdersAddShippingTaxColumns::class,
     AlterOrderItemsDropTaxColumns::class,
+
+    AddRibbonColorToProductsTable::class,
     AlterOrderItemsAddRegularPriceColumns::class,
+    AddScheduledAtToProductsTable::class,
 ];

@@ -1,5 +1,5 @@
 import { Box } from 'lucide-react';
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -33,6 +33,8 @@ type AttributeListItem = Attribute & {
   icon?: ReactNode;
 };
 
+const MAX_ITEMS_TO_SHOW = 10;
+
 const getVariationEditLink = (item: AttributeListItem) => {
   const EssentialsRoutes = RouteConfig.Settings.get('EssentialsSettings');
 
@@ -48,16 +50,24 @@ const VariationList = () => {
 
   const { data: attributeList = [], isLoading, refetch } = useAttributesQuery({ limit: -1 });
   const { mutate: deleteAttribute } = useDeleteAttributeMutation();
+  const [showAll, setShowAll] = useState<boolean>(false);
 
-  const attributeListArr = useMemo<AttributeListItem[]>(
-    () =>
-      attributeList.map((item) => ({
+  const attributeListArr = useMemo<AttributeListItem[]>(() => {
+    if (showAll) {
+      return attributeList.map((item) => ({
         ...item,
         badge1: `${item.values?.length ?? 0} values`,
         icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
-      })),
-    [attributeList],
-  );
+      }));
+    }
+    return attributeList.slice(0, MAX_ITEMS_TO_SHOW).map((item) => ({
+      ...item,
+      badge1: `${item.values?.length ?? 0} values`,
+      icon: item.type === 'color' ? <ColorPaletteIcon /> : <BoxIcon />,
+    }));
+  }, [attributeList, showAll]);
+
+  const hiddenItemCount = Math.max(0, attributeList.length - MAX_ITEMS_TO_SHOW);
 
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
@@ -167,6 +177,21 @@ const VariationList = () => {
                 </StackedItem>
               ))}
             </StackedItems>
+          )}
+
+          {hiddenItemCount > 0 && (
+            <Button
+              variant="ghost"
+              cssOverride={{
+                marginTop: theme.spacing[3],
+                fontWeight: theme.typography.fontWeight.semibold,
+              }}
+              onClick={() => setShowAll((prev) => !prev)}
+            >
+              {!showAll
+                ? sprintf(__('+%d more', 'kirki-ecommerce'), hiddenItemCount)
+                : __('Show less', 'kirki-ecommerce')}
+            </Button>
           )}
         </div>
       </CardContent>

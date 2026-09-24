@@ -202,7 +202,6 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
               type={type}
               disabled={!formData?.id}
               placeholder={__('Add', 'kirki-ecommerce')}
-              addItemLabel={__('Add Variation', 'kirki-ecommerce')}
             />
 
             <ActionGroup>

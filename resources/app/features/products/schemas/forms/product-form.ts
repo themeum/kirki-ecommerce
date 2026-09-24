@@ -14,85 +14,89 @@ import {
 import type { ProductVariant } from '@/features/products/schemas/catalog/variant';
 import { ProductBasicsFormSchema } from '@/features/products/schemas/forms/product-basics-form';
 import { ProductSeoFormSchema } from '@/features/products/schemas/forms/product-seo-form';
-import { booleanish, mediaId, moneyOrNull, numberOrNull, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
+import { VariantFieldsShape } from '@/features/products/schemas/forms/variant-fields';
+import { formatAtomDateTime, mergeDateAndTime, splitIsoDateTime } from '@/libs/date';
+import { isEmptyValue, pickFormValues, prepareFormSchema, requiredWhen } from '@/libs/zod';
 import { MediaRefSchema } from '@/schemas/shared/media';
-import { isDefined } from '@/utils/object';
 import { __ } from '@/wpi18n';
 
-const ProductFormVariantShape = z.object({
-  id: z.number().optional(),
+const ProductFormVariantShape = VariantFieldsShape.extend({
   name: z.string().nullish().default(''),
-  media: mediaId(),
-  sku: z.string().nullish(),
   barcode: z.string().nullish(),
-  base_price: moneyOrNull(),
-  show_unit_price: z.boolean().nullish().default(false),
-  base_unit: z.string().nullish(),
-  base_unit_amount: numberOrNull(),
-  total_unit: z.string().nullish(),
-  total_unit_amount: numberOrNull(),
-  base_sale_price: requiredWhen(moneyOrNull(), (values) => isDefined(values.base_sale_price) && isDefined(values.base_price) && Number(values.base_sale_price) > Number(values.base_price), __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce')),
-  base_cost_of_goods: moneyOrNull(),
-  weight: numberOrNull(),
-  weight_unit: z.string().nullish(),
   dimension_unit: z.string().nullish(),
-  charge_taxes: z.boolean().nullish(),
-  allow_back_order: z.boolean().nullish(),
-  track_inventory: z.boolean().nullish(),
-  available_quantity: numberOrNull(),
-  in_stock: booleanish(false),
-  low_stock_threshold: numberOrNull(),
-  has_limit_per_order: z.boolean().nullish(),
-  max_per_order: numberOrNull(),
-  tax_profile_id: numberOrNull(),
-  shipping_profile_id: numberOrNull(),
-  shipping_box_id: numberOrNull(),
-  is_visible: z.boolean().nullish(),
-  is_physical_product: z.boolean().nullish(),
   is_default: z.boolean().nullish(),
   attribute_values: z.array(z.number()).default([]),
 });
 
-export const ProductFormVariantSchema = prepareFormSchema(ProductFormVariantShape).transform((values) => ({
-  id: values.id,
-  name: values.name || '',
-  media: values.media,
-  sku: values.sku || null,
-  barcode: values.barcode || null,
-  base_price: values.base_price ?? null,
-  show_unit_price: values.show_unit_price ?? false,
-  base_unit: values.base_unit || null,
-  base_unit_amount: values.base_unit_amount ?? null,
-  total_unit: values.total_unit || null,
-  total_unit_amount: values.total_unit_amount ?? null,
-  base_sale_price: values.base_sale_price ?? null,
-  base_cost_of_goods: values.base_cost_of_goods ?? null,
-  weight: values.weight ?? null,
-  weight_unit: values.weight_unit || null,
-  dimension_unit: values.dimension_unit || null,
-  charge_taxes: values.charge_taxes ?? true,
-  allow_back_order: values.allow_back_order ?? false,
-  track_inventory: values.track_inventory ?? false,
-  available_quantity: values.available_quantity ?? 0,
-  in_stock: values.in_stock,
-  low_stock_threshold: values.low_stock_threshold,
-  has_limit_per_order: values.has_limit_per_order ?? false,
-  max_per_order: values.max_per_order,
-  tax_profile_id: values.tax_profile_id,
-  shipping_profile_id: values.shipping_profile_id,
-  shipping_box_id: values.shipping_box_id,
-  is_visible: values.is_visible ?? true,
-  is_physical_product: values.is_physical_product ?? true,
-  is_default: values.is_default ?? false,
-  attribute_values: values.attribute_values,
-}));
+export const ProductFormVariantSchema = prepareFormSchema(ProductFormVariantShape).transform(
+  (values) => ({
+    id: values.id,
+    name: values.name || '',
+    media: values.media,
+    sku: values.sku || null,
+    barcode: values.barcode || null,
+    base_price: values.base_price ?? null,
+    base_unit: values.base_unit || null,
+    base_unit_amount: values.base_unit_amount ?? null,
+    total_unit: values.total_unit || null,
+    total_unit_amount: values.total_unit_amount ?? null,
+    base_sale_price: values.base_sale_price ?? null,
+    base_cost_of_goods: values.base_cost_of_goods ?? null,
+    weight: values.weight ?? null,
+    weight_unit: values.weight_unit || null,
+    dimension_unit: values.dimension_unit || null,
+    charge_taxes: values.charge_taxes ?? true,
+    allow_back_order: values.allow_back_order ?? false,
+    track_inventory: values.track_inventory ?? false,
+    available_quantity: values.available_quantity ?? 0,
+    committed_quantity: values.committed_quantity ?? 0,
+    in_stock: values.in_stock,
+    low_stock_threshold: values.low_stock_threshold,
+    has_limit_per_order: values.has_limit_per_order ?? false,
+    max_per_order: values.max_per_order,
+    tax_profile_id: values.tax_profile_id,
+    shipping_profile_id: values.shipping_profile_id,
+    shipping_box_id: values.shipping_box_id,
+    is_visible: values.is_visible ?? true,
+    is_physical_product: values.is_physical_product ?? true,
+    is_default: values.is_default ?? false,
+    attribute_values: values.attribute_values,
+  }),
+);
 
 export type ProductFormVariantInput = z.input<typeof ProductFormVariantSchema>;
 
 export type ProductFormVariantPayload = z.output<typeof ProductFormVariantSchema>;
 
+const isScheduledStatus = (values: Record<string, unknown>) => values.status === 'scheduled';
+
 const ProductFormComposedShape = ProductBasicsFormSchema.extend({
   status: ProductStatusSchema.default('draft'),
+  scheduled_date: requiredWhen(
+    z.string().nullish().default(null),
+    (values) => {
+      if (!isScheduledStatus(values)) {
+        return false;
+      }
+      if (isEmptyValue(values.scheduled_date)) {
+        return true;
+      }
+      if (isEmptyValue(values.scheduled_time)) {
+        return false;
+      }
+      const merged = mergeDateAndTime(String(values.scheduled_date), String(values.scheduled_time));
+      return !merged || merged.getTime() <= Date.now();
+    },
+    (values) =>
+      isEmptyValue(values.scheduled_date)
+        ? __('Scheduled date is required', 'kirki-ecommerce')
+        : __('Scheduled date and time must be in the future', 'kirki-ecommerce'),
+  ),
+  scheduled_time: requiredWhen(
+    z.string().nullish().default(null),
+    (values) => isScheduledStatus(values) && isEmptyValue(values.scheduled_time),
+    __('Scheduled time is required', 'kirki-ecommerce'),
+  ),
   brand: ProductBrandSchema.nullish().default(null),
   currency: ProductCurrencySchema.nullish().default(null),
   categories: z.array(ProductCategoryRefSchema).default([]),
@@ -107,36 +111,43 @@ const ProductFormComposedShape = ProductBasicsFormSchema.extend({
   id: z.number().optional(),
 }).merge(ProductSeoFormSchema);
 
-export const ProductFormSchema = prepareFormSchema(ProductFormComposedShape).transform((values) => ({
-  id: values.id,
-  title: values.title,
-  slug: values.slug || null,
-  status: values.status,
-  ribbon: values.ribbon || null,
-  description: values.description || null,
-  short_description: values.short_description || null,
-  additional_info: values.additional_info,
-  seo_title: values.seo_title || null,
-  seo_description: values.seo_description || null,
-  seo_keywords: values.seo_keywords ?? [],
-  og_title: values.og_title || null,
-  og_description: values.og_description || null,
-  og_image: null,
-  schema_id: values.schema_id,
-  llm_instructions: values.llm_instructions || null,
-  has_variants: values.has_variants,
-  attributes: values.attributes.map((item) => ({
-    id: item.id,
-    values: (item.values ?? []).map((value) => value.id),
-  })),
-  media: values.media.map((item) => Number(item.id)),
-  brand_id: values.brand?.id ?? null,
-  categories: values.categories.map((item) => item.id),
-  tags: values.tags.map((item) => item.id),
-  collections: values.collections.map((item) => item.id),
-  variants: values.variants,
-  currency_id: values.currency?.id ?? null,
-}));
+export const ProductFormSchema = prepareFormSchema(ProductFormComposedShape).transform(
+  (values) => ({
+    id: values.id,
+    title: values.title,
+    slug: values.slug || null,
+    status: values.status,
+    scheduled_at:
+      values.status === 'scheduled'
+        ? formatAtomDateTime(mergeDateAndTime(values.scheduled_date ?? '', values.scheduled_time ?? ''))
+        : null,
+    ribbon: values.ribbon || null,
+    ribbon_color: values.ribbon ? values.ribbon_color : null,
+    description: values.description || null,
+    short_description: values.short_description || null,
+    additional_info: values.additional_info,
+    seo_title: values.seo_title || null,
+    seo_description: values.seo_description || null,
+    seo_keywords: values.seo_keywords ?? [],
+    og_title: values.og_title || null,
+    og_description: values.og_description || null,
+    og_image: null,
+    schema_id: values.schema_id,
+    llm_instructions: values.llm_instructions || null,
+    has_variants: values.has_variants,
+    attributes: values.attributes.map((item) => ({
+      id: item.id,
+      values: (item.values ?? []).map((value) => value.id),
+    })),
+    media: values.media.map((item) => Number(item.id)),
+    brand_id: values.brand?.id ?? null,
+    categories: values.categories.map((item) => item.id),
+    tags: values.tags.map((item) => item.id),
+    collections: values.collections.map((item) => item.id),
+    variants: values.variants,
+    currency_id: values.currency?.id ?? null,
+  }),
+);
 
 export type ProductFormInput = z.input<typeof ProductFormSchema>;
 
@@ -148,7 +159,6 @@ export const getDefaultVariantValues = (): ProductFormVariantInput => ({
   sku: null,
   barcode: null,
   base_price: 0,
-  show_unit_price: false,
   base_unit: null,
   base_unit_amount: null,
   total_unit: null,
@@ -223,9 +233,13 @@ export const mapProductToFormValues = (product: Product): ProductFormInput => {
       ? [getDefaultVariantValues()]
       : normalizeDefaultVariant(product.variants.map(mapVariantToFormValues));
 
+  const { date: scheduledDate, time: scheduledTime } = splitIsoDateTime(product.scheduled_at);
+
   return pickFormValues(ProductFormSchema, product, {
     variants,
     additional_info: product.additional_info ?? [],
     seo_keywords: product.seo_keywords ?? [],
+    scheduled_date: scheduledDate || null,
+    scheduled_time: scheduledTime || null,
   });
 };

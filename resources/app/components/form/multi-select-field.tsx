@@ -3,7 +3,11 @@ import type { ReactNode } from 'react';
 import { Controller, type FieldPath, type FieldValues, useFormContext } from 'react-hook-form';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import MultiSelect, { type MultiSelectOption, type MultiSelectProps } from '@/components/ui/multi-select';
+import MultiSelect, {
+  type ChipCapProps,
+  type MultiSelectBaseProps,
+  type MultiSelectOption,
+} from '@/components/ui/multi-select';
 
 type MultiSelectFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -27,7 +31,8 @@ type MultiSelectFieldProps<
    * `onCreate` of your own is supplied.
    */
   creatable?: boolean;
-} & Omit<MultiSelectProps<TOption>, 'value' | 'onChange' | 'error'>;
+} & Omit<MultiSelectBaseProps<TOption>, 'value' | 'onChange' | 'error'> &
+  ChipCapProps;
 
 /**
  * Generic multi-select bound to react-hook-form, for option lists the

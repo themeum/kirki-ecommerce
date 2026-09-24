@@ -62,6 +62,7 @@ class ProductResource extends Resource
             'slug' => $this->slug,
             'status' => $this->status,
             'ribbon' => $this->ribbon,
+            'ribbon_color' => $this->ribbon_color,
 
             'currency' => !$this->currency_id ? null : [
                 'id' => $this->currency_id,
@@ -121,6 +122,7 @@ class ProductResource extends Resource
             'preview_url' => $this->preview_url,
 
             'published_at' => $this->published_at,
+            'scheduled_at' => $this->scheduled_at,
             'trashed_at' => $this->trashed_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

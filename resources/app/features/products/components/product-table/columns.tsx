@@ -26,6 +26,8 @@ const getStatusColor = (status: ProductStatus): keyof typeof theme.colors.text =
       return 'secondary';
     case 'published':
       return 'success';
+    case 'scheduled':
+      return 'success';
     case 'trashed':
       return 'critical';
   }
@@ -55,6 +57,7 @@ ProductTitleCell.displayName = 'ProductTitleCell';
 const STATUS_MAP = {
   draft: __('Draft', 'kirki-ecommerce'),
   published: __('Published', 'kirki-ecommerce'),
+  scheduled: __('Scheduled', 'kirki-ecommerce'),
   trashed: __('Trashed', 'kirki-ecommerce'),
 };
 

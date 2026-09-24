@@ -5,9 +5,7 @@ import { useId, useState } from 'react';
 import Calendar from '@/components/ui/calendar/calendar';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger, {
-  type PickerTriggerSize,
-} from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, { type PickerTriggerSize } from '@/components/ui/calendar/picker-trigger';
 import TimePicker, { type HourCycle } from '@/components/ui/calendar/time-picker';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
@@ -92,8 +90,7 @@ const DateTimePicker = ({
       return;
     }
 
-    const anchorDatePart =
-      formatDateValue(selectedDateTime) ?? formatDateValue(getAnchorDate());
+    const anchorDatePart = formatDateValue(selectedDateTime) ?? formatDateValue(getAnchorDate());
 
     onChange(mergeDateAndTime(anchorDatePart ?? '', nextTime));
   };

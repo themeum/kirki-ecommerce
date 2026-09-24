@@ -144,7 +144,6 @@ const CustomerDetails = () => {
                       valueAs="strings"
                       label={__('Tags', 'kirki-ecommerce')}
                       placeholder={__('e.g. VIP, Wholsale, Local', 'kirki-ecommerce')}
-                      createLabel={__('Add Tag', 'kirki-ecommerce')}
                       creatable
                       options={[]}
                     />

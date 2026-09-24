@@ -32,7 +32,9 @@ type UnitPriceSource = UnitPriceValue & {
   base_sale_price?: number | string | null;
 };
 
-export const DEFAULT_UNIT = 'kg';
+export const DEFAULT_TOTAL_UNIT = 'g';
+
+export const DEFAULT_BASE_UNIT = 'kg';
 
 export const normalizedUnit: NormalizedUnitMap = {
   mg: 0.001,

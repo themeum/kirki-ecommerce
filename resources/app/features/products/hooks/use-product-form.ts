@@ -3,6 +3,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { useGenerateSkuMutation } from '@/features/inventory';
 import { resolveSaveFailure, resolveSaveSuccess, type SaveResult } from '@/features/products/lib/save-result';
 import { shouldShowSimpleVariantSections } from '@/features/products/lib/variant-sections';
 import {
@@ -32,6 +33,8 @@ type UseProductFormResult = {
   discardChanges: () => void;
   shakeSignal: number;
   handleSave: (options?: HandleSaveOptions) => Promise<SaveResult>;
+  generateSku: () => void;
+  isGeneratingSku: boolean;
 };
 
 export const useProductForm = ({
@@ -57,6 +60,29 @@ export const useProductForm = ({
     hasVariants,
     attributeValues,
   );
+
+  const generateSkuMutation = useGenerateSkuMutation();
+
+  const generateSku = () => {
+    const values = form.getValues();
+
+    generateSkuMutation.mutate(
+      {
+        title: values.title,
+        brand_id: values.brand?.id ?? null,
+        category_ids: values.categories?.map((category) => category.id) ?? [],
+        attribute_value_ids: values.variants?.[0]?.attribute_values ?? [],
+      },
+      {
+        onSuccess: (response) => {
+          form.setValue('variants.0.sku', response.data.sku, {
+            shouldDirty: true,
+            shouldTouch: true,
+          });
+        },
+      },
+    );
+  };
 
   const { isDirty } = form.formState;
 
@@ -106,5 +132,7 @@ export const useProductForm = ({
     discardChanges,
     shakeSignal,
     handleSave,
+    generateSku,
+    isGeneratingSku: generateSkuMutation.isPending,
   };
 };
