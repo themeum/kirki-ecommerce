@@ -69,7 +69,7 @@ const ProductSelectionField = <
                 noShadow
               >
                 <CardContent>
-                  <Flex direction="column" gap={3} align="center" justify="center">
+                  <Flex direction="column" gap={9} align="center" justify="center">
                     <ProductIcon />
                     <Button variant="secondary" onClick={() => onOpenChange(true)}>
                       <PlusIcon />
@@ -173,7 +173,7 @@ const styles = defineStyles({
     borderColor: theme.colors.border.critical,
   },
   emptyCard: {
-    paddingBlock: theme.spacing[12],
+    paddingBlock: theme.spacing[9],
     backgroundColor: theme.colors.background.surface,
   },
   listCard: {

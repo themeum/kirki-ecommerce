@@ -7,6 +7,7 @@ import OrderItemRow from '@/features/orders/components/order-create/order-item/o
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
 import type { OrderItem } from '@/features/orders/types';
 import { PlusIcon, ProductIcon } from '@/icons';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
@@ -30,11 +31,13 @@ const ProductSelectionCard = ({
     return (
       <Card cssOverride={mergeCss(cardStyles.formCard, styles.emptyCard)}>
         <CardContent>
-          <Flex direction="column" gap={3} align="center" justify="center">
+          <Flex direction="column" gap={9} align="center" justify="center">
             <ProductIcon />
             <Button variant="secondary" onClick={onOpenPicker}>
               <PlusIcon />
-              <Text variant="small" weight="medium">{__('Select Product', 'kirki-ecommerce')}</Text>
+              <Text variant="small" weight="medium">
+                {__('Select Product', 'kirki-ecommerce')}
+              </Text>
             </Button>
           </Flex>
         </CardContent>
@@ -46,7 +49,9 @@ const ProductSelectionCard = ({
     <Card cssOverride={cardStyles.formCard}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle>
-          <Text variant="heading6" weight="semibold">{__('Items', 'kirki-ecommerce')}({rows.length})</Text>
+          <Text variant="heading6" weight="semibold">
+            {__('Items', 'kirki-ecommerce')}({rows.length})
+          </Text>
         </CardTitle>
         <Button variant="secondary" onClick={onOpenPicker}>
           <PlusIcon />
@@ -83,7 +88,7 @@ export default ProductSelectionCard;
 const styles = defineStyles({
   emptyCard: {
     borderStyle: 'dashed',
-    paddingBlock: '48px',
+    paddingBlock: theme.spacing[12],
   },
   headerRow: {
     flexDirection: 'row',
