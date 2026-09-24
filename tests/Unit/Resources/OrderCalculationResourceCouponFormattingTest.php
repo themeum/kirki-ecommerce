@@ -140,7 +140,10 @@ class OrderCalculationResourceCouponFormattingTest extends TestCase
         $this->assertCount(1, $applied);
         $this->assertSame('SAVE5', $applied[0]['code']);
         $this->assertSame('SAVE5 Title', $applied[0]['title']);
+        $this->assertSame(5.0, $applied[0]['base_discount_amount_money_object']->raw);
         $this->assertSame(5.0, $applied[0]['display_discount_amount_money_object']->raw);
+        $this->assertSame(5.0, $applied[0]['base_discount_amount_fixed_money_object']->raw);
+        $this->assertSame(5.0, $applied[0]['display_discount_amount_fixed_money_object']->raw);
     }
 
     public function test_excludes_order_scoped_coupons_from_the_applied_list(): void
@@ -201,8 +204,10 @@ class OrderCalculationResourceCouponFormattingTest extends TestCase
             $by_name[$entry['name']] = $entry;
         }
 
+        $this->assertSame(1.5, $by_name['GST']['base_amount_money_object']->raw);
         $this->assertSame(1.5, $by_name['GST']['display_amount_money_object']->raw);
         $this->assertSame(9, $by_name['GST']['rate']);
+        $this->assertSame(0.3, $by_name['IST']['base_amount_money_object']->raw);
         $this->assertSame(0.3, $by_name['IST']['display_amount_money_object']->raw);
     }
 
@@ -228,7 +233,9 @@ class OrderCalculationResourceCouponFormattingTest extends TestCase
         $product_breakdown = $this->call('format_tax_breakdown', $product_tax, 'USD', null);
         $shipping_breakdown = $this->call('format_tax_breakdown', $shipping_tax, 'USD', null);
 
+        $this->assertSame(10.0, $product_breakdown[0]['base_amount_money_object']->raw);
         $this->assertSame(10.0, $product_breakdown[0]['display_amount_money_object']->raw);
+        $this->assertSame(1.0, $shipping_breakdown[0]['base_amount_money_object']->raw);
         $this->assertSame(1.0, $shipping_breakdown[0]['display_amount_money_object']->raw);
     }
 }

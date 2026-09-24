@@ -1200,7 +1200,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping_amount_money_object']['raw']);
     }
 
     /**
@@ -1240,7 +1240,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(10.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(10.0, $payload['data']['totals']['base_shipping_amount_money_object']['raw']);
     }
 
     /**
@@ -1274,7 +1274,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping_amount_money_object']['raw']);
     }
 
     /**
@@ -1304,14 +1304,14 @@ class OrderApiTest extends RestTestCase
             'is_manual' => false,
             'coupon_codes' => [$coupon->code],
         ])), 201);
-        $this->assertEquals(0.0, $first['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, $first['data']['totals']['base_shipping_amount_money_object']['raw']);
 
         $second = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
             'coupon_codes' => [$coupon->code],
         ])), 201);
 
-        $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping']);
+        $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping_amount_money_object']['raw']);
         $this->assertCount(0, OrderCoupon::where('order_id', $second['data']['id'])->get());
     }
 
