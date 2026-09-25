@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Resource;
@@ -19,13 +20,14 @@ class OrderCalculationResource extends Resource
     /**
      * Convert the calculation result to an array.
      *
-     * Wraps the calculation result and context together with the requested currency code, and
-     * adds the shipping options available for that context. Every monetary figure carries both
-     * its base-currency and display-currency money object.
+     * Wraps the calculation result and context together, and adds the shipping options
+     * available for that context. Every monetary figure is a base-currency money object -
+     * this payload is used only in the admin order create/recalculate screen, which prices
+     * in the store's base currency.
      *
      * @since 1.0.0
      *
-     * @return array<string, mixed> Pricing totals, priced items and available shipping methods in base and display currencies.
+     * @return array<string, mixed> Pricing totals, priced items and available shipping methods.
      */
     public function to_array()
     {
@@ -35,52 +37,44 @@ class OrderCalculationResource extends Resource
         $shipping_service = app()->make(ShippingService::class);
         $shipping_options = $shipping_service->get_final_available_shipping_options($context);
 
-        $display_currency = $this->currency_code ?? Money::resolve_display_currency();
-
         $items_subtotal = $this->get_items_subtotal($result->items, $result->coupon_results);
+        $items_tax_total = $this->get_items_tax_total($result->items);
         $order_discount = $this->get_order_coupon_discount($result->coupon_results);
         $shipping_amount = $result->base_shipping_subtotal - $result->base_shipping_discount;
+        $order_total = $items_subtotal - $order_discount;
 
         return [
-            'pricing' => [
-                'base_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal),
-                'display_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal, null, $display_currency),
+            'totals' => [
+                'base_items_subtotal_exclusive_money_object' => Money::prepare_amount_object_from_minor($items_subtotal),
+                'base_items_subtotal_inclusive_money_object' => Money::prepare_amount_object_from_minor($this->derive_inclusive_amount($items_subtotal, $items_tax_total)),
 
                 'base_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount),
-                'display_order_discount_money_object' => Money::prepare_amount_object_from_minor($order_discount, null, $display_currency),
 
-                'base_order_total_money_object' => Money::prepare_amount_object_from_minor($items_subtotal - $order_discount),
-                'display_order_total_money_object' => Money::prepare_amount_object_from_minor($items_subtotal - $order_discount, null, $display_currency),
+                'base_order_total_exclusive_money_object' => Money::prepare_amount_object_from_minor($order_total),
+                'base_order_total_inclusive_money_object' => Money::prepare_amount_object_from_minor($this->derive_inclusive_amount($order_total, $items_tax_total)),
 
                 'base_tax_total_money_object' => Money::prepare_amount_object_from_minor($result->base_tax_total),
-                'display_tax_total_money_object' => Money::prepare_amount_object_from_minor($result->base_tax_total, null, $display_currency),
 
-                'coupons' => $this->format_coupon_results($result->coupon_results, null, $display_currency),
+                'coupons' => $this->format_coupon_results($result->coupon_results),
 
                 'base_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($shipping_amount),
-                'display_shipping_amount_money_object' => Money::prepare_amount_object_from_minor($shipping_amount, null, $display_currency),
 
                 'base_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($result->base_shipping_subtotal),
-                'display_shipping_strikethrough_money_object' => Money::prepare_amount_object_from_minor($result->base_shipping_subtotal, null, $display_currency),
 
                 'base_total_money_object' => Money::prepare_amount_object_from_minor($result->base_total),
-                'display_total_money_object' => Money::prepare_amount_object_from_minor($result->base_total, null, $display_currency),
 
                 'tax_lines' => $this->format_tax_breakdown(
-                    array_merge($this->flatten_item_tax_lines($result), $result->shipping_tax_lines),
-                    null,
-                    $display_currency
+                    array_merge($this->flatten_item_tax_lines($result), $result->shipping_tax_lines)
                 ),
             ],
 
             'items_count' => $result->items_count,
-            'items' => $this->prepare_items($result->items, $result, $display_currency),
+            'items' => $this->prepare_items($result->items, $result),
 
-            'available_shipping_methods' => array_map(function ($method) use ($display_currency) {
+            'available_shipping_methods' => array_map(function ($method) {
                 $cost = $method['base_cost'];
                 unset($method['base_cost']);
                 $method['base_cost_money_object'] = Money::prepare_amount_object_from_minor($cost);
-                $method['display_cost_money_object'] = Money::prepare_amount_object_from_minor($cost, null, $display_currency);
                 return $method;
             }, $shipping_options),
 
@@ -93,12 +87,11 @@ class OrderCalculationResource extends Resource
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $items            Items to render.
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result           Calculation result holding the per-variant totals.
-     * @param string                                                    $display_currency Currency code the amounts are converted to.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $items  Items to render.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result Calculation result holding the per-variant totals.
      * @return array<int, array<string, mixed>> Item amounts and applied product coupons.
      */
-    protected function prepare_items($items, $result, $display_currency)
+    protected function prepare_items($items, $result)
     {
         $cart_items = [];
 
@@ -107,14 +100,17 @@ class OrderCalculationResource extends Resource
                 $calculated_item = $result->items[$item->variant_id];
                 $product_coupon_discount = $this->get_product_coupon_discount_for_item($result->coupon_results, $item->variant_id);
 
+                $subtotal_exclusive = $calculated_item->base_subtotal - $product_coupon_discount;
+                $strikethrough = $this->prepare_strikethrough_price($calculated_item, $product_coupon_discount, $subtotal_exclusive);
+
                 $cart_items[] = [
                     'id' => $item->id,
                     'quantity' => $item->quantity,
-                    'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal - $product_coupon_discount),
-                    'display_subtotal_money_object' => Money::prepare_amount_object_from_minor($calculated_item->base_subtotal - $product_coupon_discount, null, $display_currency),
-                    'base_strikethrough_price_money_object' => $this->prepare_strikethrough_price($calculated_item, $product_coupon_discount, null, null),
-                    'display_strikethrough_price_money_object' => $this->prepare_strikethrough_price($calculated_item, $product_coupon_discount, null, $display_currency),
-                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id, null, $display_currency),
+                    'base_subtotal_exclusive_money_object' => Money::prepare_amount_object_from_minor($subtotal_exclusive),
+                    'base_subtotal_inclusive_money_object' => Money::prepare_amount_object_from_minor($this->derive_inclusive_amount($subtotal_exclusive, $calculated_item->base_tax_amount)),
+                    'base_strikethrough_price_exclusive_money_object' => $strikethrough['exclusive'],
+                    'base_strikethrough_price_inclusive_money_object' => $strikethrough['inclusive'],
+                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id),
                 ];
             }
         }
@@ -127,14 +123,12 @@ class OrderCalculationResource extends Resource
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results     Coupon results from the calculation.
-     * @param string|null                                                 $base_currency_code Currency code of the calculated amounts, or null for the store's base currency.
-     * @param string                                                      $display_currency   Currency code the amounts are converted to.
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
      * @return array<int, array<string, mixed>> Coupon details and discount amounts.
      */
-    protected function format_coupon_results(array $coupon_results, $base_currency_code, $display_currency)
+    protected function format_coupon_results(array $coupon_results)
     {
-        return array_map(function ($coupon_result) use ($base_currency_code, $display_currency) {
+        return array_map(function ($coupon_result) {
             $coupon = $coupon_result->coupon;
             $base_discount_amount_fixed = $coupon->base_discount_amount_fixed;
 
@@ -145,10 +139,8 @@ class OrderCalculationResource extends Resource
                 'discount_target' => $coupon->discount_target,
                 'discount_value_type' => $coupon->discount_value_type,
                 'discount_amount_percentage' => $coupon->discount_amount_percentage,
-                'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed, $base_currency_code) : null,
-                'display_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed, $base_currency_code, $display_currency) : null,
-                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($coupon_result->total_discount, $base_currency_code),
-                'display_discount_amount_money_object' => Money::prepare_amount_object_from_minor($coupon_result->total_discount, $base_currency_code, $display_currency),
+                'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed) : null,
+                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($coupon_result->total_discount),
             ];
         }, $coupon_results);
     }
@@ -203,6 +195,29 @@ class OrderCalculationResource extends Resource
     }
 
     /**
+     * Sum every calculated item's own tax - the items-only tax total used
+     * to derive the root items-subtotal and order-total's inclusive
+     * figures. Deliberately not `CalculationResultDTO::$base_tax_total`,
+     * which also includes shipping tax and would overstate an items-only
+     * inclusive figure.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by variant ID.
+     * @return int Tax in minor units.
+     */
+    protected function get_items_tax_total(array $calculated_items)
+    {
+        $tax_total = 0;
+
+        foreach ($calculated_items as $calculated_item) {
+            $tax_total += $calculated_item->base_tax_amount;
+        }
+
+        return $tax_total;
+    }
+
+    /**
      * Sum the discount from order-wide ("order") coupons against the items
      * subtotal only. Product-scoped coupons are excluded since they're
      * already reflected inside each item's own subtotal. A coupon's own
@@ -236,13 +251,11 @@ class OrderCalculationResource extends Resource
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results     Coupon results from the calculation.
-     * @param int                                                         $variant_id         Variant ID of the item.
-     * @param string|null                                                 $base_currency_code Currency code of the calculated amounts, or null for the store's base currency.
-     * @param string                                                      $display_currency   Currency code the amounts are converted to.
+     * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
+     * @param int                                                         $variant_id     Variant ID of the item.
      * @return array<int, array<string, mixed>> Coupon details with the discount this item received.
      */
-    protected function get_applied_product_coupons_for_item(array $coupon_results, $variant_id, $base_currency_code, $display_currency)
+    protected function get_applied_product_coupons_for_item(array $coupon_results, $variant_id)
     {
         $applied = [];
 
@@ -265,10 +278,8 @@ class OrderCalculationResource extends Resource
                 'title' => $coupon->title,
                 'discount_value_type' => $coupon->discount_value_type,
                 'discount_amount_percentage' => $coupon->discount_amount_percentage,
-                'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed, $base_currency_code) : null,
-                'display_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed, $base_currency_code, $display_currency) : null,
-                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($discount_amount, $base_currency_code),
-                'display_discount_amount_money_object' => Money::prepare_amount_object_from_minor($discount_amount, $base_currency_code, $display_currency),
+                'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed) : null,
+                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($discount_amount),
             ];
         }
 
@@ -283,12 +294,10 @@ class OrderCalculationResource extends Resource
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines          Tax lines to aggregate.
-     * @param string|null                                $base_currency_code Currency code of the calculated amounts, or null for the store's base currency.
-     * @param string                                      $display_currency   Currency code the amounts are converted to.
-     * @return array<int, array<string, mixed>> Tax name, rate, base amount and display amount per group.
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines Tax lines to aggregate.
+     * @return array<int, array<string, mixed>> Tax name, rate and base amount per group.
      */
-    protected function format_tax_breakdown(array $tax_lines, $base_currency_code, $display_currency)
+    protected function format_tax_breakdown(array $tax_lines)
     {
         $totals_by_key = [];
 
@@ -312,8 +321,7 @@ class OrderCalculationResource extends Resource
             $breakdown[] = [
                 'name' => $entry['name'],
                 'rate' => $entry['rate'],
-                'base_amount_money_object' => Money::prepare_amount_object_from_minor($entry['amount'], $base_currency_code),
-                'display_amount_money_object' => Money::prepare_amount_object_from_minor($entry['amount'], $base_currency_code, $display_currency),
+                'base_amount_money_object' => Money::prepare_amount_object_from_minor($entry['amount']),
             ];
         }
 
@@ -326,25 +334,78 @@ class OrderCalculationResource extends Resource
      * otherwise the regular price if only a sale is active. Null when
      * neither applies, so nothing should render as struck through.
      *
+     * Returns both a tax-exclusive and a tax-inclusive money object. The
+     * strikethrough amount doesn't share the item's current-price taxed
+     * base (it's a pre-discount or pre-sale figure), so the inclusive
+     * figure is derived by scaling at the item's effective tax rate rather
+     * than by adding its tax directly - see derive_inclusive_amount_at_rate().
+     *
      * @since 1.0.0
      *
      * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO $calculated_item         Calculated line item.
      * @param int                                                     $product_coupon_discount Discount from item-scoped coupons, in minor units.
-     * @param string|null                                             $base_currency_code      Currency code of the calculated amounts, or null for the store's base currency.
-     * @param string|null                                             $display_currency        Currency code to convert to, or null to render in the base currency.
-     * @return \Kirki\Ecommerce\App\DTO\MoneyDTO|null Null when nothing should be struck through.
+     * @param int                                                     $subtotal_exclusive      The item's current-price exclusive subtotal, in minor units.
+     * @return array{exclusive: \Kirki\Ecommerce\App\DTO\MoneyDTO|null, inclusive: \Kirki\Ecommerce\App\DTO\MoneyDTO|null} Both null when nothing should be struck through.
      */
-    protected function prepare_strikethrough_price($calculated_item, $product_coupon_discount, $base_currency_code, $display_currency)
+    protected function prepare_strikethrough_price($calculated_item, $product_coupon_discount, $subtotal_exclusive)
     {
         if ($product_coupon_discount > 0) {
             $strikethrough_amount = $calculated_item->base_subtotal;
         } elseif ($calculated_item->base_subtotal < $calculated_item->base_product_total) {
             $strikethrough_amount = $calculated_item->base_product_total;
         } else {
-            return null;
+            return ['exclusive' => null, 'inclusive' => null];
         }
 
-        return Money::prepare_amount_object_from_minor($strikethrough_amount, $base_currency_code, $display_currency);
+        return [
+            'exclusive' => Money::prepare_amount_object_from_minor($strikethrough_amount),
+            'inclusive' => Money::prepare_amount_object_from_minor(
+                $this->derive_inclusive_amount_at_rate($strikethrough_amount, $subtotal_exclusive, $calculated_item->base_tax_amount)
+            ),
+        ];
+    }
+
+    /**
+     * Derive a tax-inclusive figure from a tax-exclusive one sharing the
+     * same taxed base (an item's current subtotal, or an order/cart total) -
+     * the two amounts were computed against the same base, so adding the
+     * tax directly is exact.
+     *
+     * @since 1.0.0
+     *
+     * @param int $exclusive_amount Tax-exclusive amount, in minor units.
+     * @param int $tax_amount       That same amount's own tax, in minor units.
+     * @return int Tax-inclusive amount, in minor units.
+     */
+    protected function derive_inclusive_amount($exclusive_amount, $tax_amount)
+    {
+        return $exclusive_amount + $tax_amount;
+    }
+
+    /**
+     * Derive a tax-inclusive figure for an amount that does not share the
+     * taxed base (a strikethrough/regular-price figure) - scales by the
+     * item's effective tax rate, reconstructed from its current-price
+     * exclusive amount and tax, rather than adding that tax directly.
+     *
+     * @since 1.0.0
+     *
+     * @param int $exclusive_amount        Tax-exclusive amount to convert, in minor units.
+     * @param int $current_price_exclusive The item's own current-price exclusive amount, in minor units.
+     * @param int $current_price_tax       That current price's own tax, in minor units.
+     * @return int Tax-inclusive amount, in minor units.
+     */
+    protected function derive_inclusive_amount_at_rate($exclusive_amount, $current_price_exclusive, $current_price_tax)
+    {
+        if ($current_price_exclusive <= 0) {
+            return $exclusive_amount;
+        }
+
+        $rate_fraction = $current_price_tax / $current_price_exclusive;
+
+        return Money::of_minor($exclusive_amount)
+            ->plus(Money::of_minor($exclusive_amount)->multipliedBy($rate_fraction, RoundingMode::HALF_UP))
+            ->getMinorAmount()->toInt();
     }
 
     /**

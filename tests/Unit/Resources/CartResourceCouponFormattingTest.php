@@ -94,12 +94,13 @@ class CartResourceCouponFormattingTest extends TestCase
         return $item;
     }
 
-    protected function make_calculation_result(int $variant_id): CalculationResultDTO
+    protected function make_calculation_result(int $variant_id, int $base_subtotal = 1000, int $base_product_total = 1000, int $base_tax_amount = 0): CalculationResultDTO
     {
         $calculated_item = new CalculationItemDTO();
         $calculated_item->variant_id = $variant_id;
-        $calculated_item->base_subtotal = 1000;
-        $calculated_item->base_product_total = 1000;
+        $calculated_item->base_subtotal = $base_subtotal;
+        $calculated_item->base_product_total = $base_product_total;
+        $calculated_item->base_tax_amount = $base_tax_amount;
 
         $result = new CalculationResultDTO();
         $result->items = [$variant_id => $calculated_item];
@@ -288,7 +289,7 @@ class CartResourceCouponFormattingTest extends TestCase
         $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
         $result = $this->make_calculation_result(101);
 
-        $items = $this->call('prepare_items', [$item], $result, null);
+        $items = $this->call('prepare_items', [$item], $result, null, false);
 
         $this->assertTrue($items[0]['product']['is_available']);
     }
@@ -298,7 +299,7 @@ class CartResourceCouponFormattingTest extends TestCase
         $item = $this->make_cart_item(101, ProductStatus::DRAFT, true);
         $result = $this->make_calculation_result(101);
 
-        $items = $this->call('prepare_items', [$item], $result, null);
+        $items = $this->call('prepare_items', [$item], $result, null, false);
 
         $this->assertFalse($items[0]['product']['is_available']);
     }
@@ -308,7 +309,7 @@ class CartResourceCouponFormattingTest extends TestCase
         $item = $this->make_cart_item(101, ProductStatus::TRASHED, true);
         $result = $this->make_calculation_result(101);
 
-        $items = $this->call('prepare_items', [$item], $result, null);
+        $items = $this->call('prepare_items', [$item], $result, null, false);
 
         $this->assertFalse($items[0]['product']['is_available']);
     }
@@ -318,8 +319,74 @@ class CartResourceCouponFormattingTest extends TestCase
         $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, false);
         $result = $this->make_calculation_result(101);
 
-        $items = $this->call('prepare_items', [$item], $result, null);
+        $items = $this->call('prepare_items', [$item], $result, null, false);
 
         $this->assertFalse($items[0]['product']['is_available']);
+    }
+
+    // prepare_items - subtotal reconstruction under tax-inclusive pricing
+    // (item-pricing-tax-exclusivity makes base_subtotal always net; these
+    // prove CartResource's rendered output is unaffected by that fix)
+
+    public function test_subtotal_is_unchanged_under_tax_exclusive_pricing(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101, 1000, 1000, 150);
+
+        $items = $this->call('prepare_items', [$item], $result, null, false);
+
+        $this->assertSame(10.0, $items[0]['display_subtotal_money_object']->raw);
+    }
+
+    public function test_subtotal_adds_the_items_own_tax_back_under_tax_inclusive_pricing(): void
+    {
+        $item = $this->make_cart_item(101, ProductStatus::PUBLISHED, true);
+        $result = $this->make_calculation_result(101, 1000, 1000, 150);
+
+        $items = $this->call('prepare_items', [$item], $result, null, true);
+
+        // Reconstructs the pre-fix gross figure: 1000 (net) + 150 (tax) = 1150.
+        $this->assertSame(11.5, $items[0]['display_subtotal_money_object']->raw);
+    }
+
+    // prepare_strikethrough_price reconstruction under tax-inclusive pricing
+
+    public function test_strikethrough_is_unchanged_under_tax_exclusive_pricing(): void
+    {
+        $calculated_item = new CalculationItemDTO();
+        $calculated_item->base_subtotal = 4500;
+        $calculated_item->base_product_total = 6000;
+        $calculated_item->base_tax_amount = 450;
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 0, 4500, false, 'USD', null);
+
+        $this->assertSame(60.0, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_scales_by_rate_under_tax_inclusive_pricing_not_a_flat_tax_add(): void
+    {
+        $calculated_item = new CalculationItemDTO();
+        $calculated_item->base_subtotal = 4500;
+        $calculated_item->base_product_total = 6000;
+        $calculated_item->base_tax_amount = 450;
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 0, 4500, true, 'USD', null);
+
+        // Rate = 450/4500 = 10%; scaled onto the 6000 regular-price baseline: 6000 * 1.1 = 6600.
+        $this->assertSame(66.0, $strikethrough->raw);
+        // A flat "+ tax" would have wrongly given (6000 + 450) / 100 = 64.5.
+        $this->assertNotEquals(64.5, $strikethrough->raw);
+    }
+
+    // get_items_tax_total
+
+    public function test_get_items_tax_total_sums_every_items_own_tax(): void
+    {
+        $item_a = new CalculationItemDTO();
+        $item_a->base_tax_amount = 150;
+        $item_b = new CalculationItemDTO();
+        $item_b->base_tax_amount = 75;
+
+        $this->assertSame(225, $this->call('get_items_tax_total', [$item_a, $item_b]));
     }
 }

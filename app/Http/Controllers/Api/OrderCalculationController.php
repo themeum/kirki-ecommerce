@@ -44,7 +44,7 @@ class OrderCalculationController
      *
      * @param OrderCalculationRequest $request
      * @param RecalculateCartAction   $action
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, expressed in the requested `currency_code`.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, in the store's base currency.
      */
     public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
     {
@@ -54,7 +54,6 @@ class OrderCalculationController
             'data' => OrderCalculationResource::make([
                 'result' => $action->execute($context),
                 'context' => $context,
-                'currency_code' => $request->input('currency_code')
             ])
         ]);
     }

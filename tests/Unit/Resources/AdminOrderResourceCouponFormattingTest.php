@@ -72,13 +72,15 @@ class AdminOrderResourceCouponFormattingTest extends TestCase
         return $item;
     }
 
-    protected function make_priced_order_item(int $base_regular_price, int $base_price, int $quantity, int $invoiced_subtotal, ?int $invoiced_regular_price = null): OrderItem
+    protected function make_priced_order_item(int $base_regular_price, int $base_price, int $quantity, int $invoiced_subtotal, ?int $invoiced_regular_price = null, int $invoiced_tax_total = 0, ?int $base_tax_total = null): OrderItem
     {
         $item = $this->make_order_item(101, $invoiced_subtotal);
         $item->base_regular_price = $base_regular_price;
         $item->invoiced_regular_price = $invoiced_regular_price ?? $base_regular_price;
         $item->base_price = $base_price;
         $item->quantity = $quantity;
+        $item->invoiced_tax_total = $invoiced_tax_total;
+        $item->base_tax_total = $base_tax_total ?? $invoiced_tax_total;
 
         return $item;
     }
@@ -330,44 +332,94 @@ class AdminOrderResourceCouponFormattingTest extends TestCase
 
     public function test_strikethrough_is_the_regular_price_total_when_only_a_sale_applied(): void
     {
-        $item = $this->make_priced_order_item(2000, 1500, 3, 4500);
+        // No discount: current-price exclusive is the raw subtotal (4500), taxed at 450 (10%).
+        $item = $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450);
 
-        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, 'USD');
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, $item->invoiced_subtotal, $item->invoiced_tax_total, 'USD');
 
-        $this->assertSame(60.0, $strikethrough->raw);
-        $this->assertSame('USD', $strikethrough->currency->code);
+        $this->assertSame(60.0, $strikethrough['exclusive']->raw);
+        $this->assertSame('USD', $strikethrough['exclusive']->currency->code);
+        // Scaled at the same 10% rate: 6000 * 1.1 = 6600.
+        $this->assertSame(66.0, $strikethrough['inclusive']->raw);
     }
 
     public function test_strikethrough_is_the_subtotal_before_the_coupon_when_only_a_product_coupon_applied(): void
     {
-        $item = $this->make_priced_order_item(2000, 2000, 1, 2000);
+        $item = $this->make_priced_order_item(2000, 2000, 1, 2000, null, 200);
 
-        $strikethrough = $this->call('prepare_strikethrough_price', $item, 500, $item->invoiced_subtotal, $item->invoiced_regular_price, 'USD');
+        // The item's own current-price exclusive amount is post-discount (2000 - 500 = 1500).
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 500, $item->invoiced_subtotal, $item->invoiced_regular_price, 1500, $item->invoiced_tax_total, 'USD');
 
-        $this->assertSame(20.0, $strikethrough->raw);
+        $this->assertSame(20.0, $strikethrough['exclusive']->raw);
+        // Rate = 200/1500; scaled onto the pre-coupon 2000 baseline: 2000 * (1 + 200/1500) = 2266.67.
+        $this->assertEqualsWithDelta(22.6667, $strikethrough['inclusive']->raw, 0.01);
     }
 
     public function test_strikethrough_is_null_when_there_is_no_sale_and_no_product_coupon(): void
     {
         $item = $this->make_priced_order_item(2000, 2000, 2, 4000);
 
-        $this->assertNull($this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, 'USD'));
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, $item->invoiced_subtotal, $item->invoiced_tax_total, 'USD');
+
+        $this->assertNull($strikethrough['exclusive']);
+        $this->assertNull($strikethrough['inclusive']);
     }
 
     public function test_strikethrough_is_null_for_an_item_with_no_recorded_regular_price(): void
     {
         $item = $this->make_priced_order_item(0, 1500, 1, 1500);
 
-        $this->assertNull($this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, 'USD'));
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, $item->invoiced_subtotal, $item->invoiced_tax_total, 'USD');
+
+        $this->assertNull($strikethrough['exclusive']);
+        $this->assertNull($strikethrough['inclusive']);
     }
 
     public function test_strikethrough_renders_in_the_base_currency_when_no_currency_code_given(): void
     {
-        $item = $this->make_priced_order_item(2000, 1500, 3, 4500);
+        $item = $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450);
 
-        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->base_subtotal, $item->base_regular_price, null);
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->base_subtotal, $item->base_regular_price, $item->base_subtotal, $item->base_tax_total, null);
 
-        $this->assertSame(60.0, $strikethrough->raw);
-        $this->assertSame('USD', $strikethrough->currency->code);
+        $this->assertSame(60.0, $strikethrough['exclusive']->raw);
+        $this->assertSame('USD', $strikethrough['exclusive']->currency->code);
+    }
+
+    public function test_strikethrough_inclusive_is_unaffected_when_current_price_exclusive_is_zero(): void
+    {
+        $item = $this->make_priced_order_item(2000, 0, 1, 0, null, 0);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, $item->invoiced_regular_price, 0, 0, 'USD');
+
+        $this->assertSame(20.0, $strikethrough['exclusive']->raw);
+        $this->assertSame(20.0, $strikethrough['inclusive']->raw);
+    }
+
+    // derive_inclusive_amount / derive_inclusive_amount_at_rate / get_items_tax_total
+
+    public function test_derive_inclusive_amount_adds_the_tax_directly(): void
+    {
+        $this->assertSame(1200, $this->call('derive_inclusive_amount', 1000, 200));
+    }
+
+    public function test_derive_inclusive_amount_at_rate_scales_by_the_current_price_rate(): void
+    {
+        // Rate = 100/1000 = 10%, applied to a 5000 baseline: 5000 * 1.1 = 5500.
+        $this->assertSame(5500, $this->call('derive_inclusive_amount_at_rate', 5000, 1000, 100));
+    }
+
+    public function test_derive_inclusive_amount_at_rate_returns_the_exclusive_amount_when_current_price_is_zero(): void
+    {
+        $this->assertSame(5000, $this->call('derive_inclusive_amount_at_rate', 5000, 0, 0));
+    }
+
+    public function test_get_items_tax_total_sums_every_items_own_tax(): void
+    {
+        $items = [
+            $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450, 400),
+            $this->make_priced_order_item(1000, 1000, 1, 1000, null, 100, 90),
+        ];
+
+        $this->assertSame(['invoiced' => 550, 'base' => 490], $this->call('get_items_tax_total', $items));
     }
 }

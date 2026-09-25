@@ -359,6 +359,7 @@ class UpdateOrderAction
             $item_dto->product_id = $product->id;
             $item_dto->quantity = $item_data['quantity'];
             $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
+            $item_dto->base_product_total = $variant->base_price;
             $item_dto->weight = $variant->weight;
             $item_dto->shipping_profile_id = $variant->shipping_profile_id;
             $item_dto->product_categories = $product->categories->pluck('id')->to_array();
@@ -397,11 +398,11 @@ class UpdateOrderAction
         $item_dto->barcode = $variant->barcode;
         $item_dto->product_image = $variant->media ?? $product->media->first()->id ?? null;
 
-        $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
-        $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
+        $item_dto->invoiced_price = $this->convert_amount($calculated_item->base_unit_price, $currency_code, $exchange_rate);
+        $item_dto->base_price = $calculated_item->base_unit_price;
 
-        $item_dto->invoiced_regular_price = $this->convert_amount($variant->base_price, $currency_code, $exchange_rate);
-        $item_dto->base_regular_price = $variant->base_price;
+        $item_dto->invoiced_regular_price = $this->convert_amount($calculated_item->base_regular_unit_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $calculated_item->base_regular_unit_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 
