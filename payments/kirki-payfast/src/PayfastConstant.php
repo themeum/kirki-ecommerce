@@ -1,24 +1,33 @@
 <?php
+
 namespace Kirki\Ecommerce\Payments;
 
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
-use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 
 defined('ABSPATH') || exit;
 
 /**
- * Constants for the PayMongo Payments API integration.
+ * Constants for the PayFast payment gateway integration.
  */
-class PayfastConstant
+final class PayfastConstant
 {
-    use HasConstants;
-
     const SANDBOX_FORM_URL = 'https://sandbox.payfast.co.za/eng/process';
     const PRODUCTION_FORM_URL = 'https://www.payfast.co.za/eng/process';
-    const SANDBOX_SERVER_CONFIRMATION_URL = 'https://sandbox.payfast.co.za/eng/query/validate';
-    const PRODUCTION_SERVER_CONFIRMATION_URL = 'https://www.payfast.co.za/eng/query/validate';
+    const SANDBOX_VALIDATE_URL = 'https://sandbox.payfast.co.za/eng/query/validate';
+    const PRODUCTION_VALIDATE_URL = 'https://www.payfast.co.za/eng/query/validate';
 
-    const PAYMENT_STATUS = [
+    const VALID_RESPONSE = 'VALID';
+
+    const NOTIFICATION_HOSTS = [
+        'www.payfast.co.za',
+        'sandbox.payfast.co.za',
+        'w1w.payfast.co.za',
+        'w2w.payfast.co.za',
+    ];
+
+    const AMOUNT_TOLERANCE = 0.01;
+
+    const PAYMENT_STATUS_MAP = [
         'COMPLETE' => PaymentStatus::PAID,
         'CANCELLED' => PaymentStatus::CANCELLED,
     ];

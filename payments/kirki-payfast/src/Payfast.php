@@ -10,7 +10,6 @@ use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
-use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -24,12 +23,11 @@ use function Kirki\Ecommerce\Framework\throw_unless;
 defined('ABSPATH') || exit;
 
 /**
- * PayMongo payment gateway.
+ * PayFast payment gateway.
  */
 class Payfast extends PaymentProvider
 {
     protected ?PayfastClient $client = null;
-
 
     public function __construct()
     {
@@ -76,7 +74,7 @@ class Payfast extends PaymentProvider
      *
      * @param Order $order
      * @return PaymentActionDTO
-     * @throws Exception
+     * @throws Exception If the gateway is disabled or the form cannot be built.
      */
     public function pay(Order $order)
     {
@@ -86,33 +84,19 @@ class Payfast extends PaymentProvider
         );
 
         try {
-            $site_name = html_entity_decode(get_bloginfo('name'), ENT_QUOTES, get_bloginfo('charset'));
-            $total_amount = Money::of_minor($order->invoiced_total, $order->currency_code)->getAmount()->toFloat();
-            $payload = [
-                'merchant_id' => $this->settings['merchant_id'],
-                'merchant_key' => $this->settings['merchant_key'],
-                'return_url' => Url::get_checkout_success_url($order->uuid),
-                'cancel_url' => Url::get_checkout_failed_url($order->uuid),
-                'notify_url' => $this->webhook_url(),
-                'name_first' => $order->customer_first_name ?? $order->billing->billing_first_name ?? '',
-                'name_last' => $order->customer_last_name ?? $order->billing->billing_last_name ?? '',
-                'email_address' => $order->customer_email ?? $order->billing->billing_email ?? '',
-                'm_payment_id' => $order->uuid,
-                'amount' => $total_amount,
-                'item_name' => $site_name . ' - ' . $order->order_number,
-                'custom_str1' => wp_json_encode(['total_amount' => $total_amount]),
-                'email_confirmation' => true,
-                'passphrase' => $this->settings['pass_phrase']
-            ];
-
-            $this->client = $this->get_client();
-            $html = $this->client->render_checkout_form($payload);
+            $builder = new PayfastTransactionBuilder($order);
+            $checkout_fields = $builder->build_checkout_fields(
+                $this->settings['merchant_id'],
+                $this->settings['merchant_key'],
+                $this->webhook_url()
+            );
 
             return PaymentActionDTO::from_array([
                 'type' => PaymentActionType::HTML,
-                'value' => $html,
+                'value' => $this->get_client()->render_checkout_form($checkout_fields),
             ]);
         } catch (Exception $e) {
+            /* translators: %s: Error message */
             throw_anyway(sprintf(__('PayFast Payment Error: %s', 'kirki-ecommerce-payfast'), $e->getMessage()));
         }
     }
@@ -158,16 +142,13 @@ class Payfast extends PaymentProvider
     }
 
     /**
-     * Handle a PayMongo webhook notification.
+     * Handle a PayFast ITN callback.
      *
-     * @return bool True if the notification was processed, false if ignored.
-     * @throws Exception If the payload is missing, invalid, or the order lookup fails.
+     * @return bool True if the notification was processed.
+     * @throws Exception If the payload is invalid or the order lookup fails.
      */
     public function webhook()
     {
-        http_response_code(200);
-        flush();
-
         try {
             $payload = $this->verify_and_parse_notification();
 
@@ -185,12 +166,13 @@ class Payfast extends PaymentProvider
 
             return true;
         } catch (Throwable $th) {
-            throw_anyway(sprintf(__('Webhook error: %s', 'kirki-ecommerce-paymongo'), $th->getMessage()));
+            /* translators: %s: Error message */
+            throw_anyway(sprintf(__('Webhook error: %s', 'kirki-ecommerce-payfast'), $th->getMessage()));
         }
     }
 
     /**
-     * PayMongo API client, built from the saved settings on first use.
+     * PayFast client, built from the saved settings on first use.
      *
      * @return PayfastClient
      * @throws Exception If credentials are missing.
@@ -201,27 +183,48 @@ class Payfast extends PaymentProvider
             return $this->client;
         }
 
-        $merchant_id = $this->settings['merchant_id'] ?? '';
-        $merchant_key = $this->settings['merchant_key'] ?? '';
-        $pass_phrase = $this->settings['pass_phrase'] ?? '';
+        $credentials = [
+            'merchant_id' => $this->settings['merchant_id'] ?? '',
+            'merchant_key' => $this->settings['merchant_key'] ?? '',
+            'pass_phrase' => $this->settings['pass_phrase'] ?? '',
+        ];
 
-        if (empty($merchant_id) || empty($merchant_key) || empty($pass_phrase)) {
-            throw_anyway(__('PayFast credentials are missing.', 'kirki-ecommerce-payfast'));
-        }
+        throw_if(in_array('', $credentials, true), __('PayFast credentials are missing.', 'kirki-ecommerce-payfast'));
 
-        $this->client = new PayfastClient(
-            $merchant_id,
-            $merchant_key,
-            $pass_phrase,
-            (bool) ($this->settings['sandbox'])
-        );
+        $this->client = new PayfastClient($credentials['pass_phrase'], (bool) ($this->settings['sandbox'] ?? false));
 
         return $this->client;
     }
 
+    /**
+     * Read the ITN payload and verify it came from PayFast.
+     *
+     * @return array<string, string>
+     * @throws Exception If the payload fails verification.
+     */
+    protected function verify_and_parse_notification(): array
+    {
+        $payload = Superglobals::post();
+
+        throw_unless(
+            $this->get_client()->is_verified($payload),
+            __('Invalid Payload From PayFast.', 'kirki-ecommerce-payfast')
+        );
+
+        return $payload;
+    }
+
+    /**
+     * Update the order to match the ITN's payment status.
+     *
+     * @param Order $order The local order.
+     * @param array<string, string> $payload The verified ITN payload.
+     * @return void
+     * @throws Exception If the order update fails.
+     */
     protected function handle_payment_response(Order $order, array $payload): void
     {
-        $status = PayfastConstant::PAYMENT_STATUS[$payload['payment_status']] ?? PaymentStatus::UNPAID;
+        $status = PayfastConstant::PAYMENT_STATUS_MAP[$payload['payment_status'] ?? ''] ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
@@ -230,7 +233,7 @@ class Payfast extends PaymentProvider
                 case PaymentStatus::PAID:
                     $this->record_transaction($order, $payload);
                     OrderManager::mark_payment_as_paid($order->id);
-                    OrderManager::set_payment_provider_fee($order->id, $payload['amount_fee']);
+                    OrderManager::set_payment_provider_fee($order->id, $this->get_provider_fee($order, $payload));
                     break;
 
                 case PaymentStatus::CANCELLED:
@@ -247,25 +250,35 @@ class Payfast extends PaymentProvider
         } catch (Throwable $e) {
             DB::rollback();
 
+            /* translators: %s: Error message */
             throw_anyway(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-payfast'), $e->getMessage()));
         }
     }
 
-    protected function verify_and_parse_notification()
+    /**
+     * Get PayFast's fee for the transaction, in minor units.
+     *
+     * PayFast reports amount_fee as a negative decimal amount.
+     *
+     * @param Order $order The local order.
+     * @param array<string, string> $payload The verified ITN payload.
+     * @return int
+     */
+    protected function get_provider_fee(Order $order, array $payload): int
     {
-        $payload = array_map('stripslashes', Superglobals::post());
-
-        if (!$this->get_client()->is_verified($payload)) {
-            throw_anyway(__('Invalid Payload From PayFast.', 'kirki-ecommerce-payfast'));
-        }
-
-        return $payload;
+        return Money::to_minor(abs((float) ($payload['amount_fee'] ?? 0)), $order->currency_code);
     }
 
-
+    /**
+     * Record PayFast's payment ID and the raw ITN payload against the order.
+     *
+     * @param Order $order The local order.
+     * @param array<string, string> $payload The verified ITN payload.
+     * @return void
+     */
     protected function record_transaction(Order $order, array $payload): void
     {
-        OrderManager::set_transaction_id($order->id, $payload['pf_payment_id']);
+        OrderManager::set_transaction_id($order->id, $payload['pf_payment_id'] ?? '');
         OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }

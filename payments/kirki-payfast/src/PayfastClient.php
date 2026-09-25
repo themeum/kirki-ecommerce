@@ -3,8 +3,8 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
-use InvalidArgumentException;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
+use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -12,50 +12,41 @@ use function Kirki\Ecommerce\Framework\throw_if;
 defined('ABSPATH') || exit;
 
 /**
- * HTTP client for the PayMongo Payments API.
+ * Signs PayFast checkout requests and verifies its ITN callbacks.
  */
 class PayfastClient
 {
-    protected string $merchant_id;
-    protected string $merchant_key;
     protected string $pass_phrase;
     protected bool $sandbox;
 
     /**
-     * @param string $merchant_id PayMongo API secret key, used as the HTTP Basic Auth username.
-     * @param string $merchant_key PayMongo webhook signing secret.
-     * @param bool $sandbox True when the account is in test mode.
+     * @param string $pass_phrase The passphrase PayFast signatures are salted with.
+     * @param bool $sandbox True when the sandbox environment should be used.
      */
-    public function __construct(string $merchant_id, string $merchant_key, string $pass_phrase, bool $sandbox = false)
+    public function __construct(string $pass_phrase, bool $sandbox = false)
     {
-        $this->merchant_id = $merchant_id;
-        $this->merchant_key = $merchant_key;
         $this->pass_phrase = $pass_phrase;
         $this->sandbox = $sandbox;
     }
 
-    public function is_verified($payload): bool
-    {
-        $query_string = $this->get_query_string($payload);
-        $is_signature_valid = $this->verify_signature($payload, $query_string);
-        $is_ip_valid = $this->verify_ip();
-        $is_payment_amount_valid = $this->verify_payment_amount($payload);
-        $is_server_confirmed = $this->verify_server_confirmation($query_string);
-
-        return $is_ip_valid && $is_payment_amount_valid && $is_server_confirmed && $is_signature_valid;
-    }
-
-    public function render_checkout_form($payload)
+    /**
+     * Build an auto-submitting form that POSTs the order to PayFast's checkout.
+     *
+     * @param array<string, string|int> $fields The checkout fields to post.
+     * @return string
+     */
+    public function render_checkout_form(array $fields): string
     {
         $form_url = $this->sandbox ? PayfastConstant::SANDBOX_FORM_URL : PayfastConstant::PRODUCTION_FORM_URL;
+        $signature = $this->sign($fields);
 
         ob_start();
 ?>
         <form method="POST" id="payfast-form" action="<?php echo esc_url($form_url); ?>">
-            <?php foreach ($payload as $field => $value) : ?>
-                <input type="hidden" name="<?php echo $field; ?>" value="<?php echo $value; ?>" />
+            <?php foreach ($fields as $name => $value) : ?>
+                <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($value); ?>" />
             <?php endforeach; ?>
-            <input type="hidden" name="signature" value="<?php echo md5(http_build_query($payload)); ?>" />
+            <input type="hidden" name="signature" value="<?php echo esc_attr($signature); ?>" />
         </form>
         <script>
             document.getElementById('payfast-form').submit();
@@ -64,72 +55,130 @@ class PayfastClient
         return ob_get_clean();
     }
 
-    protected function verify_signature($payload, $query_string)
+    /**
+     * Verify an ITN payload, stopping at the first check that fails.
+     *
+     * Ordered cheapest first: the local checks run before the DNS lookups and
+     * the round trip to PayFast.
+     *
+     * @param array<string, string> $payload The ITN payload.
+     * @return bool
+     * @throws Exception If PayFast's validation endpoint is unreachable.
+     */
+    public function is_verified(array $payload): bool
     {
-        $signature = md5($query_string);
-        return $payload['signature'] === $signature;
+        return $this->verify_signature($payload)
+            && $this->verify_amount($payload)
+            && $this->verify_source_ip()
+            && $this->verify_with_payfast($payload);
     }
 
-    protected function verify_ip()
+    /**
+     * Sign a set of fields with the merchant passphrase.
+     *
+     * @param array<string, string|int> $fields
+     * @return string
+     */
+    protected function sign(array $fields): string
     {
-        $valid_ips = [];
+        return md5($this->build_signature_string($fields));
+    }
 
-        $valid_hosts = [
-            'www.payfast.co.za',
-            'sandbox.payfast.co.za',
-            'w1w.payfast.co.za',
-            'w2w.payfast.co.za',
-        ];
+    /**
+     * Build the query string a PayFast signature is calculated over.
+     *
+     * The passphrase is appended last, as PayFast's signature spec requires,
+     * and any signature already present is excluded.
+     *
+     * @param array<string, string|int> $fields
+     * @return string
+     */
+    protected function build_signature_string(array $fields): string
+    {
+        unset($fields['signature']);
 
-        $referrer = Superglobals::server('HTTP_REFERER');
-        if (!$referrer) {
+        $fields['passphrase'] = $this->pass_phrase;
+
+        return http_build_query($fields);
+    }
+
+    /**
+     * Check the ITN's signature against one calculated locally.
+     *
+     * @param array<string, string> $payload
+     * @return bool
+     */
+    protected function verify_signature(array $payload): bool
+    {
+        $given_signature = $payload['signature'] ?? '';
+
+        if (empty($given_signature)) {
             return false;
         }
 
-        foreach ($valid_hosts as $host_name) {
-            $ips = gethostbynamel($host_name);
+        return hash_equals($this->sign($payload), $given_signature);
+    }
 
-            if ($ips && is_array($ips)) {
-                array_push($valid_ips, ...$ips);
+    /**
+     * Check the ITN's gross amount against the total recorded at checkout.
+     *
+     * @param array<string, string> $payload
+     * @return bool
+     */
+    protected function verify_amount(array $payload): bool
+    {
+        $recorded = json_decode($payload['custom_str1'] ?? '');
+        $expected_amount = (float) ($recorded->total_amount ?? 0);
+        $paid_amount = (float) ($payload['amount_gross'] ?? 0);
+
+        return abs($expected_amount - $paid_amount) <= PayfastConstant::AMOUNT_TOLERANCE;
+    }
+
+    /**
+     * Check that the ITN came from one of PayFast's own servers.
+     *
+     * @return bool
+     */
+    protected function verify_source_ip(): bool
+    {
+        $valid_ips = array();
+
+        foreach (PayfastConstant::NOTIFICATION_HOSTS as $pf_hostname) {
+            $ips = gethostbynamel($pf_hostname);
+
+            if (false !== $ips) {
+                $valid_ips = array_merge($valid_ips, $ips);
             }
         }
 
-        // Remove duplicates
-        $valid_ips   = array_unique($valid_ips);
-        $referrer_ip = gethostbyname(parse_url($referrer)['host']);
+        // Remove duplicates.
+        $valid_ips = array_unique($valid_ips);
 
-        if (in_array($referrer_ip, $valid_ips, true)) {
-            return true;
+        // Adds support for X_Forwarded_For.
+        $x_forwarded_http_header = Superglobals::server('HTTP_X_FORWARDED_FOR', '');
+        $source_ip = Superglobals::server('REMOTE_ADDR', '');
+        if (!empty($x_forwarded_http_header)) {
+            $x_forwarded_http_header = trim(current(preg_split('/[,:]/', Sanitizer::apply_rule(wp_unslash($x_forwarded_http_header), Sanitizer::TEXT))));
+            $source_ip = rest_is_ip_address($x_forwarded_http_header) ? rest_is_ip_address($x_forwarded_http_header) : $source_ip;
         }
 
-        return false;
+        return in_array($source_ip, $valid_ips, true);
     }
 
-    protected function verify_payment_amount($payload)
+    /**
+     * Ask PayFast to confirm the ITN it just sent.
+     *
+     * @param array<string, string> $payload
+     * @return bool
+     * @throws Exception If the validation request fails.
+     */
+    protected function verify_with_payfast(array $payload): bool
     {
-        $order_amount = json_decode($payload['custom_str1'] ?? '');
-        if (abs((float) $order_amount - (float) $payload['amount_gross']) > 0.01) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function verify_server_confirmation($query_string)
-    {
-        $url = $this->sandbox ? PayfastConstant::SANDBOX_SERVER_CONFIRMATION_URL : PayfastConstant::PRODUCTION_SERVER_CONFIRMATION_URL;
-        $response = Http::as_form()->post($url, $query_string);
+        $url = $this->sandbox ? PayfastConstant::SANDBOX_VALIDATE_URL : PayfastConstant::PRODUCTION_VALIDATE_URL;
+        $response = Http::as_form()->post($url, $this->build_signature_string($payload));
 
         throw_if($response->failed(), $response->body());
 
-        return $response->body() === 'VALID';
-    }
-
-    protected function get_query_string($payload)
-    {
-        unset($payload['signature']);
-        $payload['passphrase'] = $this->pass_phrase;
-
-        return http_build_query($payload);
+        return PayfastConstant::VALID_RESPONSE === trim($response->body());
     }
 }
