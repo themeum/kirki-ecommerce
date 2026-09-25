@@ -12,7 +12,7 @@
         <exclude name="Generic.Files.LineLength.TooLong" />
     </rule>
 
-    <rule ref="kirki-ecommerce/phpcs/KirkiEcommerce/Sniffs/Commenting/RequiredDocblockSniff.php">
+    <rule ref="phpcs/KirkiEcommerce/Sniffs/Commenting/RequiredDocblockSniff.php">
         <include-pattern>*/app/*</include-pattern>
         <include-pattern>*/database/*</include-pattern>
     </rule>
