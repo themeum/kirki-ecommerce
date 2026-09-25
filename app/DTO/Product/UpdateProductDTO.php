@@ -24,7 +24,13 @@ class UpdateProductDTO extends DTO
     public $status;
 
     /** @var string|null */
+    public $scheduled_at;
+
+    /** @var string|null */
     public $ribbon;
+
+    /** @var string|null */
+    public $ribbon_color;
 
     /** @var int|null */
     public $currency_id;

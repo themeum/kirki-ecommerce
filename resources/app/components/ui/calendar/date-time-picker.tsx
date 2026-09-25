@@ -5,9 +5,7 @@ import { useId, useState } from 'react';
 import Calendar from '@/components/ui/calendar/calendar';
 import { pickerContentCss } from '@/components/ui/calendar/calendar-styles';
 import { getDateBounds } from '@/components/ui/calendar/calendar-utils';
-import PickerTrigger, {
-  type PickerTriggerSize,
-} from '@/components/ui/calendar/picker-trigger';
+import PickerTrigger, { type PickerTriggerSize } from '@/components/ui/calendar/picker-trigger';
 import TimePicker, { type HourCycle } from '@/components/ui/calendar/time-picker';
 import Flex from '@/components/ui/flex';
 import { Popover, PopoverContent } from '@/components/ui/popover';
@@ -47,7 +45,7 @@ const DateTimePicker = ({
   displayFormat = DATE_FORMATS.HUMAN_READABLE_WITH_TIME,
   minDate,
   maxDate,
-  hourCycle = 24,
+  hourCycle = 12,
   clearable = false,
   size = 'md',
   disabled = false,
@@ -92,8 +90,7 @@ const DateTimePicker = ({
       return;
     }
 
-    const anchorDatePart =
-      formatDateValue(selectedDateTime) ?? formatDateValue(getAnchorDate());
+    const anchorDatePart = formatDateValue(selectedDateTime) ?? formatDateValue(getAnchorDate());
 
     onChange(mergeDateAndTime(anchorDatePart ?? '', nextTime));
   };
@@ -126,7 +123,11 @@ const DateTimePicker = ({
           endMonth={endDate ?? undefined}
           disabled={disabledDays}
         />
-        <Separator marginTop={theme.spacing[2]} marginBottom={theme.spacing[2]} />
+        <Separator
+          marginTop={theme.spacing[2]}
+          marginBottom={theme.spacing[2]}
+          negativeMargin={8}
+        />
         <Flex align="center" justify="center" cssOverride={styles.footer}>
           <TimePicker
             value={timePart}

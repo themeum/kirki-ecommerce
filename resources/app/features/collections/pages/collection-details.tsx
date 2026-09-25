@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Plus } from 'lucide-react';
+import { PlusIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import MediaField from '@/components/form/media-field';
@@ -29,18 +29,19 @@ import {
   useUpdateCollectionMutation,
 } from '@/features/collections/services/collection';
 import CollectionDetailsSkeleton from '@/features/collections/skeletons/collection-details-skeleton';
-import { ProductIcon } from '@/icons';
+import { buildProductSelection, ProductSelectionField } from '@/features/products';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
-import { __ } from '@/wpi18n';
+import { __, sprintf } from '@/wpi18n';
 
 const CollectionDetails = () => {
   const { id } = useParams();
   const isNew = id === NEW_ITEM_ID;
   const [collectionId, setCollectionId] = useState<number | undefined>();
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
 
   const { data: collectionResponse, isLoading } = useCollectionQuery(Number(id), !isNew);
   const isLoadingCollection = !isNew && isLoading;
@@ -53,12 +54,13 @@ const CollectionDetails = () => {
     defaultValues: getDefaults(CollectionFormSchema),
   });
 
-  const watchedTitle = form.watch('title');
-  const watchedSlug = form.watch('slug');
-  const watchedDescription = form.watch('description');
-  const watchedSeoTitle = form.watch('seo_title');
-  const watchedSeoDescription = form.watch('seo_description');
-  const watchedBanner = form.watch('banner');
+  const title = useWatch({ control: form.control, name: 'title' });
+  const slug = useWatch({ control: form.control, name: 'slug' });
+  const description = useWatch({ control: form.control, name: 'description' });
+  const seoTitle = useWatch({ control: form.control, name: 'seo_title' });
+  const seoDescription = useWatch({ control: form.control, name: 'seo_description' });
+  const banner = useWatch({ control: form.control, name: 'banner' });
+  const selectedProducts = useWatch({ control: form.control, name: 'products' });
 
   useEffect(() => {
     if (!collectionResponse) {
@@ -66,7 +68,11 @@ const CollectionDetails = () => {
     }
 
     setCollectionId(collectionResponse.id);
-    form.reset(pickFormValues(CollectionFormSchema, collectionResponse));
+    form.reset(
+      pickFormValues(CollectionFormSchema, collectionResponse, {
+        products: collectionResponse.products.map(buildProductSelection),
+      }),
+    );
   }, [collectionResponse, form]);
 
   const navigate = useNavigate();
@@ -158,14 +164,29 @@ const CollectionDetails = () => {
                 </CardContent>
               </Card>
 
-              <Card cssOverride={styles.productPlaceholderCard}>
+              <Card noShadow>
                 <CardContent>
-                  <Flex direction="column" gap={3} align="center" justify="center">
-                    <ProductIcon />
-                    <Button variant="secondary">
-                      <Plus />
-                      {__('Select Products', 'kirki-ecommerce')}
-                    </Button>
+                  <Flex direction="column" gap={3}>
+                    {selectedProducts && selectedProducts.length > 0 && (
+                      <Flex justify="end">
+                        <Button
+                          variant="secondary"
+                          cssOverride={styles.addMoreButton}
+                          onClick={() => setProductPickerOpen(true)}
+                        >
+                          <PlusIcon />
+                          <Text variant="small" weight="medium">
+                            {__('Select Products', 'kirki-ecommerce')}
+                          </Text>
+                        </Button>
+                      </Flex>
+                    )}
+                    <ProductSelectionField
+                      name="products"
+                      control={form.control}
+                      open={productPickerOpen}
+                      onOpenChange={setProductPickerOpen}
+                    />
                   </Flex>
                 </CardContent>
               </Card>
@@ -181,19 +202,21 @@ const CollectionDetails = () => {
                         <Flex gap={4} justify="space-between">
                           <Flex direction="column" gap={2}>
                             <Text variant="small" cssOverride={styles.seoUrl}>
-                              {window.kirki_ecommerce.site_url +
-                                ' › collections › ' +
-                                (watchedSlug || '')}
+                              {sprintf(
+                                '%s › collections › %s',
+                                window.kirki_ecommerce.site_url,
+                                slug || '',
+                              )}
                             </Text>
                             <Text weight="semibold" cssOverride={styles.seoTitle}>
-                              {watchedSeoTitle || watchedTitle || ''}
+                              {seoTitle || title || ''}
                             </Text>
                             <Text variant="small" cssOverride={styles.seoDescription}>
-                              {watchedSeoDescription || watchedDescription || ''}
+                              {seoDescription || description || ''}
                             </Text>
                           </Flex>
                           <Image
-                            src={typeof watchedBanner === 'number' ? null : watchedBanner}
+                            src={typeof banner === 'number' ? null : banner}
                             width={92}
                             height={92}
                             cssOverride={{ flexShrink: 0 }}
@@ -229,9 +252,6 @@ CollectionDetails.displayName = 'CollectionDetails';
 export default CollectionDetails;
 
 const styles = defineStyles({
-  productPlaceholderCard: {
-    padding: theme.spacing[11],
-  },
   seoUrl: {
     color: theme.colors.icon.primary,
   },
@@ -244,5 +264,12 @@ const styles = defineStyles({
   seoSeparator: {
     margin: `auto -${theme.spacing[4]}`,
     width: 'calc(100% + 32px)',
+  },
+  addMoreButton: {
+    gap: theme.spacing[2],
+    color: theme.colors.text.primary,
+    '&:hover': {
+      color: theme.colors.text.primary,
+    },
   },
 });

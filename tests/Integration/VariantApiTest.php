@@ -3,7 +3,6 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\InventoryType;
-use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
@@ -82,15 +81,13 @@ class VariantApiTest extends RestTestCase
     }
 
     /**
-     * Show returns a formatted, currency-aware unit price when unit pricing is enabled.
+     * Show returns a formatted, currency-aware unit price when the variant carries unit data.
      *
      * @return void
      * @since 1.0.0
      */
     public function test_show_variant_includes_formatted_unit_price(): void
     {
-        Settings::update('product.is_unit_price_visible', true);
-
         $product = $this->create_product([
             'variants' => [
                 [
@@ -100,7 +97,6 @@ class VariantApiTest extends RestTestCase
                     'in_stock' => true,
                     'is_default' => true,
                     'attribute_values' => [],
-                    'show_unit_price' => true,
                     'base_unit' => 'kg',
                     'base_unit_amount' => 1,
                     'total_unit' => 'kg',

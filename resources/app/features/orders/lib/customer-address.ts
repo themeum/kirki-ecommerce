@@ -96,10 +96,11 @@ const addressName = (
 });
 
 export const toOrderAddresses = (customer: Customer): Partial<OrderFormInput> => {
-  const shipping = customer.shipping_address;
-  const billing = customer.is_billing_same_as_shipping
-    ? customer.shipping_address
-    : customer.billing_address;
+  const addresses = customer.addresses ?? [];
+  const shipping = addresses.find((address) => address.is_default_shipping) ?? null;
+  const billing = addresses.find((address) => address.is_default_billing) ?? null;
+  const isBillingSameAsShipping = Boolean(shipping && billing && shipping.id === billing.id);
+
   const shippingContact = addressName(shipping, customer);
   const billingContact = addressName(billing, customer);
 
@@ -115,7 +116,7 @@ export const toOrderAddresses = (customer: Customer): Partial<OrderFormInput> =>
     shipping_phone: shippingContact.phone,
     shipping_email: shippingContact.email,
 
-    is_billing_same_as_shipping: Boolean(customer.is_billing_same_as_shipping),
+    is_billing_same_as_shipping: isBillingSameAsShipping,
     billing_first_name: billingContact.firstName,
     billing_last_name: billingContact.lastName,
     billing_address_line1: billing?.address_line1 ?? '',

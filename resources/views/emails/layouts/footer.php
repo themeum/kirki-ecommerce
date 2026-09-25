@@ -12,12 +12,12 @@ $additional_description = $default_template['additional_description'] ?? '';
 $footer = $default_template['footer'] ?? '';
 ?>
 <tr <?php echo empty($additional_description) ? 'style="display:none;"' : ''; ?>>
-    <td data-email-part="additional_description" style="padding: 24px 0 24px 0;">
+    <td data-email-part="additional_description" class="kirki-ecommerce-rich-text" style="padding: 24px 0 24px 0;">
         <?php echo wp_kses_post($additional_description); ?>
     </td>
 </tr>
 <tr <?php echo empty($footer) ? 'style="display:none;"' : ''; ?>>
-    <td data-email-part="footer colors.background.divider" style="padding: 32px 0 0 0; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
+    <td data-email-part="footer colors.background.divider" class="kirki-ecommerce-rich-text" style="padding: 32px 0 0 0; border-top: 1px solid <?php echo esc_attr($divider_color); ?>;">
         <?php echo wp_kses_post($footer); ?>
     </td>
 </tr>

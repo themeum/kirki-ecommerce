@@ -80,7 +80,7 @@ class ProductService
      */
     public function paginate_with_variants(ProductListFilterDTO $filters)
     {
-        $query = Product::query()->with(['attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'variants.product', 'media']);
+        $query = Product::query()->with(['attributes', 'attribute_values', 'variants', 'variants.attribute_values', 'media']);
         $query->select_raw('*, id as pid');
 
         return $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
@@ -112,7 +112,7 @@ class ProductService
      */
     public function find(int $id)
     {
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($id);
+        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'media'])->find($id);
 
         throw_if(empty($product), __('Product not found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
@@ -143,6 +143,12 @@ class ProductService
             $data_array['published_at'] = Date::now()->set_timezone('UTC');
         }
 
+        if ($data->status !== ProductStatus::SCHEDULED) {
+            $data_array['scheduled_at'] = null;
+        } else if (!empty($data_array['scheduled_at'])) {
+            $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
+        }
+
         $attributes = array_map(function ($attribute) {
             return $attribute['id'];
         }, $data->attributes);
@@ -169,7 +175,7 @@ class ProductService
      * Update a product and sync its media, taxonomies and attributes.
      *
      * If no slug is provided, it will be generated from the title. A change of
-     * status also updates the published and trashed timestamps.
+     * status also updates the published, scheduled and trashed timestamps.
      *
      * @since 1.0.0
      *
@@ -179,7 +185,7 @@ class ProductService
      */
     public function update(UpdateProductDTO $data)
     {
-        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'variants.product', 'media'])->find($data->id);
+        $product = Product::with(['brand', 'currency', 'categories', 'tags', 'collections', 'attributes', 'attribute_values', 'variants.attribute_values', 'media'])->find($data->id);
 
         throw_if(empty($product), __('Product could not be found.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
@@ -200,6 +206,12 @@ class ProductService
                 $data_array['published_at'] = null;
                 $data_array['trashed_at'] = null;
             }
+        }
+
+        if ($data->status !== ProductStatus::SCHEDULED) {
+            $data_array['scheduled_at'] = null;
+        } else if (!empty($data_array['scheduled_at'])) {
+            $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
         }
 
         $is_updated = (bool) $product->update($data_array);

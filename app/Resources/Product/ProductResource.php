@@ -7,6 +7,7 @@ use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
+use Kirki\Ecommerce\App\Supports\ProductAttributeFormatter;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 use function Kirki\Ecommerce\Framework\app;
@@ -51,12 +52,17 @@ class ProductResource extends Resource
         $store_default_threshold = (int) Settings::get('product.low_stock_threshold', 0);
         $availability_status = $availability_service->resolve_product_status($this->variants->all(), $store_default_threshold);
 
+        foreach ($this->variants as $variant) {
+            $variant->set_relation('product', $this->resource);
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->title,
             'slug' => $this->slug,
             'status' => $this->status,
             'ribbon' => $this->ribbon,
+            'ribbon_color' => $this->ribbon_color,
 
             'currency' => !$this->currency_id ? null : [
                 'id' => $this->currency_id,
@@ -107,69 +113,19 @@ class ProductResource extends Resource
                 ];
             }),
 
-            'attributes' => !empty($this->attributes) ? $this->format_attributes($this->attributes->to_array(), $this->attribute_values->to_array()) : [],
+            'attributes' => !empty($this->attributes)
+                ? ProductAttributeFormatter::format($this->attributes->to_array(), $this->attribute_values->to_array(), $this->variants)
+                : [],
             'variants' => VariantResource::collection($this->variants),
             'media' => MediaAttachment::make_many($this->media->pluck('ID')->all()),
 
             'preview_url' => $this->preview_url,
 
             'published_at' => $this->published_at,
+            'scheduled_at' => $this->scheduled_at,
             'trashed_at' => $this->trashed_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
-    }
-
-    /**
-     * Group attribute values under their attributes.
-     *
-     * Combines the product's own attribute values with any values used only by its variants.
-     *
-     * @since 1.0.0
-     *
-     * @param array<int, array<string, mixed>> $attributes       Attribute rows of the product.
-     * @param array<int, array<string, mixed>> $attribute_values Attribute value rows of the product.
-     * @return array<int, array<string, mixed>> Attributes, each with its list of values.
-     */
-    protected function format_attributes($attributes, $attribute_values)
-    {
-        $attribute_values_map = [];
-
-        foreach ($attribute_values as $attribute_value) {
-            $attribute_values_map[$attribute_value['attribute_id']][] = [
-                'id' => $attribute_value['id'],
-                'value' => $attribute_value['value'],
-                'color' => $attribute_value['color'],
-            ];
-        }
-
-        foreach ($this->variants as $variant) {
-            foreach ($variant->attribute_values as $attribute_value) {
-                $attribute_id = $attribute_value->attribute_id;
-                $existing_ids = array_column($attribute_values_map[$attribute_id] ?? [], 'id');
-
-                if (in_array($attribute_value->id, $existing_ids, true)) {
-                    continue;
-                }
-
-                $attribute_values_map[$attribute_id][] = [
-                    'id' => $attribute_value->id,
-                    'value' => $attribute_value->value,
-                    'color' => $attribute_value->color,
-                ];
-            }
-        }
-
-        $attribute_map = [];
-
-        foreach ($attributes as $attribute) {
-            $attribute_map[] = [
-                'id' => $attribute['id'],
-                'name' => $attribute['name'],
-                'values' => $attribute_values_map[$attribute['id']] ?? [],
-            ];
-        }
-
-        return $attribute_map;
     }
 }

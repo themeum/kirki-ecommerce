@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
@@ -13,7 +14,7 @@ use Kirki\Ecommerce\Framework\Database\Query\Model;
 class Variant extends Model
 {
     use HasDateRangeFilter;
-    
+
     /** @inheritDoc */
     protected $table = 'kirki_ecommerce_variants';
     /** @inheritDoc */
@@ -25,7 +26,6 @@ class Variant extends Model
         'product_id' => 'integer',
         'media' => 'integer',
         'base_price' => 'integer',
-        'show_unit_price' => 'boolean',
         'base_unit' => 'string',
         'base_unit_amount' => 'integer',
         'total_unit' => 'string',
@@ -60,7 +60,6 @@ class Variant extends Model
         'sku',
         'barcode',
         'base_price',
-        'show_unit_price',
         'base_unit',
         'base_unit_amount',
         'total_unit',
@@ -135,5 +134,17 @@ class Variant extends Model
     public function scope_visible($query)
     {
         return $query->where('is_visible', true);
+    }
+
+    /**
+     * Tell whether this variant is currently sellable: its product is published and the variant itself is visible.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function is_available(): bool
+    {
+        return $this->is_visible && $this->product && $this->product->status === ProductStatus::PUBLISHED;
     }
 }

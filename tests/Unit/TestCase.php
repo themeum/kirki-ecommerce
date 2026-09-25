@@ -156,7 +156,7 @@ abstract class TestCase extends BaseTestCase
      * @param array<string, mixed> $currency_settings
      * @param array<string, string> $symbol_map
      * @param array<string, array<string, mixed>> $settings Extra settings groups keyed by
-     *        group name, e.g. `['product' => ['is_unit_price_visible' => true]]`.
+     *        group name, e.g. `['product' => ['low_stock_threshold' => 5]]`.
      * @return void
      */
     protected function bind_money_dependencies(string $base_currency = 'USD', array $currency_settings = [], array $symbol_map = [], array $settings = []): void

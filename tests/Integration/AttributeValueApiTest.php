@@ -204,6 +204,89 @@ class AttributeValueApiTest extends RestTestCase
     }
 
     /**
+     * Batch creates and recolors values together.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_batch_creates_and_recolors_values(): void
+    {
+        $this->attribute_id = $this->create_attribute()['id'];
+        $blue = $this->create_attribute_value(['value' => 'Blue', 'color' => '#0000ff']);
+
+        $response = $this->request('POST', 'attributes/' . $this->attribute_id . '/values/batch', [
+            'create' => [['value' => 'Teal', 'color' => '#008080']],
+            'update' => [['id' => $blue['id'], 'color' => '#0000cc']],
+        ]);
+
+        $payload = $this->assert_api_success($response);
+        $by_name = array_column($payload['data']['values'], null, 'value');
+
+        $this->assertEquals($this->attribute_id, $payload['data']['id']);
+        $this->assertEquals('#0000cc', $by_name['Blue']['color']);
+        $this->assertEquals('#008080', $by_name['Teal']['color']);
+        $this->assertNotEmpty($by_name['Teal']['id']);
+    }
+
+    /**
+     * Batch rejects a value id that belongs to another attribute and writes nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_batch_rejects_foreign_value_id(): void
+    {
+        $other_attribute_id = $this->create_attribute()['id'];
+        $this->attribute_id = $other_attribute_id;
+        $foreign = $this->create_attribute_value(['value' => 'Foreign', 'color' => '#111111']);
+
+        $this->attribute_id = $this->create_attribute()['id'];
+
+        $response = $this->request('POST', 'attributes/' . $this->attribute_id . '/values/batch', [
+            'create' => [['value' => 'Should Not Exist']],
+            'update' => [['id' => $foreign['id'], 'color' => '#222222']],
+        ]);
+
+        $this->assert_validation_error($response);
+        $this->assertSame(0, \Kirki\Ecommerce\App\Models\AttributeValue::where('value', 'Should Not Exist')->count());
+        $this->assertEquals('#111111', \Kirki\Ecommerce\App\Models\AttributeValue::find($foreign['id'])->color);
+    }
+
+    /**
+     * Batch rejects creating a value name the attribute already has, ignoring case.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_batch_rejects_existing_value_name(): void
+    {
+        $this->attribute_id = $this->create_attribute()['id'];
+        $this->create_attribute_value(['value' => 'Blue']);
+
+        $response = $this->request('POST', 'attributes/' . $this->attribute_id . '/values/batch', [
+            'create' => [['value' => 'blue'], ['value' => 'Fresh Value']],
+        ]);
+
+        $this->assert_validation_error($response);
+        $this->assertSame(0, \Kirki\Ecommerce\App\Models\AttributeValue::where('value', 'Fresh Value')->count());
+    }
+
+    /**
+     * Batch against a missing attribute returns 404.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_batch_unknown_attribute_returns_404(): void
+    {
+        $response = $this->request('POST', 'attributes/999999/values/batch', [
+            'create' => [['value' => 'Nowhere']],
+        ]);
+
+        $this->assert_api_error($response, 404);
+    }
+
+    /**
      * Create attribute.
      * @param array $overrides Overrides.
      *

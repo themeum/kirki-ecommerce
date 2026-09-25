@@ -99,7 +99,6 @@ export const ProductSettingsSchema = z
     display_layout: z.string().nullish(),
     is_enabled_reviews: z.boolean().nullish(),
     is_enabled_star_ratings: z.boolean().nullish(),
-    is_unit_price_visible: z.boolean().nullish(),
     low_stock_threshold: z.number().nullish(),
     barcode_generation: BarcodeGenerationSchema.nullish(),
   })

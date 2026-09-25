@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import Button from '@/components/ui/button';
 import {
@@ -24,7 +24,9 @@ import {
 import Searchbox from '@/components/ui/searchbox';
 import Text from '@/components/ui/text';
 import { buildProductSelection } from '@/features/products/components/shared/select-products-dialog/build-selection';
-import ProductFilterPopup, { type ProductFilterValue } from '@/features/products/components/shared/select-products-dialog/product-filter-popup';
+import ProductFilterPopup, {
+  type ProductFilterValue,
+} from '@/features/products/components/shared/select-products-dialog/product-filter-popup';
 import ProductTable from '@/features/products/components/shared/select-products-dialog/product-table';
 import type {
   ProductSelection,
@@ -41,6 +43,7 @@ type SelectProductsDialogProps = {
   onAdd: (selections: ProductSelection[]) => void;
   selectedProducts: ProductSelection[];
   selectVariants?: boolean;
+  expandAll?: boolean;
 };
 
 const LIMIT = 12;
@@ -69,9 +72,7 @@ const applyVariantToggle = (
 ): Map<number, ProductSelection> => {
   const next = new Map(selection);
   const selectedVariantIds = new Set(
-    (next.get(product.productId)?.variants ?? []).map(
-      (variant) => variant.variantId,
-    ),
+    (next.get(product.productId)?.variants ?? []).map((variant) => variant.variantId),
   );
 
   variants.forEach((variant) => {
@@ -103,6 +104,7 @@ const SelectProductsDialog = ({
   onAdd,
   selectedProducts,
   selectVariants = true,
+  expandAll = false,
 }: SelectProductsDialogProps) => {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -113,30 +115,48 @@ const SelectProductsDialog = ({
     collection_id: undefined,
     brand_id: undefined,
   });
-  const [expandedProductIds, setExpandedProductIds] = useState<Set<number>>(
-    new Set(),
-  );
+  const [expandedProductIds, setExpandedProductIds] = useState<Set<number>>(new Set());
   const [selection, setSelection] = useState<Map<number, ProductSelection>>(
-    () =>
-      new Map(
-        selectedProducts.map((product) => [product.productId, product]),
-      ),
+    () => new Map(selectedProducts.map((product) => [product.productId, product])),
   );
 
-  const { data, isLoading } = useProductsWithVariantsQuery({
-    search,
-    page,
-    limit: LIMIT,
-    sort_by: 'title',
-    sort_order: 'asc',
-    status: filters.status && filters.status !== 'all' ? filters.status : 'published',
-    category_ids: filters.category_ids.length ? filters.category_ids : undefined,
-    availability_status: filters.availability_status && filters.availability_status !== 'all' ? filters.availability_status : undefined,
-    collection_id: filters.collection_id,
-    brand_id: filters.brand_id,
-  }, open);
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    setSelection(new Map(selectedProducts.map((product) => [product.productId, product])));
+  }, [open, selectedProducts]);
+
+  const { data, isFetching, isLoading } = useProductsWithVariantsQuery(
+    {
+      search,
+      page,
+      limit: LIMIT,
+      sort_by: 'title',
+      sort_order: 'asc',
+      status: filters.status && filters.status !== 'all' ? filters.status : 'published',
+      category_ids: filters.category_ids.length ? filters.category_ids : undefined,
+      availability_status:
+        filters.availability_status && filters.availability_status !== 'all'
+          ? filters.availability_status
+          : undefined,
+      collection_id: filters.collection_id,
+      brand_id: filters.brand_id,
+    },
+    open,
+  );
+
+  const loading = isFetching || isLoading;
 
   const products = useMemo(() => data?.results ?? [], [data?.results]);
+
+  useEffect(() => {
+    if (!expandAll || products.length === 0) {
+      return;
+    }
+    setExpandedProductIds(new Set(products.map((product) => product.id)));
+  }, [expandAll, products]);
+
   const pickerItems = useMemo(
     () =>
       products.map((product) => ({
@@ -146,10 +166,7 @@ const SelectProductsDialog = ({
     [products],
   );
 
-  const selectedProductIds = useMemo(
-    () => new Set(selection.keys()),
-    [selection],
-  );
+  const selectedProductIds = useMemo(() => new Set(selection.keys()), [selection]);
   const selectedVariantIds = useMemo(
     () =>
       new Set(
@@ -159,26 +176,21 @@ const SelectProductsDialog = ({
       ),
     [selection],
   );
-  const selectedCount = selectVariants
-    ? selectedVariantIds.size
-    : selectedProductIds.size;
+  const selectedCount = selectVariants ? selectedVariantIds.size : selectedProductIds.size;
 
   const pageSelectableCount = selectVariants
     ? pickerItems.reduce((total, item) => total + item.selection.variants.length, 0)
     : pickerItems.length;
   const selectedOnPageCount = selectVariants
     ? pickerItems.reduce(
-      (total, item) =>
-        total +
-        item.selection.variants.filter((variant) =>
-          selectedVariantIds.has(variant.variantId),
-        ).length,
-      0,
-    )
-    : pickerItems.filter((item) => selectedProductIds.has(item.selection.productId))
-      .length;
-  const allOnPageSelected =
-    pageSelectableCount > 0 && selectedOnPageCount === pageSelectableCount;
+        (total, item) =>
+          total +
+          item.selection.variants.filter((variant) => selectedVariantIds.has(variant.variantId))
+            .length,
+        0,
+      )
+    : pickerItems.filter((item) => selectedProductIds.has(item.selection.productId)).length;
+  const allOnPageSelected = pageSelectableCount > 0 && selectedOnPageCount === pageSelectableCount;
   const partialOnPageSelected =
     selectedOnPageCount > 0 && selectedOnPageCount < pageSelectableCount;
 
@@ -209,9 +221,7 @@ const SelectProductsDialog = ({
     variants: ProductVariantSelection[],
     checked: boolean,
   ) => {
-    setSelection((previous) =>
-      applyVariantToggle(previous, product, variants, checked),
-    );
+    setSelection((previous) => applyVariantToggle(previous, product, variants, checked));
   };
 
   const toggleAllOnPage = (checked: boolean) => {
@@ -219,12 +229,7 @@ const SelectProductsDialog = ({
       pickerItems.reduce(
         (accumulator, item) =>
           selectVariants
-            ? applyVariantToggle(
-              accumulator,
-              item.selection,
-              item.selection.variants,
-              checked,
-            )
+            ? applyVariantToggle(accumulator, item.selection, item.selection.variants, checked)
             : applyProductToggle(accumulator, item.selection, checked),
         previous,
       ),
@@ -272,7 +277,7 @@ const SelectProductsDialog = ({
           </Flex>
 
           <ProductTable
-            isLoading={isLoading}
+            isLoading={loading}
             pickerItems={pickerItems}
             selectVariants={selectVariants}
             allOnPageSelected={allOnPageSelected}
@@ -280,7 +285,6 @@ const SelectProductsDialog = ({
             pageSelectableCount={pageSelectableCount}
             onToggleAllOnPage={toggleAllOnPage}
             expandedProductIds={expandedProductIds}
-            expandAll
             onToggleExpand={toggleExpand}
             selectedProductIds={selectedProductIds}
             selectedVariantIds={selectedVariantIds}
@@ -290,7 +294,7 @@ const SelectProductsDialog = ({
         </DialogBody>
         <DialogFooter cssOverride={{ justifyContent: 'space-between', alignItems: 'center' }}>
           {totalResults > 0 && (
-            <Pagination disabled={isLoading}>
+            <Pagination disabled={loading}>
               <Flex align="center" gap={2}>
                 <PaginationPageSelect
                   currentPage={page}
@@ -299,10 +303,7 @@ const SelectProductsDialog = ({
                 />
                 <PaginationContent>
                   <PaginationItem>
-                    <PaginationPrevious
-                      disabled={page <= 1}
-                      onClick={() => setPage(page - 1)}
-                    />
+                    <PaginationPrevious disabled={page <= 1} onClick={() => setPage(page - 1)} />
                   </PaginationItem>
                   {pageItems.map((item, index) =>
                     item === ELLIPSIS ? (

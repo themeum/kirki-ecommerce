@@ -9,6 +9,7 @@ export { useOfflinePaymentsQuery } from './payment/services/payment';
 export type { ProductsSettingsFormPayload } from './products/schemas/forms/products-settings-form';
 export { currencyKeys, paymentKeys, schemaProfileKeys, shippingKeys, taxKeys } from './services/query-keys';
 export { default as ShippingBoxField } from './shipping/components/fields/shipping-box-field';
+export { default as ShippingProfileField } from './shipping/components/fields/shipping-profile-field';
 export { CreateProfilePopup } from './shipping/pages/shipping-profile/create-profile-dialog';
 export type { ShippingSettingsFormPayload } from './shipping/schemas/forms/shipping-settings-form';
 export { useShippingBoxesQuery, useShippingProfilesQuery } from './shipping/services/shipping';

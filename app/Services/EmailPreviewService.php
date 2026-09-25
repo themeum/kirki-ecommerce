@@ -4,17 +4,36 @@ namespace Kirki\Ecommerce\App\Services;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Email\AdminInventoryNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\AdminUserNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerOrderNotification;
+use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Mails\Admins\AdminLowStockMail;
-use Kirki\Ecommerce\App\Mails\Admins\AdminOrderConfirmationMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminNewOrderMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminOrderCancelledMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminOrderFailedMail;
+use Kirki\Ecommerce\App\Mails\Admins\AdminOutOfStockMail;
 use Kirki\Ecommerce\App\Mails\Admins\AdminResetPasswordMail;
-use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderConfirmationMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerNewAccountMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerNewOrderMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderCancelMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderCompletedMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderFailedMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderNoteMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderOnHoldMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderProcessingMail;
+use Kirki\Ecommerce\App\Mails\Customers\CustomerOrderShippedMail;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;
 use Kirki\Ecommerce\App\Mails\Mailer;
+use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
+use WP_CLI\Context\Admin;
 
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\json_decoded_data;
@@ -36,21 +55,33 @@ class EmailPreviewService
     protected $notification_classes = [
         'admin' => [
             'order' => [
-                'order_confirmation' => AdminOrderConfirmationMail::class,
+                AdminOrderNotification::NEW_ORDER => AdminNewOrderMail::class,
+                AdminOrderNotification::CANCELLED_ORDER => AdminOrderCancelledMail::class,
+                AdminOrderNotification::FAILED_ORDER => AdminOrderFailedMail::class,
             ],
             'user' => [
-                'reset_password' => AdminResetPasswordMail::class,
+                AdminUserNotification::RESET_PASSWORD => AdminResetPasswordMail::class,
             ],
             'inventory' => [
-                'low_stock' => AdminLowStockMail::class,
+                AdminInventoryNotification::LOW_STOCK => AdminLowStockMail::class,
+                AdminInventoryNotification::OUT_OF_STOCK => AdminOutOfStockMail::class,
             ],
         ],
         'customer' => [
             'order' => [
-                'order_confirmation' => CustomerOrderConfirmationMail::class,
+                CustomerOrderNotification::NEW_ORDER => CustomerNewOrderMail::class,
+                CustomerOrderNotification::CANCELLED_ORDER => CustomerOrderCancelMail::class,
+                CustomerOrderNotification::FAILED_ORDER => CustomerOrderFailedMail::class,
+                CustomerOrderNotification::ORDER_ON_HOLD => CustomerOrderOnHoldMail::class,
+                CustomerOrderNotification::ORDER_PROCESSING => CustomerOrderProcessingMail::class,
+                CustomerOrderNotification::ORDER_COMPLETED => CustomerOrderCompletedMail::class,
+                CustomerOrderNotification::ORDER_NOTE => CustomerOrderNoteMail::class,
+                CustomerOrderNotification::ORDER_SHIPPED => CustomerOrderShippedMail::class,
             ],
             'user' => [
-                'reset_password' => CustomerResetPasswordMail::class,
+                CustomerUserNotification::RESET_PASSWORD => CustomerResetPasswordMail::class,
+                CustomerUserNotification::NEW_CUSTOMER_ACCOUNT => CustomerNewAccountMail::class,
+                CustomerUserNotification::CONFIRM_EMAIL_ADDRESS => CustomerEmailConfirmationMail::class,
             ],
         ],
     ];
@@ -62,7 +93,7 @@ class EmailPreviewService
      *
      * @param string $type  Recipient type: customer or admin.
      * @param string $group Notification group: order, user or inventory.
-     * @param string $key   Notification key within the group, such as order_confirmation.
+     * @param string $key   Notification key within the group, such as new_order.
      * @return Mailer|null Null when the combination is not a known notification.
      */
     public function resolve_mailer(string $type, string $group, string $key)
@@ -143,13 +174,11 @@ class EmailPreviewService
             'title' => $product_data['title'] ?? '',
         ]);
 
-        $variant = new Variant([
-            'product_id' => $product_data['id'] ?? null,
-            'sku' => $product_data['sku'] ?? '',
-            'available_quantity' => $product_data['available_quantity'] ?? 0,
-            'low_stock_threshold' => $product_data['low_stock_threshold'] ?? 0,
-        ]);
+        $variant = new Variant(array_merge($product_data, ['product_id' => $product_data['id'] ?? null]));
         $variant->set_relation('product', $product);
+        $variant->set_relation('attribute_values', collection($product_data['attribute_values'] ?? [])->map(function ($attribute_value) {
+            return new AttributeValue($attribute_value);
+        }));
 
         return $variant;
     }

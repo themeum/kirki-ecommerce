@@ -31,6 +31,7 @@ const EmailNotificationTemplateLayout = (props: PropsWithChildren) => {
           leftIcon={<MailIcon />}
           text={label}
           buttonProps={{ disabled: isSaving }}
+          sticky
           actions={
             isDirty ? (
               <Flex

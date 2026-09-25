@@ -43,4 +43,7 @@ class UpdateCustomerDTO extends DTO
 
     /** @var string|null */
     public $language = 'en';
+
+    /** @var \Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO[] */
+    public $addresses = [];
 }

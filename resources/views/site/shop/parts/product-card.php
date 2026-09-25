@@ -28,6 +28,7 @@ $title                   = $product['title'];
 $product_url             = $product['product_url'];
 $image_url               = $product['image_url'];
 $ribbon_text             = $product['ribbon_text'];
+$ribbon_color            = $product['ribbon_color'];
 $category_name           = $product['category_name'];
 $display_price           = $product['display_price'];
 $formatted_regular_price = $product['formatted_regular_price'];
@@ -42,7 +43,7 @@ $display_context         = $data['context'] ?? null;
 <div class="kecom-product-card" x-data="<?php printf('wishlist(%s, %s, \'%s\')', $is_wishlisted ? 'true' : 'false', 'null', esc_js($display_context)); ?>">
     <a href="<?php echo esc_url($product_url); ?>" class="kecom-product-card-image">
         <?php if (!empty($ribbon_text)) : ?>
-            <span class="kecom-product-card-ribbon"><?php echo esc_html($ribbon_text); ?></span>
+            <span class="kecom-product-card-ribbon" style="--kecom-ribbon-color: <?php echo esc_attr($ribbon_color); ?>;"><?php echo esc_html($ribbon_text); ?></span>
         <?php endif; ?>
         <?php if ($image_url) : ?>
             <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">

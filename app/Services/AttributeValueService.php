@@ -3,15 +3,19 @@
 namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
+use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
+use Kirki\Ecommerce\App\DTO\AttributeValue\BatchAttributeValuesDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\CreateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\AttributeValue\UpdateAttributeValueDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
+use Throwable;
 
 use function Kirki\Ecommerce\Framework\throw_if;
 
@@ -114,6 +118,44 @@ class AttributeValueService
     public function create(CreateAttributeValueDTO $data)
     {
         return AttributeValue::create($data->to_array());
+    }
+
+    /**
+     * Create and recolor several values of one attribute in a single transaction.
+     *
+     * @since 1.0.0
+     *
+     * @param BatchAttributeValuesDTO $data Rows to create and rows to recolor.
+     * @return Attribute The attribute with all of its values after the batch.
+     * @throws Throwable When persisting fails; the transaction is rolled back first.
+     */
+    public function batch(BatchAttributeValuesDTO $data)
+    {
+        DB::begin_transaction();
+
+        try {
+            foreach ($data->create ?? [] as $row) {
+                AttributeValue::create([
+                    'attribute_id' => $data->attribute_id,
+                    'value' => $row['value'],
+                    'color' => $row['color'] ?? null,
+                ]);
+            }
+
+            foreach ($data->update ?? [] as $row) {
+                AttributeValue::where('id', (int) $row['id'])
+                    ->where('attribute_id', $data->attribute_id)
+                    ->update(['color' => $row['color'] ?? null]);
+            }
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+
+        return Attribute::with('values')->find($data->attribute_id);
     }
 
     /**

@@ -29,9 +29,6 @@ class UpdateVariantDTO extends DTO
     /** @var int|null */
     public $base_price;
 
-    /** @var bool|null */
-    public $show_unit_price;
-
     /** @var string|null */
     public $base_unit;
 

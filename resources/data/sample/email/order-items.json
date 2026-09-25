@@ -1,7 +1,7 @@
 [
   {
-    "id": 1,
-    "order_id": 1,
+    "id": 0,
+    "order_id": 0,
     "product_id": null,
     "variant_id": null,
     "product_name": "Sample Product",
@@ -26,8 +26,8 @@
     "product_data": null
   },
   {
-    "id": 2,
-    "order_id": 1,
+    "id": 0,
+    "order_id": 0,
     "product_id": null,
     "variant_id": null,
     "product_name": "Sample Product",
@@ -52,8 +52,8 @@
     "product_data": null
   },
   {
-    "id": 3,
-    "order_id": 1,
+    "id": 0,
+    "order_id": 0,
     "product_id": null,
     "variant_id": null,
     "product_name": "Sample Product",

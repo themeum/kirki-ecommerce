@@ -1,6 +1,6 @@
 import type { CSSObject } from '@emotion/react';
 import * as SeparatorPrimitive from '@radix-ui/react-separator';
-import type { ComponentRef} from 'react';
+import type { ComponentRef } from 'react';
 import { type ComponentPropsWithoutRef, type CSSProperties, forwardRef } from 'react';
 
 import { theme } from '@/theme';
@@ -15,57 +15,57 @@ type SeparatorProps = Omit<
   color?: string;
   height?: string | number;
   cssOverride?: CSSObject;
+  negativeMargin?: number;
 };
 
 const toCssLength = (value: string | number) => {
   return typeof value === 'number' ? `${value}px` : value;
 };
 
-const Separator = forwardRef<
-  ComponentRef<typeof SeparatorPrimitive.Root>,
-  SeparatorProps
->((props, ref) => {
-  const {
-    cssOverride,
-    orientation = 'horizontal',
-    decorative = true,
-    marginTop,
-    marginBottom,
-    color,
-    height,
-    style,
-    ...rest
-  } = props;
+const Separator = forwardRef<ComponentRef<typeof SeparatorPrimitive.Root>, SeparatorProps>(
+  (props, ref) => {
+    const {
+      cssOverride,
+      orientation = 'horizontal',
+      decorative = true,
+      marginTop,
+      marginBottom,
+      color,
+      height,
+      style,
+      negativeMargin,
+      ...rest
+    } = props;
 
-  const separatorStyle = defineStyles({
-    ...(marginTop !== undefined
-      ? { '--separator-margin-top': toCssLength(marginTop) }
-      : {}),
-    ...(marginBottom !== undefined
-      ? { '--separator-margin-bottom': toCssLength(marginBottom) }
-      : {}),
-    ...(color !== undefined ? { '--separator-color': color } : {}),
-    ...(height !== undefined
-      ? { '--separator-size': toCssLength(height) }
-      : {}),
-    ...style,
-  }) as CSSProperties;
+    const separatorStyle = defineStyles({
+      ...(marginTop !== undefined ? { '--separator-margin-top': toCssLength(marginTop) } : {}),
+      ...(marginBottom !== undefined
+        ? { '--separator-margin-bottom': toCssLength(marginBottom) }
+        : {}),
+      ...(color !== undefined ? { '--separator-color': color } : {}),
+      ...(height !== undefined ? { '--separator-size': toCssLength(height) } : {}),
+      ...style,
+    }) as CSSProperties;
 
-  return (
-    <SeparatorPrimitive.Root
-      ref={ref}
-      decorative={decorative}
-      orientation={orientation}
-      style={separatorStyle}
-      css={scopedMerge(
-        styles.root,
-        orientation === 'horizontal' ? styles.horizontal : styles.vertical,
-        cssOverride,
-      )}
-      {...rest}
-    />
-  );
-});
+    return (
+      <SeparatorPrimitive.Root
+        ref={ref}
+        decorative={decorative}
+        orientation={orientation}
+        style={separatorStyle}
+        css={scopedMerge(
+          styles.root,
+          orientation === 'horizontal' ? styles.horizontal : styles.vertical,
+          cssOverride,
+          negativeMargin
+            ? { width: `calc(100% + ${negativeMargin * 2}px)`, marginLeft: `-${negativeMargin}px` }
+            : undefined,
+        )}
+        {...rest}
+      />
+    );
+  },
+);
 
 Separator.displayName = 'Separator';
 

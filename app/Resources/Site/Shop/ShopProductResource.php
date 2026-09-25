@@ -11,6 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Shop;
 
+use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\WishlistService;
@@ -29,6 +30,13 @@ use function Kirki\Ecommerce\Framework\app;
 class ShopProductResource extends Resource
 {
     /**
+     * Colour drawn for the out-of-stock label, in place of the merchant's
+     * ribbon colour, so the stock warning is never mistaken for a
+     * promotional badge.
+     */
+    protected const OUT_OF_STOCK_RIBBON_COLOR = '#d60000';
+
+    /**
      * Convert the product to an array for the product-card template.
      *
      * @since 1.0.0
@@ -46,7 +54,7 @@ class ShopProductResource extends Resource
 
         $has_variants = (bool) $this->has_variants;
         $variant_id   = intval($variant->id);
-        $out_of_stock = ! $this->resolve_has_stock($variants);
+        $out_of_stock = $variants ? !$this->resolve_has_stock($variants) : false;
         $pricing      = $this->resolve_pricing($variant, $variants, $has_variants);
         $is_wishlisted = app(WishlistService::class)->is_wishlisted($variant_id);
 
@@ -58,6 +66,7 @@ class ShopProductResource extends Resource
             'image_url'               => $this->resolve_image_url(),
             'category_name'           => $this->resolve_category_name(),
             'ribbon_text'             => $this->resolve_ribbon_text($out_of_stock),
+            'ribbon_color'            => $this->resolve_ribbon_color($out_of_stock),
             'display_price'           => $pricing['display_price'],
             'formatted_regular_price' => $pricing['formatted_regular_price'],
             'in_sale'                 => $pricing['in_sale'],
@@ -213,5 +222,28 @@ class ShopProductResource extends Resource
         return $out_of_stock
             ? __('Out of Stock', 'kirki-ecommerce')
             : (string) $this->ribbon;
+    }
+
+    /**
+     * Resolve the colour the ribbon badge is drawn in.
+     *
+     * Out-of-stock products always show the stock label's own colour,
+     * overriding any custom ribbon colour the merchant may have set. A
+     * ribbon saved before colours existed has no stored colour, so it falls
+     * back to the palette's first entry.
+     *
+     * @since 1.0.0
+     *
+     * @param bool $out_of_stock
+     *
+     * @return string
+     */
+    protected function resolve_ribbon_color(bool $out_of_stock): string
+    {
+        if ($out_of_stock) {
+            return static::OUT_OF_STOCK_RIBBON_COLOR;
+        }
+
+        return $this->ribbon_color ?: RibbonColor::get_default();
     }
 }
