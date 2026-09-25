@@ -100,7 +100,7 @@ class Payfast extends PaymentProvider
                 'm_payment_id' => $order->uuid,
                 'amount' => $total_amount,
                 'item_name' => $site_name . ' - ' . $order->order_number,
-                'custom_str1' => (string) $total_amount,
+                'custom_str1' => wp_json_encode(['total_amount' => $total_amount]),
                 'email_confirmation' => true,
                 'passphrase' => $this->settings['pass_phrase']
             ];
@@ -171,19 +171,17 @@ class Payfast extends PaymentProvider
         try {
             $payload = $this->verify_and_parse_notification();
 
-            $attributes = $event->data->attributes ?? null;
-            $order_uuid = (string) ($attributes->metadata->order_id ?? $attributes->reference_number ?? '');
-
-            throw_if(empty($order_uuid), __('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-paymongo'));
+            $order_uuid = $payload['m_payment_id'] ?? '';
+            throw_if(empty($order_uuid), __('Webhook error: Order UUID Not Found.', 'kirki-ecommerce-payfast'));
 
             $order = OrderManager::find_by_uuid($order_uuid);
-            throw_if(!$order, __('Webhook error: Order Not Found.', 'kirki-ecommerce-paymongo'));
+            throw_if(!$order, __('Webhook error: Order Not Found.', 'kirki-ecommerce-payfast'));
 
             if (PaymentStatus::PAID === $order->payment_status) {
                 return true;
             }
 
-            $this->apply_payment_event($order, $event);
+            $this->handle_payment_response($order, $payload);
 
             return true;
         } catch (Throwable $th) {
@@ -221,60 +219,36 @@ class Payfast extends PaymentProvider
         return $this->client;
     }
 
-    /**
-     * Apply a verified PayMongo webhook event to the local order.
-     *
-     * @param Order $order The local order.
-     * @param object $event The event's attributes, as returned by read_verified_event().
-     * @return void
-     * @throws Exception If the order update fails.
-     */
-    protected function apply_payment_event(Order $order, object $event): void
+    protected function handle_payment_response(Order $order, array $payload): void
     {
-        $resource = $event->data;
-        $payment = $this->find_payment($resource);
+        $status = PayfastConstant::PAYMENT_STATUS[$payload['payment_status']] ?? PaymentStatus::UNPAID;
 
         DB::begin_transaction();
 
         try {
-            OrderManager::set_transaction_id($order->id, (string) ($payment->id ?? $resource->id));
-            OrderManager::set_payment_metadata($order->id, wp_json_encode($resource));
+            switch ($status) {
+                case PaymentStatus::PAID:
+                    $this->record_transaction($order, $payload);
+                    OrderManager::mark_payment_as_paid($order->id);
+                    OrderManager::set_payment_provider_fee($order->id, $payload['amount_fee']);
+                    break;
 
-            if (in_array($event->type, static::PAID_EVENTS, true)) {
-                OrderManager::mark_payment_as_paid($order->id);
+                case PaymentStatus::CANCELLED:
+                    $this->record_transaction($order, $payload);
+                    OrderManager::mark_payment_as_failed($order->id);
+                    break;
 
-                $fee = (int) ($payment->attributes->fee ?? 0);
-
-                if ($fee > 0) {
-                    OrderManager::set_payment_provider_fee($order->id, $fee);
-                }
-            } else {
-                OrderManager::mark_payment_as_failed($order->id);
+                case PaymentStatus::UNPAID:
+                    OrderManager::mark_payment_as_unpaid($order->id);
+                    break;
             }
 
             DB::commit();
         } catch (Throwable $e) {
             DB::rollback();
 
-            throw_anyway(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-paymongo'), $e->getMessage()));
+            throw_anyway(sprintf(__('Failed to update order data: %s', 'kirki-ecommerce-payfast'), $e->getMessage()));
         }
-    }
-
-    /**
-     * Locate the payment resource an event carries.
-     *
-     * `payment.*` events carry it directly; `checkout_session.*` events nest it under the session.
-     *
-     * @param object $resource The resource the event carries.
-     * @return object|null Null when the resource carries no payment.
-     */
-    protected function find_payment(object $resource): ?object
-    {
-        if (PaymongoConstant::RESOURCE_PAYMENT === ($resource->type ?? '')) {
-            return $resource;
-        }
-
-        return $resource->attributes->payments[0] ?? null;
     }
 
     protected function verify_and_parse_notification()
@@ -286,5 +260,12 @@ class Payfast extends PaymentProvider
         }
 
         return $payload;
+    }
+
+
+    protected function record_transaction(Order $order, array $payload): void
+    {
+        OrderManager::set_transaction_id($order->id, $payload['pf_payment_id']);
+        OrderManager::set_payment_metadata($order->id, wp_json_encode($payload));
     }
 }

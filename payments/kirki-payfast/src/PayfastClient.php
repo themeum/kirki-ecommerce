@@ -107,7 +107,8 @@ class PayfastClient
 
     protected function verify_payment_amount($payload)
     {
-        if (abs((float) $payload['custom_str1'] - (float) $payload['amount_gross']) > 0.01) {
+        $order_amount = json_decode($payload['custom_str1'] ?? '');
+        if (abs((float) $order_amount - (float) $payload['amount_gross']) > 0.01) {
             return false;
         }
 
