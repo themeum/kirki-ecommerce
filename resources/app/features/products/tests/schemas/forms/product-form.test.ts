@@ -1,12 +1,18 @@
+import { format } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
 import type { Product } from '@/features/products/schemas/catalog/product';
+import { RIBBON_COLOR_PALETTE } from '@/features/products/schemas/forms/product-basics-form';
 import {
   getDefaultVariantValues,
   mapProductToFormValues,
   ProductFormSchema,
   ProductFormVariantSchema,
 } from '@/features/products/schemas/forms/product-form';
+import { DATE_FORMATS, parseDateValue } from '@/libs/date';
+
+const expectedScheduledAt = (dateTime: string) =>
+  format(parseDateValue(dateTime, DATE_FORMATS.DATE_TIME_INPUT)!, DATE_FORMATS.ATOM);
 
 /**
  * The fixtures below carry only the fields `mapProductToFormValues` reads —
@@ -23,6 +29,7 @@ const baseVariantInput = {
 const baseProductInput = {
   title: 'T-Shirt',
   ribbon: '',
+  ribbon_color: RIBBON_COLOR_PALETTE[0],
   slug: 't-shirt',
   short_description: '',
   description: '',
@@ -73,7 +80,6 @@ describe('ProductFormVariantSchema', () => {
       sku: 'SKU-1',
       barcode: null,
       base_price: '19.99',
-      show_unit_price: false,
       base_unit: null,
       base_unit_amount: null,
       total_unit: null,
@@ -87,6 +93,7 @@ describe('ProductFormVariantSchema', () => {
       allow_back_order: false,
       track_inventory: false,
       available_quantity: 10,
+      committed_quantity: 0,
       in_stock: true,
       low_stock_threshold: 5,
       has_limit_per_order: false,
@@ -117,7 +124,12 @@ describe('ProductFormVariantSchema', () => {
   it('collapses a video media object to id + poster', () => {
     const result = ProductFormVariantSchema.parse({
       ...baseVariantInput,
-      media: { id: 4, url: 'https://x/v.mp4', mime: 'video/mp4', poster: { id: 2, url: 'https://x/p.png' } },
+      media: {
+        id: 4,
+        url: 'https://x/v.mp4',
+        mime: 'video/mp4',
+        poster: { id: 2, url: 'https://x/p.png' },
+      },
     });
     expect(result.media).toEqual({ id: 4, poster: 2 });
   });
@@ -196,7 +208,10 @@ describe('ProductFormSchema', () => {
   });
 
   it('always sends og_image as null even when the field holds a value', () => {
-    const result = ProductFormSchema.parse({ ...baseProductInput, og_image: { id: 1, url: 'https://x/og.png' } });
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      og_image: { id: 1, url: 'https://x/og.png' },
+    });
     expect(result.og_image).toBeNull();
   });
 
@@ -205,7 +220,10 @@ describe('ProductFormSchema', () => {
       ...baseProductInput,
       brand: { id: 12, name: 'Acme', logo: null },
       currency: { id: 3, code: 'USD', name: 'US Dollar', symbol: '$' },
-      categories: [{ id: 1, name: 'Shoes' }, { id: 2, name: 'Boots' }],
+      categories: [
+        { id: 1, name: 'Shoes' },
+        { id: 2, name: 'Boots' },
+      ],
       tags: [{ id: 5, name: 'Sale' }],
       collections: [{ id: 9, title: 'Winter' }],
     });
@@ -220,7 +238,10 @@ describe('ProductFormSchema', () => {
   it('flattens media to an array of numeric ids', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
-      media: [{ id: 1, url: 'https://x/1.png' }, { id: '2', url: 'https://x/2.png' }],
+      media: [
+        { id: 1, url: 'https://x/1.png' },
+        { id: '2', url: 'https://x/2.png' },
+      ],
     });
     expect(result.media).toEqual([1, 2]);
   });
@@ -229,17 +250,48 @@ describe('ProductFormSchema', () => {
     const result = ProductFormSchema.parse({
       ...baseProductInput,
       attributes: [
-        { id: 1, name: 'Color', values: [{ id: 10, value: 'Red' }, { id: 11, value: 'Blue' }] },
+        {
+          id: 1,
+          name: 'Color',
+          values: [
+            { id: 10, value: 'Red' },
+            { id: 11, value: 'Blue' },
+          ],
+        },
       ],
     });
     expect(result.attributes).toEqual([{ id: 1, values: [10, 11] }]);
   });
 
   it('sends null for blank ribbon, slug, and description rather than empty strings', () => {
-    const result = ProductFormSchema.parse({ ...baseProductInput, ribbon: '', slug: '', description: '' });
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: '',
+      slug: '',
+      description: '',
+    });
     expect(result.ribbon).toBeNull();
     expect(result.slug).toBeNull();
     expect(result.description).toBeNull();
+  });
+
+  it('sends a null ribbon_color when the ribbon text is blank, even if a colour is set', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: '',
+      ribbon_color: RIBBON_COLOR_PALETTE[2],
+    });
+    expect(result.ribbon_color).toBeNull();
+  });
+
+  it('carries the chosen ribbon colour through when the ribbon has text', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      ribbon: 'Fresh Arrival',
+      ribbon_color: RIBBON_COLOR_PALETTE[3],
+    });
+    expect(result.ribbon).toBe('Fresh Arrival');
+    expect(result.ribbon_color).toBe(RIBBON_COLOR_PALETTE[3]);
   });
 
   it('carries a cleared variant price through to the nested payload as null', () => {
@@ -259,6 +311,42 @@ describe('ProductFormSchema', () => {
 
   it('rejects a product with zero variants', () => {
     const result = ProductFormSchema.safeParse({ ...baseProductInput, variants: [] });
+    expect(result.success).toBe(false);
+  });
+
+  it('sends null for scheduled_at when status is not scheduled', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      status: 'draft',
+      scheduled_date: '2999-01-01 09:00',
+    });
+    expect(result.scheduled_at).toBeNull();
+  });
+
+  it('converts scheduled_date into an ATOM scheduled_at when status is scheduled', () => {
+    const result = ProductFormSchema.parse({
+      ...baseProductInput,
+      status: 'scheduled',
+      scheduled_date: '2999-01-01 09:00',
+    });
+    expect(result.scheduled_at).toBe(expectedScheduledAt('2999-01-01 09:00'));
+  });
+
+  it('rejects a scheduled product with no scheduled date', () => {
+    const result = ProductFormSchema.safeParse({
+      ...baseProductInput,
+      status: 'scheduled',
+      scheduled_date: null,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a scheduled product with a scheduled date in the past', () => {
+    const result = ProductFormSchema.safeParse({
+      ...baseProductInput,
+      status: 'scheduled',
+      scheduled_date: '2000-01-01 09:00',
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -293,14 +381,12 @@ describe('mapProductToFormValues', () => {
   };
 
   it('falls back to a single default variant when the product has none', () => {
-
     const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.variants).toHaveLength(1);
     expect(formValues.variants?.[0]?.in_stock).toBe(true);
   });
 
   it('converts a null additional_info/seo_keywords into empty arrays', () => {
-
     const formValues = mapProductToFormValues(asProduct(productWithNoVariants));
     expect(formValues.additional_info).toEqual([]);
     expect(formValues.seo_keywords).toEqual([]);
@@ -317,7 +403,6 @@ describe('mapProductToFormValues', () => {
           sku: null,
           barcode: null,
           base_price: null,
-          show_unit_price: false,
           base_unit: null,
           base_unit_amount: null,
           total_unit: null,
@@ -357,7 +442,6 @@ describe('mapProductToFormValues', () => {
     sku: `SKU-${id}`,
     barcode: null,
     base_price: 10,
-    show_unit_price: false,
     base_unit: null,
     base_unit_amount: null,
     total_unit: null,
@@ -391,11 +475,7 @@ describe('mapProductToFormValues', () => {
     };
 
     const formValues = mapProductToFormValues(asProduct(product));
-    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
-      true,
-      false,
-      false,
-    ]);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([true, false, false]);
   });
 
   it('promotes the first variant when a product carries no default', () => {
@@ -405,10 +485,7 @@ describe('mapProductToFormValues', () => {
     };
 
     const formValues = mapProductToFormValues(asProduct(product));
-    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
-      true,
-      false,
-    ]);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([true, false]);
   });
 
   it('leaves a product with exactly one default untouched', () => {
@@ -418,9 +495,6 @@ describe('mapProductToFormValues', () => {
     };
 
     const formValues = mapProductToFormValues(asProduct(product));
-    expect(formValues.variants?.map((item) => item.is_default)).toEqual([
-      false,
-      true,
-    ]);
+    expect(formValues.variants?.map((item) => item.is_default)).toEqual([false, true]);
   });
 });

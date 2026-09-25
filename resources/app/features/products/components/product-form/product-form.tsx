@@ -1,3 +1,4 @@
+import { CopyPlus, MinusCircle, Trash, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -8,26 +9,38 @@ import TextField from '@/components/form/text-field';
 import TextareaField from '@/components/form/textarea-field';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Grid from '@/components/ui/grid';
+import Label from '@/components/ui/label';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
-import { Separator } from '@/components/ui/separator';
-import AdditionalInfo from '@/features/products/components/product-form/sections/additional-info/additional-info';
-import Inventory from '@/features/products/components/product-form/sections/inventory/inventory';
-import Price from '@/features/products/components/product-form/sections/price/price';
 import RightPanel from '@/features/products/components/product-form/sections/right-panel/right-panel';
 import SEOSettings from '@/features/products/components/product-form/sections/seo-settings/seo-settings';
-import Shipping from '@/features/products/components/product-form/sections/shipping/shipping';
 import Variants from '@/features/products/components/product-form/sections/variants/variants';
+import VariantFieldScope from '@/features/products/components/variant-sections/field-scope';
+import Inventory from '@/features/products/components/variant-sections/inventory/inventory';
+import Price from '@/features/products/components/variant-sections/price/price';
+import Shipping from '@/features/products/components/variant-sections/shipping/shipping';
 import { useProductForm } from '@/features/products/hooks/use-product-form';
 import type { Product } from '@/features/products/schemas/catalog/product';
 import {
   type ProductFormInput,
   type ProductFormPayload,
 } from '@/features/products/schemas/forms/product-form';
+import { useConfirmDelete } from '@/hooks';
+import { ShowMoreIcon } from '@/icons';
+import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
+
+const RIGHT_SIDE_PANEL_WIDTH = '320px';
+const LEFT_SIDE_PANEL_WIDTH = '624px';
 
 type ProductFormProps = {
   mode: 'create' | 'edit';
@@ -37,6 +50,10 @@ type ProductFormProps = {
   isSubmitting?: boolean;
   onDuplicate?: () => void | Promise<void>;
   isDuplicating?: boolean;
+  onTrash?: () => void | Promise<void>;
+  isTrashing?: boolean;
+  onDelete?: () => void | Promise<void>;
+  isDeleting?: boolean;
 };
 
 const ProductForm = ({
@@ -47,9 +64,14 @@ const ProductForm = ({
   isSubmitting = false,
   onDuplicate,
   isDuplicating = false,
+  onTrash,
+  isTrashing = false,
+  onDelete,
+  isDeleting = false,
 }: ProductFormProps) => {
   const isCreate = mode === 'create';
   const [duplicateBlockedByUnsaved, setDuplicateBlockedByUnsaved] = useState(false);
+  const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   const {
     form,
@@ -59,10 +81,16 @@ const ProductForm = ({
     discardChanges,
     shakeSignal,
     handleSave,
+    generateSku,
+    isGeneratingSku,
   } = useProductForm({
     initialValues,
     onSubmit,
   });
+
+  const [openShortDescription, setOpenShortDescription] = useState(
+    !!form.getValues('short_description'),
+  );
 
   useEffect(() => {
     if (!isDirty) {
@@ -83,6 +111,20 @@ const ProductForm = ({
     void onDuplicate?.();
   };
 
+  const handleDeleteClick = () => {
+    confirmDelete(
+      {
+        title: __('Delete product permanently?', 'kirki-ecommerce'),
+        description: __(
+          'This product will be erased along with its variants. This cannot be undone.',
+          'kirki-ecommerce',
+        ),
+        confirmText: __('Delete permanently', 'kirki-ecommerce'),
+      },
+      () => void onDelete?.(),
+    );
+  };
+
   const handleBarDiscard = useCallback(() => {
     discardChanges();
     if (duplicateBlockedByUnsaved) {
@@ -100,7 +142,7 @@ const ProductForm = ({
   }, [duplicateBlockedByUnsaved, handleSave, onDuplicate]);
 
   return (
-    <Page containerSize="xl">
+    <Page containerSize="lg">
       <Form {...form}>
         <PageHeading
           onBack={handleBack}
@@ -110,6 +152,41 @@ const ProductForm = ({
           }
           actions={
             <>
+              {onDuplicate && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="tertiary"
+                      size="icon"
+                      aria-label={__('More options', 'kirki-ecommerce')}
+                    >
+                      <ShowMoreIcon />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={handleDuplicateClick} disabled={isDuplicating}>
+                      <CopyPlus size={16} />
+                      {__('Duplicate', 'kirki-ecommerce')}
+                    </DropdownMenuItem>
+                    {onTrash && product?.status !== 'trashed' && (
+                      <DropdownMenuItem onSelect={() => void onTrash()} disabled={isTrashing}>
+                        <Trash size={16} />
+                        {__('Move to trash', 'kirki-ecommerce')}
+                      </DropdownMenuItem>
+                    )}
+                    {onDelete && (
+                      <DropdownMenuItem
+                        onSelect={handleDeleteClick}
+                        disabled={isDeleting}
+                        cssOverride={{ color: theme.colors.text.critical }}
+                      >
+                        <Trash2 size={16} />
+                        {__('Delete permanently', 'kirki-ecommerce')}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
               <Button variant="tertiary" onClick={handleBack} disabled={isSubmitting}>
                 {__('Cancel', 'kirki-ecommerce')}
               </Button>
@@ -121,67 +198,81 @@ const ProductForm = ({
           hasBack
         />
         <PageContent>
-          <div style={{ display: 'flex', gap: 16, width: '100%' }}>
-            <div style={{ width: '70%' }}>
-              <Flex direction="column" gap={4}>
-                <Card cssOverride={cardStyles.formCard}>
-                  <CardContent>
-                    <Flex direction="column" gap={4}>
-                      <Grid gap={3} template="2fr 1fr">
-                        <TextField
-                          name="title"
-                          label={__('Title', 'kirki-ecommerce')}
-                          placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
+          <Grid template={`${LEFT_SIDE_PANEL_WIDTH} ${RIGHT_SIDE_PANEL_WIDTH}`} gap={4}>
+            <Flex direction="column" gap={4}>
+              <Card cssOverride={cardStyles.formCard}>
+                <CardContent>
+                  <Flex direction="column" gap={4}>
+                    <TextField
+                      name="title"
+                      label={__('Title', 'kirki-ecommerce')}
+                      placeholder={__('e.g. Yellow T-Shirt', 'kirki-ecommerce')}
+                    />
+
+                    <RichTextField
+                      name="description"
+                      label={__('Description', 'kirki-ecommerce')}
+                      placeholder={__('Write product description here...', 'kirki-ecommerce')}
+                    />
+
+                    <Flex direction="column" gap={2}>
+                      <Flex align="center" justify="space-between">
+                        <Label>{__('Short description', 'kirki-ecommerce')}</Label>
+                        <Button
+                          variant="tertiary"
+                          onClick={() => setOpenShortDescription(true)}
+                          cssOverride={{
+                            display: openShortDescription ? 'none' : 'flex',
+                          }}
+                        >
+                          {__('Add', 'kirki-ecommerce')}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setOpenShortDescription(false);
+                            form.setValue('short_description', null, {
+                              shouldDirty: true,
+                            });
+                          }}
+                          cssOverride={{
+                            display: !openShortDescription ? 'none' : 'flex',
+                          }}
+                        >
+                          <MinusCircle color={theme.colors.icon.secondary} />
+                        </Button>
+                      </Flex>
+                      {openShortDescription && (
+                        <TextareaField
+                          name="short_description"
+                          rows={3}
+                          placeholder={__('Brief product summary...', 'kirki-ecommerce')}
                         />
-                        <TextField
-                          name="ribbon"
-                          label={__('Ribbon', 'kirki-ecommerce')}
-                          placeholder={__('e.g. Fresh Arrival', 'kirki-ecommerce')}
-                        />
-                      </Grid>
-                      <TextField
-                        name="slug"
-                        label={__('Slug', 'kirki-ecommerce')}
-                        placeholder={__('yellow-t-shirt', 'kirki-ecommerce')}
-                      />
-                      <MediaGalleryField
-                        name="media"
-                        label={__('Images and videos', 'kirki-ecommerce')}
-                      />
-                      <TextareaField
-                        name="short_description"
-                        label={__('Short description', 'kirki-ecommerce')}
-                        rows={3}
-                        placeholder={__('Brief product summary...', 'kirki-ecommerce')}
-                      />
-                      <RichTextField
-                        name="description"
-                        label={__('Description', 'kirki-ecommerce')}
-                        placeholder={__('Write product description here...', 'kirki-ecommerce')}
-                      />
-                      <Separator marginTop={0} marginBottom={0} />
-                      <AdditionalInfo />
+                      )}
                     </Flex>
-                  </CardContent>
-                </Card>
-                {showSimpleVariantSections && (
-                  <>
-                    <Price />
-                    <Inventory />
-                    <Shipping />
-                  </>
-                )}
-                <Variants />
-                <SEOSettings />
-              </Flex>
-            </div>
-            <RightPanel
-              mode={mode}
-              product={product}
-              onDuplicate={handleDuplicateClick}
-              isDuplicating={isDuplicating}
-            />
-          </div>
+                  </Flex>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent>
+                  <MediaGalleryField name="media" label={__('Media', 'kirki-ecommerce')} />
+                </CardContent>
+              </Card>
+
+              {showSimpleVariantSections && (
+                <VariantFieldScope prefix="variants.0.">
+                  <Price />
+                  <Inventory onGenerateSku={generateSku} isGeneratingSku={isGeneratingSku} />
+                  <Shipping />
+                </VariantFieldScope>
+              )}
+              <Variants />
+              <SEOSettings />
+            </Flex>
+
+            <RightPanel mode={mode} product={product} />
+          </Grid>
         </PageContent>
         <FloatingBar
           visible={(isBlocked || duplicateBlockedByUnsaved) && isDirty}
@@ -200,6 +291,7 @@ const ProductForm = ({
           </Button>
         </FloatingBar>
       </Form>
+      {deleteConfirmation}
     </Page>
   );
 };

@@ -1,232 +1,114 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm, useFormContext, useWatch } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
 import ActionGroup from '@/components/ui/action-group';
 import Button from '@/components/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Text from '@/components/ui/text';
-import AttributeNameField, { type AttributeSuggestion } from '@/features/products/components/fields/attribute-name-field';
+import AttributeNameInput from '@/features/products/components/fields/attribute-name-input';
 import AttributeValuesField from '@/features/products/components/fields/attribute-values-field';
-import {
-  type MatrixMutation,
-  savedVariants,
-  useVariantMatrix,
-} from '@/features/products/components/product-form/sections/variants/use-variant-matrix';
+import { useApplyAttribute } from '@/features/products/components/product-form/sections/variants/attribute-list/use-apply-attribute';
+import { savedVariants } from '@/features/products/components/product-form/sections/variants/use-variant-matrix';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
 import {
   type ProductAttributeFormInput,
+  type ProductAttributeFormPayload,
   ProductAttributeFormSchema,
+  toProductAttributeFormValues,
 } from '@/features/products/schemas/forms/product-attribute-form';
-import type { ProductFormInput } from '@/features/products/schemas/forms/product-form';
-import { useAttributesQuery } from '@/features/products/services/attribute';
-import { ColorPaletteIcon, ListIcon } from '@/icons';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
-import { noop } from '@/utils/function';
 import { __, _n, sprintf } from '@/wpi18n';
 
 type AddOrEditAttributeProps = {
-  onClose?: () => void;
-  data?: Attribute;
+  /** Every attribute in the store, for its values and for the name check. */
+  attributes: Attribute[];
+  /** The store attribute the card starts from; absent for a brand-new one. */
+  source?: Attribute | null;
+  /** The attribute as currently applied to the product, when editing one. */
+  applied?: Attribute | null;
+  onClose: () => void;
+  onDelete?: () => void;
 };
 
-const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
-  const { onClose = noop, data } = props;
-
-  const { control } = useFormContext<ProductFormInput>();
-  const watchedProductAttributes = useWatch({ control, name: 'attributes' });
-  const productAttributes = useMemo(
-    () => (watchedProductAttributes ?? []) as Attribute[],
-    [watchedProductAttributes],
-  );
-  const { addAttribute, updateAttribute, describeDiscarded } = useVariantMatrix();
-  const [pendingApply, setPendingApply] = useState<MatrixMutation | null>(null);
-  const { data: allAttributesList, isSuccess: loaded } = useAttributesQuery({
-    limit: -1,
-  });
-
-  const form = useForm<ProductAttributeFormInput>({
+/**
+ * A variation card in edit mode: an inline name, the value picker, and
+ * Delete / Cancel / Apply. Everything stays a draft in this card's own form
+ * until Apply, so Cancel only has to drop the form.
+ *
+ * @param props Component props.
+ *
+ * @returns AddOrEditAttribute element.
+ * @since 1.0.0
+ */
+const AddOrEditAttribute = ({
+  attributes,
+  source = null,
+  applied = null,
+  onClose,
+  onDelete,
+}: AddOrEditAttributeProps) => {
+  const form = useForm<ProductAttributeFormInput, unknown, ProductAttributeFormPayload>({
     resolver: zodResolver(ProductAttributeFormSchema),
-    defaultValues: {
-      id: data?.id,
-      name: data?.name,
-      slug: data?.slug,
-      type: data?.values?.[0]?.color ? 'color' : 'list',
-      values: data?.values ?? [],
-    },
+    defaultValues: toProductAttributeFormValues(source ?? applied, applied?.values ?? []),
   });
 
-  const type = form.watch('type') ?? 'list';
-  const formData = form.watch();
-  const [attributeSuggestionArray, setAttributeSuggestionArray] = useState<
-    AttributeSuggestion[]
-  >([]);
-
-  const generateAttributeSuggestionArray = useCallback(() => {
-    const allAttributes = (allAttributesList ?? [])
-      .map((item) => ({
-        value: item?.id,
-        title: item?.name,
-        type: item?.type,
-      }))
-      .filter(
-        (attr) =>
-          attr.type === type &&
-          !productAttributes.some((val) => val.id === attr.value),
-      );
-    setAttributeSuggestionArray(allAttributes);
-  }, [allAttributesList, type, productAttributes]);
-
-  useEffect(() => {
-    if (loaded) {
-      generateAttributeSuggestionArray();
-    }
-  }, [loaded, generateAttributeSuggestionArray]);
-
-  useEffect(() => {
-    if (loaded && data) {
-      const selectedValues = (data.values ?? []).map((item) => ({
-        ...item,
-        title: item?.value,
-        value: item?.id,
-      }));
-      form.reset({
-        id: data.id,
-        name: data.name,
-        slug: data.slug,
-        type: data.values?.[0]?.color ? 'color' : 'list',
-        values: selectedValues,
-      });
-    }
-  }, [loaded, data, form]);
-
-  const handleApply = async () => {
-    const isValid = await form.trigger();
-    if (!isValid) {
-      return;
-    }
-
-    const payload = ProductAttributeFormSchema.parse(
-      form.getValues(),
-    ) as Attribute;
-
-    const mutation = data?.id
-      ? updateAttribute(payload)
-      : addAttribute(payload);
-
-    if (savedVariants(mutation.discarded).length > 0) {
-      setPendingApply(mutation);
-      return;
-    }
-
-    mutation.commit();
-    handleOnClose();
-  };
-
-  const handleConfirmApply = () => {
-    pendingApply?.commit();
-    setPendingApply(null);
-    handleOnClose();
-  };
-
-  const handleOnClose = () => {
-    form.reset({
-      id: undefined,
-      name: '',
-      slug: undefined,
-      type: null,
-      values: [],
+  const { apply, isApplying, pending, confirmPending, cancelPending, describeDiscarded } =
+    useApplyAttribute({
+      form,
+      attributes,
+      appliedId: applied?.id ?? null,
+      onApplied: onClose,
     });
-    setAttributeSuggestionArray([]);
-    onClose();
-  };
 
-  const handleOnTypeChange = (nextType: string) => {
-    form.reset({
-      id: undefined,
-      name: '',
-      slug: undefined,
-      type: nextType,
-      values: [],
-    });
-    form.clearErrors(['id', 'name', 'values']);
-  };
+  const isNew = !source && !applied;
+  const pendingCount = pending ? savedVariants(pending.discarded).length : 0;
 
   return (
     <Form {...form}>
       <Card cssOverride={cardStyles.innerCard}>
-        <CardContent cssOverride={cardStyles.innerCardContent}>
-          <Flex direction="column" gap={4}>
-            {!data && (
-              <Flex direction="column" gap={2}>
-                <Text variant="small" weight="medium">{__('Show in Product Page as', 'kirki-ecommerce')}</Text>
-                <ButtonGroup>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    cssOverride={type === 'list' ? styles.typeSelected : undefined}
-                    onClick={() => handleOnTypeChange('list')}
-                  >
-                    <ListIcon />
-                    {__('List', 'kirki-ecommerce')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    cssOverride={type === 'color' ? styles.typeSelected : undefined}
-                    onClick={() => handleOnTypeChange('color')}
-                  >
-                    <ColorPaletteIcon />
-                    {__('Color', 'kirki-ecommerce')}
-                  </Button>
-                </ButtonGroup>
-              </Flex>
-            )}
-            <AttributeNameField
-              label={__('Variation Name', 'kirki-ecommerce')}
-              suggestions={attributeSuggestionArray}
-              placeholder={__('e.g. Size or Material', 'kirki-ecommerce')}
-              searchPlaceholder={__('e.g. Size or Material', 'kirki-ecommerce')}
-              addItemLabel={__('Add Attribute', 'kirki-ecommerce')}
-            />
+        <CardContent cssOverride={{ padding: theme.spacing[3] }}>
+          <Flex direction="column" gap={3}>
+            <AttributeNameInput attributes={attributes} focusOnMount={isNew} />
             <AttributeValuesField
-              name="values"
-              label={__('Variation Values', 'kirki-ecommerce')}
-              attributeId={formData?.id}
-              type={type}
-              disabled={!formData?.id}
-              placeholder={__('Add', 'kirki-ecommerce')}
-              addItemLabel={__('Add Variation', 'kirki-ecommerce')}
+              existingValues={source?.values ?? applied?.values ?? []}
+              type={source?.type ?? 'list'}
+              focusOnMount={!!source && !applied}
             />
-
-            <ActionGroup>
-              <Button variant="secondary" onClick={handleOnClose}>
-                {__('Cancel', 'kirki-ecommerce')}
-              </Button>
-              <Button
-                variant="primary"
-                disabled={
-                  !(
-                    formData?.id &&
-                    formData?.values &&
-                    formData.values.length > 0
-                  )
-                }
-                onClick={handleApply}
-              >
-                {__('Apply', 'kirki-ecommerce')}
-              </Button>
-            </ActionGroup>
+            <Flex align="center" justify="space-between" cssOverride={styles.actions}>
+              {isNew ? (
+                <span />
+              ) : (
+                <Button
+                  variant="link"
+                  cssOverride={styles.delete}
+                  onClick={applied ? onDelete : onClose}
+                >
+                  {__('Delete', 'kirki-ecommerce')}
+                </Button>
+              )}
+              <ActionGroup>
+                <Button variant="tertiary" onClick={onClose}>
+                  {__('Cancel', 'kirki-ecommerce')}
+                </Button>
+                <Button
+                  variant="primary"
+                  disabled={isApplying}
+                  onClick={() => {
+                    void apply();
+                  }}
+                >
+                  {__('Apply', 'kirki-ecommerce')}
+                </Button>
+              </ActionGroup>
+            </Flex>
           </Flex>
         </CardContent>
       </Card>
-      {!!pendingApply && (
+      {!!pending && (
         <ConfirmationDialog
           variant="delete"
           title={__('Remove variations?', 'kirki-ecommerce')}
@@ -234,14 +116,16 @@ const AddOrEditAttribute = (props: AddOrEditAttributeProps) => {
             _n(
               '%1$d saved variation will be deleted when you save this product: %2$s',
               '%1$d saved variations will be deleted when you save this product: %2$s',
-              savedVariants(pendingApply.discarded).length,
+              pendingCount,
               'kirki-ecommerce',
             ),
-            savedVariants(pendingApply.discarded).length,
-            describeDiscarded(savedVariants(pendingApply.discarded)),
+            pendingCount,
+            describeDiscarded(pending.discarded),
           )}
-          onConfirm={handleConfirmApply}
-          onCancel={() => setPendingApply(null)}
+          onConfirm={() => {
+            void confirmPending();
+          }}
+          onCancel={cancelPending}
         />
       )}
     </Form>
@@ -253,10 +137,15 @@ AddOrEditAttribute.displayName = 'AddOrEditAttribute';
 export default AddOrEditAttribute;
 
 const styles = defineStyles({
-  typeSelected: {
-    position: 'relative',
-    zIndex: 2,
-    borderColor: theme.colors.background.fillBrand,
+  actions: {
+    marginTop: theme.spacing[1],
+  },
+  delete: {
+    height: 'auto',
+    padding: 0,
+    color: theme.colors.text.critical,
+    '&:hover': {
+      textDecoration: 'none',
+    },
   },
 });
-

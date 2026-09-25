@@ -12,4 +12,9 @@ describe('ProductVariationPopoverFormSchema', () => {
     expect(ProductVariationPopoverFormSchema.safeParse({ title: '  ', color: '#fff' }).success).toBe(false);
     expect(ProductVariationPopoverFormSchema.safeParse({ title: 'x', color: '  ' }).success).toBe(false);
   });
+
+  it('takes a title alone when no color is asked for', () => {
+    const result = ProductVariationPopoverFormSchema.parse({ title: 'XXL', color: '', requires_color: false });
+    expect(result).toEqual({ title: 'XXL', value: 'XXL', color: '' });
+  });
 });

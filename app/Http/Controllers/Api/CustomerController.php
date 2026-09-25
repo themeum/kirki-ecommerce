@@ -17,11 +17,11 @@ use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\App\DTO\Customer\CustomerListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Customer\CustomerListRequest;
 use Kirki\Ecommerce\App\Services\CustomerService;
-use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\DTO\Customer\UpdateCustomerDTO;
+use Kirki\Ecommerce\Framework\Sanitizer;
 
 use function Kirki\Ecommerce\Framework\response;
 
@@ -62,6 +62,36 @@ class CustomerController
         return response()->json([
             'data' => $this->service->list_locations(empty($country) ? null : $country),
             'message' => __('Customer locations retrieved successfully.', 'kirki-ecommerce'),
+        ]);
+    }
+
+    /**
+     * Check whether an email is still available for a customer.
+     *
+     * @since 1.0.0
+     *
+     * @param Request $request Carries `email` and an optional `id` to exclude from the check.
+     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse
+     */
+    public function check_email(Request $request)
+    {
+        $email = (string) $request->get('email', '', Sanitizer::EMAIL);
+        $id = $request->int('id', null);
+
+        if ($email === '') {
+            return response()->json([
+                'data' => false,
+                'message' => __('The Email has already been taken.', 'kirki-ecommerce'),
+            ]);
+        }
+
+        $is_available = $this->service->is_email_available($email, $id);
+
+        return response()->json([
+            'data' => $is_available,
+            'message' => $is_available
+                ? __('Email is available.', 'kirki-ecommerce')
+                : __('The Email has already been taken.', 'kirki-ecommerce'),
         ]);
     }
 
@@ -108,9 +138,11 @@ class CustomerController
     public function create(CustomerCreateRequest $request, CreateCustomerAction $create_customer_action)
     {
         $validated = $request->validated();
+        $validated['addresses'] = array_map(function ($address) {
+            return CreateAddressDTO::from_array($address);
+        }, $validated['addresses'] ?? []);
 
         $customer_payload = CreateCustomerDTO::from_array($validated);
-        $customer_payload->addresses = $this->prepare_customer_addresses($validated);
 
         $customer = $create_customer_action->execute($customer_payload);
 
@@ -118,39 +150,6 @@ class CustomerController
             'data' => CustomerResource::make($customer),
             'message' => __('Customer created', 'kirki-ecommerce'),
         ], Response::CREATED);
-    }
-
-    /**
-     * Build the customer's initial addresses from the optional shipping and billing request blocks.
-     *
-     * Either block may be omitted. Each provided block becomes a home address flagged as the default for its kind.
-     *
-     * @since 1.0.0
-     *
-     * @param array<string, mixed> $validated Validated create request data.
-     * @return CreateAddressDTO[]
-     */
-    protected function prepare_customer_addresses(array $validated)
-    {
-        $addresses = [];
-
-        if (!empty($validated['shipping_address'])) {
-            $shipping_address = CreateAddressDTO::from_array($validated['shipping_address']);
-            $shipping_address->type = AddressType::HOME;
-            $shipping_address->is_default_shipping = true;
-
-            $addresses[] = $shipping_address;
-        }
-
-        if (!empty($validated['billing_address'])) {
-            $billing_address = CreateAddressDTO::from_array($validated['billing_address']);
-            $billing_address->type = AddressType::HOME;
-            $billing_address->is_default_billing = true;
-
-            $addresses[] = $billing_address;
-        }
-
-        return $addresses;
     }
 
     /**
@@ -185,10 +184,11 @@ class CustomerController
         $validated = $request->validated();
 
         $customer_payload = UpdateCustomerDTO::from_array($validated);
-        $shipping_address_payload = UpdateAddressDTO::from_array($validated['shipping_address'] ?? []);
-        $billing_address_payload = UpdateAddressDTO::from_array($validated['billing_address'] ?? []);
+        $address_payloads = array_map(function ($address) {
+            return UpdateAddressDTO::from_array($address);
+        }, $validated['addresses'] ?? []);
 
-        $customer = $update_customer_action->execute($customer_payload, $shipping_address_payload, $billing_address_payload);
+        $customer = $update_customer_action->execute($customer_payload, $address_payloads);
 
         return response()->json([
             'data' => CustomerResource::make($customer),

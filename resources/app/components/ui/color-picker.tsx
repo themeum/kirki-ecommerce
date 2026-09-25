@@ -40,10 +40,7 @@ const useColorPicker = (): ColorPickerContextValue => {
   return context;
 };
 
-type ColorPickerProps = Omit<
-  ComponentPropsWithoutRef<typeof Popover>,
-  'children'
-> & {
+type ColorPickerProps = Omit<ComponentPropsWithoutRef<typeof Popover>, 'children'> & {
   value?: string;
   onValueChange?: (value: string) => void;
   alpha?: boolean;
@@ -83,25 +80,24 @@ type ColorPickerTriggerProps = Omit<
   cssOverride?: CSSObject;
 };
 
-const ColorPickerTrigger = forwardRef<
-  ComponentRef<typeof PopoverTrigger>,
-  ColorPickerTriggerProps
->((props, ref) => {
-  const { error, cssOverride, children, ...rest } = props;
-  const { disabled } = useColorPicker();
+const ColorPickerTrigger = forwardRef<ComponentRef<typeof PopoverTrigger>, ColorPickerTriggerProps>(
+  (props, ref) => {
+    const { error, cssOverride, children, ...rest } = props;
+    const { disabled } = useColorPicker();
 
-  return (
-    <PopoverTrigger
-      ref={ref}
-      disabled={disabled}
-      data-error={error ? 'true' : undefined}
-      css={scopedMerge(styles.trigger, cssOverride)}
-      {...rest}
-    >
-      {children}
-    </PopoverTrigger>
-  );
-});
+    return (
+      <PopoverTrigger
+        ref={ref}
+        disabled={disabled}
+        data-error={error ? 'true' : undefined}
+        css={scopedMerge(styles.trigger, cssOverride)}
+        {...rest}
+      >
+        {children}
+      </PopoverTrigger>
+    );
+  },
+);
 
 ColorPickerTrigger.displayName = 'ColorPickerTrigger';
 
@@ -142,23 +138,22 @@ ColorPickerValue.displayName = 'ColorPickerValue';
 
 type ColorPickerContentProps = ComponentPropsWithoutRef<typeof PopoverContent>;
 
-const ColorPickerContent = forwardRef<
-  ComponentRef<typeof PopoverContent>,
-  ColorPickerContentProps
->((props, ref) => {
-  const { cssOverride, align = 'start', children, ...rest } = props;
+const ColorPickerContent = forwardRef<ComponentRef<typeof PopoverContent>, ColorPickerContentProps>(
+  (props, ref) => {
+    const { cssOverride, align = 'start', children, ...rest } = props;
 
-  return (
-    <PopoverContent
-      ref={ref}
-      align={align}
-      cssOverride={{ ...styles.content, ...cssOverride }}
-      {...rest}
-    >
-      {children}
-    </PopoverContent>
-  );
-});
+    return (
+      <PopoverContent
+        ref={ref}
+        align={align}
+        cssOverride={{ ...styles.content, ...cssOverride }}
+        {...rest}
+      >
+        {children}
+      </PopoverContent>
+    );
+  },
+);
 
 ColorPickerContent.displayName = 'ColorPickerContent';
 
@@ -180,44 +175,42 @@ type ColorPickerInputProps = Omit<
   'value' | 'onChange' | 'type'
 >;
 
-const ColorPickerInput = forwardRef<HTMLInputElement, ColorPickerInputProps>(
-  (props, ref) => {
-    const { value, onValueChange, alpha, disabled } = useColorPicker();
-    const [draft, setDraft] = useState(value);
+const ColorPickerInput = forwardRef<HTMLInputElement, ColorPickerInputProps>((props, ref) => {
+  const { value, onValueChange, alpha, disabled } = useColorPicker();
+  const [draft, setDraft] = useState(value);
 
-    useEffect(() => {
-      setDraft((current) => {
-        return normalizeHex(current) === value ? current : value;
-      });
-    }, [value]);
+  useEffect(() => {
+    setDraft((current) => {
+      return normalizeHex(current) === value ? current : value;
+    });
+  }, [value]);
 
-    const handleChange = (next: string) => {
-      setDraft(next);
+  const handleChange = (next: string) => {
+    setDraft(next);
 
-      if (!next.trim()) {
-        onValueChange('');
-        return;
-      }
+    if (!next.trim()) {
+      onValueChange('');
+      return;
+    }
 
-      if (isValidHex(next, { alpha })) {
-        onValueChange(normalizeHex(next));
-      }
-    };
+    if (isValidHex(next, { alpha })) {
+      onValueChange(normalizeHex(next));
+    }
+  };
 
-    return (
-      <Input
-        ref={ref}
-        value={draft}
-        onChange={(event) => handleChange(event.target.value)}
-        disabled={disabled}
-        spellCheck={false}
-        autoComplete="off"
-        aria-label={__('Hex color value', 'kirki-ecommerce')}
-        {...props}
-      />
-    );
-  },
-);
+  return (
+    <Input
+      ref={ref}
+      value={draft}
+      onChange={(event) => handleChange(event.target.value)}
+      disabled={disabled}
+      spellCheck={false}
+      autoComplete="off"
+      aria-label={__('Hex color value', 'kirki-ecommerce')}
+      {...props}
+    />
+  );
+});
 
 ColorPickerInput.displayName = 'ColorPickerInput';
 
@@ -266,7 +259,7 @@ const styles = defineStyles({
     flexShrink: 0,
     width: '16px',
     height: '16px',
-    borderRadius: theme.radius.full,
+    borderRadius: theme.radius.md,
     border: `1px solid ${theme.colors.border.default}`,
     backgroundColor: 'var(--kirki-picker-swatch)',
   },

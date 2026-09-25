@@ -60,6 +60,7 @@ class DuplicateProductAction
             'title' => $product->title . ' - Copy',
             'status' => ProductStatus::DRAFT,
             'ribbon' => $product->ribbon,
+            'ribbon_color' => $product->ribbon_color,
             'currency_id' => $product->currency_id,
             'brand_id' => $product->brand_id,
             'short_description' => $product->short_description,

@@ -580,6 +580,7 @@ const styles = defineStyles({
       border: `0.63px solid ${theme.colors.border.default}`,
       boxShadow: 'none',
       borderRadius: theme.radius.sm,
+      overflow: 'hidden',
     },
     '.mce-statusbar': {
       display: 'none',

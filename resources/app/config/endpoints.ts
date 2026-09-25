@@ -23,6 +23,7 @@ export const endpoints = {
 
   CUSTOMERS: '/customers',
   CUSTOMER_LOCATIONS: '/customers/locations',
+  CUSTOMER_CHECK_EMAIL: '/customers/check-email',
   CUSTOMER: (id: string | number) => `/customers/${id}`,
   CUSTOMERS_BULK: '/customers/bulk',
 
@@ -32,6 +33,7 @@ export const endpoints = {
   ATTRIBUTE_VALUE: (attributeId: string | number, valueId: string | number) =>
     `/attributes/${attributeId}/values/${valueId}`,
   ATTRIBUTE_VALUES_BULK: (attributeId: string | number) => `/attributes/${attributeId}/values/bulk`,
+  ATTRIBUTE_VALUES_BATCH: (attributeId: string | number) => `/attributes/${attributeId}/values/batch`,
 
   VARIANT: (id: string | number) => `/variants/${id}`,
   VARIANTS: '/variants',

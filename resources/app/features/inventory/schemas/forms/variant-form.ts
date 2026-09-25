@@ -1,51 +1,13 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
-import { booleanish, mediaId, moneyOrNull, numberOrNull, prepareFormSchema, requiredWhen } from '@/libs/zod';
-import { isDefined } from '@/utils/object';
-import { __ } from '@/wpi18n';
+import { VariantFieldsShape } from '@/features/products/schemas/forms/variant-fields';
+import { prepareFormSchema } from '@/libs/zod';
 
-const VariantFormShape = z.object({
-  id: z.number().optional(),
-  media: mediaId(),
-  sku: z.string().nullish(),
-  base_price: moneyOrNull(),
-  show_unit_price: z.boolean().nullish().default(false),
-  base_unit: z.string().nullish(),
-  base_unit_amount: numberOrNull(),
-  total_unit: z.string().nullish(),
-  total_unit_amount: numberOrNull(),
-  base_sale_price: requiredWhen(
-    moneyOrNull(),
-    (values) =>
-      isDefined(values.base_sale_price) &&
-      isDefined(values.base_price) &&
-      Number(values.base_sale_price) > Number(values.base_price),
-    __('The sale price cannot be greater than the regular price.', 'kirki-ecommerce'),
-  ),
-  base_cost_of_goods: moneyOrNull(),
-  weight: numberOrNull(),
-  weight_unit: z.string().nullish(),
-  charge_taxes: z.boolean().nullish(),
-  allow_back_order: z.boolean().nullish(),
-  track_inventory: z.boolean().nullish(),
-  available_quantity: numberOrNull(),
-  in_stock: booleanish(false),
-  low_stock_threshold: numberOrNull(),
-  has_limit_per_order: z.boolean().nullish(),
-  max_per_order: numberOrNull(),
-  tax_profile_id: numberOrNull(),
-  shipping_profile_id: numberOrNull(),
-  shipping_box_id: numberOrNull(),
-  is_visible: z.boolean().nullish(),
-  is_physical_product: z.boolean().nullish(),
-});
-
-const VariantFormSchema = prepareFormSchema(VariantFormShape).transform((values) => ({
+const VariantFormSchema = prepareFormSchema(VariantFieldsShape).transform((values) => ({
   id: values.id,
   media: values.media,
   sku: values.sku || null,
   base_price: values.base_price ?? null,
-  show_unit_price: values.show_unit_price ?? false,
   base_unit: values.base_unit || null,
   base_unit_amount: values.base_unit_amount ?? null,
   total_unit: values.total_unit || null,

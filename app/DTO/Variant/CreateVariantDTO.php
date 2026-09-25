@@ -29,9 +29,6 @@ class CreateVariantDTO extends DTO
     /** @var int|null */
     public $base_price;
 
-    /** @var bool|null */
-    public $show_unit_price = false;
-
     /** @var string|null */
     public $base_unit;
 

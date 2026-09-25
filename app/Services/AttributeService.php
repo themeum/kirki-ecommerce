@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Services;
 
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Attribute;
+use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
@@ -13,8 +14,10 @@ use Kirki\Ecommerce\App\DTO\Attribute\CreateAttributeDTO;
 use Kirki\Ecommerce\App\DTO\Attribute\UpdateAttributeDTO;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
+use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 
 use Exception;
+use Throwable;
 use function Kirki\Ecommerce\Framework\throw_if;
 use function Kirki\Ecommerce\Framework\user;
 
@@ -91,15 +94,17 @@ class AttributeService
     }
 
     /**
-     * Create a new attribute.
+     * Create a new attribute together with its values.
      *
      * If no slug is provided, it will be generated from the name. The current
-     * user is recorded as creator and updater.
+     * user is recorded as creator and updater. The attribute and its values
+     * are written in one transaction, so a failure leaves nothing behind.
      *
      * @since 1.0.0
      *
      * @param CreateAttributeDTO $data Attribute data.
-     * @return Attribute
+     * @return Attribute The created attribute with its values.
+     * @throws Throwable When persisting fails; the transaction is rolled back first.
      */
     public function create(CreateAttributeDTO $data)
     {
@@ -107,10 +112,31 @@ class AttributeService
         $data->slug = Attribute::generate_unique_slug($data->slug);
 
         $attributes = $data->to_array();
+        unset($attributes['values']);
         $attributes['created_by'] = user()->get_id();
         $attributes['updated_by'] = user()->get_id();
 
-        return Attribute::create($attributes);
+        DB::begin_transaction();
+
+        try {
+            $attribute = Attribute::create($attributes);
+
+            foreach ($data->values ?? [] as $row) {
+                AttributeValue::create([
+                    'attribute_id' => $attribute->id,
+                    'value' => $row['value'],
+                    'color' => $row['color'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+        } catch (Throwable $e) {
+            DB::rollback();
+
+            throw $e;
+        }
+
+        return $this->find($attribute->id);
     }
 
     /**

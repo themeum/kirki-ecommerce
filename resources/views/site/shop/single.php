@@ -11,6 +11,7 @@
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\App\Supports\Template;
 use Kirki\Ecommerce\App\Supports\Icon;
@@ -26,6 +27,7 @@ $product = view_data();
 $media           = $product['media'] ?? [];
 $product_image   = array_shift($media) ?? [];
 $ribbon          = $product['ribbon'] ?? '';
+$ribbon_color    = $product['ribbon_color'] ?? RibbonColor::get_default();
 $attributes      = $product['attributes'] ?? [];
 $additional_info = $product['additional_info'] ?? [];
 
@@ -96,7 +98,7 @@ foreach ($media as $media_item) {
             <div class="kecom-product-info" x-data="variantSelector({ variants: kirki_ecommerce.product_variants || []<?php if ($selected_variant_id) : ?>, selectedVariantId: <?php echo (int) $selected_variant_id; ?><?php endif; ?> })">
                 <div class="kecom-product-title-and-price">
                     <?php if (! empty($ribbon)) : ?>
-                        <span class="kecom-product-ribbon"><?php echo esc_html($ribbon); ?></span>
+                        <span class="kecom-product-ribbon" style="--kecom-ribbon-color: <?php echo esc_attr($ribbon_color); ?>;"><?php echo esc_html($ribbon); ?></span>
                     <?php endif; ?>
 
                     <h1 class="kecom-product-title"><?php echo esc_html($product['title']); ?></h1>
@@ -107,7 +109,7 @@ foreach ($media as $media_item) {
                             <span class="kecom-product-price-original" x-show="selectedVariant?.sale_price && selectedVariant?.sale_price !== selectedVariant?.price" x-text="selectedVariant?.price"></span>
                             <span class="kecom-product-discount" x-show="selectedVariant?.discount_percentage" x-text="'<?php echo esc_js(__('Save', 'kirki-ecommerce')); ?> ' + selectedVariant?.discount_percentage + '%'"></span>
                         </div>
-                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.show_unit_price && selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
+                        <div class="kecom-product-unit-price" x-show="Boolean(selectedVariant?.display_unit_price)" x-text="selectedVariant?.display_unit_price" x-cloak></div>
                         <?php if (Tax::should_calculate_tax() && Tax::is_tax_inclusive()) : ?>
                             <div class="kecom-product-tax-info">
                                 <?php esc_html_e('Incl. VAT', 'kirki-ecommerce'); ?>

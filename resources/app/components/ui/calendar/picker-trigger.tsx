@@ -109,6 +109,9 @@ const styles = defineStyles({
       borderColor: 'transparent',
       pointerEvents: 'none',
     },
+    '&[data-error="true"]': {
+      borderColor: theme.colors.background.fillCritical,
+    },
   },
   triggerSizes: {
     sm: {
@@ -116,7 +119,7 @@ const styles = defineStyles({
       padding: `0 ${theme.spacing[2]}`,
     },
     md: {
-      minHeight: '36px',
+      minHeight: '32px',
       padding: `0 ${theme.spacing[3]}`,
     },
     lg: {
@@ -129,7 +132,7 @@ const styles = defineStyles({
       padding: `${theme.spacing[1]} 0`,
     },
     md: {
-      padding: `${theme.spacing[2]} 0`,
+      padding: `${theme.spacing[1]} 0`,
     },
     lg: {
       padding: `${theme.spacing[3]} 0`,

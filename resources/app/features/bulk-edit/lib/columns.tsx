@@ -19,7 +19,7 @@ type BulkEditCellKind =
   | 'tax-profile'
   | 'shipping-profile';
 
-type BulkEditGate = 'track_inventory' | 'has_limit_per_order' | 'charge_taxes' | 'show_unit_price';
+type BulkEditGate = 'track_inventory' | 'has_limit_per_order' | 'charge_taxes';
 
 type BulkEditColumnGroup = {
   label: string;
@@ -75,17 +75,10 @@ const bulkEditColumns: ColumnDef<ProductVariant>[] = [
     cell: BulkEditCell,
   },
   {
-    id: 'show_unit_price',
-    header: __('Unit price', 'kirki-ecommerce'),
-    size: 100,
-    meta: { cellKind: 'checkbox', alignment: 'center' },
-    cell: BulkEditCell,
-  },
-  {
     id: 'base_price_per_unit',
     header: __('Base price per unit', 'kirki-ecommerce'),
     size: 220,
-    meta: { cellKind: 'unit-price', gatedBy: 'show_unit_price' },
+    meta: { cellKind: 'unit-price' },
     cell: BulkEditCell,
   },
   {
@@ -198,7 +191,6 @@ const bulkEditColumnGroups: BulkEditColumnGroup[] = [
       'base_cost_of_goods',
       'profit',
       'margin',
-      'show_unit_price',
       'base_price_per_unit',
     ],
   },
