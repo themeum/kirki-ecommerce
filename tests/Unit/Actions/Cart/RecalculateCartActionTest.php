@@ -44,15 +44,26 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(11500, $item->base_total);
         $this->assertSame(1, $item->tax_lines[0]->item_id);
 
+        // Tax-exclusive pricing: nothing to extract, so these are untouched pass-throughs of the catalog price.
+        $this->assertSame(10000, $item->base_unit_price);
+        $this->assertSame(10000, $item->base_regular_unit_price);
+        $this->assertSame(10000, $item->base_product_total);
+        // Not on sale: the regular-price total's own tax matches the current-price tax exactly.
+        $this->assertSame(1500, $item->base_regular_tax_amount);
+        $this->assertSame($item->base_tax_amount, $item->base_regular_tax_amount);
+
         $this->assertSame(10000, $result->base_subtotal);
         $this->assertSame(1500, $result->base_tax_total);
         $this->assertSame(11500, $result->base_total);
     }
 
     /**
-     * A single inclusive-tax item: the tax is extracted from (not added on
-     * top of) the subtotal, so the total equals the subtotal minus any
-     * discount - tax is already inside it.
+     * A single inclusive-tax item: the tax is extracted from the total, and
+     * also from the subtotal, unit price and regular unit price - all of
+     * which are always net of tax. Only the total stays gross (the amount
+     * actually charged). With no discount, the base is the item's own
+     * catalog price, so extraction is exact: subtotal + tax reconstructs
+     * the original gross catalog price.
      *
      * @return void
      */
@@ -67,13 +78,155 @@ class RecalculateCartActionTest extends TestCase
         $result = $this->make_action()->execute($context);
         $item = $result->items[1];
 
-        $this->assertSame(12000, $item->base_subtotal);
         $this->assertSame(2000, $item->base_tax_amount);
         $this->assertSame(12000, $item->base_total);
-        $this->assertSame(10000, $item->base_total - $item->base_tax_amount);
 
+        $this->assertSame(10000, $item->base_subtotal);
+        $this->assertSame(12000, $item->base_subtotal + $item->base_tax_amount);
+
+        $this->assertSame(10000, $item->base_unit_price);
+        $this->assertSame(10000, $item->base_regular_unit_price);
+        $this->assertSame(10000, $item->base_product_total);
+        // Not on sale: the regular-price total's own tax matches the current-price tax exactly.
+        $this->assertSame(2000, $item->base_regular_tax_amount);
+        $this->assertSame($item->base_tax_amount, $item->base_regular_tax_amount);
+
+        $this->assertSame(10000, $result->base_subtotal);
         $this->assertSame(12000, $result->base_total);
         $this->assertSame(2000, $result->base_tax_total);
+    }
+
+    /**
+     * An item bought on sale keeps its regular unit price above its charged
+     * unit price after both are extracted of the same embedded tax - the
+     * on-sale ordering strikethrough pricing depends on survives.
+     *
+     * @return void
+     */
+    public function test_sale_item_regular_and_unit_price_both_exclude_tax(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertLessThan($item->base_regular_unit_price, $item->base_unit_price);
+        $this->assertSame(6667, $item->base_unit_price);
+        $this->assertSame(8334, $item->base_regular_unit_price);
+        $this->assertSame(8334, $item->base_product_total);
+        // On sale: the regular-price total's own tax is computed against
+        // the regular (higher) base, so it differs from the current-price tax.
+        $this->assertSame(1667, $item->base_regular_tax_amount);
+        $this->assertNotSame($item->base_tax_amount, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * A fully-discounted item under tax-inclusive pricing has a zero
+     * taxable base - the tax-fraction extraction must not divide by zero.
+     * With nothing to derive a rate from, the subtotal and unit prices are
+     * left as their raw catalog values rather than erroring.
+     *
+     * @return void
+     */
+    public function test_fully_discounted_item_under_inclusive_tax_does_not_error(): void
+    {
+        $this->bind_default_region(15, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $discount_service = $this->createMock(DiscountService::class);
+        $discount_service->method('calculate')->willReturn($this->make_discount_result(0, [1 => 10000]));
+
+        $result = $this->make_action(['discount_service' => $discount_service])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(10000, $item->base_discount_amount);
+        $this->assertSame(0, $item->base_tax_amount);
+        $this->assertSame(0, $item->base_total);
+        $this->assertSame(10000, $item->base_subtotal);
+        $this->assertSame(10000, $item->base_unit_price);
+        $this->assertSame(10000, $item->base_regular_unit_price);
+        // The regular-price total isn't itself discounted, so its own tax
+        // is still computed normally (1500), unlike the current-price tax
+        // (0, since the current price was fully discounted away).
+        $this->assertSame(1500, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * A zero-rate destination (no configured tax region) produces zero tax
+     * on the regular-price total too, not just the current price - the rate
+     * used is 0, so `calculate_regular_tax_amount()`'s multiplication is a
+     * genuine zero, not a divide-by-zero or skipped computation.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_is_zero_for_an_unconfigured_country(): void
+    {
+        $this->bind_full_tax_settings([
+            ['code' => 'BD', 'is_enabled' => true, 'is_central_tax_enabled' => true, 'central_product_tax' => 15, 'central_shipping_tax' => 5, 'rules' => [], 'states' => []],
+        ]);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'US'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(0, $item->base_tax_amount);
+        $this->assertSame(0, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * The regular-price total's own tax scales with quantity the same way
+     * the total itself does - it's computed against the already
+     * quantity-multiplied `base_product_total`, not the per-unit price.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_scales_with_quantity(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 3, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(24999, $item->base_product_total);
+        $this->assertSame(5000, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * The regular-price total's own tax is computed independently of any
+     * item-level coupon discount - a coupon reduces the current-price
+     * taxable base, but the regular price (and its tax) is untouched by it.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_is_unaffected_by_an_item_coupon_discount(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $discount_service = $this->createMock(DiscountService::class);
+        $discount_service->method('calculate')->willReturn($this->make_discount_result(0, [1 => 3000]));
+
+        $result = $this->make_action(['discount_service' => $discount_service])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(1667, $item->base_regular_tax_amount);
     }
 
     /**
@@ -90,8 +243,12 @@ class RecalculateCartActionTest extends TestCase
     }
 
     /**
-     * The same invariant in inclusive mode: total = subtotal - discount:
-     * tax is already embedded in the subtotal, never added a second time.
+     * In inclusive mode, `total = taxable_amount = net_total - discount` is
+     * unaffected by the subtotal-tax-exclusivity fix - only the subtotal's
+     * own decomposition changes. The subtotal no longer equals
+     * `total + discount`: it now excludes its own embedded tax (computed
+     * pre-discount, at the same rate the discounted taxable amount was
+     * taxed at), so it's smaller than the raw catalog unit price.
      *
      * @return void
      */
@@ -99,7 +256,11 @@ class RecalculateCartActionTest extends TestCase
     {
         $item = $this->calculate_reconciliation_item(true);
 
-        $this->assertSame($item->base_subtotal - $item->base_discount_amount, $item->base_total);
+        $this->assertSame(9000, $item->base_total);
+        $this->assertSame(1000, $item->base_discount_amount);
+        $this->assertSame(1174, $item->base_tax_amount);
+        $this->assertLessThan(10000, $item->base_subtotal);
+        $this->assertSame(8696, $item->base_subtotal);
     }
 
     protected function calculate_reconciliation_item(bool $is_tax_inclusive_price): CalculationItemDTO

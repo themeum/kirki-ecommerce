@@ -70,6 +70,7 @@ use Kirki\Ecommerce\Database\Migrations\CreateOrderTaxesTable;
 use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddShippingTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsDropTaxColumns;
 use Kirki\Ecommerce\Database\Migrations\AlterOrderItemsAddRegularPriceColumns;
+use Kirki\Ecommerce\Database\Migrations\AlterOrdersAddIsTaxInclusiveColumn;
 
 return [
     CreateLanguagesTable::class,
@@ -149,6 +150,9 @@ return [
     CreateOrderTaxesTable::class,
     AlterOrdersAddShippingTaxColumns::class,
     AlterOrderItemsDropTaxColumns::class,
+
+    // Since v1.0.0-beta.1
     AlterOrderItemsAddRegularPriceColumns::class,
     AddIsBillingSameAsShippingFromOrdersTable::class,
+    AlterOrdersAddIsTaxInclusiveColumn::class,
 ];

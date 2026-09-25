@@ -12,6 +12,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
@@ -85,6 +86,24 @@ class OrderApiTest extends RestTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // A test that enables tax (`enable_us_inclusive_tax()`) is observed
+        // to leak that setting into a later test in the same run despite
+        // `RestTestCase::tearDown()`'s own cache resets, so every test in
+        // this class starts from a known, explicit tax-disabled baseline
+        // rather than relying on a prior test's cleanup.
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
         $this->seed_base_currency();
         $this->seed_shipping_settings();
 
@@ -213,6 +232,103 @@ class OrderApiTest extends RestTestCase
         $this->assertFalse($payload['data']['payment_provider_is_offline']);
         $this->assertEquals('Standard Delivery', $payload['data']['shipping_method_name']);
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
+        $this->assertFalse($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * The order resource reports whether the store priced items inclusive
+     * of tax when the order was placed, recorded on the order itself.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_order_reports_the_tax_inclusive_setting_recorded_on_the_order(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * The recorded is_tax_inclusive flag is a historical snapshot of the
+     * setting at order placement time, not a live read - an order placed
+     * under tax-inclusive pricing still reports true even after the store
+     * later switches to tax-exclusive pricing, since its persisted prices
+     * were never recalculated under the new setting.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_is_tax_inclusive_stays_a_historical_snapshot_after_the_setting_changes(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * Re-quantifying an existing order under the current (now different)
+     * tax setting updates the recorded is_tax_inclusive flag, since its
+     * prices are genuinely recalculated under that setting.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_refreshes_is_tax_inclusive_when_the_setting_has_changed(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+            ],
+        ])));
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertFalse($payload['data']['is_tax_inclusive']);
     }
 
     /**
@@ -369,6 +485,136 @@ class OrderApiTest extends RestTestCase
         $item = OrderItem::find($order['items'][0]['id']);
         $this->assertEquals($item->base_price, $item->base_regular_price);
         $this->assertEquals($item->invoiced_price, $item->invoiced_regular_price);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an order item's recorded price and
+     * regular price both exclude the tax embedded in the variant's catalog
+     * price - on the same terms as its subtotal - rather than persisting
+     * the raw (tax-inclusive) catalog price as-is.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_tax_exclusive_price_and_regular_price_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $catalog_price = Variant::find($this->variant_id)->base_price;
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertLessThan($catalog_price, $item->base_price);
+        $this->assertSame($item->base_price, $item->base_regular_price);
+        $this->assertSame($item->invoiced_price, $item->invoiced_regular_price);
+        $this->assertEquals(2499, $item->base_price);
+        // Not on sale: the regular-price total's own recorded tax matches the current-price tax exactly.
+        $this->assertEquals($item->base_tax_total, $item->base_regular_tax_total);
+        $this->assertEquals($item->invoiced_tax_total, $item->invoiced_regular_tax_total);
+        $this->assertEquals(500, $item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item newly added while editing an
+     * existing order also records a tax-exclusive price and regular price -
+     * the same fix as order creation, applied to the add-item-to-an-
+     * existing-order path.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_records_tax_exclusive_regular_price_for_added_item_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $added_variant_id = $this->default_variant_id($this->create_product());
+        $added_catalog_price = Variant::find($added_variant_id)->base_price;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+
+        $this->assertLessThan($added_catalog_price, $added_item->base_price);
+        $this->assertSame($added_item->base_price, $added_item->base_regular_price);
+        $this->assertEquals(2499, $added_item->base_regular_price);
+        // Not on sale: the regular-price total's own recorded tax matches the current-price tax exactly.
+        $this->assertEquals($added_item->base_tax_total, $added_item->base_regular_tax_total);
+        $this->assertEquals(500, $added_item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, re-quantifying an existing order item
+     * recalculates its recorded regular-price tax total for the new
+     * quantity - the same recalculate-on-quantity-change behavior its
+     * subtotal and current-price tax total already have - rather than
+     * carrying forward a stale, now-understated figure.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_scales_regular_tax_total_with_quantity_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $original_regular_tax_total = OrderItem::find($existing_item_id)->base_regular_tax_total;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+            ],
+        ])));
+
+        $updated_item = OrderItem::find($existing_item_id);
+
+        $this->assertEquals(2, $updated_item->quantity);
+        $this->assertGreaterThan($original_regular_tax_total, $updated_item->base_regular_tax_total);
+        // Still not on sale: the recalculated regular-price tax still matches the recalculated current-price tax exactly.
+        $this->assertEquals($updated_item->base_tax_total, $updated_item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item bought while a sale price is
+     * active records a regular-price tax total computed against its
+     * (higher) regular price - distinct from its current-price tax total,
+     * which is computed against the (lower) sale price it was actually
+     * charged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_tax_total_for_item_bought_on_sale_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $regular_price = Variant::find($this->variant_id)->base_price;
+        Variant::find($this->variant_id)->update(['base_sale_price' => $regular_price - 1000]);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertLessThan($item->base_regular_price, $item->base_price);
+        $this->assertNotEquals($item->base_tax_total, $item->base_regular_tax_total);
+        $this->assertGreaterThan($item->base_tax_total, $item->base_regular_tax_total);
     }
 
     /**
@@ -1992,6 +2238,40 @@ class OrderApiTest extends RestTestCase
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
+    }
+
+    /**
+     * Enable a central US tax region under tax-inclusive pricing, matching
+     * `order_payload()`'s default `shipping_country`.
+     *
+     * @param int|float $product_tax_rate
+     * @return void
+     * @since 1.0.0
+     */
+    protected function enable_us_inclusive_tax($product_tax_rate): void
+    {
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => true,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [
+                    [
+                        'code' => 'US',
+                        'is_enabled' => true,
+                        'type' => null,
+                        'is_central_tax_enabled' => true,
+                        'central_product_tax' => $product_tax_rate,
+                        'central_shipping_tax' => 0,
+                        'states' => [],
+                        'rules' => [],
+                    ],
+                ],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
     }
 
     /**

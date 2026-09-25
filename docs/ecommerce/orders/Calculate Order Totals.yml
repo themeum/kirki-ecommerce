@@ -114,67 +114,41 @@ examples:
           {
             "success": true,
             "data": {
-              "pricing": {
-                "base_subtotal": 5308.68,
-                "base_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_subtotal": 5308.68,
-                "display_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
-                "base_tax_total": 0,
-                "base_tax_total_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_tax_total": 0,
-                "display_tax_total_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "discount_details": {
-                  "id": 6,
-                  "code": "WINTER20"
-                },
-                "base_discount_total": 12.79,
-                "base_discount_total_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_discount_total": 12.79,
-                "display_discount_total_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
-                "base_shipping_subtotal": 5312.00,
-                "base_shipping_subtotal_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_shipping_subtotal": 5312.00,
-                "display_shipping_subtotal_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "base_shipping_tax": 0,
-                "base_shipping_tax_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_shipping_tax": 0,
-                "display_shipping_tax_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "base_shipping_discount": 0,
-                "base_shipping_discount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_shipping_discount": 0,
-                "display_shipping_discount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "base_shipping_total": 5312.00,
-                "base_shipping_total_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_shipping_total": 5312.00,
-                "display_shipping_total_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                "base_total": 9559.11,
-                "base_total_money_object": { "raw": 9559.11, "display": "৳9,559.11", "currency": { "code": "BDT", "symbol": "৳" } },
-                "display_total": 9559.11,
-                "display_total_money_object": { "raw": 9559.11, "display": "৳9,559.11", "currency": { "code": "BDT", "symbol": "৳" } }
+              "is_tax_inclusive": false,
+              "totals": {
+                "base_items_subtotal_exclusive_money_object": { "raw": 63.20, "display": "$63.20", "currency": { "code": "USD", "symbol": "$" } },
+                "base_items_subtotal_inclusive_money_object": { "raw": 63.20, "display": "$63.20", "currency": { "code": "USD", "symbol": "$" } },
+                "base_order_discount_money_object": { "raw": 12.64, "display": "$12.64", "currency": { "code": "USD", "symbol": "$" } },
+                "base_order_total_exclusive_money_object": { "raw": 50.56, "display": "$50.56", "currency": { "code": "USD", "symbol": "$" } },
+                "base_order_total_inclusive_money_object": { "raw": 50.56, "display": "$50.56", "currency": { "code": "USD", "symbol": "$" } },
+                "base_tax_total_money_object": { "raw": 0, "display": "$0.00", "currency": { "code": "USD", "symbol": "$" } },
+                "coupons": [
+                  {
+                    "code": "WINTER20",
+                    "title": "Winter Sale 20%",
+                    "discount_type": "amount-off",
+                    "discount_target": "order",
+                    "discount_value_type": "percentage",
+                    "discount_amount_percentage": 20,
+                    "base_discount_amount_fixed_money_object": null,
+                    "base_discount_amount_money_object": { "raw": 12.64, "display": "$12.64", "currency": { "code": "USD", "symbol": "$" } }
+                  }
+                ],
+                "base_shipping_amount_money_object": { "raw": 64.00, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_shipping_strikethrough_money_object": { "raw": 64.00, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } },
+                "base_total_money_object": { "raw": 114.56, "display": "$114.56", "currency": { "code": "USD", "symbol": "$" } },
+                "tax_lines": []
               },
               "items_count": 4,
               "items": [
                 {
                   "id": 1,
                   "quantity": 4,
-                  "base_subtotal": 5308.68,
-                  "base_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "display_subtotal": 5308.68,
-                  "display_subtotal_money_object": { "raw": 5308.68, "display": "৳5,308.68", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "tax_rate": 0,
-                  "base_tax_amount": 0,
-                  "base_tax_amount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "display_tax_amount": 0,
-                  "display_tax_amount_money_object": { "raw": 0, "display": "৳0.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "tax_breakdown": [],
-                  "base_discount_amount": 12.79,
-                  "base_discount_amount_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "display_discount_amount": 12.79,
-                  "display_discount_amount_money_object": { "raw": 12.79, "display": "৳12.79", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "base_total": 4247.11,
-                  "base_total_money_object": { "raw": 4247.11, "display": "৳4,247.11", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "display_total": 4247.11,
-                  "display_total_money_object": { "raw": 4247.11, "display": "৳4,247.11", "currency": { "code": "BDT", "symbol": "৳" } }
+                  "base_subtotal_exclusive_money_object": { "raw": 63.20, "display": "$63.20", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_subtotal_inclusive_money_object": { "raw": 63.20, "display": "$63.20", "currency": { "code": "USD", "symbol": "$" } },
+                  "base_strikethrough_price_exclusive_money_object": null,
+                  "base_strikethrough_price_inclusive_money_object": null,
+                  "applied_product_coupons": []
                 }
               ],
               "available_shipping_methods": [
@@ -182,10 +156,7 @@ examples:
                   "id": "fsdfdsfsdfsdf343432jh4",
                   "name": "Standard Delivery",
                   "type": "flat_rate",
-                  "base_cost": 5312.00,
-                  "base_cost_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } },
-                  "display_cost": 5312.00,
-                  "display_cost_money_object": { "raw": 5312.00, "display": "৳5,312.00", "currency": { "code": "BDT", "symbol": "৳" } }
+                  "base_cost_money_object": { "raw": 64.00, "display": "$64.00", "currency": { "code": "USD", "symbol": "$" } }
                 }
               ],
               "shipping_method": "fsdfdsfsdfsdf343432jh4"

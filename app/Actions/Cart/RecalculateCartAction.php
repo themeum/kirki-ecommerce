@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
+use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\DiscountService;
@@ -318,9 +319,44 @@ class RecalculateCartAction
     }
 
     /**
+     * Compute the tax on an item's regular-price total, at the same rate(s)
+     * as its current-price tax lines.
+     *
+     * Unlike `sum_tax_amount()` (which sums tax lines already computed by the
+     * tax strategy against the item's *current*, discounted taxable amount),
+     * this applies each line's rate directly to a different, already-exclusive
+     * base - the regular-price total - since that total was never itself
+     * passed through the tax strategy. It's the same exclusive-basis
+     * "tax added on top" formula `AbstractTaxStrategy::calculate_shipping_tax_amount()`
+     * uses for shipping, valid here because `$exclusive_regular_total_money`
+     * is always already tax-exclusive (see `item-pricing-tax-exclusivity`).
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines                     The item's current-price tax lines (for their rates).
+     * @param \Brick\Money\Money                        $exclusive_regular_total_money The item's regular-price total, tax-exclusive.
+     * @return \Brick\Money\Money Tax on the regular-price total, in base currency.
+     */
+    protected function calculate_regular_tax_amount(array $tax_lines, $exclusive_regular_total_money)
+    {
+        $total = Money::zero();
+
+        foreach ($tax_lines as $tax_line) {
+            $total = $total->plus(
+                $exclusive_regular_total_money->multipliedBy($tax_line->rate, RoundingMode::HALF_UP)->dividedBy(100, RoundingMode::HALF_UP)
+            );
+        }
+
+        return $total;
+    }
+
+    /**
      * Build the priced copy of a cart item with subtotal, discount, tax and total filled in.
      *
-     * In tax-inclusive mode the tax is not added on top of the item total.
+     * In tax-inclusive mode the tax is not added on top of the item total. The
+     * subtotal, unit price and regular unit price are always excluded of tax,
+     * regardless of the store's tax-inclusive-price setting - see
+     * exclude_tax().
      *
      * @since 1.0.0
      *
@@ -336,25 +372,77 @@ class RecalculateCartAction
 
         $net_total_money = $this->calculate_item_net_total($item);
         $discount_money = $this->calculate_item_discount($item, $net_total_money, $discount_result);
-        $product_total_money = Money::of_minor($item->base_product_total)->multipliedBy($item->quantity);
+        $taxable_amount_money = $net_total_money->minus($discount_money);
 
         $tax_lines = $tax_result->items[$item->variant_id] ?? [];
         $tax_amount_money = $this->sum_tax_amount($tax_lines);
 
-        $item_total_money = $net_total_money->minus($discount_money);
+        $item_total_money = $taxable_amount_money;
 
         if (!$is_inclusive_tax) {
             $item_total_money = $item_total_money->plus($tax_amount_money);
         }
 
-        $item_result->base_subtotal = $net_total_money->getMinorAmount()->toInt();
+        $tax_fraction = $this->calculate_tax_fraction($tax_amount_money, $taxable_amount_money, $is_inclusive_tax);
+
+        $exclusive_net_total_money = $this->exclude_tax($net_total_money, $tax_fraction);
+        $exclusive_unit_price_money = $this->exclude_tax(Money::of_minor($item->base_unit_price), $tax_fraction);
+        $exclusive_regular_unit_price_money = $this->exclude_tax(Money::of_minor($item->base_product_total), $tax_fraction);
+        $product_total_money = $exclusive_regular_unit_price_money->multipliedBy($item->quantity);
+        $regular_tax_amount_money = $this->calculate_regular_tax_amount($tax_lines, $product_total_money);
+
+        $item_result->base_subtotal = $exclusive_net_total_money->getMinorAmount()->toInt();
         $item_result->base_tax_amount = $tax_amount_money->getMinorAmount()->toInt();
         $item_result->tax_lines = $tax_lines;
         $item_result->base_discount_amount = $discount_money->getMinorAmount()->toInt();
         $item_result->base_total = $item_total_money->getMinorAmount()->toInt();
         $item_result->base_product_total = $product_total_money->getMinorAmount()->toInt();
+        $item_result->base_unit_price = $exclusive_unit_price_money->getMinorAmount()->toInt();
+        $item_result->base_regular_unit_price = $exclusive_regular_unit_price_money->getMinorAmount()->toInt();
+        $item_result->base_regular_tax_amount = $regular_tax_amount_money->getMinorAmount()->toInt();
 
         return $item_result;
+    }
+
+    /**
+     * The fraction of a taxable amount that is embedded tax, under tax-inclusive pricing.
+     *
+     * @since 1.0.0
+     *
+     * @param \Brick\Money\Money $tax_amount_money     Tax already computed for the taxable amount.
+     * @param \Brick\Money\Money $taxable_amount_money Amount the tax was computed against.
+     * @param bool               $is_inclusive_tax     Whether prices already include tax.
+     * @return float Fraction of the taxable amount that is tax; 0 under tax-exclusive pricing or when the taxable amount is zero.
+     */
+    protected function calculate_tax_fraction($tax_amount_money, $taxable_amount_money, bool $is_inclusive_tax): float
+    {
+        if (!$is_inclusive_tax || $taxable_amount_money->isZero()) {
+            return 0.0;
+        }
+
+        return $tax_amount_money->getAmount()->toFloat() / $taxable_amount_money->getAmount()->toFloat();
+    }
+
+    /**
+     * Exclude a proportional tax fraction from an amount.
+     *
+     * Reapplies the same fraction `calculate_tax_fraction()` derived from one
+     * amount to any other amount taxed at the same rate composition, since
+     * the fraction is scale-invariant.
+     *
+     * @since 1.0.0
+     *
+     * @param \Brick\Money\Money $amount_money Amount to exclude tax from.
+     * @param float              $tax_fraction Fraction of the amount that is tax, from calculate_tax_fraction().
+     * @return \Brick\Money\Money The amount, net of tax; unchanged when $tax_fraction is 0.
+     */
+    protected function exclude_tax($amount_money, float $tax_fraction)
+    {
+        if ($tax_fraction === 0.0) {
+            return $amount_money;
+        }
+
+        return $amount_money->minus($amount_money->multipliedBy($tax_fraction, RoundingMode::HALF_UP));
     }
 
     /**
