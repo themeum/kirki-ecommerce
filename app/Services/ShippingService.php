@@ -343,7 +343,11 @@ class ShippingService
             $from = floatval($range['from'] ?? 0);
             $to = floatval($range['to'] ?? PHP_FLOAT_MAX);
 
-            if ($total_weight >= $from && $total_weight < $to) {
+            if ($total_weight >= $from && !empty($to) && $total_weight <= $to) {
+                return (int) ($range['base_amount'] ?? 0);
+            }
+
+            if ($total_weight >= $from && empty($to)) {
                 return (int) ($range['base_amount'] ?? 0);
             }
         }
