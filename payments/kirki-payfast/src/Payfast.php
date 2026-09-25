@@ -191,7 +191,7 @@ class Payfast extends PaymentProvider
 
         throw_if(in_array('', $credentials, true), __('PayFast credentials are missing.', 'kirki-ecommerce-payfast'));
 
-        $this->client = new PayfastClient($credentials['pass_phrase'], (bool) ($this->settings['sandbox'] ?? false));
+        $this->client = new PayfastClient($credentials['merchant_id'],$credentials['merchant_key'],$credentials['pass_phrase'], (bool) ($this->settings['sandbox'] ?? false));
 
         return $this->client;
     }

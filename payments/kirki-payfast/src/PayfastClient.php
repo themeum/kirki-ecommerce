@@ -4,7 +4,6 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
-use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -18,13 +17,19 @@ class PayfastClient
 {
     protected string $pass_phrase;
     protected bool $sandbox;
+    protected string $merchant_id;
+    protected string $merchant_key;
 
     /**
+     * @param string $merchant_id PayFast Merchant ID.
+     * @param string $merchant_key PayFast Merchant Key.
      * @param string $pass_phrase The passphrase PayFast signatures are salted with.
      * @param bool $sandbox True when the sandbox environment should be used.
      */
-    public function __construct(string $pass_phrase, bool $sandbox = false)
+    public function __construct(string $merchant_id, string $merchant_key, string $pass_phrase, bool $sandbox = false)
     {
+        $this->merchant_id = $merchant_id;
+        $this->merchant_key = $merchant_key;
         $this->pass_phrase = $pass_phrase;
         $this->sandbox = $sandbox;
     }
@@ -41,7 +46,7 @@ class PayfastClient
         $signature = $this->sign($fields);
 
         ob_start();
-        ?>
+?>
         <form method="POST" id="payfast-form" action="<?php echo esc_url($form_url); ?>">
             <?php foreach ($fields as $name => $value) : ?>
                 <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($value); ?>" />
@@ -51,7 +56,7 @@ class PayfastClient
         <script>
             document.getElementById('payfast-form').submit();
         </script>
-        <?php
+<?php
         return ob_get_clean();
     }
 
@@ -141,25 +146,20 @@ class PayfastClient
      */
     protected function verify_source_ip(): bool
     {
-        $valid_ips = array();
+        $source_ip = Superglobals::server('REMOTE_ADDR', '');
 
-        foreach (PayfastConstant::NOTIFICATION_HOSTS as $pf_hostname) {
-            $ips = gethostbynamel($pf_hostname);
-
-            if (false !== $ips) {
-                $valid_ips = array_merge($valid_ips, $ips);
-            }
+        if (empty($source_ip)) {
+            return false;
         }
 
-        // Remove duplicates.
-        $valid_ips = array_unique($valid_ips);
+        $valid_ips = [];
 
-        // Adds support for X_Forwarded_For.
-        $x_forwarded_http_header = Superglobals::server('HTTP_X_FORWARDED_FOR', '');
-        $source_ip = Superglobals::server('REMOTE_ADDR', '');
-        if (!empty($x_forwarded_http_header)) {
-            $x_forwarded_http_header = trim(current(preg_split('/[,:]/', Sanitizer::apply_rule(wp_unslash($x_forwarded_http_header), Sanitizer::TEXT))));
-            $source_ip = rest_is_ip_address($x_forwarded_http_header) ? rest_is_ip_address($x_forwarded_http_header) : $source_ip;
+        foreach (PayfastConstant::NOTIFICATION_HOSTS as $host) {
+            $ips = gethostbynamel($host);
+
+            if (is_array($ips)) {
+                array_push($valid_ips, ...$ips);
+            }
         }
 
         return in_array($source_ip, $valid_ips, true);
