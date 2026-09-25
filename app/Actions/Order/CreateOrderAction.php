@@ -720,11 +720,11 @@ class CreateOrderAction
         $item_dto->barcode = $variant->barcode;
         $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->id : null);
 
-        $item_dto->invoiced_price = $this->convert_amount($variant->base_sale_price ?: $variant->base_price, $currency_code, $exchange_rate);
-        $item_dto->base_price = $variant->base_sale_price ?: $variant->base_price;
+        $item_dto->invoiced_price = $this->convert_amount($calculated_item->base_unit_price, $currency_code, $exchange_rate);
+        $item_dto->base_price = $calculated_item->base_unit_price;
 
-        $item_dto->invoiced_regular_price = $this->convert_amount($variant->base_price, $currency_code, $exchange_rate);
-        $item_dto->base_regular_price = $variant->base_price;
+        $item_dto->invoiced_regular_price = $this->convert_amount($calculated_item->base_regular_unit_price, $currency_code, $exchange_rate);
+        $item_dto->base_regular_price = $calculated_item->base_regular_unit_price;
 
         $item_dto->quantity = $calculated_item->quantity;
 

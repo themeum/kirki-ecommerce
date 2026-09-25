@@ -12,6 +12,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
@@ -85,6 +86,24 @@ class OrderApiTest extends RestTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // A test that enables tax (`enable_us_inclusive_tax()`) is observed
+        // to leak that setting into a later test in the same run despite
+        // `RestTestCase::tearDown()`'s own cache resets, so every test in
+        // this class starts from a known, explicit tax-disabled baseline
+        // rather than relying on a prior test's cleanup.
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
         $this->seed_base_currency();
         $this->seed_shipping_settings();
 
@@ -369,6 +388,67 @@ class OrderApiTest extends RestTestCase
         $item = OrderItem::find($order['items'][0]['id']);
         $this->assertEquals($item->base_price, $item->base_regular_price);
         $this->assertEquals($item->invoiced_price, $item->invoiced_regular_price);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an order item's recorded price and
+     * regular price both exclude the tax embedded in the variant's catalog
+     * price - on the same terms as its subtotal - rather than persisting
+     * the raw (tax-inclusive) catalog price as-is.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_tax_exclusive_price_and_regular_price_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $catalog_price = Variant::find($this->variant_id)->base_price;
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertLessThan($catalog_price, $item->base_price);
+        $this->assertSame($item->base_price, $item->base_regular_price);
+        $this->assertSame($item->invoiced_price, $item->invoiced_regular_price);
+        $this->assertEquals(2499, $item->base_price);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item newly added while editing an
+     * existing order also records a tax-exclusive price and regular price -
+     * the same fix as order creation, applied to the add-item-to-an-
+     * existing-order path.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_records_tax_exclusive_regular_price_for_added_item_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $added_variant_id = $this->default_variant_id($this->create_product());
+        $added_catalog_price = Variant::find($added_variant_id)->base_price;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['variant_id' => $added_variant_id, 'quantity' => 1],
+            ],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
+
+        $this->assertLessThan($added_catalog_price, $added_item->base_price);
+        $this->assertSame($added_item->base_price, $added_item->base_regular_price);
+        $this->assertEquals(2499, $added_item->base_regular_price);
     }
 
     /**
@@ -1200,7 +1280,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping_amount_money_object']['raw']);
     }
 
     /**
@@ -1240,7 +1320,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(10.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(10.0, $payload['data']['totals']['base_shipping_amount_money_object']['raw']);
     }
 
     /**
@@ -1274,7 +1354,7 @@ class OrderApiTest extends RestTestCase
         ]));
 
         $payload = $this->assert_api_success($response, 201);
-        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, $payload['data']['totals']['base_shipping_amount_money_object']['raw']);
     }
 
     /**
@@ -1304,14 +1384,14 @@ class OrderApiTest extends RestTestCase
             'is_manual' => false,
             'coupon_codes' => [$coupon->code],
         ])), 201);
-        $this->assertEquals(0.0, $first['data']['totals']['base_shipping']);
+        $this->assertEquals(0.0, $first['data']['totals']['base_shipping_amount_money_object']['raw']);
 
         $second = $this->assert_api_success($this->request('POST', 'orders', $this->order_payload([
             'is_manual' => false,
             'coupon_codes' => [$coupon->code],
         ])), 201);
 
-        $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping']);
+        $this->assertGreaterThan(0.0, $second['data']['totals']['base_shipping_amount_money_object']['raw']);
         $this->assertCount(0, OrderCoupon::where('order_id', $second['data']['id'])->get());
     }
 
@@ -1992,6 +2072,40 @@ class OrderApiTest extends RestTestCase
         $payload = $this->assert_api_success($response, 201);
 
         return $payload['data'];
+    }
+
+    /**
+     * Enable a central US tax region under tax-inclusive pricing, matching
+     * `order_payload()`'s default `shipping_country`.
+     *
+     * @param int|float $product_tax_rate
+     * @return void
+     * @since 1.0.0
+     */
+    protected function enable_us_inclusive_tax($product_tax_rate): void
+    {
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => true,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [
+                    [
+                        'code' => 'US',
+                        'is_enabled' => true,
+                        'type' => null,
+                        'is_central_tax_enabled' => true,
+                        'central_product_tax' => $product_tax_rate,
+                        'central_shipping_tax' => 0,
+                        'states' => [],
+                        'rules' => [],
+                    ],
+                ],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
     }
 
     /**
