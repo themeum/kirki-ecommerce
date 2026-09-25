@@ -24,7 +24,7 @@ use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
-use Kirki\Ecommerce\Framework\Supports\Arr;
+use function Kirki\Ecommerce\Framework\deep_get;
 
 /**
  * Validates and sanitizes a settings update for one settings group, selected by the `key` input.
@@ -364,12 +364,11 @@ class SettingsUpdateRequest extends Request
             'data.shipping_zones.*.shipping_methods.*.is_enabled' => 'required|boolean',
             'data.shipping_zones.*.shipping_methods.*.name' => 'required|string',
             'data.shipping_zones.*.shipping_methods.*.type' => 'required|string|in:' . implode(',', ShippingMethodTypes::get_constant_values()),
-            'data.shipping_zones.*.shipping_methods.*.base_amount' => 'required|number',
             // TODO: replace with a reusable required-if-sibling rule once it can safely mix
             // with type-check rules (e.g. string/array) without failing on null when not required.
-            // Bound to the shipping method itself (not the is_taxable leaf) so the check
-            // still runs even when the client omits is_taxable entirely - a wildcard rule
-            // keyed on a leaf field is only evaluated when that key is present in the payload.
+            // Bound to the shipping method itself (not the is_taxable leaf) so the check still
+            // runs even when the client omits is_taxable entirely - a wildcard rule keyed on a
+            // leaf field is only evaluated when that key is present in the payload.
             'data.shipping_zones.*.shipping_methods.*' => function ($value, $key, $data) {
                 if (!is_array($value) || !in_array($value['type'] ?? null, [ShippingMethodTypes::FLAT_RATE, ShippingMethodTypes::WEIGHT_BASED], true)) {
                     return true;
@@ -378,6 +377,30 @@ class SettingsUpdateRequest extends Request
                 if (!array_key_exists('is_taxable', $value) || $value['is_taxable'] === null || $value['is_taxable'] === '') {
                     /* translators: %s: the field name */
                     return sprintf(__('The %s field is required.', 'kirki-ecommerce'), $key . '.is_taxable');
+                }
+
+                return true;
+            },
+            // Bound directly to the base_amount leaf (rather than the shipping method itself)
+            // so a failure attaches to this field's own key and the frontend can surface it
+            // inline instead of on the method object.
+            'data.shipping_zones.*.shipping_methods.*.base_amount' => function ($value, $key, $data) {
+                $method = deep_get($data, substr($key, 0, -\strlen('.base_amount')));
+                $type = is_array($method) ? ($method['type'] ?? null) : null;
+                $is_empty = $value === null || $value === '';
+
+                if ($type === ShippingMethodTypes::FLAT_RATE && $is_empty) {
+                    return __('This field is required.', 'kirki-ecommerce');
+                }
+
+                if ($type === ShippingMethodTypes::LOCAL_PICKUP && !empty($method['has_fee'])) {
+                    if ($is_empty) {
+                        return __('This field is required.', 'kirki-ecommerce');
+                    }
+
+                    if ($value <= 0) {
+                        return __('This field must be greater than 0.', 'kirki-ecommerce');
+                    }
                 }
 
                 return true;
