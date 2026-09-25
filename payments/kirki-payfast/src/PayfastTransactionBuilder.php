@@ -18,7 +18,7 @@ class PayfastTransactionBuilder
     /**
      * @param Order $order The order being paid.
      */
-    public function __construct(Order $order, string $merchant_id)
+    public function __construct(Order $order)
     {
         $this->order = $order;
     }

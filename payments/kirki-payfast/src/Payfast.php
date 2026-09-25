@@ -83,6 +83,10 @@ class Payfast extends PaymentProvider
             __('PayFast is not enabled.', 'kirki-ecommerce-payfast')
         );
 
+        //PayFast only use ZAR as the store currency.
+        $valid_currency = $order->currency_code === PayfastConstant::CURRENCY;
+        throw_unless($valid_currency, __('PayFast Only accepts ZAR as currency.', 'kirki-ecommerce-payfast'));
+
         try {
             $builder = new PayfastTransactionBuilder($order);
             $checkout_fields = $builder->build_checkout_fields(
@@ -191,7 +195,12 @@ class Payfast extends PaymentProvider
 
         throw_if(in_array('', $credentials, true), __('PayFast credentials are missing.', 'kirki-ecommerce-payfast'));
 
-        $this->client = new PayfastClient($credentials['merchant_id'],$credentials['merchant_key'],$credentials['pass_phrase'], (bool) ($this->settings['sandbox'] ?? false));
+        $this->client = new PayfastClient(
+            $credentials['merchant_id'],
+            $credentials['merchant_key'],
+            $credentials['pass_phrase'],
+            (bool) ($this->settings['sandbox'] ?? false)
+        );
 
         return $this->client;
     }

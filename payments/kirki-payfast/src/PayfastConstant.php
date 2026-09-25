@@ -31,4 +31,6 @@ final class PayfastConstant
         'COMPLETE' => PaymentStatus::PAID,
         'CANCELLED' => PaymentStatus::CANCELLED,
     ];
+
+    const CURRENCY = 'ZAR';
 }
