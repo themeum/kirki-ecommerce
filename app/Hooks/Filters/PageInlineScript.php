@@ -124,10 +124,13 @@ class PageInlineScript extends BaseHook
     protected function set_cart_page_data($view_data, $config)
     {
         $cart = $view_data['cart'];
+
         $cart_config = array(
-            'items_count' => $cart['items_count'] ?? 0,
-            'pricing' => $cart['pricing'] ?? [],
-            'items' => $cart['items'] ?? [],
+            'items_count'      => $cart['items_count'] ?? 0,
+            'pricing'          => $cart['pricing'] ?? [],
+            'items'            => $cart['items'] ?? [],
+            'invalid_items'    => $cart['invalid_items'] ?? [],
+            'invalid_item_ids' => $cart['invalid_item_ids'] ?? [],
         );
         $config['cart'] = $cart_config;
 

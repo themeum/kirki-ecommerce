@@ -10,6 +10,9 @@ export function cart() {
     success: false,
     error: null as string | null,
     cartData: config.cart,
+    invalidItems: config.cart.invalid_item_ids,
+    invalidItemsMessage: config.cart.invalid_items,
+    removeLinkText: '',
 
     format_cart_items() {
       if (this.cartData.items.length > 0) {
@@ -26,6 +29,8 @@ export function cart() {
 
     init() {
       this.format_cart_items();
+      this.removeLinkText = __('Remove', 'kirki-ecommerce');
+      this.removeLinkText += ` (${this.invalidItems.length})`;
     },
 
     async update(id: number, qty?: number) {
@@ -66,6 +71,23 @@ export function cart() {
       } finally {
         this.loading = false;
       }
+    },
+
+    async removeInvalidItem(id: number) {
+      await this.remove(id);
+      this.invalidItems = this.invalidItems.filter((item: number) => item !== id);
+      this.removeLinkText = __('Remove', 'kirki-ecommerce');
+      this.removeLinkText += ` (${this.invalidItems.length})`;
+    },
+
+    removeInvalidItems() {
+      this.invalidItems.forEach((item: number) => {
+        const removeItemButton = document.querySelector(`.kecom-cart-item-remove[id="${item}"]`)!;
+        if (removeItemButton) {
+          const removeButton = removeItemButton as HTMLAnchorElement;
+          removeButton.click();
+        }
+      });
     },
   };
 }

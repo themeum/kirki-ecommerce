@@ -18,11 +18,11 @@ use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
-use Kirki\Ecommerce\App\Resources\Cart\CartResource;
 use Kirki\Ecommerce\App\Resources\Order\OrderResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderResource as SiteOrderResource;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Resources\Product\ProductResource;
+use Kirki\Ecommerce\App\Resources\Site\Cart\CartResource as SiteCartResource;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderActivityResource;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\App\Services\AddressService;
@@ -38,6 +38,7 @@ use Kirki\Ecommerce\Framework\Http\Request;
 
 use function Kirki\Ecommerce\App\customer;
 use function Kirki\Ecommerce\Framework\app;
+use function Kirki\Ecommerce\Framework\redirect;
 use function Kirki\Ecommerce\Framework\view;
 
 /**
@@ -154,7 +155,7 @@ class SiteController
     {
         $cart = $cart_service->get_current_cart();
         $calculate_tax = false;
-        $cart_resource = CartResource::make($cart, $calculate_tax);
+        $cart_resource = SiteCartResource::make($cart, $calculate_tax);
 
         return view('site.cart', ['cart' => $cart_resource])->layout(false);
     }
@@ -210,7 +211,12 @@ class SiteController
         $customer_id      = $customer ? $customer->get_customer_id() : null;
         $addresses        = $customer_id ? $address_service->all_for_customer($customer_id) : [];
         $payment_gateways = Payment::get_available_providers();
-        $cart = CartResource::make($cart);
+        $cart = SiteCartResource::make($cart);
+
+        if (!empty($cart['invalid_item_ids'])) {
+            wp_safe_redirect(Url::get_cart_url());
+            exit;
+        }
 
         $data = [
             'customer'         => $customer,

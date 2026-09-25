@@ -60,6 +60,16 @@
     @include flex(row, flex-start, flex-start);
     gap: $spacing-6;
 
+    &.disabled {
+      .kecom-cart-item-image {
+        opacity: 50%;
+      }
+      .kecom-cart-item-info {
+        opacity: 50%;
+        pointer-events: none;
+      }
+    }
+
     &-container {
       @include flex(column, flex-start, flex-start);
       flex-grow: 1;
@@ -163,6 +173,11 @@
 
   .kecom-cart-item:not(:first-child) {
     margin-top: $spacing-9;
+  }
+
+  .kecom-alert-item-remove {
+    @include typography(sm, medium, $text-primary);
+    text-decoration: underline;
   }
 
   @include breakpoint-down(md) {
