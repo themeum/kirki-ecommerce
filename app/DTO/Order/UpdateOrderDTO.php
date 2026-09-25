@@ -68,6 +68,9 @@ class UpdateOrderDTO extends DTO
     /** @var int */
     public $base_shipping_tax_amount;
 
+    /** @var bool */
+    public $is_tax_inclusive;
+
     /** @var int */
     public $invoiced_total;
 

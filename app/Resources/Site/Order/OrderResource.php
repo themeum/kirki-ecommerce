@@ -12,7 +12,6 @@ use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\CountryService;
-use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
@@ -41,7 +40,7 @@ class OrderResource extends Resource
     {
         $items = $this->items;
         $order_coupons = $this->order_coupons ?: collection();
-        $is_inclusive_tax = Tax::is_tax_inclusive();
+        $is_inclusive_tax = (bool) $this->is_tax_inclusive;
 
         $invoiced_items_subtotal = $this->get_items_subtotal($items, $order_coupons);
         $invoiced_items_tax_total = $this->get_items_tax_total($items);

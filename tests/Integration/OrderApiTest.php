@@ -236,14 +236,13 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * The order resource reports the store's current tax-inclusive-pricing
-     * setting, read live from settings rather than snapshotted at order
-     * placement time.
+     * The order resource reports whether the store priced items inclusive
+     * of tax when the order was placed, recorded on the order itself.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_show_order_reports_the_current_tax_inclusive_setting(): void
+    public function test_show_order_reports_the_tax_inclusive_setting_recorded_on_the_order(): void
     {
         $this->enable_us_inclusive_tax(20);
 
@@ -254,6 +253,82 @@ class OrderApiTest extends RestTestCase
         $payload = $this->assert_api_success($response);
 
         $this->assertTrue($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * The recorded is_tax_inclusive flag is a historical snapshot of the
+     * setting at order placement time, not a live read - an order placed
+     * under tax-inclusive pricing still reports true even after the store
+     * later switches to tax-exclusive pricing, since its persisted prices
+     * were never recalculated under the new setting.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_is_tax_inclusive_stays_a_historical_snapshot_after_the_setting_changes(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * Re-quantifying an existing order under the current (now different)
+     * tax setting updates the recorded is_tax_inclusive flag, since its
+     * prices are genuinely recalculated under that setting.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_refreshes_is_tax_inclusive_when_the_setting_has_changed(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $this->assert_api_success($this->request('PUT', 'settings', [
+            'key' => OptionKeys::TAX_SETTINGS,
+            'data' => [
+                'is_tax_inclusive_price' => false,
+                'is_shipping_tax_enabled' => false,
+                'is_enabled_display_inclusive_taxed_price' => false,
+                'tax_regions' => [],
+                'tax_services' => [],
+                'tax_ids' => [],
+            ],
+        ]));
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+            ],
+        ])));
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertFalse($payload['data']['is_tax_inclusive']);
     }
 
     /**

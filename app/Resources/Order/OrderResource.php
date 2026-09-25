@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Resources\Order;
 use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Facades\Money;
-use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
 
@@ -64,7 +63,7 @@ class OrderResource extends Resource
             'is_refund_initiated' => $this->is_refund_initiated,
             'is_manual' => $this->is_manual,
             'currency_code' => $this->currency_code,
-            'is_tax_inclusive' => (bool) Settings::get('tax.is_tax_inclusive_price', false),
+            'is_tax_inclusive' => (bool) $this->is_tax_inclusive,
 
             'totals' => [
                 'invoiced_items_subtotal_exclusive_money_object' => Money::prepare_amount_object_from_minor($items_subtotal['invoiced'], $this->currency_code),

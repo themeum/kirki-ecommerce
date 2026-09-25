@@ -21,6 +21,7 @@ use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\Framework\Supports\Arr;
 use Kirki\Ecommerce\App\Supports\Currency;
+use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -249,6 +250,8 @@ class UpdateOrderAction
 
         $order_dto->invoiced_shipping_tax_amount = $this->convert_amount($calculated_result->base_shipping_tax, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_shipping_tax_amount = $calculated_result->base_shipping_tax;
+
+        $order_dto->is_tax_inclusive = Tax::is_tax_inclusive();
 
         $order_dto->invoiced_total = $this->convert_amount($calculated_result->base_total, $dto->currency_code, $order_dto->exchange_rate);
         $order_dto->base_total = $calculated_result->base_total;
