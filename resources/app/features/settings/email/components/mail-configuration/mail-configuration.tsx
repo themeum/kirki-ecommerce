@@ -100,83 +100,61 @@ const MailConfiguration = () => {
             <Card cssOverride={mergeCss(cardStyles.innerDarkCard, { boxShadow: 'none' })}>
               <CardContent cssOverride={cardStyles.innerCardContent}>
                 <Flex direction="column" gap={2}>
-                  <Flex gap={4} align="center">
-                    <Flex gap={2} align="center">
-                      <Text variant="small" color="subdued">
-                        {__('From Email:', 'kirki-ecommerce')}
-                      </Text>
-                      <Text variant="small" color="secondary">
-                        {fromEmailLabel}
-                      </Text>
-                    </Flex>
-                    <Flex gap={2} align="center">
-                      <Text variant="small" color="subdued">
-                        {__('From Name:', 'kirki-ecommerce')}
-                      </Text>
-                      <Text variant="small" color="secondary">
-                        {fromNameLabel}
-                      </Text>
-                    </Flex>
+                  <Flex gap={1} align="center">
+                    <Text variant="small" color="subdued">
+                      {__('From Email:', 'kirki-ecommerce')}
+                    </Text>
+                    <Text variant="small">{fromEmailLabel}</Text>
                   </Flex>
-                  <Flex gap={4} align="center">
-                    <Flex gap={2} align="center">
-                      <Text variant="small" color="subdued">
-                        {__('Mailer:', 'kirki-ecommerce')}
-                      </Text>
-                      <Text variant="small" color="secondary">
-                        {mailerLabel}
-                      </Text>
-                    </Flex>
-                    {!isPhpMailer && (
-                      <Flex gap={2} align="center">
-                        <Text variant="small" color="subdued">
-                          {__('Encryption:', 'kirki-ecommerce')}
-                        </Text>
-                        <Text variant="small" color="secondary">
-                          {encryptionLabel}
-                        </Text>
-                      </Flex>
-                    )}
+                  <Flex gap={1} align="center">
+                    <Text variant="small" color="subdued">
+                      {__('From Name:', 'kirki-ecommerce')}
+                    </Text>
+                    <Text variant="small">{fromNameLabel}</Text>
+                  </Flex>
+
+                  <Flex gap={1} align="center">
+                    <Text variant="small" color="subdued">
+                      {__('Mailer:', 'kirki-ecommerce')}
+                    </Text>
+                    <Text variant="small">{mailerLabel}</Text>
                   </Flex>
                   {!isPhpMailer && (
-                    <Flex gap={4} align="center">
-                      <Flex gap={2} align="center">
+                    <Flex gap={1} align="center">
+                      <Text variant="small" color="subdued">
+                        {__('Encryption:', 'kirki-ecommerce')}
+                      </Text>
+                      <Text variant="small">{encryptionLabel}</Text>
+                    </Flex>
+                  )}
+
+                  {!isPhpMailer && (
+                    <>
+                      <Flex gap={1} align="center">
                         <Text variant="small" color="subdued">
                           {__('Host:', 'kirki-ecommerce')}
                         </Text>
-                        <Text variant="small" color="secondary">
-                          {hostLabel}
-                        </Text>
+                        <Text variant="small">{hostLabel}</Text>
                       </Flex>
-                      <Flex gap={2} align="center">
+                      <Flex gap={1} align="center">
                         <Text variant="small" color="subdued">
                           {__('Port:', 'kirki-ecommerce')}
                         </Text>
-                        <Text variant="small" color="secondary">
-                          {portLabel}
-                        </Text>
+                        <Text variant="small">{portLabel}</Text>
                       </Flex>
-                    </Flex>
-                  )}
-                  {!isPhpMailer && (
-                    <Flex gap={4} align="center">
-                      <Flex gap={2} align="center">
+                      <Flex gap={1} align="center">
                         <Text variant="small" color="subdued">
                           {__('Username:', 'kirki-ecommerce')}
                         </Text>
-                        <Text variant="small" color="secondary">
-                          {usernameLabel}
-                        </Text>
+                        <Text variant="small">{usernameLabel}</Text>
                       </Flex>
-                      <Flex gap={2} align="center">
+                      <Flex gap={1} align="center">
                         <Text variant="small" color="subdued">
                           {__('Password:', 'kirki-ecommerce')}
                         </Text>
-                        <Text variant="small" color="secondary">
-                          {passwordLabel}
-                        </Text>
+                        <Text variant="small">{passwordLabel}</Text>
                       </Flex>
-                    </Flex>
+                    </>
                   )}
                 </Flex>
               </CardContent>

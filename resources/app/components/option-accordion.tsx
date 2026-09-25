@@ -104,6 +104,7 @@ const OptionAccordion = (props: OptionAccordionProps) => {
                   cssOverride={mergeCss(
                     cardStyles.innerCardContent,
                     variant === 'shipping' && styles.shippingContent,
+                    variant === 'email' && styles.emailContent,
                   )}
                 >
                   {children}
@@ -152,6 +153,10 @@ const styles = defineStyles({
   },
   emailCard: {
     border: 'none',
+    backgroundColor: theme.colors.background.surfaceAlt,
+  },
+  emailContent: {
+    padding: theme.spacing[2],
   },
   shippingTrigger: {
     '&:has(button[data-state="open"])': {
