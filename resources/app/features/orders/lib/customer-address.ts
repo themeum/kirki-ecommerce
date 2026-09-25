@@ -7,7 +7,7 @@ export type AddressLines = {
   line2: string;
 };
 
-type AddressFormValues = Partial<Omit<OrderFormInput, 'items'>>;
+type AddressFormValues = Partial<Omit<OrderFormInput, 'items' | 'coupon_codes'>>;
 
 export const getCountryName = (
   countries: Country[],

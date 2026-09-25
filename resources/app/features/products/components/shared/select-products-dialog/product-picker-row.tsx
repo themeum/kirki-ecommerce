@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -47,18 +49,25 @@ const ProductPickerRow = ({
   const isPartial =
     selectVariants && selectedVariantCount > 0 && selectedVariantCount < variants.length;
 
-  const handleToggleAll = (checked: boolean) => {
-    if (selectVariants) {
-      onToggleVariants(variants, checked);
-      return;
-    }
+  const handleToggleAll = useCallback(
+    (checked: boolean) => {
+      if (selectVariants) {
+        onToggleVariants(variants, checked);
+        return;
+      }
 
-    onToggleProduct(checked);
-  };
+      onToggleProduct(checked);
+    },
+    [selectVariants, onToggleVariants, variants, onToggleProduct],
+  );
+
+  const handleProductRowClick = useCallback(() => {
+    handleToggleAll(!isChecked);
+  }, [isChecked, handleToggleAll]);
 
   return (
     <>
-      <TableRow>
+      <TableRow onClick={handleProductRowClick}>
         <TableCell onlyCheckbox>
           <Checkbox
             checked={isChecked}

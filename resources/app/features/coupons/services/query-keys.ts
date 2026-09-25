@@ -5,6 +5,8 @@ const couponKeys = {
   all: ['Coupons'] as const,
   lists: () => [...couponKeys.all, 'list'] as const,
   list: (params?: ListParams<CouponListFilter>) => [...couponKeys.lists(), params] as const,
+  infiniteList: (params?: ListParams<CouponListFilter>) =>
+    [...couponKeys.all, 'infinite-list', params] as const,
   details: () => [...couponKeys.all, 'detail'] as const,
   detail: (id: string | number) => [...couponKeys.details(), String(id)] as const,
   validate: (code: string) => [...couponKeys.all, 'validate', code] as const,

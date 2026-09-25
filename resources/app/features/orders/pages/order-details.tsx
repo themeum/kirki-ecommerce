@@ -157,7 +157,7 @@ const OrderDetails = () => {
                   total: order.totals.base_total_money_object.display,
                 }}
                 shippingMethodName={order.shipping_method_name}
-                couponCode={order.totals.discount_details?.code}
+                couponCodes={order.totals.coupons.map((coupon) => coupon.code).filter(Boolean)}
                 badge={<Badge variant={paymentBadge.variant}>{paymentBadge.text}</Badge>}
                 actions={
                   paymentActions.length > 0 && (

@@ -1,3 +1,4 @@
+import { useWatch } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 
 import Button from '@/components/ui/button';
@@ -32,6 +33,13 @@ const OrderCreate = () => {
     handleRemoveItem,
     handleSubmit,
   } = useOrderCreate();
+
+  const shippingMethodId = useWatch({ control: form.control, name: 'shipping_method' });
+  const draftCouponCodes = useWatch({ control: form.control, name: 'coupon_codes' });
+
+  const selectedShippingMethodName = calculation?.available_shipping_methods.find(
+    (method) => String(method.id) === shippingMethodId,
+  )?.name;
 
   return (
     <Page containerSize="xl">
@@ -72,6 +80,8 @@ const OrderCreate = () => {
                   total: calculation?.pricing.base_total_money_object.display,
                 }}
                 availableShippingMethods={calculation?.available_shipping_methods}
+                shippingMethodName={selectedShippingMethodName}
+                couponCodes={draftCouponCodes?.map((coupon) => coupon.code)}
                 isCalculating={isCalculating}
                 isDiscountEditable
                 isShippingEditable

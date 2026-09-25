@@ -1,5 +1,7 @@
 import z from 'zod';
 
+import type { CouponListItem } from '@/features/coupons/schemas/catalog/coupon';
+import { CouponListItemSchema } from '@/features/coupons/schemas/catalog/coupon';
 import { getStateLabel, isAddressFieldRequired } from '@/libs/address-rules';
 import {
   isEmptyValue,
@@ -44,7 +46,7 @@ const OrderFormShape = prepareFormSchema(
       }),
     ),
     currency_code: stringOrNull(),
-    coupon_code: stringOrNull(),
+    coupon_codes: z.array(CouponListItemSchema).default([]),
     customer_id: required(z.number(), __('Customer is required', 'kirki-ecommerce')),
 
     shipping_method: required(z.string(), __('Shipping method is required', 'kirki-ecommerce')),
@@ -153,12 +155,16 @@ const buildBillingFields = (values: z.output<typeof OrderFormShape>) => {
   };
 };
 
+const toCouponCodes = (coupons: Pick<CouponListItem, 'code'>[]) => {
+  return coupons.flatMap((coupon) => coupon.code?.trim() || []);
+};
+
 const OrderFormSchema = OrderFormShape.transform((values) => ({
   customer_id: values.customer_id,
   items: values.items,
 
   currency_code: values.currency_code ?? null,
-  coupon_code: values.coupon_code?.trim() || null,
+  coupon_codes: toCouponCodes(values.coupon_codes),
 
   shipping_method: values.shipping_method,
   shipping_first_name: values.shipping_first_name,
@@ -188,7 +194,7 @@ const OrderCalculationRequestSchema = z
     items: values.items ?? [],
 
     currency_code: values.currency_code ?? null,
-    coupon_code: values.coupon_code?.trim() || null,
+    coupon_codes: toCouponCodes(values.coupon_codes ?? []),
 
     shipping_method: values.shipping_method ?? null,
     shipping_first_name: values.shipping_first_name ?? null,

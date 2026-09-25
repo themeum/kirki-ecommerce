@@ -137,7 +137,7 @@ export const OrderItemSchema = z.object({
     invoiced_discount_money_object: MoneyObjectSchema,
     base_discount: MoneyAmountSchema,
     base_discount_money_object: MoneyObjectSchema,
-    discount_details: CouponSchema.partial().nullish(),
+    coupons: z.array(CouponSchema.partial()).default([]),
     invoiced_tax: MoneyAmountSchema,
     invoiced_tax_money_object: MoneyObjectSchema,
     base_tax: MoneyAmountSchema,

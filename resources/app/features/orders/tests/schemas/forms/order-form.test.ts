@@ -7,11 +7,20 @@ import {
 import { cacheAddressRules } from '@/libs/address-rules';
 import { getDefaults } from '@/libs/zod';
 
+const buildCoupon = (id: number, code: string | null) => ({
+  id,
+  method: 'code' as const,
+  title: `Coupon ${id}`,
+  code,
+  discount_type: 'amount-off' as const,
+  status: 'active' as const,
+});
+
 describe('OrderFormSchema', () => {
   const base = {
     items: [{ variant_id: 12, quantity: 2 }],
     currency_code: 'USD',
-    coupon_code: null,
+    coupon_codes: [],
     customer_id: 7,
     shipping_method: 'flat_rate',
     shipping_first_name: 'John',
@@ -52,7 +61,7 @@ describe('OrderFormSchema', () => {
       customer_id: 7,
       items: [{ variant_id: 12, quantity: 2 }],
       currency_code: 'USD',
-      coupon_code: null,
+      coupon_codes: [],
       shipping_method: 'flat_rate',
       shipping_first_name: 'John',
       shipping_last_name: 'Doe',
@@ -159,12 +168,14 @@ describe('OrderFormSchema', () => {
     expect(result.shipping_address_line2).toBe('Flat 2');
   });
 
-  it('trims the coupon code and nulls a blank one', () => {
-    expect(OrderFormSchema.parse({ ...base, coupon_code: '  SAVE10  ' }).coupon_code).toBe(
-      'SAVE10',
-    );
-    expect(OrderFormSchema.parse({ ...base, coupon_code: '   ' }).coupon_code).toBeNull();
-    expect(OrderFormSchema.parse({ ...base, coupon_code: null }).coupon_code).toBeNull();
+  it('outputs the trimmed code of each selected coupon and drops blank ones', () => {
+    expect(
+      OrderFormSchema.parse({
+        ...base,
+        coupon_codes: [buildCoupon(1, '  SAVE10  '), buildCoupon(2, '  '), buildCoupon(3, null), buildCoupon(4, 'WELCOME')],
+      }).coupon_codes,
+    ).toEqual(['SAVE10', 'WELCOME']);
+    expect(OrderFormSchema.parse({ ...base, coupon_codes: [] }).coupon_codes).toEqual([]);
   });
 
   it('sends null rather than undefined for every omitted optional field', () => {
@@ -183,7 +194,7 @@ describe('OrderFormSchema', () => {
     });
 
     expect(result.currency_code).toBeNull();
-    expect(result.coupon_code).toBeNull();
+    expect(result.coupon_codes).toEqual([]);
     expect(result.shipping_address_line2).toBeNull();
     expect(result.shipping_phone).toBeNull();
     expect(result.shipping_email).toBeNull();
@@ -338,7 +349,7 @@ describe('OrderCalculationRequestSchema', () => {
       customer_id: null,
       items: [],
       currency_code: null,
-      coupon_code: null,
+      coupon_codes: [],
       shipping_method: null,
       shipping_first_name: null,
       shipping_last_name: null,
@@ -373,14 +384,14 @@ describe('OrderCalculationRequestSchema', () => {
     expect(result.shipping_address_line2).toBeNull();
   });
 
-  it('maps shipping_postal_code to shipping_postal_code and trims the coupon code', () => {
+  it('maps shipping_postal_code to shipping_postal_code and outputs trimmed coupon codes', () => {
     const result = OrderCalculationRequestSchema.parse({
       shipping_postal_code: 'NW1 6XE',
-      coupon_code: '  SAVE10  ',
+      coupon_codes: [buildCoupon(1, '  SAVE10  '), buildCoupon(2, '  ')],
     });
 
     expect(result.shipping_postal_code).toBe('NW1 6XE');
-    expect(result.coupon_code).toBe('SAVE10');
+    expect(result.coupon_codes).toEqual(['SAVE10']);
   });
 
   it('omits the billing, notes and manual-order fields from the calculation payload', () => {

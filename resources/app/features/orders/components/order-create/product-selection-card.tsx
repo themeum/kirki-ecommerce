@@ -87,8 +87,8 @@ export default ProductSelectionCard;
 
 const styles = defineStyles({
   emptyCard: {
-    borderStyle: 'dashed',
     paddingBlock: theme.spacing[12],
+    border: 'none',
   },
   headerRow: {
     flexDirection: 'row',

@@ -1,6 +1,5 @@
 import { PlusCircle } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useFormContext, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,6 @@ import Text from '@/components/ui/text';
 import DiscountPopover from '@/features/orders/components/order-create/payment/discount-popover';
 import ShippingPopover from '@/features/orders/components/order-create/payment/shipping-popover';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
-import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
@@ -33,7 +31,7 @@ type PaymentSummaryCardProps = {
   amounts?: PaymentSummaryAmounts;
   availableShippingMethods?: OrderCalculation['available_shipping_methods'];
   shippingMethodName?: string | null;
-  couponCode?: string | null;
+  couponCodes?: (string | null | undefined)[];
   isCalculating?: boolean;
   isDiscountEditable?: boolean;
   isShippingEditable?: boolean;
@@ -45,23 +43,13 @@ const PaymentSummaryCard = ({
   amounts,
   availableShippingMethods = [],
   shippingMethodName,
-  couponCode,
+  couponCodes,
   isCalculating,
   isDiscountEditable,
   isShippingEditable,
   badge,
   actions,
 }: PaymentSummaryCardProps) => {
-  const { control } = useFormContext<OrderFormInput>();
-  const draftCouponCode = useWatch({ control, name: 'coupon_code' });
-  const shippingMethodId = useWatch({ control, name: 'shipping_method' });
-
-  const appliedCouponCode = draftCouponCode ?? couponCode;
-
-  const selectedShippingMethodName =
-    availableShippingMethods.find((method) => String(method.id) === shippingMethodId)?.name ??
-    shippingMethodName;
-
   const itemsCount = amounts?.itemsCount;
   const subtotalDisplay = amounts?.subtotal ?? EMPTY_AMOUNT;
   const discountDisplay = amounts?.discount ?? EMPTY_AMOUNT;
@@ -117,7 +105,7 @@ const PaymentSummaryCard = ({
             )}
             <Flex justify="space-between" grow={1}>
               <Text variant="small" color="secondary">
-                {appliedCouponCode}
+                {couponCodes?.join(', ')}
               </Text>
               <Text variant="small">{discountDisplay}</Text>
             </Flex>
@@ -144,7 +132,7 @@ const PaymentSummaryCard = ({
             )}
             <Flex justify="space-between" grow={1}>
               <Text variant="small" color="secondary">
-                {selectedShippingMethodName}
+                {shippingMethodName}
               </Text>
               <Text variant="small">{shippingDisplay}</Text>
             </Flex>
