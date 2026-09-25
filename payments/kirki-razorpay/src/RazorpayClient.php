@@ -88,7 +88,7 @@ class RazorpayClient
                 'contact' => $order->billing_phone,
             ],
             'notes' => [
-                'order_id' => $order->id,
+                'order_uuid' => $order->uuid,
             ],
             'modal' => [
                 'escape' => false,

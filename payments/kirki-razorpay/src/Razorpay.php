@@ -155,13 +155,13 @@ class Razorpay extends PaymentProvider
             return false;
         }
 
-        $order_id = $event->payload->payment->entity->notes->order_id ?? null;
-        $order = OrderManager::find($order_id);
+        $order_uuid = $event->payload->payment->entity->notes->order_uuid ?? null;
+        $order = OrderManager::find_by_uuid($order_uuid);
         if ($order->payment_status === PaymentStatus::PAID) {
-            return false;
+            return true;
         }
 
-        $this->handle_transaction_response($event);
+        $this->handle_transaction_response($event, $order);
         return true;
     }
 
@@ -236,32 +236,32 @@ class Razorpay extends PaymentProvider
      * Update the order based on a Razorpay payment event's status.
      *
      * @param object $payload
+     * @param Order $order Order that was placed.
      * @return void
      * @throws Exception If the order update fails.
      */
-    protected function handle_transaction_response(object $payload)
+    protected function handle_transaction_response(object $payload, Order $order)
     {
         $entity   = $payload->payload->payment->entity;
         $status   = $entity->status ?? PaymentStatus::UNPAID;
-        $order_id = $entity->notes->order_id;
 
         DB::begin_transaction();
 
         try {
             switch ($status) {
                 case RazorpayConstant::STATUS_PAYMENT_CAPTURED:
-                    $this->record_transaction($order_id, $entity);
-                    OrderManager::mark_payment_as_paid($order_id);
-                    OrderManager::set_payment_provider_fee($order_id, $entity->fee);
+                    $this->record_transaction($order->id, $entity);
+                    OrderManager::mark_payment_as_paid($order->id);
+                    OrderManager::set_payment_provider_fee($order->id, $this->get_fee_amount($entity));
                     break;
 
                 case RazorpayConstant::STATUS_PAYMENT_FAILED:
-                    $this->record_transaction($order_id, $entity);
-                    OrderManager::mark_payment_as_failed($order_id);
+                    $this->record_transaction($order->id, $entity);
+                    OrderManager::mark_payment_as_failed($order->id);
                     break;
 
                 default:
-                    OrderManager::mark_payment_as_unpaid($order_id);
+                    OrderManager::mark_payment_as_unpaid($order->id);
             }
 
             DB::commit();
@@ -285,5 +285,28 @@ class Razorpay extends PaymentProvider
     {
         OrderManager::set_transaction_id($order_id, $entity->id);
         OrderManager::set_payment_metadata($order_id, wp_json_encode($entity));
+    }
+
+    /**
+     * Get the Transaction Fee in the order's invoiced currency.
+     *
+     * Razorpay Settlements occur in INR based on the conversion rate at the time of payment.
+     *
+     * @link https://razorpay.com/docs/payments/international-payments/currency-conversion#payment-entity
+     *
+     * @param object $entity Transaction data returned by the gateway.
+     *
+     * @return float Fee amount in the invoiced currency.
+     */
+    protected function get_fee_amount($entity)
+    {
+        $is_foreign_currency = isset($entity->base_currency) && strtoupper($entity->base_currency) !== strtoupper($entity->currency);
+
+        if (!$is_foreign_currency) {
+            return $entity->fee;
+        }
+
+        $exchange_rate = (float) ($entity->base_amount / $entity->amount);
+        return $entity->fee / $exchange_rate;
     }
 }
