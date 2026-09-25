@@ -34,7 +34,7 @@ class PayuTransactionBuilder
         return [
             'continueUrl' => Url::get_checkout_success_url($this->order->uuid),
             'customerIp' => $this->order->ip_address ?: $this->resolve_customer_ip(),
-            'description' => '#' . $this->order->order_number . ' ' . get_bloginfo('name'),
+            'description' => $this->order->order_number . ' ' . get_bloginfo('name'),
             'extOrderId' => $this->order->uuid,
             'currencyCode' => strtoupper($this->order->currency_code),
             'totalAmount' => (string) $this->order->invoiced_total,

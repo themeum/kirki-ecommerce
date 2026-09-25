@@ -117,7 +117,7 @@ class PayuClient
 
         $token = $this->decode_response($response)['access_token'] ?? '';
 
-        throw_if('' === $token, __('PayU access token not found.', 'kirki-ecommerce-payu'));
+        throw_if(empty($token), __('PayU access token not found.', 'kirki-ecommerce-payu'));
 
         $this->access_token = $token;
 
@@ -183,7 +183,7 @@ class PayuClient
         foreach (explode(';', rtrim($header, ';')) as $pair) {
             $parts = explode('=', $pair, 2);
 
-            if (2 !== count($parts)) {
+            if (count($parts) !== 2) {
                 return [];
             }
 
