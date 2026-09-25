@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Managers;
 
 use BadMethodCallException;
 use Brick\Math\RoundingMode;
+use Brick\Money\Currency as BrickCurrency;
 use Brick\Money\Money;
 use Kirki\Ecommerce\App\Constants\CookieNames;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
@@ -467,5 +468,17 @@ class MoneyManager
         }
 
         return Money::$method(...$parameters);
+    }
+
+    /**
+     * Get the ISO 4217 numeric code of the currency, zero-padded to 3 digits (e.g. EUR => '978', AUD => '036').
+     *
+     * @param string $code
+     * @return int
+     * @throws \Brick\Money\Exception\UnknownCurrencyException If the currency code is not a known ISO 4217 code.
+     */
+    public static function get_currency_numeric_code($code)
+    {
+        return BrickCurrency::of(strtoupper($code))->getNumericCode();
     }
 }
