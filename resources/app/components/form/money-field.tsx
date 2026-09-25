@@ -7,6 +7,7 @@ import NumberInput from '@/components/ui/number-input';
 import { useBaseCurrencySymbol } from '@/hooks';
 import { theme } from '@/theme';
 import { scoped } from '@/theme/mixins';
+import { isDefined } from '@/utils/object';
 
 type MoneyFieldProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -22,6 +23,7 @@ type MoneyFieldProps<
   disabled?: boolean;
   cssOverride?: CSSObject;
   autoFocus?: boolean;
+  ariaLabel?: string;
 };
 
 const MoneyField = <
@@ -38,6 +40,7 @@ const MoneyField = <
   disabled,
   cssOverride,
   autoFocus = false,
+  ariaLabel,
 }: MoneyFieldProps<TFieldValues, TName>) => {
   const { control } = useFormContext<TFieldValues>();
   const baseCurrencySymbol = useBaseCurrencySymbol();
@@ -63,7 +66,9 @@ const MoneyField = <
               {showSymbol && (
                 <span
                   css={scoped({
-                    color: theme.colors.text.subdued,
+                    color: isDefined(field.value)
+                      ? theme.colors.text.primary
+                      : theme.colors.text.subdued,
                     position: 'absolute',
                     left: theme.spacing[3],
                     top: '50%',
@@ -87,6 +92,7 @@ const MoneyField = <
                 name={field.name}
                 ref={field.ref}
                 error={Boolean(fieldState.error)}
+                aria-label={ariaLabel}
                 aria-invalid={fieldState.invalid}
                 onFocus={(event) => event.target.select()}
                 // eslint-disable-next-line jsx-a11y/no-autofocus -- opt-in prop, the caller decides whether the field should take focus

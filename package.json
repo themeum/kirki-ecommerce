@@ -6,6 +6,8 @@
     "make:package": "bash bin/make-package.sh",
     "search:index": "npm run search:index --prefix resources/app",
     "test:app": "npm run test --prefix resources/app",
+    "test:php": "composer test:docker",
+    "test": "npm run test:php && npm run test:app",
     "typecheck:app": "npm run typecheck --prefix resources/app"
   }
 }

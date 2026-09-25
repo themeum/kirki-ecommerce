@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCombinations,
   formatComboLabel,
+  remapAttributeValues,
   syncVariantMatrix,
 } from '@/features/products/lib/variant-matrix';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
@@ -322,5 +323,61 @@ describe('formatComboLabel', () => {
 
   it('returns an empty label for a simple product', () => {
     expect(formatComboLabel([], [])).toBe('');
+  });
+});
+
+describe('remapAttributeValues', () => {
+  const FIT_SMALL = 31;
+  const FIT_MEDIUM = 32;
+
+  const fitSize: Attribute = {
+    id: 3,
+    name: 'Fit Size',
+    values: [
+      { id: FIT_SMALL, value: 'S' },
+      { id: FIT_MEDIUM, value: 'M' },
+    ],
+  };
+
+  it('rewrites mapped ids and leaves the rest alone', () => {
+    const [remapped] = remapAttributeValues(
+      [variant({ attribute_values: [RED, SMALL] })],
+      new Map([[SMALL, FIT_SMALL]]),
+    );
+
+    expect(remapped.attribute_values).toEqual([RED, FIT_SMALL]);
+  });
+
+  it('keeps saved variants when an attribute is replaced by a renamed copy', () => {
+    const saved = [
+      variant({ id: 1, attribute_values: [RED, SMALL], sku: 'R-S', available_quantity: 4, base_price: '10' }),
+      variant({ id: 2, attribute_values: [RED, MEDIUM], sku: 'R-M', available_quantity: 7, base_price: '12' }),
+    ];
+
+    const { variants, discarded } = syncVariantMatrix({
+      attributes: [color(RED), fitSize],
+      previousAttributes: [color(RED), size(SMALL, MEDIUM)],
+      variants: remapAttributeValues(
+        saved,
+        new Map([
+          [SMALL, FIT_SMALL],
+          [MEDIUM, FIT_MEDIUM],
+        ]),
+      ),
+    });
+
+    expect(discarded).toEqual([]);
+    expect(
+      variants.map(({ id, sku, available_quantity, base_price, attribute_values }) => ({
+        id,
+        sku,
+        available_quantity,
+        base_price,
+        attribute_values,
+      })),
+    ).toEqual([
+      { id: 1, sku: 'R-S', available_quantity: 4, base_price: '10', attribute_values: [RED, FIT_SMALL] },
+      { id: 2, sku: 'R-M', available_quantity: 7, base_price: '12', attribute_values: [RED, FIT_MEDIUM] },
+    ]);
   });
 });

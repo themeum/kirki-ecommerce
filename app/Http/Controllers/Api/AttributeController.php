@@ -54,6 +54,7 @@ class AttributeController
     {
         $params = AttributeListFilterDTO::from_array($request->all());
         $params->sort_by = $request->whitelisted('sort_by', 'id', ['id', 'name', 'slug', 'type', 'created_by', 'updated_by', 'created_at', 'updated_at']);
+        $params->sort_order = 'asc';
 
         if ((int) $params->limit === Pagination::ALL) {
             $data = $this->service->all($params);

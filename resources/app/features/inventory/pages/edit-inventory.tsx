@@ -26,17 +26,24 @@ import {
 } from '@/components/ui/tooltip';
 import { RouteConfig } from '@/config/route-config';
 import Image from '@/features/inventory/components/variant-form/sections/image';
-import Inventory from '@/features/inventory/components/variant-form/sections/inventory';
-import Price from '@/features/inventory/components/variant-form/sections/price';
-import Shipping from '@/features/inventory/components/variant-form/sections/shipping';
 import Visibility from '@/features/inventory/components/variant-form/sections/visibility';
 import {
   type VariantFormInput,
   type VariantFormPayload,
   VariantFormSchema,
 } from '@/features/inventory/schemas/forms/variant-form';
-import { useUpdateVariantMutation, useVariantQuery } from '@/features/inventory/services/inventory';
+import {
+  useGenerateSkuMutation,
+  useUpdateVariantMutation,
+  useVariantQuery,
+} from '@/features/inventory/services/inventory';
 import EditInventorySkeleton from '@/features/inventory/skeletons/edit-inventory-skeleton';
+import {
+  VariantFieldScope,
+  VariantInventorySection,
+  VariantPriceSection,
+  VariantShippingSection,
+} from '@/features/products';
 import { useUnsavedNavigationGuard } from '@/hooks/use-unsaved-navigation-guard';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -53,6 +60,7 @@ const EditInventory = () => {
 
   const { data: variant, isLoading, isError } = useVariantQuery(variantId);
   const updateMutation = useUpdateVariantMutation();
+  const generateSkuMutation = useGenerateSkuMutation();
   const isSubmitting = updateMutation.isPending;
 
   const form = useForm<VariantFormInput, unknown, VariantFormPayload>({
@@ -78,6 +86,23 @@ const EditInventory = () => {
       }),
     );
   }, [variant, form]);
+
+  const handleGenerateSku = () => {
+    const currentVariantId = form.getValues().id;
+
+    if (!currentVariantId) {
+      return;
+    }
+
+    generateSkuMutation.mutate(
+      { variant_id: currentVariantId },
+      {
+        onSuccess: (response) => {
+          form.setValue('sku', response.data.sku, { shouldDirty: true, shouldTouch: true });
+        },
+      },
+    );
+  };
 
   const handleProductNameHover = () => {
     const element = productNameRef.current;
@@ -236,9 +261,15 @@ const EditInventory = () => {
         <PageContent>
           <Flex gap={4}>
             <Flex direction="column" gap={4} cssOverride={{ width: '70%' }}>
-              <Price />
-              <Inventory committedQuantity={variant.committed_quantity} />
-              <Shipping />
+              <VariantFieldScope>
+                <VariantPriceSection />
+                <VariantInventorySection
+                  onGenerateSku={handleGenerateSku}
+                  isGeneratingSku={generateSkuMutation.isPending}
+                  committedQuantity={variant.committed_quantity}
+                />
+                <VariantShippingSection />
+              </VariantFieldScope>
             </Flex>
             <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
               <Visibility />

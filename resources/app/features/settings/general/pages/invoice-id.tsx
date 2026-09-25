@@ -37,9 +37,9 @@ const InvoiceId = () => {
     .map((id) =>
       sprintf(
         '%s%s%s%s',
-        invoiceIdPrefix || '',
+        invoiceIdPrefix || 'XXX-',
         applyYearPrefix ? '26-' : '',
-        incrementString(invoiceIdSequence, id),
+        incrementString(invoiceIdSequence, id) || '00001',
         invoiceIdSuffix || '',
       ),
     )

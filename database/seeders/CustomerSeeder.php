@@ -43,10 +43,10 @@ class CustomerSeeder extends Seeder
 
             if (!$is_shipping_same_as_billing) {
                 $addresses[] = $this->make_address_data($customer_data, [
-                    'address_line1' => $this->get_address_line($index, 'billing'),
+                    'address_line1' => $this->get_address_line($index + 1, 'billing'),
                     'city' => $this->get_city($index + 1),
                     'state' => $this->get_state($index + 1),
-                    'country' => $this->get_country($index),
+                    'country' => $this->get_country($index + 1),
                     'postal_code' => $this->get_postal_code($index + 1),
                     'is_default_billing' => true,
                 ]);
@@ -160,20 +160,20 @@ class CustomerSeeder extends Seeder
      * @since 1.0.0
      *
      * @param int $index Customer index.
-     * @return string State code.
+     * @return string State id from the country's subdivision list.
      */
     protected function get_state($index)
     {
         $states = [
-            'CA',
-            'CA',
-            'NY',
-            'LND',
-            'LND',
-            'CA',
-            'IL',
-            'CA',
-            'CA',
+            '1425',
+            '1416',
+            '1452',
+            '2357',
+            '2357',
+            '1416',
+            '1425',
+            '1416',
+            '1416',
             '771',
         ];
 
@@ -186,11 +186,24 @@ class CustomerSeeder extends Seeder
      * @since 1.0.0
      *
      * @param int $index Customer index.
-     * @return string Country code, BD for index 9 and US otherwise.
+     * @return string Country code.
      */
     protected function get_country($index)
     {
-        return $index === 9 ? 'BD' : 'US';
+        $countries = [
+            'US',
+            'US',
+            'US',
+            'GB',
+            'GB',
+            'US',
+            'US',
+            'US',
+            'US',
+            'BD',
+        ];
+
+        return $countries[$index % count($countries)];
     }
 
     /**
@@ -204,7 +217,7 @@ class CustomerSeeder extends Seeder
     protected function get_postal_code($index)
     {
         $codes = [
-            '90210',
+            '62701',
             '94043',
             '10118',
             'NW1 6XE',

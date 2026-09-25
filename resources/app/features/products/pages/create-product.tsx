@@ -45,7 +45,6 @@ const CreateProduct = () => {
       {
         ...getDefaultVariantValues(),
         weight_unit: productSettings?.weight_unit ?? null,
-        show_unit_price: productSettings?.is_unit_price_visible ?? false,
         dimension_unit: productSettings?.dimension_unit ?? null,
         shipping_box_id: defaultBox?.id ?? null,
       },

@@ -1,11 +1,8 @@
 import NumberField from '@/components/form/number-field';
 import SelectField from '@/components/form/select-field';
-import SwitchField from '@/components/form/switch-field';
-import ActionGroup from '@/components/ui/action-group';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Separator } from '@/components/ui/separator';
-import Text from '@/components/ui/text';
 import { dimensionUnitList, weightUnitList } from '@/features/settings/lib/utils';
 import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
@@ -32,7 +29,7 @@ export const StandardUnit = () => {
           <CardTitle>{__('Units and Stock Defaults', 'kirki-ecommerce')}</CardTitle>
           <CardDescription>
             {__(
-              'Default weight and dimension units, unit pricing, and the low stock threshold.',
+              'Default weight and dimension units, and the low stock threshold.',
               'kirki-ecommerce',
             )}
           </CardDescription>
@@ -50,21 +47,7 @@ export const StandardUnit = () => {
               options={dimensionOptions}
             />
 
-            <Separator />
-
-            <Flex>
-              <Flex direction="column" gap={2}>
-                <Text weight="medium">{__('Show unit price', 'kirki-ecommerce')}</Text>
-                <Text color="secondary">
-                  {__('Enable to show unit price in your products', 'kirki-ecommerce')}
-                </Text>
-              </Flex>
-              <ActionGroup>
-                <SwitchField name="is_unit_price_visible" />
-              </ActionGroup>
-            </Flex>
-
-            <Separator />
+            <Separator negativeMargin={16} />
 
             <NumberField
               name="low_stock_threshold"

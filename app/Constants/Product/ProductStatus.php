@@ -15,5 +15,6 @@ class ProductStatus
 
     const DRAFT = 'draft';
     const PUBLISHED = 'published';
+    const SCHEDULED = 'scheduled';
     const TRASHED = 'trashed';
 }

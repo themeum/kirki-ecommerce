@@ -5,16 +5,21 @@ namespace Kirki\Ecommerce\Database\Seeders;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
+use Kirki\Ecommerce\Framework\Supports\Str;
 
 /**
- * Seeds the curated two-level category tree (Men, Women, Kids, Accessories).
+ * Seeds the Shopify Standard Product Taxonomy category tree (verticals and their subcategories).
  *
  * @since 1.0.0
  */
 class CategorySeeder extends Seeder
 {
     /**
-     * Insert the curated categories with fixed IDs and parent links.
+     * Insert the catalog's two-level category tree.
+     *
+     * Inserted one level at a time so each level's real primary keys can be read
+     * back and used as the next level's parent_id - the tree carries no hardcoded
+     * ids, which is what lets a catalog this size stay easy to regenerate.
      *
      * @since 1.0.0
      *
@@ -22,251 +27,96 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-        $categories = [
-            [
-                'id' => 1,
-                'name' => 'Men',
-                'slug' => 'men',
-                'description' => 'Apparel and footwear for men.',
-                'parent_id' => null,
-                'level' => 1,
-                'ordering' => 1,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 2,
-                'name' => 'Men\'s Tops',
-                'slug' => 'mens-tops',
-                'description' => 'T-shirts, shirts, and sweaters for men.',
-                'parent_id' => 1,
-                'level' => 2,
-                'ordering' => 1,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 3,
-                'name' => 'Men\'s Bottoms',
-                'slug' => 'mens-bottoms',
-                'description' => 'Jeans, chinos, and trousers for men.',
-                'parent_id' => 1,
-                'level' => 2,
-                'ordering' => 2,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 4,
-                'name' => 'Men\'s Outerwear',
-                'slug' => 'mens-outerwear',
-                'description' => 'Jackets and coats for men.',
-                'parent_id' => 1,
-                'level' => 2,
-                'ordering' => 3,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 5,
-                'name' => 'Men\'s Footwear',
-                'slug' => 'mens-footwear',
-                'description' => 'Sneakers and shoes for men.',
-                'parent_id' => 1,
-                'level' => 2,
-                'ordering' => 4,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 6,
-                'name' => 'Women',
-                'slug' => 'women',
-                'description' => 'Apparel and footwear for women.',
-                'parent_id' => null,
-                'level' => 1,
-                'ordering' => 2,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 7,
-                'name' => 'Women\'s Tops',
-                'slug' => 'womens-tops',
-                'description' => 'T-shirts, blouses, and sweaters for women.',
-                'parent_id' => 6,
-                'level' => 2,
-                'ordering' => 1,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 8,
-                'name' => 'Women\'s Dresses',
-                'slug' => 'womens-dresses',
-                'description' => 'Dresses for every occasion.',
-                'parent_id' => 6,
-                'level' => 2,
-                'ordering' => 2,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 9,
-                'name' => 'Women\'s Bottoms',
-                'slug' => 'womens-bottoms',
-                'description' => 'Jeans and leggings for women.',
-                'parent_id' => 6,
-                'level' => 2,
-                'ordering' => 3,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 10,
-                'name' => 'Women\'s Outerwear',
-                'slug' => 'womens-outerwear',
-                'description' => 'Jackets and coats for women.',
-                'parent_id' => 6,
-                'level' => 2,
-                'ordering' => 4,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 11,
-                'name' => 'Women\'s Footwear',
-                'slug' => 'womens-footwear',
-                'description' => 'Sneakers and shoes for women.',
-                'parent_id' => 6,
-                'level' => 2,
-                'ordering' => 5,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 12,
-                'name' => 'Kids',
-                'slug' => 'kids',
-                'description' => 'Apparel for boys and girls.',
-                'parent_id' => null,
-                'level' => 1,
-                'ordering' => 3,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 13,
-                'name' => 'Boys Clothing',
-                'slug' => 'boys-clothing',
-                'description' => 'Everyday apparel for boys.',
-                'parent_id' => 12,
-                'level' => 2,
-                'ordering' => 1,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 14,
-                'name' => 'Girls Clothing',
-                'slug' => 'girls-clothing',
-                'description' => 'Everyday apparel for girls.',
-                'parent_id' => 12,
-                'level' => 2,
-                'ordering' => 2,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 15,
-                'name' => 'Accessories',
-                'slug' => 'accessories',
-                'description' => 'Bags, eyewear, and jewelry to complete any outfit.',
-                'parent_id' => null,
-                'level' => 1,
-                'ordering' => 4,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 16,
-                'name' => 'Bags',
-                'slug' => 'bags',
-                'description' => 'Totes, crossbody bags, and backpacks.',
-                'parent_id' => 15,
-                'level' => 2,
-                'ordering' => 1,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 17,
-                'name' => 'Belts & Wallets',
-                'slug' => 'belts-wallets',
-                'description' => 'Leather belts and wallets.',
-                'parent_id' => 15,
-                'level' => 2,
-                'ordering' => 2,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 18,
-                'name' => 'Eyewear',
-                'slug' => 'eyewear',
-                'description' => 'Sunglasses and prescription frames.',
-                'parent_id' => 15,
-                'level' => 2,
-                'ordering' => 3,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 19,
-                'name' => 'Watches & Jewelry',
-                'slug' => 'watches-jewelry',
-                'description' => 'Watches, smartwatches, and jewelry.',
-                'parent_id' => 15,
-                'level' => 2,
-                'ordering' => 4,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-            [
-                'id' => 20,
-                'name' => 'Hats & Caps',
-                'slug' => 'hats-caps',
-                'description' => 'Caps, beanies, and hats.',
-                'parent_id' => 15,
-                'level' => 2,
-                'ordering' => 5,
-                'is_active' => true,
-                'is_deletable' => true,
-                'created_by' => 1,
-            ],
-        ];
+        $categories = $this->flatten(SeedCatalog::get_categories());
+        $ids = [];
 
-        Category::query()->insert($categories);
+        foreach ([1, 2] as $level) {
+            $rows = [];
 
-        Log::info('CategorySeeder run successfully');
+            foreach ($categories as $category) {
+                if ($category['level'] !== $level) {
+                    continue;
+                }
+
+                $rows[] = [
+                    'parent_id' => $ids[$category['parent_slug']] ?? null,
+                    'name' => $category['name'],
+                    'slug' => $category['slug'],
+                    'description' => null,
+                    'level' => $level,
+                    'ordering' => $category['ordering'],
+                    'is_active' => true,
+                    'is_deletable' => true,
+                    'created_by' => 1,
+                ];
+            }
+
+            Category::query()->insert($rows);
+
+            $ids += Category::query()->where('level', $level)->pluck('id', 'slug')->all();
+        }
+
+        Log::info(sprintf('CategorySeeder created %d categories', count($categories)));
+    }
+
+    /**
+     * Flatten the nested catalog tree into insert-ordered rows.
+     *
+     * @since 1.0.0
+     *
+     * @param array<int, array<string, mixed>> $tree The nested category tree.
+     * @return array<int, array<string, mixed>> Rows with name, slug, level, ordering and parent_slug, parents before children.
+     */
+    protected function flatten($tree)
+    {
+        $used_slugs = [];
+        $categories = [];
+
+        foreach ($tree as $top_index => $top) {
+            $top_slug = $this->unique_slug($top['name'], null, $used_slugs);
+
+            $categories[] = [
+                'name' => $top['name'],
+                'slug' => $top_slug,
+                'level' => 1,
+                'ordering' => $top_index + 1,
+                'parent_slug' => null,
+            ];
+
+            foreach ($top['children'] as $child_index => $child) {
+                $categories[] = [
+                    'name' => $child['name'],
+                    'slug' => $this->unique_slug($child['name'], $top['name'], $used_slugs),
+                    'level' => 2,
+                    'ordering' => $child_index + 1,
+                    'parent_slug' => $top_slug,
+                ];
+            }
+        }
+
+        return $categories;
+    }
+
+    /**
+     * Build a slug that is unique across the whole tree.
+     *
+     * @since 1.0.0
+     *
+     * @param string              $name        The category name.
+     * @param string|null         $parent_name The parent category name, when there is one.
+     * @param array<string, bool> $used_slugs  Slugs already taken, by reference.
+     * @return string The unique slug.
+     */
+    protected function unique_slug($name, $parent_name, array &$used_slugs)
+    {
+        $slug = Str::slug($name);
+
+        if (isset($used_slugs[$slug]) && !empty($parent_name)) {
+            $slug = Str::slug($parent_name . '-' . $name);
+        }
+
+        $used_slugs[$slug] = true;
+
+        return $slug;
     }
 }

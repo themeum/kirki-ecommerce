@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Supports\Somoy;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 /**
@@ -74,7 +75,9 @@ class ProductCreateRequest extends Request
             'title' => 'required|string|max:500',
             'slug' => 'string|nullable|max:500|unique:' . Product::get_table_name() . ',slug',
             'status' => 'string|nullable|in:' . ProductStatus::join(),
+            'scheduled_at' => 'required_if:status,' . ProductStatus::SCHEDULED . '|date|format:' . Somoy::ATOM . '|after:now|nullable',
             'ribbon' => 'string|nullable|max:100',
+            'ribbon_color' => 'string|nullable|max:20',
             'currency_id' => 'integer|nullable',
             'brand_id' => 'integer|nullable',
             'short_description' => 'string|nullable',
@@ -125,8 +128,7 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => 'string|nullable|max:100|unique:' . Variant::get_table_name() . ',sku',
             'variants.*.barcode' => 'string|nullable|max:100',
 
-            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . '|nullable|number',
-            'variants.*.show_unit_price' => 'boolean|nullable',
+            'variants.*.base_price' => 'required_if:status,' . ProductStatus::PUBLISHED . ',' . ProductStatus::SCHEDULED . '|nullable|number',
             'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
             'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
@@ -180,7 +182,9 @@ class ProductCreateRequest extends Request
             'title' => Sanitizer::TEXT,
             'slug' => Sanitizer::TEXT,
             'status' => Sanitizer::TEXT,
+            'scheduled_at' => Sanitizer::TEXT,
             'ribbon' => Sanitizer::TEXT,
+            'ribbon_color' => Sanitizer::TEXT,
             'currency_id' => Sanitizer::INT,
             'brand_id' => Sanitizer::INT,
             'short_description' => Sanitizer::TEXT,
@@ -217,7 +221,6 @@ class ProductCreateRequest extends Request
             'variants.*.sku' => Sanitizer::TEXT,
             'variants.*.barcode' => Sanitizer::TEXT,
             'variants.*.base_price' => Sanitizer::INT,
-            'variants.*.show_unit_price' => Sanitizer::BOOL,
             'variants.*.base_unit' => Sanitizer::TEXT,
             'variants.*.base_unit_amount' => Sanitizer::INT,
             'variants.*.total_unit' => Sanitizer::TEXT,

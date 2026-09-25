@@ -19,4 +19,7 @@ class CreateAttributeDTO extends DTO
 
     /** @var string|null */
     public $type = 'list';
+
+    /** @var array<int, array<string, mixed>> Value rows (`value`, optional `color`) created with the attribute. */
+    public $values = [];
 }

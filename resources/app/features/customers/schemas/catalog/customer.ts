@@ -16,7 +16,10 @@ export const CustomerAddressSchema = z.object({
   city: z.string().optional(),
   state: z.string().optional(),
   postal_code: z.string().optional(),
-  type: z.union([z.enum(['billing', 'shipping']), z.string()]).optional(),
+  type: z.union([z.enum(['home', 'office', 'others']), z.string()]).optional(),
+  label: z.string().nullish(),
+  is_default_shipping: z.boolean().optional(),
+  is_default_billing: z.boolean().optional(),
 });
 
 export type CustomerAddress = z.infer<typeof CustomerAddressSchema>;
@@ -62,9 +65,10 @@ export const CustomerSchema = z.object({
   email: z.string(),
   phone: z.string().nullish(),
   photo: MediaRefSchema.nullish(),
-  shipping_address: CustomerAddressSchema.nullish(),
-  is_billing_same_as_shipping: z.boolean().nullish(),
-  billing_address: CustomerAddressSchema.nullish(),
+  addresses: z.array(CustomerAddressSchema).optional(),
+  accepts_marketing: z.boolean().nullish(),
+  notes: z.string().nullish(),
+  language: z.string().nullish(),
   tags: z.array(z.string()).optional(),
   created_at: z.string().nullish(),
   updated_at: z.string().nullish(),

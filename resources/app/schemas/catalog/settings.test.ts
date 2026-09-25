@@ -70,7 +70,6 @@ describe('ProductSettingsSchema', () => {
       display_layout: null,
       is_enabled_reviews: true,
       is_enabled_star_ratings: true,
-      is_unit_price_visible: true,
       barcode_generation: {
         data_origin: 'SKU',
         format: 'Code 128 (recommended for SKU/internal use)',
