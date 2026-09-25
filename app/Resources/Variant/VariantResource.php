@@ -58,12 +58,13 @@ class VariantResource extends Resource
             $store_default_threshold
         );
 
+
         return [
             'id' => $this->id,
             'product_id' => $this->product_id,
             'preview_url' => $this->preview_url,
             'name' => $this->product->title,
-            'media' => MediaAttachment::make($this->media ?: ($this->product->media ?? collection())->first()),
+            'media' => MediaAttachment::make($this->media ?: ($this->product->media ?? collection())->first()->ID),
             'sku' => $this->sku,
             'barcode' => $this->barcode,
             'base_price' => Money::prepare_amount_from_minor($this->base_price),
