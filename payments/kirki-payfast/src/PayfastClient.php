@@ -41,7 +41,7 @@ class PayfastClient
         $signature = $this->sign($fields);
 
         ob_start();
-?>
+        ?>
         <form method="POST" id="payfast-form" action="<?php echo esc_url($form_url); ?>">
             <?php foreach ($fields as $name => $value) : ?>
                 <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($value); ?>" />
@@ -51,7 +51,7 @@ class PayfastClient
         <script>
             document.getElementById('payfast-form').submit();
         </script>
-<?php
+        <?php
         return ob_get_clean();
     }
 
