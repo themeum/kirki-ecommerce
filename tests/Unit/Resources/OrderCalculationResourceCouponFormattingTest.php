@@ -242,12 +242,13 @@ class OrderCalculationResourceCouponFormattingTest extends TestCase
 
     // prepare_strikethrough_price / derive_inclusive_amount / derive_inclusive_amount_at_rate / get_items_tax_total
 
-    protected function make_calculated_item(int $base_subtotal, int $base_product_total, int $base_tax_amount = 0): object
+    protected function make_calculated_item(int $base_subtotal, int $base_product_total, int $base_tax_amount = 0, int $base_regular_tax_amount = 0): object
     {
         $item = new \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO();
         $item->base_subtotal = $base_subtotal;
         $item->base_product_total = $base_product_total;
         $item->base_tax_amount = $base_tax_amount;
+        $item->base_regular_tax_amount = $base_regular_tax_amount;
 
         return $item;
     }
@@ -255,13 +256,61 @@ class OrderCalculationResourceCouponFormattingTest extends TestCase
     public function test_strikethrough_is_the_regular_price_total_when_only_a_sale_applied(): void
     {
         // No discount: current-price exclusive is the subtotal (4500), taxed at 450 (10%).
-        $calculated_item = $this->make_calculated_item(4500, 6000, 450);
+        // Regular tax amount (600) is consistent with that same 10% rate applied to the regular total (6000).
+        $calculated_item = $this->make_calculated_item(4500, 6000, 450, 600);
 
         $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 0, 4500);
 
         $this->assertSame(60.0, $strikethrough['exclusive']->raw);
-        // Scaled at the same 10% rate: 6000 * 1.1 = 6600.
+        // Direct addition of the stored regular tax amount: 6000 + 600 = 6600.
         $this->assertSame(66.0, $strikethrough['inclusive']->raw);
+    }
+
+    public function test_strikethrough_on_sale_uses_the_stored_regular_tax_amount_directly_not_rate_derivation(): void
+    {
+        // base_regular_tax_amount (900) is deliberately different from what
+        // rate-derivation against the current price's 10% rate would give
+        // (600), to prove the fast path (direct addition) is used.
+        $calculated_item = $this->make_calculated_item(4500, 6000, 450, 900);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 0, 4500);
+
+        $this->assertSame(60.0, $strikethrough['exclusive']->raw);
+        // 6000 + 900 = 6900, not 6000 * (1 + 450/4500) = 6600.
+        $this->assertSame(69.0, $strikethrough['inclusive']->raw);
+    }
+
+    public function test_strikethrough_coupon_with_no_sale_uses_the_stored_regular_tax_amount_directly(): void
+    {
+        // Not on sale (base_product_total equals base_subtotal before the
+        // coupon), so the pre-coupon subtotal (2000) equals the
+        // regular-price total (2000) exactly - the fast path applies.
+        $calculated_item = $this->make_calculated_item(2000, 2000, 200, 1000);
+
+        // The item's own current-price exclusive subtotal is post-discount (2000 - 500 = 1500).
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 500, 1500);
+
+        $this->assertSame(20.0, $strikethrough['exclusive']->raw);
+        // Direct addition: 2000 + 1000 = 3000 - not the rate-derived
+        // 2000 * (1 + 200/1500) = 2266.67 a pre-fast-path implementation would have produced.
+        $this->assertSame(30.0, $strikethrough['inclusive']->raw);
+    }
+
+    public function test_strikethrough_uses_rate_derivation_when_coupon_and_sale_compound(): void
+    {
+        // On sale (base_product_total 2500 > base_subtotal 2000) AND a
+        // coupon discount applied: the coupon branch wins, so the
+        // strikethrough amount is the pre-coupon subtotal (2000), not the
+        // regular total (2500) - the one case the stored regular tax
+        // amount doesn't cover. The stored value (999) is deliberately
+        // wrong to prove it's ignored in this branch.
+        $calculated_item = $this->make_calculated_item(2000, 2500, 200, 999);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 500, 1500);
+
+        $this->assertSame(20.0, $strikethrough['exclusive']->raw);
+        // Rate = 200/1500; scaled onto the pre-coupon 2000 baseline: 2000 * (1 + 200/1500) = 2266.67.
+        $this->assertEqualsWithDelta(22.6667, $strikethrough['inclusive']->raw, 0.01);
     }
 
     public function test_strikethrough_is_null_when_there_is_no_sale_and_no_product_coupon(): void

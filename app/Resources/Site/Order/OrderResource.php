@@ -213,10 +213,16 @@ class OrderResource extends Resource
      * recorded regular price is never treated as on sale.
      *
      * Both figures are always net of tax as of this fix; under
-     * tax-inclusive pricing the result is scaled back up by the item's
-     * effective tax rate (not a flat tax-total addition - the strikethrough
-     * base differs from the item's taxed base) to reconstruct the same
-     * figure this rendered before.
+     * tax-inclusive pricing the result is scaled back up to reconstruct the
+     * same figure this rendered before. When the strikethrough amount is the
+     * item's regular-price total (`invoiced_regular_price * quantity`) -
+     * either because it's on sale with no item-level coupon, or because a
+     * coupon applies while it isn't on sale (its pre-coupon subtotal then
+     * equals its regular-price total) - that's a flat addition of the
+     * item's own `invoiced_regular_tax_total`, since the two share that base
+     * exactly. Only when neither holds (an item-level coupon applied while
+     * the item is simultaneously on sale) is it instead scaled by the
+     * item's effective tax rate.
      *
      * @since 1.0.0
      *
@@ -237,7 +243,11 @@ class OrderResource extends Resource
         }
 
         if ($is_inclusive_tax) {
-            $strikethrough_amount = $this->derive_inclusive_amount_at_rate($strikethrough_amount, $invoiced_subtotal_exclusive, $item->invoiced_tax_total);
+            $regular_total = $item->invoiced_regular_price * $item->quantity;
+
+            $strikethrough_amount = $strikethrough_amount === $regular_total
+                ? $strikethrough_amount + $item->invoiced_regular_tax_total
+                : $this->derive_inclusive_amount_at_rate($strikethrough_amount, $invoiced_subtotal_exclusive, $item->invoiced_tax_total);
         }
 
         return Money::prepare_amount_object_from_minor($strikethrough_amount, $this->currency_code);

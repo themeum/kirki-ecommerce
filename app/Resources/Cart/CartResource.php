@@ -434,10 +434,16 @@ class CartResource extends Resource
      * neither applies, so nothing should render as struck through.
      *
      * Both the coupon-applied and sale-only figures are always net of tax
-     * as of this fix; under tax-inclusive pricing they're scaled back up by
-     * the item's effective tax rate (not a flat tax-total addition - the
-     * strikethrough base differs from the item's taxed base) to reconstruct
-     * the same figure this rendered before - see derive_inclusive_amount_at_rate().
+     * as of this fix; under tax-inclusive pricing they're scaled back up to
+     * reconstruct the same figure this rendered before. When the
+     * strikethrough amount is the item's regular-price total
+     * (`base_product_total`) - either because it's on sale with no
+     * item-level coupon, or because a coupon applies while it isn't on sale
+     * (its pre-coupon subtotal then equals its regular-price total) - that's
+     * a flat addition of the item's own `base_regular_tax_amount`, since the
+     * two share that base exactly. Only when neither holds (an item-level
+     * coupon applied while the item is simultaneously on sale) is it instead
+     * scaled by the item's effective tax rate - see derive_inclusive_amount_at_rate().
      *
      * @since 1.0.0
      *
@@ -460,7 +466,9 @@ class CartResource extends Resource
         }
 
         if ($is_inclusive_tax) {
-            $strikethrough_amount = $this->derive_inclusive_amount_at_rate($strikethrough_amount, $subtotal_exclusive, $calculated_item->base_tax_amount);
+            $strikethrough_amount = $strikethrough_amount === $calculated_item->base_product_total
+                ? $strikethrough_amount + $calculated_item->base_regular_tax_amount
+                : $this->derive_inclusive_amount_at_rate($strikethrough_amount, $subtotal_exclusive, $calculated_item->base_tax_amount);
         }
 
         return Money::prepare_amount_object_from_minor($strikethrough_amount, $base_currency_code, $display_currency);

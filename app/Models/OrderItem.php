@@ -32,6 +32,8 @@ class OrderItem extends Model
         'base_price',
         'invoiced_regular_price',
         'base_regular_price',
+        'invoiced_regular_tax_total',
+        'base_regular_tax_total',
         'quantity',
         'invoiced_subtotal',
         'base_subtotal',

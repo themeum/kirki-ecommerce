@@ -69,7 +69,7 @@ class OrderResourceCouponFormattingTest extends TestCase
         return $item;
     }
 
-    protected function make_priced_order_item(int $base_regular_price, int $base_price, int $quantity, int $invoiced_subtotal, ?int $invoiced_regular_price = null, int $invoiced_tax_total = 0): OrderItem
+    protected function make_priced_order_item(int $base_regular_price, int $base_price, int $quantity, int $invoiced_subtotal, ?int $invoiced_regular_price = null, int $invoiced_tax_total = 0, int $invoiced_regular_tax_total = 0): OrderItem
     {
         $item = $this->make_order_item(101, $invoiced_subtotal);
         $item->base_regular_price = $base_regular_price;
@@ -77,6 +77,7 @@ class OrderResourceCouponFormattingTest extends TestCase
         $item->base_price = $base_price;
         $item->quantity = $quantity;
         $item->invoiced_tax_total = $invoiced_tax_total;
+        $item->invoiced_regular_tax_total = $invoiced_regular_tax_total;
 
         return $item;
     }
@@ -426,17 +427,47 @@ class OrderResourceCouponFormattingTest extends TestCase
     // (item-pricing-tax-exclusivity makes invoiced_subtotal always net; these
     // prove this resource's output is unaffected by that fix)
 
-    public function test_strikethrough_scales_by_rate_under_tax_inclusive_pricing_not_a_flat_tax_add(): void
+    public function test_strikethrough_on_sale_adds_the_stored_regular_tax_total_under_tax_inclusive_pricing(): void
     {
-        // No discount: current-price exclusive is the raw subtotal (4500), taxed at 450 (10%).
-        $item = $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450);
+        // On sale, no coupon: the strikethrough amount (6000) is exactly
+        // the regular-price total, so its own stored tax (600) is added
+        // directly rather than derived by rate.
+        $item = $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450, 600);
 
         $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, true);
 
-        // Rate = 450/4500 = 10%; scaled onto the 6000 regular-price baseline: 6000 * 1.1 = 6600.
         $this->assertSame(66.0, $strikethrough->raw);
-        // A flat "+ tax" would have wrongly given (6000 + 450) / 100 = 64.5.
-        $this->assertNotEquals(64.5, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_on_sale_uses_the_stored_regular_tax_total_directly_not_rate_derivation(): void
+    {
+        // invoiced_regular_tax_total (900) is deliberately different from
+        // what rate-derivation against the current price's 10% rate would
+        // give (600), to prove the fast path (direct addition) is used.
+        $item = $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450, 900);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 0, $item->invoiced_subtotal, true);
+
+        // 6000 + 900 = 6900, not 6000 * (1 + 450/4500) = 6600.
+        $this->assertSame(69.0, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_uses_rate_derivation_when_coupon_and_sale_compound_under_tax_inclusive_pricing(): void
+    {
+        // On sale (regular 2000 > price 1500, quantity 3: regular total
+        // 6000 vs sale subtotal 4500) AND a product coupon applied: the
+        // coupon branch wins, so the strikethrough amount is the pre-coupon
+        // subtotal (4500), not the regular total (6000) - the one case the
+        // stored regular tax total doesn't cover. The stored value (999) is
+        // deliberately wrong to prove it's ignored in this branch.
+        $item = $this->make_priced_order_item(2000, 1500, 3, 4500, null, 450, 999);
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $item, 500, 4000, true);
+
+        // Rate = 450/4000 = 11.25%; scaled onto the pre-coupon 4500 baseline: 4500 * 1.1125 = 5006.25 -> 5006.
+        $this->assertSame(50.06, $strikethrough->raw);
+        // A wrongly-taken fast path would have added the (deliberately mismatched) stored value: (4500 + 999) / 100 = 54.99.
+        $this->assertNotEqualsWithDelta(54.99, $strikethrough->raw, 0.01);
     }
 
     // get_items_tax_total

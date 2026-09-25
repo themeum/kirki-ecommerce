@@ -726,6 +726,9 @@ class CreateOrderAction
         $item_dto->invoiced_regular_price = $this->convert_amount($calculated_item->base_regular_unit_price, $currency_code, $exchange_rate);
         $item_dto->base_regular_price = $calculated_item->base_regular_unit_price;
 
+        $item_dto->invoiced_regular_tax_total = $this->convert_amount($calculated_item->base_regular_tax_amount, $currency_code, $exchange_rate);
+        $item_dto->base_regular_tax_total = $calculated_item->base_regular_tax_amount;
+
         $item_dto->quantity = $calculated_item->quantity;
 
         $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);

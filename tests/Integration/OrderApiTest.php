@@ -232,6 +232,28 @@ class OrderApiTest extends RestTestCase
         $this->assertFalse($payload['data']['payment_provider_is_offline']);
         $this->assertEquals('Standard Delivery', $payload['data']['shipping_method_name']);
         $this->assertEquals('flat_rate', $payload['data']['shipping_method_type']);
+        $this->assertFalse($payload['data']['is_tax_inclusive']);
+    }
+
+    /**
+     * The order resource reports the store's current tax-inclusive-pricing
+     * setting, read live from settings rather than snapshotted at order
+     * placement time.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_show_order_reports_the_current_tax_inclusive_setting(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $response = $this->request('GET', 'orders/' . $this->order_id);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
     }
 
     /**
@@ -414,6 +436,10 @@ class OrderApiTest extends RestTestCase
         $this->assertSame($item->base_price, $item->base_regular_price);
         $this->assertSame($item->invoiced_price, $item->invoiced_regular_price);
         $this->assertEquals(2499, $item->base_price);
+        // Not on sale: the regular-price total's own recorded tax matches the current-price tax exactly.
+        $this->assertEquals($item->base_tax_total, $item->base_regular_tax_total);
+        $this->assertEquals($item->invoiced_tax_total, $item->invoiced_regular_tax_total);
+        $this->assertEquals(500, $item->base_regular_tax_total);
     }
 
     /**
@@ -449,6 +475,71 @@ class OrderApiTest extends RestTestCase
         $this->assertLessThan($added_catalog_price, $added_item->base_price);
         $this->assertSame($added_item->base_price, $added_item->base_regular_price);
         $this->assertEquals(2499, $added_item->base_regular_price);
+        // Not on sale: the regular-price total's own recorded tax matches the current-price tax exactly.
+        $this->assertEquals($added_item->base_tax_total, $added_item->base_regular_tax_total);
+        $this->assertEquals(500, $added_item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, re-quantifying an existing order item
+     * recalculates its recorded regular-price tax total for the new
+     * quantity - the same recalculate-on-quantity-change behavior its
+     * subtotal and current-price tax total already have - rather than
+     * carrying forward a stale, now-understated figure.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_scales_regular_tax_total_with_quantity_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $existing_item_id = $order['items'][0]['id'];
+
+        $original_regular_tax_total = OrderItem::find($existing_item_id)->base_regular_tax_total;
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'items' => [
+                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+            ],
+        ])));
+
+        $updated_item = OrderItem::find($existing_item_id);
+
+        $this->assertEquals(2, $updated_item->quantity);
+        $this->assertGreaterThan($original_regular_tax_total, $updated_item->base_regular_tax_total);
+        // Still not on sale: the recalculated regular-price tax still matches the recalculated current-price tax exactly.
+        $this->assertEquals($updated_item->base_tax_total, $updated_item->base_regular_tax_total);
+    }
+
+    /**
+     * Under tax-inclusive pricing, an item bought while a sale price is
+     * active records a regular-price tax total computed against its
+     * (higher) regular price - distinct from its current-price tax total,
+     * which is computed against the (lower) sale price it was actually
+     * charged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_create_order_records_regular_tax_total_for_item_bought_on_sale_under_inclusive_pricing(): void
+    {
+        $this->enable_us_inclusive_tax(20);
+
+        $regular_price = Variant::find($this->variant_id)->base_price;
+        Variant::find($this->variant_id)->update(['base_sale_price' => $regular_price - 1000]);
+
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+
+        $item = OrderItem::find($order['items'][0]['id']);
+
+        $this->assertLessThan($item->base_regular_price, $item->base_price);
+        $this->assertNotEquals($item->base_tax_total, $item->base_regular_tax_total);
+        $this->assertGreaterThan($item->base_tax_total, $item->base_regular_tax_total);
     }
 
     /**

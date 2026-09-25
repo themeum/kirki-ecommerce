@@ -148,5 +148,7 @@ return [
     CreateOrderTaxesTable::class,
     AlterOrdersAddShippingTaxColumns::class,
     AlterOrderItemsDropTaxColumns::class,
+
+    // Since v1.0.0-beta.1
     AlterOrderItemsAddRegularPriceColumns::class,
 ];

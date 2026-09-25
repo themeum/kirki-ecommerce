@@ -319,6 +319,38 @@ class RecalculateCartAction
     }
 
     /**
+     * Compute the tax on an item's regular-price total, at the same rate(s)
+     * as its current-price tax lines.
+     *
+     * Unlike `sum_tax_amount()` (which sums tax lines already computed by the
+     * tax strategy against the item's *current*, discounted taxable amount),
+     * this applies each line's rate directly to a different, already-exclusive
+     * base - the regular-price total - since that total was never itself
+     * passed through the tax strategy. It's the same exclusive-basis
+     * "tax added on top" formula `AbstractTaxStrategy::calculate_shipping_tax_amount()`
+     * uses for shipping, valid here because `$exclusive_regular_total_money`
+     * is always already tax-exclusive (see `item-pricing-tax-exclusivity`).
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO[] $tax_lines                     The item's current-price tax lines (for their rates).
+     * @param \Brick\Money\Money                        $exclusive_regular_total_money The item's regular-price total, tax-exclusive.
+     * @return \Brick\Money\Money Tax on the regular-price total, in base currency.
+     */
+    protected function calculate_regular_tax_amount(array $tax_lines, $exclusive_regular_total_money)
+    {
+        $total = Money::zero();
+
+        foreach ($tax_lines as $tax_line) {
+            $total = $total->plus(
+                $exclusive_regular_total_money->multipliedBy($tax_line->rate, RoundingMode::HALF_UP)->dividedBy(100, RoundingMode::HALF_UP)
+            );
+        }
+
+        return $total;
+    }
+
+    /**
      * Build the priced copy of a cart item with subtotal, discount, tax and total filled in.
      *
      * In tax-inclusive mode the tax is not added on top of the item total. The
@@ -357,6 +389,7 @@ class RecalculateCartAction
         $exclusive_unit_price_money = $this->exclude_tax(Money::of_minor($item->base_unit_price), $tax_fraction);
         $exclusive_regular_unit_price_money = $this->exclude_tax(Money::of_minor($item->base_product_total), $tax_fraction);
         $product_total_money = $exclusive_regular_unit_price_money->multipliedBy($item->quantity);
+        $regular_tax_amount_money = $this->calculate_regular_tax_amount($tax_lines, $product_total_money);
 
         $item_result->base_subtotal = $exclusive_net_total_money->getMinorAmount()->toInt();
         $item_result->base_tax_amount = $tax_amount_money->getMinorAmount()->toInt();
@@ -366,6 +399,7 @@ class RecalculateCartAction
         $item_result->base_product_total = $product_total_money->getMinorAmount()->toInt();
         $item_result->base_unit_price = $exclusive_unit_price_money->getMinorAmount()->toInt();
         $item_result->base_regular_unit_price = $exclusive_regular_unit_price_money->getMinorAmount()->toInt();
+        $item_result->base_regular_tax_amount = $regular_tax_amount_money->getMinorAmount()->toInt();
 
         return $item_result;
     }

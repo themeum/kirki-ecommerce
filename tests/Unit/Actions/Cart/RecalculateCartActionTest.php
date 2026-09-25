@@ -48,6 +48,9 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(10000, $item->base_unit_price);
         $this->assertSame(10000, $item->base_regular_unit_price);
         $this->assertSame(10000, $item->base_product_total);
+        // Not on sale: the regular-price total's own tax matches the current-price tax exactly.
+        $this->assertSame(1500, $item->base_regular_tax_amount);
+        $this->assertSame($item->base_tax_amount, $item->base_regular_tax_amount);
 
         $this->assertSame(10000, $result->base_subtotal);
         $this->assertSame(1500, $result->base_tax_total);
@@ -84,6 +87,9 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(10000, $item->base_unit_price);
         $this->assertSame(10000, $item->base_regular_unit_price);
         $this->assertSame(10000, $item->base_product_total);
+        // Not on sale: the regular-price total's own tax matches the current-price tax exactly.
+        $this->assertSame(2000, $item->base_regular_tax_amount);
+        $this->assertSame($item->base_tax_amount, $item->base_regular_tax_amount);
 
         $this->assertSame(10000, $result->base_subtotal);
         $this->assertSame(12000, $result->base_total);
@@ -112,6 +118,10 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(6667, $item->base_unit_price);
         $this->assertSame(8334, $item->base_regular_unit_price);
         $this->assertSame(8334, $item->base_product_total);
+        // On sale: the regular-price total's own tax is computed against
+        // the regular (higher) base, so it differs from the current-price tax.
+        $this->assertSame(1667, $item->base_regular_tax_amount);
+        $this->assertNotSame($item->base_tax_amount, $item->base_regular_tax_amount);
     }
 
     /**
@@ -142,6 +152,81 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(10000, $item->base_subtotal);
         $this->assertSame(10000, $item->base_unit_price);
         $this->assertSame(10000, $item->base_regular_unit_price);
+        // The regular-price total isn't itself discounted, so its own tax
+        // is still computed normally (1500), unlike the current-price tax
+        // (0, since the current price was fully discounted away).
+        $this->assertSame(1500, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * A zero-rate destination (no configured tax region) produces zero tax
+     * on the regular-price total too, not just the current price - the rate
+     * used is 0, so `calculate_regular_tax_amount()`'s multiplication is a
+     * genuine zero, not a divide-by-zero or skipped computation.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_is_zero_for_an_unconfigured_country(): void
+    {
+        $this->bind_full_tax_settings([
+            ['code' => 'BD', 'is_enabled' => true, 'is_central_tax_enabled' => true, 'central_product_tax' => 15, 'central_shipping_tax' => 5, 'rules' => [], 'states' => []],
+        ]);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'US'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(0, $item->base_tax_amount);
+        $this->assertSame(0, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * The regular-price total's own tax scales with quantity the same way
+     * the total itself does - it's computed against the already
+     * quantity-multiplied `base_product_total`, not the per-unit price.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_scales_with_quantity(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 3, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $result = $this->make_action()->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(24999, $item->base_product_total);
+        $this->assertSame(5000, $item->base_regular_tax_amount);
+    }
+
+    /**
+     * The regular-price total's own tax is computed independently of any
+     * item-level coupon discount - a coupon reduces the current-price
+     * taxable base, but the regular price (and its tax) is untouched by it.
+     *
+     * @return void
+     */
+    public function test_regular_tax_amount_is_unaffected_by_an_item_coupon_discount(): void
+    {
+        $this->bind_default_region(20, 0, true);
+
+        $context = $this->make_context([$this->make_item(1, 8000, 1, ['base_product_total' => 10000])], [
+            'shipping_address' => ['country' => 'BD'],
+        ]);
+
+        $discount_service = $this->createMock(DiscountService::class);
+        $discount_service->method('calculate')->willReturn($this->make_discount_result(0, [1 => 3000]));
+
+        $result = $this->make_action(['discount_service' => $discount_service])->execute($context);
+        $item = $result->items[1];
+
+        $this->assertSame(1667, $item->base_regular_tax_amount);
     }
 
     /**

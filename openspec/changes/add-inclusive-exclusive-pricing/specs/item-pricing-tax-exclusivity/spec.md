@@ -46,20 +46,34 @@ Excluding tax from a line item's subtotal, regular-price total, unit price, or r
 - **WHEN** a line item is calculated under tax-inclusive pricing
 - **THEN** its final total (subtotal plus tax, minus any discount) equals what it would have been before these prices were made to exclude tax
 
-### Requirement: A tax-inclusive figure is derived, not stored separately
+### Requirement: A calculated line item's regular-price total has its own recorded tax amount
 
-Anywhere a tax-exclusive and a tax-inclusive figure are both exposed for the same line-item or order-level amount, the tax-inclusive figure SHALL be derived from the tax-exclusive figure and the item's own effective tax rate. It SHALL NOT be computed or stored independently of the tax-exclusive figure.
+A calculated line item SHALL carry the tax amount belonging to its regular-price total (`base_regular_unit_price` × quantity) as its own figure, computed the same way the item's current-price tax is computed, independent of the store's tax-inclusive-pricing setting. This tax amount SHALL be persisted onto the order item (`base_regular_tax_total`/`invoiced_regular_tax_total`), alongside the item's existing `base_tax_total`/`invoiced_tax_total`.
 
-When the tax-exclusive figure shares the same taxed base as the item's recorded tax total (the item's current subtotal or order/cart total), the inclusive figure SHALL be derived by adding that tax total directly, since the two amounts were computed against the same base and the addition is exact.
+#### Scenario: Regular-price tax recorded alongside current-price tax
 
-When the tax-exclusive figure does not share that base (a strikethrough/regular-price figure, which reflects a different, hypothetical amount than what was actually taxed), the inclusive figure SHALL instead be derived by scaling the tax-exclusive figure by the item's effective tax rate, reconstructed from the item's own current-price exclusive amount and tax total. It SHALL NOT be derived by adding the item's charged tax total directly, since that total was computed against a different base and would misstate the result.
+- **WHEN** a line item is calculated, whether or not it is currently on sale or discounted
+- **THEN** the tax amount for its regular-price total is computed and recorded, using the same effective tax rate as the item's current-price tax
+
+### Requirement: A tax-inclusive figure is derived, not stored independently of its own base amount
+
+Anywhere a tax-exclusive and a tax-inclusive figure are both exposed for the same line-item or order-level amount, the tax-inclusive figure SHALL be derived from the tax-exclusive figure and a tax amount computed against that same base. It SHALL NOT be computed from a tax amount that was computed against a different base.
+
+When the tax-exclusive figure shares the same taxed base as one of the item's recorded tax amounts — its current-price tax total (the item's current subtotal or order/cart total) or its regular-price tax total (the item's regular-price total) — the inclusive figure SHALL be derived by adding that recorded tax amount directly, since the two amounts were computed against the same base and the addition is exact.
+
+When the tax-exclusive figure does not share either of those recorded bases (a strikethrough figure that is neither the item's current subtotal nor its regular-price total — for example, the subtotal before an item-level coupon discount on an item that is simultaneously on sale, where the "was" price shown is the pre-coupon amount at the sale price), the inclusive figure SHALL instead be derived by scaling the tax-exclusive figure by the item's effective tax rate, reconstructed from the item's own current-price exclusive amount and tax total. It SHALL NOT be derived by adding a recorded tax amount computed against a different base, since that would misstate the result.
 
 #### Scenario: Deriving the inclusive figure for the current price
 
 - **WHEN** both a tax-exclusive and a tax-inclusive figure are exposed for a line item's subtotal
-- **THEN** the tax-inclusive figure equals the tax-exclusive figure plus the item's own tax total
+- **THEN** the tax-inclusive figure equals the tax-exclusive figure plus the item's own current-price tax total
 
-#### Scenario: Deriving the inclusive figure for a strikethrough price
+#### Scenario: Deriving the inclusive figure for a strikethrough price that is the regular-price total
 
-- **WHEN** both a tax-exclusive and a tax-inclusive figure are exposed for a line item's strikethrough price
-- **THEN** the tax-inclusive figure is the tax-exclusive strikethrough figure scaled by the item's effective tax rate, not the tax-exclusive strikethrough figure plus the item's charged tax total
+- **WHEN** a line item's strikethrough price is its regular-price total — either because it is on sale with no item-level coupon, or because an item-level coupon applies while it is not on sale (its subtotal before that coupon equals its regular-price total)
+- **THEN** the tax-inclusive figure equals the tax-exclusive strikethrough figure plus the item's own regular-price tax total
+
+#### Scenario: Deriving the inclusive figure for a strikethrough price that is neither recorded base
+
+- **WHEN** a line item's strikethrough price is the subtotal before an item-level coupon discount, and the item is simultaneously on sale (so that pre-coupon subtotal is at the sale price, not the regular price)
+- **THEN** the tax-inclusive figure is the tax-exclusive strikethrough figure scaled by the item's effective tax rate, not the tax-exclusive strikethrough figure plus either recorded tax total

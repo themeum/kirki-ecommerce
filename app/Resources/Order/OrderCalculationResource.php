@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Resources\Order;
 use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Services\ShippingService;
+use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 
@@ -44,6 +45,8 @@ class OrderCalculationResource extends Resource
         $order_total = $items_subtotal - $order_discount;
 
         return [
+            'is_tax_inclusive' => (bool) Settings::get('tax.is_tax_inclusive_price', false),
+
             'totals' => [
                 'base_items_subtotal_exclusive_money_object' => Money::prepare_amount_object_from_minor($items_subtotal),
                 'base_items_subtotal_inclusive_money_object' => Money::prepare_amount_object_from_minor($this->derive_inclusive_amount($items_subtotal, $items_tax_total)),
@@ -334,11 +337,17 @@ class OrderCalculationResource extends Resource
      * otherwise the regular price if only a sale is active. Null when
      * neither applies, so nothing should render as struck through.
      *
-     * Returns both a tax-exclusive and a tax-inclusive money object. The
-     * strikethrough amount doesn't share the item's current-price taxed
-     * base (it's a pre-discount or pre-sale figure), so the inclusive
-     * figure is derived by scaling at the item's effective tax rate rather
-     * than by adding its tax directly - see derive_inclusive_amount_at_rate().
+     * Returns both a tax-exclusive and a tax-inclusive money object. When the
+     * strikethrough amount is the item's regular-price total (`base_product_total`)
+     * - either because it's on sale with no item-level coupon, or because a
+     * coupon applies while it isn't on sale (its pre-coupon subtotal then
+     * equals its regular-price total) - the inclusive figure is the
+     * exclusive figure plus the item's own `base_regular_tax_amount`, added
+     * directly, since the two share that base exactly. Only when neither
+     * holds (an item-level coupon applied while the item is simultaneously
+     * on sale, so the pre-coupon subtotal is at the sale price, not the
+     * regular price) is the inclusive figure instead derived by scaling at
+     * the item's effective tax rate - see derive_inclusive_amount_at_rate().
      *
      * @since 1.0.0
      *
@@ -357,11 +366,13 @@ class OrderCalculationResource extends Resource
             return ['exclusive' => null, 'inclusive' => null];
         }
 
+        $inclusive_amount = $strikethrough_amount === $calculated_item->base_product_total
+            ? $this->derive_inclusive_amount($strikethrough_amount, $calculated_item->base_regular_tax_amount)
+            : $this->derive_inclusive_amount_at_rate($strikethrough_amount, $subtotal_exclusive, $calculated_item->base_tax_amount);
+
         return [
             'exclusive' => Money::prepare_amount_object_from_minor($strikethrough_amount),
-            'inclusive' => Money::prepare_amount_object_from_minor(
-                $this->derive_inclusive_amount_at_rate($strikethrough_amount, $subtotal_exclusive, $calculated_item->base_tax_amount)
-            ),
+            'inclusive' => Money::prepare_amount_object_from_minor($inclusive_amount),
         ];
     }
 

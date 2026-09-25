@@ -363,19 +363,62 @@ class CartResourceCouponFormattingTest extends TestCase
         $this->assertSame(60.0, $strikethrough->raw);
     }
 
-    public function test_strikethrough_scales_by_rate_under_tax_inclusive_pricing_not_a_flat_tax_add(): void
+    public function test_strikethrough_on_sale_adds_the_stored_regular_tax_amount_under_tax_inclusive_pricing(): void
     {
+        // On sale, no coupon: the strikethrough amount (6000) is exactly
+        // the regular-price total, so its own stored tax (600) is added
+        // directly rather than derived by rate.
         $calculated_item = new CalculationItemDTO();
         $calculated_item->base_subtotal = 4500;
         $calculated_item->base_product_total = 6000;
         $calculated_item->base_tax_amount = 450;
+        $calculated_item->base_regular_tax_amount = 600;
 
         $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 0, 4500, true, 'USD', null);
 
-        // Rate = 450/4500 = 10%; scaled onto the 6000 regular-price baseline: 6000 * 1.1 = 6600.
+        // 6000 + 600 = 6600, not the rate-derived 6000 * (1 + 450/4500) = 6600 -
+        // same result here since the rate happens to match, so the next test
+        // uses a deliberately mismatched value to actually distinguish the two.
         $this->assertSame(66.0, $strikethrough->raw);
-        // A flat "+ tax" would have wrongly given (6000 + 450) / 100 = 64.5.
-        $this->assertNotEquals(64.5, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_on_sale_uses_the_stored_regular_tax_amount_directly_not_rate_derivation(): void
+    {
+        // base_regular_tax_amount (900) is deliberately different from what
+        // rate-derivation against the current price's 10% rate would give
+        // (600), to prove the fast path (direct addition) is used.
+        $calculated_item = new CalculationItemDTO();
+        $calculated_item->base_subtotal = 4500;
+        $calculated_item->base_product_total = 6000;
+        $calculated_item->base_tax_amount = 450;
+        $calculated_item->base_regular_tax_amount = 900;
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 0, 4500, true, 'USD', null);
+
+        // 6000 + 900 = 6900, not 6000 * (1 + 450/4500) = 6600.
+        $this->assertSame(69.0, $strikethrough->raw);
+    }
+
+    public function test_strikethrough_uses_rate_derivation_when_coupon_and_sale_compound_under_tax_inclusive_pricing(): void
+    {
+        // On sale (base_product_total 6000 > base_subtotal 4500) AND a
+        // coupon discount applied: the coupon branch wins, so the
+        // strikethrough amount is the pre-coupon subtotal (4500), not the
+        // regular total (6000) - the one case the stored regular tax
+        // amount doesn't cover. The stored value (999) is deliberately
+        // wrong to prove it's ignored in this branch.
+        $calculated_item = new CalculationItemDTO();
+        $calculated_item->base_subtotal = 4500;
+        $calculated_item->base_product_total = 6000;
+        $calculated_item->base_tax_amount = 450;
+        $calculated_item->base_regular_tax_amount = 999;
+
+        $strikethrough = $this->call('prepare_strikethrough_price', $calculated_item, 500, 4000, true, 'USD', null);
+
+        // Rate = 450/4000 = 11.25%; scaled onto the pre-coupon 4500 baseline: 4500 * 1.1125 = 5006.25 -> 5006.
+        $this->assertSame(50.06, $strikethrough->raw);
+        // A wrongly-taken fast path would have added the (deliberately mismatched) stored value: (4500 + 999) / 100 = 54.99.
+        $this->assertNotEqualsWithDelta(54.99, $strikethrough->raw, 0.01);
     }
 
     // get_items_tax_total
