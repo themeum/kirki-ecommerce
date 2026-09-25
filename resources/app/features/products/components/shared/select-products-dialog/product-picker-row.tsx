@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { type MouseEvent, useCallback } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -65,9 +65,24 @@ const ProductPickerRow = ({
     handleToggleAll(!isChecked);
   }, [isChecked, handleToggleAll]);
 
+  const handleVariantRowClick = useCallback(
+    (variant: ProductVariantSelection) => {
+      onToggleVariants([variant], !selectedVariantIds.has(variant.variantId));
+    },
+    [onToggleVariants, selectedVariantIds],
+  );
+
+  const handleToggleExpandClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      onToggleExpand();
+    },
+    [onToggleExpand],
+  );
+
   return (
     <>
-      <TableRow onClick={handleProductRowClick}>
+      <TableRow onClick={handleProductRowClick} cssOverride={{ cursor: 'pointer' }}>
         <TableCell onlyCheckbox>
           <Checkbox
             checked={isChecked}
@@ -100,7 +115,7 @@ const ProductPickerRow = ({
                 variant="ghost"
                 size="icon-xs"
                 aria-label={__('Toggle variants', 'kirki-ecommerce')}
-                onClick={onToggleExpand}
+                onClick={handleToggleExpandClick}
                 style={{ transform: expanded ? 'rotate(180deg)' : undefined }}
               >
                 <ChevronDownIcon />
@@ -120,7 +135,11 @@ const ProductPickerRow = ({
       {expanded &&
         selectVariants &&
         variants.map((variant) => (
-          <TableRow key={variant.variantId}>
+          <TableRow
+            key={variant.variantId}
+            onClick={() => handleVariantRowClick(variant)}
+            cssOverride={{ cursor: 'pointer' }}
+          >
             <TableCell />
             <TableCell>
               <Flex gap={6} align="center">
