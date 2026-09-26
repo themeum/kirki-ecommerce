@@ -11,10 +11,10 @@ import { useEditNotificationTemplate } from '@/features/settings/email/hooks/use
 import { emailTemplateStyles } from '@/features/settings/email/lib/template';
 import { useSendNotificationTestEmailMutation } from '@/features/settings/email/services/email-notification-template';
 import EditNotificationTemplateSkeleton from '@/features/settings/email/skeletons/edit-notification-template-skeleton';
-import { SendIcon } from '@/icons';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles, mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
+import { Send } from 'lucide-react';
 
 const EditNotificationTemplateContent = () => {
   const { form, ref, loaded, shortcodes } = useEditNotificationTemplate();
@@ -30,11 +30,14 @@ const EditNotificationTemplateContent = () => {
 
   return (
     <EmailNotificationTemplateLayout>
-      <Flex gap={12} cssOverride={{ width: '100%' }}>
+      <Flex gap={4} cssOverride={{ width: '100%' }}>
         <Flex direction="column" gap={5} cssOverride={{ width: '40%' }}>
           <Card
             data-search-skip="true"
-            cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard)}
+            cssOverride={mergeCss(cardStyles.formCard, emailTemplateStyles.roundedCard, {
+              position: 'sticky',
+              top: 112,
+            })}
           >
             <CardContent>
               <Flex direction="column" gap={4}>
@@ -44,36 +47,26 @@ const EditNotificationTemplateContent = () => {
                   name="message"
                   label={__('Content', 'kirki-ecommerce')}
                   shortcodes={shortcodes}
-                  rootBlockElement='div'
+                  rootBlockElement="div"
                 />
               </Flex>
             </CardContent>
           </Card>
         </Flex>
 
-        <Flex direction="column" gap={4} cssOverride={{ width: '60%' }}>
+        <Flex direction="column" gap={2} cssOverride={{ width: '60%' }}>
           <Flex align="center" justify="space-between">
-            <Text weight="semibold">{__('Template Preview', 'kirki-ecommerce')}</Text>
+            <Text weight="semibold">{__('Preview', 'kirki-ecommerce')}</Text>
             <Button
               variant="ghost"
               onClick={handleSendTestEmail}
               loading={sendTestEmailMutation.isPending}
             >
-              <SendIcon />
-              {__('Send Test Mail', 'kirki-ecommerce')}
+              <Send size={16} />
+              {__('Send test mail', 'kirki-ecommerce')}
             </Button>
           </Flex>
-          <Card
-            cssOverride={mergeCss(
-              cardStyles.innerCard,
-              emailTemplateStyles.squareCard,
-              styles.previewCard,
-            )}
-          >
-            <CardContent cssOverride={styles.previewCardContent}>
-              <EmailNotificationTemplatePreview templateRef={ref} form={form} />
-            </CardContent>
-          </Card>
+          <EmailNotificationTemplatePreview templateRef={ref} form={form} />
         </Flex>
       </Flex>
     </EmailNotificationTemplateLayout>

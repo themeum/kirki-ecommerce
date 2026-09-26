@@ -1,5 +1,4 @@
 import { keyframes } from '@emotion/react';
-import { MailIcon } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -23,30 +22,29 @@ const EmailNotificationTemplateLayout = (props: PropsWithChildren) => {
   };
 
   return (
-    <Page>
+    <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
           hasBack
           onBack={handleBack}
-          leftIcon={<MailIcon />}
           text={label}
           buttonProps={{ disabled: isSaving }}
           sticky
           actions={
-            isDirty ? (
-              <Flex
-                key={shakeSignal}
-                gap={2}
-                cssOverride={shakeSignal > 0 ? styles.shaking : undefined}
-              >
+            <Flex
+              key={shakeSignal}
+              gap={2}
+              cssOverride={shakeSignal > 0 ? styles.shaking : undefined}
+            >
+              {isDirty && (
                 <Button variant="tertiary" onClick={onDiscard} disabled={isSaving}>
                   {__('Discard', 'kirki-ecommerce')}
                 </Button>
-                <Button variant="primary" onClick={onSave} loading={isSaving}>
-                  {__('Save', 'kirki-ecommerce')}
-                </Button>
-              </Flex>
-            ) : null
+              )}
+              <Button variant="primary" onClick={onSave} loading={isSaving}>
+                {__('Save', 'kirki-ecommerce')}
+              </Button>
+            </Flex>
           }
         />
         <PageContent containerSize="xl" cssOverride={emailTemplateStyles.container}>

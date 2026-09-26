@@ -77,6 +77,8 @@ const EditTemplateProvider = ({ children }: EditTemplateProviderProps) => {
         pickFormValues(EmailSettingsFormSchema, emailSettingsData),
       );
 
+      console.log(payload);
+
       await saveSettings({
         key: 'email',
         // EmailSettingsFormPayload['default_template'] mirrors the GET response's
@@ -88,6 +90,7 @@ const EditTemplateProvider = ({ children }: EditTemplateProviderProps) => {
       });
       form.reset(form.getValues());
     } catch (error) {
+      console.log(error);
       applyServerErrors(form, error as ErrorResponse, {
         stripPrefix: 'data.default_template.',
       });

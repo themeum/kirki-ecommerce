@@ -71,13 +71,20 @@ abstract class Mailer implements Mailable
     /**
      * Get the default template settings with any overrides applied.
      *
+     * The stored `logo` is an attachment id, so its url is resolved into `logo_url` for the views.
+     *
      * @since 1.0.0
      *
      * @return array<string, mixed>
      */
     protected function get_default_template_settings()
     {
-        return array_merge(Settings::get('email')->get('default_template') ?? [], $this->default_template_settings_overrides);
+        $default_template = array_merge(Settings::get('email')->get('default_template') ?? [], $this->default_template_settings_overrides);
+        $logo_id = (int) ($default_template['logo'] ?? 0);
+
+        $default_template['logo_url'] = $logo_id ? (wp_get_attachment_url($logo_id) ?: '') : '';
+
+        return $default_template;
     }
 
     /**
