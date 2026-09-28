@@ -21,6 +21,7 @@ use Stripe\Webhook;
 use UnexpectedValueException;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Supports\Url;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 
 defined('ABSPATH') || exit;
 
@@ -202,7 +203,7 @@ class Stripe extends PaymentProvider
     public function webhook()
     {
         $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
+        $sig_header = Superglobals::server('HTTP_STRIPE_SIGNATURE');
         $endpoint_secret = $this->settings['webhook_secret'] ?? '';
 
         if (empty($endpoint_secret)) {
