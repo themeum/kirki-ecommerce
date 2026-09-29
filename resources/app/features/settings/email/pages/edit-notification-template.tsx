@@ -1,3 +1,5 @@
+import { Send } from 'lucide-react';
+
 import RichTextField from '@/components/form/rich-text-field';
 import TextField from '@/components/form/text-field';
 import Button from '@/components/ui/button';
@@ -12,9 +14,8 @@ import { emailTemplateStyles } from '@/features/settings/email/lib/template';
 import { useSendNotificationTestEmailMutation } from '@/features/settings/email/services/email-notification-template';
 import EditNotificationTemplateSkeleton from '@/features/settings/email/skeletons/edit-notification-template-skeleton';
 import { cardStyles } from '@/theme/card-styles';
-import { defineStyles, mergeCss } from '@/theme/mixins';
+import { mergeCss } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
-import { Send } from 'lucide-react';
 
 const EditNotificationTemplateContent = () => {
   const { form, ref, loaded, shortcodes } = useEditNotificationTemplate();
@@ -84,12 +85,3 @@ const EditNotificationTemplate = () => (
 EditNotificationTemplate.displayName = 'EditNotificationTemplate';
 
 export default EditNotificationTemplate;
-
-const styles = defineStyles({
-  previewCard: {
-    padding: 0,
-  },
-  previewCardContent: {
-    paddingInline: 0,
-  },
-});

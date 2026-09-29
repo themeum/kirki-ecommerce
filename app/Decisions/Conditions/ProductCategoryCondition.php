@@ -23,19 +23,29 @@ class ProductCategoryCondition extends Condition
     }
 
     /**
-     * Compare the context's product category IDs with the value.
+     * Check whether any of the context's product category IDs satisfies the comparison.
      *
      * @since 1.0.0
      *
      * @param DecisionContext $context  Context to read from.
      * @param string          $operator Comparison operator.
      * @param mixed           $value    Value configured on the rule's condition.
-     * @return bool
+     * @return bool False when the context has no product categories.
      */
     public function evaluate(DecisionContext $context, $operator, $value)
     {
         $categories = $context->get_product_categories();
 
-        return $this->compare($categories, $operator, $value);
+        if (!$categories || !is_array($categories)) {
+            return false;
+        }
+
+        foreach ($categories as $category) {
+            if ($this->compare($category, $operator, $value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

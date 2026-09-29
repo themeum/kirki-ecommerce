@@ -18,12 +18,15 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
 import {
   actionOptionsArray,
   conditionOptions,
   saveShippingZones,
 } from '@/features/settings/shipping/lib/utils';
 import ShippingRuleFormCard from '@/features/settings/shipping/pages/shipping-method/shipping-rules/shipping-rule-form-card';
+import { VALUE_ACTIONS } from '@/features/settings/shipping/schemas/forms/shipping-rule-form';
+import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
 import type { ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
 import { useConfirmDelete } from '@/hooks';
 import { LighteningIcon } from '@/icons';
@@ -57,6 +60,23 @@ const getOperatorLabel = (operator?: string): string => {
 const getActionLabel = (type?: string): string =>
   actionOptionsArray.find((option) => option.value === type)?.title ?? type ?? '';
 
+const resolveConditionDisplayValue = (
+  type: string | undefined,
+  value: unknown,
+  categories: { id: number | string; name: string }[],
+  shippingProfiles: { id: number | string; name: string }[],
+): string => {
+  if (type === 'product_categories') {
+    return categories.find((item) => String(item.id) === String(value))?.name ?? toDisplayString(value);
+  }
+
+  if (type === 'shipping_profile') {
+    return shippingProfiles.find((item) => String(item.id) === String(value))?.name ?? toDisplayString(value);
+  }
+
+  return toDisplayString(value);
+};
+
 export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
   const [searchParams] = useSearchParams();
   const zoneId = searchParams.get('zoneId');
@@ -66,6 +86,8 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
 
   const [rulesObj, setRulesObj] = useState<ShippingRule[]>([]);
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
+  const { data: categoryData } = useCategoriesQuery({ limit: -1 });
+  const { data: shippingProfiles } = useShippingProfilesQuery({ limit: -1 });
   const { confirmDelete, deleteConfirmation } = useConfirmDelete();
 
   useEffect(() => {
@@ -192,7 +214,12 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                               {item?.conditions[0]?.type === 'destination_region'
                                 ? ((item?.conditions[0]?.value as { country?: string })?.country ??
                                   '')
-                                : toDisplayString(item?.conditions[0]?.value)}
+                                : resolveConditionDisplayValue(
+                                    item?.conditions[0]?.type,
+                                    item?.conditions[0]?.value,
+                                    categoryData?.results ?? [],
+                                    shippingProfiles ?? [],
+                                  )}
                             </Text>
                           </RuleItemCondition>
                         </RuleItemConditions>
@@ -203,8 +230,7 @@ export const ShippingRules = ({ methodId }: ShippingRulesProps) => {
                               getActionLabel(item?.action?.type),
                             )}
                           </Text>
-                          {(item?.action?.type === 'set_shipping_cost' ||
-                            item?.action?.type === 'add_shipping_cost') && (
+                          {VALUE_ACTIONS.includes(item?.action?.type ?? '') && (
                             <Text variant="small" weight="medium" cssOverride={styles.accentText}>
                               {toDisplayString(item?.action?.value)}
                             </Text>

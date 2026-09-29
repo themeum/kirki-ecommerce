@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 
+use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -60,9 +61,9 @@ class BulkUpdateVariantRequest extends Request
             'variants.*.barcode' => 'string|nullable|max:100',
 
             'variants.*.base_price' => 'number|min:0|nullable',
-            'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'variants.*.base_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.base_unit_amount' => 'number|min:0|nullable',
-            'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', WeightUnit::get_constant_values()),
+            'variants.*.total_unit' => 'string|nullable|max:10|in:' . implode(',', Unit::get_constant_values()),
             'variants.*.total_unit_amount' => 'number|min:0|nullable',
             'variants.*.base_sale_price' => 'number|min:0|nullable',
             'variants.*.base_cost_of_goods' => 'number|min:0|nullable',

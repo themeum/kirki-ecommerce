@@ -112,20 +112,23 @@ export const getShippingMethodRightText = (
 export const conditionOptions: SelectOption[] = [
   {
     title: __('Product Category', 'kirki-ecommerce'),
-    value: 'product_category',
+    value: 'product_categories',
   },
   {
     title: __('Shipping Profile', 'kirki-ecommerce'),
     value: 'shipping_profile',
   },
-
   {
     title: __('Destination', 'kirki-ecommerce'),
     value: 'destination_region',
   },
   {
-    title: __('Cart Value (Subtotal)', 'kirki-ecommerce'),
+    title: __('Cart Weight', 'kirki-ecommerce'),
     value: 'cart_weight',
+  },
+  {
+    title: __('Cart Subtotal', 'kirki-ecommerce'),
+    value: 'cart_subtotal',
   },
 ];
 
@@ -137,6 +140,10 @@ export const actionOptionsArray: SelectOption[] = [
   {
     title: __('Add Extra to Price', 'kirki-ecommerce'),
     value: 'add_shipping_cost',
+  },
+  {
+    title: __('Multiply Price', 'kirki-ecommerce'),
+    value: 'multiply_shipping_cost',
   },
   {
     title: __('Disable This Shipping Method', 'kirki-ecommerce'),

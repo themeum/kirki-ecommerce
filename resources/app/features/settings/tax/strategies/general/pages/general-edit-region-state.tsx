@@ -19,7 +19,6 @@ import type {
   TaxRegionState,
   TaxRule,
 } from '@/features/settings/tax/shared/lib/utils';
-import { taxProfileConditionOptions } from '@/features/settings/tax/shared/lib/utils';
 import { updateRegionState } from '@/features/settings/tax/strategies/general/lib/region-tax';
 import {
   type TaxRegionStateFormInput,
@@ -188,7 +187,6 @@ const GeneralEditRegionState = () => {
             states={countryStates}
             destinationLabel={country?.name ?? code}
             updateTaxRules={updateStateRules}
-            conditionOptions={taxProfileConditionOptions}
           />
         </Flex>
       </Form>

@@ -18,11 +18,11 @@ const buildZone = (
       shipping_rules: profileNames.map((profileName) => ({
         conditions:
           profileName === null
-            ? [{ type: 'product_category', operator: 'is', value: 'shoes' }]
+            ? [{ type: 'product_categories', operator: '=', value: '1' }]
             : [
               {
                 type: 'shipping_profile',
-                operator: 'is',
+                operator: '=',
                 value: profileName,
               },
             ],

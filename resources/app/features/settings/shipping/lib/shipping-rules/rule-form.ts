@@ -1,4 +1,5 @@
 import {
+  NUMERIC_CONDITIONS,
   type ShippingRuleFormInput,
   type ShippingRuleFormPayload,
   ShippingRuleFormSchema,
@@ -27,8 +28,8 @@ export const buildRuleDefaultValues = (initialRule?: ShippingRule): ShippingRule
   const isDestination = condition?.type === 'destination_region';
 
   return {
-    condition: condition?.type || 'product_category',
-    operator: condition?.operator || 'is',
+    condition: condition?.type || 'product_categories',
+    operator: condition?.operator || '=',
     condition_value: isDestination
       ? {
         country: (condition.value as { country: string }).country,
@@ -64,12 +65,12 @@ export const getConditionValueOptions = (
   const data = conditionData[selectedCondition || ''];
 
   switch (selectedCondition) {
-    case 'product_category':
+    case 'product_categories':
     case 'shipping_profile':
       return (
         data?.map((item) => ({
           label: item.name,
-          value: item.name,
+          value: String(item.id),
         })) ?? []
       );
 
@@ -81,14 +82,14 @@ export const getConditionValueOptions = (
 export const getOperatorOptions = (
   selectedCondition: string | null | undefined,
 ): { label: string; value: string }[] => {
-  if (selectedCondition === 'cart_weight') {
+  if (NUMERIC_CONDITIONS.includes(selectedCondition ?? '')) {
     return [
       { label: __('> (Greater than)', 'kirki-ecommerce'), value: '>' },
       { label: __('= (Equal to)', 'kirki-ecommerce'), value: '=' },
       { label: __('< (Less than)', 'kirki-ecommerce'), value: '<' },
     ];
   }
-  return [{ label: __('is', 'kirki-ecommerce'), value: 'is' }];
+  return [{ label: __('is', 'kirki-ecommerce'), value: '=' }];
 };
 
 export type DestinationSelection = {

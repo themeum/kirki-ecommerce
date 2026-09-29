@@ -27,9 +27,11 @@ import { actionOptionsArray, conditionOptions } from '@/features/settings/shippi
 import type { DestinationConditionValue } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
 import { SelectDestinationPopup } from '@/features/settings/shipping/pages/shipping-method/select-destination-dialog';
 import {
+  NUMERIC_CONDITIONS,
   type ShippingRuleFormInput,
   type ShippingRuleFormPayload,
   ShippingRuleFormSchema,
+  VALUE_ACTIONS,
 } from '@/features/settings/shipping/schemas/forms/shipping-rule-form';
 import { useShippingProfilesQuery } from '@/features/settings/shipping/services/shipping';
 import type { ShippingRegion, ShippingRule, ShippingZone } from '@/features/settings/shipping/types';
@@ -73,12 +75,12 @@ const ShippingRuleFormCard = ({
 
   const { data: shippingSettingsData } = useSettingsQuery('shipping');
   const { data: shippingProfile } = useShippingProfilesQuery({ limit: -1 });
-  const { data: categoryData, isSuccess: categoryLoaded } = useCategoriesQuery({
+  const { data: categoryData } = useCategoriesQuery({
     limit: -1,
   });
 
   const [conditionData, setConditionData] = useState<ConditionDataMap>({
-    product_category: null,
+    product_categories: null,
     shipping_profile: null,
   });
 
@@ -121,19 +123,6 @@ const ShippingRuleFormCard = ({
   }, [selectedCountry, selectedRegion, selectedCondition, mode, form]);
 
   useEffect(() => {
-    if (
-      selectedCondition === 'product_category' &&
-      categoryLoaded &&
-      categoryData?.results
-    ) {
-      setConditionData((prev) => ({
-        ...prev,
-        product_category: categoryData.results,
-      }));
-    }
-  }, [categoryLoaded, categoryData, selectedCondition]);
-
-  useEffect(() => {
     if (!selectedCondition) {
       return;
     }
@@ -142,17 +131,23 @@ const ShippingRuleFormCard = ({
     }
 
     switch (selectedCondition) {
-      case 'product_category':
+      case 'product_categories':
+        if (!categoryData?.results) {
+          break;
+        }
+        setConditionData((prev) => ({
+          ...prev,
+          product_categories: categoryData.results,
+        }));
         break;
 
       case 'shipping_profile':
+        if (!shippingProfile) {
+          break;
+        }
         setConditionData((prev) => ({
           ...prev,
-          shipping_profile:
-            (shippingProfile as {
-              id: number | string;
-              name: string;
-            }[] | null) ?? null,
+          shipping_profile: shippingProfile,
         }));
         break;
 
@@ -172,6 +167,7 @@ const ShippingRuleFormCard = ({
     }
   }, [
     selectedCondition,
+    categoryData,
     shippingProfile,
     shippingSettingsData,
     methodId,
@@ -253,8 +249,13 @@ const ShippingRuleFormCard = ({
                     name="condition"
                     options={conditionSelectOptions}
                     placeholder={__('Product profile', 'kirki-ecommerce')}
+                    onValueChange={() => {
+                      form.setValue('operator', '=');
+                      form.setValue('condition_value', null);
+                      form.setValue('selected_country', null);
+                    }}
                   />
-                  {selectedCondition === 'cart_weight' ? (
+                  {NUMERIC_CONDITIONS.includes(selectedCondition ?? '') ? (
                     <SelectField
                       name="operator"
                       options={getOperatorOptions(selectedCondition)}
@@ -269,8 +270,15 @@ const ShippingRuleFormCard = ({
                       readOnly
                       onClick={() => setOpenDestinationPopup(true)}
                     />
-                  ) : selectedCondition === 'cart_weight' ? (
-                    <TextField name="condition_value" />
+                  ) : NUMERIC_CONDITIONS.includes(selectedCondition ?? '') ? (
+                    <TextField
+                      name="condition_value"
+                      placeholder={
+                        selectedCondition === 'cart_subtotal'
+                          ? sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)
+                          : __('e.g., 5', 'kirki-ecommerce')
+                      }
+                    />
                   ) : (
                     <SelectField
                       name="condition_value"
@@ -285,14 +293,18 @@ const ShippingRuleFormCard = ({
                   <SelectField
                     name="action"
                     options={actionSelectOptions}
+                    onValueChange={() => form.setValue('action_value', '')}
                   />
-                  {(selectedAction === 'set_shipping_cost' ||
-                    selectedAction === 'add_shipping_cost') && (
-                      <TextField
-                        name="action_value"
-                        placeholder={sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)}
-                      />
-                    )}
+                  {VALUE_ACTIONS.includes(selectedAction ?? '') && (
+                    <TextField
+                      name="action_value"
+                      placeholder={
+                        selectedAction === 'multiply_shipping_cost'
+                          ? __('e.g., 1.5', 'kirki-ecommerce')
+                          : sprintf(__('e.g., %s100', 'kirki-ecommerce'), baseCurrencySymbol)
+                      }
+                    />
+                  )}
                 </Grid>
               </Flex>
               <Flex justify="end" gap={2}>

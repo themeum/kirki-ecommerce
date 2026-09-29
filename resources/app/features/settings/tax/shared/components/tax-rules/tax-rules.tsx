@@ -18,6 +18,7 @@ import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Text from '@/components/ui/text';
+import { useCategoriesQuery } from '@/features/categories';
 import TaxRuleFormCard from '@/features/settings/tax/shared/components/tax-rules/tax-rule-form-card';
 import {
   getDestinationDisplayValue,
@@ -26,12 +27,8 @@ import {
   resolveConditionTypeLabel,
   resolveOperatorLabel,
 } from '@/features/settings/tax/shared/lib/tax-rules/helper';
-import type {
-  SelectOption,
-  TaxRegionState,
-  TaxRule,
-} from '@/features/settings/tax/shared/lib/utils';
-import { taxRuleConditionOptions } from '@/features/settings/tax/shared/lib/utils';
+import type { TaxRegionState, TaxRule } from '@/features/settings/tax/shared/lib/utils';
+import { RATE_ACTIONS } from '@/features/settings/tax/shared/schemas/forms/tax-rules-form';
 import { useTaxProfilesQuery } from '@/features/settings/tax/shared/services/tax';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
@@ -58,25 +55,14 @@ type TaxRulesProps = {
    */
   destinationCountry?: string;
   updateTaxRules: (rulesList: TaxRule[]) => void;
-  /**
-   * Condition types the rule editor offers. Defaults to Tax Profile plus
-   * Destination; a state's page passes Tax Profile only.
-   */
-  conditionOptions?: SelectOption[];
 };
 
 const TaxRules = (props: TaxRulesProps) => {
-  const {
-    rules,
-    states,
-    destinationLabel,
-    destinationCountry,
-    updateTaxRules,
-    conditionOptions = taxRuleConditionOptions,
-  } = props;
+  const { rules, states, destinationLabel, destinationCountry, updateTaxRules } = props;
   const [addRuleModal, setAddRuleModal] = useState(false);
   const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
   const { data: taxProfiles } = useTaxProfilesQuery();
+  const { data: categoryData } = useCategoriesQuery({ limit: -1 });
 
   const handleDeleteRules = (_item: TaxRule, index: number) => {
     const initialRules = Array.isArray(rules) ? [...rules] : [];
@@ -109,7 +95,6 @@ const TaxRules = (props: TaxRulesProps) => {
                     states={states}
                     destinationLabel={destinationLabel}
                     destinationCountry={destinationCountry}
-                    conditionOptions={conditionOptions}
                   />
                 )}
 
@@ -121,7 +106,6 @@ const TaxRules = (props: TaxRulesProps) => {
                         states={states}
                         destinationLabel={destinationLabel}
                         destinationCountry={destinationCountry}
-                        conditionOptions={conditionOptions}
                         rules={rules}
                         updateTaxRules={updateTaxRules}
                         onClose={() => setEditingRuleIndex(null)}
@@ -163,7 +147,11 @@ const TaxRules = (props: TaxRulesProps) => {
                                         getDestinationDisplayValue(condition?.value),
                                         'kirki-ecommerce',
                                       )
-                                    : resolveConditionDisplayValue(condition, taxProfiles)}
+                                    : resolveConditionDisplayValue(
+                                        condition,
+                                        taxProfiles,
+                                        categoryData?.results,
+                                      )}
                                 </Text>
                               </RuleItemCondition>
                             ))}
@@ -175,7 +163,7 @@ const TaxRules = (props: TaxRulesProps) => {
                                 resolveActionLabel(item?.action?.type),
                               )}
                             </Text>
-                            {item?.action?.type === 'set_product_tax_rate' && (
+                            {RATE_ACTIONS.includes(item?.action?.type ?? '') && (
                               <Text
                                 variant="small"
                                 weight="medium"
