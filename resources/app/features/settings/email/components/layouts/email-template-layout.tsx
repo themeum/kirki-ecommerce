@@ -1,5 +1,5 @@
 import { keyframes } from '@emotion/react';
-import { PaintbrushIcon } from 'lucide-react';
+import { Paintbrush } from 'lucide-react';
 import type { PropsWithChildren } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -21,12 +21,13 @@ const EmailTemplateLayout = (props: PropsWithChildren) => {
     void navigate(RouteConfig.Settings.get('EmailSettings').buildLink());
   };
   return (
-    <Page>
+    <Page containerSize="xl">
       <Form {...form}>
         <PageHeading
+          sticky
           hasBack
           onBack={handleBack}
-          leftIcon={<PaintbrushIcon />}
+          leftIcon={<Paintbrush />}
           text={__('Email Template', 'kirki-ecommerce')}
           buttonProps={{ disabled: isSaving }}
           actions={

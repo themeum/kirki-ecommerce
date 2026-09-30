@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
-use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Arr;
@@ -99,7 +99,7 @@ class Assets
     /**
      * Build the inline script that exposes the plugin config to the admin app.
      *
-     * The config can be modified through the `CustomHookNames::CONFIG_DATA` filter.
+     * The config can be modified through the `DevHookNames::CONFIG_DATA` filter.
      *
      * @since 1.0.0
      *
@@ -119,7 +119,7 @@ class Assets
             'login_url' => esc_url(wp_login_url()),
         ];
 
-        $config_data = apply_filters(CustomHookNames::CONFIG_DATA, $config_data);
+        $config_data = apply_filters(DevHookNames::CONFIG_DATA, $config_data);
 
         return sprintf(
             'window.kirki_ecommerce = %s;',

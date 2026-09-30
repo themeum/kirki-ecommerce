@@ -9,6 +9,8 @@ use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Services\AvailabilityService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\UnitPrice;
+use Kirki\Ecommerce\Framework\Collections\Collection;
+
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 
@@ -63,7 +65,7 @@ class VariantResource extends Resource
             'product_id' => $this->product_id,
             'preview_url' => $this->preview_url,
             'name' => $this->product->title,
-            'media' => MediaAttachment::make($this->media ?: ($this->product->media ?? collection())->first()),
+            'media' => MediaAttachment::make($this->media ?: $this->get_product_featured_image($this->product->media)),
             'sku' => $this->sku,
             'barcode' => $this->barcode,
             'base_price' => Money::prepare_amount_from_minor($this->base_price),
@@ -112,5 +114,24 @@ class VariantResource extends Resource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+
+    /**
+     * Resolve the variant product featured media ID.
+     *
+     * @since 1.0.0
+     *
+     * @param Collection|null $media
+     * @return int|null
+     */
+    protected function get_product_featured_image($media)
+    {
+        $media = $media ?? collection();
+
+        if ($media->empty()) {
+            return null;
+        }
+
+        return $media->first()->id;
     }
 }

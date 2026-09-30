@@ -19,18 +19,18 @@ describe('buildRuleDefaultValues', () => {
     expect(result.action).toBe('');
   });
 
-  it('hydrates a product_category condition as-is', () => {
+  it('hydrates a product_categories condition as-is', () => {
     const rule: ShippingRule = {
-      conditions: [{ type: 'product_category', operator: 'is', value: 'Shoes' }],
+      conditions: [{ type: 'product_categories', operator: '=', value: '1' }],
       action: { type: 'set_shipping_cost', value: 10 },
     };
 
     const result = buildRuleDefaultValues(rule);
 
     expect(result).toMatchObject({
-      condition: 'product_category',
-      operator: 'is',
-      condition_value: 'Shoes',
+      condition: 'product_categories',
+      operator: '=',
+      condition_value: '1',
       action: 'set_shipping_cost',
       action_value: 10,
       selected_country: null,
@@ -41,7 +41,7 @@ describe('buildRuleDefaultValues', () => {
     const rule: ShippingRule = {
       conditions: [{
         type: 'destination_region',
-        operator: 'is',
+        operator: '=',
         value: { country: 'US', states: ['CA', 'NY'] },
       }],
       action: { type: 'disable_shipping_method', value: '' },
@@ -69,7 +69,7 @@ describe('buildRuleDefaultValues', () => {
 describe('mergeRuleIntoMethodRules', () => {
   const rule: ShippingRuleFormPayload = {
     relation: 'AND',
-    conditions: [{ type: 'set_free_shipping', operator: 'is', value: null }],
+    conditions: [{ type: 'set_free_shipping', operator: '=', value: null }],
     action: { type: 'set_free_shipping', value: null },
   };
 
@@ -95,20 +95,20 @@ describe('mergeRuleIntoMethodRules', () => {
 
 describe('getConditionValueOptions', () => {
   const conditionData: ConditionDataMap = {
-    product_category: [{ id: 1, name: 'Shoes' }, { id: 2, name: 'Hats' }],
+    product_categories: [{ id: 1, name: 'Shoes' }, { id: 2, name: 'Hats' }],
     shipping_profile: [{ id: 'p1', name: 'Standard' }],
   };
 
-  it('maps product_category options by name', () => {
-    expect(getConditionValueOptions('product_category', conditionData)).toEqual([
-      { label: 'Shoes', value: 'Shoes' },
-      { label: 'Hats', value: 'Hats' },
+  it('maps product_categories options to id-keyed values', () => {
+    expect(getConditionValueOptions('product_categories', conditionData)).toEqual([
+      { label: 'Shoes', value: '1' },
+      { label: 'Hats', value: '2' },
     ]);
   });
 
-  it('maps shipping_profile options by name', () => {
+  it('maps shipping_profile options to id-keyed values', () => {
     expect(getConditionValueOptions('shipping_profile', conditionData)).toEqual([
-      { label: 'Standard', value: 'Standard' },
+      { label: 'Standard', value: 'p1' },
     ]);
   });
 
@@ -121,7 +121,7 @@ describe('getConditionValueOptions', () => {
   });
 
   it('returns an empty array when the condition has no data loaded yet', () => {
-    expect(getConditionValueOptions('product_category', {})).toEqual([]);
+    expect(getConditionValueOptions('product_categories', {})).toEqual([]);
   });
 });
 
@@ -134,10 +134,10 @@ describe('getOperatorOptions', () => {
     ]);
   });
 
-  it.each(['product_category', 'shipping_profile', 'destination_region', undefined])(
-    'offers only "is" for %s',
+  it.each(['product_categories', 'shipping_profile', 'destination_region', undefined])(
+    'offers only "is" (stored as "=") for %s',
     (condition) => {
-      expect(getOperatorOptions(condition)).toEqual([{ label: 'is', value: 'is' }]);
+      expect(getOperatorOptions(condition)).toEqual([{ label: 'is', value: '=' }]);
     },
   );
 });

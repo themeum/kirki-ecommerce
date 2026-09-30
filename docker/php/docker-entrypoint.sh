@@ -34,4 +34,23 @@ xdebug.idekey=${XDEBUG_IDEKEY}
 xdebug.log_level=0
 EOF
 
+# WordPress starts WP-Cron and the plugin's queue worker with HTTP requests to
+# its own URL (WP_URL). That port is published on the host by nginx, so inside
+# this container nothing answers it and those loopbacks fail silently. Forward
+# it to nginx, keeping the Host header, so they behave as on real hosting.
+WP_URL="${WP_URL:-http://localhost:20100}"
+wp_url_authority="${WP_URL#*://}"
+wp_url_authority="${wp_url_authority%%/*}"
+wp_url_host="${wp_url_authority%%:*}"
+wp_url_port="${wp_url_authority##*:}"
+if [ "$wp_url_port" = "$wp_url_authority" ]; then
+    wp_url_port=80
+fi
+
+case "$wp_url_host" in
+    localhost|127.0.0.1)
+        socat TCP-LISTEN:"$wp_url_port",bind=127.0.0.1,fork,reuseaddr TCP:nginx:80 &
+        ;;
+esac
+
 exec docker-php-entrypoint "$@"

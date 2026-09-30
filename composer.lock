@@ -122,16 +122,16 @@
     },
     {
       "name": "themeum/framework",
-      "version": "3.1.5",
+      "version": "3.2.2",
       "source": {
         "type": "git",
         "url": "https://github.com/themeum/framework.git",
-        "reference": "eca3afb5aebf672a88f37631f550fcd625fa8f22"
+        "reference": "5de40d9ff1b880b0a3a0a0d078de1d568214cac3"
       },
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/themeum/framework/zipball/eca3afb5aebf672a88f37631f550fcd625fa8f22",
-        "reference": "eca3afb5aebf672a88f37631f550fcd625fa8f22",
+        "url": "https://api.github.com/repos/themeum/framework/zipball/5de40d9ff1b880b0a3a0a0d078de1d568214cac3",
+        "reference": "5de40d9ff1b880b0a3a0a0d078de1d568214cac3",
         "shasum": ""
       },
       "require": {
@@ -218,10 +218,10 @@
         "wordpress"
       ],
       "support": {
-        "source": "https://github.com/themeum/framework/tree/v3.1.5",
+        "source": "https://github.com/themeum/framework/tree/v3.2.2",
         "issues": "https://github.com/themeum/framework/issues"
       },
-      "time": "2026-09-18T10:40:34+00:00"
+      "time": "2026-09-29T10:20:43+00:00"
     }
   ],
   "packages-dev": [
@@ -1775,16 +1775,16 @@
     },
     {
       "name": "phpunit/phpunit",
-      "version": "9.6.36",
+      "version": "9.6.37",
       "source": {
         "type": "git",
         "url": "https://github.com/sebastianbergmann/phpunit.git",
-        "reference": "abab27ed286d3e1246fbbfe6b56bfd732d945ec9"
+        "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f"
       },
       "dist": {
         "type": "zip",
-        "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/abab27ed286d3e1246fbbfe6b56bfd732d945ec9",
-        "reference": "abab27ed286d3e1246fbbfe6b56bfd732d945ec9",
+        "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aceaa623912caf8e80bffea22fc4103a0a01565f",
+        "reference": "aceaa623912caf8e80bffea22fc4103a0a01565f",
         "shasum": ""
       },
       "require": {
@@ -1858,7 +1858,7 @@
       "support": {
         "issues": "https://github.com/sebastianbergmann/phpunit/issues",
         "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-        "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.36"
+        "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.37"
       },
       "funding": [
         {
@@ -1866,7 +1866,7 @@
           "type": "other"
         }
       ],
-      "time": "2026-08-11T06:25:15+00:00"
+      "time": "2026-09-23T09:59:59+00:00"
     },
     {
       "name": "psr/container",

@@ -129,13 +129,28 @@ describe('buildEmailTemplatePayload', () => {
       admin_emails: currentEmailSettings.admin_emails,
       customer_emails: currentEmailSettings.customer_emails,
       mail_configuration: currentEmailSettings.mail_configuration,
-      default_template: { ...default_value, ...payload, logo: undefined },
+      default_template: { ...default_value, ...payload },
     });
   });
 
   it('treats a missing default_template as empty', () => {
     const result = buildEmailTemplatePayload({}, currentEmailSettings, payload);
 
-    expect(result.default_template).toEqual({ ...payload, logo: undefined });
+    expect(result.default_template).toEqual(payload);
+  });
+
+  it('replaces the saved hydrated logo with the edited logo id', () => {
+    const result = buildEmailTemplatePayload(
+      {
+        default_template: {
+          ...payload,
+          logo: { id: '5', url: 'https://x/old-logo.png' },
+        },
+      },
+      currentEmailSettings,
+      { ...payload, logo: 9 },
+    );
+
+    expect(result.default_template?.logo).toBe(9);
   });
 });

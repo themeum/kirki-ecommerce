@@ -2,6 +2,7 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 
+use Kirki\Ecommerce\App\Constants\Unit;
 use Kirki\Ecommerce\App\Constants\WeightUnit;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
@@ -50,9 +51,9 @@ class UpdateVariantRequest extends Request
             'sku' => 'string|nullable|max:100',
 
             'base_price' => 'number|min:0|nullable',
-            'base_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
+            'base_unit' => 'string|nullable|max:10|in:' . Unit::join(),
             'base_unit_amount' => 'number|min:0|nullable',
-            'total_unit' => 'string|nullable|max:10|in:' . WeightUnit::join(),
+            'total_unit' => 'string|nullable|max:10|in:' . Unit::join(),
             'total_unit_amount' => 'number|min:0|nullable',
             'base_sale_price' => 'number|min:0|nullable',
             'base_cost_of_goods' => 'number|min:0|nullable',

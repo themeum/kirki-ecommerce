@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
-use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Wordpress\User;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;
@@ -33,7 +33,7 @@ class MergeGuestOrder extends BaseHook
      */
     public function get_name(): string
     {
-        return CustomHookNames::USER_EMAIL_VERIFIED;
+        return DevHookNames::USER_EMAIL_VERIFIED;
     }
 
     /**
@@ -49,7 +49,7 @@ class MergeGuestOrder extends BaseHook
     /**
      * Merge guest orders into the account of the user whose email was just verified.
      *
-     * Responds to the kecom_user_email_verified action.
+     * Responds to the kirki_ecommerce_user_email_verified action.
      *
      * @since 1.0.0
      *

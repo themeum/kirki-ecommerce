@@ -602,7 +602,7 @@ class OrderManager
     public function send_invoice_email(int $id)
     {
         // @todo: implement once the order email layer exists. The plugin has no mailable,
-        // template or renderer yet, only the EmailSettings option and SendEmailJob.
+        // template or renderer yet, only the EmailSettings option.
         return false;
     }
 
@@ -635,8 +635,7 @@ class OrderManager
      */
     public function resend_order_email(int $id)
     {
-        // @todo: implement once the order email layer exists. SendNotificationEmail::handle()
-        // is currently an empty listener and OrderShipped is never dispatched.
+        // @todo: implement by dispatching SendOrderMailJob for the order.
         return false;
     }
 }

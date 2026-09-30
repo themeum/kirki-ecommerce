@@ -39,6 +39,7 @@ use Kirki\Ecommerce\App\Facades\OrderActivity;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Events\Order\OrderPlacedEvent;
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -210,12 +211,14 @@ class CreateOrderAction
             OrderActivity::log($order, OrderActivityType::ORDER_PLACED);
 
             DB::commit();
-
-            return $order;
         } catch (Throwable $e) {
             DB::rollback();
             throw $e;
         }
+
+        OrderPlacedEvent::dispatch($order);
+
+        return $order;
     }
 
     /**

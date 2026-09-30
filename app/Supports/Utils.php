@@ -11,7 +11,7 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
-use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\PageKeys;
@@ -64,7 +64,7 @@ class Utils
     /**
      * Get the site pages the plugin manages.
      *
-     * The result can be modified through the `CustomHookNames::SITE_PAGES` filter.
+     * The result can be modified through the `DevHookNames::SITE_PAGES` filter.
      *
      * @since 1.0.0
      *
@@ -78,7 +78,7 @@ class Utils
             $pages['advance.pages.' . $key] = $name;
         }
 
-        $pages = apply_filters(CustomHookNames::SITE_PAGES, $pages);
+        $pages = apply_filters(DevHookNames::SITE_PAGES, $pages);
 
         return $pages;
     }
@@ -88,7 +88,7 @@ class Utils
      *
      * Each entry describes an account page route and, for menu entries, its title,
      * icon, URL and active state. The result can be modified through the
-     * `CustomHookNames::ACCOUNT_ROUTE_CONFIG` filter.
+     * `DevHookNames::ACCOUNT_ROUTE_CONFIG` filter.
      *
      * @since 1.0.0
      *
@@ -176,7 +176,7 @@ class Utils
             ],
         ];
 
-        $route_config = apply_filters(CustomHookNames::ACCOUNT_ROUTE_CONFIG, $route_config);
+        $route_config = apply_filters(DevHookNames::ACCOUNT_ROUTE_CONFIG, $route_config);
 
         return $route_config;
     }
@@ -185,7 +185,7 @@ class Utils
      * Get account menu items.
      *
      * Picks the menu entries from the account route config. The result can be
-     * modified through the `CustomHookNames::ACCOUNT_MENU_ITEMS` filter.
+     * modified through the `DevHookNames::ACCOUNT_MENU_ITEMS` filter.
      *
      * @since 1.0.0
      *
@@ -202,7 +202,7 @@ class Utils
             }
         }
 
-        $menu_items = apply_filters(CustomHookNames::ACCOUNT_MENU_ITEMS, $menu_items);
+        $menu_items = apply_filters(DevHookNames::ACCOUNT_MENU_ITEMS, $menu_items);
 
         return $menu_items;
     }

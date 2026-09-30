@@ -47,15 +47,13 @@ const EmailNotificationTemplatePreview = ({
   }
 
   return (
-    <Flex direction="column" gap={2}>
-      <iframe
-        ref={iframeRef}
-        title={__('Email notification preview', 'kirki-ecommerce')}
-        srcDoc={data.html}
-        onLoad={() => setIsReady(true)}
-        css={scoped(styles.frame)}
-      />
-    </Flex>
+    <iframe
+      ref={iframeRef}
+      title={__('Email notification preview', 'kirki-ecommerce')}
+      srcDoc={data.html}
+      onLoad={() => setIsReady(true)}
+      css={scoped(styles.frame)}
+    />
   );
 };
 

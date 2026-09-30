@@ -847,4 +847,27 @@ class SettingsApiTest extends RestTestCase
         $this->assertNotEmpty($shortcodes);
         $this->assertContains('{order_summary}', array_column($shortcodes, 'value'));
     }
+
+    /**
+     * Email preview renders the saved header logo attachment as an image url.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_email_preview_renders_saved_logo_url(): void
+    {
+        $attachment_id = static::factory()->attachment->create([
+            'post_mime_type' => 'image/png',
+            'file' => 'email-logo.png',
+        ]);
+        Settings::update('email.default_template.logo', $attachment_id);
+
+        $response = $this->request('GET', 'settings/email/customer/order/new_order/preview');
+        $payload = $this->assert_api_success($response);
+
+        $this->assertStringContainsString(
+            'src="' . esc_url(wp_get_attachment_url($attachment_id)) . '"',
+            $payload['data']['html']
+        );
+    }
 }

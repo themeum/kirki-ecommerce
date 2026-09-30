@@ -2,7 +2,7 @@
 
 namespace Kirki\Ecommerce\App;
 
-use Kirki\Ecommerce\App\Events\SettingsChanged;
+use Kirki\Ecommerce\App\Events\SettingsChangedEvent;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Framework\Concerns\DeepGettable;
 
@@ -68,12 +68,12 @@ abstract class AppSettings
     /**
      * Merge the given values into the stored settings and persist them.
      *
-     * Top-level keys in `$value` replace existing ones. Dispatches SettingsChanged unless disabled.
+     * Top-level keys in `$value` replace existing ones. Dispatches SettingsChangedEvent unless disabled.
      *
      * @since 1.0.0
      *
      * @param array<string, mixed> $value         Settings values to merge in.
-     * @param bool                 $trigger_event Whether to dispatch the SettingsChanged event.
+     * @param bool                 $trigger_event Whether to dispatch the SettingsChangedEvent.
      * @return void
      */
     public function set($value, bool $trigger_event = true)
@@ -83,7 +83,7 @@ abstract class AppSettings
         $this->refresh();
 
         if ($trigger_event) {
-            SettingsChanged::dispatch($this->get_option_key());
+            SettingsChangedEvent::dispatch($this->get_option_key());
         }
     }
 

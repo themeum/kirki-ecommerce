@@ -3,14 +3,12 @@
 ## Purpose
 
 Defines the spreadsheet surface merchants use to edit many product variants at once: which columns exist, how the grid stays responsive at catalogue scale, and how cells are selected, filled, and activated for editing.
-
 ## Requirements
-
 ### Requirement: Variant columns presented by the grid
 
 The grid SHALL present exactly the following columns, in order: Variants, Price, Sale Price, Cost of Goods, Profit, Margin, Base price per unit, SKU, Dimension, Weight, Track Inventory, Availability, Committed, Low Stock Threshold, Limit Purchase, Limit, Visibility, Charge Tax, Tax profile, Shipping Profile.
 
-The Variants column SHALL show the variant's image and its identity (variant name and attribute combination). Profit, Margin, and Committed SHALL be read-only. Profit and Margin SHALL be derived from the row's current price, sale price, and cost of goods rather than stored. Weight SHALL present its amount and unit as one column. Dimension SHALL select a shipping box and SHALL display the chosen box's name and its length, width, and height.
+The Variants column SHALL show the variant's image and its identity as `{Product Title} - {Attribute Value 1} | {Attribute Value 2}` (one segment per attribute the variant carries, joined with ` | `), e.g. "Sample Product Title - Red | XL". A variant with no attributes (a simple product) SHALL show just the product title, with no trailing separator. Profit, Margin, and Committed SHALL be read-only. Profit and Margin SHALL be derived from the row's current price, sale price, and cost of goods rather than stored. Weight SHALL present its amount and unit as one column. Dimension SHALL select a shipping box and SHALL display the chosen box's name and its length, width, and height.
 
 Tax profile and Shipping Profile options SHALL be sourced from the tax-profile and shipping-profile collections. The grid MUST NOT present hardcoded, fictional, or empty option lists for these fields.
 
@@ -24,31 +22,66 @@ Tax profile and Shipping Profile options SHALL be sourced from the tax-profile a
 
 - **WHEN** the merchant opens the Tax profile or Shipping Profile control on any row
 - **THEN** the options listed are the store's configured tax profiles or shipping profiles
+- **AND** selecting one records that profile on the row
 
 #### Scenario: No standalone unit-price toggle column
 
 - **WHEN** the merchant scans the grid's columns
 - **THEN** there is no separate Unit price column, because whether a unit price exists is expressed by the Base price per unit cell's own value
-- **AND** selecting one records that profile on the row
 
 #### Scenario: SKU is editable
 
 - **WHEN** the merchant activates a SKU cell and types a value
 - **THEN** the new SKU is recorded on that row
 
+#### Scenario: Variant identity shows product title and attribute values
+
+- **WHEN** the merchant views a Variants cell for a variant of "Sample Product" with attribute values Red and XL
+- **THEN** the cell reads "Sample Product - Red | XL"
+
+#### Scenario: Simple product identity shows only the title
+
+- **WHEN** the merchant views a Variants cell for a simple product's variant with no attributes
+- **THEN** the cell reads just the product's title, with no trailing separator
+
 ### Requirement: Gated cells
 
-Availability and Low Stock Threshold SHALL present an editable control only while the row tracks inventory. Limit SHALL present an editable control only while the row limits purchase quantity. Tax profile SHALL present an editable control only while the row charges tax. When the gate is off, the cell SHALL show a non-editable placeholder. Base price per unit SHALL NOT be gated — it is editable on every row.
+Low Stock Threshold SHALL present an editable control only while the row tracks
+inventory. Limit SHALL present an editable control only while the row limits
+purchase quantity. Tax profile SHALL present an editable control only while the
+row charges tax. When one of these gates is off, the cell SHALL show a
+non-editable placeholder. Base price per unit SHALL NOT be gated — it is editable
+on every row.
+
+Availability SHALL instead be editable in both states, presenting a different
+control in each: a quantity field while the row tracks inventory, and a choice of
+In Stock or Out of Stock — bound to the variant's stock flag — while it does not.
+The choice offered while untracked SHALL match the one the single-variant form
+offers for the same variant. Changing a row's inventory tracking SHALL swap which
+control the cell presents without altering the value behind the other one, so the
+row's quantity survives a trip through the untracked state.
 
 #### Scenario: Gate turned off hides the control
 
 - **WHEN** a row does not track inventory
-- **THEN** its Availability and Low Stock Threshold cells show a placeholder instead of an editable control
+- **THEN** its Low Stock Threshold cell shows a placeholder instead of an editable control
 
 #### Scenario: Gate turned on reveals the stored value
 
 - **WHEN** the merchant enables inventory tracking on a row that already holds an availability value
-- **THEN** the Availability cell becomes editable and shows that stored value
+- **THEN** the Availability cell shows a quantity field holding that stored value
+
+#### Scenario: An untracked row offers a stock status
+
+- **WHEN** a row does not track inventory
+- **THEN** its Availability cell offers In Stock and Out of Stock
+- **AND** choosing one records that stock status on the variant
+
+#### Scenario: Turning tracking off preserves the quantity
+
+- **WHEN** the merchant unchecks Track Inventory on a row whose Availability is 250
+- **THEN** the Availability cell switches to the stock-status choice
+- **AND** re-checking Track Inventory shows 250 again
 
 #### Scenario: Base price per unit is always editable
 
@@ -89,7 +122,7 @@ The merchant SHALL be able to select cells within a single column in three ways:
 
 Cmd/Ctrl-clicking a row already in the selection SHALL remove that row from the selection (toggle off), including a row in the middle of a previously dragged or shift-extended range. Cmd/Ctrl-clicking a row not in the selection SHALL add it, and dragging while Cmd/Ctrl is held SHALL extend that newly added chunk.
 
-Clicking a cell that is already part of the current selection SHALL preserve the entire selection unchanged (see Two-stage cell editing for what that click then does). The selection SHALL only be replaced or cleared by clicking a cell outside the current selection, or by clicking outside the grid entirely.
+A plain click (no modifier) on any cell — whether or not it is already part of the current selection — SHALL replace the selection with just that single cell and make it active. The selection is only extended or preserved via Shift-click or Cmd/Ctrl-click, per above; a plain click never preserves a prior multi-cell selection.
 
 Read-only columns and the Variants column SHALL NOT be selectable.
 
@@ -134,10 +167,11 @@ Read-only columns and the Variants column SHALL NOT be selectable.
 - **THEN** row 5 is no longer selected
 - **AND** rows 3, 4, 6, and 7 remain selected
 
-#### Scenario: Clicking a selected cell preserves the selection
+#### Scenario: Clicking any cell collapses the selection to it
 
-- **WHEN** the merchant has a multi-row Price selection and clicks a cell already within it
-- **THEN** the full selection remains unchanged
+- **WHEN** the merchant has a multi-row Price selection and plain-clicks a cell already within it
+- **THEN** the selection collapses to just that clicked cell
+- **AND** that cell becomes active
 
 #### Scenario: Clicking outside the selection replaces it
 
@@ -153,6 +187,12 @@ Read-only columns and the Variants column SHALL NOT be selectable.
 ### Requirement: Fill from a selected cell
 
 A selection SHALL present a fill handle at its bottom-most selected row, whether the selection is a contiguous range or a non-contiguous Cmd/Ctrl-click selection. Dragging that handle across other cells in the same column SHALL copy the value of the row the drag started from into every cell in the dragged range, overwriting whatever was there.
+
+Where a column presents different controls on different rows — as Availability
+does — the fill SHALL copy the value belonging to the control the drag started
+from, and SHALL leave rows presenting the other control unchanged rather than
+writing a value their cell does not show. A fill SHALL NOT change which control a
+target row presents.
 
 Completing a fill SHALL leave the column with one contiguous selection spanning from the topmost previously-selected row through the drag's end point, replacing whatever non-contiguous shape the selection had beforehand.
 
@@ -179,24 +219,45 @@ While dragging the handle, the merchant SHALL be able to extend the fill beyond 
 - **THEN** rows 10, 11, and 12 take row 9's value
 - **AND** the resulting selection spans rows 2 through 12 as one contiguous range
 
+#### Scenario: Filling Availability from a tracked row skips untracked rows
+
+- **WHEN** the merchant fills Availability down from a tracked row holding 250, across rows where row 3 does not track inventory
+- **THEN** the tracked rows in the range take 250
+- **AND** row 3 keeps its stock status and its own quantity
+- **AND** no row's inventory tracking setting changes
+
+#### Scenario: Filling Availability from an untracked row skips tracked rows
+
+- **WHEN** the merchant fills Availability down from an untracked row set to Out of Stock, across rows where row 3 tracks inventory
+- **THEN** the untracked rows in the range become Out of Stock
+- **AND** row 3 keeps its quantity
+- **AND** no row's inventory tracking setting changes
+
 ### Requirement: Two-stage cell editing
 
-A cell SHALL require two distinct actions before its control accepts input: the first press selects the cell (or, per Cell selection within a column, is absorbed into an existing selection without changing it), and a subsequent click on a cell that is part of the current selection, a double-click, or pressing Enter on a selected cell activates it for editing. Editing an active cell that belongs to a multi-cell selection SHALL fan the new value out to every selected cell in that column. Pressing Escape or interacting outside the cell SHALL deactivate it. At most one cell SHALL be active at a time.
+A text, number, or money cell SHALL require two distinct actions before its control accepts typed input: a click selects the cell without focusing its underlying control (so a click-and-drag from an unfocused cell still selects a range rather than editing text), and the first printable keystroke typed while that cell is selected SHALL focus the control and replace its entire existing value with that keystroke, discarding what was there. A double-click, or pressing Enter on a selected cell, SHALL instead activate it with the existing value intact and the cursor placed, without clearing it. Editing an active cell that belongs to a multi-cell selection SHALL fan the new value out to every selected cell in that column. Pressing Escape or interacting outside the cell SHALL deactivate it. At most one cell SHALL be active at a time.
+
+Select-like cells (per Borderless select-like cells) and checkbox cells (per Checkbox click and keyboard toggle) do not accept typed replacement text and are governed by their own requirements instead, but still share the "first click only selects" behavior for any interaction that is not their own direct-activation path.
 
 #### Scenario: First press selects without focusing
 
-- **WHEN** the merchant presses a Price cell that was not selected
+- **WHEN** the merchant clicks a Price cell that was not selected
 - **THEN** the cell is selected
 - **AND** its input does not receive focus, so dragging from here selects rather than editing text
 
-#### Scenario: Second interaction activates editing
+#### Scenario: Typing on a selected cell replaces its value
 
-- **WHEN** the merchant clicks an already-selected Price cell, or presses Enter on it
-- **THEN** the cell becomes active and its input receives focus
+- **WHEN** the merchant selects a Price cell holding 19.99 and types "5"
+- **THEN** the cell's input becomes focused and its value becomes "5", not "19.995" or "519.99"
+
+#### Scenario: Double-click or Enter edits in place without clearing
+
+- **WHEN** the merchant double-clicks a Price cell holding 19.99, or selects it and presses Enter
+- **THEN** the cell becomes active with its input focused and the value still 19.99, cursor placed in the text
 
 #### Scenario: Activating a cell within a non-contiguous selection fans the edit out
 
-- **WHEN** the merchant has Cmd/Ctrl-click selected Price rows 2, 5, and 9 and types a new value into row 5's activated cell
+- **WHEN** the merchant has Cmd/Ctrl-click selected Price rows 2, 5, and 9 and types a new value into row 5's selected cell
 - **THEN** rows 2, 5, and 9 all take the new value
 
 #### Scenario: Escape deactivates
@@ -240,6 +301,10 @@ Every cell SHALL use minimal padding, and the control it hosts (input, select, o
 
 Tax profile, Shipping Profile, Dimension, the Weight unit, and Base price per unit SHALL render without a visible border or background, showing only a right-aligned chevron affordance, so the cell itself reads as the field. These cells SHALL follow the same two-stage editing model as other cells: a first press selects the cell, and a second click, double-click, or Enter opens the control (dropdown or dialog).
 
+The interaction that opens such a control SHALL NOT also dismiss it. The control
+SHALL stay open until the merchant dismisses it deliberately — by choosing a
+value, by a control of its own, by clicking outside it, or by pressing Escape.
+
 #### Scenario: A select-like cell shows only a chevron at rest
 
 - **WHEN** the merchant views a Tax profile cell that is not active
@@ -250,3 +315,131 @@ Tax profile, Shipping Profile, Dimension, the Weight unit, and Base price per un
 - **WHEN** the merchant presses a Tax profile cell that was not selected
 - **THEN** the cell is selected but its dropdown does not open
 - **AND** a subsequent click, double-click, or Enter opens it
+
+#### Scenario: The unit-price dialog stays open once opened
+
+- **WHEN** the merchant presses a Base price per unit cell that was not selected, then presses it again
+- **THEN** its dialog opens and remains open
+- **AND** no third press is needed to reach it
+
+### Requirement: Checkbox click and keyboard toggle
+
+Clicking directly on a checkbox cell's checkbox glyph SHALL toggle its checked state and SHALL also make that cell the active/selected cell. Clicking elsewhere within a checkbox cell (not the glyph itself) SHALL only select the cell, without toggling it. Pressing Space while one or more checkbox cells in a column are selected SHALL toggle them, fanning the resulting checked state out to every selected cell in that column the same way a typed value fans out for other field kinds.
+
+#### Scenario: Clicking the glyph toggles and selects
+
+- **WHEN** the merchant clicks directly on an unchecked Track Inventory checkbox
+- **THEN** the checkbox becomes checked
+- **AND** that cell becomes the active/selected cell
+
+#### Scenario: Clicking elsewhere in the cell only selects
+
+- **WHEN** the merchant clicks inside a Track Inventory cell but not on the checkbox glyph
+- **THEN** the cell is selected
+- **AND** the checkbox's checked state does not change
+
+#### Scenario: Space fans a toggle out to the whole selection
+
+- **WHEN** the merchant has a multi-row Track Inventory selection and presses Space
+- **THEN** every selected row's checkbox takes the same resulting checked state
+
+### Requirement: Column visibility menu
+
+The grid SHALL offer a column-visibility control, opened from a labeled trigger (an icon and the text "Columns"), that lists every hideable column grouped under labeled categories (at minimum General, Pricing, Inventory, Shipping, and Tax). The Variants column SHALL appear in the list checked and disabled, since it can never be hidden. Toggling a column's checkbox SHALL immediately show or hide that column without closing the menu; the menu SHALL close only when the merchant dismisses it explicitly (clicking outside it or pressing Escape).
+
+#### Scenario: Columns are grouped by category
+
+- **WHEN** the merchant opens the column-visibility menu
+- **THEN** the columns are listed under labeled category headings rather than a single flat list
+
+#### Scenario: Variants column cannot be hidden
+
+- **WHEN** the merchant opens the column-visibility menu
+- **THEN** the Variants entry is shown checked and disabled
+
+#### Scenario: Menu stays open across multiple toggles
+
+- **WHEN** the merchant toggles two different columns' checkboxes in the same menu session
+- **THEN** the menu remains open after each toggle
+- **AND** the menu closes only when the merchant clicks outside it or presses Escape
+
+### Requirement: Rule-based SKU generation from the grid
+
+While one or more SKU cells are selected, the SKU column header SHALL present a
+generate action. Triggering it SHALL replace the SKU of every selected row with a
+rule-based SKU composed by the server from that row's own product data, each row
+receiving its own number. The action SHALL NOT appear when nothing is selected or
+when the selection sits in another column, SHALL indicate that it is busy while
+the request is in flight, and on failure SHALL leave every SKU untouched and
+surface the failure to the merchant. Showing or hiding it SHALL NOT change the
+header's dimensions or move any other part of the grid.
+
+Generated SKUs SHALL be written into the grid's unsaved form state only; they
+SHALL NOT be stored until the merchant saves.
+
+#### Scenario: The action appears with a SKU selection
+
+- **WHEN** the merchant selects one or more SKU cells
+- **THEN** a generate action appears in the SKU column header
+
+#### Scenario: Showing the action does not move the grid
+
+- **WHEN** the generate action appears or disappears as the merchant's selection
+  changes
+- **THEN** the header row keeps its height and no row of the grid moves
+
+#### Scenario: The action stays hidden for other columns
+
+- **WHEN** the merchant's selection sits in the Price column, or nothing is
+  selected
+- **THEN** no generate action is shown in the SKU column header
+
+#### Scenario: Every selected row gets its own SKU
+
+- **WHEN** the merchant selects three SKU cells and triggers the generate action
+- **THEN** each of those three rows takes a distinct rule-based SKU
+- **AND** rows outside the selection keep their existing SKU
+
+#### Scenario: Generation fails
+
+- **WHEN** the merchant triggers the generate action and the request fails
+- **THEN** every selected row keeps its previous SKU
+- **AND** the merchant is shown an error
+
+### Requirement: The SKU column is wide enough for a generated SKU
+
+The SKU column SHALL be sized to display a rule-based SKU — which carries a
+segment per attribute value in addition to title, brand, category and sequence
+segments — without the merchant having to widen or scroll within the cell to read
+it.
+
+#### Scenario: A multi-segment SKU is readable
+
+- **WHEN** a row holds a SKU such as `BLU-RED-SMA-NIK-APP-010`
+- **THEN** that value is legible in the SKU cell at the column's default width
+
+### Requirement: Caret placement after a seeding keystroke
+
+When a printable keystroke seeds a cell's value and activates it, the caret SHALL
+be placed after the seeded text rather than selecting it, so continued typing
+appends to what was already typed. Activation by double-click or Enter SHALL
+continue to present the existing value selected, so that typing overwrites it.
+
+This SHALL hold for every cell kind that accepts typed input — text, number,
+money, and the Weight column's numeric field.
+
+#### Scenario: Continued typing appends
+
+- **WHEN** the merchant selects a Weight cell, types "1", and then types "2"
+- **THEN** the cell's value is "12"
+
+#### Scenario: Seeding still discards the previous value
+
+- **WHEN** the merchant selects a Price cell holding 19.99 and types "5"
+- **THEN** the cell's value is "5"
+- **AND** typing "0" next makes it "50", not "0"
+
+#### Scenario: Enter still selects for overwrite
+
+- **WHEN** the merchant selects a Price cell holding 19.99 and presses Enter, then types "5"
+- **THEN** the cell's value is "5", because Enter presented the existing value selected

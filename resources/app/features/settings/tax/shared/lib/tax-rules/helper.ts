@@ -42,12 +42,14 @@ export const getDestinationDisplayValue = (value: unknown): string => {
 };
 
 /**
- * Read-only label for a rule condition's value. A `tax_profile` condition stores
- * the profile id; resolve it back to the profile name for display.
+ * Read-only label for a rule condition's value. A `tax_profile` or
+ * `product_categories` condition stores the profile/category id; resolve it
+ * back to its name for display.
  */
 export const resolveConditionDisplayValue = (
   condition: TaxRuleCondition | undefined,
   taxProfiles: TaxProfile[] = [],
+  categories: { id: number | string; name: string }[] = [],
 ): string => {
   const value = condition?.value;
 
@@ -55,6 +57,12 @@ export const resolveConditionDisplayValue = (
     const profile = taxProfiles.find((item) => String(item.id) === String(value));
 
     return profile?.name ?? String(value);
+  }
+
+  if (condition?.type === 'product_categories') {
+    const category = categories.find((item) => String(item.id) === String(value));
+
+    return category?.name ?? String(value);
   }
 
   return String(value);
@@ -102,6 +110,10 @@ export const resolveOperatorLabel = (operator: string | null | undefined): strin
 export const resolveActionLabel = (type: string | null | undefined): string => {
   if (type === 'set_product_tax_rate') {
     return __('product tax rate is', 'kirki-ecommerce');
+  }
+
+  if (type === 'set_shipping_tax_rate') {
+    return __('shipping tax rate is', 'kirki-ecommerce');
   }
 
   if (type === 'set_product_tax_exempt') {

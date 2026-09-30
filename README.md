@@ -195,6 +195,7 @@ docker compose down -v && docker compose up -d --build   # full reset
 | Plugin not found | Run `docker compose` from this repo root (must mount to `wp-content/plugins/kirki-ecommerce`). |
 | File permission errors | `docker compose run --rm --user root wpcli chown -R 33:33 /var/www/html/wp-content/plugins/kirki-ecommerce` |
 | Redirect to HTTPS | `wpcli option update home 'http://localhost:20100'` and same for `siteurl`; `docker compose restart nginx` |
+| WP-Cron / queued jobs (e.g. scheduled products) never run | `docker compose up -d --build php`. The `php` image runs a `socat` forwarder so WordPress can reach its own URL (`WP_URL`) from inside the container; without it every loopback fails silently. Check with `docker compose exec php curl -s -o /dev/null -w '%{http_code}' http://localhost:20100/wp-cron.php`, which should print `200`. |
 
 ---
 

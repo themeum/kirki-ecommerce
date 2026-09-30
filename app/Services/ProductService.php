@@ -16,6 +16,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
+use Kirki\Ecommerce\App\Jobs\PublishScheduledProductJob;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -122,7 +123,8 @@ class ProductService
     /**
      * Create a new product and sync its media, taxonomies and attributes.
      *
-     * If no slug is provided, it will be generated from the title.
+     * If no slug is provided, it will be generated from the title. A scheduled
+     * product also queues its publish for when scheduled_at arrives.
      *
      * @since 1.0.0
      *
@@ -145,7 +147,7 @@ class ProductService
 
         if ($data->status !== ProductStatus::SCHEDULED) {
             $data_array['scheduled_at'] = null;
-        } else if (!empty($data_array['scheduled_at'])) {
+        } elseif (!empty($data_array['scheduled_at'])) {
             $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
         }
 
@@ -161,6 +163,10 @@ class ProductService
 
         $product = Product::create($data_array);
 
+        if ($data->status === ProductStatus::SCHEDULED) {
+            PublishScheduledProductJob::dispatch($product->id)->delay($data_array['scheduled_at']);
+        }
+
         $product->media()->sync($this->format_ordering($data->media));
         $product->collections()->sync($data->collections);
         $product->categories()->sync($data->categories);
@@ -175,7 +181,8 @@ class ProductService
      * Update a product and sync its media, taxonomies and attributes.
      *
      * If no slug is provided, it will be generated from the title. A change of
-     * status also updates the published, scheduled and trashed timestamps.
+     * status also updates the published, scheduled and trashed timestamps, and
+     * a save that sets or moves the schedule queues a publish for scheduled_at.
      *
      * @since 1.0.0
      *
@@ -199,7 +206,7 @@ class ProductService
             if ($data->status === ProductStatus::PUBLISHED) {
                 $data_array['published_at'] = Date::now()->set_timezone('UTC');
                 $data_array['trashed_at'] = null;
-            } else if ($data->status === ProductStatus::TRASHED) {
+            } elseif ($data->status === ProductStatus::TRASHED) {
                 $data_array['published_at'] = null;
                 $data_array['trashed_at'] = Date::now()->set_timezone('UTC');
             } else {
@@ -210,13 +217,24 @@ class ProductService
 
         if ($data->status !== ProductStatus::SCHEDULED) {
             $data_array['scheduled_at'] = null;
-        } else if (!empty($data_array['scheduled_at'])) {
+        } elseif (!empty($data_array['scheduled_at'])) {
             $data_array['scheduled_at'] = Date::parse($data_array['scheduled_at'])->set_timezone('UTC');
         }
+
+        $is_schedule_changed = $data->status === ProductStatus::SCHEDULED
+            && (
+                $product->status !== ProductStatus::SCHEDULED
+                || empty($product->scheduled_at)
+                || $product->scheduled_at->get_timestamp() !== $data_array['scheduled_at']->get_timestamp()
+            );
 
         $is_updated = (bool) $product->update($data_array);
 
         throw_if(!$is_updated, __('Product could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
+
+        if ($is_schedule_changed) {
+            PublishScheduledProductJob::dispatch($product->id)->delay($data_array['scheduled_at']);
+        }
 
         $attributes = array_map(function ($attribute) {
             return $attribute['id'];

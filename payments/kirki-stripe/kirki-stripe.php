@@ -13,7 +13,7 @@
  * Requires Plugins:  kirki-ecommerce
  */
 
-use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\Payments\Stripe;
 
 if (!defined('ABSPATH')) {
@@ -27,10 +27,10 @@ register_activation_hook(__FILE__, 'kirki_stripe_register_payment_provider');
 
 function kirki_stripe_register_payment_provider()
 {
-    if (!class_exists(CustomHookNames::class)) {
+    if (!class_exists(DevHookNames::class)) {
         return;
     }
-    add_filter(CustomHookNames::ECOMMERCE_PAYMENT_PROVIDERS, function ($providers) {
+    add_filter(DevHookNames::PAYMENT_PROVIDERS, function ($providers) {
         $providers[Stripe::class] = new Stripe();
 
         return $providers;

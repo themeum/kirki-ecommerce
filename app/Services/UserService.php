@@ -131,7 +131,7 @@ class UserService
     /**
      * Verify a user's email address with a token.
      *
-     * On success the kecom_user_email_verified action fires, which links past guest orders.
+     * On success the kirki_ecommerce_user_email_verified action fires, which links past guest orders.
      *
      * @since 1.0.0
      *

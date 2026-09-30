@@ -10,7 +10,7 @@ use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
-use Kirki\Ecommerce\App\Events\AddressUpdated;
+use Kirki\Ecommerce\App\Events\AddressUpdatedEvent;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
@@ -205,7 +205,7 @@ class AddressService
      * Update an address without opening its own transaction.
      *
      * For callers (e.g. CreateOrderAction) that are already inside one.
-     * Dispatches AddressUpdated after a successful update.
+     * Dispatches AddressUpdatedEvent after a successful update.
      *
      * @since 1.0.0
      *
@@ -237,7 +237,7 @@ class AddressService
 
         throw_if(!$is_updated, __('Address could not be updated.', 'kirki-ecommerce'), NotFoundException::class, Response::NOT_FOUND);
 
-        AddressUpdated::dispatch($address);
+        AddressUpdatedEvent::dispatch($address);
 
         return Address::find($data->id);
     }

@@ -12,7 +12,7 @@
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
 use Kirki\Ecommerce\App\Constants\Cart;
-use Kirki\Ecommerce\App\Constants\Hooks\CustomHookNames;
+use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\InventoryService;
@@ -41,7 +41,7 @@ class PageInlineScript extends BaseHook
      */
     public function get_name(): string
     {
-        return CustomHookNames::CONFIG_DATA;
+        return DevHookNames::CONFIG_DATA;
     }
 
     /**
@@ -57,7 +57,7 @@ class PageInlineScript extends BaseHook
     /**
      * Add cart identifiers and route-specific page data to the config.
      *
-     * Responds to the kecom_config_data filter. Cart variant IDs and cart token names are added on
+     * Responds to the kirki_ecommerce_config_data filter. Cart variant IDs and cart token names are added on
      * every request; checkout, single product, cart or addresses data only on the matching route.
      *
      * @since 1.0.0

@@ -3,9 +3,7 @@
 ## Purpose
 
 Provides a unified product create and edit form backed by a single React Hook Form instance, shared across separate create and edit pages, with consistent field binding, validation, and API payload mapping for simple and variant products.
-
 ## Requirements
-
 ### Requirement: Single form instance with form context
 
 The product form SHALL use exactly one `useForm()` instance owned by `ProductForm`. All section components MUST consume the form via `useFormContext()` and bind fields through shared form field components from `resources/app/components/form/`, or through product-scoped field components under `resources/app/features/products/components/fields/` where the binding carries product domain knowledge. Section components MUST NOT construct a `Controller` themselves.
@@ -116,7 +114,7 @@ The form SHALL validate against a composed `ProductFormSchema` merging existing 
 
 On submit, form values MUST be transformed to the product save payload for create/update mutations. The payload type MUST be derived from `ProductFormSchema` rather than declared separately, and the mapping MUST be part of the schema declaration rather than a separate build step invoked by the page. Media MUST be sent as numeric IDs. Relations (brand, categories, tags, collections) MUST be flattened to IDs. Variant media MUST be sent as `number | null`. Inventory fields MUST be sent via the variants payload only; top-level `allow_back_order` MUST NOT be included in the payload.
 
-Per-variant mapping MUST be declared on the variant schema itself, so any editor that adopts it produces the same variant payload shape. The bulk-edit grid reuses those per-variant rules for validation and submits a typed request body; it does not share this requirement's product-level payload mapping, because it edits variants directly rather than through a product.
+Per-variant mapping MUST be declared on the variant schema itself, so any editor that adopts it produces the same variant payload shape. The bulk-edit table does not go through this schema — it has its own reducer-based state and an untyped request body — and bringing it onto this pipeline is out of scope for this change.
 
 #### Scenario: Save sends variant inventory fields
 
@@ -186,6 +184,7 @@ Toggling inventory tracking SHALL only affect the form's dirty state when the me
 - **WHEN** the merchant unchecks "Track quantity" on a form that was previously clean
 - **THEN** the available quantity is reset
 - **AND** the form is marked as having unsaved changes as a result of that action
+
 ### Requirement: The product form keeps its header Save and Cancel
 
 The product form and the variant form SHALL continue to present Save and Cancel actions in their
@@ -209,3 +208,4 @@ as the header's.
 
 - **WHEN** the merchant edits an existing product
 - **THEN** the floating bar's primary action reads "Save"
+

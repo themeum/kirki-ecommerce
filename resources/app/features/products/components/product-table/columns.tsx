@@ -82,6 +82,7 @@ const productColumns: ColumnDef<ProductListItem>[] = [
       const label = (
         <Text
           variant="tiny"
+          weight="medium"
           color={getAvailabilityColor(status)}
           dangerouslySetInnerHTML={{ __html: row.original?.availability_label ?? status }}
           cssOverride={styles.availabilityLabel}

@@ -30,5 +30,9 @@ return [
     '1.0.0-alpha.4' => function () {
         // Nothing to do here
         // We need to keep it for running the migrator
+    },
+    '1.0.0-beta.1' => function () {
+        // Nothing to do here
+        // We need to keep it for running the migrator
     }
 ];

@@ -4,11 +4,15 @@ import {
   EMAIL_DEFAULT_TEMPLATE,
   EmailDefaultTemplateShape,
 } from '@/features/settings/email/schemas/catalog/email-template';
-import { prepareFormSchema } from '@/libs/zod';
+import { mediaId, prepareFormSchema } from '@/libs/zod';
 
-export const EmailTemplateFormSchema = prepareFormSchema(EmailDefaultTemplateShape).transform(
+export const EmailTemplateFormShape = EmailDefaultTemplateShape.extend({
+  logo: mediaId(),
+});
+
+export const EmailTemplateFormSchema = prepareFormSchema(EmailTemplateFormShape).transform(
   (values) => ({
-    logo: values.logo?.id ?? null,
+    logo: values.logo ?? null,
     height: values.height ?? 50,
     position: values.position || 'center',
     colors: {
