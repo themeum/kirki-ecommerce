@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use InvalidArgumentException;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -39,8 +40,7 @@ class PaymongoClient
      */
     public function is_verified(string $raw_payload): bool
     {
-        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.
-        $header = $_SERVER[PaymongoConstant::SIGNATURE_HEADER] ?? '';
+        $header = Superglobals::server(PaymongoConstant::SIGNATURE_HEADER);
 
         if (empty($raw_payload) || empty($header)) {
             return false;

@@ -22,12 +22,22 @@ class AuthorizenetTransactionBuilder
      */
     public function build_transaction_request(Order $order): array
     {
+        $tax_amount = $order->invoiced_tax_total - $order->invoiced_shipping_tax_amount ?? 0;
+        $shipping_amount = $order->invoiced_shipping_total - $order->invoiced_shipping_tax_amount ?? 0;
         $transaction_request = [
             'transactionType' => 'authCaptureTransaction',
             'amount' => PaymentProvider::format_amount($order->invoiced_total, $order->currency_code),
             'lineItems' => [
                 'lineItem' => $this->build_line_items($order),
             ],
+            'tax' => [
+                'amount' => PaymentProvider::format_amount($tax_amount, $order->currency_code),
+                'name' => __('Tax', 'kirki-ecommerce-authorizenet')
+            ],
+            'shipping' => [
+                'amount' => PaymentProvider::format_amount($shipping_amount, $order->currency_code),
+                'name' => __('Shipping Charge', 'kirki-ecommerce-authorizenet')
+            ]
         ];
 
         $transaction_request['poNumber'] = (string) $order->id;
@@ -61,16 +71,35 @@ class AuthorizenetTransactionBuilder
      */
     protected function build_line_items(Order $order): array
     {
+        $currency = $order->currency_code;
         $line_items = [];
 
         foreach ($order->items as $item) {
-            $line_items[] = [
-                'itemId' => (string) $item->id,
-                'name' => $this->limit_string_length($item->product_name, 31),
-                'description' => $this->limit_string_length($item->product_name, 255),
-                'quantity' => (float) $item->quantity,
-                'unitPrice' => (float) PaymentProvider::format_amount($item->invoiced_subtotal, $order->currency_code),
-            ];
+            $line_items[] = $this->make_line_item(
+                (string) $item->id,
+                $item->product_name,
+                (int) $item->invoiced_price,
+                $currency,
+                (float) $item->quantity
+            );
+        }
+
+        if (!empty($order->invoiced_shipping_tax_amount)) {
+            $line_items[] = $this->make_line_item(
+                'shipping-tax',
+                __('Shipping Tax', 'kirki-ecommerce-authorizenet'),
+                (int) $order->invoiced_shipping_tax_amount,
+                $currency
+            );
+        }
+
+        if (!empty($order->invoiced_discount_total)) {
+            $line_items[] = $this->make_line_item(
+                'discount',
+                __('Total Discount', 'kirki-ecommerce-authorizenet'),
+                (int) $order->invoiced_discount_total,
+                $currency
+            );
         }
 
         return $line_items;
@@ -198,7 +227,7 @@ class AuthorizenetTransactionBuilder
 
         $address_1 = mb_strimwidth($address_line1, 0, $max_length);
         $address_2 = strlen($address_line1) > $max_length
-                    ? mb_strimwidth($address_line1, $max_length, $max_length) : $address_line2;
+            ? mb_strimwidth($address_line1, $max_length, $max_length) : $address_line2;
 
         return [$address_1, $address_2];
     }
@@ -224,7 +253,7 @@ class AuthorizenetTransactionBuilder
             return AuthorizenetConstant::PAID;
         }
 
-        if (in_array($transaction_status, [AuthorizenetConstant::DECLINED,AuthorizenetConstant::VOIDED])) {
+        if (in_array($transaction_status, [AuthorizenetConstant::DECLINED, AuthorizenetConstant::VOIDED])) {
             return AuthorizenetConstant::CANCELED;
         }
 
@@ -233,5 +262,25 @@ class AuthorizenetTransactionBuilder
         }
 
         return AuthorizenetConstant::PENDING;
+    }
+
+    /**
+     * Build a single Authorize.Net `lineItem` entry.
+     *
+     * @param string $id The line identifier sent as `itemId`.
+     * @param string|null $name The line description shown on the hosted payment page.
+     * @param int $amount The per-unit amount, in minor units.
+     * @param string $currency The order's currency code.
+     * @param float $quantity The number of units.
+     * @return array
+     */
+    protected function make_line_item(string $id, ?string $name, int $amount, string $currency, float $quantity = 1.0): array
+    {
+        return [
+            'itemId' => $id,
+            'name' => $this->limit_string_length($name, 31),
+            'quantity' => $quantity,
+            'unitPrice' => (float) PaymentProvider::format_amount($amount, $currency),
+        ];
     }
 }

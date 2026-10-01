@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Payments;
 
 use Exception;
 use InvalidArgumentException;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -37,7 +38,7 @@ class QuickpayClient
      */
     public function is_verified(string $raw_payload): bool
     {
-        $given_checksum = $_SERVER['HTTP_QUICKPAY_CHECKSUM_SHA256'] ?? '';
+        $given_checksum = Superglobals::server('HTTP_QUICKPAY_CHECKSUM_SHA256');
 
         if (empty($raw_payload)  || empty($given_checksum)) {
             return false;
