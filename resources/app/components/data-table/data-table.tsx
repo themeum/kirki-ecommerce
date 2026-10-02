@@ -4,9 +4,11 @@ import type {
   ColumnPinningState,
   OnChangeFn,
   PaginationState,
+  Row,
   RowSelectionState,
   SortDirection,
   SortingState,
+  Table as TanStackTable,
   VisibilityState,
 } from '@tanstack/react-table';
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
@@ -161,17 +163,56 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
     setRowSelection((old) => (typeof updater === 'function' ? updater(old) : updater));
   }, []);
 
+  const lastSelectedRowId = useRef<string | null>(null);
+  const isShiftHeld = useRef(false);
+
+  const handleRowToggle = useCallback((row: Row<T>, table: TanStackTable<T>, value: boolean) => {
+    const pageRows = table.getRowModel().rows;
+    const anchorIndex = pageRows.findIndex((pageRow) => pageRow.id === lastSelectedRowId.current);
+    const targetIndex = pageRows.findIndex((pageRow) => pageRow.id === row.id);
+    const isRangeSelection = isShiftHeld.current && anchorIndex !== -1 && targetIndex !== -1;
+
+    isShiftHeld.current = false;
+    lastSelectedRowId.current = row.id;
+
+    if (!isRangeSelection) {
+      row.toggleSelected(value);
+      return;
+    }
+
+    const rangeRows = pageRows.slice(
+      Math.min(anchorIndex, targetIndex),
+      Math.max(anchorIndex, targetIndex) + 1,
+    );
+
+    table.setRowSelection((old) => {
+      const next = { ...old };
+
+      rangeRows.forEach((rangeRow) => {
+        if (value) {
+          next[rangeRow.id] = true;
+        } else {
+          delete next[rangeRow.id];
+        }
+      });
+
+      return next;
+    });
+  }, []);
+
   const handleSelectAllMatching = useCallback(() => {
     setIsAllMatchingSelected(true);
     setRowSelection({});
   }, []);
 
   const handleClearSelection = useCallback(() => {
+    lastSelectedRowId.current = null;
     setIsAllMatchingSelected(false);
     setRowSelection({});
   }, []);
 
   useEffect(() => {
+    lastSelectedRowId.current = null;
     setIsAllMatchingSelected(false);
     setRowSelection({});
   }, [selectionResetKey]);
@@ -192,16 +233,19 @@ const DataTable = <T extends DataTableItem>(props: DataTableProps<T>) => {
           onChange={(value) => table.toggleAllPageRowsSelected(value)}
         />
       ),
-      cell: ({ row }) => (
+      cell: ({ row, table }) => (
         <Checkbox
           value={isAllMatchingSelected || row.getIsSelected()}
-          onChange={(value) => row.toggleSelected(value)}
+          onClick={(event) => {
+            isShiftHeld.current = event.shiftKey;
+          }}
+          onChange={(value) => handleRowToggle(row, table, value)}
         />
       ),
     };
 
     return [selectColumn, ...columns];
-  }, [columns, enableRowSelection, isAllMatchingSelected]);
+  }, [columns, enableRowSelection, isAllMatchingSelected, handleRowToggle]);
 
   const table = useReactTable({
     data,

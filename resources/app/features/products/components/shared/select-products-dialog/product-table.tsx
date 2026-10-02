@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { Card, CardContent } from '@/components/ui/card';
 import Checkbox from '@/components/ui/checkbox';
 import {
@@ -62,6 +64,66 @@ const ProductTable = (props: ProductTableProps) => {
     onToggleVariants,
   } = props;
 
+  const anchorRowKey = useRef<string | null>(null);
+
+  const getRowKey = (productId: number, variant?: ProductVariantSelection) =>
+    variant ? `variant-${variant.variantId}` : `product-${productId}`;
+
+  const handleSetAnchor = (item: ProductPickerItem, variant?: ProductVariantSelection) => {
+    anchorRowKey.current = getRowKey(item.product.id, variant);
+  };
+
+  const handleToggleRange = (
+    item: ProductPickerItem,
+    checked: boolean,
+    variant?: ProductVariantSelection,
+  ) => {
+    const visibleRows = pickerItems.flatMap((pickerItem) => {
+      const productRow = { pickerItem, variant: undefined as ProductVariantSelection | undefined };
+      const variantRows =
+        selectVariants && expandedProductIds.has(pickerItem.product.id)
+          ? pickerItem.selection.variants.map((rowVariant) => ({
+              pickerItem,
+              variant: rowVariant,
+            }))
+          : [];
+
+      return [productRow, ...variantRows];
+    });
+    const findRowIndex = (key: string | null) =>
+      visibleRows.findIndex((row) => getRowKey(row.pickerItem.product.id, row.variant) === key);
+
+    const anchorIndex = findRowIndex(anchorRowKey.current);
+    const targetIndex = findRowIndex(getRowKey(item.product.id, variant));
+    const rangeRows =
+      anchorIndex === -1 || targetIndex === -1
+        ? [{ pickerItem: item, variant }]
+        : visibleRows.slice(
+            Math.min(anchorIndex, targetIndex),
+            Math.max(anchorIndex, targetIndex) + 1,
+          );
+
+    const isTargetRow = (row: (typeof rangeRows)[number]) =>
+      row.pickerItem === item && row.variant === variant;
+
+    rangeRows.forEach((row) => {
+      const isExpandedProductRow =
+        !row.variant && selectVariants && expandedProductIds.has(row.pickerItem.product.id);
+
+      if (isExpandedProductRow && !isTargetRow(row)) {
+        return;
+      }
+
+      if (row.variant) {
+        onToggleVariants(row.pickerItem.selection, [row.variant], checked);
+      } else if (selectVariants) {
+        onToggleVariants(row.pickerItem.selection, row.pickerItem.selection.variants, checked);
+      } else {
+        onToggleProduct(row.pickerItem.selection, checked);
+      }
+    });
+  };
+
   return (
     <Card
       cssOverride={mergeCss(cardStyles.innerCard, cardStyles.tableCardRounded, styles.tableCard)}
@@ -113,6 +175,8 @@ const ProductTable = (props: ProductTableProps) => {
                   onToggleVariants={(variants, checked) =>
                     onToggleVariants(item.selection, variants, checked)
                   }
+                  onToggleRange={(checked, variant) => handleToggleRange(item, checked, variant)}
+                  onSetAnchor={(variant) => handleSetAnchor(item, variant)}
                 />
               ))
             )}

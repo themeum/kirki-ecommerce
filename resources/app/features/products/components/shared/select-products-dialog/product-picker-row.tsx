@@ -1,4 +1,4 @@
-import { type MouseEvent, useCallback } from 'react';
+import { type MouseEvent, useCallback, useRef } from 'react';
 
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -25,6 +25,8 @@ type ProductPickerRowProps = {
   selectedVariantIds: Set<number>;
   onToggleProduct: (checked: boolean) => void;
   onToggleVariants: (variants: ProductVariantSelection[], checked: boolean) => void;
+  onToggleRange: (checked: boolean, variant?: ProductVariantSelection) => void;
+  onSetAnchor: (variant?: ProductVariantSelection) => void;
 };
 
 const ProductPickerRow = ({
@@ -37,6 +39,8 @@ const ProductPickerRow = ({
   selectedVariantIds,
   onToggleProduct,
   onToggleVariants,
+  onToggleRange,
+  onSetAnchor,
 }: ProductPickerRowProps) => {
   const { variants } = selection;
   const selectedVariantCount = variants.filter((variant) =>
@@ -61,15 +65,54 @@ const ProductPickerRow = ({
     [selectVariants, onToggleVariants, variants, onToggleProduct],
   );
 
-  const handleProductRowClick = useCallback(() => {
-    handleToggleAll(!isChecked);
-  }, [isChecked, handleToggleAll]);
+  const isShiftHeld = useRef(false);
+
+  const handleProductToggle = useCallback(
+    (checked: boolean) => {
+      const isRangeSelection = isShiftHeld.current;
+      isShiftHeld.current = false;
+
+      if (isRangeSelection) {
+        onToggleRange(checked);
+      } else {
+        handleToggleAll(checked);
+      }
+
+      onSetAnchor();
+    },
+    [handleToggleAll, onToggleRange, onSetAnchor],
+  );
+
+  const handleProductRowClick = useCallback(
+    (event: MouseEvent<HTMLTableRowElement>) => {
+      isShiftHeld.current = event.shiftKey;
+      handleProductToggle(!isChecked);
+    },
+    [isChecked, handleProductToggle],
+  );
+
+  const handleVariantToggle = useCallback(
+    (variant: ProductVariantSelection, checked: boolean) => {
+      const isRangeSelection = isShiftHeld.current;
+      isShiftHeld.current = false;
+
+      if (isRangeSelection) {
+        onToggleRange(checked, variant);
+      } else {
+        onToggleVariants([variant], checked);
+      }
+
+      onSetAnchor(variant);
+    },
+    [onToggleVariants, onToggleRange, onSetAnchor],
+  );
 
   const handleVariantRowClick = useCallback(
-    (variant: ProductVariantSelection) => {
-      onToggleVariants([variant], !selectedVariantIds.has(variant.variantId));
+    (event: MouseEvent<HTMLTableRowElement>, variant: ProductVariantSelection) => {
+      isShiftHeld.current = event.shiftKey;
+      handleVariantToggle(variant, !selectedVariantIds.has(variant.variantId));
     },
-    [onToggleVariants, selectedVariantIds],
+    [handleVariantToggle, selectedVariantIds],
   );
 
   const handleToggleExpandClick = useCallback(
@@ -87,7 +130,10 @@ const ProductPickerRow = ({
           <Checkbox
             checked={isChecked}
             isPartialChecked={isPartial}
-            onCheckedChange={(checked) => handleToggleAll(checked === true)}
+            onClick={(event) => {
+              isShiftHeld.current = event.shiftKey;
+            }}
+            onCheckedChange={(checked) => handleProductToggle(checked === true)}
           />
         </TableCell>
         <TableCell>
@@ -137,7 +183,7 @@ const ProductPickerRow = ({
         variants.map((variant) => (
           <TableRow
             key={variant.variantId}
-            onClick={() => handleVariantRowClick(variant)}
+            onClick={(event) => handleVariantRowClick(event, variant)}
             cssOverride={{ cursor: 'pointer' }}
           >
             <TableCell />
@@ -145,7 +191,10 @@ const ProductPickerRow = ({
               <Flex gap={6} align="center">
                 <Checkbox
                   checked={selectedVariantIds.has(variant.variantId)}
-                  onCheckedChange={(checked) => onToggleVariants([variant], checked === true)}
+                  onClick={(event) => {
+                    isShiftHeld.current = event.shiftKey;
+                  }}
+                  onCheckedChange={(checked) => handleVariantToggle(variant, checked === true)}
                 />
                 <Flex gap={3} align="center">
                   <Image src={variant.thumbnail} alt={variant.variantLabel} size="sm" />
