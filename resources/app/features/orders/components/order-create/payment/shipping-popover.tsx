@@ -1,5 +1,5 @@
-import { type ReactNode, useState } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { type ReactNode, useCallback, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import { FieldError, FieldLabel } from '@/components/ui/field';
@@ -29,24 +29,34 @@ const ShippingPopover = ({
   availableShippingMethods,
   isLoading,
 }: ShippingPopoverProps) => {
-  const { getValues, setValue, formState } = useFormContext<OrderFormInput>();
+  const { control, setValue, formState } = useFormContext<OrderFormInput>();
   const error = formState.errors.shipping_method;
 
+  const shippingMethod = useWatch({
+    control,
+    name: 'shipping_method',
+  });
+
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(getValues('shipping_method') ?? '');
+  const [draft, setDraft] = useState(shippingMethod ?? '');
 
-  const handleOpenChange = (next: boolean) => {
-    if (next) {
-      setDraft(getValues('shipping_method') ?? '');
-    }
+  const isDraftAvailable = availableShippingMethods.some((method) => String(method.id) === draft);
 
-    setOpen(next);
-  };
+  const handleOpenChange = useCallback(
+    (next: boolean) => {
+      if (next) {
+        setDraft(shippingMethod ?? '');
+      }
 
-  const handleDiscard = () => {
-    setDraft(getValues('shipping_method') ?? '');
+      setOpen(next);
+    },
+    [shippingMethod],
+  );
+
+  const handleDiscard = useCallback(() => {
+    setDraft(shippingMethod ?? '');
     setOpen(false);
-  };
+  }, [shippingMethod]);
 
   const handleConfirm = () => {
     setValue('shipping_method', draft || null, { shouldValidate: true });
@@ -64,7 +74,7 @@ const ShippingPopover = ({
                 {__('Choose your delivery method', 'kirki-ecommerce')}
               </FieldLabel>
               <Select
-                value={draft}
+                value={isDraftAvailable ? draft : ''}
                 onValueChange={setDraft}
                 disabled={isLoading || availableShippingMethods.length === 0}
               >

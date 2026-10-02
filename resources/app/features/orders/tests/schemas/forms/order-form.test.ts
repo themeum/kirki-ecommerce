@@ -22,6 +22,8 @@ describe('OrderFormSchema', () => {
     currency_code: 'USD',
     coupon_codes: [],
     customer_id: 7,
+    customer_first_name: 'John',
+    customer_last_name: 'Doe',
     shipping_method: 'flat_rate',
     shipping_first_name: 'John',
     shipping_last_name: 'Doe',
@@ -59,7 +61,10 @@ describe('OrderFormSchema', () => {
 
     expect(result).toEqual({
       customer_id: 7,
+      customer_first_name: 'John',
+      customer_last_name: 'Doe',
       customer_email: null,
+      customer_phone: null,
       consents: null,
       items: [{ variant_id: 12, quantity: 2 }],
       currency_code: 'USD',
@@ -94,6 +99,16 @@ describe('OrderFormSchema', () => {
       is_manual: true,
     });
   });
+
+  it.each(['customer_first_name', 'customer_last_name'] as const)(
+    'rejects an empty %s',
+    (field) => {
+      const result = OrderFormSchema.safeParse({ ...base, [field]: '' });
+
+      assert(!result.success);
+      expect(result.error.issues.map((issue) => issue.path[0])).toContain(field);
+    },
+  );
 
   it('copies the shipping address into the billing fields when billing is same as shipping', () => {
     const result = OrderFormSchema.parse({ ...separateBilling, is_billing_same_as_shipping: true });
@@ -190,6 +205,8 @@ describe('OrderFormSchema', () => {
     const result = OrderFormSchema.parse({
       items: base.items,
       customer_id: base.customer_id,
+      customer_first_name: base.customer_first_name,
+      customer_last_name: base.customer_last_name,
       shipping_method: base.shipping_method,
       shipping_first_name: base.shipping_first_name,
       shipping_last_name: base.shipping_last_name,
@@ -386,6 +403,8 @@ describe('OrderCalculationRequestSchema', () => {
       billing_phone: null,
       billing_email: null,
       billing_company: null,
+      customer_first_name: null,
+      customer_last_name: null,
       customer_email: null,
       customer_phone: null,
       is_manual: true,

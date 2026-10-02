@@ -44,6 +44,8 @@ http:
         "billing_phone": "+1 555-000-2000",
         "billing_email": "jane.shipping@example.com",
         "billing_company": null,
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
         "customer_email": "jane.shipping@example.com",
         "customer_phone": "+1 555-000-2000",
         "customer_notes": null

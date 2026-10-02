@@ -291,6 +291,8 @@ class UpdateOrderAction
         $order_dto->billing_email = $dto->billing_email;
         $order_dto->billing_company = $dto->billing_company;
 
+        $order_dto->customer_first_name = $dto->customer_first_name;
+        $order_dto->customer_last_name = $dto->customer_last_name;
         $order_dto->customer_email = $dto->customer_email;
         $order_dto->customer_phone = $dto->customer_phone;
         $order_dto->admin_notes = $dto->admin_notes;

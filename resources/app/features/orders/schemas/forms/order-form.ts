@@ -44,6 +44,8 @@ const OrderFormShape = prepareFormSchema(
     currency_code: stringOrNull(),
     coupon_codes: z.array(CouponListItemSchema).default([]),
     customer_id: required(z.number(), __('Customer is required', 'kirki-ecommerce')),
+    customer_first_name: required(z.string(), __('First name is required', 'kirki-ecommerce')),
+    customer_last_name: required(z.string(), __('Last name is required', 'kirki-ecommerce')),
     customer_email: stringOrNull(),
     customer_phone: stringOrNull(),
     consents: z.array(z.string()).nullish(),
@@ -161,7 +163,10 @@ const toCouponCodes = (coupons: Pick<CouponListItem, 'code'>[]) => {
 
 const OrderFormSchema = OrderFormShape.transform((values) => ({
   customer_id: values.customer_id,
+  customer_first_name: values.customer_first_name,
+  customer_last_name: values.customer_last_name,
   customer_email: values.customer_email ?? null,
+  customer_phone: values.customer_phone ?? null,
   consents: values.consents ?? null,
   items: values.items,
 
@@ -226,6 +231,8 @@ const OrderCalculationRequestSchema = z
     billing_email: values.billing_email ?? null,
     billing_company: values.billing_company ?? null,
 
+    customer_first_name: values.customer_first_name ?? null,
+    customer_last_name: values.customer_last_name ?? null,
     customer_email: values.customer_email ?? null,
     customer_phone: values.customer_phone ?? null,
 

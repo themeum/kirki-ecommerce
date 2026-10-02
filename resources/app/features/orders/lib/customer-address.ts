@@ -122,6 +122,11 @@ export const toOrderAddresses = (customer: Customer): Partial<OrderFormInput> =>
   const billingContact = addressName(billing, customer);
 
   return {
+    customer_first_name: customer.first_name ?? '',
+    customer_last_name: customer.last_name ?? '',
+    customer_email: customer.email ?? '',
+    customer_phone: customer.phone ?? '',
+
     shipping_first_name: shippingContact.firstName,
     shipping_last_name: shippingContact.lastName,
     shipping_address_line1: shipping?.address_line1 ?? '',

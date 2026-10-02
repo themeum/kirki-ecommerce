@@ -438,7 +438,8 @@ class CreateOrderAction
     }
 
     /**
-     * Resolve the order's customer contact snapshot from the placing
+     * Resolve the order's customer contact snapshot. A manual order uses
+     * the posted customer details as-is; otherwise it comes from the placing
      * WordPress user's profile when they have an account, else billing.
      *
      * @since 1.0.0
@@ -448,6 +449,15 @@ class CreateOrderAction
      */
     protected function resolve_customer_contact_details(CreateOrderPayloadDTO $dto)
     {
+        if ($dto->is_manual) {
+            return [
+                'first_name' => $dto->customer_first_name,
+                'last_name' => $dto->customer_last_name,
+                'email' => $dto->customer_email,
+                'phone' => $dto->customer_phone,
+            ];
+        }
+
         $wp_user = !empty($dto->created_by) ? (get_userdata($dto->created_by) ?: null) : null;
 
         return [

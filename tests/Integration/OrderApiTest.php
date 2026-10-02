@@ -399,6 +399,99 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * A manual order stores the customer contact details posted with it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_manual_order_persists_customer_contact_details(): void
+    {
+        $order = $this->create_order([
+            'customer_first_name' => 'Jane',
+            'customer_last_name' => 'Roe',
+            'customer_email' => 'jane@example.com',
+            'customer_phone' => '+1 555 0100',
+        ]);
+        $this->order_id = $order['id'];
+
+        $this->assertEquals('Jane', $order['customer']['first_name']);
+        $this->assertEquals('Roe', $order['customer']['last_name']);
+        $this->assertEquals('jane@example.com', $order['customer']['email']);
+        $this->assertEquals('+1 555 0100', $order['customer']['phone']);
+    }
+
+    /**
+     * A manual order stores only the posted customer details, with no
+     * fallback to the placing admin's account or to billing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_store_manual_order_does_not_fall_back_for_missing_customer_contact(): void
+    {
+        $order = $this->create_order([
+            'customer_email' => null,
+            'customer_phone' => null,
+            'billing_email' => 'billing@example.com',
+            'billing_phone' => '+1 555 0199',
+        ]);
+        $this->order_id = $order['id'];
+
+        $this->assertNull($order['customer']['email']);
+        $this->assertNull($order['customer']['phone']);
+    }
+
+    /**
+     * Updating an order replaces its stored customer contact details.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_changes_customer_contact_details(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'customer_first_name' => 'Jane',
+            'customer_last_name' => 'Roe',
+            'customer_email' => 'jane@example.com',
+            'customer_phone' => '+1 555 0100',
+        ]));
+
+        $payload = $this->assert_api_success($response);
+        $this->assertEquals('Jane', $payload['data']['customer']['first_name']);
+        $this->assertEquals('Roe', $payload['data']['customer']['last_name']);
+        $this->assertEquals('jane@example.com', $payload['data']['customer']['email']);
+        $this->assertEquals('+1 555 0100', $payload['data']['customer']['phone']);
+    }
+
+    /**
+     * Updating an order without a customer name fails validation.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_update_order_requires_customer_name(): void
+    {
+        $order = $this->create_order();
+        $this->order_id = $order['id'];
+        $customer_id = $this->create_customer()['id'];
+
+        $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
+            'id' => $this->order_id,
+            'customer_id' => $customer_id,
+            'customer_first_name' => '',
+            'customer_last_name' => '',
+        ]));
+
+        $this->assert_validation_error($response);
+    }
+
+    /**
      * A user the admin route gate admits through manage_options, without the
      * administrator role, can create a manual order.
      *
@@ -1277,6 +1370,7 @@ class OrderApiTest extends RestTestCase
 
         $dto = CreateOrderPayloadDTO::from_array($this->order_payload([
             'is_manual' => false,
+            'customer_email' => null,
             'is_billing_same_as_shipping' => false,
             'billing_first_name' => 'Guest',
             'billing_last_name' => 'Shopper',
@@ -1339,6 +1433,7 @@ class OrderApiTest extends RestTestCase
         $response = $this->request('POST', 'checkout', $this->order_payload([
             'is_manual' => false,
             'payment_provider' => 'unregistered-test-provider',
+            'customer_email' => null,
             'billing_email' => 'billing-' . wp_generate_password(8, false) . '@example.com',
         ]));
 
@@ -2630,6 +2725,9 @@ class OrderApiTest extends RestTestCase
             'payment_provider' => 'paypal',
             'shipping_method' => 'method-0001',
             'is_manual' => true,
+            'customer_first_name' => 'John',
+            'customer_last_name' => 'Doe',
+            'customer_email' => 'buyer@example.com',
             'shipping_first_name' => 'John',
             'shipping_last_name' => 'Doe',
             'shipping_address_line1' => '123 Main St',

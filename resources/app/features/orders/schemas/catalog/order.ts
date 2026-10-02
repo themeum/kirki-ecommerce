@@ -226,8 +226,8 @@ export const OrderSchema = z.object({
 
   customer_id: z.number().nullish(),
   customer: z.object({
-    first_name: z.string().nullish(),
-    last_name: z.string().nullish(),
+    first_name: z.string(),
+    last_name: z.string(),
     email: z.string().nullish(),
     phone: z.string().nullish(),
   }),

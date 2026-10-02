@@ -26,7 +26,9 @@ import {
   toOrderAddresses,
 } from '@/features/orders/lib/customer-address';
 import type { OrderFormInput } from '@/features/orders/schemas/forms/order-form';
+import { OrderFormSchema } from '@/features/orders/schemas/forms/order-form';
 import { ShowMoreIcon } from '@/icons';
+import { getDefaults } from '@/libs/zod';
 import { useCountriesQuery } from '@/services/country';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
@@ -40,10 +42,10 @@ type CustomerCardProps = {
 };
 
 const WATCHED_ADDRESS_FIELDS = [
-  'shipping_first_name',
-  'shipping_last_name',
-  'shipping_email',
-  'shipping_phone',
+  'customer_first_name',
+  'customer_last_name',
+  'customer_email',
+  'customer_phone',
   'shipping_address_line1',
   'shipping_address_line2',
   'shipping_city',
@@ -91,7 +93,11 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
 
   const handleRemove = () => {
     snapshot.current = form.getValues();
-    form.setValue('customer_id', undefined, { shouldValidate: true });
+    const defaults = getDefaults(OrderFormSchema);
+    const defaultAddresses = Object.fromEntries(
+      WATCHED_ADDRESS_FIELDS.map((field) => [field, defaults[field]]),
+    );
+    form.reset({ ...form.getValues(), ...defaultAddresses, customer_id: null });
     setIsChangingCustomer(true);
   };
 
@@ -107,10 +113,10 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   };
 
   const [
-    shipping_first_name,
-    shipping_last_name,
-    shipping_email,
-    shipping_phone,
+    customer_first_name,
+    customer_last_name,
+    customer_email,
+    customer_phone,
     shipping_address_line1,
     shipping_address_line2,
     shipping_city,
@@ -127,10 +133,10 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   ] = useWatch({ control: form.control, name: WATCHED_ADDRESS_FIELDS });
 
   const values = {
-    shipping_first_name,
-    shipping_last_name,
-    shipping_email,
-    shipping_phone,
+    customer_first_name,
+    customer_last_name,
+    customer_email,
+    customer_phone,
     shipping_address_line1,
     shipping_address_line2,
     shipping_city,
@@ -194,9 +200,9 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
       <CardContent>
         {customer ? (
           <CustomerSummary
-            name={[values.shipping_first_name, values.shipping_last_name].filter(Boolean).join(' ')}
-            email={values.shipping_email}
-            phone={values.shipping_phone}
+            name={[values.customer_first_name, values.customer_last_name].filter(Boolean).join(' ')}
+            email={values.customer_email}
+            phone={values.customer_phone}
             photo={customer.photo}
             billingAddress={formatBillingAddress(values, countries)}
             shippingAddress={formatShippingAddress(values, countries)}

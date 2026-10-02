@@ -83,6 +83,8 @@ class OrderUpdateRequest extends Request
             'billing_email' => 'nullable|email',
             'billing_company' => 'nullable|string',
 
+            'customer_first_name' => 'required|string',
+            'customer_last_name' => 'required|string',
             'customer_email' => 'nullable|email',
             'customer_phone' => 'nullable|string',
             'admin_notes' => 'nullable|string',
@@ -149,6 +151,8 @@ class OrderUpdateRequest extends Request
             'billing_email' => Sanitizer::EMAIL,
             'billing_company' => Sanitizer::TEXT,
 
+            'customer_first_name' => Sanitizer::TEXT,
+            'customer_last_name' => Sanitizer::TEXT,
             'customer_email' => Sanitizer::EMAIL,
             'customer_phone' => Sanitizer::TEXT,
             'admin_notes' => Sanitizer::TEXT,
