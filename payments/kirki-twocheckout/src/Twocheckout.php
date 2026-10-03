@@ -295,7 +295,7 @@ class Twocheckout extends PaymentProvider
 
             $calculated_hash = $this->client->generate_hash($result, $received_signature['algorithm']);
 
-            return $received_signature['hash_value'] === $calculated_hash;
+            return hash_equals($received_signature['hash_value'], $calculated_hash);
         } catch (Exception $error) {
             /* translators: %s: error message */
             throw new Exception(sprintf(esc_html__('Error while validating IPN response: %s', 'kirki-ecommerce-twocheckout'), $error->getMessage()));

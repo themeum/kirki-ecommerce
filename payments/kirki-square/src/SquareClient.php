@@ -49,7 +49,7 @@ class SquareClient
         $hash = hash_hmac('sha256', $webhook_url . $raw_payload, $this->signature_key, true);
         $expected_signature = base64_encode($hash);
 
-        return $expected_signature === $given_signature;
+        return hash_equals($expected_signature, $given_signature);
     }
 
     /**
