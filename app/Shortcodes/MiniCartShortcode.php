@@ -38,6 +38,6 @@ class MiniCartShortcode
      */
     public function __construct(MiniCartService $service)
     {
-        add_shortcode($this->name, fn($attributes) => $service->get_mimi_cart_html($attributes));
+        add_shortcode($this->name, fn($attributes) => $service->get_mini_cart_html($attributes));
     }
 }

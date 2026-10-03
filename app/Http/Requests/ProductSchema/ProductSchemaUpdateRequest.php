@@ -22,7 +22,7 @@ class ProductSchemaUpdateRequest extends Request
         return [
             'id' => 'required|exists:kirki_ecommerce_product_schemas,id',
             'name' => 'string|max:500',
-            'is_default' => 'boolean',
+            'is_default' => 'nullable|boolean',
             'schema' => 'nullable|array',
         ];
     }

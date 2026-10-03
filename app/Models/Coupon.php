@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
-use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
+use Kirki\Ecommerce\App\Concerns\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;

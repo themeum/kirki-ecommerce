@@ -54,7 +54,7 @@ class MiniCartBlock
         $block_name = 'kirki-ecommerce/mini-cart';
         $block_config = [
             'title'           => __('Mini Cart', 'kirki-ecommerce'),
-            'render_callback' => fn($attributes) => $this->service->get_mimi_cart_html($attributes),
+            'render_callback' => fn($attributes) => $this->service->get_mini_cart_html($attributes),
             'supports'        => ['autoRegister' => true],
         ];
 
