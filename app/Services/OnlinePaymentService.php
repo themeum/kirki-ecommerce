@@ -54,7 +54,7 @@ class OnlinePaymentService
     public function all_installable_providers() // @todo: replace this with real providers later
     {
         // @todo: replace this with real providers later
-        $providers = $this->__discover_installable_providers();
+        $providers = $this->discover_installable_providers();
 
         foreach ($providers as $key => $provider) {
             $providers[$key] = PaymentProvider::make($provider);
@@ -75,7 +75,7 @@ class OnlinePaymentService
      * @return array|null Decoded provider definitions, null when the file is missing.
      * @todo Replace with discovery from a remote server.
      */
-    protected function __discover_installable_providers()
+    protected function discover_installable_providers()
     {
         $path = base_path('payments/payments.json');
         return json_decoded_data($path);

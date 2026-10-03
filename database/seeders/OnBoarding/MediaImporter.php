@@ -42,6 +42,7 @@ class MediaImporter
             return $existing;
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local, plugin-bundled sample-data file read, not a remote request.
         $contents = file_get_contents($absolute_path);
 
         if (false === $contents) {

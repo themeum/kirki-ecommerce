@@ -33,7 +33,7 @@ class ProductSchemaSeeder extends Seeder
             return [
                 'name' => $profile['name'],
                 'is_default' => $profile['is_default'],
-                'schema' => json_encode($profile['schema']),
+                'schema' => wp_json_encode($profile['schema']),
             ];
         }, OnBoardingCatalog::get_schema_profiles());
 

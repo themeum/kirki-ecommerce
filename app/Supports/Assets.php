@@ -68,6 +68,7 @@ class Assets
             return $manifest = [];
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local file read, not a remote request.
         $contents = file_get_contents($manifest_path);
         $decoded = json_decode($contents, true);
 
