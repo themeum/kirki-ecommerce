@@ -16,14 +16,13 @@ buttons.
 |---|----|-------|------|-------------|
 | 1 | `products` | List your products | 3 min | Start selling by adding products or services to your store. |
 | 2 | `payments` | Set up payments | 2 min | Choose how customers pay you, such as cards, wallets, or cash on delivery. |
-| 3 | `customize` | Customize your store | 5 min | Add your logo, colors, and fonts so your store looks like your brand. |
-| 4 | `tax` | Collect sales tax | 1 min | Set your tax rates so customers are charged the right amount at checkout. |
-| 5 | `shipping` | Add shipping method | 3 min | Decide where you ship and what it costs. Offer flat rate, free shipping, or local pickup. |
+| 3 | `tax` | Collect sales tax | 1 min | Set your tax rates so customers are charged the right amount at checkout. |
+| 4 | `shipping` | Add shipping method | 3 min | Decide where you ship and what it costs. Offer flat rate, free shipping, or local pickup. |
 
 #### Scenario: All steps visible
 
 - **WHEN** tax calculation is enabled in general settings
-- **THEN** the checklist lists List your products, Set up payments, Customize your store, Collect sales tax and Add shipping method, in that order
+- **THEN** the checklist lists List your products, Set up payments, Collect sales tax and Add shipping method, in that order
 
 ### Requirement: Sales tax step visibility
 
@@ -35,7 +34,7 @@ state if tax calculation is enabled again.
 #### Scenario: Tax collection off
 
 - **WHEN** tax calculation is disabled in general settings
-- **THEN** the `tax` step is not shown and the header reads "X out of 4 complete"
+- **THEN** the `tax` step is not shown and the header reads "X out of 3 complete"
 
 #### Scenario: Tax re-enabled after completion
 
@@ -50,14 +49,14 @@ starting at 1, so the numbering has no gaps when a step is hidden.
 #### Scenario: Numbering without the tax step
 
 - **WHEN** the `tax` step is hidden
-- **THEN** Add shipping method is numbered 4
+- **THEN** Add shipping method is numbered 3
 
 ### Requirement: Progress header
 
 The checklist SHALL show "X out of N complete" and a percentage with a matching
 progress bar. N is the number of visible steps, X is the number of visible
 completed steps, and the percentage is X / N × 100 rounded to the nearest whole
-number. The `customize` step SHALL count toward N.
+number.
 
 #### Scenario: Fresh store
 
@@ -66,8 +65,8 @@ number. The `customize` step SHALL count toward N.
 
 #### Scenario: Partial progress
 
-- **WHEN** 2 of 5 visible steps are completed
-- **THEN** the header reads "2 out of 5 complete" with "40%" and the bar is 40% filled
+- **WHEN** 2 of 4 visible steps are completed
+- **THEN** the header reads "2 out of 4 complete" with "50%" and the bar is 50% filled
 
 ### Requirement: Step completion rules
 
@@ -78,7 +77,6 @@ A step SHALL be considered met by store data as follows:
   up. A method is set up when every admin settings field that the method marks
   as required has a non-empty value. A method with no required fields (for
   example Cash on Delivery or Direct bank transfer) is set up when it is enabled.
-- `customize`: always met. The step SHALL always be shown as completed.
 - `tax`: at least one enabled tax region has a product tax rate above 0, and the
   step is not preconfigured. A general region has a rate when its central
   product tax is above 0 while central tax is on, or, while central tax is off,
@@ -110,11 +108,6 @@ clicks its "Update …" button.
 
 - **WHEN** PayPal is enabled, its client secret is empty, and no other payment method is enabled
 - **THEN** Set up payments is not completed
-
-#### Scenario: Customize is always completed
-
-- **WHEN** the merchant opens Home at any point
-- **THEN** Customize your store is shown as completed
 
 #### Scenario: Merchant adds a tax region with a rate
 
@@ -186,7 +179,6 @@ completion rules" is currently met.
 |------|---------|-----------|-------------|
 | `products` | Add products | Load sample data (only while no product exists) | Create product page / none (runs the import in place) |
 | `payments` | Add payment / Update payment | Cash on delivery | Payment settings (both) |
-| `customize` | — | — | — |
 | `tax` | Add tax rate / Update tax rate | — | Tax settings |
 | `shipping` | Add shipping / Update shipping rate | — | Shipping settings |
 
@@ -199,11 +191,6 @@ completion rules" is currently met.
 
 - **WHEN** the merchant clicks "Cash on delivery" in Set up payments
 - **THEN** the Payment settings page opens and nothing is enabled automatically
-
-#### Scenario: Customize has no buttons
-
-- **WHEN** the merchant expands Customize your store
-- **THEN** only its description is shown, with no buttons
 
 ### Requirement: Load sample data from the checklist
 

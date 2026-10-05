@@ -54,21 +54,20 @@ class SetupChecklistApiTest extends RestTestCase
     }
 
     /**
-     * A fresh store has only the customize step completed, in display order.
+     * A fresh store has no step completed, in display order.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_fresh_store_has_only_customize_completed(): void
+    public function test_fresh_store_has_no_step_completed(): void
     {
         $steps = $this->get_steps();
 
-        $this->assertSame(['products', 'payments', 'customize', 'tax', 'shipping'], array_column($steps, 'id'));
+        $this->assertSame(['products', 'payments', 'tax', 'shipping'], array_column($steps, 'id'));
 
         foreach ($steps as $step) {
-            $is_customize = 'customize' === $step['id'];
-            $this->assertSame($is_customize, $step['is_completed'], $step['id']);
-            $this->assertSame($is_customize, $step['has_data'], $step['id']);
+            $this->assertFalse($step['is_completed'], $step['id']);
+            $this->assertFalse($step['has_data'], $step['id']);
             $this->assertFalse($step['is_preconfigured'], $step['id']);
         }
     }
@@ -129,20 +128,6 @@ class SetupChecklistApiTest extends RestTestCase
 
         $this->set_paypal_settings(['is_enabled' => true] + $credentials);
         $this->assertTrue($this->find_step('payments')['is_completed']);
-    }
-
-    /**
-     * The customize step is always completed.
-     *
-     * @return void
-     * @since 1.0.0
-     */
-    public function test_customize_step_is_always_completed(): void
-    {
-        $step = $this->find_step('customize');
-
-        $this->assertTrue($step['is_completed']);
-        $this->assertArrayHasKey('customize', Option::get(OptionKeys::SETUP_CHECKLIST)['completed']);
     }
 
     /**
@@ -244,7 +229,7 @@ class SetupChecklistApiTest extends RestTestCase
         $this->assertTrue($this->find_step('tax')['is_completed']);
 
         $this->set_settings(OptionKeys::GENERAL_SETTINGS, ['is_tax_calculation_enabled' => false]);
-        $this->assertSame(['products', 'payments', 'customize', 'shipping'], array_column($this->get_steps(), 'id'));
+        $this->assertSame(['products', 'payments', 'shipping'], array_column($this->get_steps(), 'id'));
 
         $this->set_settings(OptionKeys::GENERAL_SETTINGS, ['is_tax_calculation_enabled' => true]);
         $this->assertTrue($this->find_step('tax')['is_completed']);

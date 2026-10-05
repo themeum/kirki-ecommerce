@@ -32,7 +32,7 @@ marks the steps that are now done.
 |---|---|
 | Heading | "Let's get you started", and a **View Live Site** link that opens the site URL in a new tab. |
 | Setup checklist | "X out of N complete", a percentage, a progress bar and the steps (section 3). |
-| Template gallery | Three square template cards (194 × 194 px, with a 150 px cover image) and an **Explore more** link. They open in a new tab. |
+| Template gallery | Three square template cards (194 × 194 px, with a 150 px cover image). Each card has a **Coming soon** badge at its top-right corner. The cards cannot be clicked. |
 
 The template gallery is a placeholder. The names, images and links come from
 `resources/app/features/home/lib/templates.ts`. The images are in the plugin, in
@@ -45,12 +45,11 @@ shows. The links are `#`.
 |---|---|---|---|---|
 | 1 | List your products | 3 min | Add products; Load sample data (only while the store has no products) | Create product page / none (section 6) |
 | 2 | Set up payments | 2 min | Add payment *or* Update payment; Cash on delivery | Settings → Payments (both buttons) |
-| 3 | Customize your store | 5 min | none | — |
-| 4 | Collect sales tax | 1 min | Add tax rate *or* Update tax rate | Settings → Tax |
-| 5 | Add shipping method | 3 min | Add shipping *or* Update shipping rate | Settings → Shipping |
+| 3 | Collect sales tax | 1 min | Add tax rate *or* Update tax rate | Settings → Tax |
+| 4 | Add shipping method | 3 min | Add shipping *or* Update shipping rate | Settings → Shipping |
 
-- **Visibility.** Step 4 is shown only while **tax calculation** is on in general
-  settings. When it is hidden, it is not counted and the steps are numbered 1–4.
+- **Visibility.** Step 3 is shown only while **tax calculation** is on in general
+  settings. When it is hidden, it is not counted and the steps are numbered 1–3.
 - **"Add" or "Update".** A button says "Update …" when the store already has the
   data that the step asks for (the data rules in section 4). Otherwise it says
   "Add …".
@@ -59,8 +58,7 @@ shows. The links are `#`.
 - **Indicator.** A step shows its number in a circle. The circle is tinted while
   the step is open. A completed step shows a green check mark.
 - **Progress.** N is the number of visible steps and X is the number of completed
-  visible steps. The percentage is X / N × 100, rounded. Step 3 counts toward N,
-  and it is always completed.
+  visible steps. The percentage is X / N × 100, rounded.
 
 ## 4. When a step completes
 
@@ -68,7 +66,6 @@ shows. The links are `#`.
 |---|---|
 | `products` | At least one product exists (any status). |
 | `payments` | At least one payment method, online or offline, is **enabled** and **set up**. Set up means that every admin field the method marks as required has a value. For PayPal, these are Client ID, Client Secret and Webhook ID. Offline methods have no required fields, so for them "enabled" is enough. |
-| `customize` | Always. The step shows as completed on the first load. |
 | `tax` | At least one **enabled** tax region has a **product tax rate above 0**. See the rate sources below. If the step is preconfigured, it completes only when the merchant clicks **Update tax rate**. |
 | `shipping` | At least one **enabled** shipping zone has at least one **enabled shipping method**. Shipping carriers do not count. If the step is preconfigured, it completes only when the merchant clicks **Update shipping rate**. |
 
@@ -208,5 +205,5 @@ again at once.
   checklist is always shown.
 - **Preconfigured data needs a confirmation.** WooCommerce has no equivalent of
   section 5.
-- **Fewer tasks, no extension API.** The five steps are fixed. There is no filter
+- **Fewer tasks, no extension API.** The four steps are fixed. There is no filter
   or hook that adds a step.

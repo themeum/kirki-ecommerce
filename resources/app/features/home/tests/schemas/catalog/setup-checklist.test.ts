@@ -16,7 +16,6 @@ describe('SetupChecklistSchema', () => {
       steps: [
         step('products', { is_completed: true, has_data: true }),
         step('payments'),
-        step('customize'),
         step('tax', { is_preconfigured: true, has_data: true }),
         step('shipping'),
       ],
@@ -27,13 +26,12 @@ describe('SetupChecklistSchema', () => {
 
   it('accepts a checklist without the hidden tax step', () => {
     const payload = {
-      steps: [step('products'), step('payments'), step('customize'), step('shipping')],
+      steps: [step('products'), step('payments'), step('shipping')],
     };
 
     expect(SetupChecklistSchema.parse(payload).steps.map(({ id }) => id)).toEqual([
       'products',
       'payments',
-      'customize',
       'shipping',
     ]);
   });

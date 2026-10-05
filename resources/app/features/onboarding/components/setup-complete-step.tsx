@@ -1,4 +1,4 @@
-import { Check, Minus } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 import Alert from '@/components/ui/alert';
 import Button from '@/components/ui/button';
@@ -99,7 +99,17 @@ const SetupRowIcon = ({ state }: { state: SetupRowState }) => {
 
   return (
     <span css={scopedMerge(styles.icon, styles.idle)}>
-      <Minus size={12} strokeWidth={3} />
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle
+          cx="10"
+          cy="10"
+          r="7.25"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeDasharray="2.2 3.5"
+        />
+      </svg>
     </span>
   );
 };
@@ -136,7 +146,6 @@ const styles = defineStyles({
     color: theme.colors.icon.success,
   },
   idle: {
-    backgroundColor: theme.colors.background.surfaceSecondary,
     color: theme.colors.icon.secondary,
   },
 });

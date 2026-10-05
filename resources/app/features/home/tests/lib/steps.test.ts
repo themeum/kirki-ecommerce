@@ -21,7 +21,7 @@ describe('getChecklistProgress', () => {
     const steps = [
       step('products', { is_completed: true }),
       step('payments', { is_completed: true }),
-      step('customize'),
+      step('tax'),
       step('shipping'),
     ];
 
@@ -29,7 +29,7 @@ describe('getChecklistProgress', () => {
   });
 
   it('rounds to the nearest whole percent', () => {
-    const steps = [step('products', { is_completed: true }), step('payments'), step('customize')];
+    const steps = [step('products', { is_completed: true }), step('payments'), step('tax')];
 
     expect(getChecklistProgress(steps).percent).toBe(33);
   });
@@ -91,10 +91,6 @@ describe('getSetupStepDefinition', () => {
       ['Add payment', '/settings/payments'],
       ['Cash on delivery', '/settings/payments'],
     ]);
-  });
-
-  it('gives the customize step no buttons', () => {
-    expect(getSetupStepDefinition(step('customize')).actions).toEqual([]);
   });
 
   it('links "Add products" to the create product page', () => {

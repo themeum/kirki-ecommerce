@@ -1,52 +1,46 @@
-import Button from '@/components/ui/button';
+import Badge from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import { getStoreTemplates, STORE_TEMPLATES_EXPLORE_URL } from '@/features/home/lib/templates';
+import { getStoreTemplates } from '@/features/home/lib/templates';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TemplateGallery = () => {
   return (
-    <Flex direction="column" align="center" gap={6}>
-      <div css={scoped(styles.grid)}>
-        {getStoreTemplates().map((template) => (
-          <a
-            key={template.name}
-            href={template.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            css={scoped(styles.link)}
-          >
-            <Card cssOverride={styles.card}>
-              <Image
-                src={template.image}
-                alt={template.name}
-                width="100%"
-                height={TEMPLATE_IMAGE_HEIGHT}
-                fit="cover"
-                cssOverride={styles.image}
-              />
-              <Flex direction="column" cssOverride={styles.meta}>
-                <Text variant="small" weight="medium" truncate>
-                  {template.name}
-                </Text>
-                <Text color="subdued" truncate cssOverride={{ fontSize: '10px' }}>
-                  {template.author}
-                </Text>
-              </Flex>
-            </Card>
-          </a>
-        ))}
-      </div>
-      <Button variant="link" asChild cssOverride={{ color: theme.colors.text.emphasis }}>
-        <a href={STORE_TEMPLATES_EXPLORE_URL} target="_blank" rel="noopener noreferrer">
-          {__('Explore more', 'kirki-ecommerce')}
+    <div css={scoped(styles.grid)}>
+      {getStoreTemplates().map((template) => (
+        <a
+          key={template.name}
+          href={template.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={scoped(styles.link)}
+        >
+          <Card cssOverride={styles.card}>
+            <Badge cssOverride={styles.badge}>{__('Coming soon', 'kirki-ecommerce')}</Badge>
+            <Image
+              src={template.image}
+              alt={template.name}
+              width="100%"
+              height={TEMPLATE_IMAGE_HEIGHT}
+              fit="cover"
+              cssOverride={styles.image}
+            />
+            <Flex direction="column" cssOverride={styles.meta}>
+              <Text variant="small" weight="medium" truncate>
+                {template.name}
+              </Text>
+              <Text color="subdued" truncate cssOverride={{ fontSize: '10px' }}>
+                {template.author}
+              </Text>
+            </Flex>
+          </Card>
         </a>
-      </Button>
-    </Flex>
+      ))}
+    </div>
   );
 };
 
@@ -77,6 +71,15 @@ const styles = defineStyles({
     padding: 0,
     gap: 0,
     overflow: 'hidden',
+    position: 'relative',
+  },
+  badge: {
+    position: 'absolute',
+    top: theme.spacing[1],
+    right: theme.spacing[1],
+    zIndex: 1,
+    backgroundColor: '#FFD412', // @todo: will be updated later,
+    color: theme.colors.text.primary,
   },
   image: {
     border: 'none',

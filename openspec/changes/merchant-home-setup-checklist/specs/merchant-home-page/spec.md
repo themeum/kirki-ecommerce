@@ -65,17 +65,17 @@ and an error message if fetching it fails.
 ### Requirement: Static template gallery
 
 Below the checklist, the Home page SHALL show a gallery of exactly three
-storefront template cards and an "Explore more" link. Each card SHALL show a
-preview image, the template name and its author line (e.g. "By Kirki"). Card data
-SHALL come from a list bundled with the admin app. No network request is made to
-build it. Card and "Explore more" links SHALL open in a new tab.
+storefront template cards. Each card SHALL show a preview image, the template
+name, its author line (e.g. "By Kirki") and a "Coming soon" badge at its
+top-right corner. Card data SHALL come from a list bundled with the admin app. No
+network request is made to build it. The cards SHALL NOT be clickable.
 
 #### Scenario: Gallery renders
 
 - **WHEN** the Home page is shown
-- **THEN** three template cards with an image, name and author, followed by an "Explore more" link, appear below the checklist
+- **THEN** three template cards with an image, name, author and a "Coming soon" badge appear below the checklist
 
-#### Scenario: Opening a template
+#### Scenario: Clicking a template
 
-- **WHEN** the merchant clicks a template card or "Explore more"
-- **THEN** the linked URL opens in a new tab
+- **WHEN** the merchant clicks a template card
+- **THEN** nothing happens

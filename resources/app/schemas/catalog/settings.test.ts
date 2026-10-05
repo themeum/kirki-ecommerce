@@ -70,16 +70,6 @@ describe('ProductSettingsSchema', () => {
       display_layout: null,
       is_enabled_reviews: true,
       is_enabled_star_ratings: true,
-      barcode_generation: {
-        data_origin: 'SKU',
-        format: 'Code 128 (recommended for SKU/internal use)',
-        width: 2.5,
-        height: 1.5,
-        country_of_origin: 'Bangladesh',
-        is_human_readable_text_visible: false,
-        is_product_name_visible: false,
-        is_country_of_origin_visible: false,
-      },
     });
     expect(result.success).toBe(true);
   });

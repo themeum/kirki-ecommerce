@@ -21,6 +21,13 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 class EmailSettings extends AppSettings
 {
     /**
+     * The email settings are large and are read only when mail is sent or edited.
+     *
+     * @var bool
+     */
+    protected $autoload = false;
+
+    /**
      * @inheritDoc
      *
      * @since 1.0.0

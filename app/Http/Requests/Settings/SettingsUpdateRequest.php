@@ -303,15 +303,6 @@ class SettingsUpdateRequest extends Request
             'data.is_enabled_reviews' => 'boolean',
             'data.is_enabled_star_ratings' => 'boolean',
             'data.low_stock_threshold' => 'nullable|integer|min:0',
-            'data.barcode_generation' => 'nullable|array',
-            'data.barcode_generation.data_origin' => 'nullable|string',
-            'data.barcode_generation.format' => 'nullable|string',
-            'data.barcode_generation.width' => 'nullable|number',
-            'data.barcode_generation.height' => 'nullable|number',
-            'data.barcode_generation.country_of_origin' => 'nullable|string',
-            'data.barcode_generation.is_human_readable_text_visible' => 'nullable|boolean',
-            'data.barcode_generation.is_product_name_visible' => 'nullable|boolean',
-            'data.barcode_generation.is_country_of_origin_visible' => 'nullable|boolean',
         ];
     }
 
@@ -332,15 +323,6 @@ class SettingsUpdateRequest extends Request
             'data.is_enabled_reviews' => Sanitizer::BOOL,
             'data.is_enabled_star_ratings' => Sanitizer::BOOL,
             'data.low_stock_threshold' => Sanitizer::INT,
-            'data.barcode_generation' => Sanitizer::ARRAY,
-            'data.barcode_generation.data_origin' => Sanitizer::TEXT,
-            'data.barcode_generation.format' => Sanitizer::TEXT,
-            'data.barcode_generation.width' => Sanitizer::FLOAT,
-            'data.barcode_generation.height' => Sanitizer::FLOAT,
-            'data.barcode_generation.country_of_origin' => Sanitizer::TEXT,
-            'data.barcode_generation.is_human_readable_text_visible' => Sanitizer::BOOL,
-            'data.barcode_generation.is_product_name_visible' => Sanitizer::BOOL,
-            'data.barcode_generation.is_country_of_origin_visible' => Sanitizer::BOOL,
         ];
     }
 
