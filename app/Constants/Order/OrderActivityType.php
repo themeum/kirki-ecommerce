@@ -40,22 +40,22 @@ final class OrderActivityType
     public static function get_list(): array
     {
         return [
-            self::ORDER_PLACED => __( 'Order Placed', 'kirki-ecommerce' ),
-            self::PAYMENT_COMPLETED => __( 'Payment Completed', 'kirki-ecommerce' ),
-            self::PAYMENT_FAILED => __( 'Payment Failed', 'kirki-ecommerce' ),
-            self::PROCESSING => __( 'Order Processing', 'kirki-ecommerce' ),
-            self::FULFILLMENT_RESUMED => __( 'Fulfillment Resumed', 'kirki-ecommerce' ),
-            self::SHIPPED => __( 'Order Shipped', 'kirki-ecommerce' ),
-            self::DELIVERED => __( 'Order Delivered', 'kirki-ecommerce' ),
-            self::CANCELLED => __( 'Order Cancelled', 'kirki-ecommerce' ),
-            self::TRACKING_ADDED => __( 'Tracking Added', 'kirki-ecommerce' ),
-            self::ARCHIVED => __( 'Order Archived', 'kirki-ecommerce' ),
-            self::ON_HOLD => __( 'Order On Hold', 'kirki-ecommerce' ),
-            self::PARTIALLY_REFUNDED => __( 'Order Partially Refunded', 'kirki-ecommerce' ),
-            self::REFUNDED => __( 'Order Refunded', 'kirki-ecommerce' ),
-            self::REFUND_REQUESTED => __( 'Order Refund Requested', 'kirki-ecommerce' ),
-            self::REFUND_DELETED => __( 'Order Refund Deleted', 'kirki-ecommerce' ),
-            self::COMMENT_ADDED => __( 'Comment Added', 'kirki-ecommerce' ),
+            static::ORDER_PLACED => __('Order Placed', 'kirki-ecommerce'),
+            static::PAYMENT_COMPLETED => __('Payment Completed', 'kirki-ecommerce'),
+            static::PAYMENT_FAILED => __('Payment Failed', 'kirki-ecommerce'),
+            static::PROCESSING => __('Order Processing', 'kirki-ecommerce'),
+            static::FULFILLMENT_RESUMED => __('Fulfillment Resumed', 'kirki-ecommerce'),
+            static::SHIPPED => __('Order Shipped', 'kirki-ecommerce'),
+            static::DELIVERED => __('Order Delivered', 'kirki-ecommerce'),
+            static::CANCELLED => __('Order Cancelled', 'kirki-ecommerce'),
+            static::TRACKING_ADDED => __('Tracking Added', 'kirki-ecommerce'),
+            static::ARCHIVED => __('Order Archived', 'kirki-ecommerce'),
+            static::ON_HOLD => __('Order On Hold', 'kirki-ecommerce'),
+            static::PARTIALLY_REFUNDED => __('Order Partially Refunded', 'kirki-ecommerce'),
+            static::REFUNDED => __('Order Refunded', 'kirki-ecommerce'),
+            static::REFUND_REQUESTED => __('Order Refund Requested', 'kirki-ecommerce'),
+            static::REFUND_DELETED => __('Order Refund Deleted', 'kirki-ecommerce'),
+            static::COMMENT_ADDED => __('Comment Added', 'kirki-ecommerce'),
         ];
     }
 
@@ -72,14 +72,14 @@ final class OrderActivityType
     public static function customer_visible(): array
     {
         return [
-            self::ORDER_PLACED,
-            self::PROCESSING,
-            self::FULFILLMENT_RESUMED,
-            self::SHIPPED,
-            self::DELIVERED,
-            self::CANCELLED,
-            self::TRACKING_ADDED,
-            self::ON_HOLD,
+            static::ORDER_PLACED,
+            static::PROCESSING,
+            static::FULFILLMENT_RESUMED,
+            static::SHIPPED,
+            static::DELIVERED,
+            static::CANCELLED,
+            static::TRACKING_ADDED,
+            static::ON_HOLD,
         ];
     }
 
@@ -91,7 +91,7 @@ final class OrderActivityType
      * @param string $type Activity type key.
      * @return string Label, or an empty string for an unknown type.
      */
-    public static function get_formatted( $type )
+    public static function get_formatted($type)
     {
         return static::get_list()[$type] ?? '';
     }

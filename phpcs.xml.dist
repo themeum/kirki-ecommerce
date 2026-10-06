@@ -10,6 +10,7 @@
     <rule ref="PSR12">
         <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
         <exclude name="Generic.Files.LineLength.TooLong" />
+        <exclude name="PSR12.Properties.ConstantVisibility.NotFound" />
     </rule>
 
     <rule ref="phpcs/KirkiEcommerce/Sniffs/Commenting/RequiredDocblockSniff.php">
