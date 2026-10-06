@@ -74,7 +74,7 @@ class OrderActivityService
     /**
      * Get an order's activities for the customer-facing timeline, newest first.
      *
-     * Comment and payment-completed activities are left out, and only the
+     * Only customer-visible activity types are returned, and only the
      * activity_type and created_at columns are selected.
      *
      * @since 1.0.0
@@ -84,10 +84,47 @@ class OrderActivityService
      */
     public function get_order_activity(int $order_id)
     {
-        return $this->list_query( $order_id )
-            ->where( 'activity_type', '!=', OrderActivityType::COMMENT_ADDED )
-            ->where( 'activity_type', '!=', OrderActivityType::PAYMENT_COMPLETED ) // todo: will be replaced with private activity status
-            ->get( ['activity_type','created_at'] );
+        return $this->customer_list_query($order_id)->get(['activity_type', 'created_at']);
+    }
+
+    /**
+     * Paginate an order's customer-visible activities, newest first.
+     *
+     * @since 1.0.0
+     *
+     * @param int           $order_id Order ID.
+     * @param ListFilterDTO $filters  Page and limit to use.
+     * @return \Kirki\Ecommerce\Framework\Database\Query\Paginator
+     */
+    public function customer_paginated_for_order(int $order_id, ListFilterDTO $filters)
+    {
+        return $this->customer_list_query($order_id)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+    }
+
+    /**
+     * Get all of an order's customer-visible activities, newest first.
+     *
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
+     * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of OrderActivity.
+     */
+    public function customer_all_for_order(int $order_id)
+    {
+        return $this->customer_list_query($order_id)->get();
+    }
+
+    /**
+     * Base query for an order's customer-visible activities, newest first.
+     *
+     * @since 1.0.0
+     *
+     * @param int $order_id Order ID.
+     * @return QueryBuilder
+     */
+    protected function customer_list_query(int $order_id)
+    {
+        return $this->list_query($order_id)->where_in('activity_type', OrderActivityType::customer_visible());
     }
 
     /**
