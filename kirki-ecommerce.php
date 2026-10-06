@@ -1,15 +1,15 @@
 <?php
 
 /**
- * Plugin Name:       Kirki Ecommerce
+ * Plugin Name:       Kirki eCommerce
  * Plugin URI:        https://kirki.com
- * Description:       Kirki Ecommerce is a full-featured e-commerce solution with superior UX, UI, and lightning-fast functionality.
+ * Description:       Kirki eCommerce is a full-featured e-commerce solution with superior UX, UI, and lightning-fast functionality.
  * Version:           1.0.0-beta.1
  * Author:            Themeum
  * Author URI:        https://www.themeum.com
  * Text Domain:       kirki-ecommerce
  * Requires PHP:      7.4
- * Requires at least: 5.9
+ * Requires at least: 6.8
  * Tested up to:      7.1
  * License:           GPLv2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt

@@ -1,9 +1,9 @@
-=== Kirki eCommerce – Fast & Lightweight eCommerce Solution ===
+=== Kirki eCommerce ===
 Contributors: themeum
 Donate link: https://kirki.com/
 Tags: ecommerce, online store, shopping cart, checkout, payments
-Requires at least: 5.9
-Tested up to: 6.9
+Requires at least: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.0.0-beta.1
 License: GPLv2 or later

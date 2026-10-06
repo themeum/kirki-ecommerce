@@ -5,6 +5,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT_DIR"
 
+# --org builds the wordpress.org package: no payment gateway add-ons, and a
+# payments.json that lists only the built-in PayPal provider.
+ORG_BUILD=false
+if [ "${1:-}" = "--org" ]; then
+  ORG_BUILD=true
+fi
+
 PLUGIN_SLUG="kirki-ecommerce"
 BUILD_DIR="$ROOT_DIR/build"
 STAGE_DIR="$BUILD_DIR/$PLUGIN_SLUG"
@@ -95,13 +102,15 @@ echo "==> Restoring scoped framework layout"
 php "$ROOT_DIR/bin/scope-framework.php" --restore
 composer dump-autoload --no-dev --optimize
 
-echo "==> Installing payment gateway dependencies"
-for gateway_manifest in "$ROOT_DIR"/payments/*/composer.json; do
-  [ -e "$gateway_manifest" ] || continue
-  gateway_dir="$(dirname "$gateway_manifest")"
-  echo "--> $(basename "$gateway_dir")"
-  run_composer "$gateway_dir" --no-dev --optimize-autoloader
-done
+if [ "$ORG_BUILD" = false ]; then
+  echo "==> Installing payment gateway dependencies"
+  for gateway_manifest in "$ROOT_DIR"/payments/*/composer.json; do
+    [ -e "$gateway_manifest" ] || continue
+    gateway_dir="$(dirname "$gateway_manifest")"
+    echo "--> $(basename "$gateway_dir")"
+    run_composer "$gateway_dir" --no-dev --optimize-autoloader
+  done
+fi
 
 echo "==> Assembling plugin files"
 for path in "${REQUIRED_PATHS[@]}"; do
@@ -113,10 +122,27 @@ for path in "${REQUIRED_PATHS[@]}"; do
 done
 
 for path in "${OPTIONAL_PATHS[@]}"; do
+  if [ "$ORG_BUILD" = true ] && [ "$path" = "payments" ]; then
+    continue
+  fi
   if [ -e "$ROOT_DIR/$path" ]; then
     copy_path "$path"
   fi
 done
+
+if [ "$ORG_BUILD" = true ]; then
+  echo "==> Writing wordpress.org payments manifest"
+  mkdir -p "$STAGE_DIR/payments"
+  cat > "$STAGE_DIR/payments/payments.json" <<'JSON'
+[
+  {
+    "id": "paypal",
+    "name": "Paypal",
+    "is_available": true
+  }
+]
+JSON
+fi
 
 echo "==> Removing hidden files (not allowed by wordpress.org)"
 find "$STAGE_DIR" -name ".*" -type f -delete
