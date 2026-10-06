@@ -58,27 +58,27 @@ class ProductSchemaSeeder extends Seeder
             [
                 'name' => 'Default Product Schema',
                 'is_default' => true,
-                'schema' => json_encode($product_schema),
+                'schema' => wp_json_encode($product_schema),
             ],
             [
                 'name' => 'Electronics Import',
                 'is_default' => false,
-                'schema' => json_encode($product_with_rating_schema),
+                'schema' => wp_json_encode($product_with_rating_schema),
             ],
             [
                 'name' => 'Fashion Apparel Import',
                 'is_default' => false,
-                'schema' => json_encode($product_with_brand_schema),
+                'schema' => wp_json_encode($product_with_brand_schema),
             ],
             [
                 'name' => 'Kitchen Appliances Import',
                 'is_default' => false,
-                'schema' => json_encode($product_with_rating_schema),
+                'schema' => wp_json_encode($product_with_rating_schema),
             ],
             [
                 'name' => 'Beauty & Health Import',
                 'is_default' => false,
-                'schema' => json_encode($product_schema),
+                'schema' => wp_json_encode($product_schema),
             ],
         ];
     }

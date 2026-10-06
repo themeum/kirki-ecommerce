@@ -79,7 +79,7 @@ class Root extends Menu
                 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block'
             ),
             [],
-            null
+            null // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- external Google Fonts URL; a WP-style ?ver= cache-buster has no effect on their CDN and isn't this plugin's asset to version.
         );
 
         $root_style_handle = app()->prefix() . 'root-shell';

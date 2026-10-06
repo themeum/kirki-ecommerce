@@ -67,6 +67,7 @@ class Icon
             return '';
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local file read, not a remote request.
         $svg = file_get_contents($filePath);
 
         if ($svg === false) {

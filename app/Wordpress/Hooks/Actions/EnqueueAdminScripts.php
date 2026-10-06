@@ -105,7 +105,7 @@ class EnqueueAdminScripts extends BaseHook
             app()->prefix() . 'vite-client',
             static::VITE_DEV_SERVER . '/@vite/client',
             [$vite_refresh_handle],
-            null,
+            null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- served by the Vite dev server (local development only), which handles its own module caching.
             true
         );
 
@@ -113,7 +113,7 @@ class EnqueueAdminScripts extends BaseHook
             app()->prefix() . 'app',
             static::VITE_DEV_SERVER . '/main.tsx',
             [app()->prefix() . 'vite-client'],
-            null,
+            null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- served by the Vite dev server (local development only), which handles its own module caching.
             true
         );
 
@@ -176,7 +176,7 @@ class EnqueueAdminScripts extends BaseHook
                 $vendor_handle,
                 KIRKI_ECOMMERCE_ASSETS_URL . '/' . $chunk['file'],
                 [],
-                null,
+                null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- see comment above: the manifest already content-hashes this filename.
                 true
             );
 
@@ -187,7 +187,7 @@ class EnqueueAdminScripts extends BaseHook
             app()->prefix() . 'bundle',
             KIRKI_ECOMMERCE_ASSETS_URL . '/' . $entry['file'],
             $dependencies,
-            null,
+            null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- the manifest already content-hashes this filename, same reasoning as the vendor chunk above.
             true
         );
 

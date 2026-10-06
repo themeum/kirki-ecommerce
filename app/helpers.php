@@ -104,6 +104,7 @@ if (!function_exists('Kirki\Ecommerce\json_decoded_data')) {
             return null;
         }
 
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- local file read, not a remote request.
         $content = file_get_contents($file_path);
 
         return json_decode($content, $associative);
