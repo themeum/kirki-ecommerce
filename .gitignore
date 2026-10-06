@@ -47,6 +47,9 @@ assets/js
 # Settings search index (resources/app npm run search:index)
 resources/app/features/settings/search/settings-search-index.json
 
+# Generated translation template (bin/make-pot.sh)
+languages/
+
 # Backup files
 *.bak
 *~

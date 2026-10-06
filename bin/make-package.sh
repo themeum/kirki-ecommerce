@@ -112,6 +112,9 @@ if [ "$ORG_BUILD" = false ]; then
   done
 fi
 
+echo "==> Generating POT file"
+bash "$ROOT_DIR/bin/make-pot.sh"
+
 echo "==> Assembling plugin files"
 for path in "${REQUIRED_PATHS[@]}"; do
   if [ ! -e "$ROOT_DIR/$path" ]; then
