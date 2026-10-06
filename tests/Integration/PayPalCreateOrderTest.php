@@ -134,6 +134,8 @@ class PayPalCreateOrderTest extends RestTestCase
             'payment_provider' => 'paypal',
             'shipping_method' => 'method-0001',
             'is_manual' => true,
+            'customer_first_name' => 'John',
+            'customer_last_name' => 'Doe',
             'shipping_first_name' => 'John',
             'shipping_last_name' => 'Doe',
             'shipping_address_line1' => '123 Main St',
