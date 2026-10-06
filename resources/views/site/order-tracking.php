@@ -26,7 +26,7 @@ use function Kirki\Ecommerce\Framework\view_data;
         <main class="kecom-tracking-content">
             <?php if (view_data('errors')) : ?>
             <div class="kecom-alert kecom-alert-error kecom-mt-6 kecom-mb-6">
-                <?php Icon::render('information', ['size' => 20]); ?>
+                <?php Icon::render('info', ['size' => 20]); ?>
                 <p>
                     <?php foreach (view_data('errors') as $error) : ?>
                         <?php echo esc_html($error); ?>

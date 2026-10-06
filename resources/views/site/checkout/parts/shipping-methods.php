@@ -34,7 +34,7 @@ defined('ABSPATH') || exit;
         <?php esc_html_e('No shipping methods found!', 'kirki-ecommerce'); ?>
     </div>
     <div x-show="shippingMethodError" x-cloak class="kecom-alert kecom-alert-error kecom-mt-4">
-        <?php Icon::render('information', ['size' => 20]); ?>
+        <?php Icon::render('info', ['size' => 20]); ?>
         <p x-text="shippingMethodError"></p>
     </div>
 </div>

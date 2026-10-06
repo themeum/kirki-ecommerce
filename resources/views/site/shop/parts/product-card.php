@@ -95,7 +95,7 @@ $display_context         = $data['context'] ?? null;
                 :disabled="loading"
                 :class="{ 'kecom-btn-loading': loading }"
             >
-                <?php Icon::render('cart'); ?>
+                <?php Icon::render('shopping-cart'); ?>
                 <span x-text="buttonText"></span>
             </button>
         </div>

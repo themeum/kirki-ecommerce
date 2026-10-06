@@ -45,7 +45,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 @click.prevent="closePasswordModal"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
-                <?php Icon::render('cross'); ?>
+                <?php Icon::render('x'); ?>
             </button>
         </div>
 

@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
     <div class="kecom-address-card-header">
         <div class="kecom-address-card-title-group">
             <div class="kecom-address-card-title-icon-group">
-                <span x-show="address.type === 'home' || !address.type"><?php Icon::render('home'); ?></span>
+                <span x-show="address.type === 'home' || !address.type"><?php Icon::render('house'); ?></span>
                 <span x-show="address.type === 'work' || address.type === 'office'"><?php Icon::render('briefcase'); ?></span>
                 <span x-show="address.type === 'other' || address.type === 'others'"><?php Icon::render('map-pin'); ?></span>
                 <h3 class="kecom-address-card-label" x-text="getAddressLabel(address)"></h3>
@@ -41,7 +41,7 @@ defined('ABSPATH') || exit;
             include_view('site.components.popover', [
                 'placement'     => 'bottom-end',
                 'trigger_label' => __('Address options', 'kirki-ecommerce'),
-                'trigger_icon'  => 'dots-vertical',
+                'trigger_icon'  => 'ellipsis-vertical',
                 'items'         => [
                     [
                         'label' => __('Edit Address', 'kirki-ecommerce'),

@@ -112,7 +112,7 @@ class Utils
             ],
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),
-                'icon'      => 'dashboard',
+                'icon'      => 'layout-grid',
                 'url'       => Url::get_account_url(),
                 'is_active' => Route::is('account'),
                 'route_path' => $account_page_slug,

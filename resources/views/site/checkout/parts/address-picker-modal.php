@@ -42,7 +42,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 @click.prevent="closeAddressPicker"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
-                <?php Icon::render('cross', ['size' => 16]); ?>
+                <?php Icon::render('x', ['size' => 16]); ?>
             </button>
         </div>
 
@@ -67,7 +67,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         <div class="kecom-checkout-address-picker-details">
                             <div class="kecom-checkout-address-picker-row">
                                 <div class="kecom-checkout-address-picker-label-group">
-                                    <span class="kecom-checkout-address-picker-icon" x-show="address.type === 'home' || !address.type"><?php Icon::render('home'); ?></span>
+                                    <span class="kecom-checkout-address-picker-icon" x-show="address.type === 'home' || !address.type"><?php Icon::render('house'); ?></span>
                                     <span class="kecom-checkout-address-picker-icon" x-show="address.type === 'work' || address.type === 'office'"><?php Icon::render('briefcase'); ?></span>
                                     <span class="kecom-checkout-address-picker-icon" x-show="address.type === 'other' || address.type === 'others'"><?php Icon::render('map-pin'); ?></span>
                                     <span class="kecom-checkout-address-picker-label" x-text="getAddressLabel(address)"></span>
@@ -84,7 +84,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                                 @click.stop.prevent="openEditModal(address)"
                                 aria-label="<?php esc_attr_e('Edit address', 'kirki-ecommerce'); ?>"
                             >
-                                <?php Icon::render('edit', ['size' => 16]); ?>
+                                <?php Icon::render('pen-line', ['size' => 16]); ?>
                             </button>
                         </div>
                     </label>
