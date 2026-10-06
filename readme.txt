@@ -1,6 +1,5 @@
-=== Kirki eCommerce ===
+=== Kirki eCommerce – Complete eCommerce for WordPress ===
 Contributors: themeum
-Donate link: https://kirki.com/
 Tags: ecommerce, online store, shopping cart, checkout, payments
 Requires at least: 6.8
 Tested up to: 7.1
@@ -21,13 +20,13 @@ We're building Kirki eCommerce in the open on GitHub, so it can be tested widely
 
 👉 Source Code: [GitHub Repository](https://github.com/themeum/kirki-ecommerce)
 👉 Feedback: [Feedback Form](https://docs.google.com/forms/d/e/1FAIpQLSef9owKHWm9e5N761rET0G14Y_Pjsih_BDzBR89aGVYyvkHow/viewform)
-👉 Community: [Kirki on Facebook](https://www.facebook.com/groups/557837446451017)
+👉 Community: [Kirki on Facebook](https://www.facebook.com/groups/kirkicommunity)
 
 == Features ==
 
 === Everything You Need to Run Your Store ===
 
-Kirki eCommerce brings the essential parts of running an online shop together in one place. Create your catalog, manage inventory, take payments, handle orders, configure shipping and taxes, and give customers a complete shopping experience without relying on WooCommerce for your core store functionality.
+Kirki eCommerce brings everything you need to run an online store together in one place. Create and organize your products, manage inventory, accept payments, process orders, configure shipping and taxes, offer discounts, and give customers a complete shopping experience from browsing through checkout and beyond.
 
 === Product Creation & Management ===
 
@@ -324,6 +323,3 @@ The plugin can also connect to a currency exchange rate service to convert displ
 * Adds Shop Search
 * Adds Product Trash Management
 * Adds Email Verification
-
-== Upgrade Notice ==
-Please update to the latest version of Kirki eCommerce to get the latest features, improvements, and security updates.
