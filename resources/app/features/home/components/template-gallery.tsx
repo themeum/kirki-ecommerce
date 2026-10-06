@@ -89,6 +89,7 @@ const styles = defineStyles({
     zIndex: 1,
     backgroundColor: theme.colors.background.solidSurfaceAlt,
     fontSize: 8,
+    color: theme.colors.text.subdued,
   },
   image: {
     border: 'none',
