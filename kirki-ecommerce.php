@@ -85,8 +85,16 @@ register_activation_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 'h
 register_deactivation_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 'handle_deactivation']);
 register_uninstall_hook(KIRKI_ECOMMERCE_PLUGIN_FILE, [KirkiEcommerce::class, 'handle_uninstallation']);
 
+// Load translated strings for the Domain Path declared above
+add_action('plugins_loaded', 'kirki_ecommerce_load_textdomain');
+
 // Booting the plugin application
 add_action('init', 'kirki_ecommerce_boot_application', 0);
+
+function kirki_ecommerce_load_textdomain()
+{
+    load_plugin_textdomain(KIRKI_ECOMMERCE_SLUG, false, dirname(plugin_basename(KIRKI_ECOMMERCE_PLUGIN_FILE)) . '/languages');
+}
 
 function kirki_ecommerce_boot_application()
 {
