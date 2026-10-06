@@ -63,6 +63,8 @@ class OrderSeeder extends Seeder
             'billing_phone' => $customer['phone'],
             'billing_email' => $customer['email'],
             'billing_company' => null,
+            'customer_first_name' => $customer['first_name'],
+            'customer_last_name' => $customer['last_name'],
             'customer_email' => $customer['email'],
             'customer_phone' => $customer['phone'],
             'customer_notes' => 'Please deliver between 10 AM and 6 PM. Order includes '
