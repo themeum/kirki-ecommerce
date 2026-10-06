@@ -52,13 +52,13 @@ define('KIRKI_ECOMMERCE_PLUGIN_PATH', plugin_dir_path(KIRKI_ECOMMERCE_PLUGIN_FIL
  * The kirki ecommerce plugin assets url
  * @var string
  */
-$relative_path = str_replace(WP_CONTENT_DIR, '', KIRKI_ECOMMERCE_PLUGIN_PATH);
+$kecom_relative_path = str_replace(WP_CONTENT_DIR, '', KIRKI_ECOMMERCE_PLUGIN_PATH);
 
 /**
  * The kirki ecommerce plugin assets path
  * @var string
  */
-define('KIRKI_ECOMMERCE_ASSETS_URL', WP_CONTENT_URL . $relative_path . 'assets');
+define('KIRKI_ECOMMERCE_ASSETS_URL', WP_CONTENT_URL . $kecom_relative_path . 'assets');
 
 /**
  * The kirki ecommerce plugin assets path

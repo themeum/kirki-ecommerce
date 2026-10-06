@@ -107,20 +107,6 @@ Choose the payment methods that work best for your customers with no transaction
 The payment gateways includes integrations for:
 
 * PayPal
-* Stripe
-* Authorize.net
-* Razorpay
-* Mollie
-* Klarna
-* Square
-* Paystack
-* QuickPay
-* 2Checkout
-* Redsys
-* PayMango
-* PayFast
-* Eway
-* PayU
 
 You can also offer offline payment methods such as Cash on Delivery, Bank Transfer, and custom manual payment methods.
 
@@ -272,7 +258,7 @@ No. Kirki eCommerce includes its own storefront styling and doesn't depend on yo
 
 = Which payment gateways are supported? =
 
-PayPal, Stripe, Mollie, Authorize.net, Razorpay, Klarna, Square, QuickPay, and PayStack ship with the core plugin. Additional gateways, including 2Checkout, Redsys, PayMango, PayFast, Eway, and PayU, are available as separately installable companion plugins. Offline options include Cash on Delivery, Bank Transfer, and custom manual payment methods.
+PayPal ships with the core plugin. Offline options include Cash on Delivery, Bank Transfer, and custom manual payment methods.
 
 = Is this plugin production-ready? =
 
@@ -294,18 +280,15 @@ This plugin connects to third-party payment gateway services depending on which 
 
 - **PayPal:** [Terms](https://www.paypal.com/us/legalhub/paypal/useragreement-full) | [Privacy](https://www.paypal.com/us/legalhub/paypal/privacy-full)
 
-The following gateways are available as separately installable companion plugins. Each carries its own disclosure once installed, listed here for reference:
+The plugin can also connect to a currency exchange rate service to convert displayed prices into other currencies. This only happens after a store owner selects a provider and enters an API key in the currency settings. Rates are then fetched automatically at the configured update frequency, or when the store owner syncs them manually. No customer or order data is sent.
 
--   **Stripe:** [Terms](https://stripe.com/legal/ssa) \| [Privacy](https://stripe.com/privacy)
--   **Mollie:** [Terms & Privacy](https://www.mollie.com/legal/privacy)
--   **Authorize.net:** [Terms](https://www.authorize.net/about-us/terms.html) \| [Privacy](https://www.visa.com/en-us/legal/global-privacy-notice)
--   **Razorpay:** [Terms](https://razorpay.com/tnc/) \| [Privacy](https://razorpay.com/privacy-policy/)
--   **Klarna:** [Terms](https://www.klarna.com/international/terms-and-conditions/) \| [Privacy](https://www.klarna.com/international/privacy-policy/)
--   **Square:** [Terms](https://squareup.com/us/en/legal/general/ua) \| [Privacy](https://squareup.com/us/en/legal/general/privacy)
--   **QuickPay:** [Terms & Privacy](https://quickpay.net/terms-of-service/)
--   **PayStack:** [Terms & Privacy](https://paystack.com/terms)
+**CurrencyApi** ([currencyapi.com](https://currencyapi.com/)) receives the store owner's API key, the store's base currency, and the list of currency codes to fetch rates for. The API key is also sent to read the account's monthly usage quota.
 
-**Note:** Data is only transmitted when a store owner has configured and enabled a given gateway, and only for customers completing a transaction through it. No payment data is sent without an active integration set up by the store owner
+- **CurrencyApi:** [Terms](https://currencyapi.com/terms-of-service/) | [Privacy](https://currencyapi.com/privacy-policy/)
+
+**ExchangeRate-API** ([exchangerate-api.com](https://www.exchangerate-api.com/)) receives the store owner's API key and the store's base currency.
+
+- **ExchangeRate-API:** [Terms](https://www.exchangerate-api.com/terms) | [Privacy](https://www.exchangerate-api.com/terms#privacy)
 
 == Changelog ==
 
@@ -318,7 +301,7 @@ The following gateways are available as separately installable companion plugins
 * Adds Coupons: percentage and fixed discounts, usage limits, validity windows
 * Adds Tax: profiles, regional rates, EU/OSS support, VAT, reverse charge
 * Adds Shipping: zones, methods, flat rates, local pickup, weight-based rates
-* Adds Payments: PayPal and Stripe out of the box, plus Mollie, Authorize.net, Razorpay
+* Adds Payments: PayPal, Cash on Delivery, Bank Transfer.
 * Adds Storefront: shop, product, cart, account, and checkout pages
 * Adds SEO and web presence tools
 * Adds Transactional emails

@@ -36,9 +36,10 @@ The store SHALL receive demo products only when the merchant loads sample data. 
 demo products SHALL cover a product without variants and products with one and two
 variation axes. Each product and each variant SHALL carry imagery drawn from the
 images bundled with the plugin. Every purchasable variant SHALL have a price in the
-store's base currency. Loading sample data SHALL create any category, attribute or
-attribute value the demo products need that the store does not have, and SHALL reuse
-the ones that exist. A category is matched by its name within its parent.
+store's base currency. Loading sample data SHALL create any attribute or attribute
+value the demo products need that the store does not have, and SHALL reuse the ones
+that exist. Loading sample data SHALL NOT create categories, and the demo products
+SHALL have no category.
 
 #### Scenario: Store setup does not add products
 
@@ -48,12 +49,12 @@ the ones that exist. A category is matched by its name within its parent.
 #### Scenario: Demo products are seeded
 
 - **WHEN** sample data is loaded on a store with no products
-- **THEN** demo products are created, each assigned to its category, each with a priced default variant
+- **THEN** demo products are created, each with a priced default variant and no category
 
-#### Scenario: Demo category is missing
+#### Scenario: Sample data creates no categories
 
-- **WHEN** sample data is loaded on a store that has no "Home & Living" category
-- **THEN** the "Home & Living" category path that the demo products need is created, and existing categories are unchanged
+- **WHEN** sample data is loaded on a store that has no categories
+- **THEN** no category is created, and existing categories are unchanged
 
 #### Scenario: Variable products carry their variation axes
 
@@ -97,9 +98,8 @@ the ones that exist. A category is matched by its name within its parent.
 **Reason**: Categories are now industry dependent. The store presets create the
 industry's category tree, and the "other" industry gets none.
 **Migration**: See the store-presets capability, "Categories are preset by
-industry". Sample data loading creates the demo categories it needs (see "Demo
-products are available with imagery"). Stores already set up keep their
-categories.
+industry". Sample data loading does not create categories (see "Demo products
+are available with imagery"). Stores already set up keep their categories.
 
 ### Requirement: Colour and material attribute presets are available
 

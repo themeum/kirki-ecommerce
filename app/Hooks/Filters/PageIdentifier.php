@@ -78,7 +78,6 @@ class PageIdentifier extends BaseHook
         $cart_page_id = Utils::get_cart_page_id();
         $checkout_page_id = Utils::get_checkout_page_id();
         $account_page_id = Utils::get_account_page_id();
-        $design_system_page_id = Utils::get_design_system_page_id();
 
         if ($shop_page_id === $post->ID) {
             $post_states['kirki_ecommerce_shop'] = __('Shop Page', 'kirki-ecommerce');
@@ -94,10 +93,6 @@ class PageIdentifier extends BaseHook
 
         if ($account_page_id === $post->ID) {
             $post_states['kirki_ecommerce_account'] = __('Account Page', 'kirki-ecommerce');
-        }
-
-        if ($design_system_page_id === $post->ID) {
-            $post_states['kirki_ecommerce_design_system'] = __('Design System Page', 'kirki-ecommerce');
         }
 
         return $post_states;

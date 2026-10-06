@@ -142,10 +142,18 @@ if [ "$ORG_BUILD" = true ]; then
   }
 ]
 JSON
+
+  # POT generation is off for now. Drop any template left by a manual
+  # `npm run make:pot` so the zip never ships an outdated one.
+  echo "==> Removing translation template"
+  rm -f "$STAGE_DIR/languages/$PLUGIN_SLUG.pot"
 fi
 
 echo "==> Removing hidden files (not allowed by wordpress.org)"
 find "$STAGE_DIR" -name ".*" -type f -delete
+
+echo "==> Removing excluded vendor paths"
+rm -rf "$STAGE_DIR/vendor/brick/money/.github"
 
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.

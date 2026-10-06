@@ -20,7 +20,6 @@ const TemplateGallery = () => {
           css={scoped(styles.link)}
         >
           <Card cssOverride={styles.card}>
-            <Badge cssOverride={styles.badge}>{__('Coming soon', 'kirki-ecommerce')}</Badge>
             <Image
               src={template.image}
               alt={template.name}
@@ -29,13 +28,25 @@ const TemplateGallery = () => {
               fit="cover"
               cssOverride={styles.image}
             />
-            <Flex direction="column" cssOverride={styles.meta}>
-              <Text variant="small" weight="medium" truncate>
-                {template.name}
-              </Text>
-              <Text color="subdued" truncate cssOverride={{ fontSize: '10px' }}>
-                {template.author}
-              </Text>
+            <Flex
+              align="center"
+              justify="space-between"
+              cssOverride={{ padding: theme.spacing[2] }}
+            >
+              <Flex direction="column">
+                <Text
+                  variant="tiny"
+                  weight="medium"
+                  truncate
+                  cssOverride={{ fontSize: 10, lineHeight: 1 }}
+                >
+                  {template.name}
+                </Text>
+                <Text color="subdued" truncate cssOverride={{ fontSize: 10 }}>
+                  {template.author}
+                </Text>
+              </Flex>
+              <Badge cssOverride={styles.badge}>{__('Coming soon', 'kirki-ecommerce')}</Badge>
             </Flex>
           </Card>
         </a>
@@ -67,29 +78,21 @@ const styles = defineStyles({
     display: 'flex',
     flexDirection: 'column',
     width: TEMPLATE_CARD_SIZE,
-    height: TEMPLATE_CARD_SIZE,
+    height: 'auto',
     padding: 0,
     gap: 0,
     overflow: 'hidden',
     position: 'relative',
+    boxShadow: `0px -1px 1px 0.5px #0000001A inset, 0px 0.5px 1px 0px #0000001A inset`,
   },
   badge: {
-    position: 'absolute',
-    top: theme.spacing[1],
-    right: theme.spacing[1],
     zIndex: 1,
-    backgroundColor: '#FFD412', // @todo: will be updated later,
-    color: theme.colors.text.primary,
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
+    fontSize: 8,
+    color: theme.colors.text.subdued,
   },
   image: {
     border: 'none',
     borderRadius: 0,
-  },
-  meta: {
-    flex: 1,
-    justifyContent: 'center',
-    minWidth: 0,
-    borderTop: `1px solid ${theme.colors.border.default}`,
-    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
   },
 });

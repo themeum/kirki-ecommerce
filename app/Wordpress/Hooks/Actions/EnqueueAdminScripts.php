@@ -144,7 +144,7 @@ class EnqueueAdminScripts extends BaseHook
      */
     protected function enqueue_production_scripts()
     {
-        $manifest = Assets::get_manifest();
+        $manifest = $this->get_manifest();
         $entry = $manifest['main.tsx'] ?? null;
 
         if (!$entry) {
@@ -183,15 +183,80 @@ class EnqueueAdminScripts extends BaseHook
             $dependencies[] = $vendor_handle;
         }
 
+        $bundle_handle = app()->prefix() . 'bundle';
+
         wp_enqueue_script(
-            app()->prefix() . 'bundle',
+            $bundle_handle,
             KIRKI_ECOMMERCE_ASSETS_URL . '/' . $entry['file'],
-            $dependencies,
+            array_merge(['wp-i18n'], $dependencies),
             null,
             true
         );
 
+        $this->add_script_translations($manifest, $bundle_handle);
+
         add_filter('wp_script_attributes', [$this, 'add_module_type_to_scripts']);
+    }
+
+    /**
+     * Get the Vite build manifest.
+     *
+     * @since 1.0.0
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected function get_manifest()
+    {
+        return Assets::get_manifest();
+    }
+
+    /**
+     * Pass the translations of every built JS file to `wp.i18n` before the entry bundle runs.
+     *
+     * The app loads its chunks through `import()`, so WordPress never sees them and
+     * `wp_set_script_translations()` cannot reach their strings. Each file gets a
+     * handle that is registered only long enough for core's `load_script_textdomain()`
+     * to find its JSON file. The result is printed before the entry bundle with the
+     * same snippet core uses, and `setLocaleData()` merges every file into one
+     * dictionary for the text domain.
+     *
+     * @since 1.0.0
+     *
+     * @param array<string, array<string, mixed>> $manifest Vite build manifest.
+     * @param string                              $handle   Entry bundle handle.
+     * @return void
+     */
+    protected function add_script_translations($manifest, $handle)
+    {
+        $domain = 'kirki-ecommerce';
+
+        foreach ($manifest as $chunk) {
+            $file = $chunk['file'] ?? '';
+
+            if (substr($file, -3) !== '.js') {
+                continue;
+            }
+
+            $chunk_handle = app()->prefix() . 'i18n-' . md5($file);
+
+            wp_register_script($chunk_handle, KIRKI_ECOMMERCE_ASSETS_URL . '/' . $file, [], app()->version(), true);
+            $translations = load_script_textdomain($chunk_handle, $domain, KIRKI_ECOMMERCE_PLUGIN_PATH . 'languages');
+            wp_deregister_script($chunk_handle);
+
+            if (!$translations) {
+                continue;
+            }
+
+            wp_add_inline_script(
+                $handle,
+                sprintf(
+                    '( function( domain, translations ) { var localeData = translations.locale_data[ domain ] || translations.locale_data.messages; localeData[""].domain = domain; wp.i18n.setLocaleData( localeData, domain ); } )( "%s", %s );',
+                    $domain,
+                    $translations
+                ),
+                'before'
+            );
+        }
     }
 
     /**

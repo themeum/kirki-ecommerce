@@ -93,7 +93,7 @@
 - [x] 11.2 Create `CategoryPresets` (insert one level at a time, unique slugs, skip when any category exists); delete `CategorySeeder` and `OnBoardingCatalog::get_categories()`; `OnBoardingSeeder` runs `SettingsSeeder` only _(Rows are created one by one, parents first, with `Category::generate_unique_slug()`: a repeated name gets a numbered slug.)_
 - [x] 11.3 `ProductSeeder`: resolve each `category_path` by name within its parent and create the missing nodes
 - [x] 11.4 Remove Rest of World: the zone kind, `zone_titles.rest_of_world`, `common.shipping_methods.rest_of_world`, each country's `shipping.rest_of_world`, and `rest_of_world` from every rule template (drop templates that only targeted it)
-- [x] 11.5 Tests: fashion gets its tree; `other` gets none; existing category blocks the tree; `DE` gets 2 zones and `BD` 1; sample data on a store with no categories creates the demo paths; repository test: every industry except `other` has categories, no rule targets `rest_of_world`
+- [x] 11.5 Tests: fashion gets its tree; `other` gets none; existing category blocks the tree; `DE` gets 2 zones and `BD` 1; sample data on a store with no categories creates no categories; repository test: every industry except `other` has categories, no rule targets `rest_of_world`
 - [x] 11.6 Verify: `bash kirki-test all`
 
 ## 12. Revision 2 — Tax rules for every taxed country

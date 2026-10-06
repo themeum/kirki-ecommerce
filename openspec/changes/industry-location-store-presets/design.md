@@ -426,8 +426,8 @@ category, parents before children, and makes each slug unique with
 `Category::generate_unique_slug()` (a repeated name gets a numbered slug).
 `other` gets no categories.
 
-`ProductSeeder` (sample data) resolves each `category_path` by name within its
-parent and creates the missing nodes, the same way it ensures its attributes.
+`ProductSeeder` (sample data) does not create or assign categories. The demo
+products have no category.
 
 ### 15. Tax rules wherever a profile's rate differs
 

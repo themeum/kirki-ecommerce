@@ -8,7 +8,6 @@ use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\DTO\Variant\CreateVariantDTO;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\AttributeValue;
-use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Log;
@@ -119,8 +118,6 @@ class ProductSeeder extends Seeder
      */
     protected function make_product_data(array $product)
     {
-        $category_id = $this->resolve_category_id($product['category_path']);
-
         return CreateProductDTO::from_array([
             'title' => $product['title'],
             'slug' => Str::slug($product['title']),
@@ -130,7 +127,6 @@ class ProductSeeder extends Seeder
             'seo_title' => $product['title'],
             'seo_description' => $product['short_description'],
             'media' => $this->import_many($product['media']),
-            'categories' => $category_id ? [$category_id] : [],
             'attributes' => $this->resolve_attributes($product['attributes']),
         ]);
     }
@@ -165,46 +161,6 @@ class ProductSeeder extends Seeder
                 'is_default' => $variant['is_default'],
             ]);
         }, $product['variants']);
-    }
-
-    /**
-     * Find or create the category at a path, matching each name within its parent.
-     *
-     * Matching on name rather than slug because the store's categories may come
-     * from the presets of any industry, whose slugs the demo paths do not know.
-     * A missing category on the path is created, so the demo products always
-     * have their category.
-     *
-     * @since 1.0.0
-     *
-     * @param string[] $path Category names from the top level down.
-     * @return int|null ID of the deepest category, or null for an empty path.
-     */
-    protected function resolve_category_id(array $path)
-    {
-        $parent_id = null;
-
-        foreach ($path as $index => $name) {
-            $query = Category::query()->where('name', $name)->where('level', $index + 1);
-            $query = $parent_id ? $query->where('parent_id', $parent_id) : $query->where_null('parent_id');
-            $category = $query->first();
-
-            if (empty($category)) {
-                $category = Category::create([
-                    'parent_id' => $parent_id,
-                    'name' => $name,
-                    'slug' => Category::generate_unique_slug($name),
-                    'level' => $index + 1,
-                    'is_active' => true,
-                    'is_deletable' => true,
-                    'created_by' => get_current_user_id() ?: null,
-                ]);
-            }
-
-            $parent_id = $category->id;
-        }
-
-        return $parent_id;
     }
 
     /**

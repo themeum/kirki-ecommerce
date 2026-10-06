@@ -47,6 +47,9 @@ assets/js
 # Settings search index (resources/app npm run search:index)
 resources/app/features/settings/search/settings-search-index.json
 
+# Translation template (npm run make:pot)
+languages/kirki-ecommerce.pot
+
 # Backup files
 *.bak
 *~

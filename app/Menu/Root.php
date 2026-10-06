@@ -71,23 +71,12 @@ class Root extends Menu
             return;
         }
 
-        add_filter('wp_resource_hints', [$this, 'add_font_resource_hints'], 10, 2);
-
-        wp_enqueue_style(
-            app()->prefix() . 'inter-font',
-            esc_url(
-                'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=block'
-            ),
-            [],
-            null
-        );
-
         $root_style_handle = app()->prefix() . 'root-shell';
 
         wp_register_style(
             $root_style_handle,
             false,
-            [app()->prefix() . 'inter-font'],
+            [],
             app()->version()
         );
         wp_enqueue_style($root_style_handle);
@@ -102,18 +91,6 @@ class Root extends Menu
             Assets::get_kirki_ecommerce_configs(),
             'before'
         );
-    }
-
-    /**
-     * Determine whether the current admin request is the plugin's admin page.
-     *
-     * @since 1.0.0
-     *
-     * @return bool
-     */
-    protected function is_ecommerce_admin_page()
-    {
-        return Assets::is_admin_page();
     }
 
     /**
@@ -155,7 +132,7 @@ class Root extends Menu
     }
 
     /**
-     * Get the inline CSS for the app mount element: font family, font warm-up and hidden state until ready.
+     * Get the inline CSS for the app mount element: font family and hidden state until ready.
      *
      * @since 1.0.0
      *
@@ -164,63 +141,13 @@ class Root extends Menu
     protected function get_root_shell_inline_styles()
     {
         return '.kirki-ecommerce-root {
-                font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            }
-
-            /* Warm Inter 500/600 during the hidden shell so Emotion UI does not FOIT after reveal. */
-            .kirki-ecommerce-root::before,
-            .kirki-ecommerce-root::after {
-                content: ".";
-                position: absolute;
-                width: 0;
-                height: 0;
-                overflow: hidden;
-                opacity: 0;
-                pointer-events: none;
-                font-family: "Inter", sans-serif;
-            }
-
-            .kirki-ecommerce-root::before {
-                font-weight: 500;
-            }
-
-            .kirki-ecommerce-root::after {
-                font-weight: 600;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
             }
 
             .kirki-ecommerce-root:not(.kirki-ecommerce-root--ready) {
                 visibility: hidden;
                 min-height: calc(100vh - 32px);
             }';
-    }
-
-    /**
-     * Add preconnect hints for the Google Fonts hosts on the plugin's admin page.
-     *
-     * Hooked to the `wp_resource_hints` filter.
-     *
-     * @since 1.0.0
-     *
-     * @param array  $urls          URLs to print for the resource hint type.
-     * @param string $relation_type Resource hint type, such as `preconnect`.
-     * @return array
-     */
-    public function add_font_resource_hints($urls, $relation_type)
-    {
-        if ('preconnect' !== $relation_type || !$this->is_ecommerce_admin_page()) {
-            return $urls;
-        }
-
-        $urls[] = [
-            'href' => 'https://fonts.googleapis.com',
-        ];
-
-        $urls[] = [
-            'href'        => 'https://fonts.gstatic.com',
-            'crossorigin' => 'anonymous',
-        ];
-
-        return $urls;
     }
 
     /**
