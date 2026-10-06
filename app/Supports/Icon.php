@@ -168,8 +168,8 @@ class Icon
         $svg = preg_replace_callback(
             '/(<svg\b[^>]*>)/i',
             function (array $matches) use ($size): string {
-                $tag = preg_replace('/\s*width=["\'][^"\']*["\']/', '', $matches[1]);
-                $tag = preg_replace('/\s*height=["\'][^"\']*["\']/', '', $tag);
+                $tag = preg_replace('/\s+width=["\'][^"\']*["\']/', '', $matches[1]);
+                $tag = preg_replace('/\s+height=["\'][^"\']*["\']/', '', $tag);
                 // Insert width/height right after <svg
                 return preg_replace(
                     '/<svg\b/i',

@@ -93,7 +93,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                     <?php if ($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
                                         <?php Icon::render('check'); ?>
                                     <?php elseif ($timeline['activity_type'] === OrderActivityType::CANCELLED) : ?>
-                                        <?php Icon::render('cross'); ?>
+                                        <?php Icon::render('x'); ?>
                                     <?php else : ?>
                                         <span class="kecom-order-step-dot"></span>
                                     <?php endif; ?>

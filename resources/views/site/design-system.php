@@ -337,7 +337,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
 
         <p class="kds-label">Variants</p>
         <div class="kecom-alert kecom-alert-info">
-            <?php Icon::render('information', ['size' => 20]); ?>
+            <?php Icon::render('info', ['size' => 20]); ?>
             <p>This is an informational message. Here is some helpful context for the user.</p>
         </div>
         <div class="kecom-alert kecom-alert-success">
@@ -345,22 +345,22 @@ use Kirki\Ecommerce\App\Supports\Icon;
             <p>Your changes have been saved successfully.</p>
         </div>
         <div class="kecom-alert kecom-alert-warning">
-            <?php Icon::render('information', ['size' => 20]); ?>
+            <?php Icon::render('info', ['size' => 20]); ?>
             <p>Your account is using a temporary password. Please update it soon.</p>
         </div>
         <div class="kecom-alert kecom-alert-error">
-            <?php Icon::render('information', ['size' => 20]); ?>
+            <?php Icon::render('info', ['size' => 20]); ?>
             <p>Something went wrong. Please try again or contact support.</p>
         </div>
 
         <p class="kds-label">With inline action</p>
         <div class="kecom-alert kecom-alert-info">
-            <?php Icon::render('information', ['size' => 20]); ?>
+            <?php Icon::render('info', ['size' => 20]); ?>
             <p>Confirm your email address to check for past orders and link them to your account.</p>
             <button class="kecom-alert-action">Confirm Email</button>
         </div>
         <div class="kecom-alert kecom-alert-warning">
-            <?php Icon::render('information', ['size' => 20]); ?>
+            <?php Icon::render('info', ['size' => 20]); ?>
             <p>Your account is using a temporary password. We emailed you a link to change your password.</p>
             <button class="kecom-alert-action">Resend</button>
         </div>
@@ -458,7 +458,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                         <span class="kecom-product-card-price-discount">$35.00</span>
                     </div>
                     <button class="kecom-btn kecom-btn-primary kecom-btn-sm kecom-product-card-add-to-cart">
-                        <?php Icon::render('cart'); ?>
+                        <?php Icon::render('shopping-cart'); ?>
                         Add
                     </button>
                 </div>
