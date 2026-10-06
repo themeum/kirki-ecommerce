@@ -3,12 +3,9 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
-import MultiSelectField from '@/components/form/multi-select-field';
 import Button from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import Label from '@/components/ui/label';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
@@ -25,11 +22,9 @@ import {
   useUpdateCustomerMutation,
 } from '@/features/customers/services/customer';
 import CustomerDetailsSkeleton from '@/features/customers/skeletons/customer-details-skeleton';
-import { PlusIcon } from '@/icons';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { getDefaults, pickFormValues } from '@/libs/zod';
-import { cardStyles } from '@/theme/card-styles';
 import { __ } from '@/wpi18n';
 
 const CustomerDetails = () => {
@@ -124,7 +119,8 @@ const CustomerDetails = () => {
                 <CustomerAddressCard />
               </Flex>
 
-              <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
+              {/* @todo: We will implement this later */}
+              {/* <Flex direction="column" gap={4} cssOverride={{ width: '30%' }}>
                 <Card cssOverride={cardStyles.formCard}>
                   <CardContent>
                     <Flex direction="column" gap={4}>
@@ -149,7 +145,7 @@ const CustomerDetails = () => {
                     />
                   </CardContent>
                 </Card>
-              </Flex>
+              </Flex> */}
             </Flex>
           </PageContent>
         )}

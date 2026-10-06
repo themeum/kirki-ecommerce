@@ -9,6 +9,7 @@ import { queryClient } from '@/libs/query-client';
 import { router } from '@/routes';
 import { theme } from '@/theme';
 import GlobalStyles from '@/theme/global-styles';
+import { TOAST_CLOSE_BUTTON_CLASS } from '@/theme/shell-styles';
 
 const App = () => {
   useEffect(() => {
@@ -22,8 +23,12 @@ const App = () => {
         <Init>
           <Toaster
             richColors
+            closeButton
             position="top-right"
             toastOptions={{
+              classNames: {
+                closeButton: TOAST_CLOSE_BUTTON_CLASS,
+              },
               style: {
                 padding: theme.spacing[4],
                 backgroundColor: theme.colors.background.fill,
