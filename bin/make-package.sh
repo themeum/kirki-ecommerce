@@ -152,6 +152,9 @@ fi
 echo "==> Removing hidden files (not allowed by wordpress.org)"
 find "$STAGE_DIR" -name ".*" -type f -delete
 
+echo "==> Removing excluded vendor paths"
+rm -rf "$STAGE_DIR/vendor/brick/money/.github"
+
 # listeners.cache.php / policies.cache.php are regenerated on every request
 # by CoreServiceProvider::boot() - keep the package to schema-only config.
 # rm -f "$STAGE_DIR/config/listeners.cache.php" "$STAGE_DIR/config/policies.cache.php"

@@ -15,9 +15,9 @@ const getStoreTemplates = (): StoreTemplate[] => {
   const author = sprintf(__('By %s', 'kirki-ecommerce'), 'Kirki');
 
   return [
-    { name: 'Dogolala', author, image: templateImage('dogolala.webp'), url: '#' },
-    { name: 'Beauty Pie', author, image: templateImage('beauty-pie.webp'), url: '#' },
-    { name: 'Kiddon', author, image: templateImage('kiddon.webp'), url: '#' },
+    { name: 'Oblack', author, image: templateImage('oblack.webp'), url: '#' },
+    { name: 'Esencia', author, image: templateImage('esencia.webp'), url: '#' },
+    { name: 'Noiread', author, image: templateImage('noiread.webp'), url: '#' },
   ];
 };
 
