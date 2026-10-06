@@ -237,19 +237,17 @@ class StorePresetsTest extends RestTestCase
         $this->assertSame(['Mine'], Category::query()->get()->pluck('name')->all());
     }
 
-    public function test_sample_data_creates_the_demo_categories(): void
+    public function test_sample_data_creates_no_categories(): void
     {
         $this->setup_store(['industry' => 'other']);
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
 
-        $home = Category::query()->where('name', 'Home & Living')->where('level', 1)->first();
-        $this->assertNotNull($home);
-        $decor = Category::query()->where('name', 'Home Décor')->where('parent_id', $home->id)->first();
-        $this->assertNotNull(Category::query()->where('name', 'Vases')->where('parent_id', $decor->id)->first());
+        $this->assertTrue(Product::query()->exists());
+        $this->assertFalse(Category::query()->exists());
 
         foreach (Product::query()->get() as $product) {
-            $this->assertNotEmpty($product->categories()->get()->all(), "{$product->title} has no category");
+            $this->assertEmpty($product->categories()->get()->all(), "{$product->title} has a category");
         }
     }
 

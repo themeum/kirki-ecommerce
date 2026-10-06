@@ -251,9 +251,10 @@ products list opens. When it fails, an error toast shows and the link comes back
 The import calls `POST /wp-json/kirki/ecommerce/v1/onboarding/sample-data`,
 which is only available after onboarding. It currently adds the demo products
 bundled with the plugin, with their images imported into the media library. It
-first creates any category, attribute or value the demo products need that the
-store does not have (for example *Home & Living › Home Décor › Vases*, or
-*Material*, which only some industries get), and reuses the ones that exist.
+first creates any attribute or value the demo products need that the store does
+not have (for example *Material*, which only some industries get), and reuses
+the ones that exist. It does not create categories, and the demo products have
+no category.
 
 With the demo products, the import creates the starter coupon `WELCOME50`: 50%
 off the order, all products, every customer, no end date, **inactive**. The

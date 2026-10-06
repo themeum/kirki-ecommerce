@@ -60,7 +60,8 @@ is used.
 - **BREAKING (setup data)**: baseline seeding no longer creates the category
   tree, the Color and Material attributes or the four starter schema profiles.
   The baseline is the settings defaults only. The sample data importer creates
-  the categories, attributes and values its demo products need.
+  the attributes and values its demo products need. It does not create
+  categories.
 - The EU tax strategy charges the rate of the region's one country for an EU
   region of type `micro_business`, as the existing TODO in
   `EUTaxStrategy::get_rate()` describes. Today, `micro_business` behaves like

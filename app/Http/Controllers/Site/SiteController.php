@@ -244,21 +244,6 @@ class SiteController
     }
 
     /**
-     * Render the design system page.
-     *
-     * @TODO:: Will be removed later
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request Current request.
-     * @return \Kirki\Ecommerce\Framework\View\View Design system view.
-     */
-    public function design_system_page(Request $request)
-    {
-        return view('site.design-system');
-    }
-
-    /**
      * Render the order tracking page for the order UUID in the request, with its activity timeline.
      *
      * Renders the page with an error message when the UUID is missing or matches no order.

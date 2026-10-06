@@ -472,11 +472,12 @@ Be honest about these rather than discovering them later.
   Change a label mid-session without rerunning the crawler and search returns a
   result that highlights nothing, because the terms it indexed are no longer on
   screen.
-- **English only.** Copy is extracted from source literals. The admin bundle has
-  no `wp_set_script_translations()` and the repo has no `.pot`, so the admin UI is
-  English today and this costs nothing — but a translated admin would search
-  English text while rendering translated text. That has to be solved before
-  admin translations ship.
+- **English only.** Copy is extracted from source literals. The admin app now
+  loads translations (see [Translations](translations.md)), so on a site with a
+  translated admin the screen shows translated text while search still matches
+  the English words. A follow-up change will make the index follow the site
+  language. Until then, merchants on a translated admin can search with English
+  words.
 - **Marks are transient.** If a highlighted card re-renders — the merchant types
   in one of its fields — the `<mark>` wrappers are lost until the next search.
 - **Typo recovery is one or two edits, no more.** "curency" finds currency;

@@ -342,18 +342,6 @@ class Utils
     }
 
     /**
-     * Get design system page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The design system page id, 0 when none is set.
-     */
-    public static function get_design_system_page_id()
-    {
-        return Settings::get('advance.pages.design_system', 0);
-    }
-
-    /**
      * Get the country list with each country's states nested inside it.
      *
      * @since 1.0.0

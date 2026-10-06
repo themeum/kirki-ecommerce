@@ -133,8 +133,11 @@ const OrderDetails = () => {
                 <CardHeader>
                   <CardTitle>
                     <Text variant="heading6" weight="semibold">
-                      {/* translators: %s: number of items */}
-                      {sprintf(__('Items (%s)', 'kirki-ecommerce'), order.items_count)}
+                      {sprintf(
+                        /* translators: %s: number of items */
+                        __('Items (%s)', 'kirki-ecommerce'),
+                        order.items_count,
+                      )}
                     </Text>
                   </CardTitle>
                 </CardHeader>

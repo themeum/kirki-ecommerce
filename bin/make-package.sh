@@ -142,6 +142,11 @@ if [ "$ORG_BUILD" = true ]; then
   }
 ]
 JSON
+
+  # POT generation is off for now. Drop any template left by a manual
+  # `npm run make:pot` so the zip never ships an outdated one.
+  echo "==> Removing translation template"
+  rm -f "$STAGE_DIR/languages/$PLUGIN_SLUG.pot"
 fi
 
 echo "==> Removing hidden files (not allowed by wordpress.org)"

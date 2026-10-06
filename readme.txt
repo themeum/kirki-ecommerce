@@ -294,19 +294,6 @@ This plugin connects to third-party payment gateway services depending on which 
 
 - **PayPal:** [Terms](https://www.paypal.com/us/legalhub/paypal/useragreement-full) | [Privacy](https://www.paypal.com/us/legalhub/paypal/privacy-full)
 
-The following gateways are available as separately installable companion plugins. Each carries its own disclosure once installed, listed here for reference:
-
--   **Stripe:** [Terms](https://stripe.com/legal/ssa) \| [Privacy](https://stripe.com/privacy)
--   **Mollie:** [Terms & Privacy](https://www.mollie.com/legal/privacy)
--   **Authorize.net:** [Terms](https://www.authorize.net/about-us/terms.html) \| [Privacy](https://www.visa.com/en-us/legal/global-privacy-notice)
--   **Razorpay:** [Terms](https://razorpay.com/tnc/) \| [Privacy](https://razorpay.com/privacy-policy/)
--   **Klarna:** [Terms](https://www.klarna.com/international/terms-and-conditions/) \| [Privacy](https://www.klarna.com/international/privacy-policy/)
--   **Square:** [Terms](https://squareup.com/us/en/legal/general/ua) \| [Privacy](https://squareup.com/us/en/legal/general/privacy)
--   **QuickPay:** [Terms & Privacy](https://quickpay.net/terms-of-service/)
--   **PayStack:** [Terms & Privacy](https://paystack.com/terms)
-
-**Note:** Data is only transmitted when a store owner has configured and enabled a given gateway, and only for customers completing a transaction through it. No payment data is sent without an active integration set up by the store owner
-
 == Changelog ==
 
 = 1.0.0-beta.1 =
