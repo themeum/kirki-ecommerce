@@ -114,7 +114,8 @@ its text changes to the phase message, and a bar runs along its bottom edge.
    yet.
 2. **"Creating products..."** The app calls `POST /onboarding/sample-data`. This
    is the endpoint that the onboarding wizard uses. It loads the demo products
-   that come with the plugin. The bar moves slowly toward 95% while the request
+   that come with the plugin and the inactive `WELCOME50` starter coupon (see
+   [`docs/onboarding.md`](onboarding.md#5-loading-sample-data)). The bar moves slowly toward 95% while the request
    runs.
 
 While the import runs, **Add products** is disabled and **Load sample data**

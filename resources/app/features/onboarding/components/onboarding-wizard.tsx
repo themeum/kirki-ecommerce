@@ -75,6 +75,16 @@ const toSummaryRows = (summary: StoreSetupSummary): SetupSummaryRow[] => {
     });
   }
 
+  rows.push({
+    label: __('Configurations', 'kirki-ecommerce'),
+    value: [
+      __('Essentials', 'kirki-ecommerce'),
+      __('Shipping', 'kirki-ecommerce'),
+      ...(summary.tax ? [__('Tax', 'kirki-ecommerce')] : []),
+      __('Legal pages', 'kirki-ecommerce'),
+    ].join(', '),
+  });
+
   return rows;
 };
 

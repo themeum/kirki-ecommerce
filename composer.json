@@ -5,8 +5,7 @@
     "psr-4": {
       "Kirki\\Ecommerce\\Framework\\": "vendor/libraries/framework/src/",
       "Kirki\\Ecommerce\\App\\": "app/",
-      "Kirki\\Ecommerce\\Database\\Migrations\\": "database/migrations/",
-      "Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"
+      "Kirki\\Ecommerce\\Database\\Migrations\\": "database/migrations/"
     },
     "files": [
       "bootstrap/abspath.php",
@@ -17,7 +16,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Kirki\\Ecommerce\\Tests\\": "tests/"
+      "Kirki\\Ecommerce\\Tests\\": "tests/",
+      "Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"
     }
   },
   "authors": [

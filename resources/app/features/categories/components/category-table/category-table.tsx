@@ -21,7 +21,7 @@ import { resolveBulkDeletePayload } from '@/libs/bulk-delete';
 import { __ } from '@/wpi18n';
 
 const categoryBulkActions: DataTableBulkAction[] = [
-  { value: 'delete', title: __('Trash', 'kirki-ecommerce'), destructive: true },
+  { value: 'delete', title: __('Move to trash', 'kirki-ecommerce'), destructive: true },
 ];
 
 const CategoryTable = () => {

@@ -1,0 +1,5075 @@
+{
+  "version": 1,
+  "blocs": {
+    "EU": [
+      "AT",
+      "BE",
+      "BG",
+      "HR",
+      "CY",
+      "CZ",
+      "DK",
+      "EE",
+      "FI",
+      "FR",
+      "DE",
+      "GR",
+      "HU",
+      "IE",
+      "IT",
+      "LV",
+      "LT",
+      "LU",
+      "MT",
+      "NL",
+      "PL",
+      "PT",
+      "RO",
+      "SK",
+      "SI",
+      "ES",
+      "SE"
+    ],
+    "GCC": [
+      "AE",
+      "BH",
+      "KW",
+      "OM",
+      "QA",
+      "SA"
+    ]
+  },
+  "common": {
+    "attributes": [
+      {
+        "name": "Color",
+        "slug": "color",
+        "type": "color",
+        "values": [
+          {
+            "value": "White",
+            "color": "#FFFFFF"
+          },
+          {
+            "value": "Black",
+            "color": "#000000"
+          },
+          {
+            "value": "Gray / Grey",
+            "color": "#808080"
+          },
+          {
+            "value": "Silver",
+            "color": "#C0C0C0"
+          },
+          {
+            "value": "Red",
+            "color": "#FF0000"
+          },
+          {
+            "value": "Blue",
+            "color": "#0000FF"
+          },
+          {
+            "value": "Navy",
+            "color": "#000080"
+          },
+          {
+            "value": "Green",
+            "color": "#008000"
+          },
+          {
+            "value": "Yellow",
+            "color": "#FFFF00"
+          },
+          {
+            "value": "Orange",
+            "color": "#FFA500"
+          },
+          {
+            "value": "Pink",
+            "color": "#FFC0CB"
+          },
+          {
+            "value": "Purple",
+            "color": "#800080"
+          },
+          {
+            "value": "Brown",
+            "color": "#A52A2A"
+          },
+          {
+            "value": "Beige",
+            "color": "#F5F5DC"
+          },
+          {
+            "value": "Gold",
+            "color": "#FFD700"
+          },
+          {
+            "value": "Maroon",
+            "color": "#800000"
+          },
+          {
+            "value": "Teal",
+            "color": "#008080"
+          },
+          {
+            "value": "Cyan / Aqua",
+            "color": "#00FFFF"
+          },
+          {
+            "value": "Magenta",
+            "color": "#FF00FF"
+          },
+          {
+            "value": "Olive",
+            "color": "#808000"
+          },
+          {
+            "value": "Lime",
+            "color": "#00FF00"
+          },
+          {
+            "value": "Coral",
+            "color": "#FF7F50"
+          },
+          {
+            "value": "Turquoise",
+            "color": "#40E0D0"
+          },
+          {
+            "value": "Indigo",
+            "color": "#4B0082"
+          },
+          {
+            "value": "Violet",
+            "color": "#EE82EE"
+          },
+          {
+            "value": "Khaki",
+            "color": "#F0E68C"
+          },
+          {
+            "value": "Tan",
+            "color": "#D2B48C"
+          },
+          {
+            "value": "Crimson",
+            "color": "#DC143C"
+          },
+          {
+            "value": "Royal Blue",
+            "color": "#4169E1"
+          },
+          {
+            "value": "Forest Green",
+            "color": "#228B22"
+          }
+        ]
+      }
+    ],
+    "schema_profiles": [
+      {
+        "name": "Default Product Schema",
+        "is_default": true,
+        "schema": {
+          "Product": [
+            "name",
+            "description",
+            "image"
+          ],
+          "Offer": [
+            "price",
+            "priceCurrency",
+            "availability"
+          ],
+          "AggregateRating": [
+            "ratingValue",
+            "reviewCount"
+          ],
+          "Brand": [
+            "name",
+            "logo"
+          ]
+        }
+      }
+    ],
+    "shipping_profiles": [
+      {
+        "key": "general",
+        "name": "General",
+        "is_default": true
+      }
+    ],
+    "tax_profiles": [
+      {
+        "key": "standard",
+        "name": "Standard",
+        "is_default": true
+      }
+    ],
+    "shipping_methods": {
+      "domestic": [
+        {
+          "key": "standard",
+          "type": "flat_rate",
+          "name": "Standard Shipping",
+          "description": "Delivered in 3-5 business days.",
+          "base_amount": 0,
+          "is_taxable": false
+        },
+        {
+          "key": "express",
+          "type": "flat_rate",
+          "name": "Express Shipping",
+          "description": "Delivered in 1-2 business days.",
+          "base_amount": 0,
+          "is_taxable": false
+        },
+        {
+          "key": "pickup",
+          "type": "local_pickup",
+          "name": "Local Pickup",
+          "description": "Collect your order from our store.",
+          "has_fee": false,
+          "base_amount": null,
+          "has_pick_time": false
+        }
+      ],
+      "regional": [
+        {
+          "key": "standard",
+          "type": "flat_rate",
+          "name": "Regional Shipping",
+          "description": "Delivered in 5-10 business days.",
+          "base_amount": 0,
+          "is_taxable": false
+        }
+      ]
+    },
+    "zone_titles": {
+      "domestic": "Domestic",
+      "regional": "Regional"
+    },
+    "legal": {
+      "pages": [
+        {
+          "key": "terms",
+          "slug": "terms-and-conditions",
+          "title": "Terms & Conditions",
+          "content": "<!-- wp:paragraph --><p>Replace this text with your store's terms and conditions. This placeholder is not legal advice.</p><!-- /wp:paragraph -->"
+        },
+        {
+          "key": "privacy",
+          "slug": "privacy-policy",
+          "title": "Privacy Policy",
+          "content": "<!-- wp:paragraph --><p>Replace this text with your store's privacy policy. This placeholder is not legal advice.</p><!-- /wp:paragraph -->"
+        },
+        {
+          "key": "returns",
+          "slug": "refund-and-returns-policy",
+          "title": "Refund & Returns Policy",
+          "content": "<!-- wp:paragraph --><p>Replace this text with your store's refund and returns policy. This placeholder is not legal advice.</p><!-- /wp:paragraph -->"
+        }
+      ],
+      "consents": [
+        {
+          "key": "terms",
+          "title": "Terms & Conditions",
+          "locations": [
+            "checkout"
+          ],
+          "method": "mandatory_checkbox",
+          "message": "I have read and agree to the {page:terms} and the {page:returns}."
+        },
+        {
+          "key": "privacy",
+          "title": "Privacy Policy",
+          "locations": [
+            "signup",
+            "checkout"
+          ],
+          "method": "display_text_only",
+          "message": "Your personal data is used to process your order and support your experience, as described in our {page:privacy}.",
+          "gdpr": {
+            "method": "mandatory_checkbox",
+            "message": "I have read the {page:privacy} and agree to the processing of my personal data."
+          }
+        },
+        {
+          "key": "marketing",
+          "title": "Marketing emails",
+          "locations": [
+            "signup",
+            "checkout"
+          ],
+          "method": "optional_checkbox",
+          "message": "Send me news, offers and updates by email. I can unsubscribe at any time."
+        }
+      ]
+    }
+  },
+  "industries": {
+    "books-stationery-and-gifts": {
+      "categories": [
+        {
+          "name": "Books",
+          "children": [
+            {
+              "name": "Fiction"
+            },
+            {
+              "name": "Non-Fiction"
+            },
+            {
+              "name": "Children's Books"
+            },
+            {
+              "name": "Comics & Graphic Novels"
+            }
+          ]
+        },
+        {
+          "name": "Stationery",
+          "children": [
+            {
+              "name": "Notebooks & Journals"
+            },
+            {
+              "name": "Pens & Pencils"
+            },
+            {
+              "name": "Planners & Calendars"
+            },
+            {
+              "name": "Desk Accessories"
+            }
+          ]
+        },
+        {
+          "name": "Gifts",
+          "children": [
+            {
+              "name": "Gift Sets"
+            },
+            {
+              "name": "Greeting Cards"
+            },
+            {
+              "name": "Gift Wrap"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Format",
+          "slug": "format",
+          "type": "list",
+          "values": [
+            {
+              "value": "Hardcover"
+            },
+            {
+              "value": "Paperback"
+            },
+            {
+              "value": "Spiral-bound"
+            },
+            {
+              "value": "Boxed Set"
+            }
+          ]
+        },
+        {
+          "name": "Paper Size",
+          "slug": "paper-size",
+          "type": "list",
+          "values": [
+            {
+              "value": "A6"
+            },
+            {
+              "value": "A5"
+            },
+            {
+              "value": "A4"
+            },
+            {
+              "value": "Letter"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "books",
+          "name": "Books"
+        }
+      ]
+    },
+    "fashion-and-apparel": {
+      "categories": [
+        {
+          "name": "Women",
+          "children": [
+            {
+              "name": "Dresses"
+            },
+            {
+              "name": "Tops"
+            },
+            {
+              "name": "Bottoms"
+            },
+            {
+              "name": "Outerwear"
+            }
+          ]
+        },
+        {
+          "name": "Men",
+          "children": [
+            {
+              "name": "Shirts"
+            },
+            {
+              "name": "T-Shirts"
+            },
+            {
+              "name": "Trousers"
+            },
+            {
+              "name": "Outerwear"
+            }
+          ]
+        },
+        {
+          "name": "Kids",
+          "children": [
+            {
+              "name": "Girls"
+            },
+            {
+              "name": "Boys"
+            },
+            {
+              "name": "Baby"
+            }
+          ]
+        },
+        {
+          "name": "Footwear",
+          "children": [
+            {
+              "name": "Sneakers"
+            },
+            {
+              "name": "Boots"
+            },
+            {
+              "name": "Sandals"
+            }
+          ]
+        },
+        {
+          "name": "Accessories",
+          "children": [
+            {
+              "name": "Bags"
+            },
+            {
+              "name": "Belts"
+            },
+            {
+              "name": "Hats & Scarves"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "XS"
+            },
+            {
+              "value": "S"
+            },
+            {
+              "value": "M"
+            },
+            {
+              "value": "L"
+            },
+            {
+              "value": "XL"
+            },
+            {
+              "value": "XXL"
+            }
+          ]
+        },
+        {
+          "name": "Material",
+          "slug": "material",
+          "type": "list",
+          "values": [
+            {
+              "value": "Cotton"
+            },
+            {
+              "value": "Linen"
+            },
+            {
+              "value": "Polyester"
+            },
+            {
+              "value": "Wool"
+            },
+            {
+              "value": "Silk"
+            },
+            {
+              "value": "Denim"
+            },
+            {
+              "value": "Leather"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "childrens_clothing",
+          "name": "Children's Clothing"
+        }
+      ]
+    },
+    "home-decor-and-furniture": {
+      "categories": [
+        {
+          "name": "Furniture",
+          "children": [
+            {
+              "name": "Living Room"
+            },
+            {
+              "name": "Bedroom"
+            },
+            {
+              "name": "Dining"
+            },
+            {
+              "name": "Office"
+            }
+          ]
+        },
+        {
+          "name": "Decor",
+          "children": [
+            {
+              "name": "Wall Art"
+            },
+            {
+              "name": "Mirrors"
+            },
+            {
+              "name": "Vases"
+            },
+            {
+              "name": "Candles"
+            }
+          ]
+        },
+        {
+          "name": "Lighting",
+          "children": [
+            {
+              "name": "Lamps"
+            },
+            {
+              "name": "Ceiling Lights"
+            }
+          ]
+        },
+        {
+          "name": "Textiles",
+          "children": [
+            {
+              "name": "Bedding"
+            },
+            {
+              "name": "Cushions"
+            },
+            {
+              "name": "Rugs"
+            },
+            {
+              "name": "Curtains"
+            }
+          ]
+        },
+        {
+          "name": "Kitchen & Dining",
+          "children": [
+            {
+              "name": "Tableware"
+            },
+            {
+              "name": "Cookware"
+            },
+            {
+              "name": "Storage"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Material",
+          "slug": "material",
+          "type": "list",
+          "values": [
+            {
+              "value": "Wood"
+            },
+            {
+              "value": "Metal"
+            },
+            {
+              "value": "Glass"
+            },
+            {
+              "value": "Ceramic"
+            },
+            {
+              "value": "Fabric"
+            },
+            {
+              "value": "Leather"
+            },
+            {
+              "value": "Marble"
+            },
+            {
+              "value": "Rattan"
+            }
+          ]
+        },
+        {
+          "name": "Finish",
+          "slug": "finish",
+          "type": "list",
+          "values": [
+            {
+              "value": "Natural"
+            },
+            {
+              "value": "Matte"
+            },
+            {
+              "value": "Glossy"
+            },
+            {
+              "value": "Painted"
+            },
+            {
+              "value": "Distressed"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        },
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        },
+        {
+          "key": "bulky",
+          "name": "Bulky Freight"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        },
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        },
+        {
+          "profile": "bulky",
+          "zones": [
+            "domestic"
+          ],
+          "methods": [
+            "express"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        },
+        {
+          "profile": "bulky",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 2
+          }
+        }
+      ],
+      "tax_profiles": []
+    },
+    "beauty-cosmetics-and-personal-care": {
+      "categories": [
+        {
+          "name": "Skincare",
+          "children": [
+            {
+              "name": "Cleansers"
+            },
+            {
+              "name": "Moisturizers"
+            },
+            {
+              "name": "Serums"
+            },
+            {
+              "name": "Sun Care"
+            }
+          ]
+        },
+        {
+          "name": "Makeup",
+          "children": [
+            {
+              "name": "Face"
+            },
+            {
+              "name": "Eyes"
+            },
+            {
+              "name": "Lips"
+            },
+            {
+              "name": "Nails"
+            }
+          ]
+        },
+        {
+          "name": "Hair Care",
+          "children": [
+            {
+              "name": "Shampoo & Conditioner"
+            },
+            {
+              "name": "Styling"
+            },
+            {
+              "name": "Treatments"
+            }
+          ]
+        },
+        {
+          "name": "Fragrance",
+          "children": [
+            {
+              "name": "Women's Fragrance"
+            },
+            {
+              "name": "Men's Fragrance"
+            }
+          ]
+        },
+        {
+          "name": "Bath & Body",
+          "children": [
+            {
+              "name": "Body Wash"
+            },
+            {
+              "name": "Body Lotion"
+            },
+            {
+              "name": "Hand Care"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Volume",
+          "slug": "volume",
+          "type": "list",
+          "values": [
+            {
+              "value": "15 ml"
+            },
+            {
+              "value": "30 ml"
+            },
+            {
+              "value": "50 ml"
+            },
+            {
+              "value": "100 ml"
+            },
+            {
+              "value": "250 ml"
+            },
+            {
+              "value": "500 ml"
+            }
+          ]
+        },
+        {
+          "name": "Shade",
+          "slug": "shade",
+          "type": "list",
+          "values": [
+            {
+              "value": "Fair"
+            },
+            {
+              "value": "Light"
+            },
+            {
+              "value": "Medium"
+            },
+            {
+              "value": "Tan"
+            },
+            {
+              "value": "Deep"
+            }
+          ]
+        },
+        {
+          "name": "Skin Type",
+          "slug": "skin-type",
+          "type": "list",
+          "values": [
+            {
+              "value": "Normal"
+            },
+            {
+              "value": "Dry"
+            },
+            {
+              "value": "Oily"
+            },
+            {
+              "value": "Combination"
+            },
+            {
+              "value": "Sensitive"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        },
+        {
+          "key": "hazardous",
+          "name": "Aerosols & Flammables"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        },
+        {
+          "profile": "hazardous",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "sanitary_products",
+          "name": "Sanitary Products"
+        }
+      ]
+    },
+    "food-beverage-and-gourmet": {
+      "categories": [
+        {
+          "name": "Pantry",
+          "children": [
+            {
+              "name": "Oils & Vinegars"
+            },
+            {
+              "name": "Spices & Seasonings"
+            },
+            {
+              "name": "Sauces"
+            },
+            {
+              "name": "Pasta & Grains"
+            }
+          ]
+        },
+        {
+          "name": "Snacks & Sweets",
+          "children": [
+            {
+              "name": "Chocolate"
+            },
+            {
+              "name": "Biscuits"
+            },
+            {
+              "name": "Nuts & Dried Fruit"
+            }
+          ]
+        },
+        {
+          "name": "Beverages",
+          "children": [
+            {
+              "name": "Coffee"
+            },
+            {
+              "name": "Tea"
+            },
+            {
+              "name": "Juices & Soft Drinks"
+            }
+          ]
+        },
+        {
+          "name": "Wine & Spirits",
+          "children": [
+            {
+              "name": "Wine"
+            },
+            {
+              "name": "Beer"
+            },
+            {
+              "name": "Spirits"
+            }
+          ]
+        },
+        {
+          "name": "Fresh & Chilled",
+          "children": [
+            {
+              "name": "Cheese"
+            },
+            {
+              "name": "Charcuterie"
+            }
+          ]
+        },
+        {
+          "name": "Gift Hampers",
+          "children": [
+            {
+              "name": "Hampers"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Weight",
+          "slug": "weight",
+          "type": "list",
+          "values": [
+            {
+              "value": "100 g"
+            },
+            {
+              "value": "250 g"
+            },
+            {
+              "value": "500 g"
+            },
+            {
+              "value": "1 kg"
+            }
+          ]
+        },
+        {
+          "name": "Pack Size",
+          "slug": "pack-size",
+          "type": "list",
+          "values": [
+            {
+              "value": "Single"
+            },
+            {
+              "value": "Pack of 3"
+            },
+            {
+              "value": "Pack of 6"
+            },
+            {
+              "value": "Pack of 12"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "perishable",
+          "name": "Perishable"
+        },
+        {
+          "key": "frozen",
+          "name": "Frozen"
+        },
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "perishable",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        },
+        {
+          "profile": "frozen",
+          "zones": [
+            "domestic"
+          ],
+          "methods": [
+            "standard"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        },
+        {
+          "profile": "frozen",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        },
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "food",
+          "name": "Food"
+        },
+        {
+          "key": "alcohol",
+          "name": "Alcoholic Beverages"
+        }
+      ]
+    },
+    "electronics-and-accessories": {
+      "categories": [
+        {
+          "name": "Phones & Tablets",
+          "children": [
+            {
+              "name": "Smartphones"
+            },
+            {
+              "name": "Tablets"
+            },
+            {
+              "name": "Cases & Screen Protectors"
+            }
+          ]
+        },
+        {
+          "name": "Computers",
+          "children": [
+            {
+              "name": "Laptops"
+            },
+            {
+              "name": "Monitors"
+            },
+            {
+              "name": "Keyboards & Mice"
+            }
+          ]
+        },
+        {
+          "name": "Audio",
+          "children": [
+            {
+              "name": "Headphones"
+            },
+            {
+              "name": "Speakers"
+            }
+          ]
+        },
+        {
+          "name": "Wearables",
+          "children": [
+            {
+              "name": "Smartwatches"
+            },
+            {
+              "name": "Fitness Trackers"
+            }
+          ]
+        },
+        {
+          "name": "Accessories",
+          "children": [
+            {
+              "name": "Chargers & Cables"
+            },
+            {
+              "name": "Power Banks"
+            },
+            {
+              "name": "Storage"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Storage",
+          "slug": "storage",
+          "type": "list",
+          "values": [
+            {
+              "value": "64 GB"
+            },
+            {
+              "value": "128 GB"
+            },
+            {
+              "value": "256 GB"
+            },
+            {
+              "value": "512 GB"
+            },
+            {
+              "value": "1 TB"
+            },
+            {
+              "value": "2 TB"
+            }
+          ]
+        },
+        {
+          "name": "Memory",
+          "slug": "memory",
+          "type": "list",
+          "values": [
+            {
+              "value": "4 GB"
+            },
+            {
+              "value": "8 GB"
+            },
+            {
+              "value": "16 GB"
+            },
+            {
+              "value": "32 GB"
+            },
+            {
+              "value": "64 GB"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        },
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        },
+        {
+          "key": "lithium_batteries",
+          "name": "Lithium Batteries"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        },
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        }
+      ],
+      "tax_profiles": []
+    },
+    "sports-and-fitness": {
+      "categories": [
+        {
+          "name": "Fitness Equipment",
+          "children": [
+            {
+              "name": "Weights"
+            },
+            {
+              "name": "Yoga & Pilates"
+            },
+            {
+              "name": "Cardio"
+            }
+          ]
+        },
+        {
+          "name": "Sportswear",
+          "children": [
+            {
+              "name": "Women's Sportswear"
+            },
+            {
+              "name": "Men's Sportswear"
+            },
+            {
+              "name": "Sports Shoes"
+            }
+          ]
+        },
+        {
+          "name": "Outdoor",
+          "children": [
+            {
+              "name": "Camping"
+            },
+            {
+              "name": "Hiking"
+            },
+            {
+              "name": "Cycling"
+            }
+          ]
+        },
+        {
+          "name": "Team Sports",
+          "children": [
+            {
+              "name": "Football"
+            },
+            {
+              "name": "Basketball"
+            },
+            {
+              "name": "Racket Sports"
+            }
+          ]
+        },
+        {
+          "name": "Nutrition",
+          "children": [
+            {
+              "name": "Protein"
+            },
+            {
+              "name": "Energy & Hydration"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "XS"
+            },
+            {
+              "value": "S"
+            },
+            {
+              "value": "M"
+            },
+            {
+              "value": "L"
+            },
+            {
+              "value": "XL"
+            },
+            {
+              "value": "XXL"
+            }
+          ]
+        },
+        {
+          "name": "Equipment Weight",
+          "slug": "equipment-weight",
+          "type": "list",
+          "values": [
+            {
+              "value": "1 kg"
+            },
+            {
+              "value": "2.5 kg"
+            },
+            {
+              "value": "5 kg"
+            },
+            {
+              "value": "10 kg"
+            },
+            {
+              "value": "20 kg"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        },
+        {
+          "key": "heavy",
+          "name": "Heavy"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        },
+        {
+          "profile": "heavy",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 2
+          }
+        }
+      ],
+      "tax_profiles": []
+    },
+    "pet-supplies": {
+      "categories": [
+        {
+          "name": "Dogs",
+          "children": [
+            {
+              "name": "Dog Food"
+            },
+            {
+              "name": "Dog Toys"
+            },
+            {
+              "name": "Beds"
+            },
+            {
+              "name": "Collars & Leads"
+            }
+          ]
+        },
+        {
+          "name": "Cats",
+          "children": [
+            {
+              "name": "Cat Food"
+            },
+            {
+              "name": "Cat Toys"
+            },
+            {
+              "name": "Litter"
+            },
+            {
+              "name": "Scratchers"
+            }
+          ]
+        },
+        {
+          "name": "Small Animals",
+          "children": [
+            {
+              "name": "Food"
+            },
+            {
+              "name": "Cages & Habitats"
+            }
+          ]
+        },
+        {
+          "name": "Fish & Aquatics",
+          "children": [
+            {
+              "name": "Fish Food"
+            },
+            {
+              "name": "Aquariums"
+            }
+          ]
+        },
+        {
+          "name": "Birds",
+          "children": [
+            {
+              "name": "Bird Food"
+            },
+            {
+              "name": "Cages"
+            }
+          ]
+        },
+        {
+          "name": "Health & Grooming",
+          "children": [
+            {
+              "name": "Grooming"
+            },
+            {
+              "name": "Health Care"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "XS"
+            },
+            {
+              "value": "S"
+            },
+            {
+              "value": "M"
+            },
+            {
+              "value": "L"
+            },
+            {
+              "value": "XL"
+            }
+          ]
+        },
+        {
+          "name": "Flavor",
+          "slug": "flavor",
+          "type": "list",
+          "values": [
+            {
+              "value": "Chicken"
+            },
+            {
+              "value": "Beef"
+            },
+            {
+              "value": "Lamb"
+            },
+            {
+              "value": "Fish"
+            },
+            {
+              "value": "Turkey"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        },
+        {
+          "key": "perishable",
+          "name": "Perishable"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        },
+        {
+          "profile": "perishable",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "pet_food",
+          "name": "Pet Food"
+        }
+      ]
+    },
+    "baby-and-kids": {
+      "categories": [
+        {
+          "name": "Baby Clothing",
+          "children": [
+            {
+              "name": "Bodysuits"
+            },
+            {
+              "name": "Sleepwear"
+            },
+            {
+              "name": "Outerwear"
+            }
+          ]
+        },
+        {
+          "name": "Feeding",
+          "children": [
+            {
+              "name": "Bottles"
+            },
+            {
+              "name": "Bibs"
+            },
+            {
+              "name": "Highchairs"
+            }
+          ]
+        },
+        {
+          "name": "Nursery",
+          "children": [
+            {
+              "name": "Cots & Cribs"
+            },
+            {
+              "name": "Bedding"
+            },
+            {
+              "name": "Storage"
+            }
+          ]
+        },
+        {
+          "name": "Travel",
+          "children": [
+            {
+              "name": "Strollers"
+            },
+            {
+              "name": "Car Seats"
+            },
+            {
+              "name": "Baby Carriers"
+            }
+          ]
+        },
+        {
+          "name": "Toys",
+          "children": [
+            {
+              "name": "Baby Toys"
+            },
+            {
+              "name": "Learning Toys"
+            }
+          ]
+        },
+        {
+          "name": "Bath & Care",
+          "children": [
+            {
+              "name": "Diapers"
+            },
+            {
+              "name": "Bath Time"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Age",
+          "slug": "age",
+          "type": "list",
+          "values": [
+            {
+              "value": "0-3 months"
+            },
+            {
+              "value": "3-6 months"
+            },
+            {
+              "value": "6-12 months"
+            },
+            {
+              "value": "12-18 months"
+            },
+            {
+              "value": "18-24 months"
+            },
+            {
+              "value": "2-3 years"
+            },
+            {
+              "value": "3-4 years"
+            },
+            {
+              "value": "4-5 years"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "childrens_clothing",
+          "name": "Children's Clothing"
+        },
+        {
+          "key": "child_car_seats",
+          "name": "Child Car Seats"
+        }
+      ]
+    },
+    "jewelry-and-watches": {
+      "categories": [
+        {
+          "name": "Rings",
+          "children": [
+            {
+              "name": "Engagement Rings"
+            },
+            {
+              "name": "Wedding Bands"
+            },
+            {
+              "name": "Fashion Rings"
+            }
+          ]
+        },
+        {
+          "name": "Necklaces & Pendants",
+          "children": [
+            {
+              "name": "Necklaces"
+            },
+            {
+              "name": "Pendants"
+            }
+          ]
+        },
+        {
+          "name": "Earrings",
+          "children": [
+            {
+              "name": "Studs"
+            },
+            {
+              "name": "Hoops"
+            },
+            {
+              "name": "Drop Earrings"
+            }
+          ]
+        },
+        {
+          "name": "Bracelets",
+          "children": [
+            {
+              "name": "Bangles"
+            },
+            {
+              "name": "Chain Bracelets"
+            }
+          ]
+        },
+        {
+          "name": "Watches",
+          "children": [
+            {
+              "name": "Women's Watches"
+            },
+            {
+              "name": "Men's Watches"
+            },
+            {
+              "name": "Smart Watches"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Metal",
+          "slug": "metal",
+          "type": "list",
+          "values": [
+            {
+              "value": "Yellow Gold"
+            },
+            {
+              "value": "White Gold"
+            },
+            {
+              "value": "Rose Gold"
+            },
+            {
+              "value": "Sterling Silver"
+            },
+            {
+              "value": "Platinum"
+            },
+            {
+              "value": "Stainless Steel"
+            },
+            {
+              "value": "Titanium"
+            }
+          ]
+        },
+        {
+          "name": "Ring Size",
+          "slug": "ring-size",
+          "type": "list",
+          "values": [
+            {
+              "value": "5"
+            },
+            {
+              "value": "6"
+            },
+            {
+              "value": "7"
+            },
+            {
+              "value": "8"
+            },
+            {
+              "value": "9"
+            },
+            {
+              "value": "10"
+            },
+            {
+              "value": "11"
+            },
+            {
+              "value": "12"
+            }
+          ]
+        },
+        {
+          "name": "Chain Length",
+          "slug": "chain-length",
+          "type": "list",
+          "values": [
+            {
+              "value": "16 in"
+            },
+            {
+              "value": "18 in"
+            },
+            {
+              "value": "20 in"
+            },
+            {
+              "value": "22 in"
+            },
+            {
+              "value": "24 in"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "high_value",
+          "name": "High Value"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "high_value",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "investment_gold",
+          "name": "Investment Gold"
+        }
+      ]
+    },
+    "automotive-parts-and-accessories": {
+      "categories": [
+        {
+          "name": "Parts",
+          "children": [
+            {
+              "name": "Brakes"
+            },
+            {
+              "name": "Filters"
+            },
+            {
+              "name": "Engine Parts"
+            },
+            {
+              "name": "Suspension"
+            }
+          ]
+        },
+        {
+          "name": "Car Care",
+          "children": [
+            {
+              "name": "Cleaning"
+            },
+            {
+              "name": "Polish & Wax"
+            },
+            {
+              "name": "Fluids & Oils"
+            }
+          ]
+        },
+        {
+          "name": "Interior Accessories",
+          "children": [
+            {
+              "name": "Seat Covers"
+            },
+            {
+              "name": "Floor Mats"
+            },
+            {
+              "name": "Organizers"
+            }
+          ]
+        },
+        {
+          "name": "Exterior Accessories",
+          "children": [
+            {
+              "name": "Lighting"
+            },
+            {
+              "name": "Roof Racks"
+            },
+            {
+              "name": "Wipers"
+            }
+          ]
+        },
+        {
+          "name": "Tools & Equipment",
+          "children": [
+            {
+              "name": "Hand Tools"
+            },
+            {
+              "name": "Diagnostic Tools"
+            }
+          ]
+        },
+        {
+          "name": "Electronics",
+          "children": [
+            {
+              "name": "Dash Cams"
+            },
+            {
+              "name": "Car Audio"
+            },
+            {
+              "name": "Chargers"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Position",
+          "slug": "position",
+          "type": "list",
+          "values": [
+            {
+              "value": "Front"
+            },
+            {
+              "value": "Rear"
+            },
+            {
+              "value": "Left"
+            },
+            {
+              "value": "Right"
+            },
+            {
+              "value": "Front Left"
+            },
+            {
+              "value": "Front Right"
+            },
+            {
+              "value": "Rear Left"
+            },
+            {
+              "value": "Rear Right"
+            }
+          ]
+        },
+        {
+          "name": "Finish",
+          "slug": "finish",
+          "type": "list",
+          "values": [
+            {
+              "value": "Black"
+            },
+            {
+              "value": "Chrome"
+            },
+            {
+              "value": "Silver"
+            },
+            {
+              "value": "Carbon Fiber"
+            },
+            {
+              "value": "Unpainted"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        },
+        {
+          "key": "hazardous",
+          "name": "Hazardous Materials"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        },
+        {
+          "profile": "hazardous",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        }
+      ],
+      "tax_profiles": []
+    },
+    "toys-games-and-hobbies": {
+      "categories": [
+        {
+          "name": "Toys",
+          "children": [
+            {
+              "name": "Action Figures"
+            },
+            {
+              "name": "Dolls"
+            },
+            {
+              "name": "Building Sets"
+            },
+            {
+              "name": "Plush Toys"
+            }
+          ]
+        },
+        {
+          "name": "Games & Puzzles",
+          "children": [
+            {
+              "name": "Board Games"
+            },
+            {
+              "name": "Card Games"
+            },
+            {
+              "name": "Puzzles"
+            }
+          ]
+        },
+        {
+          "name": "Outdoor Play",
+          "children": [
+            {
+              "name": "Ride-Ons"
+            },
+            {
+              "name": "Water Play"
+            },
+            {
+              "name": "Sports Toys"
+            }
+          ]
+        },
+        {
+          "name": "Educational",
+          "children": [
+            {
+              "name": "STEM Toys"
+            },
+            {
+              "name": "Arts for Kids"
+            }
+          ]
+        },
+        {
+          "name": "Hobbies",
+          "children": [
+            {
+              "name": "Model Kits"
+            },
+            {
+              "name": "Remote Control"
+            },
+            {
+              "name": "Collectibles"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Age Range",
+          "slug": "age-range",
+          "type": "list",
+          "values": [
+            {
+              "value": "0-2 years"
+            },
+            {
+              "value": "3-5 years"
+            },
+            {
+              "value": "6-8 years"
+            },
+            {
+              "value": "9-12 years"
+            },
+            {
+              "value": "13+ years"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        },
+        {
+          "key": "batteries",
+          "name": "Contains Batteries"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        }
+      ],
+      "tax_profiles": []
+    },
+    "health-and-wellness": {
+      "categories": [
+        {
+          "name": "Vitamins & Supplements",
+          "children": [
+            {
+              "name": "Multivitamins"
+            },
+            {
+              "name": "Minerals"
+            },
+            {
+              "name": "Herbal Supplements"
+            },
+            {
+              "name": "Protein"
+            }
+          ]
+        },
+        {
+          "name": "Personal Care",
+          "children": [
+            {
+              "name": "Oral Care"
+            },
+            {
+              "name": "Skin Care"
+            }
+          ]
+        },
+        {
+          "name": "Fitness & Recovery",
+          "children": [
+            {
+              "name": "Massage"
+            },
+            {
+              "name": "Supports & Braces"
+            }
+          ]
+        },
+        {
+          "name": "Health Monitors",
+          "children": [
+            {
+              "name": "Blood Pressure"
+            },
+            {
+              "name": "Thermometers"
+            },
+            {
+              "name": "Scales"
+            }
+          ]
+        },
+        {
+          "name": "Wellness",
+          "children": [
+            {
+              "name": "Sleep"
+            },
+            {
+              "name": "Aromatherapy"
+            },
+            {
+              "name": "Tea & Infusions"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Count",
+          "slug": "count",
+          "type": "list",
+          "values": [
+            {
+              "value": "30 capsules"
+            },
+            {
+              "value": "60 capsules"
+            },
+            {
+              "value": "90 capsules"
+            },
+            {
+              "value": "120 capsules"
+            }
+          ]
+        },
+        {
+          "name": "Flavor",
+          "slug": "flavor",
+          "type": "list",
+          "values": [
+            {
+              "value": "Unflavored"
+            },
+            {
+              "value": "Vanilla"
+            },
+            {
+              "value": "Chocolate"
+            },
+            {
+              "value": "Strawberry"
+            },
+            {
+              "value": "Lemon"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "temperature_sensitive",
+          "name": "Temperature Sensitive"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "temperature_sensitive",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "dietary_supplements",
+          "name": "Dietary Supplements"
+        }
+      ]
+    },
+    "arts-and-crafts-supplies": {
+      "categories": [
+        {
+          "name": "Painting",
+          "children": [
+            {
+              "name": "Paints"
+            },
+            {
+              "name": "Brushes"
+            },
+            {
+              "name": "Canvases"
+            }
+          ]
+        },
+        {
+          "name": "Drawing",
+          "children": [
+            {
+              "name": "Pencils & Charcoal"
+            },
+            {
+              "name": "Markers"
+            },
+            {
+              "name": "Sketchbooks"
+            }
+          ]
+        },
+        {
+          "name": "Paper Crafts",
+          "children": [
+            {
+              "name": "Paper & Card"
+            },
+            {
+              "name": "Scrapbooking"
+            },
+            {
+              "name": "Stamps"
+            }
+          ]
+        },
+        {
+          "name": "Sewing & Knitting",
+          "children": [
+            {
+              "name": "Yarn"
+            },
+            {
+              "name": "Fabric"
+            },
+            {
+              "name": "Notions"
+            }
+          ]
+        },
+        {
+          "name": "Kids' Crafts",
+          "children": [
+            {
+              "name": "Craft Kits"
+            },
+            {
+              "name": "Clay & Dough"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "A5"
+            },
+            {
+              "value": "A4"
+            },
+            {
+              "value": "A3"
+            },
+            {
+              "value": "A2"
+            }
+          ]
+        },
+        {
+          "name": "Pack Size",
+          "slug": "pack-size",
+          "type": "list",
+          "values": [
+            {
+              "value": "Single"
+            },
+            {
+              "value": "Pack of 6"
+            },
+            {
+              "value": "Pack of 12"
+            },
+            {
+              "value": "Pack of 24"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        },
+        {
+          "key": "hazardous",
+          "name": "Aerosols & Flammables"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        },
+        {
+          "profile": "hazardous",
+          "zones": [
+            "regional"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "disable_shipping_method",
+            "value": null
+          }
+        }
+      ],
+      "tax_profiles": []
+    },
+    "musical-instruments": {
+      "categories": [
+        {
+          "name": "Guitars & Basses",
+          "children": [
+            {
+              "name": "Acoustic Guitars"
+            },
+            {
+              "name": "Electric Guitars"
+            },
+            {
+              "name": "Bass Guitars"
+            }
+          ]
+        },
+        {
+          "name": "Keyboards & Pianos",
+          "children": [
+            {
+              "name": "Digital Pianos"
+            },
+            {
+              "name": "Keyboards"
+            },
+            {
+              "name": "MIDI Controllers"
+            }
+          ]
+        },
+        {
+          "name": "Drums & Percussion",
+          "children": [
+            {
+              "name": "Drum Kits"
+            },
+            {
+              "name": "Percussion"
+            }
+          ]
+        },
+        {
+          "name": "Wind & Strings",
+          "children": [
+            {
+              "name": "Wind Instruments"
+            },
+            {
+              "name": "String Instruments"
+            }
+          ]
+        },
+        {
+          "name": "Audio & Recording",
+          "children": [
+            {
+              "name": "Microphones"
+            },
+            {
+              "name": "Audio Interfaces"
+            },
+            {
+              "name": "Headphones"
+            }
+          ]
+        },
+        {
+          "name": "Accessories",
+          "children": [
+            {
+              "name": "Strings"
+            },
+            {
+              "name": "Cases & Bags"
+            },
+            {
+              "name": "Stands"
+            },
+            {
+              "name": "Sheet Music"
+            }
+          ]
+        }
+      ],
+      "attributes": [
+        {
+          "name": "Size",
+          "slug": "size",
+          "type": "list",
+          "values": [
+            {
+              "value": "1/4"
+            },
+            {
+              "value": "1/2"
+            },
+            {
+              "value": "3/4"
+            },
+            {
+              "value": "4/4"
+            }
+          ]
+        },
+        {
+          "name": "Finish",
+          "slug": "finish",
+          "type": "list",
+          "values": [
+            {
+              "value": "Natural"
+            },
+            {
+              "value": "Sunburst"
+            },
+            {
+              "value": "Black"
+            },
+            {
+              "value": "White"
+            },
+            {
+              "value": "Red"
+            }
+          ]
+        },
+        {
+          "name": "Handedness",
+          "slug": "handedness",
+          "type": "list",
+          "values": [
+            {
+              "value": "Right-handed"
+            },
+            {
+              "value": "Left-handed"
+            }
+          ]
+        }
+      ],
+      "shipping_profiles": [
+        {
+          "key": "fragile",
+          "name": "Fragile"
+        },
+        {
+          "key": "oversized",
+          "name": "Oversized"
+        }
+      ],
+      "shipping_rules": [
+        {
+          "profile": "fragile",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.25
+          }
+        },
+        {
+          "profile": "oversized",
+          "zones": [
+            "*"
+          ],
+          "methods": [
+            "*"
+          ],
+          "action": {
+            "type": "multiply_shipping_cost",
+            "value": 1.5
+          }
+        }
+      ],
+      "tax_profiles": [
+        {
+          "key": "sheet_music",
+          "name": "Sheet Music"
+        }
+      ]
+    }
+  },
+  "countries": {
+    "AD": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 4.5,
+        "shipping_rate": 4.5,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "AE": {
+      "bloc": "GCC",
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 2000,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 3500,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ],
+        "regional": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "GCC Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 5000,
+            "is_taxable": true
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 5,
+        "shipping_rate": 5,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "AL": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "AO": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 14,
+        "shipping_rate": 14,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "AR": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 21,
+        "shipping_rate": 21,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "AT": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 20,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 10,
+          "books": 10,
+          "sanitary_products": 0
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "AU": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 995,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 1495,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 10,
+        "shipping_rate": 10,
+        "profile_rates": {
+          "food": 0
+        },
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "BA": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 17,
+        "shipping_rate": 17,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "BD": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Delivery",
+            "description": "Delivered in 2-5 business days.",
+            "base_amount": 12000,
+            "is_taxable": false
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Delivery",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 20000,
+            "is_taxable": false
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "source": "https://nbr.gov.bd/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "BE": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 6,
+          "books": 6
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "BG": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 20,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 9
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "BH": {
+      "bloc": "GCC",
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 10,
+        "shipping_rate": 10,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "BO": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 13,
+        "shipping_rate": 13,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "BY": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CA": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 1299,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-3 business days.",
+            "base_amount": 2499,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "states",
+        "scope": "all",
+        "states": {
+          "872": {
+            "name": "Alberta",
+            "rate": 5
+          },
+          "875": {
+            "name": "British Columbia",
+            "rate": 5,
+            "home_extra": 7
+          },
+          "867": {
+            "name": "Manitoba",
+            "rate": 5,
+            "home_extra": 7
+          },
+          "868": {
+            "name": "New Brunswick",
+            "rate": 15,
+            "profile_rates": {
+              "books": 5
+            }
+          },
+          "877": {
+            "name": "Newfoundland and Labrador",
+            "rate": 15,
+            "profile_rates": {
+              "books": 5
+            }
+          },
+          "878": {
+            "name": "Northwest Territories",
+            "rate": 5
+          },
+          "874": {
+            "name": "Nova Scotia",
+            "rate": 14,
+            "profile_rates": {
+              "books": 5,
+              "childrens_clothing": 5
+            }
+          },
+          "876": {
+            "name": "Nunavut",
+            "rate": 5
+          },
+          "866": {
+            "name": "Ontario",
+            "rate": 13,
+            "profile_rates": {
+              "books": 5,
+              "childrens_clothing": 5,
+              "child_car_seats": 5
+            }
+          },
+          "871": {
+            "name": "Prince Edward Island",
+            "rate": 15,
+            "profile_rates": {
+              "books": 5,
+              "childrens_clothing": 5
+            }
+          },
+          "873": {
+            "name": "Quebec",
+            "rate": 5,
+            "home_extra": 9.975
+          },
+          "870": {
+            "name": "Saskatchewan",
+            "rate": 5,
+            "home_extra": 6
+          },
+          "869": {
+            "name": "Yukon",
+            "rate": 5
+          }
+        },
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "food": 0
+        },
+        "sources": [
+          "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/gst-hst-businesses/charge-collect-which-rate.html",
+          "https://www.canada.ca/en/revenue-agency/services/forms-publications/publications/4-3/basic-groceries.html",
+          "https://www.canada.ca/en/revenue-agency/services/forms-publications/publications/gi-065/point-sale-rebate-on-books.html",
+          "https://www.canada.ca/en/revenue-agency/services/forms-publications/publications/gi-063/point-sale-rebate-on-childrens-goods.html"
+        ]
+      }
+    },
+    "CH": {
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 900,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 1500,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 8.1,
+        "shipping_rate": 8.1,
+        "profile_rates": {
+          "food": 2.6,
+          "books": 2.6,
+          "sanitary_products": 2.6
+        },
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CI": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CL": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 19,
+        "shipping_rate": 19,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CM": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 19.25,
+        "shipping_rate": 19.25,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CN": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 13,
+        "shipping_rate": 13,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CO": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 19,
+        "shipping_rate": 19,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CR": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 13,
+        "shipping_rate": 13,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "CY": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 19,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 5
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "CZ": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 12
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "DE": {
+      "bloc": "EU",
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standardversand",
+            "description": "Delivered in 2-4 business days.",
+            "base_amount": 499,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Expressversand",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Abholung im Geschäft",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ],
+        "regional": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "EU Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          }
+        ]
+      },
+      "tax": {
+        "mode": "eu",
+        "rate": 19,
+        "profile_rates": {
+          "food": 7,
+          "books": 7,
+          "sanitary_products": 7,
+          "pet_food": 7,
+          "dietary_supplements": 7,
+          "sheet_music": 7,
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "verified_at": "2026-10-05",
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "DK": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 25,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "DO": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "DZ": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 19,
+        "shipping_rate": 19,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "EC": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "EE": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 24,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 9
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "EG": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 14,
+        "shipping_rate": 14,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "ES": {
+      "bloc": "EU",
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 499,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ],
+        "regional": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "EU Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          }
+        ]
+      },
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "ET": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "FI": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 25.5,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "FJ": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "FR": {
+      "bloc": "EU",
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Livraison standard",
+            "description": "Delivered in 2-4 business days.",
+            "base_amount": 499,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Livraison express",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Retrait en magasin",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ],
+        "regional": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "EU Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          }
+        ]
+      },
+      "tax": {
+        "mode": "eu",
+        "rate": 20,
+        "profile_rates": {
+          "food": 5.5,
+          "books": 5.5,
+          "sanitary_products": 5.5,
+          "dietary_supplements": 5.5,
+          "sheet_music": 5.5,
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "verified_at": "2026-10-05",
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "GB": {
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Delivery",
+            "description": "Delivered in 2-4 business days.",
+            "base_amount": 399,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Next Day Delivery",
+            "description": "Order before 1pm for next business day delivery.",
+            "base_amount": 699,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "profile_rates": {
+          "food": 0,
+          "books": 0,
+          "childrens_clothing": 0,
+          "child_car_seats": 5,
+          "sanitary_products": 0,
+          "sheet_music": 0,
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "source": "https://www.gov.uk/guidance/rates-of-vat-on-different-goods-and-services",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "GE": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "GR": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 24,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 13,
+          "books": 6
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "HR": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 25,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 5
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "HU": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 27,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 5
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "ID": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 11,
+        "shipping_rate": 11,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "IE": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 23,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "childrens_clothing": 0,
+          "child_car_seats": 13.5,
+          "sanitary_products": 0
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "IL": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "IN": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 4900,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 9900,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "IS": {
+      "gdpr": true,
+      "tax": {
+        "mode": "country",
+        "rate": 24,
+        "shipping_rate": 24,
+        "profile_rates": {
+          "food": 11,
+          "books": 11
+        },
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "IT": {
+      "bloc": "EU",
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 499,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ],
+        "regional": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "EU Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          }
+        ]
+      },
+      "tax": {
+        "mode": "eu",
+        "rate": 22,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "JO": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 16,
+        "shipping_rate": 16,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "JP": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 600,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 1200,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 10,
+        "shipping_rate": 10,
+        "profile_rates": {
+          "food": 8
+        },
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "KE": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 16,
+        "shipping_rate": 16,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "KH": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 10,
+        "shipping_rate": 10,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "KR": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 10,
+        "shipping_rate": 10,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "KW": {
+      "bloc": "GCC",
+      "gdpr": false
+    },
+    "LB": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 11,
+        "shipping_rate": 11,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "LI": {
+      "gdpr": true
+    },
+    "LK": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "LT": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 9
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "LU": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 17,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 3,
+          "books": 3,
+          "childrens_clothing": 3
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "LV": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 12
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "MA": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "MD": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "ME": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 21,
+        "shipping_rate": 21,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "MK": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "MT": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 18,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 0,
+          "books": 5,
+          "childrens_clothing": 0
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "MX": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 16,
+        "shipping_rate": 16,
+        "profile_rates": {
+          "food": 0
+        },
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "NG": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 7.5,
+        "shipping_rate": 7.5,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "NL": {
+      "bloc": "EU",
+      "gdpr": true,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 499,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ],
+        "regional": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "EU Shipping",
+            "description": "Delivered in 3-7 business days.",
+            "base_amount": 999,
+            "is_taxable": true
+          }
+        ]
+      },
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 9,
+          "books": 9
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "NO": {
+      "gdpr": true,
+      "tax": {
+        "mode": "country",
+        "rate": 25,
+        "shipping_rate": 25,
+        "profile_rates": {
+          "food": 15,
+          "books": 0
+        },
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "NP": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 13,
+        "shipping_rate": 13,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "NZ": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 795,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 1295,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "OM": {
+      "bloc": "GCC",
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 5,
+        "shipping_rate": 5,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "PA": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 7,
+        "shipping_rate": 7,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "PE": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "PH": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 12,
+        "shipping_rate": 12,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "PK": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "PL": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 23,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 5,
+          "sanitary_products": 5
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "PT": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 23,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 6,
+          "child_car_seats": 6
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "PY": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 10,
+        "shipping_rate": 10,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "QA": {
+      "bloc": "GCC",
+      "gdpr": false
+    },
+    "RO": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 21,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 11,
+          "books": 11
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "RS": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "RW": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "SA": {
+      "bloc": "GCC",
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "SE": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 25,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "books": 6
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "SG": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 500,
+            "is_taxable": true
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 1200,
+            "is_taxable": true
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "country",
+        "rate": 9,
+        "shipping_rate": 9,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "SI": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 22,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          },
+          "food": 9.5
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101",
+          "https://hellotax.com/blog/vat-rates-in-europe/"
+        ]
+      }
+    },
+    "SK": {
+      "bloc": "EU",
+      "gdpr": true,
+      "tax": {
+        "mode": "eu",
+        "rate": 23,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "investment_gold": {
+            "exempt": true
+          }
+        },
+        "sources": [
+          "https://ec.europa.eu/taxation_customs/tedb/",
+          "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02006L0112-20250101"
+        ]
+      }
+    },
+    "SN": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "TH": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 7,
+        "shipping_rate": 7,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "TN": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 19,
+        "shipping_rate": 19,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "TR": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "TW": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 5,
+        "shipping_rate": 5,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "TZ": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "UA": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 20,
+        "shipping_rate": 20,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "UG": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 18,
+        "shipping_rate": 18,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "US": {
+      "gdpr": false,
+      "shipping": {
+        "domestic": [
+          {
+            "key": "standard",
+            "type": "flat_rate",
+            "name": "Standard Shipping",
+            "description": "Delivered in 3-5 business days.",
+            "base_amount": 599,
+            "is_taxable": false
+          },
+          {
+            "key": "express",
+            "type": "flat_rate",
+            "name": "Express Shipping",
+            "description": "Delivered in 1-2 business days.",
+            "base_amount": 1999,
+            "is_taxable": false
+          },
+          {
+            "key": "pickup",
+            "type": "local_pickup",
+            "name": "Local Pickup",
+            "description": "Collect your order from our store.",
+            "has_fee": false,
+            "base_amount": null,
+            "has_pick_time": false
+          }
+        ]
+      },
+      "tax": {
+        "mode": "states",
+        "scope": "home",
+        "states": {
+          "1456": {
+            "name": "Alabama",
+            "rate": 4
+          },
+          "1434": {
+            "name": "Arizona",
+            "rate": 5.6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1444": {
+            "name": "Arkansas",
+            "rate": 6.5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1416": {
+            "name": "California",
+            "rate": 7.25,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1450": {
+            "name": "Colorado",
+            "rate": 2.9,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1435": {
+            "name": "Connecticut",
+            "rate": 6.35,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1437": {
+            "name": "District of Columbia",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1436": {
+            "name": "Florida",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1455": {
+            "name": "Georgia",
+            "rate": 4,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1411": {
+            "name": "Hawaii",
+            "rate": 4
+          },
+          "1460": {
+            "name": "Idaho",
+            "rate": 6
+          },
+          "1425": {
+            "name": "Illinois",
+            "rate": 6.25
+          },
+          "1440": {
+            "name": "Indiana",
+            "rate": 7,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1459": {
+            "name": "Iowa",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1406": {
+            "name": "Kansas",
+            "rate": 6.5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1419": {
+            "name": "Kentucky",
+            "rate": 6
+          },
+          "1457": {
+            "name": "Louisiana",
+            "rate": 5
+          },
+          "1453": {
+            "name": "Maine",
+            "rate": 5.5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1401": {
+            "name": "Maryland",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1433": {
+            "name": "Massachusetts",
+            "rate": 6.25,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1426": {
+            "name": "Michigan",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1420": {
+            "name": "Minnesota",
+            "rate": 6.875,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              },
+              "alcohol": 9.375
+            }
+          },
+          "1430": {
+            "name": "Mississippi",
+            "rate": 7,
+            "profile_rates": {
+              "food": 5
+            }
+          },
+          "1451": {
+            "name": "Missouri",
+            "rate": 4.225,
+            "profile_rates": {
+              "food": 1.225
+            }
+          },
+          "1408": {
+            "name": "Nebraska",
+            "rate": 5.5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1458": {
+            "name": "Nevada",
+            "rate": 6.85,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1417": {
+            "name": "New Jersey",
+            "rate": 6.625,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1423": {
+            "name": "New Mexico",
+            "rate": 4.875,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1452": {
+            "name": "New York",
+            "rate": 4,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1447": {
+            "name": "North Carolina",
+            "rate": 4.75,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1418": {
+            "name": "North Dakota",
+            "rate": 5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "4851": {
+            "name": "Ohio",
+            "rate": 5.75,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1421": {
+            "name": "Oklahoma",
+            "rate": 4.5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1422": {
+            "name": "Pennsylvania",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1461": {
+            "name": "Rhode Island",
+            "rate": 7,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1443": {
+            "name": "South Carolina",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1445": {
+            "name": "South Dakota",
+            "rate": 4.2
+          },
+          "1454": {
+            "name": "Tennessee",
+            "rate": 7,
+            "profile_rates": {
+              "food": 4
+            }
+          },
+          "1407": {
+            "name": "Texas",
+            "rate": 6.25,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1414": {
+            "name": "Utah",
+            "rate": 6.1,
+            "profile_rates": {
+              "food": 1.75
+            }
+          },
+          "1409": {
+            "name": "Vermont",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1427": {
+            "name": "Virginia",
+            "rate": 5.3
+          },
+          "1462": {
+            "name": "Washington",
+            "rate": 6.5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1429": {
+            "name": "West Virginia",
+            "rate": 6,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1441": {
+            "name": "Wisconsin",
+            "rate": 5,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          },
+          "1442": {
+            "name": "Wyoming",
+            "rate": 4,
+            "profile_rates": {
+              "food": {
+                "exempt": true
+              }
+            }
+          }
+        },
+        "verified_at": "2026-10-05",
+        "sources": [
+          "https://taxfoundation.org/data/all/state/2026-sales-tax-rates-midyear/",
+          "https://www.taxjar.com/sales-tax/grocery-items",
+          "https://www.house.mn.gov/hrd/pubs/ss/ssalbvtx.pdf"
+        ]
+      }
+    },
+    "UY": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 22,
+        "shipping_rate": 22,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "ZA": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 15,
+        "shipping_rate": 15,
+        "verified_at": "2026-10-05",
+        "profile_rates": {
+          "food": 0
+        },
+        "sources": [
+          "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/"
+        ]
+      }
+    },
+    "ZM": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 16,
+        "shipping_rate": 16,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    },
+    "ZW": {
+      "gdpr": false,
+      "tax": {
+        "mode": "country",
+        "rate": 15.5,
+        "shipping_rate": 15.5,
+        "source": "https://www.vatupdate.com/2026/07/25/global-vat-rates-by-country-2026-standard-and-reduced-rates/",
+        "verified_at": "2026-10-05"
+      }
+    }
+  }
+}

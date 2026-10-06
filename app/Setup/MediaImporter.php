@@ -1,6 +1,8 @@
 <?php
 
-namespace Kirki\Ecommerce\Database\Seeders\OnBoarding;
+namespace Kirki\Ecommerce\App\Setup;
+
+defined('ABSPATH') || exit;
 
 /**
  * Imports images bundled with the plugin into the WordPress media library.

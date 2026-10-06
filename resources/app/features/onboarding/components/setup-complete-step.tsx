@@ -67,7 +67,9 @@ const SetupCompleteStep = ({
               {row.label}
             </Text>
             <Text color="subdued">·</Text>
-            <Text color="subdued">{row.value}</Text>
+            <Text color="subdued" truncate>
+              {row.value}
+            </Text>
           </Flex>
         ))}
       </Flex>

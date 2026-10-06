@@ -44,7 +44,8 @@ Edit `.env` for custom ports or credentials. Common variables: `NGINX_HTTP_PORT`
 
 ```
 app/                  # Controllers, models, domain logic
-database/             # Migrations and seeders
+app/Setup/            # Store setup and sample data classes (run in production)
+database/             # Migrations, and developer seeders (never packaged)
 docker/               # Compose stack, nginx, PHP, scripts
 payments/             # Payment gateway subprojects
 tests/                # PHPUnit (Unit + Integration)
@@ -107,6 +108,13 @@ wpcli kirki migrate:fresh --seed
 wpcli kirki db:seed --class=ProductsSeeder
 ```
 
+The seeders in `database/seeders/` are development tools. They are autoloaded only by
+`autoload-dev`, they run only in development mode, and `npm run make:package` does not
+ship them. On a packaged install, `db:seed` and `migrate:fresh --seed` run no seeder.
+Code that store setup or sample data runs in production lives in `app/Setup/`, not in
+`database/seeders/`. After you pull a change that moves classes between these folders,
+run `composer dump-autoload`.
+
 ### Code generators
 
 Scaffold files from [`framework/Console/stubs/`](framework/Console/stubs/). Namespace prefix: `Kirki\Ecommerce\`.
@@ -117,7 +125,7 @@ Scaffold files from [`framework/Console/stubs/`](framework/Console/stubs/). Name
 | `make:model <name>` | `app/Models/` |
 | `make:controller <name> [--api] [--resource]` | `app/Http/Controllers/` |
 | `make:request <name> [--folder=<folder>]` | `app/Http/Requests/` |
-| `make:seeder <name>` | `database/seeders/` |
+| `make:seeder <name>` | `database/seeders/` — developer seeders only |
 | `make:provider <name>` | `app/Providers/` — register in app bootstrap |
 | `make:class <name> [--folder=<path>]` | `app/` |
 
