@@ -60,6 +60,30 @@ final class OrderActivityType
     }
 
     /**
+     * Get the activity types a customer is allowed to see.
+     *
+     * The single allow-list for every customer-facing activity read. A type
+     * that is not listed here stays hidden from customers.
+     *
+     * @since 1.0.0
+     *
+     * @return string[] Activity type keys.
+     */
+    public static function customer_visible(): array
+    {
+        return [
+            self::ORDER_PLACED,
+            self::PROCESSING,
+            self::FULFILLMENT_RESUMED,
+            self::SHIPPED,
+            self::DELIVERED,
+            self::CANCELLED,
+            self::TRACKING_ADDED,
+            self::ON_HOLD,
+        ];
+    }
+
+    /**
      * Get the translated label for an order activity type.
      *
      * @since 1.0.0

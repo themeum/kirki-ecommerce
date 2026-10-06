@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\EnablesPaymentProviders;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
@@ -182,8 +184,8 @@ class OrderActivityApiTest extends RestTestCase
     }
 
     /**
-     * A customer can view the full activity timeline (including admin
-     * comments) for their own order.
+     * A customer can view the customer-visible activity timeline for their
+     * own order; admin comments are not part of it.
      *
      * @return void
      */
@@ -208,7 +210,102 @@ class OrderActivityApiTest extends RestTestCase
         $payload = $this->assert_api_success($response);
 
         $this->assertNotNull($this->find_activity($payload['data']['results'], 'order-placed'));
+        $this->assertNull($this->find_activity($payload['data']['results'], 'comment-added'));
+    }
+
+    /**
+     * Payment and refund activities are hidden from the customer timeline.
+     *
+     * @return void
+     */
+    public function test_customer_timeline_hides_non_allow_listed_activities(): void
+    {
+        [$user_id, $order] = $this->place_customer_order();
+        $this->record_activities($order['id'], [OrderActivityType::PAYMENT_COMPLETED, OrderActivityType::REFUNDED, OrderActivityType::SHIPPED]);
+
+        wp_set_current_user($user_id);
+
+        $payload = $this->assert_api_success($this->request('GET', 'account/orders/' . $order['id'] . '/activities'));
+
+        $this->assertNotNull($this->find_activity($payload['data']['results'], 'shipped'));
+        $this->assertNull($this->find_activity($payload['data']['results'], 'payment-completed'));
+        $this->assertNull($this->find_activity($payload['data']['results'], 'refunded'));
+    }
+
+    /**
+     * Customer entries keep the admin shape but carry no notify_customer key.
+     *
+     * @return void
+     */
+    public function test_customer_timeline_entries_omit_notify_customer(): void
+    {
+        [$user_id, $order] = $this->place_customer_order();
+
+        wp_set_current_user($user_id);
+
+        $payload = $this->assert_api_success($this->request('GET', 'account/orders/' . $order['id'] . '/activities'));
+        $entry = $this->find_activity($payload['data']['results'], 'order-placed');
+
+        $this->assertArrayNotHasKey('notify_customer', $entry);
+        $this->assertArrayHasKey('description', $entry);
+        $this->assertArrayHasKey('created_at', $entry);
+    }
+
+    /**
+     * The customer pagination total and the "all" option count only visible activities.
+     *
+     * @return void
+     */
+    public function test_customer_timeline_total_counts_only_visible_activities(): void
+    {
+        [$user_id, $order] = $this->place_customer_order();
+        $this->record_activities($order['id'], [OrderActivityType::PAYMENT_FAILED, OrderActivityType::REFUND_REQUESTED, OrderActivityType::DELIVERED]);
+
+        wp_set_current_user($user_id);
+
+        $paged = $this->assert_api_success($this->request('GET', 'account/orders/' . $order['id'] . '/activities', ['limit' => 1, 'page' => 1]));
+        $all = $this->assert_api_success($this->request('GET', 'account/orders/' . $order['id'] . '/activities', ['limit' => -1]));
+
+        $visible_types = array_column($all['data']['results'], 'activity_type');
+
+        $this->assertSame([], array_diff($visible_types, OrderActivityType::customer_visible()));
+        $this->assertContains('delivered', $visible_types);
+        $this->assertSame(count($all['data']['results']), $paged['data']['total']);
+        $this->assertCount(1, $paged['data']['results']);
+    }
+
+    /**
+     * The admin timeline still returns activities that are hidden from customers.
+     *
+     * @return void
+     */
+    public function test_admin_timeline_still_returns_hidden_activities(): void
+    {
+        [, $order] = $this->place_customer_order();
+        $this->record_activities($order['id'], [OrderActivityType::PAYMENT_COMPLETED]);
+
+        $this->login_as_admin();
+        $this->request('POST', 'orders/' . $order['id'] . '/activities', ['order_id' => $order['id'], 'message' => 'Internal note.']);
+
+        $payload = $this->assert_api_success($this->request('GET', 'orders/' . $order['id'] . '/activities'));
+
+        $this->assertNotNull($this->find_activity($payload['data']['results'], 'payment-completed'));
         $this->assertNotNull($this->find_activity($payload['data']['results'], 'comment-added'));
+    }
+
+    /**
+     * The service keeps only allow-listed types for the customer pages.
+     *
+     * @return void
+     */
+    public function test_get_order_activity_keeps_only_allow_listed_types(): void
+    {
+        [, $order] = $this->place_customer_order();
+        $this->record_activities($order['id'], array_keys(OrderActivityType::get_list()));
+
+        $types = (new OrderActivityService())->get_order_activity($order['id'])->pluck('activity_type')->all();
+
+        $this->assertEqualsCanonicalizing(OrderActivityType::customer_visible(), array_values(array_unique($types)));
     }
 
     /**
@@ -230,6 +327,38 @@ class OrderActivityApiTest extends RestTestCase
 
         $response = $this->request('GET', 'account/orders/' . $order['id'] . '/activities');
         $this->assert_api_error($response, 404);
+    }
+
+    /**
+     * Place an order as a new subscriber customer, leaving that customer as the current user.
+     *
+     * @return array{0: int, 1: array<string, mixed>} The customer's user ID and the created order.
+     */
+    protected function place_customer_order(): array
+    {
+        $user_id = static::factory()->user->create(['role' => 'subscriber']);
+        wp_set_current_user($user_id);
+        $this->request('POST', 'cart/items', ['variant_id' => $this->variant_id, 'quantity' => 1]);
+
+        $checkout_response = $this->request('POST', 'checkout', $this->order_payload(['is_manual' => false]));
+
+        return [$user_id, $this->assert_api_success($checkout_response, 201)['data']];
+    }
+
+    /**
+     * Record one activity of each given type on an order.
+     *
+     * @param int      $order_id Order ID.
+     * @param string[] $types    Activity types to record.
+     * @return void
+     */
+    protected function record_activities(int $order_id, array $types): void
+    {
+        $service = new OrderActivityService();
+
+        foreach ($types as $type) {
+            $service->create($order_id, $type, null, null, null);
+        }
     }
 
     protected function find_activity(array $activities, string $activity_type): ?array
