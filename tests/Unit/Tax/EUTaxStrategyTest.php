@@ -5,7 +5,9 @@ namespace Kirki\Ecommerce\Tests\Unit\Tax;
 use Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\Tax\Strategies\EUTaxStrategy;
+use Kirki\Ecommerce\Framework\Container;
 use Kirki\Ecommerce\Tests\Support\BindsTaxDependencies;
+use Kirki\Ecommerce\Tests\Support\FakeSettingsFactory;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 class EUTaxStrategyTest extends TestCase
@@ -313,6 +315,83 @@ class EUTaxStrategyTest extends TestCase
         $actual_tax_sum = array_sum(array_map(fn($line) => $line->base_amount, $result->shipping));
 
         $this->assertEqualsWithDelta($expected_tax_on_whole, $actual_tax_sum, 3, 'Split tax drifted by more than one cent per line from the tax on the whole shipping fee.');
+    }
+
+    /**
+     * A micro business charges the rate of its one country to a shopper in another member country.
+     *
+     * @return void
+     */
+    public function test_micro_business_charges_the_rate_of_its_one_country(): void
+    {
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => [['code' => 'AT', 'name' => 'Austria', 'rate' => 20]]]);
+
+        $result = $this->make_strategy('BE', $region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(20.0, $result->items[1][0]->rate);
+        $this->assertSame(2000, $result->items[1][0]->base_amount);
+    }
+
+    /**
+     * A micro business charges its country's rate even when the store address is in another country.
+     *
+     * @return void
+     */
+    public function test_micro_business_ignores_the_store_address_country(): void
+    {
+        $this->bind_store_country('AT');
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => [['code' => 'DE', 'name' => 'Germany', 'rate' => 19]]]);
+
+        $result = $this->make_strategy('BE', $region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(19.0, $result->items[1][0]->rate);
+    }
+
+    /**
+     * Under OSS the shopper's member country supplies the rate, whatever the store's country.
+     *
+     * @return void
+     */
+    public function test_oss_charges_the_destination_rate(): void
+    {
+        $this->bind_store_country('AT');
+
+        $result = $this->make_strategy('BE', $this->eu_region(), false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(21.0, $result->items[1][0]->rate);
+    }
+
+    /**
+     * A micro-business region without a country charges nothing.
+     *
+     * @return void
+     */
+    public function test_micro_business_without_a_country_is_taxed_at_zero(): void
+    {
+        $region = array_merge($this->eu_region(), ['type' => 'micro_business', 'countries' => []]);
+
+        $result = $this->make_strategy('BE', $region, false)->calculate($this->tax_context('BE'));
+
+        $this->assertSame(0, $result->items[1][0]->base_amount);
+    }
+
+    /**
+     * Bind settings whose store address is in the given country.
+     *
+     * @param string $country Store country code.
+     * @return void
+     */
+    protected function bind_store_country(string $country): void
+    {
+        Container::get_instance()->bind('settings', fn() => new FakeSettingsFactory([
+            'currency' => [
+                'decimal_separator' => '.',
+                'thousand_separator' => ',',
+                'currency_position' => 'before',
+            ],
+            'general' => ['store_address' => ['country' => $country]],
+        ]));
+        $this->reset_facade_cache();
     }
 
     /**

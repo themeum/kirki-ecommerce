@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const SetupStepIdSchema = z.enum(['products', 'payments', 'customize', 'tax', 'shipping']);
+const SetupStepIdSchema = z.enum(['products', 'payments', 'tax', 'shipping']);
 
 const SetupStepSchema = z.object({
   id: SetupStepIdSchema,

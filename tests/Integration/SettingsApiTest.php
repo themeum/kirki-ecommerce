@@ -28,6 +28,20 @@ class SettingsApiTest extends RestTestCase
     }
 
     /**
+     * Product settings have no barcode generation settings.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_product_settings_have_no_barcode_generation(): void
+    {
+        $response = $this->request('GET', 'settings/' . OptionKeys::PRODUCT_SETTINGS);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertArrayNotHasKey('barcode_generation', $payload['data']);
+    }
+
+    /**
      * Update product settings persists changes.
      *
      * @return void
@@ -869,5 +883,22 @@ class SettingsApiTest extends RestTestCase
             'src="' . esc_url(wp_get_attachment_url($attachment_id)) . '"',
             $payload['data']['html']
         );
+    }
+
+    /**
+     * Saved email settings are not autoloaded, and other settings still are.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_email_settings_are_not_autoloaded(): void
+    {
+        Settings::update('email.default_template.logo', null);
+        Settings::update('product.low_stock_threshold', 3);
+
+        $autoloaded = wp_load_alloptions();
+
+        $this->assertArrayNotHasKey(KIRKI_ECOMMERCE_PREFIX . OptionKeys::EMAIL_SETTINGS, $autoloaded);
+        $this->assertArrayHasKey(KIRKI_ECOMMERCE_PREFIX . OptionKeys::PRODUCT_SETTINGS, $autoloaded);
     }
 }

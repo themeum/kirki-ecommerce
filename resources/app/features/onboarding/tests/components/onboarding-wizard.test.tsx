@@ -218,4 +218,23 @@ describe('onboarding wizard', () => {
 
     expect(await screen.findByText('Products list')).toBeInTheDocument();
   });
+
+  it('lists the configurations without tax when tax is not collected', async () => {
+    startFromDraft(2, essentialsValues);
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+
+    expect(await screen.findByText('Configurations')).toBeInTheDocument();
+    expect(screen.getByText('Essentials, Shipping, Legal pages')).toBeInTheDocument();
+  });
+
+  it('lists tax in the configurations when tax is collected', async () => {
+    startFromDraft(3, { ...essentialsValues, is_tax_collected: true, is_tax_inclusive_price: true });
+    renderWizard();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Store' }));
+
+    expect(await screen.findByText('Essentials, Shipping, Tax, Legal pages')).toBeInTheDocument();
+  });
 });

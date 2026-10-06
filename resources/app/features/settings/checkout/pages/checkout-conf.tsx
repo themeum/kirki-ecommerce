@@ -51,11 +51,6 @@ const CheckoutConf = () => {
               label={__('Company ID', 'kirki-ecommerce')}
               options={options}
             />
-            <SelectField
-              name="checkout_configuration.vat_identification_number_validation"
-              label={__('VAT Identification Number (VATIN)', 'kirki-ecommerce')}
-              options={options}
-            />
 
             <Flex align="center">
               <Flex direction="column" gap={2}>

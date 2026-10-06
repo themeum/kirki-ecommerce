@@ -437,7 +437,7 @@ against 237 words that appear in exactly one document, at 3.76. "Configure your
 store settings" is very nearly free of information.
 
 **Aim for roughly 15–40 words per card.** The current spread runs from 13 words
-(`currency.preferences`) to 41 (`essentials.barcode-generation`), and both ends
+(`currency.preferences`) to 35 (`legal.consents`), and both ends
 hurt: a five-dimension vector lets one accidental word own a third of it, while a
 60-word document dilutes everything in it.
 

@@ -21,7 +21,7 @@ REQUIRED_PATHS=(
 
 OPTIONAL_PATHS=(
   "config"
-  "database"
+  "database/migrations"
   "payments"
   "routes"
   "languages"

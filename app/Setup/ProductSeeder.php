@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\Database\Seeders\OnBoarding;
+namespace Kirki\Ecommerce\App\Setup;
 
 use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
@@ -15,6 +15,8 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Log;
 use Kirki\Ecommerce\Framework\Supports\Str;
 
 use function Kirki\Ecommerce\Framework\app;
+
+defined('ABSPATH') || exit;
 
 /**
  * Seeds the onboarding starter products and imports their bundled imagery.
@@ -59,6 +61,8 @@ class ProductSeeder extends Seeder
             return;
         }
 
+        $this->ensure_demo_attributes();
+
         $this->importer = new MediaImporter();
         $action = app()->make(CreateProductAction::class);
 
@@ -72,6 +76,37 @@ class ProductSeeder extends Seeder
         Log::info('OnBoarding ProductSeeder created the starter products');
 
         $this->cleanup_bundled_images();
+    }
+
+    /**
+     * Create the demo attributes and values the store does not have yet.
+     *
+     * Store setup creates attributes from the industry presets, so a store can
+     * lack Material, or a Color value a demo variant uses. Existing attributes
+     * and values are reused, never changed.
+     *
+     * @since 1.0.0
+     *
+     * @return void
+     */
+    protected function ensure_demo_attributes()
+    {
+        foreach (OnBoardingCatalog::get_demo_attributes() as $definition) {
+            $values = $definition['values'];
+            unset($definition['values']);
+
+            $attribute = Attribute::query()->where('slug', $definition['slug'])->first();
+
+            if (empty($attribute)) {
+                $attribute = Attribute::create($definition);
+            }
+
+            foreach ($values as $value) {
+                if (empty($this->find_attribute_value($attribute->id, $value['value']))) {
+                    $attribute->values()->create($value);
+                }
+            }
+        }
     }
 
     /**
@@ -133,15 +168,17 @@ class ProductSeeder extends Seeder
     }
 
     /**
-     * Resolve a category by walking its path, matching each name within its parent.
+     * Find or create the category at a path, matching each name within its parent.
      *
-     * Matching on name rather than slug because a repeated name is slugged with a
-     * parent prefix, which the catalog paths do not carry.
+     * Matching on name rather than slug because the store's categories may come
+     * from the presets of any industry, whose slugs the demo paths do not know.
+     * A missing category on the path is created, so the demo products always
+     * have their category.
      *
      * @since 1.0.0
      *
      * @param string[] $path Category names from the top level down.
-     * @return int|null ID of the deepest category, or null when a name cannot be resolved.
+     * @return int|null ID of the deepest category, or null for an empty path.
      */
     protected function resolve_category_id(array $path)
     {
@@ -149,17 +186,19 @@ class ProductSeeder extends Seeder
 
         foreach ($path as $index => $name) {
             $query = Category::query()->where('name', $name)->where('level', $index + 1);
-
-            if ($parent_id) {
-                $query->where('parent_id', $parent_id);
-            }
-
+            $query = $parent_id ? $query->where('parent_id', $parent_id) : $query->where_null('parent_id');
             $category = $query->first();
 
             if (empty($category)) {
-                Log::warning(sprintf('OnBoarding ProductSeeder could not resolve the category "%s"', $name));
-
-                return null;
+                $category = Category::create([
+                    'parent_id' => $parent_id,
+                    'name' => $name,
+                    'slug' => Category::generate_unique_slug($name),
+                    'level' => $index + 1,
+                    'is_active' => true,
+                    'is_deletable' => true,
+                    'created_by' => get_current_user_id() ?: null,
+                ]);
             }
 
             $parent_id = $category->id;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\Database\Seeders\OnBoarding;
+namespace Kirki\Ecommerce\App\Setup;
 
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\SellingLocationType;
@@ -10,6 +10,8 @@ use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 
 use function Kirki\Ecommerce\Framework\json_decoded_data;
 use function Kirki\Ecommerce\Framework\resource_path;
+
+defined('ABSPATH') || exit;
 
 /**
  * Seeds the onboarding overrides for the general, product, checkout and payment settings.

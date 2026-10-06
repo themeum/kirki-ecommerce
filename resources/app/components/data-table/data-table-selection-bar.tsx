@@ -85,6 +85,7 @@ const DataTableSelectionBar = (props: DataTableSelectionBarProps) => {
         {enableSelectAllMatching && total > shownCount && (
           <Button
             variant="link"
+            size="sm"
             onClick={isAllMatchingSelected ? onClearSelection : onSelectAllMatching}
           >
             {isAllMatchingSelected

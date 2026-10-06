@@ -8,8 +8,6 @@ type StoreTemplate = {
 };
 
 // @todo: Replace the placeholder images and links with the real template catalog.
-const STORE_TEMPLATES_EXPLORE_URL = '#';
-
 const templateImage = (fileName: string) =>
   `${window.kirki_ecommerce.assets_url}/images/templates/${fileName}`;
 
@@ -23,4 +21,4 @@ const getStoreTemplates = (): StoreTemplate[] => {
   ];
 };
 
-export { getStoreTemplates, STORE_TEMPLATES_EXPLORE_URL };
+export { getStoreTemplates };

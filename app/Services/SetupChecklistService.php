@@ -28,7 +28,6 @@ class SetupChecklistService
 {
     const STEP_PRODUCTS = 'products';
     const STEP_PAYMENTS = 'payments';
-    const STEP_CUSTOMIZE = 'customize';
     const STEP_TAX = 'tax';
     const STEP_SHIPPING = 'shipping';
 
@@ -133,7 +132,6 @@ class SetupChecklistService
         return [
             static::STEP_PRODUCTS,
             static::STEP_PAYMENTS,
-            static::STEP_CUSTOMIZE,
             static::STEP_TAX,
             static::STEP_SHIPPING,
         ];
@@ -170,9 +168,9 @@ class SetupChecklistService
     /**
      * Check whether the store has the data a step asks for.
      *
-     * customize is always met. The other steps need data that checkout can use:
-     * a set-up payment method, a tax region with a rate, or a shipping zone with a
-     * method. Only enabled entries count.
+     * Each step needs data that checkout can use: a product, a set-up payment
+     * method, a tax region with a rate, or a shipping zone with a method. Only
+     * enabled entries count.
      *
      * @since 1.0.0
      *
@@ -187,8 +185,6 @@ class SetupChecklistService
             case static::STEP_PAYMENTS:
                 return collection(Payment::get_all_providers())
                     ->contains(fn($provider) => $this->is_payment_ready($provider));
-            case static::STEP_CUSTOMIZE:
-                return true;
             case static::STEP_TAX:
                 return collection($this->to_list(Tax::get_tax_regions()))
                     ->contains(fn($region) => !empty($region['is_enabled']) && $this->has_product_tax_rate($region));
