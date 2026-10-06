@@ -39,6 +39,18 @@ const applyValuesToDocument = (doc: Document, values: EmailTemplateFormInput) =>
       img.style.cssText = 'width: auto; display: inline-block; border: 0;';
       el.replaceWith(img);
     });
+  } else {
+    doc.querySelectorAll<HTMLElement>('[data-email-part~="logo"]').forEach((el) => {
+      if (el.tagName !== 'IMG') {
+        return;
+      }
+
+      const fallback = doc.createElement('span');
+      fallback.textContent = (el as HTMLImageElement).alt;
+      fallback.setAttribute('data-email-part', 'logo colors.typography.headings');
+      fallback.style.cssText = 'font-size: 18px; font-weight: 700;';
+      el.replaceWith(fallback);
+    });
   }
 
   if (values.height) {
