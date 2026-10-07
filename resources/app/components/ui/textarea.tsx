@@ -39,7 +39,7 @@ const styles = defineStyles({
     padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
     resize: 'none',
     height: 'auto',
-    ...theme.typography.small('medium'),
+    ...theme.typography.small(),
     color: theme.colors.text.primary,
     cursor: 'text',
     '&::placeholder': {
