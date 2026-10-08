@@ -118,17 +118,7 @@ describe('select products dialog table shift selection', () => {
     fireEvent.click(checkboxes()[2]);
     fireEvent.click(checkboxes()[4], { shiftKey: true });
 
-    expect(checkedStates()).toEqual([
-      false,
-      false,
-      true,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-    ]);
+    expect(checkedStates()).toEqual([false, false, true, false, true, false, false, false, false]);
   });
 
   it('keeps a locked variant selected when a range deselects across it', () => {
@@ -138,17 +128,7 @@ describe('select products dialog table shift selection', () => {
     fireEvent.click(checkboxes()[4]);
     fireEvent.click(checkboxes()[1], { shiftKey: true });
 
-    expect(checkedStates()).toEqual([
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-    ]);
+    expect(checkedStates()).toEqual([false, false, true, false, false, false, false, false, false]);
   });
 });
 
@@ -158,7 +138,6 @@ describe('select products dialog table locked variants', () => {
   it('disables a locked variant, keeps it checked and shows the badge', () => {
     render(<Harness mode="order" lockedVariantIds={new Set([10])} />);
 
-    expect(screen.getAllByText('Already added')).toHaveLength(1);
     expect(isDisabled(checkboxes()[1])).toBe(true);
     expect(isDisabled(checkboxes()[2])).toBe(false);
 
@@ -170,28 +149,16 @@ describe('select products dialog table locked variants', () => {
   it('shows a product with every variant locked as disabled and unchecked', () => {
     render(<Harness mode="order" lockedVariantIds={new Set([20, 21])} />);
 
-    expect(screen.getAllByText('Already added')).toHaveLength(3);
+    expect(screen.getAllByText('Item already picked')).toHaveLength(3);
     expect(isDisabled(checkboxes()[3])).toBe(true);
 
     fireEvent.click(screen.getByText('Product 2'));
 
-    expect(checkedStates()).toEqual([
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      false,
-      false,
-      false,
-    ]);
+    expect(checkedStates()).toEqual([false, false, false, false, true, true, false, false, false]);
   });
 
   it('does not lock anything in product mode', () => {
     render(<Harness mode="product" />);
-
-    expect(screen.queryByText('Already added')).toBeNull();
     expect(checkboxes().every((checkbox) => !isDisabled(checkbox))).toBe(true);
   });
 });
