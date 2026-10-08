@@ -16,7 +16,9 @@ use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Exception;
+use Kirki\Ecommerce\App\Constants\OptionKeys;
 
+use function Kirki\Ecommerce\App\settings;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\collection;
 use function Kirki\Ecommerce\Framework\throw_if;
@@ -452,5 +454,24 @@ class CurrencyService
     public function get_active_currencies()
     {
         return Currency::where('is_active', 1)->get();
+    }
+
+    /**
+     * Get the currency preferences.
+     * 
+     * @since 1.0.0
+     * 
+     * @return array
+     */
+    public function get_currency_preferences()
+    {
+        $currency = settings(OptionKeys::CURRENCY_SETTINGS);
+
+        return [
+            'currency_format' => $currency->get('currency_format', 'short'),
+            'decimal_separator' => $currency->get('decimal_separator', '.'),
+            'thousand_separator' => $currency->get('thousand_separator', ','),
+            'currency_position' => $currency->get('currency_position', 'before'),
+        ];
     }
 }

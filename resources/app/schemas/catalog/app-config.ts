@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { CurrencySettingsSchema } from '@/schemas/catalog/settings';
+
 /**
  * The lightweight id/code/name/symbol currency reference, not the full
  * `Currency` entity from `schemas/catalog/currency.ts`.
@@ -31,6 +33,12 @@ export const AppConfigSchema = z
     version: z.string().nullish(),
     current_user: AppConfigUserSchema.nullish(),
     base_currency: AppConfigCurrencySchema.nullish(),
+    currency_preferences: CurrencySettingsSchema.pick({
+      currency_format: true,
+      currency_position: true,
+      thousand_separator: true,
+      decimal_separator: true,
+    }).nullish(),
   })
   .passthrough();
 

@@ -84,12 +84,11 @@ describe('getSetupStepDefinition', () => {
     expect(action).toMatchObject({ completesStep: false });
   });
 
-  it('routes both payment buttons to Payment settings', () => {
+  it('routes the payment button to Payment settings', () => {
     const actions = getSetupStepDefinition(step('payments')).actions;
 
     expect(actions.map((action) => [action.label, action.kind === 'link' && action.to])).toEqual([
       ['Add payment', '/settings/payments'],
-      ['Cash on delivery', '/settings/payments'],
     ]);
   });
 
