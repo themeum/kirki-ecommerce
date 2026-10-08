@@ -1,6 +1,10 @@
 import { z } from 'zod';
 
-import { CouponDiscountTargetSchema, CouponDiscountTypeSchema, CouponDiscountValueTypeSchema } from '@/features/coupons';
+import {
+  CouponDiscountTargetSchema,
+  CouponDiscountTypeSchema,
+  CouponDiscountValueTypeSchema,
+} from '@/features/coupons';
 import { MoneyObjectSchema } from '@/schemas/shared/api';
 import { MediaRefSchema } from '@/schemas/shared/media';
 
@@ -314,7 +318,9 @@ export const OrderListItemSchema = OrderSchema.pick({
     is_refund_initiated: z.boolean(),
     payment_status: PaymentStatusSchema,
     payment_provider: z.string().nullish(),
+    payment_provider_name: z.string().nullish(),
     payment_provider_icon: z.string().nullish(),
+    payment_provider_is_offline: z.boolean().nullish(),
     created_at: z.string(),
   }),
 );
