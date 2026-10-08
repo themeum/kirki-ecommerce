@@ -230,13 +230,7 @@ class MoneyManager
     {
         $amount = (string) $money->getAmount();
         $currency_code = $money->getCurrency()->getCurrencyCode();
-        $currency = settings(OptionKeys::CURRENCY_SETTINGS);
-
-        $currency_settings = [
-            'decimal_separator' => $currency->get('decimal_separator', '.'),
-            'thousand_separator' => $currency->get('thousand_separator', ','),
-            'currency_position' => $currency->get('currency_position', 'before'),
-        ];
+        $currency_settings = app(CurrencyService::class)->get_currency_preferences();
 
         if ($currency_settings['thousand_separator'] === 'space') {
             $currency_settings['thousand_separator'] = ' ';

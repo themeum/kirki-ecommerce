@@ -80,6 +80,16 @@ trait BindsTaxDependencies
             {
                 return $this->currency;
             }
+
+            public function get_currency_preferences()
+            {
+                return [
+                    'currency_format' => 'short',
+                    'decimal_separator' => '.',
+                    'thousand_separator' => ',',
+                    'currency_position' => 'before',
+                ];
+            }
         };
 
         $container->instance('settings', $settings_factory);

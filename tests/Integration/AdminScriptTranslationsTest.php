@@ -143,7 +143,8 @@ class AdminScriptTranslationsTest extends WP_UnitTestCase
      * The test WordPress loads the plugin from outside its own `WP_PLUGIN_DIR`, so
      * the plugin's asset URLs do not sit under `plugins_url()` and core cannot cut
      * them down to a plugin-relative path. On a standard install it gets
-     * `assets/js/...`, and this filter returns the same.
+     * `assets/js/...`, and this filter returns the same wherever the plugin is
+     * checked out.
      *
      * @since 1.0.0
      *
@@ -153,10 +154,13 @@ class AdminScriptTranslationsTest extends WP_UnitTestCase
      */
     public function relative_to_plugin_root($relative, $src)
     {
-        $marker = '/plugins/kirki-ecommerce/';
-        $position = strrpos($src, $marker);
+        $assets_url = KIRKI_ECOMMERCE_ASSETS_URL . '/';
 
-        return $position === false ? $relative : substr($src, $position + strlen($marker));
+        if (strpos($src, $assets_url) !== 0) {
+            return $relative;
+        }
+
+        return 'assets/' . substr($src, strlen($assets_url));
     }
 
     /**
