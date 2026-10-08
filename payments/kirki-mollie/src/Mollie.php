@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Http\Request;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Supports\Facades\DB;
 use Kirki\Ecommerce\Framework\Validation\Validator;
@@ -153,8 +154,7 @@ class Mollie extends PaymentProvider
      */
     public function webhook()
     {
-        $payload = Request::capture();
-        $payment_id = $payload->get('id', null, 'string');
+        $payment_id = Superglobals::post('id');
 
         http_response_code(200);
 

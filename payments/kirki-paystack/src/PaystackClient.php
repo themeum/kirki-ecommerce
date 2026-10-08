@@ -3,6 +3,7 @@
 namespace Kirki\Ecommerce\Payments;
 
 use Exception;
+use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Supports\Facades\Http;
 
 defined('ABSPATH') || exit;
@@ -33,8 +34,8 @@ class PaystackClient
      */
     public function is_verified(string $raw_payload): bool
     {
-        $given_signature = $_SERVER['HTTP_X_PAYSTACK_SIGNATURE'] ?? '';
-        $request_method = $_SERVER['REQUEST_METHOD'] ?? '';
+        $given_signature = Superglobals::server('HTTP_X_PAYSTACK_SIGNATURE');
+        $request_method = Superglobals::server('REQUEST_METHOD');
 
         if (strtoupper($request_method) !== 'POST' || empty($given_signature) || empty($raw_payload)) {
             return false;
