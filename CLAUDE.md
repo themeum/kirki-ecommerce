@@ -1,12 +1,8 @@
 # Project Instructions for Claude
 
-This file is based on `.cursor/rules/` but the PHP and React sections have
-been re-derived from the actual codebase (not just copied from the `.mdc`
-files), so they reflect real conventions rather than stale ones — e.g. the
-frontend moved from `.jsx` to TypeScript, and the PHP `@since`/`final` rules
-didn't match what the code actually does. Section 1 (behavioral guidelines)
-is a direct mirror of `karpathy-guidelines.mdc`. If the codebase's conventions
-change, re-derive rather than trusting `.cursor/rules/` at face value.
+The PHP and React rule files (sections 2 and 3) are derived from the code in
+this repository. If the codebase's conventions change, derive the rules again
+from the code.
 
 ---
 
@@ -22,8 +18,6 @@ opening a browser preview.
 ---
 
 ## 1. Behavioral Guidelines (always apply)
-
-Source: `.cursor/rules/karpathy-guidelines.mdc`
 
 Behavioral guidelines to reduce common LLM coding mistakes.
 
@@ -49,7 +43,6 @@ Before implementing:
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
-- Apply ASD-STE100 for the response text.
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
@@ -114,6 +107,12 @@ Note: Whenever I start a new session make sure to follow the **OpenSpec workflow
 
 ---
 
+## 1b. Response Text
+
+Write response text in ASD-STE100 (Simplified Technical English).
+
+---
+
 ## 2. PHP Coding Standards
 
 Full standards live in `.claude/rules/php-standards.md`, which loads when
@@ -136,10 +135,11 @@ working on `.ts`/`.tsx` files under `resources/app/`.
 ## 6. Documentation
 
 User-facing features get a `docs/<feature>.md`, structured like
-[`docs/cache.md`](docs/cache.md): a table of contents, then numbered `## N. Topic`
-sections, quick start first, configuration and drivers in the middle, and — for
-anything modelled on a Laravel API — a **"Where this differs from Laravel"**
-section near the end that is honest about the gaps. That section is not
+[`docs/emails.md`](docs/emails.md): a table of contents, then numbered `## N. Topic`
+sections, quick start first, reference sections in the middle, and — for
+anything modelled on an existing system (a Laravel API, a WooCommerce feature) —
+a **"Where this differs from <system>"** section near the end that is honest
+about the gaps. That section is not
 optional; it is what stops a consumer assuming parity we don't have.
 
 Keep docs in the same change as the code. A doc that describes the old

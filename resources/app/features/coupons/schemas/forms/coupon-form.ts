@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
 import { CategorySchema } from '@/features/categories';
-import type {
-  CouponEligibleItemType,
-} from '@/features/coupons/schemas/catalog/coupon';
+import type { CouponEligibleItemType } from '@/features/coupons/schemas/catalog/coupon';
 import {
   CouponCustomerExcludeEligibilitySchema,
   CouponCustomerIncludeEligibilitySchema,
@@ -16,7 +14,12 @@ import {
 } from '@/features/coupons/schemas/catalog/coupon';
 import { CustomerInfoSchema } from '@/features/customers';
 import { ProductSelectionSchema } from '@/features/products/schemas/catalog/product-selection';
-import { END_OF_DAY_TIME, formatAtomDateTime, mergeDateAndTime, START_OF_DAY_TIME } from '@/libs/date';
+import {
+  END_OF_DAY_TIME,
+  formatAtomDateTime,
+  mergeDateAndTime,
+  START_OF_DAY_TIME,
+} from '@/libs/date';
 import { isEmptyValue, moneyOrNull, prepareFormSchema, required, requiredWhen } from '@/libs/zod';
 import { RegionSchema } from '@/schemas/shared/region';
 import { __ } from '@/wpi18n';
@@ -63,16 +66,17 @@ const CouponFormShape = z.object({
     },
     (values) => {
       if (Number(values.discount_amount) < 0) {
-        return __('Discount amount must be greater than or equal to 0', 'kirki-ecommerce')
+        return __('Discount amount must be greater than or equal to 0', 'kirki-ecommerce');
       }
 
       if (values.discount_value_type === 'percentage' && Number(values.discount_amount) > 100) {
-        return __('Percentage must be less than or equal to 100', 'kirki-ecommerce')
+        return __('Percentage must be less than or equal to 100', 'kirki-ecommerce');
       }
 
-      return __('Enter a valid discount amount', 'kirki-ecommerce')
+      return __('Enter a valid discount amount', 'kirki-ecommerce');
     },
   ),
+  is_active: z.boolean().default(true),
   start_date: required(z.string().default(''), __('Start date is required', 'kirki-ecommerce')),
   start_time: z.string().nullish().default(null),
   has_end_datetime: z.boolean().default(false),
@@ -85,13 +89,17 @@ const CouponFormShape = z.object({
   has_usage_limit: z.boolean().default(false),
   usage_limit: requiredWhen(
     z.number().nullish().default(null),
-    (values) => Boolean(values.has_usage_limit) && (isEmptyValue(values.usage_limit) || Number(values.usage_limit) <= 0),
+    (values) =>
+      Boolean(values.has_usage_limit) &&
+      (isEmptyValue(values.usage_limit) || Number(values.usage_limit) <= 0),
     __('Usage limit required', 'kirki-ecommerce'),
   ),
   has_customer_limit: z.boolean().default(false),
   customer_limit: requiredWhen(
     z.number().nullish().default(null),
-    (values) => Boolean(values.has_customer_limit) && (isEmptyValue(values.customer_limit) || Number(values.customer_limit) <= 0),
+    (values) =>
+      Boolean(values.has_customer_limit) &&
+      (isEmptyValue(values.customer_limit) || Number(values.customer_limit) <= 0),
     __('Customer usage limit required', 'kirki-ecommerce'),
   ),
   eligible_item_type: requiredWhen(
@@ -104,8 +112,7 @@ const CouponFormShape = z.object({
   ),
   products: requiredWhen(
     z.array(ProductSelectionSchema).nullish().default([]),
-    (values) =>
-      isProductEligibility(values, 'specific-products') && isEmptyValue(values.products),
+    (values) => isProductEligibility(values, 'specific-products') && isEmptyValue(values.products),
     __('Select at least one product', 'kirki-ecommerce'),
   ),
   categories: requiredWhen(
@@ -118,8 +125,7 @@ const CouponFormShape = z.object({
   target_countries: requiredWhen(
     z.array(RegionSchema).nullish().default([]),
     (values) =>
-      values.target_country_type === 'specific-countries' &&
-      isEmptyValue(values.target_countries),
+      values.target_country_type === 'specific-countries' && isEmptyValue(values.target_countries),
     __('Select at least one region', 'kirki-ecommerce'),
   ),
   first_time_buyer_only: z.boolean().default(false),
@@ -144,22 +150,21 @@ const CouponFormShape = z.object({
 const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) => {
   const isAmountOff = values.discount_type === 'amount-off';
   const isProductTarget = isAmountOff && values.discount_target === 'products';
-  const eligibleItemType = isProductTarget ? values.eligible_item_type ?? null : null;
+  const eligibleItemType = isProductTarget ? (values.eligible_item_type ?? null) : null;
 
   return {
     method: values.method,
     title: values.title,
     code: values.method === 'code' ? values.code?.trim() || null : null,
     discount_type: values.discount_type,
-    discount_target: isAmountOff ? values.discount_target ?? null : null,
+    discount_target: isAmountOff ? (values.discount_target ?? null) : null,
     eligible_item_type: eligibleItemType,
-    discount_value_type: isAmountOff ? values.discount_value_type ?? null : null,
-    discount_amount:
-      isAmountOff && values.discount_amount ? values.discount_amount : null,
-    start_datetime: formatAtomDateTime(mergeDateAndTime(
-      values.start_date ?? '',
-      values.start_time ?? START_OF_DAY_TIME,
-    )),
+    discount_value_type: isAmountOff ? (values.discount_value_type ?? null) : null,
+    discount_amount: isAmountOff && values.discount_amount ? values.discount_amount : null,
+    is_active: values.is_active,
+    start_datetime: formatAtomDateTime(
+      mergeDateAndTime(values.start_date ?? '', values.start_time ?? START_OF_DAY_TIME),
+    ),
     has_end_datetime: values.has_end_datetime,
     end_datetime: formatAtomDateTime(
       values.has_end_datetime
@@ -180,9 +185,7 @@ const CouponFormSchema = prepareFormSchema(CouponFormShape).transform((values) =
         : [],
     target_country_type: values.target_country_type,
     target_countries:
-      values.target_country_type === 'specific-countries'
-        ? values.target_countries ?? []
-        : null,
+      values.target_country_type === 'specific-countries' ? (values.target_countries ?? []) : null,
     first_time_buyer_only: values.first_time_buyer_only,
     customer_include_eligibility: values.customer_include_eligibility,
     customer_ids:
@@ -203,4 +206,3 @@ type CouponFormInput = z.input<typeof CouponFormSchema>;
 
 export { CouponFormSchema };
 export type { CouponFormInput, CouponFormPayload };
-

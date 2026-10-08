@@ -40,6 +40,7 @@ describe('CouponFormSchema', () => {
       eligible_item_type: null,
       discount_value_type: 'fixed',
       discount_amount: '10',
+      is_active: true,
       start_datetime: expectedDateTime('2026-06-01', '09:00'),
       has_end_datetime: false,
       end_datetime: null,

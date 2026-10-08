@@ -2,11 +2,15 @@ import { Copy } from 'lucide-react';
 import { useCallback } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
+import SwitchField from '@/components/form/switch-field';
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
+import { Separator } from '@/components/ui/separator';
 import Text from '@/components/ui/text';
 import type { CouponFormInput } from '@/features/coupons/schemas/forms/coupon-form';
+import { useFormatCurrency } from '@/hooks/use-base-currency';
 import {
   DATE_FORMATS,
   END_OF_DAY_TIME,
@@ -18,6 +22,7 @@ import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 import { copyToClipboard } from '@/utils';
+import { isDefined } from '@/utils/object';
 import { __, _n, sprintf } from '@/wpi18n';
 
 const formatDisplayDate = (date?: string | null, time?: string | null) =>
@@ -52,11 +57,12 @@ const PreviewSection = ({ title, lines }: PreviewSectionProps) => (
 PreviewSection.displayName = 'PreviewSection';
 
 const CouponPreview = () => {
+  const formatCurrency = useFormatCurrency();
   const { control } = useFormContext<CouponFormInput>();
   const values = useWatch({ control });
 
   const isAmountOff = values.discount_type === 'amount-off';
-  const hasDiscountAmount = isAmountOff && Boolean(values.discount_amount);
+  const hasDiscountAmount = isAmountOff && isDefined(values.discount_amount);
   const isPercentage = values.discount_value_type === 'percentage';
 
   const handleCopyCode = async () => {
@@ -90,12 +96,22 @@ const CouponPreview = () => {
   const activeFrom = formatDisplayDate(values?.start_date, values.start_time ?? START_OF_DAY_TIME);
   const detailsLines = [
     hasDiscountAmount
-      ? // TODO: Add currency formatter to show discount amount
-        `${values.discount_amount}${isPercentage ? '%' : ''} ${__('off', 'kirki-ecommerce')} ${
-          values.discount_target === 'products'
-            ? __('selected products', 'kirki-ecommerce')
-            : __('entire order', 'kirki-ecommerce')
-        }`
+      ? isPercentage
+        ? values.discount_target === 'products'
+          ? sprintf(
+              __('%s%% off selected products', 'kirki-ecommerce'),
+              values.discount_amount ?? '',
+            )
+          : sprintf(__('%s%% off entire order', 'kirki-ecommerce'), values.discount_amount ?? '')
+        : values.discount_target === 'products'
+          ? sprintf(
+              __('%s off selected products', 'kirki-ecommerce'),
+              formatCurrency(values.discount_amount ?? 0),
+            )
+          : sprintf(
+              __('%s off entire order', 'kirki-ecommerce'),
+              formatCurrency(values.discount_amount ?? 0),
+            )
       : __('Discount value not set yet', 'kirki-ecommerce'),
     activeFrom
       ? `${__('Active from', 'kirki-ecommerce')} ${activeFrom}`
@@ -169,51 +185,68 @@ const CouponPreview = () => {
           ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default },
           ...cardStyles.formCard,
         }}
+        noShadow
       >
         <CardContent>
           <Flex direction="column" gap={2}>
-            <Flex justify="space-between" align="center" gap={2}>
+            {values.method === 'code' && (
+              <Flex justify="space-between" align="center">
+                <Text
+                  variant="heading4"
+                  weight="semibold"
+                  color={values.code ? 'emphasis' : 'disabled'}
+                >
+                  {values.code || __('No code set', 'kirki-ecommerce')}
+                </Text>
+                {values.code && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    disabled={!values.code}
+                    onClick={handleCopyCode}
+                    aria-label={__('Copy coupon code', 'kirki-ecommerce')}
+                  >
+                    <Copy />
+                  </Button>
+                )}
+              </Flex>
+            )}
+
+            <Flex justify="space-between" align="center">
               <Text variant="small" weight="normal">
                 {values.title?.trim() || __('Untitled coupon', 'kirki-ecommerce')}
               </Text>
+              {hasDiscountAmount && (
+                <Badge variant="destructive">
+                  {isPercentage
+                    ? sprintf('%s%% OFF', values.discount_amount ?? '')
+                    : sprintf('%s OFF', formatCurrency(values.discount_amount ?? 0))}
+                </Badge>
+              )}
             </Flex>
 
-            <Flex direction="column">
-              {values.method === 'code' && (
-                <Flex align="center" gap={1}>
-                  <Text
-                    variant="heading4"
-                    weight="semibold"
-                    color={values.code ? 'emphasis' : 'disabled'}
-                  >
-                    {values.code || __('No code set', 'kirki-ecommerce')}
-                  </Text>
-                  {values.code && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-xs"
-                      disabled={!values.code}
-                      onClick={handleCopyCode}
-                      aria-label={__('Copy coupon code', 'kirki-ecommerce')}
-                    >
-                      <Copy />
-                    </Button>
-                  )}
-                </Flex>
-              )}
+            <Separator />
 
-              <Flex align="center" gap={1}>
+            <Flex justify="space-between" align="center">
+              <Text variant="small" color="primary">
+                {__('Coupon Status', 'kirki-ecommerce')}
+              </Text>
+              <Flex>
+                <SwitchField name="is_active" />
+              </Flex>
+            </Flex>
+
+            {validUntil && (
+              <Flex justify="space-between" align="center">
                 <Text variant="small" color="primary">
-                  {validUntil
-                    ? __('Valid until', 'kirki-ecommerce')
-                    : __('No expiration date', 'kirki-ecommerce')}
+                  {__('Valid until', 'kirki-ecommerce')}
                 </Text>
                 <Text variant="small" color="primary" weight="semibold">
                   {validUntil}
                 </Text>
               </Flex>
-            </Flex>
+            )}
           </Flex>
         </CardContent>
       </Card>
@@ -223,6 +256,7 @@ const CouponPreview = () => {
           ...{ borderStyle: 'dashed', borderColor: theme.colors.border.default },
           ...cardStyles.formCard,
         }}
+        noShadow
       >
         <CardContent>
           <Flex direction="column" gap={4}>

@@ -1,17 +1,22 @@
 import { Card, CardContent } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
+import Skeleton from '@/components/ui/skeleton';
 import Text from '@/components/ui/text';
 import useSeoPreviewData from '@/features/products/components/product-form/sections/seo-settings/use-seo-preview-data';
 import { theme } from '@/theme';
 import { cardStyles } from '@/theme/card-styles';
 import { defineStyles } from '@/theme/mixins';
 
+const BREADCRUMB_SKELETON_WIDTH = 180;
+const BREADCRUMB_SKELETON_HEIGHT = 20;
+
 const SearchEnginePreview = () => {
   const {
     storeName,
     storeLogoUrl,
     breadcrumbUrl,
+    isBreadcrumbLoading,
     previewTitle,
     previewDescription,
     previewImageUrl,
@@ -35,9 +40,13 @@ const SearchEnginePreview = () => {
                   {storeName}
                 </Text>
               ) : null}
-              <Text variant="small" cssOverride={styles.breadcrumb}>
-                {breadcrumbUrl}
-              </Text>
+              {isBreadcrumbLoading ? (
+                <Skeleton width={BREADCRUMB_SKELETON_WIDTH} height={BREADCRUMB_SKELETON_HEIGHT} />
+              ) : (
+                <Text variant="small" cssOverride={styles.breadcrumb}>
+                  {breadcrumbUrl}
+                </Text>
+              )}
             </Flex>
             {previewTitle ? (
               <Text weight="semibold" cssOverride={styles.title}>
