@@ -27,7 +27,7 @@ class AppConfigService
             'version' => app()->version(),
             'current_user' => user()->get_data(),
             'base_currency' => base_currency(),
-            'currency_preferences' => app()->make(CurrencyService::class)->get_currency_preferences(),
+            'currency_preferences' => app(CurrencyService::class)->get_currency_preferences(),
         ];
     }
 }
