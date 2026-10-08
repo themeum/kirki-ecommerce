@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronDown } from 'lucide-react';
 import {
+  type ComponentProps,
   type Dispatch,
   type MouseEvent as ReactMouseEvent,
   type SetStateAction,
@@ -33,7 +34,7 @@ import { useBaseCurrencySymbol } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
 import { theme } from '@/theme';
-import { defineStyles, scoped } from '@/theme/mixins';
+import { defineStyles, mergeCss, scoped } from '@/theme/mixins';
 import type { FormErrors } from '@/types/pages/common';
 import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
@@ -44,7 +45,7 @@ type BaseUnitPopoverProps = {
   data?: ProductVariant | null;
   currencySymbol?: string;
   onChange: (value: BaseUnitFormPayload) => void;
-  buttonProps?: Record<string, unknown>;
+  buttonProps?: ComponentProps<typeof Button>;
 };
 
 const getInitialValues = (data?: ProductVariant | null): BaseUnitFormInput => {
@@ -160,12 +161,15 @@ const BaseUnitPopover = ({
         <Button
           variant="outline"
           {...buttonProps}
-          cssOverride={{
-            width: '100%',
-            justifyContent: 'space-between',
-            backgroundColor: theme.colors.background.fill,
-            ...theme.typography.small(),
-          }}
+          cssOverride={mergeCss(
+            {
+              width: '100%',
+              justifyContent: 'space-between',
+              backgroundColor: theme.colors.background.fill,
+              ...theme.typography.small(),
+            },
+            buttonProps?.cssOverride,
+          )}
         >
           {btnText}
           <ChevronDown

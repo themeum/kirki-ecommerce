@@ -2,7 +2,7 @@ import { type SerializedStyles } from '@emotion/react';
 import { useEffect, useMemo, useRef } from 'react';
 
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
-import { theme } from '@/theme';
+import { getCssVarName, type PrimitiveColorKey, theme } from '@/theme';
 import { defineStyles, scopedMerge } from '@/theme/mixins';
 import { noop } from '@/utils/function';
 import { isDefined } from '@/utils/object';
@@ -68,6 +68,19 @@ type TinyMceButtonControl = {
 };
 
 const DEFAULT_FONT_SIZES = ['10', '12', '13', '14', '16', '18', '20', '24', '30', '36'];
+
+const primitiveCssVariables = (
+  Object.entries(theme.primitives.colors) as [PrimitiveColorKey, string][]
+)
+  .map(([key, value]) => `${getCssVarName(key)}: ${value};`)
+  .join(' ');
+
+const getEditorContentStyle = (rootBlockElement: 'p' | 'div') => {
+  const typography = theme.typography.small();
+  const baseStyle = `:root { ${primitiveCssVariables} } body { color: ${theme.colors.text.primary}; font-family: ${theme.typography.fontFamily}; font-size: ${typography.fontSize}; font-weight: ${typography.fontWeight}; line-height: ${typography.lineHeight}; letter-spacing: ${typography.letterSpacing}; }`;
+
+  return rootBlockElement === 'div' ? `${baseStyle} body > div { margin: 1em 0; }` : baseStyle;
+};
 
 const normalizeFontSize = (value: string) => {
   const trimmed = value.trim();
@@ -505,7 +518,7 @@ const RichText = ({
       height: 200,
       placeholder,
       forced_root_block: rootBlockElement,
-      content_style: rootBlockElement === 'div' ? 'body > div { margin: 1em 0; }' : undefined,
+      content_style: getEditorContentStyle(rootBlockElement),
       plugins: 'link lists paste textcolor',
       toolbar:
         'bold italic underline blockquote customfontsize forecolor alignleft aligncenter alignright alignjustify bullist numlist shortcodes undo redo',
@@ -575,9 +588,10 @@ const styles = defineStyles({
     justifyContent: 'flex-start',
     columnGap: theme.spacing[4],
     width: '100%',
+
     '.mce-tinymce': {
       position: 'relative',
-      border: `0.63px solid ${theme.colors.border.default}`,
+      border: `1px solid ${theme.colors.border.default}`,
       boxShadow: 'none',
       borderRadius: theme.radius.sm,
       overflow: 'hidden',
