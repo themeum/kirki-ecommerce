@@ -49,16 +49,16 @@ define('KIRKI_ECOMMERCE_PLUGIN_FILE', __FILE__);
 define('KIRKI_ECOMMERCE_PLUGIN_PATH', plugin_dir_path(KIRKI_ECOMMERCE_PLUGIN_FILE));
 
 /**
- * The kirki ecommerce plugin assets url
+ * The kirki ecommerce plugin URL
  * @var string
  */
-$kecom_relative_path = str_replace(WP_CONTENT_DIR, '', KIRKI_ECOMMERCE_PLUGIN_PATH);
+define('KIRKI_ECOMMERCE_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * The kirki ecommerce plugin assets path
  * @var string
  */
-define('KIRKI_ECOMMERCE_ASSETS_URL', WP_CONTENT_URL . $kecom_relative_path . 'assets');
+define('KIRKI_ECOMMERCE_ASSETS_URL', plugins_url('assets', KIRKI_ECOMMERCE_PLUGIN_FILE));
 
 /**
  * The kirki ecommerce plugin assets path
