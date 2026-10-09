@@ -247,9 +247,6 @@ Route::group(['middleware' => [AuthMiddleware::class, AdminMiddleware::class]], 
     Route::delete('/offline-payments/{id}', [OfflinePaymentController::class, 'delete']);
 });
 
-//@todo remove this later as its just to mock the zip download
-Route::get('/online-payments/download/{id}', [OnlinePaymentController::class, 'download']);
-
 // Site api endpoints.
 Route::get('/shop/products', [SiteController::class, 'products']);
 
