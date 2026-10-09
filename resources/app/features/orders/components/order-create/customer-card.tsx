@@ -61,13 +61,37 @@ const WATCHED_ADDRESS_FIELDS = [
   'billing_country',
 ] as const satisfies readonly (keyof OrderFormInput)[];
 
+const CONTACT_ERROR_FIELDS = [
+  'customer_first_name',
+  'customer_last_name',
+] as const satisfies readonly (keyof OrderFormInput)[];
+
+const SHIPPING_ERROR_FIELDS = [
+  'shipping_first_name',
+  'shipping_last_name',
+  'shipping_address_line1',
+  'shipping_city',
+  'shipping_state',
+  'shipping_postal_code',
+  'shipping_country',
+] as const satisfies readonly (keyof OrderFormInput)[];
+
+const BILLING_ERROR_FIELDS = [
+  'billing_first_name',
+  'billing_last_name',
+  'billing_address_line1',
+  'billing_city',
+  'billing_state',
+  'billing_postal_code',
+  'billing_country',
+] as const satisfies readonly (keyof OrderFormInput)[];
+
 const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps) => {
   const form = useFormContext<OrderFormInput>();
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [shippingDialogOpen, setShippingDialogOpen] = useState(false);
   const [billingDialogOpen, setBillingDialogOpen] = useState(false);
-  const [isChangingCustomer, setIsChangingCustomer] = useState(false);
   const [dialogPrefill, setDialogPrefill] = useState('');
   const snapshot = useRef(form.getValues());
   const shouldApplyCustomerAddress = useRef(false);
@@ -75,7 +99,13 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   const customerId = useWatch({ control: form.control, name: 'customer_id' });
   const { data: customer } = useCustomerQuery(Number(customerId ?? 0), Boolean(customerId));
   const { data: countries = [] } = useCountriesQuery({ limit: -1 });
-  const error = form.formState.errors.customer_id;
+  const errors = form.formState.errors;
+  const customerError = errors.customer_id;
+  const hasContactError = CONTACT_ERROR_FIELDS.some((field) => Boolean(errors[field]));
+  const hasShippingError = SHIPPING_ERROR_FIELDS.some((field) => Boolean(errors[field]));
+  const hasBillingError = BILLING_ERROR_FIELDS.some((field) => Boolean(errors[field]));
+  const hasError =
+    Boolean(customerError) || Boolean(hasContactError) || hasShippingError || hasBillingError;
 
   useEffect(() => {
     if (!customer || !shouldApplyCustomerAddress.current) {
@@ -98,18 +128,6 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
       WATCHED_ADDRESS_FIELDS.map((field) => [field, defaults[field]]),
     );
     form.reset({ ...form.getValues(), ...defaultAddresses, customer_id: null });
-    setIsChangingCustomer(true);
-  };
-
-  const handleCancelChange = () => {
-    shouldApplyCustomerAddress.current = false;
-    form.reset(snapshot.current);
-    setIsChangingCustomer(false);
-  };
-
-  const handleSaveChange = () => {
-    setIsChangingCustomer(false);
-    onSave?.();
   };
 
   const [
@@ -153,7 +171,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
   };
 
   return (
-    <Card cssOverride={{ gap: theme.spacing[2] }}>
+    <Card cssOverride={{ gap: theme.spacing[2], ...(hasError ? styles.cardInvalid : {}) }}>
       <CardHeader cssOverride={styles.headerRow}>
         <CardTitle>
           <Flex gap={2} align="center">
@@ -197,16 +215,33 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
           </DropdownMenu>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent cssOverride={styles.cardContent} data-check="true">
+        {(hasContactError || hasShippingError || hasBillingError) && (
+          <Flex direction="column" gap={2}>
+            {hasContactError && (
+              <FieldError>{__('Customer information is incomplete', 'kirki-ecommerce')}</FieldError>
+            )}
+            {hasShippingError && (
+              <FieldError>{__('Shipping address is incomplete', 'kirki-ecommerce')}</FieldError>
+            )}
+            {hasBillingError && (
+              <FieldError>{__('Billing address is incomplete', 'kirki-ecommerce')}</FieldError>
+            )}
+          </Flex>
+        )}
         {customer ? (
-          <CustomerSummary
-            name={[values.customer_first_name, values.customer_last_name].filter(Boolean).join(' ')}
-            email={values.customer_email}
-            phone={values.customer_phone}
-            photo={customer.photo}
-            billingAddress={formatBillingAddress(values, countries)}
-            shippingAddress={formatShippingAddress(values, countries)}
-          />
+          <Flex direction="column" gap={3}>
+            <CustomerSummary
+              name={[values.customer_first_name, values.customer_last_name]
+                .filter(Boolean)
+                .join(' ')}
+              email={values.customer_email}
+              phone={values.customer_phone}
+              photo={customer.photo}
+              billingAddress={formatBillingAddress(values, countries)}
+              shippingAddress={formatShippingAddress(values, countries)}
+            />
+          </Flex>
         ) : (
           <Flex direction="column" gap={2}>
             <CustomerSearchDropdown
@@ -216,22 +251,7 @@ const CustomerCard = ({ onSave, isSaving, readonly = false }: CustomerCardProps)
                 setAddDialogOpen(true);
               }}
             />
-            {error && <FieldError errors={[error]} />}
-          </Flex>
-        )}
-        {!readonly && onSave && isChangingCustomer && (
-          <Flex gap={2} justify="flex-end" cssOverride={styles.changeActions}>
-            <Button variant="ghost" onClick={handleCancelChange}>
-              {__('Cancel', 'kirki-ecommerce')}
-            </Button>
-            <Button
-              variant="primary"
-              loading={isSaving}
-              disabled={!customerId}
-              onClick={handleSaveChange}
-            >
-              {__('Save', 'kirki-ecommerce')}
-            </Button>
+            {isDefined(customerError) && <FieldError errors={[customerError]} />}
           </Flex>
         )}
       </CardContent>
@@ -287,13 +307,18 @@ CustomerCard.displayName = 'CustomerCard';
 export default CustomerCard;
 
 const styles = defineStyles({
+  cardInvalid: {
+    borderColor: theme.colors.background.fillCritical,
+  },
+  cardContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing[2],
+  },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: '28px',
-  },
-  changeActions: {
-    marginTop: theme.spacing[3],
   },
 });

@@ -33,13 +33,33 @@ const ContactInfoDialog = ({ open, onOpenChange, onSave, isSaving }: ContactInfo
     onOpenChange(false);
   };
 
-  const handleSave = () => {
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      handleCancel();
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
+
+  const handleSave = async () => {
+    const isValid = await form.trigger([
+      'customer_first_name',
+      'customer_last_name',
+      'customer_email',
+      'customer_phone',
+    ]);
+
+    if (!isValid) {
+      return;
+    }
+
     onSave?.();
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent cssOverride={{ width: '480px' }}>
         <DialogHeader>
           <DialogTitle>{__('Edit contact information', 'kirki-ecommerce')}</DialogTitle>
@@ -60,7 +80,7 @@ const ContactInfoDialog = ({ open, onOpenChange, onSave, isSaving }: ContactInfo
             {__('Cancel', 'kirki-ecommerce')}
           </Button>
           <Button variant="primary" onClick={handleSave} loading={isSaving}>
-            {__('Save', 'kirki-ecommerce')}
+            {__('Update', 'kirki-ecommerce')}
           </Button>
         </DialogFooter>
       </DialogContent>

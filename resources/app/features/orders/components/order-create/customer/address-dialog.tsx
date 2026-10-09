@@ -154,7 +154,16 @@ const AddressDialog = ({
     onOpenChange(false);
   };
 
-  const handleSave = () => {
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      handleCancel();
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
+
+  const handleSave = async () => {
     if (type === 'billing') {
       const shippingDefault =
         (customer.addresses ?? []).find((address) => address.is_default_shipping) ?? null;
@@ -172,12 +181,18 @@ const AddressDialog = ({
       });
     }
 
+    const isValid = await form.trigger(Object.values(fields));
+
+    if (!isValid) {
+      return;
+    }
+
     onSave?.();
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent cssOverride={{ width: '560px' }}>
         <DialogHeader>
           <DialogTitle>{ADDRESS_TITLES[type]}</DialogTitle>
