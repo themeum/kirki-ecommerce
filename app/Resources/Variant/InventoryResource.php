@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Variant;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\DTO\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 
 /**

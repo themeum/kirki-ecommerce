@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Payment;
 
+defined('ABSPATH') || exit;
+
 /**
  * The outcome of a payment provider's webhook() handling.
  *

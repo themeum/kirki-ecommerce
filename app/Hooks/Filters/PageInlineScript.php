@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;

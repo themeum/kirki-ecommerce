@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Customer as CustomerModel;
 
 /**

@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 return [
     /**
      * Storage driver: "database" stores payloads in WordPress transients,

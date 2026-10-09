@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\Variant\VariantListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Variant\BulkUpdateVariantRequest;
 use Kirki\Ecommerce\App\Http\Requests\Variant\GenerateSkuRequest;

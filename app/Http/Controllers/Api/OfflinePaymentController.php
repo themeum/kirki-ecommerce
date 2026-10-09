@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\OfflinePayment\OfflinePaymentCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\OfflinePayment\OfflinePaymentUpdateRequest;
 use Kirki\Ecommerce\App\Resources\OfflinePayment\OfflinePaymentListResource;

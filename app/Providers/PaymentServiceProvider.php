@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\ServiceProvider;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 

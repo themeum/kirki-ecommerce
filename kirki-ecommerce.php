@@ -18,9 +18,7 @@
  * @package Kirki\Ecommerce
  */
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\KirkiEcommerce;
 

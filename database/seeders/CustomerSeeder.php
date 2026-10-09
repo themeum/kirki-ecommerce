@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\Framework\Database\Seeder;

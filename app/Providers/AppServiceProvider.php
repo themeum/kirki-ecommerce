@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Blocks\BlockRegister;
 use Kirki\Ecommerce\App\Managers\MoneyManager;
 use Kirki\Ecommerce\App\Services\CountryService;

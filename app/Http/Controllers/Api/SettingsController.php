@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\SettingResource;
 use Kirki\Ecommerce\App\Http\Requests\Settings\SettingsUpdateRequest;
 use Kirki\Ecommerce\App\Constants\OptionKeys;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
+defined('ABSPATH') || exit;
+
 use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\App\Services\CouponService;

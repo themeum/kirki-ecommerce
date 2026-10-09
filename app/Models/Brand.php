@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\HasSlug;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\OfflinePayment\CreateOfflinePaymentDTO;

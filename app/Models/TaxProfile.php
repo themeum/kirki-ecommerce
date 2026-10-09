@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Models;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 /**

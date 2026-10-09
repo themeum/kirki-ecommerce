@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Policies;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Brand;
 use Kirki\Ecommerce\Framework\Wordpress\User;
 

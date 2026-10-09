@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\AttributeValue;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\Attribute\AttributeCreateRequest;
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\AttributeValue;

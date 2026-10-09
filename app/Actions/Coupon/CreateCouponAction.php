@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\DTO\Coupon\CreateCouponDTO;

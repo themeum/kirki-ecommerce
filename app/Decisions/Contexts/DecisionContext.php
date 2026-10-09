@@ -1,6 +1,8 @@
 <?php
 namespace Kirki\Ecommerce\App\Decisions\Contexts;
 
+defined('ABSPATH') || exit;
+
 /**
  * Mutable bag of shipping and tax values that decision conditions read and decision actions change.
  *

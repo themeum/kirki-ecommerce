@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 use Exception;
 use Kirki\Ecommerce\Framework\Concerns\HasConstants;
 

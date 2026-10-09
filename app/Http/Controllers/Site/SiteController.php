@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Http\Requests\Site\ShopPageFilterRequest;

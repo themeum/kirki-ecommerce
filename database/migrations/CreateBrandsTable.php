@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Database\Migrations;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Contracts\Migration;
 use Kirki\Ecommerce\Framework\Database\Schema\Structure;
 use Kirki\Ecommerce\Framework\Supports\Facades\Schema;

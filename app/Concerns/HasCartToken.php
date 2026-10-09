@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Cart;
 use Kirki\Ecommerce\Framework\Http\Request;
 use Kirki\Ecommerce\Framework\Sanitizer;

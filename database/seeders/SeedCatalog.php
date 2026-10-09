@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 /**
  * Static catalog of curated demo data (categories, attributes, brands, tags, products, coupons, customers) shared by the seeders.
  *

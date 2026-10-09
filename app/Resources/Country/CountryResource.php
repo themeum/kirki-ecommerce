@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Country;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Supports\AddressRules;
 use Kirki\Ecommerce\Framework\Resource;
 

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\Country\CountryFilterDTO;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;

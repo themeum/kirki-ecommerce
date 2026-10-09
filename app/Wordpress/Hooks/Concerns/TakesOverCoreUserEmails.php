@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Supports\Utils;
 use WP_User;

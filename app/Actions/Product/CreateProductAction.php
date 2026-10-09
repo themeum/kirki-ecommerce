@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Product;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Services\VariantService;

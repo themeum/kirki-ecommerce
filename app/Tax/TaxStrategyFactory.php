@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Tax;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\EuropeanCountryChecker;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;

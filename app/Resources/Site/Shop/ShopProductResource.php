@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Shop;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Product\RibbonColor;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Services\InventoryService;

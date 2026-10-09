@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Category;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;

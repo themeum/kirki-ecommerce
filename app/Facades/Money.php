@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Facades;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Facade;
 
 

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Concerns\HasCartToken;
 use Kirki\Ecommerce\App\Constants\CookieNames;

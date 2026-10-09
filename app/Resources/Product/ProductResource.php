@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Product;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Variant\VariantResource;
 use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Models\Product;

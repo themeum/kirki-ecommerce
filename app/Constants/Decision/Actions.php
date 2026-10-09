@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Decision;
 
+defined('ABSPATH') || exit;
+
 /**
  * Actions a decision rule can apply to shipping and tax calculation.
  *

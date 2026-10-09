@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Cart;
 
+defined('ABSPATH') || exit;
+
 use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;

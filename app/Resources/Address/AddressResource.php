@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Address;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
 /**

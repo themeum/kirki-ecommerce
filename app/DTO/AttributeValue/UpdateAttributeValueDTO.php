@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\DTO\AttributeValue;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
 /**

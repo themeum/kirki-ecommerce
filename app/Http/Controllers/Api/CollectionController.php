@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Collection\CreateCollectionAction;
 use Kirki\Ecommerce\App\Actions\Collection\UpdateCollectionAction;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\DTO\Discount;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\Framework\DTO;
 

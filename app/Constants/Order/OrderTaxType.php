@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 /**
  * Kinds of tax line recorded on an order: product or shipping.
  *

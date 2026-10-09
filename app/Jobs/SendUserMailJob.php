@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Jobs;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Jobs\Concerns\SendsMail;
 use Kirki\Ecommerce\App\Mails\Mailer;
 use Kirki\Ecommerce\App\Supports\Url;

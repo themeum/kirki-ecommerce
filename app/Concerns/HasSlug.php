@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Supports\Str;
 

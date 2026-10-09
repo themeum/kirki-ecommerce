@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 

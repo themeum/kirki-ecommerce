@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Product\UnitConversion;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Models\Variant;

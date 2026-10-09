@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;

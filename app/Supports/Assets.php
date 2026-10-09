@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\Framework\Http\Superglobals;
 use Kirki\Ecommerce\Framework\Sanitizer;

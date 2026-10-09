@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Exception;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;
 use Kirki\Ecommerce\App\Supports\Url;

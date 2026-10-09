@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;
 use Kirki\Ecommerce\App\Http\Requests\Account\WishlistFilterRequest;
 use Kirki\Ecommerce\Framework\Collections\Collection;

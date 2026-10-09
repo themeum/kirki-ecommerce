@@ -14,7 +14,7 @@ use Kirki\Ecommerce\App\Menu\Separator;
 use Kirki\Ecommerce\App\Menu\Settings;
 use Kirki\Ecommerce\App\Menu\Tags;
 
-defined('ABSPATH') or exit;
+defined('ABSPATH') || exit;
 
 return [
     Root::class,

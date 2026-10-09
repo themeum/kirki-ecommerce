@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Account;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\Customer\CreateCustomerDTO;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\CustomerService;

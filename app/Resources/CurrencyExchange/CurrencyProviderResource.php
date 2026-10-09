@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\CurrencyExchange;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 
 /**

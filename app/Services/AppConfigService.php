@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use function Kirki\Ecommerce\App\base_currency;
 use function Kirki\Ecommerce\Framework\app;
 use function Kirki\Ecommerce\Framework\user;

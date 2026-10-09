@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Customer;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\ResolvesAddressDefaults;
 use Kirki\Ecommerce\App\Models\Customer;
 use Kirki\Ecommerce\App\Services\AddressService;

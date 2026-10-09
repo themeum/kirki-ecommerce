@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CouponStatus;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;

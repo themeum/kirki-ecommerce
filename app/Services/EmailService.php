@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Wordpress\User;
 
 use function Kirki\Ecommerce\Framework\include_view;

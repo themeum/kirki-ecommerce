@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCreateRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderListResource;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Hooks;
 
+defined('ABSPATH') || exit;
+
 /**
  * Names of WordPress core hooks the plugin attaches to, extending the framework hook list.
  *

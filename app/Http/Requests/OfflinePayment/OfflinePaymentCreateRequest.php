@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\OfflinePayment;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 

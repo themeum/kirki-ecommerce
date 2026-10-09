@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+defined('ABSPATH') || exit;
+
 use Brick\Math\RoundingMode;
 use Exception;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;

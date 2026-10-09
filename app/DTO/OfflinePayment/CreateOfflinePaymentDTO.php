@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\DTO\OfflinePayment;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
 /**

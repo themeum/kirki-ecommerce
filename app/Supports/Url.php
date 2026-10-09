@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Route;
 use WP_User;
 

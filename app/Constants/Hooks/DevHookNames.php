@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Hooks;
 
+defined('ABSPATH') || exit;
+
 /**
  * Names of the actions and filters the plugin fires for developers to hook into.
  *

@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Wordpress\User;

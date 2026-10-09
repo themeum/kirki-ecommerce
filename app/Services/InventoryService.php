@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Events\Inventory\VariantsLowStockEvent;
 use Kirki\Ecommerce\App\Events\Inventory\VariantsOutOfStockEvent;
 use Kirki\Ecommerce\App\Models\Order;

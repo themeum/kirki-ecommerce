@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;

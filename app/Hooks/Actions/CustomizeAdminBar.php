@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Actions;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Route;

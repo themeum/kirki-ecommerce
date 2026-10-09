@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Payment;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\RedirectResponse;

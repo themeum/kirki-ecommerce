@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;

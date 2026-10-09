@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Menu;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Wordpress\Constants\MenuTypes;
 use Kirki\Ecommerce\App\Supports\Assets;
 use Kirki\Ecommerce\Framework\Wordpress\Menu;

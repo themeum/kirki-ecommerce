@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\OnlinePayment\InstallableOnlinePaymentListResource;
 use Kirki\Ecommerce\App\Resources\OnlinePayment\OnlinePaymentListResource;
 use Kirki\Ecommerce\App\Resources\OnlinePayment\OnlinePaymentResource;
@@ -138,24 +140,6 @@ class OnlinePaymentController
         return response()->json([
             'data' => $is_updated,
             'message' => __('Payment method updated', 'kirki-ecommerce'),
-        ]);
-    }
-
-    //@todo remove this later as its just to mock the zip download
-    /**
-     * Mock the download of a gateway's zip package.
-     *
-     * @since 1.0.0
-     *
-     * @param Request $request
-     * @return \Kirki\Ecommerce\Framework\Http\JsonResponse Success message.
-     */
-    public function download(Request $request)
-    {
-        $this->service->mock_download_provider_zip($request->string('id'));
-
-        return response()->json([
-            'message' => __('Payment gateway downloaded', 'kirki-ecommerce'),
         ]);
     }
 }

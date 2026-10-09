@@ -41,6 +41,7 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>payments/*</exclude-pattern>
     <exclude-pattern>config/*.cache.php</exclude-pattern>
+    <exclude-pattern>bootstrap/abspath.php</exclude-pattern>
 
     <!--
         Escaping, safe-redirect, and menu-slug findings are the categories
@@ -84,6 +85,8 @@
         <type>warning</type>
     </rule>
     <rule ref="WordPress.DateTime.RestrictedFunctions"/>
+
+    <rule ref="phpcs/KirkiEcommerce/Sniffs/Security/AbspathGuardSniff.php"/>
 
     <config name="minimum_supported_wp_version" value="5.9"/>
     <rule ref="PHPCompatibilityWP"/>

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\Attribute\AttributeCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Attribute\AttributeUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;

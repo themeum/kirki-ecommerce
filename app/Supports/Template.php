@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Attribute;
 use Kirki\Ecommerce\App\Models\Category;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;

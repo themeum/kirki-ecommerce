@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Events\Order\OrderPlacedEvent;
 use Kirki\Ecommerce\Framework\Listener;

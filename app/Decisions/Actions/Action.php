@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Decisions\Actions;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 
 /**

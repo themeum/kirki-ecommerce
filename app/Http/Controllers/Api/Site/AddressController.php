@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Account\CreateAccountAddressAction;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;

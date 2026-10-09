@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Filters;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Actions\SendCustomerNewAccountEmail;
 use Kirki\Ecommerce\App\Wordpress\Hooks\Concerns\TakesOverCoreUserEmails;

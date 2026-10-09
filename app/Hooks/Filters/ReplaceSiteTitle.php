@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Hooks\Filters;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\Framework\Route;
 use Kirki\Ecommerce\Framework\Wordpress\BaseHook;

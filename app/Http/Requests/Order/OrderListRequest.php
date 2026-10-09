@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
