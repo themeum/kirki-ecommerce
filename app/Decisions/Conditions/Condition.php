@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Decisions\Conditions;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 
 use function Kirki\Ecommerce\Framework\throw_anyway;

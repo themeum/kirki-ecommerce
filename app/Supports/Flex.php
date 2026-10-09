@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use ArrayAccess;
 use ArrayIterator;
 use Kirki\Ecommerce\Framework\Contracts\Support\Arrayable;

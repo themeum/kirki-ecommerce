@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Events\AddressUpdatedEvent;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Listener;

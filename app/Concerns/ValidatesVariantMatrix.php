@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 
 /**

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\Brand\BrandCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\Brand\BrandUpdateRequest;
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;

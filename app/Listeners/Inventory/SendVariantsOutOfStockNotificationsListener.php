@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners\Inventory;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Events\Inventory\VariantsOutOfStockEvent;
 use Kirki\Ecommerce\App\Jobs\SendInventoryMailJob;
 use Kirki\Ecommerce\App\Listeners\Concerns\ResolvesStoreAdminEmail;

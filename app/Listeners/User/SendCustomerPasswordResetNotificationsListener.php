@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners\User;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Events\User\CustomerPasswordResetRequestedEvent;
 use Kirki\Ecommerce\App\Jobs\SendUserMailJob;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerResetPasswordMail;

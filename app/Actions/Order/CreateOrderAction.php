@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;

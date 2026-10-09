@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Settings;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\ComparisonOperator;
 use Kirki\Ecommerce\App\Constants\ConsentLocations;
 use Kirki\Ecommerce\App\Constants\ConsentMethods;

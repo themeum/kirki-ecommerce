@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Decision;
 
+defined('ABSPATH') || exit;
+
 /**
  * Conditions a decision rule can be matched on.
  *

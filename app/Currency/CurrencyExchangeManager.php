@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Currency;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\UpdateFrequency;
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;

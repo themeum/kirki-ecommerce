@@ -1,5 +1,7 @@
 <?php
 
+defined('ABSPATH') || exit;
+
 use function Kirki\Ecommerce\Framework\view_data;
 
 $data = view_data();

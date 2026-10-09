@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\DTO\Coupon;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Coupon\CouponMethod;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerExcludeEligibility;
 use Kirki\Ecommerce\App\Constants\Coupon\CustomerIncludeEligibility;

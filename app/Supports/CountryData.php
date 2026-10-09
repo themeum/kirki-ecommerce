@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use function Kirki\Ecommerce\Framework\resource_path;
 
 /**

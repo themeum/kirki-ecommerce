@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\PageFilterDTO;
 use Kirki\Ecommerce\App\Resources\Page\PageResource;
 use Kirki\Ecommerce\App\Services\PageService;

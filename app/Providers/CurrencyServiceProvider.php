@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeFactory;
 use Kirki\Ecommerce\App\Currency\CurrencyExchangeManager;

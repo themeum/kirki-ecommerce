@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Events;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Address;
 use Kirki\Ecommerce\Framework\Concerns\Dispatchable;
 

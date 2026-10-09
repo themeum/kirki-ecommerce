@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Account;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\Framework\Sanitizer;

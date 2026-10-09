@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api\Site;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Account\UpdateAccountProfileAction;
 use Kirki\Ecommerce\App\DTO\Account\UpdateProfilePayloadDTO;
 use Kirki\Ecommerce\App\DTO\ListFilterDTO;

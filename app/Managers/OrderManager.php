@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Managers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateRefundAction;
 use Kirki\Ecommerce\App\Actions\Order\UpdateOrderAction;

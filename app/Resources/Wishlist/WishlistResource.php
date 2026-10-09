@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Wishlist;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Resources\Site\Shop\ShopProductResource;
 use Kirki\Ecommerce\App\Supports\Url;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Product;
 
+defined('ABSPATH') || exit;
+
 /**
  * Lookup tables for converting measurement units to their group base unit.
  *

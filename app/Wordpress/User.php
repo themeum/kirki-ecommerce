@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Constants\UserRoles;
 use Kirki\Ecommerce\App\Mails\Customers\CustomerEmailConfirmationMail;

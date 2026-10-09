@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Jobs;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\Framework\Contracts\ShouldQueue;

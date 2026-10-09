@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\PageKeys;
 use Kirki\Ecommerce\App\DTO\Onboarding\StoreSetupDTO;
 use Kirki\Ecommerce\App\Http\Requests\Settings\OnboardingRequest;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Jobs\Concerns;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Mails\Mailer;
 use RuntimeException;
 

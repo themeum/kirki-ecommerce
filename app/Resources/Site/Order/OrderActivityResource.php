@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Order\OrderActivityResource as BaseOrderActivityResource;
 
 /**

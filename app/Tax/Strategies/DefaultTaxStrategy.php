@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Tax\Strategies;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;

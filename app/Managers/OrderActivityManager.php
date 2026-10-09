@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Managers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Events\Order\OrderNoteAddedEvent;
 use Kirki\Ecommerce\App\Facades\Money;

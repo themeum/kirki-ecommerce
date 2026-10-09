@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Services;
 
+defined('ABSPATH') || exit;
+
 use Exception;
 use Kirki\Ecommerce\App\Constants\Cart as CartConstants;
 use Kirki\Ecommerce\App\DTO\Cart\CreateCartItemDTO;

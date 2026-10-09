@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Http\Requests\BulkActionRequest;
 use Kirki\Ecommerce\App\Http\Requests\ShippingBox\ShippingBoxCreateRequest;
 use Kirki\Ecommerce\App\Http\Requests\ShippingBox\ShippingBoxUpdateRequest;

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Payment\Facades;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Facade;
 use Kirki\Ecommerce\App\Payment\PaymentManager;
 

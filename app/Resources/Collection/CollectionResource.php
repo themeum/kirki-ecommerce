@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Collection;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Product\ProductListWithVariantsResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;

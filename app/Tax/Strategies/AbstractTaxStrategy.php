@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Tax\Strategies;
 
+defined('ABSPATH') || exit;
+
 use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Decisions\Contexts\DecisionContext;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;

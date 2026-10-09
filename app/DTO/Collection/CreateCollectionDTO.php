@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\DTO\Collection;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\DTO;
 
 /**

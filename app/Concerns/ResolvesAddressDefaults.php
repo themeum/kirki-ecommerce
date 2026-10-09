@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Concerns;
 
+defined('ABSPATH') || exit;
+
 /**
  * Resolves default shipping and default billing among a set of address payloads.
  *

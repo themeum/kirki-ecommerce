@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 /**
  * Statuses of a refund.
  *

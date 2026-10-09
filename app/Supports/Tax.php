@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Tax\Strategies\AbstractTaxStrategy;
 use Kirki\Ecommerce\App\Tax\TaxStrategyFactory;

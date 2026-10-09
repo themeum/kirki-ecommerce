@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Email\CustomerUserNotification;
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Events\User\CustomerAccountCreatedEvent;

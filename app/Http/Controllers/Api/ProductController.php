@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Actions\Product\CreateProductAction;
 use Kirki\Ecommerce\App\Actions\Product\DuplicateProductAction;
 use Kirki\Ecommerce\App\Actions\Product\UpdateProductAction;

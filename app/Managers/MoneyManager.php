@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Managers;
 
+defined('ABSPATH') || exit;
+
 use BadMethodCallException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Currency as BrickCurrency;

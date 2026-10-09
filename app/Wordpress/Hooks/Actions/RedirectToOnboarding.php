@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Wordpress\Hooks\Actions;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\Hooks\WPHookNames;
 use Kirki\Ecommerce\App\Supports\Onboarding;
 use Kirki\Ecommerce\Framework\Http\Superglobals;

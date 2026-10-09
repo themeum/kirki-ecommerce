@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 
 /**
  * Tells whether a country belongs to the European Union, using the country dataset.

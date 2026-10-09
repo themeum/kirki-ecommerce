@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants;
 
+defined('ABSPATH') || exit;
+
 /**
  * PHP date format strings and date interval specifications used across the plugin.
  *

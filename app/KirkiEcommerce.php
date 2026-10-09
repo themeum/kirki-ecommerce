@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Supports\Onboarding;
 use Kirki\Ecommerce\App\Supports\Utils;

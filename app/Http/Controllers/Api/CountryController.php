@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Country\CountryListResource;
 use Kirki\Ecommerce\App\Resources\Country\CountryResource;
 use Kirki\Ecommerce\App\Services\CountryService;

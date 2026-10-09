@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Settings;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Services\CurrencyService;
 use Kirki\Ecommerce\App\Supports\CountryData;
 use Kirki\Ecommerce\Framework\Http\Request;

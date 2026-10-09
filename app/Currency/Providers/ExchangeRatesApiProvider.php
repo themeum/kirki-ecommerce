@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Currency\Providers;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;
 use Kirki\Ecommerce\App\Currency\DTO\APIUsageDTO;
 use Kirki\Ecommerce\App\Currency\DTO\ExchangeRateDTO;

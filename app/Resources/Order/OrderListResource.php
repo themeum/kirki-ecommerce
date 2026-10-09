@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\App\Facades\Money;
 

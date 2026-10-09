@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Variant;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\Framework\Sanitizer;

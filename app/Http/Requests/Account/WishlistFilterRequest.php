@@ -11,6 +11,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Account;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 

@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Customer;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Address\AddressResource;
 use Kirki\Ecommerce\Framework\Resource;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;

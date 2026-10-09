@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources\Site\Cart;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Resources\Cart\CartResource as BaseCartResource;
 
 /**

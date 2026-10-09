@@ -2,9 +2,7 @@
 
 use Kirki\Ecommerce\Framework\Application;
 
-if (!defined('ABSPATH')) {
-    exit;
-}
+defined('ABSPATH') || exit;
 
 return Application::configure(KIRKI_ECOMMERCE_PLUGIN_PATH)
     ->use_prefix(KIRKI_ECOMMERCE_PREFIX)

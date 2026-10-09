@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\Database\Seeders;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\ShippingBox;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 

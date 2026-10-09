@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Events\SettingsChangedEvent;
 use Kirki\Ecommerce\App\Facades\CurrencyExchange;

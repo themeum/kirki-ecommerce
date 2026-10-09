@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Resources;
 
+defined('ABSPATH') || exit;
+
 use Dom\Attr;
 use Kirki\Ecommerce\Framework\Resource;
 

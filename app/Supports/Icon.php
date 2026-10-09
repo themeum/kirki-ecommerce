@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Supports;
 
+defined('ABSPATH') || exit;
+
 /**
  * Loads bundled SVG icons from the plugin's assets and applies size, class and color options.
  *

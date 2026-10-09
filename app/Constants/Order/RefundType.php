@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Constants\Order;
 
+defined('ABSPATH') || exit;
+
 /**
  * Kinds of refund: full or partial.
  *

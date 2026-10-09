@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Actions\Cart;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Models\Cart;
 use Kirki\Ecommerce\App\Services\CartService;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;

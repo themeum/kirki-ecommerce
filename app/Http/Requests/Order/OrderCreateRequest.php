@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Requests\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
 use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Constants\ConsentLocations;

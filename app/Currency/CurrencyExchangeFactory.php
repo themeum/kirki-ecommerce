@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Currency;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Currency\Contracts\CurrencyProvider;
 use Exception;
 

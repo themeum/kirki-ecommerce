@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 

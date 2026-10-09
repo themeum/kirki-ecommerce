@@ -2,6 +2,8 @@
 
 namespace Kirki\Ecommerce\App\Listeners\Order;
 
+defined('ABSPATH') || exit;
+
 use Kirki\Ecommerce\App\Events\Order\OrderPlacedEvent;
 use Kirki\Ecommerce\App\Jobs\SendOrderMailJob;
 use Kirki\Ecommerce\App\Listeners\Concerns\ResolvesStoreAdminEmail;
