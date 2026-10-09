@@ -103,6 +103,7 @@ const OrderCreateContent = () => {
             onOpenChange={setPickerOpen}
             onAdd={handleAddItems}
             selectedProducts={selections}
+            mode="order"
             expandAll
           />
         )}

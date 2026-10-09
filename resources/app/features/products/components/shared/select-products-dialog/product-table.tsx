@@ -15,6 +15,7 @@ import ProductPickerRow from '@/features/products/components/shared/select-produ
 import type {
   ProductSelection,
   ProductVariantSelection,
+  SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItemWithVariants } from '@/features/products/schemas/catalog/product';
 import ProductPickerSkeleton from '@/features/products/skeletons/product-picker-skeleton';
@@ -30,7 +31,7 @@ type ProductPickerItem = {
 type ProductTableProps = {
   isLoading: boolean;
   pickerItems: ProductPickerItem[];
-  selectVariants: boolean;
+  mode: SelectProductsMode;
   allOnPageSelected: boolean;
   partialOnPageSelected: boolean;
   pageSelectableCount: number;
@@ -39,6 +40,7 @@ type ProductTableProps = {
   onToggleExpand: (productId: number) => void;
   selectedProductIds: Set<number>;
   selectedVariantIds: Set<number>;
+  lockedVariantIds: Set<number>;
   onToggleProduct: (product: ProductSelection, checked: boolean) => void;
   onToggleVariants: (
     product: ProductSelection,
@@ -51,7 +53,7 @@ const ProductTable = (props: ProductTableProps) => {
   const {
     isLoading,
     pickerItems,
-    selectVariants,
+    mode,
     allOnPageSelected,
     partialOnPageSelected,
     pageSelectableCount,
@@ -60,10 +62,12 @@ const ProductTable = (props: ProductTableProps) => {
     onToggleExpand,
     selectedProductIds,
     selectedVariantIds,
+    lockedVariantIds,
     onToggleProduct,
     onToggleVariants,
   } = props;
 
+  const isOrderMode = mode === 'order';
   const anchorRowKey = useRef<string | null>(null);
 
   const getRowKey = (productId: number, variant?: ProductVariantSelection) =>
@@ -81,7 +85,7 @@ const ProductTable = (props: ProductTableProps) => {
     const visibleRows = pickerItems.flatMap((pickerItem) => {
       const productRow = { pickerItem, variant: undefined as ProductVariantSelection | undefined };
       const variantRows =
-        selectVariants && expandedProductIds.has(pickerItem.product.id)
+        isOrderMode && expandedProductIds.has(pickerItem.product.id)
           ? pickerItem.selection.variants.map((rowVariant) => ({
               pickerItem,
               variant: rowVariant,
@@ -108,7 +112,7 @@ const ProductTable = (props: ProductTableProps) => {
 
     rangeRows.forEach((row) => {
       const isExpandedProductRow =
-        !row.variant && selectVariants && expandedProductIds.has(row.pickerItem.product.id);
+        !row.variant && isOrderMode && expandedProductIds.has(row.pickerItem.product.id);
 
       if (isExpandedProductRow && !isTargetRow(row)) {
         return;
@@ -116,7 +120,7 @@ const ProductTable = (props: ProductTableProps) => {
 
       if (row.variant) {
         onToggleVariants(row.pickerItem.selection, [row.variant], checked);
-      } else if (selectVariants) {
+      } else if (isOrderMode) {
         onToggleVariants(row.pickerItem.selection, row.pickerItem.selection.variants, checked);
       } else {
         onToggleProduct(row.pickerItem.selection, checked);
@@ -141,9 +145,7 @@ const ProductTable = (props: ProductTableProps) => {
                 />
               </TableHead>
               <TableHead>
-                {selectVariants
-                  ? __('Variants', 'kirki-ecommerce')
-                  : __('Products', 'kirki-ecommerce')}
+                {isOrderMode ? __('Variants', 'kirki-ecommerce') : __('Products', 'kirki-ecommerce')}
               </TableHead>
               <TableHead>{__('Inventory', 'kirki-ecommerce')}</TableHead>
               <TableHead alignment="right">{__('Price', 'kirki-ecommerce')}</TableHead>
@@ -168,9 +170,10 @@ const ProductTable = (props: ProductTableProps) => {
                   selection={item.selection}
                   expanded={expandedProductIds.has(item.product.id)}
                   onToggleExpand={() => onToggleExpand(item.product.id)}
-                  selectVariants={selectVariants}
+                  mode={mode}
                   isProductSelected={selectedProductIds.has(item.product.id)}
                   selectedVariantIds={selectedVariantIds}
+                  lockedVariantIds={lockedVariantIds}
                   onToggleProduct={(checked) => onToggleProduct(item.selection, checked)}
                   onToggleVariants={(variants, checked) =>
                     onToggleVariants(item.selection, variants, checked)

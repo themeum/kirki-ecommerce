@@ -155,7 +155,7 @@ const ProductSelectionField = <
                 onOpenChange(false);
               }}
               selectedProducts={selectedProducts ?? []}
-              selectVariants={false}
+              mode="product"
             />
           </Field>
         );
