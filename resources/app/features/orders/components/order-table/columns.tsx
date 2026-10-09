@@ -5,6 +5,7 @@ import Badge from '@/components/ui/badge';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
+import { EMPTY_VALUE } from '@/features/inventory/lib/inventory-cells';
 import { getFulfillmentBadgeInfo, getPaymentBadgeInfo } from '@/features/orders/lib/order-badge';
 import type { OrderListItem } from '@/features/orders/schemas/catalog/order';
 import { DATE_FORMATS } from '@/libs/date';
@@ -76,7 +77,7 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
   },
   {
     id: 'payment_provider',
-    header: __('Payment', 'kirki-ecommerce'),
+    header: __('Payment Method', 'kirki-ecommerce'),
     enableSorting: true,
     cell: ({ row }) =>
       row.original.payment_provider ? (
@@ -90,10 +91,12 @@ const orderColumns: ColumnDef<OrderListItem>[] = [
             />
           )}
           <Text variant="tiny" color="primary" weight="medium">
-            {row.original.payment_provider.toUpperCase()}
+            {row.original.payment_provider_name ?? row.original.payment_provider ?? EMPTY_VALUE}
           </Text>
         </Flex>
-      ) : null,
+      ) : (
+        EMPTY_VALUE
+      ),
   },
   {
     id: 'created_at',

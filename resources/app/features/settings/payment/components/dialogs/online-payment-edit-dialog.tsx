@@ -4,13 +4,27 @@ import { useForm } from 'react-hook-form';
 
 import Alert from '@/components/ui/alert';
 import Button from '@/components/ui/button';
-import { Dialog, DialogBody, DialogClose, DialogCloseButton, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
 import Text from '@/components/ui/text';
 import { DynamicOnlinePaymentFields } from '@/features/settings/payment/components/fields/dynamic-online-payment-field';
 import type { OnlinePayment } from '@/features/settings/payment/schemas/catalog/payment';
-import { onlinePaymentEditDefaultValues, type OnlinePaymentEditFormInput, type OnlinePaymentEditFormPayload, OnlinePaymentEditFormSchema } from '@/features/settings/payment/schemas/forms/online-payment-form';
+import {
+  onlinePaymentEditDefaultValues,
+  type OnlinePaymentEditFormInput,
+  type OnlinePaymentEditFormPayload,
+  OnlinePaymentEditFormSchema,
+} from '@/features/settings/payment/schemas/forms/online-payment-form';
 import { useUpdateOnlinePaymentMutation } from '@/features/settings/payment/services/payment';
 import type { ErrorResponse } from '@/libs/api';
 import { applyServerErrors } from '@/libs/form-errors';
@@ -24,11 +38,15 @@ type OnlinePaymentEditPopupProps = {
   onClose: () => void;
 };
 
-const OnlinePaymentEditPopup = ({
-  editedItem,
-  isOpen,
-  onClose,
-}: OnlinePaymentEditPopupProps) => {
+const buildFormValues = (item: OnlinePayment | null): OnlinePaymentEditFormInput => {
+  const fieldDefaults = Object.fromEntries(
+    (item?.fields ?? []).map((field) => [field.name, field.type === 'checkbox' ? false : '']),
+  );
+
+  return { ...fieldDefaults, ...(item?.settings ?? {}) };
+};
+
+const OnlinePaymentEditPopup = ({ editedItem, isOpen, onClose }: OnlinePaymentEditPopupProps) => {
   const { mutateAsync: updateOnlinePayment, isPending: isSubmitting } =
     useUpdateOnlinePaymentMutation();
 
@@ -42,10 +60,7 @@ const OnlinePaymentEditPopup = ({
       return;
     }
 
-    form.reset(
-      (editedItem?.settings as OnlinePaymentEditFormInput) ||
-      onlinePaymentEditDefaultValues,
-    );
+    form.reset(buildFormValues(editedItem));
   }, [isOpen, editedItem, form]);
 
   const handleClose = () => {
@@ -85,28 +100,32 @@ const OnlinePaymentEditPopup = ({
       <DialogContent>
         <DialogCloseButton />
         <DialogHeader>
-          <DialogTitle>
-            {__('Edit Payment Gateways', 'kirki-ecommerce')}
-          </DialogTitle>
+          <DialogTitle>{__('Edit Payment Gateways', 'kirki-ecommerce')}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleUpdateData)}>
             <DialogBody>
               <Flex direction="column" gap={4}>
                 <DynamicOnlinePaymentFields fields={editedItem?.fields} />
-                {
-                  isDefined(editedItem) && <Alert text={<Flex direction="column" gap={1}><Text variant="tiny" weight="semibold">{__('Webhook URL: ', 'kirki-ecommerce')}</Text><Text variant="tiny" weight="semibold" color="emphasis">{editedItem?.webhook_url}</Text></Flex>} />
-                }
-
+                {isDefined(editedItem) && (
+                  <Alert
+                    text={
+                      <Flex direction="column" gap={1}>
+                        <Text variant="tiny" weight="semibold">
+                          {__('Webhook URL: ', 'kirki-ecommerce')}
+                        </Text>
+                        <Text variant="tiny" weight="semibold" color="emphasis">
+                          {editedItem?.webhook_url}
+                        </Text>
+                      </Flex>
+                    }
+                  />
+                )}
               </Flex>
             </DialogBody>
             <DialogFooter>
               <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isSubmitting}
-                >
+                <Button type="button" variant="outline" disabled={isSubmitting}>
                   {__('Cancel', 'kirki-ecommerce')}
                 </Button>
               </DialogClose>
@@ -114,6 +133,7 @@ const OnlinePaymentEditPopup = ({
                 type="submit"
                 variant="primary"
                 loading={isSubmitting}
+                disabled={isSubmitting || !form.formState.isDirty}
               >
                 {__('Save', 'kirki-ecommerce')}
               </Button>

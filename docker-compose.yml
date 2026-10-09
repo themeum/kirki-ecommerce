@@ -3,6 +3,7 @@ x-wordpress-volumes: &wordpress-volumes
   - .:/var/www/html/wp-content/plugins/kirki-ecommerce:cached
   - ./docker/wp-config.php:/var/www/html/wp-config.php:ro
   - ./docker/php/php.ini:/usr/local/etc/php/conf.d/zz-php.ini:ro
+  - ./docker/scripts/wpcli-entrypoint.sh:/usr/local/bin/wpcli-entrypoint.sh:ro
 
 services:
   nginx:
@@ -102,7 +103,7 @@ services:
       - kirki
     profiles:
       - tools
-    entrypoint: ['wp', '--allow-root']
+    entrypoint: ['/bin/sh', '/usr/local/bin/wpcli-entrypoint.sh']
     command: ['--info']
 
   wordpress-init:
