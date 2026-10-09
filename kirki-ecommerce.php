@@ -1,18 +1,18 @@
 <?php
 
 /**
- * Plugin Name:       Kirki Ecommerce
+ * Plugin Name:       Kirki eCommerce
  * Plugin URI:        https://kirki.com
- * Description:       Kirki Ecommerce is a full-featured e-commerce solution with superior UX, UI, and lightning-fast functionality.
+ * Description:       Kirki eCommerce is an all-in-one solution that empowers users to build and run professional online stores with an intuitive UX, modern UI, and lightning-fast performance.
  * Version:           1.0.0-beta.1
- * Author:            Themeum
- * Author URI:        https://www.themeum.com
+ * Author:            Kirki
+ * Author URI:        https://kirki.com
  * Text Domain:       kirki-ecommerce
  * Requires PHP:      7.4
- * Requires at least: 5.9
+ * Requires at least: 6.8
  * Tested up to:      7.1
  * License:           GPLv2 or later
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Domain Path:       /languages
  *
  * @package Kirki\Ecommerce
@@ -49,16 +49,16 @@ define('KIRKI_ECOMMERCE_PLUGIN_FILE', __FILE__);
 define('KIRKI_ECOMMERCE_PLUGIN_PATH', plugin_dir_path(KIRKI_ECOMMERCE_PLUGIN_FILE));
 
 /**
- * The kirki ecommerce plugin assets url
+ * The kirki ecommerce plugin URL
  * @var string
  */
-$relative_path = str_replace(WP_CONTENT_DIR, '', KIRKI_ECOMMERCE_PLUGIN_PATH);
+define('KIRKI_ECOMMERCE_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * The kirki ecommerce plugin assets path
  * @var string
  */
-define('KIRKI_ECOMMERCE_ASSETS_URL', WP_CONTENT_URL . $relative_path . 'assets');
+define('KIRKI_ECOMMERCE_ASSETS_URL', plugins_url('assets', KIRKI_ECOMMERCE_PLUGIN_FILE));
 
 /**
  * The kirki ecommerce plugin assets path

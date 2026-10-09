@@ -10,7 +10,6 @@ describe('ProductsSettingsFormSchema', () => {
     is_enabled_reviews: false,
     is_enabled_star_ratings: false,
     low_stock_threshold: null,
-    barcode_generation: null,
   };
 
   it('produces the exact payload for a fully filled form', () => {

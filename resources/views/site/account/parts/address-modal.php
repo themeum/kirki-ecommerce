@@ -41,7 +41,7 @@ use Kirki\Ecommerce\App\Supports\Icon;
                 @click.prevent="closeModal"
                 aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
             >
-                <?php Icon::render('cross', ['size' => 16]); ?>
+                <?php Icon::render('x', ['size' => 16]); ?>
             </button>
         </div>
 

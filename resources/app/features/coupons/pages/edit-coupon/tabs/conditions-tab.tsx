@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
 import CheckboxField from '@/components/form/checkbox-field';
@@ -27,14 +28,17 @@ type UsageLimitRowProps = {
   tooltip: string;
 };
 
-const UsageLimitRow = ({
-  checkboxName,
-  inputName,
-  label,
-  tooltip,
-}: UsageLimitRowProps) => {
-  const { control, formState } = useFormContext<CouponFormInput>();
+const UsageLimitRow = ({ checkboxName, inputName, label, tooltip }: UsageLimitRowProps) => {
+  const { control, formState, setFocus } = useFormContext<CouponFormInput>();
   const isEnabled = useWatch({ control, name: checkboxName });
+  const shouldFocusRef = useRef(false);
+
+  useEffect(() => {
+    if (isEnabled && shouldFocusRef.current) {
+      shouldFocusRef.current = false;
+      setFocus(inputName);
+    }
+  }, [isEnabled, inputName, setFocus]);
 
   return (
     <Flex direction="column" gap={2}>
@@ -48,6 +52,9 @@ const UsageLimitRow = ({
           <CheckboxField
             name={checkboxName}
             label={label}
+            onCheckedChange={(checked) => {
+              shouldFocusRef.current = checked;
+            }}
           />
           <Tooltip tip={tooltip}>
             <InfoIcon />
@@ -124,7 +131,6 @@ const ConditionsTab = () => {
         //       <Flex direction="column" gap={3}>
         //         {combinationOptions.map((option) => {
         //           const optionId = `combination-${option.id}`;
-
         //           return (
         //             <Field key={option.id} orientation="horizontal">
         //               <Checkbox id={optionId} checked={false} disabled />
@@ -139,7 +145,7 @@ const ConditionsTab = () => {
       }
     </Flex>
   );
-}
+};
 
 ConditionsTab.displayName = 'ConditionsTab';
 
@@ -151,12 +157,14 @@ const styles = {
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.background.surfaceSecondary,
     border: '1px solid transparent',
+    height: '52px',
   },
   rowInvalid: {
     borderColor: theme.colors.border.critical,
   },
   rowInput: {
     width: '72px',
+    minHeight: '30px',
     flexShrink: 0,
   },
   required: {

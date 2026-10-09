@@ -40,12 +40,12 @@ use Kirki\Ecommerce\App\Supports\Icon;
             @click.prevent="cancelDelete"
             aria-label="<?php esc_attr_e('Close', 'kirki-ecommerce'); ?>"
         >
-            <?php Icon::render('cross', ['size' => 16]); ?>
+            <?php Icon::render('x', ['size' => 16]); ?>
         </button>
 
         <div class="kecom-address-delete-modal-body">
             <div class="kecom-address-delete-icon-wrap">
-                <?php Icon::render('trash', ['size' => 24]); ?>
+                <?php Icon::render('trash-2', ['size' => 24]); ?>
             </div>
 
             <div class="kecom-address-delete-modal-text">

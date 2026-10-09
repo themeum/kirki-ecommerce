@@ -112,7 +112,7 @@ class Utils
             ],
             'dashboard' => [
                 'title'     => __('Dashboard', 'kirki-ecommerce'),
-                'icon'      => 'dashboard',
+                'icon'      => 'layout-grid',
                 'url'       => Url::get_account_url(),
                 'is_active' => Route::is('account'),
                 'route_path' => $account_page_slug,
@@ -339,18 +339,6 @@ class Utils
         }
 
         return $current_path === $target_path;
-    }
-
-    /**
-     * Get design system page id.
-     *
-     * @since 1.0.0
-     *
-     * @return int The design system page id, 0 when none is set.
-     */
-    public static function get_design_system_page_id()
-    {
-        return Settings::get('advance.pages.design_system', 0);
     }
 
     /**

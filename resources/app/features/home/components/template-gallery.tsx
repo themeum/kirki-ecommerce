@@ -1,52 +1,57 @@
-import Button from '@/components/ui/button';
+import Badge from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
 import Image from '@/components/ui/image';
 import Text from '@/components/ui/text';
-import { getStoreTemplates, STORE_TEMPLATES_EXPLORE_URL } from '@/features/home/lib/templates';
+import { getStoreTemplates } from '@/features/home/lib/templates';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __ } from '@/wpi18n';
 
 const TemplateGallery = () => {
   return (
-    <Flex direction="column" align="center" gap={6}>
-      <div css={scoped(styles.grid)}>
-        {getStoreTemplates().map((template) => (
-          <a
-            key={template.name}
-            href={template.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            css={scoped(styles.link)}
-          >
-            <Card cssOverride={styles.card}>
-              <Image
-                src={template.image}
-                alt={template.name}
-                width="100%"
-                height={TEMPLATE_IMAGE_HEIGHT}
-                fit="cover"
-                cssOverride={styles.image}
-              />
-              <Flex direction="column" cssOverride={styles.meta}>
-                <Text variant="small" weight="medium" truncate>
+    <div css={scoped(styles.grid)}>
+      {getStoreTemplates().map((template) => (
+        <a
+          key={template.name}
+          href={template.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          css={scoped(styles.link)}
+        >
+          <Card cssOverride={styles.card}>
+            <Image
+              src={template.image}
+              alt={template.name}
+              width="100%"
+              height={TEMPLATE_IMAGE_HEIGHT}
+              fit="cover"
+              cssOverride={styles.image}
+            />
+            <Flex
+              align="center"
+              justify="space-between"
+              cssOverride={{ padding: theme.spacing[2] }}
+            >
+              <Flex direction="column">
+                <Text
+                  variant="tiny"
+                  weight="medium"
+                  truncate
+                  cssOverride={{ fontSize: 10, lineHeight: 1 }}
+                >
                   {template.name}
                 </Text>
-                <Text color="subdued" truncate cssOverride={{ fontSize: '10px' }}>
+                <Text color="subdued" truncate cssOverride={{ fontSize: 10 }}>
                   {template.author}
                 </Text>
               </Flex>
-            </Card>
-          </a>
-        ))}
-      </div>
-      <Button variant="link" asChild cssOverride={{ color: theme.colors.text.emphasis }}>
-        <a href={STORE_TEMPLATES_EXPLORE_URL} target="_blank" rel="noopener noreferrer">
-          {__('Explore more', 'kirki-ecommerce')}
+              <Badge cssOverride={styles.badge}>{__('Coming soon', 'kirki-ecommerce')}</Badge>
+            </Flex>
+          </Card>
         </a>
-      </Button>
-    </Flex>
+      ))}
+    </div>
   );
 };
 
@@ -73,20 +78,21 @@ const styles = defineStyles({
     display: 'flex',
     flexDirection: 'column',
     width: TEMPLATE_CARD_SIZE,
-    height: TEMPLATE_CARD_SIZE,
+    height: 'auto',
     padding: 0,
     gap: 0,
     overflow: 'hidden',
+    position: 'relative',
+    boxShadow: `0px -1px 1px 0.5px #0000001A inset, 0px 0.5px 1px 0px #0000001A inset`,
+  },
+  badge: {
+    zIndex: 1,
+    backgroundColor: theme.colors.background.solidSurfaceAlt,
+    fontSize: 8,
+    color: theme.colors.text.subdued,
   },
   image: {
     border: 'none',
     borderRadius: 0,
-  },
-  meta: {
-    flex: 1,
-    justifyContent: 'center',
-    minWidth: 0,
-    borderTop: `1px solid ${theme.colors.border.default}`,
-    padding: `${theme.spacing[1]} ${theme.spacing[2]}`,
   },
 });

@@ -8,12 +8,14 @@ use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
 use Kirki\Ecommerce\App\Facades\Money;
 
 /**
- * Tax strategy for EU member countries, charging the VAT rate of the destination country.
+ * Tax strategy for EU member countries: the destination VAT rate under OSS, the rate of the region's one country for a micro business.
  *
  * @since 1.0.0
  */
 class EUTaxStrategy extends AbstractTaxStrategy
 {
+    const MICRO_BUSINESS = 'micro_business';
+
     /**
      * @inheritDoc
      *
@@ -139,26 +141,33 @@ class EUTaxStrategy extends AbstractTaxStrategy
     }
 
     /**
-     * Get the VAT rate configured for the address's member country. A member
-     * country has a single rate that applies to both product and shipping tax.
+     * Get the VAT rate that applies to the shopper. A member country has a
+     * single rate that applies to both product and shipping tax.
+     *
+     * Under OSS the shopper's member country supplies the rate. A micro
+     * business holds one country and charges its rate everywhere in the EU.
      *
      * @since 1.0.0
      *
-     * @return float Zero when the address has no country or the country has no configured rate.
+     * @return float Zero when that country is unknown or has no configured rate.
      */
     protected function get_rate(): float
     {
-        // TODO: honour $this->settings['type'] === 'micro_business' — a micro
-        // business charges its home-country VAT rate, not the destination
-        // member-country rate resolved below. Currently 'oss' and 'micro_business'
-        // behave identically.
+        $countries = $this->settings['countries'] ?? [];
+
+        if (static::MICRO_BUSINESS === ($this->settings['type'] ?? null)) {
+            $country = reset($countries);
+
+            return is_array($country) ? (float) ($country['rate'] ?? 0) : 0;
+        }
+
         $address_country = (string) ($this->address['country'] ?? '');
 
         if ($address_country === '') {
             return 0;
         }
 
-        foreach ($this->settings['countries'] ?? [] as $country) {
+        foreach ($countries as $country) {
             if (is_array($country) && (string) ($country['code'] ?? '') === $address_country) {
                 return (float) ($country['rate'] ?? 0);
             }

@@ -14,7 +14,6 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Supports\Icon;
-use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\App\Supports\Utils;
 use Kirki\Ecommerce\Framework\Supports\MediaAttachment;
@@ -94,7 +93,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                     <?php if ($timeline['activity_type'] === OrderActivityType::DELIVERED) : ?>
                                         <?php Icon::render('check'); ?>
                                     <?php elseif ($timeline['activity_type'] === OrderActivityType::CANCELLED) : ?>
-                                        <?php Icon::render('cross'); ?>
+                                        <?php Icon::render('x'); ?>
                                     <?php else : ?>
                                         <span class="kecom-order-step-dot"></span>
                                     <?php endif; ?>
@@ -235,6 +234,7 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                                             $discount_type = $coupon['discount_value_type'] ?? '';
                                             $discount_amount = $coupon['discount_amount_percentage'] ?? '';
                                             $amount = $coupon['invoiced_discount_amount_money_object'] ?? '';
+                                            /* translators: %1$s: coupon code, %2$s: discount type, %3$s: discount amount */
                                             $coupon_text = sprintf(__('%1$s %2$s (-%3$s) Discount Applied', 'kirki-ecommerce'), $code, 'percentage' === $discount_type ? $discount_amount . '%' : '', $amount->display);
                                         ?>
                                             <div class="kecom-product-coupon">
@@ -316,8 +316,11 @@ $billing_state = array_find($billing_country['states'] ?? [], fn($item) => $item
                         <div class="kecom-total-label-wrapper">
                             <span class="kecom-pricing-label"><?php esc_html_e('Total', 'kirki-ecommerce'); ?></span>
                             <?php if (! empty($tax_lines) && $is_tax_inclusive) :
-                                /** translators: %s: Tax amount. */
-                                $label = 'VAT' === $tax_lines[0]['name'] ? sprintf(__('Incl. %s VAT', 'kirki-ecommerce'), $tax_total->display ?? '') : sprintf(_n('Incl. %s Tax', 'Incl. %s Taxes', count($tax_lines), 'kirki-ecommerce'), $tax_total->display ?? '');
+                                $label = 'VAT' === $tax_lines[0]['name']
+                                    /* translators: %s: Tax amount. */
+                                    ? sprintf(__('Incl. %s VAT', 'kirki-ecommerce'), $tax_total->display ?? '')
+                                    /* translators: %s: Tax amount. */
+                                    : sprintf(_n('Incl. %s Tax', 'Incl. %s Taxes', count($tax_lines), 'kirki-ecommerce'), $tax_total->display ?? '');
                             ?>
                                 <div class="kecom-inclusive-tax-wrapper">
                                     <span class="kecom-inclusive-tax-summary"><?php echo esc_html($label); ?></span>

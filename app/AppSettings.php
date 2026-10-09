@@ -21,6 +21,13 @@ abstract class AppSettings
     protected $settings = [];
 
     /**
+     * Whether WordPress loads the option on every request. Null lets WordPress decide.
+     *
+     * @var bool|null
+     */
+    protected $autoload = null;
+
+    /**
      * Load the settings, merging the stored values over the defaults.
      *
      * @since 1.0.0
@@ -80,7 +87,7 @@ abstract class AppSettings
     public function set($value, bool $trigger_event = true)
     {
         $settings = array_merge($this->to_array(), $value);
-        Option::set($this->get_option_key(), $settings);
+        Option::set($this->get_option_key(), $settings, $this->autoload);
         $this->refresh();
 
         if ($trigger_event) {

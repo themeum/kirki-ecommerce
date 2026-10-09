@@ -88,15 +88,6 @@ const getSetupStepDefinition = (step: SetupStep): SetupStepDefinition => {
         ),
       ],
     }),
-    customize: () => ({
-      title: __('Customize your store', 'kirki-ecommerce'),
-      timeEstimate: formatMinutes(5),
-      description: __(
-        'Add your logo, colors, and fonts so your store looks like your brand.',
-        'kirki-ecommerce',
-      ),
-      actions: [],
-    }),
     tax: () => ({
       title: __('Collect sales tax', 'kirki-ecommerce'),
       timeEstimate: formatMinutes(1),

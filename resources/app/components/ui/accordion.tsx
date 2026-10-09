@@ -98,7 +98,7 @@ type AccordionItemProps = Omit<
 
 const AccordionItem = forwardRef<ComponentRef<typeof AccordionPrimitive.Item>, AccordionItemProps>(
   (props, ref) => {
-    const { children, cssOverride, value, ...rest } = props as AccordionItemProps;
+    const { children, cssOverride, value, ...rest } = props;
     const { hideSeparator } = useContext(AccordionContext);
     const generatedId = useId();
     const itemValue = value ?? generatedId;

@@ -1,3 +1,4 @@
+import { useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import ActionGroup from '@/components/ui/action-group';
@@ -60,6 +61,11 @@ const OrderDetails = () => {
     handleMarkAsPaid,
     handleSaveOrder,
   } = useOrderDetails(id);
+
+  const adminNotes = useWatch({
+    control: form.control,
+    name: 'admin_notes',
+  });
 
   if (isLoading) {
     return <OrderDetailsSkeleton />;
@@ -133,8 +139,11 @@ const OrderDetails = () => {
                 <CardHeader>
                   <CardTitle>
                     <Text variant="heading6" weight="semibold">
-                      {/* translators: %s: number of items */}
-                      {sprintf(__('Items (%s)', 'kirki-ecommerce'), order.items_count)}
+                      {sprintf(
+                        /* translators: %s: number of items */
+                        __('Items (%s)', 'kirki-ecommerce'),
+                        order.items_count,
+                      )}
                     </Text>
                   </CardTitle>
                 </CardHeader>
@@ -195,7 +204,7 @@ const OrderDetails = () => {
 
               <FlagCard onSave={handleSaveOrder} />
 
-              <NotesCard isEditable={false} />
+              {Boolean(adminNotes) && <NotesCard isEditable={false} />}
             </Flex>
           </Flex>
         </PageContent>

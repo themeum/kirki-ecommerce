@@ -4,6 +4,8 @@
     "dev:site": "npm run dev --prefix resources/site",
     "dev": "npm run dev:app & npm run dev:site",
     "make:package": "bash bin/make-package.sh",
+    "make:org-package": "bash bin/make-package.sh --org",
+    "make:pot": "bash bin/make-pot.sh",
     "make:payment-loader-plugin": "bash dev-tools/load-kirki-payment-gateways/build.sh",
     "search:index": "npm run search:index --prefix resources/app",
     "test:app": "npm run test --prefix resources/app",

@@ -5,13 +5,23 @@ namespace Kirki\Ecommerce\Tests\Integration;
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\PageKeys;
+use Kirki\Ecommerce\App\Models\Attribute;
+use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\App\Models\Category;
+use Kirki\Ecommerce\App\Models\Coupon;
 use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\App\Models\ProductSchema;
+use Kirki\Ecommerce\App\Models\ShippingProfile;
+use Kirki\Ecommerce\App\Models\TaxProfile;
+use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
+use Kirki\Ecommerce\App\Setup\Presets\ShippingZonePresets;
 use Kirki\Ecommerce\App\Supports\Onboarding;
 use Kirki\Ecommerce\Framework\Database\Seeder;
 use Kirki\Ecommerce\Framework\Supports\Facades\Option;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
+
+use function Kirki\Ecommerce\Framework\app;
 
 class OnboardingApiTest extends RestTestCase
 {
@@ -59,8 +69,10 @@ class OnboardingApiTest extends RestTestCase
             OptionKeys::CHECKOUT_SETTINGS,
             OptionKeys::PAYMENT_SETTINGS,
             OptionKeys::SHIPPING_SETTINGS,
+            OptionKeys::LEGAL_SETTINGS,
             OptionKeys::ONBOARDING_COMPLETED_AT,
             OptionKeys::SETUP_CHECKLIST,
+            OptionKeys::PRESETS_APPLIED_AT,
         ];
 
         foreach ($option_keys as $option_key) {
@@ -150,7 +162,6 @@ class OnboardingApiTest extends RestTestCase
             $this->assertSame('publish', get_post_status($page_id));
         }
 
-        $this->assertTrue(Category::query()->exists());
         $this->assertSame($product_count, Product::query()->count());
         $this->assertTrue(Onboarding::is_completed());
         $this->assertSame($store_created_count + 1, did_action(DevHookNames::STORE_CREATED));
@@ -312,21 +323,138 @@ class OnboardingApiTest extends RestTestCase
     }
 
     /**
-     * Sample data adds the demo products once.
+     * Sample data adds the demo products and the starter coupon once.
      *
      * @return void
      * @since 1.0.0
      */
     public function test_sample_data_adds_demo_products_once(): void
     {
+        Coupon::query()->delete();
         $this->assert_api_success($this->request('POST', 'onboarding', $this->payload()));
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
         $product_count = Product::query()->count();
         $this->assertGreaterThan(0, $product_count);
+        $this->assertSame(1, Coupon::query()->where('code', 'WELCOME50')->count());
 
         $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
         $this->assertSame($product_count, Product::query()->count());
+        $this->assertSame(1, Coupon::query()->where('code', 'WELCOME50')->count());
+    }
+
+    /**
+     * Sample data on a store that already has products creates no coupon.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_sample_data_creates_no_coupon_when_products_exist(): void
+    {
+        $this->assert_api_success($this->request('POST', 'onboarding', $this->payload()));
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+        Coupon::query()->delete();
+
+        $this->assert_api_success($this->request('POST', 'onboarding/sample-data'));
+
+        $this->assertFalse(Coupon::query()->exists());
+    }
+
+    /**
+     * Store setup writes every preset kind for the saved industry and country.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_setup_applies_every_preset_kind(): void
+    {
+        $this->clear_preset_targets();
+
+        $this->assert_api_success($this->request('POST', 'onboarding', $this->preset_payload()));
+
+        $this->assertTrue(Category::query()->where('name', 'Women')->exists());
+        $this->assertTrue(Attribute::query()->where('slug', 'size')->exists());
+        $this->assertSame(1, ProductSchema::query()->count());
+        $this->assertFalse(Coupon::query()->exists());
+        $this->assertTrue(ShippingProfile::query()->where('name', 'Oversized')->exists());
+        $this->assertTrue(TaxProfile::query()->where('name', "Children's Clothing")->exists());
+        $this->assertCount(3, Option::get(OptionKeys::LEGAL_SETTINGS)['consents']);
+        $this->assertSame(['Domestic'], array_column(Option::get(OptionKeys::SHIPPING_SETTINGS)['shipping_zones'], 'title'));
+        $this->assertSame('GB', Option::get(OptionKeys::TAX_SETTINGS)['tax_regions'][0]['code']);
+        $this->assertContains('shipping', Option::get(OptionKeys::SETUP_CHECKLIST)['preconfigured']);
+        $this->assertNotEmpty(Option::get(OptionKeys::PRESETS_APPLIED_AT));
+    }
+
+    /**
+     * Store setup does not apply the presets again once they were applied.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_setup_does_not_apply_presets_twice(): void
+    {
+        $this->clear_preset_targets();
+        Option::set(OptionKeys::PRESETS_APPLIED_AT, time());
+
+        $this->assert_api_success($this->request('POST', 'onboarding', $this->preset_payload()));
+
+        $this->assertFalse(Category::query()->exists());
+        $this->assertFalse(ShippingProfile::query()->exists());
+        $this->assertEmpty(Option::get(OptionKeys::SHIPPING_SETTINGS)['shipping_zones'] ?? []);
+    }
+
+    /**
+     * A preset kind that throws is logged, and the other kinds are still written.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_failing_preset_kind_does_not_stop_the_others(): void
+    {
+        $this->clear_preset_targets();
+        app()->instance(ShippingZonePresets::class, new class extends ShippingZonePresets {
+            public function __construct()
+            {
+            }
+
+            public function apply(array $presets, PresetContext $context)
+            {
+                throw new \RuntimeException('Zone presets failed');
+            }
+        });
+
+        try {
+            $this->assert_api_success($this->request('POST', 'onboarding', $this->preset_payload()));
+        } finally {
+            static::forget_singleton(ShippingZonePresets::class);
+        }
+
+        $this->assertEmpty(Option::get(OptionKeys::SHIPPING_SETTINGS)['shipping_zones'] ?? []);
+        $this->assertTrue(Category::query()->where('name', 'Women')->exists());
+        $this->assertCount(3, Option::get(OptionKeys::LEGAL_SETTINGS)['consents']);
+        $this->assertCount(1, Option::get(OptionKeys::TAX_SETTINGS)['tax_regions']);
+        $this->assertNotEmpty(Option::get(OptionKeys::PRESETS_APPLIED_AT));
+    }
+
+    /**
+     * Presets leave the order and invoice number settings at their defaults.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_presets_leave_order_and_invoice_numbering_unchanged(): void
+    {
+        $this->assert_api_success($this->request('POST', 'onboarding', $this->preset_payload()));
+
+        $general = Option::get(OptionKeys::GENERAL_SETTINGS);
+        $this->assertSame(['prefix' => '', 'suffix' => ''], $general['order_number']);
+        $this->assertSame([
+            'prefix' => '',
+            'suffix' => '',
+            'sequence' => '000001',
+            'apply_year_prefix' => false,
+            'reset_sequence_every_year' => false,
+        ], $general['invoice_number']);
     }
 
     /**
@@ -351,6 +479,40 @@ class OnboardingApiTest extends RestTestCase
             'is_tax_inclusive_price' => false,
             'store_tax_id' => null,
         ], $overrides);
+    }
+
+    /**
+     * Build a payload whose industry and country both have presets.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function preset_payload(): array
+    {
+        return $this->payload([
+            'industry' => 'fashion-and-apparel',
+            'country' => 'GB',
+            'store_address' => ['city' => 'London'],
+            'currency' => 'GBP',
+            'is_tax_collected' => true,
+        ]);
+    }
+
+    /**
+     * Delete the plugin rows the presets write, which carry across tests in a class.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function clear_preset_targets(): void
+    {
+        Category::query()->delete();
+        AttributeValue::query()->delete();
+        Attribute::query()->delete();
+        ProductSchema::query()->delete();
+        Coupon::query()->delete();
+        ShippingProfile::query()->delete();
+        TaxProfile::query()->delete();
     }
 
     /**

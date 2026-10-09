@@ -84,7 +84,13 @@ const ProductTable = () => {
               destructive: true,
             },
           ]
-        : [{ value: 'trash', title: __('Trash', 'kirki-ecommerce'), destructive: true }],
+        : [
+            {
+              value: 'trash',
+              title: __('Move to trash', 'kirki-ecommerce'),
+              destructive: true,
+            },
+          ],
     [params.status],
   );
 

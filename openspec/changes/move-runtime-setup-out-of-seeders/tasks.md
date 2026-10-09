@@ -1,0 +1,25 @@
+## 1. Move the runtime classes to app/Setup
+
+- [x] 1.1 `git mv` the eight files in `database/seeders/OnBoarding/` (`OnBoardingSeeder`, `SettingsSeeder`, `CategorySeeder`, `AttributeSeeder`, `ProductSchemaSeeder`, `ProductSeeder`, `OnBoardingCatalog`, `MediaImporter`) to `app/Setup/`, keeping the class names (D1)
+- [x] 1.2 Change each moved file's namespace to `Kirki\Ecommerce\App\Setup` and add the `defined('ABSPATH') || exit;` guard that `app/` classes use. Fix any same-namespace references between the moved classes
+- [x] 1.3 Update the imports in `app/Services/StoreSetupService.php` and `app/Services/SampleDataImporter.php` to `Kirki\Ecommerce\App\Setup\…`
+- [x] 1.4 Confirm that `git grep "Seeders\\\\OnBoarding"` finds nothing outside `openspec/changes/` and that the `database/seeders/OnBoarding/` folder is gone
+
+## 2. Keep developer seeders out of production
+
+- [x] 2.1 In `composer.json`, move `"Kirki\\Ecommerce\\Database\\Seeders\\": "database/seeders/"` from `autoload.psr-4` to a new `autoload-dev.psr-4` block. Keep `Database\Migrations\` in `autoload` (D2). Run `composer dump-autoload` *(An `autoload-dev.psr-4` block already existed for `Tests\`, so the entry was added to it instead of a new block.)*
+- [x] 2.2 In `bin/make-package.sh`, replace `"database"` in `OPTIONAL_PATHS` with `"database/migrations"` (D3)
+- [x] 2.3 In `app/Providers/AppServiceProvider.php`, bind `DatabaseSeederContract` only when `$this->app->is_dev_mode()` is true (D4) *(Correction: the check first went in `register()`, but there it never bound the contract, even in development. `Application::configure()` registers the app providers before `bootstrap/app.php` calls `use_app_mode()`, so `is_dev_mode()` always returns its default value during `register()`. I found this in 4.3. The binding now lives in the provider's `boot()`, which runs after the mode is set.)*
+- [x] 2.4 Check the vendored `SeedCommand::seed()`: an unbound `DatabaseSeederContract` must throw an exception that its `catch (Exception …)` handles, and discovery of a missing `database/seeders/` folder must return no seeders. Record the result here *(Confirmed by reading the code. `Container::autowire()` calls `throw_if(!isInstantiable())`, which throws `\Exception` (`helpers.php` imports `Exception`). `SeedCommand` imports `Exception` and catches it, then calls `discover()`. `discover()` returns `[]` when `glob()` of the missing folder is empty. `Seeder::call([])` queues nothing, and `__invoke()` does not loop. Result: no seeder runs and no fatal error occurs, but the command still prints "Seeder run successfully".)*
+
+## 3. Docs
+
+- [x] 3.1 In `README.md`, say that `db:seed`, `migrate:fresh --seed` and `make:seeder` are development tools, that `database/seeders/` is never packaged, and that runtime setup code lives in `app/Setup/`. Note that you must run `composer dump-autoload` after pulling this change
+
+## 4. Verify
+
+- [x] 4.1 `php -l` on every moved and edited PHP file, and `composer phpcs:wporg` on `app/Setup/`
+- [x] 4.2 Run the integration suites in Docker: `bash kirki-test integration --filter='OnboardingApiTest|OnboardingRedirectTest|SetupChecklistApiTest|SettingsApiTest'`. They cover store setup and sample data
+- [x] 4.3 In a dev install, run `wpcli kirki db:seed --class=CategorySeeder` (or another light developer seeder) and confirm that it still runs *(I verified this with `wpcli eval` and did not run `db:seed`, so that no demo data is written to the local dev database. In dev mode, `DatabaseSeederContract` resolves to `Database\Seeders\DatabaseSeeder`, and both `Database\Seeders\ProductSeeder` and `App\Setup\OnBoardingSeeder` autoload. `db:seed` uses exactly this path. This check found the 2.3 timing bug.)*
+- [x] 4.4 Run `npm run make:package` and inspect `build/kirki-ecommerce/`: `database/migrations/` is present, `database/seeders/` is absent, `app/Setup/` holds the eight files, and `vendor/composer/autoload_psr4.php` and `autoload_classmap.php` have no `Database\\Seeders` entry *(I did not run `npm run make:package` in the repo, because it runs `composer update` and `composer install --no-dev` there, which can rewrite `composer.lock` and remove the local dev tools. Instead I took a copy of the repo in the scratchpad, ran the script's own copy step (its `REQUIRED_PATHS`, `OPTIONAL_PATHS` and `copy_path`) and its `composer dump-autoload --no-dev --optimize`. Result: `database/` holds only `migrations/` (43 files), and `app/Setup/` holds 8 files. `autoload_psr4.php`, `autoload_classmap.php` and `autoload_static.php` have 0 `Database\\Seeders` entries and 8 `App\\Setup` classes, and migrations are still mapped.)*
+- [ ] 4.5 Install the built zip on a clean site and complete onboarding and "Load sample data" (spec scenarios "Store setup works from the package" and "Sample data import works from the package"). Then run `db:seed` there and confirm that no seeder runs and no fatal error occurs. This step needs manual confirmation by the user if a clean site is not available

@@ -9,23 +9,23 @@ paths:
 Derived from analyzing the actual code in `resources/app/`.
 Applies to: `resources/app/**/*.{ts,tsx}`.
 
-**Note:** the old `.cursor/rules/react-standards.mdc` targets `**/*.jsx`, but
-this codebase has fully migrated to TypeScript — there are zero `.jsx` files
-left (351 `.tsx`, 192 `.ts`). Write all new frontend code in `.ts`/`.tsx`.
+Write all frontend code in `.ts`/`.tsx`. Do not add `.jsx` files.
 
 ### Files and Folders
 
 - Folders and files: **lowercase**, words separated by **dashes**
   (`brand-table/`, `confirmation-dialog.tsx`, `use-debounce.ts`)
 - Don't create a barrel `index.ts` per component. The only barrels in this
-  codebase aggregate a whole domain (`types/index.ts`, `hooks/index.ts`,
-  `theme/index.ts`, `components/data-table/index.ts`) — reserve that pattern
+  codebase aggregate a whole domain (`hooks/index.ts`, `theme/index.ts`,
+  `components/data-table/index.ts`, `features/settings/types/index.ts`) — reserve that pattern
   for a similarly cohesive module, not a single component.
 - Hook filenames should be `use-thing.ts` (kebab-case), matching `use-debounce.ts`
-  and `use-list-params.ts`. `useBulkEditList.ts` / `useMarkList.ts` are legacy
-  camelCase leftovers — don't add new files in that style.
-- Co-locate tests next to the file they cover: `brand-form.ts` + `brand-form.test.ts`
-  (Vitest — run via `npm test` in `resources/app/`).
+  and `use-list-params.ts`.
+- Tests use Vitest (`npm test` in `resources/app/`). Feature tests go in
+  `features/<feature>/tests/`, mirroring the source path
+  (`features/brands/schemas/forms/brand-form.ts` →
+  `features/brands/tests/schemas/forms/brand-form.test.ts`). Tests for shared
+  code (`components/`, `hooks/`, `libs/`) sit next to the file they cover.
 
 ### Components
 
@@ -38,7 +38,7 @@ const ConfirmationDialog = (props: ConfirmationDialogProps) => {
   return <Dialog>...</Dialog>;
 };
 
-ConfirmationDialog.displayName = "ConfirmationDialog";
+ConfirmationDialog.displayName = 'ConfirmationDialog';
 
 export default ConfirmationDialog;
 ```
@@ -49,7 +49,7 @@ export default ConfirmationDialog;
 
 ### Control Flow
 
-Never use inline returns for conditional statements — always wrap the body in braces (followed with zero exceptions in this codebase):
+Never use inline returns for conditional statements — always wrap the body in braces:
 
 ```tsx
 // ❌ BAD
@@ -68,9 +68,9 @@ if (condition) {
 - User-facing static text: use `__()` from `@/wpi18n` with domain `kirki-ecommerce`
 
 ```tsx
-import { __ } from "@/wpi18n";
+import { __ } from '@/wpi18n';
 
-<Button text={__("Save changes", "kirki-ecommerce")} variant="primary" />;
+<Button text={__('Save changes', 'kirki-ecommerce')} variant="primary" />;
 ```
 
 ### Imports
@@ -85,14 +85,14 @@ Always use the `@/` alias for internal paths — avoid deep relative imports whe
 Use `import type { ... }` for type-only imports.
 
 ```tsx
-import { Info } from "lucide-react";
-import type { ReactNode } from "react";
+import { Info } from 'lucide-react';
+import type { ReactNode } from 'react';
 
-import Button from "@/components/ui/button";
-import { theme } from "@/theme";
-import { __ } from "@/wpi18n";
+import Button from '@/components/ui/button';
+import { theme } from '@/theme';
+import { __ } from '@/wpi18n';
 
-import "./confirmation-dialog.scss";
+import './confirmation-dialog.scss';
 ```
 
 ### Styling
@@ -111,7 +111,7 @@ Styling goes through `@emotion/react`, not plain CSS modules or inline
 const styles = defineStyles({
   title: {
     ...theme.typography.heading4(),
-    textAlign: "center",
+    textAlign: 'center',
   },
 });
 ```

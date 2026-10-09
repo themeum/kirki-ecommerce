@@ -77,19 +77,6 @@ export const GeneralSettingsSchema = z
 
 export type GeneralSettings = z.infer<typeof GeneralSettingsSchema>;
 
-export const BarcodeGenerationSchema = z
-  .object({
-    data_origin: z.string().nullish(),
-    format: z.string().nullish(),
-    country_of_origin: z.string().nullish(),
-    width: z.number().nullish(),
-    height: z.number().nullish(),
-    is_human_readable_text_visible: z.boolean().nullish(),
-    is_product_name_visible: z.boolean().nullish(),
-    is_country_of_origin_visible: z.boolean().nullish(),
-  })
-  .passthrough();
-
 export const ProductSettingsSchema = z
   .object({
     shop_page: z.union([z.string(), z.number()]).nullish(),
@@ -99,7 +86,6 @@ export const ProductSettingsSchema = z
     is_enabled_reviews: z.boolean().nullish(),
     is_enabled_star_ratings: z.boolean().nullish(),
     low_stock_threshold: z.number().nullish(),
-    barcode_generation: BarcodeGenerationSchema.nullish(),
   })
   .passthrough();
 

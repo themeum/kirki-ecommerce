@@ -56,8 +56,8 @@ type PaymentSummaryCardProps = {
 
 const getCouponLabel = (coupon: PaymentSummaryCoupon) => {
   if (coupon.discount_value_type === 'percentage' && isDefined(coupon.discount_amount_percentage)) {
-    /* translators: %1$s: coupon code, %2$s: discount percentage */
     return sprintf(
+      /* translators: %1$s: coupon code, %2$s: discount percentage */
       __('%1$s (%2$s%% off)', 'kirki-ecommerce'),
       coupon.code,
       coupon.discount_amount_percentage,
@@ -112,9 +112,9 @@ const PaymentSummaryCard = ({
             </Text>
             {isProductSelected ? (
               <Flex justify="space-between" grow={1}>
-                {/* translators: %s: number of items */}
                 <Text variant="small" color="secondary">
                   {sprintf(
+                    /* translators: %s: number of items */
                     _n('%s item', '%s items', itemsCount ?? 0, 'kirki-ecommerce'),
                     itemsCount ?? 0,
                   )}

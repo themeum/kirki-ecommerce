@@ -5,9 +5,10 @@ namespace Kirki\Ecommerce\App\Services;
 use Kirki\Ecommerce\App\Constants\Hooks\DevHookNames;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\DTO\Onboarding\StoreSetupDTO;
+use Kirki\Ecommerce\App\Setup\OnBoardingSeeder;
+use Kirki\Ecommerce\App\Setup\Presets\PresetContext;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Supports\Utils;
-use Kirki\Ecommerce\Database\Seeders\OnBoarding\OnBoardingSeeder;
 
 use function Kirki\Ecommerce\Framework\app;
 
@@ -30,18 +31,23 @@ class StoreSetupService
     /** @var SetupChecklistService */
     protected $setup_checklist_service;
 
+    /** @var StorePresetService */
+    protected $store_preset_service;
+
     /**
-     * Create the service with the currency and setup checklist services.
+     * Create the service with the currency, setup checklist and store preset services.
      *
      * @since 1.0.0
      *
      * @param CurrencyService       $currency_service
      * @param SetupChecklistService $setup_checklist_service
+     * @param StorePresetService    $store_preset_service
      */
-    public function __construct(CurrencyService $currency_service, SetupChecklistService $setup_checklist_service)
+    public function __construct(CurrencyService $currency_service, SetupChecklistService $setup_checklist_service, StorePresetService $store_preset_service)
     {
         $this->currency_service = $currency_service;
         $this->setup_checklist_service = $setup_checklist_service;
+        $this->store_preset_service = $store_preset_service;
     }
 
     /**
@@ -62,7 +68,10 @@ class StoreSetupService
 
         Utils::generate_site_pages();
 
-        $this->apply_presets($data->industry, $data->country);
+        if (!$this->store_preset_service->is_applied()) {
+            $this->store_preset_service->apply(PresetContext::from_settings());
+        }
+
         $this->setup_checklist_service->record_preconfigured();
 
         do_action(DevHookNames::STORE_CREATED, $data->to_array());
@@ -123,22 +132,5 @@ class StoreSetupService
         Settings::get(OptionKeys::TAX_SETTINGS)->refresh()->set([
             'is_tax_inclusive_price' => $data->is_tax_collected && $data->is_tax_inclusive_price,
         ]);
-    }
-
-    /**
-     * Apply the industry and location based presets for the new store.
-     *
-     * Intentionally empty for now: this is where industry and location specific
-     * settings and data will be loaded.
-     *
-     * @since 1.0.0
-     *
-     * @param string $industry Industry slug.
-     * @param string $country  ISO 3166-1 alpha-2 country code.
-     * @return void
-     */
-    public function apply_presets(string $industry, string $country)
-    {
-        //
     }
 }

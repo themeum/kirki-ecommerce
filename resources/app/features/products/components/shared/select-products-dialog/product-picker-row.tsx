@@ -1,5 +1,6 @@
-import { type MouseEvent, useCallback, useRef } from 'react';
+import { type MouseEvent, useCallback, useMemo, useRef } from 'react';
 
+import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
@@ -10,6 +11,7 @@ import Text from '@/components/ui/text';
 import type {
   ProductSelection,
   ProductVariantSelection,
+  SelectProductsMode,
 } from '@/features/products/components/shared/select-products-dialog/types';
 import type { ProductListItem } from '@/features/products/schemas/catalog/product';
 import { ChevronDownIcon } from '@/icons';
@@ -20,9 +22,10 @@ type ProductPickerRowProps = {
   selection: ProductSelection;
   expanded: boolean;
   onToggleExpand: () => void;
-  selectVariants: boolean;
+  mode: SelectProductsMode;
   isProductSelected: boolean;
   selectedVariantIds: Set<number>;
+  lockedVariantIds: Set<number>;
   onToggleProduct: (checked: boolean) => void;
   onToggleVariants: (variants: ProductVariantSelection[], checked: boolean) => void;
   onToggleRange: (checked: boolean, variant?: ProductVariantSelection) => void;
@@ -34,35 +37,42 @@ const ProductPickerRow = ({
   selection,
   expanded,
   onToggleExpand,
-  selectVariants,
+  mode,
   isProductSelected,
   selectedVariantIds,
+  lockedVariantIds,
   onToggleProduct,
   onToggleVariants,
   onToggleRange,
   onSetAnchor,
 }: ProductPickerRowProps) => {
   const { variants } = selection;
-  const selectedVariantCount = variants.filter((variant) =>
+  const isOrderMode = mode === 'order';
+  const unlockedVariants = useMemo(
+    () => variants.filter((variant) => !lockedVariantIds.has(variant.variantId)),
+    [variants, lockedVariantIds],
+  );
+  const selectedVariantCount = unlockedVariants.filter((variant) =>
     selectedVariantIds.has(variant.variantId),
   ).length;
+  const isFullyLocked = variants.length > 0 && unlockedVariants.length === 0;
 
-  const isChecked = selectVariants
-    ? variants.length > 0 && selectedVariantCount === variants.length
+  const isChecked = isOrderMode
+    ? unlockedVariants.length > 0 && selectedVariantCount === unlockedVariants.length
     : isProductSelected;
   const isPartial =
-    selectVariants && selectedVariantCount > 0 && selectedVariantCount < variants.length;
+    isOrderMode && selectedVariantCount > 0 && selectedVariantCount < unlockedVariants.length;
 
   const handleToggleAll = useCallback(
     (checked: boolean) => {
-      if (selectVariants) {
+      if (isOrderMode) {
         onToggleVariants(variants, checked);
         return;
       }
 
       onToggleProduct(checked);
     },
-    [selectVariants, onToggleVariants, variants, onToggleProduct],
+    [isOrderMode, onToggleVariants, variants, onToggleProduct],
   );
 
   const isShiftHeld = useRef(false);
@@ -85,10 +95,14 @@ const ProductPickerRow = ({
 
   const handleProductRowClick = useCallback(
     (event: MouseEvent<HTMLTableRowElement>) => {
+      if (isFullyLocked) {
+        return;
+      }
+
       isShiftHeld.current = event.shiftKey;
       handleProductToggle(!isChecked);
     },
-    [isChecked, handleProductToggle],
+    [isFullyLocked, isChecked, handleProductToggle],
   );
 
   const handleVariantToggle = useCallback(
@@ -109,10 +123,14 @@ const ProductPickerRow = ({
 
   const handleVariantRowClick = useCallback(
     (event: MouseEvent<HTMLTableRowElement>, variant: ProductVariantSelection) => {
+      if (lockedVariantIds.has(variant.variantId)) {
+        return;
+      }
+
       isShiftHeld.current = event.shiftKey;
       handleVariantToggle(variant, !selectedVariantIds.has(variant.variantId));
     },
-    [handleVariantToggle, selectedVariantIds],
+    [handleVariantToggle, selectedVariantIds, lockedVariantIds],
   );
 
   const handleToggleExpandClick = useCallback(
@@ -125,11 +143,15 @@ const ProductPickerRow = ({
 
   return (
     <>
-      <TableRow onClick={handleProductRowClick} cssOverride={{ cursor: 'pointer' }}>
+      <TableRow
+        onClick={handleProductRowClick}
+        cssOverride={{ cursor: isFullyLocked ? 'default' : 'pointer' }}
+      >
         <TableCell onlyCheckbox>
           <Checkbox
             checked={isChecked}
             isPartialChecked={isPartial}
+            disabled={isFullyLocked}
             onClick={(event) => {
               isShiftHeld.current = event.shiftKey;
             }}
@@ -146,7 +168,7 @@ const ProductPickerRow = ({
                   {product.sku}
                 </Text>
               )}
-              {!selectVariants && variants.length > 1 && (
+              {!isOrderMode && variants.length > 1 && (
                 <Text variant="small" color="secondary">
                   {sprintf(
                     /* translators: %s: number of variants */
@@ -156,7 +178,10 @@ const ProductPickerRow = ({
                 </Text>
               )}
             </Flex>
-            {selectVariants && (
+            {isFullyLocked && (
+              <Badge variant="destructive">{__('Item already picked', 'kirki-ecommerce')}</Badge>
+            )}
+            {isOrderMode && (
               <Button
                 variant="ghost"
                 size="icon-xs"
@@ -179,39 +204,49 @@ const ProductPickerRow = ({
       </TableRow>
 
       {expanded &&
-        selectVariants &&
-        variants.map((variant) => (
-          <TableRow
-            key={variant.variantId}
-            onClick={(event) => handleVariantRowClick(event, variant)}
-            cssOverride={{ cursor: 'pointer' }}
-          >
-            <TableCell />
-            <TableCell>
-              <Flex gap={6} align="center">
-                <Checkbox
-                  checked={selectedVariantIds.has(variant.variantId)}
-                  onClick={(event) => {
-                    isShiftHeld.current = event.shiftKey;
-                  }}
-                  onCheckedChange={(checked) => handleVariantToggle(variant, checked === true)}
-                />
-                <Flex gap={3} align="center">
-                  <Image src={variant.thumbnail} alt={variant.variantLabel} size="sm" />
-                  <Text variant="small">{variant.variantLabel}</Text>
+        isOrderMode &&
+        variants.map((variant) => {
+          const isLocked = lockedVariantIds.has(variant.variantId);
+
+          return (
+            <TableRow
+              key={variant.variantId}
+              onClick={(event) => handleVariantRowClick(event, variant)}
+              cssOverride={{ cursor: isLocked ? 'default' : 'pointer' }}
+            >
+              <TableCell />
+              <TableCell>
+                <Flex gap={6} align="center">
+                  <Checkbox
+                    checked={selectedVariantIds.has(variant.variantId)}
+                    disabled={isLocked}
+                    onClick={(event) => {
+                      isShiftHeld.current = event.shiftKey;
+                    }}
+                    onCheckedChange={(checked) => handleVariantToggle(variant, checked === true)}
+                  />
+                  <Flex gap={3} align="center">
+                    <Image src={variant.thumbnail} alt={variant.variantLabel} size="sm" />
+                    <Text variant="small">{variant.variantLabel}</Text>
+                    {isLocked && (
+                      <Badge variant="destructive">
+                        {__('Item already picked', 'kirki-ecommerce')}
+                      </Badge>
+                    )}
+                  </Flex>
                 </Flex>
-              </Flex>
-            </TableCell>
-            <TableCell>
-              {variant.inStock
-                ? __('In Stock', 'kirki-ecommerce')
-                : __('Out of Stock', 'kirki-ecommerce')}
-            </TableCell>
-            <TableCell alignment="right">
-              <PriceText salePrice={variant.salePrice} regularPrice={variant.regularPrice} />
-            </TableCell>
-          </TableRow>
-        ))}
+              </TableCell>
+              <TableCell>
+                {variant.inStock
+                  ? __('In Stock', 'kirki-ecommerce')
+                  : __('Out of Stock', 'kirki-ecommerce')}
+              </TableCell>
+              <TableCell alignment="right">
+                <PriceText salePrice={variant.salePrice} regularPrice={variant.regularPrice} />
+              </TableCell>
+            </TableRow>
+          );
+        })}
     </>
   );
 };

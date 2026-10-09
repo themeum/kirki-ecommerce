@@ -57,21 +57,21 @@
   {
     "id": "redsys",
     "name": "Redsys",
-    "is_available": false
+    "is_available": true
   },
   {
     "id": "paymango",
     "name": "PayMango",
-    "is_available": false
+    "is_available": true
   },
   {
     "id": "payfast",
     "name": "PayFast",
-    "is_available": false
+    "is_available": true
   },
   {
     "id": "payu",
     "name": "PayU",
-    "is_available": false
+    "is_available": true
   }
 ]

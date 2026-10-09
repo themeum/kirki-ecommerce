@@ -22,7 +22,6 @@ const relevant: [query: string, expected: string[]][] = [
   ['store address', ['general.store-address']],
   ['invoice id', ['general.invoice-id']],
   ['calculate tax', ['general.calculate-tax']],
-  ['barcode', ['essentials.barcode-generation']],
   ['reviews', ['products.reviews']],
   ['payment gateways', ['payments.methods']],
   ['variation', ['essentials.variation-library']],
@@ -64,7 +63,6 @@ const partial: [query: string, expected: string[]][] = [
   ['shipp', ['nav.shipping', 'shipping.zones']],
   ['varia', ['essentials.variation-library']],
   ['curren', ['currency.preferences', 'nav.currency']],
-  ['barcod', ['essentials.barcode-generation']],
   ['invoic', ['general.invoice-id']],
   ['guest ch', ['checkout.guest-checkout']],
 ];
@@ -73,7 +71,6 @@ const keyworded: [query: string, expected: string[]][] = [
   ['parcel', ['shipping.boxes']],
   ['gst', ['tax.regions', 'tax.profile', 'tax.collection', 'nav.tax']],
   ['bank transfer', ['payments.methods']],
-  ['upc', ['essentials.barcode-generation']],
   ['seo', ['essentials.schema-profile']],
   ['cash on delivery', ['payments.methods']],
   ['turn off tax', ['general.calculate-tax']],
@@ -82,7 +79,6 @@ const keyworded: [query: string, expected: string[]][] = [
 const literal: [query: string, expected: string[]][] = [
   ['va', ['essentials.variation-library', 'tax.regions']],
   ['va zo', ['tax.regions']],
-  ['gtin', ['essentials.barcode-generation']],
 ];
 
 const absent = [

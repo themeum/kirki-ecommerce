@@ -166,16 +166,6 @@ const ShippingSettings = () => {
                                         <Text variant="small" weight="medium">
                                           {method.name ?? ''}
                                         </Text>
-                                        {method.subText && (
-                                          <Text
-                                            variant="tiny"
-                                            color="subdued"
-                                            truncate
-                                            cssOverride={{ maxWidth: 280 }}
-                                          >
-                                            {method.subText}
-                                          </Text>
-                                        )}
                                         {method.is_enabled === false && (
                                           <Badge variant="destructive">
                                             {__('Inactive', 'kirki-ecommerce')}

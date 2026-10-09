@@ -167,10 +167,10 @@ class SettingResource extends Resource
     protected function get_currency_settings($data)
     {
         return [
-            'currency_format' => $data['currency_format'] ?? null,
-            'currency_position' => $data['currency_position'] ?? null,
-            'thousand_separator' => $data['thousand_separator'] ?? null,
-            'decimal_separator' => $data['decimal_separator'] ?? null,
+            'currency_format' => $data['currency_format'] ?? 'short',
+            'currency_position' => $data['currency_position'] ?? 'before',
+            'thousand_separator' => $data['thousand_separator'] ?? ',',
+            'decimal_separator' => $data['decimal_separator'] ?? '.',
             'is_automatic_update_enabled' => $data['is_automatic_update_enabled'] ?? false,
             'api_provider' => $data['api_provider'] ?? null,
             'last_sync_at' => $data['last_sync_at'] ?? null,

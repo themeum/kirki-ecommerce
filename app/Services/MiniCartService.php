@@ -44,7 +44,7 @@ class MiniCartService extends CartService
             @kecom:cart-updated.document="updateCount($event.detail.items_count)"
             x-data="miniCart({ initialCount: <?php echo (int) $total_items_count; ?> })">
 
-            <span class="kecom-mini-cart-icon" aria-hidden="true"><?php Icon::render('cart', ['size' => 20]); ?></span>
+            <span class="kecom-mini-cart-icon" aria-hidden="true"><?php Icon::render('shopping-cart', ['size' => 20]); ?></span>
             <span
                 class="kecom-mini-cart-count"
                 :class="{

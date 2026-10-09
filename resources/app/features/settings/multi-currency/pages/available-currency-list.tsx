@@ -121,13 +121,14 @@ const CurrencyRowActions = (props: CurrencyRowActionsProps) => {
           ? __('Activate currency?', 'kirki-ecommerce')
           : __('Deactivate currency?', 'kirki-ecommerce'),
         subtitle: sprintf(
-          /* translators: %s: unsaved changes note */
           !item.is_active
-            ? __(
+            ? /* translators: %s: unsaved changes note */
+              __(
                 'Are you sure you want to deactivate this currency? This action cannot be undone. %s',
                 'kirki-ecommerce',
               )
-            : __(
+            : /* translators: %s: unsaved changes note */
+              __(
                 'Are you sure you want to activate this currency? This action cannot be undone. %s',
                 'kirki-ecommerce',
               ),

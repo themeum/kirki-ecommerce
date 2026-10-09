@@ -7,9 +7,6 @@ paths:
 
 # PHP Coding Standards
 
-Derived from analyzing the actual code in `app/` and `database/` (404 PHP files).
-Applies to: `app/**/*.php`, `database/**/*.php`.
-
 Target PHP **7.4** (see `composer.json` `config.platform.php`). Follow PSR-4 file naming.
 
 ### WordPress.org Plugin Directory Requirements
@@ -33,7 +30,7 @@ Never read `$_GET`/`$_POST`/`$_SERVER`/`$_COOKIE`/`$_FILES` directly. Use:
   single-key reads in code that only ever runs inside a dispatched site or
   REST request — it merges query, POST, and route params into one typed
   accessor (`->int()`, `->text()`, `->array()`, `->cookie()`, ...), already
-  used in `CartService.php` and `resources/views/site/login.php`.
+  used in `CartService.php` and `resources/views/site/shop/single.php`.
 - `Kirki\Ecommerce\Framework\Http\Superglobals` everywhere else: whole-array
   reads where the exact source array matters (not `Request`'s merged
   `all()`), method-scoped or otherwise security-sensitive reads (e.g. a
@@ -64,8 +61,8 @@ output in another `wp_unslash()`/`sanitize_*()` call.
   `JsonSerializable::jsonSerialize`, `ArrayAccess::offsetGet`, etc.) — keep
   those camelCase since PHP mandates the exact method name.
 - Names must be meaningful and express intent; avoid `$a`, `$b`, `$temp`
-- Visibility: **`private` is never used in this codebase** — use `protected`
-  or `public` instead.
+- Visibility: **don't use `private`** — use `protected` or `public`
+  instead.
   - `public` — API surface (controllers, facades, hooks called externally)
   - `protected` — default for internal members; use for anything not part
     of the public API
@@ -83,7 +80,7 @@ static::PAGINATION_LIMIT;
 
 ### Arrays and Syntax
 
-- Use short array syntax `[]`, never `array()` — 100% consistent in this codebase
+- Use short array syntax `[]`, never `array()`
 - Prefer self-explanatory naming and structure over comments
 - Inline `//` comments do appear, but sparingly — mainly for section dividers
   in long DTOs, `// phpcs:ignore ... -- reason` directives, and genuinely
@@ -100,7 +97,7 @@ surrounding class already does. When you do add them, PHP 7.4 syntax only
 
 Every class, interface, trait, method, function and property in `app/` and
 `database/` has a docblock, whatever its visibility. Class constants and
-closures don't need one. Spec: `openspec/changes/standardize-php-docblocks/`.
+closures don't need one. Spec: `openspec/specs/php-docblock-standard/`.
 
 - One-line summary: imperative for methods/functions ("Get all online
   gateways."), descriptive for classes. Add a description paragraph only when

@@ -29,14 +29,33 @@ const getStepTitle = (step: OnboardingStep): string => {
 };
 
 const getIndustryOptions = () => [
-  { value: 'clothing-and-accessories', label: __('Clothing and accessories', 'kirki-ecommerce') },
-  { value: 'food-and-drink', label: __('Food and drink', 'kirki-ecommerce') },
-  { value: 'electronics-and-computers', label: __('Electronics and computers', 'kirki-ecommerce') },
-  { value: 'health-and-beauty', label: __('Health and beauty', 'kirki-ecommerce') },
-  { value: 'education-and-learning', label: __('Education and learning', 'kirki-ecommerce') },
-  { value: 'home-furniture-and-garden', label: __('Home, furniture and garden', 'kirki-ecommerce') },
-  { value: 'arts-and-crafts', label: __('Arts and crafts', 'kirki-ecommerce') },
-  { value: 'sports-and-recreation', label: __('Sports and recreation', 'kirki-ecommerce') },
+  {
+    value: 'books-stationery-and-gifts',
+    label: __('Books, Stationery & Gifts', 'kirki-ecommerce'),
+  },
+  { value: 'fashion-and-apparel', label: __('Fashion & Apparel', 'kirki-ecommerce') },
+  { value: 'home-decor-and-furniture', label: __('Home Decor & Furniture', 'kirki-ecommerce') },
+  {
+    value: 'beauty-cosmetics-and-personal-care',
+    label: __('Beauty, Cosmetics & Personal Care', 'kirki-ecommerce'),
+  },
+  { value: 'food-beverage-and-gourmet', label: __('Food, Beverage & Gourmet', 'kirki-ecommerce') },
+  {
+    value: 'electronics-and-accessories',
+    label: __('Electronics & Accessories', 'kirki-ecommerce'),
+  },
+  { value: 'sports-and-fitness', label: __('Sports & Fitness', 'kirki-ecommerce') },
+  { value: 'pet-supplies', label: __('Pet Supplies', 'kirki-ecommerce') },
+  { value: 'baby-and-kids', label: __('Baby & Kids', 'kirki-ecommerce') },
+  { value: 'jewelry-and-watches', label: __('Jewelry & Watches', 'kirki-ecommerce') },
+  {
+    value: 'automotive-parts-and-accessories',
+    label: __('Automotive Parts & Accessories', 'kirki-ecommerce'),
+  },
+  { value: 'toys-games-and-hobbies', label: __('Toys, Games & Hobbies', 'kirki-ecommerce') },
+  { value: 'health-and-wellness', label: __('Health & Wellness', 'kirki-ecommerce') },
+  { value: 'arts-and-crafts-supplies', label: __('Arts & Crafts Supplies', 'kirki-ecommerce') },
+  { value: 'musical-instruments', label: __('Musical Instruments', 'kirki-ecommerce') },
   { value: 'other', label: __('Other', 'kirki-ecommerce') },
 ];
 

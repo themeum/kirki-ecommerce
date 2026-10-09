@@ -175,15 +175,24 @@ abstract class TestCase extends BaseTestCase
             $settings
         ));
 
-        $currency_service = new class($currency, $symbol_map) {
+        $preferences = array_merge(
+            ['currency_format' => 'short'],
+            $defaults,
+            $currency_settings
+        );
+
+        $currency_service = new class($currency, $symbol_map, $preferences) {
             protected $currency;
 
             protected array $symbol_map;
 
-            public function __construct($currency, array $symbol_map)
+            protected array $preferences;
+
+            public function __construct($currency, array $symbol_map, array $preferences)
             {
                 $this->currency = $currency;
                 $this->symbol_map = $symbol_map;
+                $this->preferences = $preferences;
             }
 
             public function get_base_currency()
@@ -194,6 +203,11 @@ abstract class TestCase extends BaseTestCase
             public function get_symbol_map()
             {
                 return $this->symbol_map;
+            }
+
+            public function get_currency_preferences()
+            {
+                return $this->preferences;
             }
         };
 
