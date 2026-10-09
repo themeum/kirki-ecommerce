@@ -1,5 +1,11 @@
-export { default as useBaseCurrency, useBaseCurrencySymbol } from '@/hooks/use-base-currency';
+export {
+  default as useBaseCurrency,
+  useBaseCurrencySymbol,
+  useCurrencyPreferences,
+  useFormatCurrency,
+} from '@/hooks/use-base-currency';
 export { default as useConfirmDelete } from '@/hooks/use-confirm-delete';
+export { default as useCurrentUser } from '@/hooks/use-current-user';
 export { default as useDataTableParams } from '@/hooks/use-data-table-params';
 export { default as useDebounce } from '@/hooks/use-debounce';
 export { default as useFilterDraft } from '@/hooks/use-filter-draft';

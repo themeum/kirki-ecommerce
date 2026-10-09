@@ -1,11 +1,11 @@
-import { Trash2 } from 'lucide-react';
+import { Mail, Trash2 } from 'lucide-react';
 import type { KeyboardEvent } from 'react';
 import { useState } from 'react';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
-import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Checkbox from '@/components/ui/checkbox';
 import Flex from '@/components/ui/flex';
 import InfiniteScrollSentinel from '@/components/ui/infinite-scroll-sentinel';
 import Input from '@/components/ui/input';
@@ -16,8 +16,10 @@ import {
   useDeleteOrderActivityMutation,
   useOrderActivitiesInfiniteQuery,
 } from '@/features/orders/services/activity';
+import { useCurrentUser } from '@/hooks';
 import { theme } from '@/theme';
-import { defineStyles, flexCenter, scoped } from '@/theme/mixins';
+import { cardStyles } from '@/theme/card-styles';
+import { defineStyles, flexCenter, mergeCss, scoped } from '@/theme/mixins';
 import { createAcronym } from '@/utils';
 import { __ } from '@/wpi18n';
 
@@ -26,8 +28,15 @@ type TimelineProps = {
 };
 
 const Timeline = ({ orderId }: TimelineProps) => {
+  const currentUser = useCurrentUser();
   const [message, setMessage] = useState('');
+  const [notifyCustomer, setNotifyCustomer] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+
+  const currentUserAcronym = createAcronym({
+    first_name: currentUser?.first_name ?? undefined,
+    last_name: currentUser?.last_name ?? undefined,
+  });
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useOrderActivitiesInfiniteQuery(orderId);
@@ -36,8 +45,8 @@ const Timeline = ({ orderId }: TimelineProps) => {
 
   const activities = data?.pages.flatMap((page) => page.results) ?? [];
 
-  const handleSaveComment = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') {
+  const handleSaveComment = (event?: KeyboardEvent<HTMLElement>) => {
+    if (event && event.key !== 'Enter') {
       return;
     }
 
@@ -47,8 +56,13 @@ const Timeline = ({ orderId }: TimelineProps) => {
     }
 
     createActivityMutation.mutate(
-      { orderId, data: { message: trimmed, notify_customer: true } },
-      { onSuccess: () => setMessage('') },
+      { orderId, data: { message: trimmed, notify_customer: notifyCustomer } },
+      {
+        onSuccess: () => {
+          setMessage('');
+          setNotifyCustomer(false);
+        },
+      },
     );
   };
 
@@ -70,14 +84,37 @@ const Timeline = ({ orderId }: TimelineProps) => {
       </CardHeader>
       <CardContent cssOverride={styles.content}>
         <Flex direction="column" gap={4}>
-          <Input
-            placeholder={__('Add a comment...', 'kirki-ecommerce')}
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={handleSaveComment}
-            disabled={createActivityMutation.isPending}
-            cssOverride={{ zIndex: 1 }}
-          />
+          <Card cssOverride={mergeCss(cardStyles.formCard, styles.composer)}>
+            <CardContent cssOverride={cardStyles.tableContent}>
+              <Flex align="center" gap={3} cssOverride={styles.composerInput}>
+                <div css={scoped(styles.avatar)}>{currentUserAcronym}</div>
+                <Input
+                  invisible
+                  placeholder={__('Add a comment...', 'kirki-ecommerce')}
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  onKeyDown={handleSaveComment}
+                  disabled={createActivityMutation.isPending}
+                  cssOverride={styles.composerField}
+                />
+              </Flex>
+              <Flex align="center" justify="space-between" cssOverride={styles.composerFooter}>
+                <Checkbox
+                  label={__('Notify customer via email', 'kirki-ecommerce')}
+                  value={notifyCustomer}
+                  onChange={setNotifyCustomer}
+                  onKeyDown={handleSaveComment}
+                />
+                <Button
+                  onClick={() => handleSaveComment()}
+                  loading={createActivityMutation.isPending}
+                  disabled={!message.trim()}
+                >
+                  {__('Post', 'kirki-ecommerce')}
+                </Button>
+              </Flex>
+            </CardContent>
+          </Card>
 
           {isLoading && (
             <Text variant="small" color="secondary">
@@ -103,7 +140,12 @@ const Timeline = ({ orderId }: TimelineProps) => {
                           {entry.description}
                         </Text>
                         {entry.notify_customer && (
-                          <Badge variant="info">{__('Customer notified', 'kirki-ecommerce')}</Badge>
+                          <Flex gap={2} align="center">
+                            <Mail size={14} color={theme.colors.icon.primary} />
+                            <Text color="subdued" variant="small">
+                              {__('The customer has been notified via email.', 'kirki-ecommerce')}
+                            </Text>
+                          </Flex>
                         )}
                       </Flex>
                       <Flex gap={2} align="center">
@@ -172,6 +214,25 @@ const styles = defineStyles({
   content: {
     paddingLeft: theme.spacing[4],
     paddingRight: theme.spacing[4],
+  },
+  composer: {
+    position: 'relative',
+    zIndex: 1,
+    gap: 0,
+    paddingBlock: 0,
+    overflow: 'hidden',
+    boxShadow: theme.shadow.md,
+  },
+  composerInput: {
+    padding: theme.spacing[3],
+  },
+  composerField: {
+    ...theme.typography.paragraph('normal'),
+    padding: 0,
+  },
+  composerFooter: {
+    padding: `${theme.spacing[2]} ${theme.spacing[3]}`,
+    backgroundColor: theme.colors.background.surfaceAlt,
   },
   timelineList: {
     position: 'relative',
