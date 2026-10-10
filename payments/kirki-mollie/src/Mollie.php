@@ -224,20 +224,14 @@ class Mollie extends PaymentProvider
         DB::begin_transaction();
 
         try {
-            switch ($payment) {
-                case $this->is_paid($payment):
-                    $this->record_transaction($order_id, $payment);
-                    OrderManager::mark_payment_as_paid($order_id);
-                    break;
-
-                case $this->is_unsuccessful($payment):
-                    $this->record_transaction($order_id, $payment);
-                    OrderManager::mark_payment_as_failed($order_id);
-                    break;
-
-                case $payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING:
-                    OrderManager::mark_payment_as_pending($order_id);
-                    break;
+            if ($this->is_paid($payment)) {
+                $this->record_transaction($order_id, $payment);
+                OrderManager::mark_payment_as_paid($order_id);
+            } elseif ($this->is_unsuccessful($payment)) {
+                $this->record_transaction($order_id, $payment);
+                OrderManager::mark_payment_as_failed($order_id);
+            } elseif ($payment['status'] === MollieConstant::PAYMENT_STATUS_PENDING) {
+                OrderManager::mark_payment_as_pending($order_id);
             }
 
             DB::commit();
