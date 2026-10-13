@@ -23,7 +23,7 @@ class MiniCartService extends CartService
      * @param array<string, mixed> $attributes Element attributes; supports a `class` entry.
      * @return string Mini cart HTML.
      */
-    public function get_mimi_cart_html($attributes)
+    public function get_mini_cart_html($attributes)
     {
         $attributes = wp_parse_args(
             $attributes,

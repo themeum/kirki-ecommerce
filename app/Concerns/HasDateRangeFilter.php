@@ -1,6 +1,6 @@
 <?php
 
-namespace Kirki\Ecommerce\App\Traits;
+namespace Kirki\Ecommerce\App\Concerns;
 
 defined('ABSPATH') || exit;
 

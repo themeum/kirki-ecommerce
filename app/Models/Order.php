@@ -7,7 +7,7 @@ use Kirki\Ecommerce\App\Constants\Order\OrderListStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
-use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
+use Kirki\Ecommerce\App\Concerns\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 

@@ -15,8 +15,8 @@ class UpdateProductSchemaDTO extends DTO
     public $id;
     /** @var string */
     public $name;
-    /** @var bool|null */
-    public $is_default;
+    /** @var bool */
+    public $is_default = false;
     /** @var array|null */
     public $schema;
 }

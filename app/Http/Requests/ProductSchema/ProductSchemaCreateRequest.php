@@ -21,7 +21,7 @@ class ProductSchemaCreateRequest extends Request
     {
         return [
             'name' => 'required|string|max:500',
-            'is_default' => 'boolean',
+            'is_default' => 'boolean|nullable',
             'schema' => 'nullable|array',
         ];
     }

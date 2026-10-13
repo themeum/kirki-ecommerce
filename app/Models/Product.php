@@ -3,7 +3,7 @@
 namespace Kirki\Ecommerce\App\Models;
 
 use Kirki\Ecommerce\App\Concerns\HasSlug;
-use Kirki\Ecommerce\App\Traits\HasDateRangeFilter;
+use Kirki\Ecommerce\App\Concerns\HasDateRangeFilter;
 use Kirki\Ecommerce\Framework\Database\Query\Model;
 
 /**
