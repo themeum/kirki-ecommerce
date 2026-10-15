@@ -6,6 +6,7 @@ use Exception;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Payment\PaymentActionType;
 use Kirki\Ecommerce\App\DTO\Payment\PaymentActionDTO;
+use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Payment\PaymentProvider;
@@ -239,6 +240,10 @@ class Authorizenet extends PaymentProvider
         }
 
         $transaction = $this->fetch_transaction($order->uuid, $event->payload->id);
+        if (Money::to_minor($transaction->transaction->settleAmount) !== (int) $order->invoiced_total) {
+            return false;
+        }
+
         $this->handle_transaction_response($order->id, $transaction);
         return true;
     }
