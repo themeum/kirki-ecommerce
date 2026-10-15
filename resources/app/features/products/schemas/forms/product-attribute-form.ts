@@ -73,9 +73,9 @@ export const duplicateAttributeNameMessage = () =>
  * Finds an existing attribute, other than the one the card started from,
  * whose name matches ignoring case and surrounding whitespace.
  */
-export const findAttributeNameClash = (
+export const findAttributeNameClash = <TAttribute extends Pick<Attribute, 'id' | 'name'>>(
   name: string | null | undefined,
-  attributes: Pick<Attribute, 'id' | 'name'>[],
+  attributes: TAttribute[],
   sourceAttributeId?: number | null,
 ) => {
   const needle = normalizeName(name);
@@ -87,6 +87,49 @@ export const findAttributeNameClash = (
   return attributes.find(
     (attribute) => attribute.id !== sourceAttributeId && normalizeName(attribute.name) === needle,
   );
+};
+
+export const attributeAlreadyAddedMessage = () =>
+  __('This attribute is already added to this product.', 'kirki-ecommerce');
+
+export const attributeNameClashMessage = (kind: 'selected-clash' | 'applied-clash') =>
+  kind === 'applied-clash' ? attributeAlreadyAddedMessage() : duplicateAttributeNameMessage();
+
+type ClassifyAttributeNameArgs<TAttribute extends Pick<Attribute, 'id' | 'name'>> = {
+  name: string | null | undefined;
+  attributes: TAttribute[];
+  sourceAttributeId?: number | null;
+  appliedIds: number[];
+  selectedCount: number;
+};
+
+/**
+ * Decides what a typed name means: no match, an attribute the card can switch
+ * to, a match blocked by values already selected, or a match that is already
+ * on the product in another card.
+ */
+export const classifyAttributeName = <TAttribute extends Pick<Attribute, 'id' | 'name'>>({
+  name,
+  attributes,
+  sourceAttributeId,
+  appliedIds,
+  selectedCount,
+}: ClassifyAttributeNameArgs<TAttribute>): { kind: 'none' } | { kind: 'reuse' | 'selected-clash' | 'applied-clash'; attribute: TAttribute } => {
+  const attribute = findAttributeNameClash(name, attributes, sourceAttributeId);
+
+  if (!attribute) {
+    return { kind: 'none' };
+  }
+
+  if (appliedIds.includes(attribute.id)) {
+    return { kind: 'applied-clash', attribute };
+  }
+
+  if (selectedCount > 0) {
+    return { kind: 'selected-clash', attribute };
+  }
+
+  return { kind: 'reuse', attribute };
 };
 
 /**

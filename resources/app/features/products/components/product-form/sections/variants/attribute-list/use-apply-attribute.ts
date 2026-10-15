@@ -8,8 +8,8 @@ import {
 } from '@/features/products/components/product-form/sections/variants/use-variant-matrix';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
 import {
-  duplicateAttributeNameMessage,
-  findAttributeNameClash,
+  attributeNameClashMessage,
+  classifyAttributeName,
   type ProductAttributeFormInput,
   type ProductAttributeFormPayload,
   ProductAttributeFormSchema,
@@ -21,6 +21,7 @@ type ApplyAttributeArgs = {
   form: UseFormReturn<ProductAttributeFormInput, unknown, ProductAttributeFormPayload>;
   attributes: Attribute[];
   appliedId?: number | null;
+  appliedIds?: number[];
   onApplied: () => void;
 };
 
@@ -36,7 +37,13 @@ const normalize = (name: string) => name.trim().toLowerCase();
  * variants would be lost, writes the attribute changes in one request, then
  * commits the result to the product form through the variant matrix.
  */
-const useApplyAttribute = ({ form, attributes, appliedId = null, onApplied }: ApplyAttributeArgs) => {
+const useApplyAttribute = ({
+  form,
+  attributes,
+  appliedId = null,
+  appliedIds = [],
+  onApplied,
+}: ApplyAttributeArgs) => {
   const { addAttribute, updateAttribute, replaceAttribute, describeDiscarded } = useVariantMatrix();
   const createAttributeMutation = useCreateAttributeMutation();
   const batchMutation = useBatchAttributeValuesMutation();
@@ -143,8 +150,19 @@ const useApplyAttribute = ({ form, attributes, appliedId = null, onApplied }: Ap
     const isValid = await form.trigger();
     const values = form.getValues();
 
-    if (findAttributeNameClash(values.name, attributes, values.source_attribute_id)) {
-      form.setError('name', { type: 'duplicate', message: duplicateAttributeNameMessage() });
+    const match = classifyAttributeName({
+      name: values.name,
+      attributes,
+      sourceAttributeId: values.source_attribute_id,
+      appliedIds,
+      selectedCount: values.values.length,
+    });
+
+    if (match.kind !== 'none') {
+      form.setError('name', {
+        type: 'duplicate',
+        message: attributeNameClashMessage(match.kind === 'reuse' ? 'selected-clash' : match.kind),
+      });
       return;
     }
 

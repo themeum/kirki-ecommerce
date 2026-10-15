@@ -6,6 +6,7 @@ import MultiSelect, {
   type ChipCapProps,
   type MultiSelectOption,
 } from '@/components/ui/multi-select';
+import { useMultiSelectChipLayer } from '@/components/ui/multi-select-chip-layer';
 
 const OPTIONS: MultiSelectOption[] = [
   { value: 1, title: 'Hoodie' },
@@ -32,6 +33,7 @@ const Harness = ({
   optionStyle?: (option: MultiSelectOption) => CSSProperties | undefined;
   virtualized?: boolean;
   footer?: (state: { query: string; create: () => void }) => ReactNode;
+  renderChip?: (option: MultiSelectOption) => ReactNode;
 } & ChipCapProps) => {
   const [value, setValue] = useState<MultiSelectOption[]>(initial);
 
@@ -695,5 +697,45 @@ describe('MultiSelect footer slot', () => {
     fireEvent.keyDown(searchInput(), { key: 'Enter' });
 
     expect(onCreate).toHaveBeenCalledWith('Beanie');
+  });
+});
+
+describe('MultiSelect chip layers', () => {
+  const LayerChip = () => {
+    const reportLayer = useMultiSelectChipLayer();
+
+    return (
+      <>
+        <button type="button" onClick={() => reportLayer(true)}>
+          layer-open
+        </button>
+        <button type="button" onClick={() => reportLayer(false)}>
+          layer-closed
+        </button>
+      </>
+    );
+  };
+
+  const isPanelOpen = () => screen.queryByRole('option', { name: /Sneakers/ }) !== null;
+
+  it('does not open the panel for the click that follows a pointer down while a chip layer was open', () => {
+    render(<Harness initial={[OPTIONS[0]]} renderChip={() => <LayerChip />} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'layer-open' }));
+    fireEvent.pointerDown(box());
+    fireEvent.click(box());
+
+    expect(isPanelOpen()).toBe(false);
+  });
+
+  it('opens the panel again once the chip layer reports closed', () => {
+    render(<Harness initial={[OPTIONS[0]]} renderChip={() => <LayerChip />} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'layer-open' }));
+    fireEvent.click(screen.getByRole('button', { name: 'layer-closed' }));
+    fireEvent.pointerDown(box());
+    fireEvent.click(box());
+
+    expect(isPanelOpen()).toBe(true);
   });
 });

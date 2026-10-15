@@ -68,6 +68,11 @@ const nameInput = () => screen.getByRole('textbox', { name: 'Variation name' });
 
 const valueInput = () => screen.getByRole('combobox');
 
+const pickValue = (title: string) => {
+  fireEvent.click(valueInput().parentElement!);
+  fireEvent.click(screen.getByRole('option', { name: new RegExp(`^${title}$`) }));
+};
+
 afterEach(cleanup);
 
 describe('AttributeList', () => {
@@ -187,7 +192,7 @@ describe('AttributeList', () => {
     ]);
   });
 
-  it('flags a duplicate name on blur and blocks Apply', async () => {
+  it('flags a duplicate name on blur while values are selected and blocks Apply', async () => {
     let requests = 0;
     server.use(
       http.post(`${API}/attributes`, () => {
@@ -198,6 +203,7 @@ describe('AttributeList', () => {
 
     renderList();
     fireEvent.click(await screen.findByRole('button', { name: 'Add Size variation' }));
+    pickValue('S');
     fireEvent.change(nameInput(), { target: { value: ' material ' } });
     fireEvent.blur(nameInput());
 
@@ -208,6 +214,109 @@ describe('AttributeList', () => {
 
     expect(requests).toBe(0);
     expect(probe<Attribute[]>('attributes')).toEqual([]);
+  });
+
+  it('loads the matching attribute when a new card is named after it and no value is selected', async () => {
+    renderList();
+    await screen.findByRole('button', { name: 'Add Color variation' });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Add new' }));
+    fireEvent.change(nameInput(), { target: { value: 'size' } });
+    fireEvent.blur(nameInput());
+
+    await waitFor(() => expect(nameInput()).toHaveValue('Size'));
+    expect(screen.queryByText('An attribute with this name already exists.')).not.toBeInTheDocument();
+
+    fireEvent.click(valueInput().parentElement!);
+
+    expect(await screen.findByRole('option', { name: /^S$/ })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: /^M$/ })).toBeInTheDocument();
+  });
+
+  it('loads the matching attribute when a preset card is renamed with no value selected', async () => {
+    renderList();
+    fireEvent.click(await screen.findByRole('button', { name: 'Add Size variation' }));
+    fireEvent.change(nameInput(), { target: { value: 'Color' } });
+    fireEvent.blur(nameInput());
+
+    await waitFor(() => expect(nameInput()).toHaveValue('Color'));
+    fireEvent.click(valueInput().parentElement!);
+
+    expect(await screen.findByRole('option', { name: /Blue/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /^S$/ })).not.toBeInTheDocument();
+  });
+
+  it('replaces an applied attribute with the matching one without creating anything', async () => {
+    const writes: string[] = [];
+    server.use(
+      http.post(`${API}/*`, ({ request }) => {
+        writes.push(request.url);
+        return HttpResponse.json({ data: {} }, { status: 201 });
+      }),
+    );
+
+    renderList({ attributes: [{ id: 2, name: 'Size', values: [] }] });
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Edit Size' }));
+    fireEvent.change(nameInput(), { target: { value: 'Color' } });
+    fireEvent.blur(nameInput());
+    await waitFor(() => expect(nameInput()).toHaveValue('Color'));
+
+    pickValue('Blue');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+    await waitFor(() => expect(probe<Attribute[]>('attributes')[0].id).toBe(1));
+
+    expect(probe<Attribute[]>('attributes')[0]).toMatchObject({ name: 'Color', values: [{ id: 11 }] });
+    expect(writes).toEqual([]);
+  });
+
+  it('refuses a name that is already applied to the product in another card', async () => {
+    renderList({ attributes: [SIZE_APPLIED] });
+    await screen.findByRole('button', { name: 'Edit Size' });
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.change(nameInput(), { target: { value: 'size' } });
+    fireEvent.blur(nameInput());
+
+    expect(await screen.findByText('This attribute is already added to this product.')).toBeInTheDocument();
+    expect(nameInput()).toHaveValue('size');
+  });
+
+  it('copies the selected values into a uniquely named attribute and leaves the original alone', async () => {
+    const posts: { url: string; body: unknown }[] = [];
+    server.use(
+      http.post(`${API}/*`, async ({ request }) => {
+        posts.push({ url: new URL(request.url).pathname, body: await request.json() });
+        return HttpResponse.json(
+          { data: { id: 70, name: 'Fit Size', type: 'list', values: [{ id: 701, value: 'S' }] } },
+          { status: 201 },
+        );
+      }),
+    );
+
+    renderList();
+    fireEvent.click(await screen.findByRole('button', { name: 'Add Size variation' }));
+    pickValue('S');
+    fireEvent.change(nameInput(), { target: { value: 'Fit Size' } });
+    fireEvent.blur(nameInput());
+    fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+    await waitFor(() => expect(probe<Attribute[]>('attributes')[0]?.id).toBe(70));
+
+    expect(posts).toEqual([
+      { url: '/wp-json/kirki/ecommerce/v1/attributes', body: { name: 'Fit Size', type: 'list', values: [{ value: 'S', color: null }] } },
+    ]);
+  });
+
+  it('keeps the previous options after a rename to a unique name with no value selected', async () => {
+    renderList();
+    fireEvent.click(await screen.findByRole('button', { name: 'Add Size variation' }));
+    fireEvent.change(nameInput(), { target: { value: 'Fabric' } });
+    fireEvent.blur(nameInput());
+    fireEvent.click(valueInput().parentElement!);
+
+    expect(await screen.findByRole('option', { name: /^S$/ })).toBeInTheDocument();
+    expect(screen.queryByText('An attribute with this name already exists.')).not.toBeInTheDocument();
   });
 
   it('opens edit mode from the Edit button only', async () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  classifyAttributeName,
   findAttributeNameClash,
   ProductAttributeFormSchema,
   toProductAttributeFormValues,
@@ -122,5 +123,63 @@ describe('findAttributeNameClash', () => {
 
   it('ignores an empty name', () => {
     expect(findAttributeNameClash('  ', attributes)).toBeUndefined();
+  });
+});
+
+describe('classifyAttributeName', () => {
+  const store = [COLOR, SIZE, { id: 3, name: 'Material', type: 'list', values: [] }];
+  const base = { attributes: store, sourceAttributeId: 2, appliedIds: [] as number[], selectedCount: 0 };
+
+  it('reports no match for a unique name', () => {
+    expect(classifyAttributeName({ ...base, name: 'Fabric' })).toEqual({ kind: 'none' });
+  });
+
+  it('reuses a matching attribute, ignoring case and whitespace', () => {
+    expect(classifyAttributeName({ ...base, name: ' material ' })).toEqual({
+      kind: 'reuse',
+      attribute: store[2],
+    });
+  });
+
+  it('does not match the attribute the card currently uses', () => {
+    expect(classifyAttributeName({ ...base, name: 'SIZE' })).toEqual({ kind: 'none' });
+  });
+
+  it('blocks a match while values are selected', () => {
+    expect(classifyAttributeName({ ...base, name: 'Material', selectedCount: 1 })).toEqual({
+      kind: 'selected-clash',
+      attribute: store[2],
+    });
+  });
+
+  it('blocks a match that is already applied to the product', () => {
+    expect(classifyAttributeName({ ...base, name: 'Material', appliedIds: [3] })).toEqual({
+      kind: 'applied-clash',
+      attribute: store[2],
+    });
+  });
+
+  it('prefers the applied clash over the selected clash', () => {
+    expect(classifyAttributeName({ ...base, name: 'Material', appliedIds: [3], selectedCount: 2 }).kind).toBe(
+      'applied-clash',
+    );
+  });
+});
+
+describe('renaming with selected values', () => {
+  it('creates a new attribute carrying copies of the values and colors', () => {
+    const draft = toProductAttributeFormValues(COLOR, COLOR.values);
+    draft.name = 'Shade';
+
+    expect(ProductAttributeFormSchema.parse(draft)).toEqual({
+      kind: 'create',
+      name: 'Shade',
+      type: 'color',
+      replaces: 1,
+      values: [
+        { value: 'Blue', color: '#0000ff' },
+        { value: 'Orange', color: '#ffa500' },
+      ],
+    });
   });
 });

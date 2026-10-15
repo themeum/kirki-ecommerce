@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import AttributeValuesField from '@/features/products/components/fields/attribute-values-field';
@@ -146,5 +146,59 @@ describe('AttributeValuesField', () => {
     fireEvent.change(screen.getByRole('textbox', { name: 'Hex color value' }), { target: { value: '#0000cc' } });
 
     expect(probe()).toEqual([{ id: 11, value: 'Blue', color: '#0000cc', original_color: '#0000ff' }]);
+  });
+
+  describe('colour picker beside the value popover', () => {
+    const renderRecolorable = () =>
+      renderField({
+        type: 'color',
+        existingValues: COLOR_VALUES,
+        defaultValues: { values: [{ id: 11, value: 'Blue', color: '#0000ff', original_color: '#0000ff' }] },
+      });
+
+    const openPicker = async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Change the colour of Blue' }));
+      await screen.findByRole('textbox', { name: 'Hex color value' });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    };
+
+    it('keeps the picker open and the value popover closed while a colour is picked', async () => {
+      renderRecolorable();
+      await openPicker();
+
+      const hex = screen.getByRole('textbox', { name: 'Hex color value' });
+      fireEvent.pointerDown(hex);
+      fireEvent.click(hex);
+      fireEvent.change(hex, { target: { value: '#0000cc' } });
+
+      expect(screen.getByRole('textbox', { name: 'Hex color value' })).toBeInTheDocument();
+      expect(screen.queryByRole('option')).not.toBeInTheDocument();
+      expect(probe()).toEqual([{ id: 11, value: 'Blue', color: '#0000cc', original_color: '#0000ff' }]);
+    });
+
+    it('closes only the picker when the click lands on the value box', async () => {
+      renderRecolorable();
+      await openPicker();
+
+      fireEvent.pointerDown(input().parentElement!);
+      fireEvent.click(input().parentElement!);
+
+      await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Hex color value' })).not.toBeInTheDocument());
+      expect(screen.queryByRole('option')).not.toBeInTheDocument();
+    });
+
+    it('opens the value popover on the next click once the picker is closed', async () => {
+      renderRecolorable();
+      await openPicker();
+
+      fireEvent.pointerDown(input().parentElement!);
+      fireEvent.click(input().parentElement!);
+      await waitFor(() => expect(screen.queryByRole('textbox', { name: 'Hex color value' })).not.toBeInTheDocument());
+
+      fireEvent.pointerDown(input().parentElement!);
+      fireEvent.click(input().parentElement!);
+
+      expect(await screen.findByRole('option', { name: /Orange/ })).toBeInTheDocument();
+    });
   });
 });

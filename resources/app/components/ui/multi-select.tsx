@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -24,6 +25,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { ChipLayerContext, type ChipLayerReporter } from '@/components/ui/multi-select-chip-layer';
 import { countChipsWithinRows } from '@/components/ui/multi-select-rows';
 import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
 import { theme } from '@/theme';
@@ -195,6 +197,8 @@ const MultiSelect = <TOption extends MultiSelectOption>({
   const chipsRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const passRef = useRef(0);
+  const chipLayerOpenRef = useRef(false);
+  const skipBoxClickRef = useRef(false);
   const measuredRef = useRef('');
   // A callback ref, not `useRef`: Radix mounts the popover's content in its
   // own commit without re-rendering this component, so a ref object would
@@ -424,7 +428,22 @@ const MultiSelect = <TOption extends MultiSelectOption>({
     void handleCreate();
   };
 
+  const reportChipLayer = useCallback<ChipLayerReporter>((isLayerOpen) => {
+    chipLayerOpenRef.current = isLayerOpen;
+  }, []);
+
   const handleBoxClick = (event: MouseEvent<HTMLDivElement>) => {
+    // Events from a portalled chip layer bubble through React to this box
+    // although their DOM sits elsewhere.
+    if (!event.currentTarget.contains(event.target as Node)) {
+      return;
+    }
+
+    if (skipBoxClickRef.current) {
+      skipBoxClickRef.current = false;
+      return;
+    }
+
     if (disabled || (event.target as HTMLElement).closest('button')) {
       return;
     }
@@ -449,6 +468,9 @@ const MultiSelect = <TOption extends MultiSelectOption>({
             data-error={error ? 'true' : undefined}
             data-disabled={disabled ? 'true' : undefined}
             css={scopedMerge(styles.box, isSingleHeld && styles.boxFilled, cssOverride)}
+            onPointerDownCapture={() => {
+              skipBoxClickRef.current = chipLayerOpenRef.current;
+            }}
             onClick={handleBoxClick}
           >
             {/* The chips sit inside cmdk's root, whose keydown handler
@@ -461,17 +483,19 @@ const MultiSelect = <TOption extends MultiSelectOption>({
               css={scoped(styles.chipsGuard)}
               onKeyDown={stopKeys}
             >
-              {visibleChips.map((option) => (
-                <Chip
-                  key={getOptionId(option)}
-                  data-chip=""
-                  text={renderChip(option)}
-                  gap={1}
-                  cssOverride={single ? styles.chipSingle : styles.chip}
-                  closeIcon={<X size={12} aria-hidden="true" />}
-                  onRemove={() => handleRemove(option)}
-                />
-              ))}
+              <ChipLayerContext.Provider value={reportChipLayer}>
+                {visibleChips.map((option) => (
+                  <Chip
+                    key={getOptionId(option)}
+                    data-chip=""
+                    text={renderChip(option)}
+                    gap={1}
+                    cssOverride={single ? styles.chipSingle : styles.chip}
+                    closeIcon={<X size={12} aria-hidden="true" />}
+                    onRemove={() => handleRemove(option)}
+                  />
+                ))}
+              </ChipLayerContext.Provider>
               {isCapped && !isShowingAll && (
                 <Button
                   variant="link"

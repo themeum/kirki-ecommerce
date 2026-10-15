@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import ConfirmationDialog from '@/components/modal/confirmation-dialog';
@@ -30,6 +31,8 @@ type AddOrEditAttributeProps = {
   source?: Attribute | null;
   /** The attribute as currently applied to the product, when editing one. */
   applied?: Attribute | null;
+  /** Ids of every attribute applied to the product, for the name check. */
+  appliedIds?: number[];
   onClose: () => void;
   onDelete?: () => void;
 };
@@ -48,9 +51,12 @@ const AddOrEditAttribute = ({
   attributes,
   source = null,
   applied = null,
+  appliedIds = [],
   onClose,
   onDelete,
 }: AddOrEditAttributeProps) => {
+  const [activeSource, setActiveSource] = useState<Attribute | null>(source ?? applied);
+  const otherAppliedIds = appliedIds.filter((id) => id !== applied?.id);
   const form = useForm<ProductAttributeFormInput, unknown, ProductAttributeFormPayload>({
     resolver: zodResolver(ProductAttributeFormSchema),
     defaultValues: toProductAttributeFormValues(source ?? applied, applied?.values ?? []),
@@ -61,10 +67,21 @@ const AddOrEditAttribute = ({
       form,
       attributes,
       appliedId: applied?.id ?? null,
+      appliedIds: otherAppliedIds,
       onApplied: onClose,
     });
 
   const isNew = !source && !applied;
+
+  const reuseAttribute = (attribute: Attribute) => {
+    setActiveSource(attribute);
+    form.setValue('source_attribute_id', attribute.id);
+    form.setValue('source_name', attribute.name);
+    form.setValue('name', attribute.name);
+    form.setValue('type', attribute.type ?? 'list');
+    form.setValue('values', []);
+    form.clearErrors();
+  };
   const pendingCount = pending ? savedVariants(pending.discarded).length : 0;
 
   return (
@@ -72,10 +89,15 @@ const AddOrEditAttribute = ({
       <Card cssOverride={cardStyles.innerCard}>
         <CardContent cssOverride={{ padding: theme.spacing[3] }}>
           <Flex direction="column" gap={3}>
-            <AttributeNameInput attributes={attributes} focusOnMount={isNew} />
+            <AttributeNameInput
+              attributes={attributes}
+              appliedIds={otherAppliedIds}
+              focusOnMount={isNew}
+              onReuse={reuseAttribute}
+            />
             <AttributeValuesField
-              existingValues={source?.values ?? applied?.values ?? []}
-              type={source?.type ?? 'list'}
+              existingValues={activeSource?.values ?? []}
+              type={activeSource?.type ?? 'list'}
               focusOnMount={!!source && !applied}
             />
             <Flex align="center" justify="space-between" cssOverride={styles.actions}>

@@ -1,17 +1,10 @@
 import type { ReactNode } from 'react';
 
-import {
-  ColorPicker,
-  ColorPickerArea,
-  ColorPickerContent,
-  ColorPickerInput,
-  ColorPickerSwatch,
-  ColorPickerTrigger,
-} from '@/components/ui/color-picker';
+import { ColorPicker, ColorPickerSwatch } from '@/components/ui/color-picker';
+import EditableSwatch from '@/features/products/components/editable-swatch';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { getHexFromColorName } from '@/utils/color';
-import { __, sprintf } from '@/wpi18n';
 
 /**
  * Option shape handed to MultiSelect for a product attribute's values.
@@ -57,23 +50,7 @@ const withEditableSwatch = (option: AttributeValueOption, onColorChange?: (color
     return withSwatch(option);
   }
 
-  return (
-    <span css={scoped(styles.swatchLabel)}>
-      <ColorPicker value={option.color ?? ''} onValueChange={(next) => next && onColorChange(next)}>
-        <ColorPickerTrigger
-          aria-label={sprintf(__('Change the colour of %s', 'kirki-ecommerce'), option.title)}
-          cssOverride={styles.swatchTrigger}
-        >
-          <ColorPickerSwatch />
-        </ColorPickerTrigger>
-        <ColorPickerContent>
-          <ColorPickerArea />
-          <ColorPickerInput placeholder={__('#000000', 'kirki-ecommerce')} />
-        </ColorPickerContent>
-      </ColorPicker>
-      {option.title}
-    </span>
-  );
+  return <EditableSwatch option={option} onColorChange={onColorChange} />;
 };
 
 /**
@@ -116,13 +93,5 @@ const styles = defineStyles({
     alignItems: 'center',
     gap: theme.spacing[2],
     verticalAlign: 'middle',
-  },
-  swatchTrigger: {
-    width: 'auto',
-    minHeight: 0,
-    padding: 0,
-    border: 'none',
-    borderRadius: theme.radius.full,
-    backgroundColor: 'transparent',
   },
 });

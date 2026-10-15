@@ -186,6 +186,8 @@ const AttributeList = () => {
     ...(draftSourceId !== undefined ? [draftSourceId] : []),
   ]);
 
+  const appliedIds = formAttributes.map((item) => item.id);
+
   const findStoreAttribute = (id: number) =>
     allAttributes.find((attribute) => attribute.id === id) ?? null;
 
@@ -257,6 +259,7 @@ const AttributeList = () => {
                         attributes={allAttributes}
                         source={findStoreAttribute(item.id)}
                         applied={item}
+                        appliedIds={appliedIds}
                         onClose={closeEditor}
                         onDelete={() => handleAttributeRemove(item.id)}
                       />
@@ -288,6 +291,7 @@ const AttributeList = () => {
           <AddOrEditAttribute
             attributes={allAttributes}
             source={editing.source}
+            appliedIds={appliedIds}
             onClose={closeEditor}
           />
         )}

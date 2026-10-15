@@ -5,27 +5,35 @@ import { Field, FieldError } from '@/components/ui/field';
 import Input from '@/components/ui/input';
 import type { Attribute } from '@/features/products/schemas/catalog/attribute';
 import {
-  duplicateAttributeNameMessage,
-  findAttributeNameClash,
+  attributeNameClashMessage,
+  classifyAttributeName,
   type ProductAttributeFormInput,
 } from '@/features/products/schemas/forms/product-attribute-form';
 import { __ } from '@/wpi18n';
 
 type AttributeNameInputProps = {
-  attributes: Pick<Attribute, 'id' | 'name'>[];
+  attributes: Attribute[];
+  appliedIds?: number[];
   focusOnMount?: boolean;
+  onReuse?: (attribute: Attribute) => void;
 };
 
 /**
  * The attribute's name input. On blur it checks the name against every other
- * attribute in the store, so a clash is flagged before Apply is reached.
+ * attribute in the store. With no values selected, a match is handed to
+ * `onReuse`; otherwise the clash is flagged before Apply is reached.
  *
  * @param props Component props.
  *
  * @returns AttributeNameInput element.
  * @since 1.0.0
  */
-const AttributeNameInput = ({ attributes, focusOnMount = false }: AttributeNameInputProps) => {
+const AttributeNameInput = ({
+  attributes,
+  appliedIds = [],
+  focusOnMount = false,
+  onReuse,
+}: AttributeNameInputProps) => {
   const { control, getValues, setError, clearErrors } = useFormContext<ProductAttributeFormInput>();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -36,12 +44,26 @@ const AttributeNameInput = ({ attributes, focusOnMount = false }: AttributeNameI
   }, [focusOnMount]);
 
   const handleBlur = (name: string) => {
-    if (findAttributeNameClash(name, attributes, getValues('source_attribute_id'))) {
-      setError('name', { type: 'duplicate', message: duplicateAttributeNameMessage() });
+    const match = classifyAttributeName({
+      name,
+      attributes,
+      sourceAttributeId: getValues('source_attribute_id'),
+      appliedIds,
+      selectedCount: getValues('values')?.length ?? 0,
+    });
+
+    if (match.kind === 'reuse') {
+      clearErrors('name');
+      onReuse?.(match.attribute);
       return;
     }
 
-    clearErrors('name');
+    if (match.kind === 'none') {
+      clearErrors('name');
+      return;
+    }
+
+    setError('name', { type: 'duplicate', message: attributeNameClashMessage(match.kind) });
   };
 
   return (
