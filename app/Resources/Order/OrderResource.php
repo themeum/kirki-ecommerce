@@ -69,6 +69,7 @@ class OrderResource extends Resource
             'is_manual' => $this->is_manual,
             'currency_code' => $this->currency_code,
             'is_tax_inclusive' => (bool) $this->is_tax_inclusive,
+            'tax_destination' => $this->tax_destination,
 
             'totals' => [
                 'invoiced_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal['invoiced'], $this->currency_code),

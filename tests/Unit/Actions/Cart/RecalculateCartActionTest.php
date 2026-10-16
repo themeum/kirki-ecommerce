@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\Tests\Unit\Actions\Cart;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
 use Kirki\Ecommerce\App\DTO\Discount\DiscountCalculationResultDTO;
@@ -750,6 +751,127 @@ class RecalculateCartActionTest extends TestCase
         $this->assertSame(3750, $result->base_tax_total);
         // items: (10000+500) + (10000+2000) = 22500; shipping: 10000+1250 = 11250
         $this->assertSame(33750, $result->base_total);
+    }
+
+    /**
+     * By default tax is calculated from the shipping address.
+     *
+     * @return void
+     */
+    public function test_tax_destination_defaults_to_the_shipping_address(): void
+    {
+        $this->bind_destination_regions();
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $result->tax_destination);
+        $this->assertSame(1500, $result->base_tax_total);
+    }
+
+    /**
+     * The tax destination setting picks the billing address.
+     *
+     * @return void
+     */
+    public function test_tax_destination_setting_picks_the_billing_address(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'billing']);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+            'billing_address' => ['country' => 'AU'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::BILLING, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * The tax destination setting picks the store address.
+     *
+     * @return void
+     */
+    public function test_tax_destination_setting_picks_the_store_address(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'store']);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::STORE, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * Without a shipping country the store address is used.
+     *
+     * @return void
+     */
+    public function test_missing_shipping_country_falls_back_to_the_store_address(): void
+    {
+        $this->bind_destination_regions();
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)]));
+
+        $this->assertSame(OrderTaxDestination::STORE, $result->tax_destination);
+        $this->assertSame(1000, $result->base_tax_total);
+    }
+
+    /**
+     * An unknown tax destination setting is treated as shipping.
+     *
+     * @return void
+     */
+    public function test_unknown_tax_destination_setting_is_treated_as_shipping(): void
+    {
+        $this->bind_destination_regions(['tax_destination' => 'nowhere']);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)], [
+            'shipping_address' => ['country' => 'BD'],
+        ]));
+
+        $this->assertSame(OrderTaxDestination::SHIPPING, $result->tax_destination);
+    }
+
+    /**
+     * With no country in the chosen or the store address, no tax is calculated and no destination is reported.
+     *
+     * @return void
+     */
+    public function test_no_usable_country_reports_no_destination(): void
+    {
+        $this->bind_destination_regions([], []);
+
+        $result = $this->make_action()->execute($this->make_context([$this->make_item(1, 10000)]));
+
+        $this->assertNull($result->tax_destination);
+        $this->assertSame(0, $result->base_tax_total);
+    }
+
+    /**
+     * Bind a BD region at 15% and an AU region at 10%, with the store in AU unless told otherwise.
+     *
+     * @param array<string, mixed> $tax_settings     Further tax group keys, e.g. `tax_destination`.
+     * @param array<string, mixed> $store_address    The store address.
+     * @return void
+     */
+    protected function bind_destination_regions(array $tax_settings = [], array $store_address = ['country' => 'AU']): void
+    {
+        $region = fn(string $code, int $rate) => [
+            'code' => $code,
+            'is_enabled' => true,
+            'is_central_tax_enabled' => true,
+            'central_product_tax' => $rate,
+            'central_shipping_tax' => 0,
+            'rules' => [],
+            'states' => [],
+        ];
+
+        $this->bind_full_tax_settings([$region('BD', 15), $region('AU', 10)], false, 'USD', $tax_settings, ['store_address' => $store_address]);
     }
 
     /**

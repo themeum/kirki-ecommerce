@@ -18,6 +18,7 @@ use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\Supports\Tax;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\App\Facades\Money;
 
@@ -94,7 +95,7 @@ class RecalculateCartAction
 
         $shipping = $this->build_shipping_result($context, $discount_result, $tax_result);
 
-        return $this->aggregate($items, $items_count, $shipping, $discount_result);
+        return $this->aggregate($items, $items_count, $shipping, $discount_result, $tax_result);
     }
 
     /**
@@ -207,13 +208,44 @@ class RecalculateCartAction
             return new TaxCalculationResultDTO();
         }
 
-        $tax_strategy = Tax::get_tax_strategy($context->shipping_address);
+        $tax_context = $this->build_tax_context($context, $discount_result);
+        $destination = $this->resolve_tax_destination($tax_context);
+
+        if (!$destination) {
+            return new TaxCalculationResultDTO();
+        }
+
+        $tax_strategy = Tax::get_tax_strategy($tax_context->address_for($destination)['country'], $destination);
 
         if (!$tax_strategy) {
             return new TaxCalculationResultDTO();
         }
 
-        return $tax_strategy->calculate($this->build_tax_context($context, $discount_result));
+        return $tax_strategy->calculate($tax_context);
+    }
+
+    /**
+     * Pick the address type tax is calculated from: the one the tax destination
+     * setting names, else the store when that address has no country.
+     *
+     * @since 1.0.0
+     *
+     * @param TaxCalculationContextDTO $tax_context Addresses and items to tax.
+     * @return string|null An OrderTaxDestination value, null when neither address has a country.
+     */
+    protected function resolve_tax_destination(TaxCalculationContextDTO $tax_context)
+    {
+        $destination = Tax::get_tax_destination();
+
+        if (!empty($tax_context->address_for($destination)['country'])) {
+            return $destination;
+        }
+
+        if (!empty($tax_context->address_for(OrderTaxDestination::STORE)['country'])) {
+            return OrderTaxDestination::STORE;
+        }
+
+        return null;
     }
 
     /**
@@ -244,6 +276,7 @@ class RecalculateCartAction
         return TaxCalculationContextDTO::from_array([
             'shipping_address' => $context->shipping_address,
             'billing_address' => $context->billing_address,
+            'store_address' => Tax::get_store_address(),
             'shipping_fee' => $shipping_taxable_money->getMinorAmount()->toInt(),
             'is_shipping_taxable' => $this->is_shipping_method_taxable($context),
             'items' => $items,
@@ -505,9 +538,10 @@ class RecalculateCartAction
      * @param int                            $items_count     Total quantity across all items.
      * @param array<string, mixed>           $shipping        Shipping subtotal, discount, tax, tax_lines and total, as built by build_shipping_result().
      * @param DiscountCalculationResultDTO   $discount_result Discounts for the whole cart.
+     * @param TaxCalculationResultDTO        $tax_result      Tax lines for the whole cart.
      * @return CalculationResultDTO Aggregated totals.
      */
-    protected function aggregate(array $items, int $items_count, array $shipping, DiscountCalculationResultDTO $discount_result): CalculationResultDTO
+    protected function aggregate(array $items, int $items_count, array $shipping, DiscountCalculationResultDTO $discount_result, TaxCalculationResultDTO $tax_result): CalculationResultDTO
     {
         $result = new CalculationResultDTO();
 
@@ -517,6 +551,7 @@ class RecalculateCartAction
         $result->base_subtotal = array_sum(array_column($items, 'base_subtotal'));
         $result->base_product_total = array_sum(array_column($items, 'base_product_total'));
         $result->base_discount_total = array_sum(array_column($items, 'base_discount_amount')) + $shipping['discount'];
+        $result->tax_destination = $tax_result->tax_destination;
         $result->base_tax_total = array_sum(array_column($items, 'base_tax_amount')) + $shipping['tax'];
         $result->coupon_results = $discount_result->coupon_results;
         $result->base_total = max(array_sum(array_column($items, 'base_total')) + $shipping['total'], 0);

@@ -52,6 +52,7 @@ class Order extends Model
         'invoiced_shipping_tax_amount',
         'base_shipping_tax_amount',
         'is_tax_inclusive',
+        'tax_destination',
         'invoiced_total',
         'base_total',
         'items_count',

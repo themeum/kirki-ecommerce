@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Tax\Strategies;
 
 defined('ABSPATH') || exit;
 
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxLineDTO;
@@ -43,8 +44,26 @@ class EUTaxStrategy extends AbstractTaxStrategy
         }
 
         $result->shipping = $this->calculate_shipping_tax($context, $rates_by_item);
+        $result->tax_destination = $this->tax_destination();
 
         return $result;
+    }
+
+    /**
+     * A micro business charges its own country's rate everywhere in the EU, so the
+     * store sets the tax whatever address the cart has.
+     *
+     * @inheritDoc
+     *
+     * @since 1.0.0
+     */
+    public function tax_destination(): string
+    {
+        if (static::MICRO_BUSINESS === ($this->settings['type'] ?? null)) {
+            return OrderTaxDestination::STORE;
+        }
+
+        return parent::tax_destination();
     }
 
     /**
@@ -59,14 +78,14 @@ class EUTaxStrategy extends AbstractTaxStrategy
      */
     protected function resolve_item_rate($item, TaxCalculationContextDTO $tax_context): float
     {
-        $rate = $this->get_rate();
+        $rate = $this->get_rate($this->tax_address($tax_context));
 
         if (empty($this->settings['rules'])) {
             return $rate;
         }
 
         $decision_context = $this->prepare_decision_context([
-            'shipping_address' => $this->address,
+            'shipping_address' => $tax_context->shipping_address,
             'billing_address' => $tax_context->billing_address,
             'base_product_price' => $item->taxable_amount,
             'product_categories' => $item->product_categories,
@@ -107,7 +126,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
         // shipping-only quote) - fall back to the member country's plain
         // rate, unattributed to any item.
         if (empty($taxable_amounts) || array_sum($taxable_amounts) <= 0) {
-            $rate = $this->get_rate();
+            $rate = $this->get_rate($this->tax_address($context));
 
             return [
                 TaxLineDTO::from_array([
@@ -151,9 +170,10 @@ class EUTaxStrategy extends AbstractTaxStrategy
      *
      * @since 1.0.0
      *
+     * @param array<string, mixed> $tax_address The address the tax is calculated from.
      * @return float Zero when that country is unknown or has no configured rate.
      */
-    protected function get_rate(): float
+    protected function get_rate(array $tax_address): float
     {
         $countries = $this->settings['countries'] ?? [];
 
@@ -163,7 +183,7 @@ class EUTaxStrategy extends AbstractTaxStrategy
             return is_array($country) ? (float) ($country['rate'] ?? 0) : 0;
         }
 
-        $address_country = (string) ($this->address['country'] ?? '');
+        $address_country = (string) ($tax_address['country'] ?? '');
 
         if ($address_country === '') {
             return 0;

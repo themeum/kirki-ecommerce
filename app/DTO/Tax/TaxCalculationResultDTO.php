@@ -18,4 +18,7 @@ class TaxCalculationResultDTO extends DTO
 
     /** @var TaxLineDTO[] */
     public $shipping = [];
+
+    /** @var string|null Address the tax was calculated from (see OrderTaxDestination); null when no tax was calculated */
+    public $tax_destination;
 }

@@ -49,9 +49,11 @@ trait BindsTaxDependencies
      *        fields).
      * @param bool $is_tax_inclusive_price
      * @param string $base_currency
+     * @param array<string, mixed> $extra_tax_settings Further keys for the tax group, e.g. `tax_destination`.
+     * @param array<string, mixed> $general_settings   Keys for the general group, e.g. `store_address`.
      * @return void
      */
-    protected function bind_full_tax_settings(array $tax_regions, bool $is_tax_inclusive_price = false, string $base_currency = 'USD'): void
+    protected function bind_full_tax_settings(array $tax_regions, bool $is_tax_inclusive_price = false, string $base_currency = 'USD', array $extra_tax_settings = [], array $general_settings = []): void
     {
         $this->bootstrap_application();
 
@@ -62,10 +64,11 @@ trait BindsTaxDependencies
 
         $settings_factory = new FakeSettingsFactory([
             OptionKeys::CURRENCY_SETTINGS => [],
-            OptionKeys::TAX_SETTINGS => [
+            OptionKeys::TAX_SETTINGS => array_merge([
                 'tax_regions' => $tax_regions,
                 'is_tax_inclusive_price' => $is_tax_inclusive_price,
-            ],
+            ], $extra_tax_settings),
+            OptionKeys::GENERAL_SETTINGS => $general_settings,
         ]);
 
         $currency_service = new class($currency) {

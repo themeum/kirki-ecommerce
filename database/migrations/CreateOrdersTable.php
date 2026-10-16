@@ -57,6 +57,7 @@ class CreateOrdersTable implements Migration
             $table->integer('invoiced_shipping_tax_amount')->default(0)->comment('The tax part of shipping_total, in the invoiced currency, minor units');
             $table->integer('base_shipping_tax_amount')->default(0)->comment('The tax part of shipping_total, in the base currency, minor units');
             $table->boolean('is_tax_inclusive')->default(0)->comment('Whether the store priced items inclusive of tax when this order was last calculated');
+            $table->string('tax_destination', 20)->nullable()->comment('Address the tax was calculated from when this order was last calculated. Available: shipping, billing, store. Null when no tax was calculated');
 
             $table->integer('invoiced_total')->default(0)->comment('Amount payable: item totals plus shipping_total, never below zero; always includes tax; excludes payment_provider_fee, in the invoiced currency, minor units');
             $table->integer('base_total')->default(0)->comment('Amount payable: item totals plus shipping_total, never below zero; always includes tax; excludes payment_provider_fee, in the base currency, minor units');

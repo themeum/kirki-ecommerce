@@ -29,6 +29,7 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
         }
 
         $result->shipping = $this->calculate_shipping_tax($context);
+        $result->tax_destination = $this->tax_destination();
 
         return $result;
     }
@@ -44,8 +45,8 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
      */
     protected function calculate_item_tax($item, TaxCalculationContextDTO $context): TaxLineDTO
     {
-        $rate = $this->resolve_rate('product_tax', [
-            'shipping_address' => $this->address,
+        $rate = $this->resolve_rate('product_tax', $this->tax_address($context), [
+            'shipping_address' => $context->shipping_address,
             'billing_address' => $context->billing_address,
             'base_product_price' => $item->taxable_amount,
             'product_categories' => $item->product_categories,
@@ -74,7 +75,7 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
             return [];
         }
 
-        $rate = $this->resolve_rate('shipping_tax', ['shipping_address' => $this->address]);
+        $rate = $this->resolve_rate('shipping_tax', $this->tax_address($context), ['shipping_address' => $context->shipping_address]);
 
         return [
             TaxLineDTO::from_array([
@@ -92,13 +93,14 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
      * @since 1.0.0
      *
      * @param string               $type         'product_tax' or 'shipping_tax'
+     * @param array<string, mixed> $tax_address  The address the tax is calculated from.
      * @param array<string, mixed> $context_data Values the decision rules can read.
      * @return float
      */
-    protected function resolve_rate(string $type, array $context_data): float
+    protected function resolve_rate(string $type, array $tax_address, array $context_data): float
     {
-        $rate = $this->get_rate($type);
-        $rules = $this->get_rules();
+        $rate = $this->get_rate($type, $tax_address);
+        $rules = $this->get_rules($tax_address);
 
         if (empty($rules)) {
             return $rate;
@@ -116,17 +118,18 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
      *
      * @since 1.0.0
      *
-     * @param string $type 'product_tax' or 'shipping_tax'
+     * @param string               $type        'product_tax' or 'shipping_tax'
+     * @param array<string, mixed> $tax_address The address the tax is calculated from.
      * @return float Zero when no state matches the address.
      */
-    protected function get_rate(string $type): float
+    protected function get_rate(string $type, array $tax_address): float
     {
         if (!empty($this->settings['is_central_tax_enabled'])) {
             $central_key = $type === 'product_tax' ? 'central_product_tax' : 'central_shipping_tax';
             return (float) ($this->settings[$central_key] ?? 0);
         }
 
-        $state = $this->get_matched_state();
+        $state = $this->get_matched_state($tax_address);
 
         if (empty($state)) {
             return 0;
@@ -138,20 +141,21 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
     }
 
     /**
-     * The configured state matching the shipping address, keyed by state id.
+     * The configured state matching the tax address, keyed by state id.
      * Always null in central tax mode, where no state is consulted.
      *
      * @since 1.0.0
      *
+     * @param array<string, mixed> $tax_address The address the tax is calculated from.
      * @return array<string, mixed>|null
      */
-    protected function get_matched_state()
+    protected function get_matched_state(array $tax_address)
     {
         if (!empty($this->settings['is_central_tax_enabled'])) {
             return null;
         }
 
-        $address_state = (string) ($this->address['state'] ?? '');
+        $address_state = (string) ($tax_address['state'] ?? '');
 
         if ($address_state === '') {
             return null;
@@ -172,15 +176,16 @@ class DefaultTaxStrategy extends AbstractTaxStrategy
      *
      * @since 1.0.0
      *
+     * @param array<string, mixed> $tax_address The address the tax is calculated from.
      * @return array<string, mixed>
      */
-    protected function get_rules(): array
+    protected function get_rules(array $tax_address): array
     {
         if (!empty($this->settings['is_central_tax_enabled'])) {
             return $this->settings['rules'] ?? [];
         }
 
-        $state = $this->get_matched_state();
+        $state = $this->get_matched_state($tax_address);
 
         return $state['rules'] ?? [];
     }

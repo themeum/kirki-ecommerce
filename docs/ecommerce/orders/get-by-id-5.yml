@@ -50,6 +50,7 @@ examples:
               "is_manual": false,
               "currency_code": "BDT",
               "is_tax_inclusive": false,
+              "tax_destination": "shipping",
               "totals": {
                 "invoiced_items_subtotal_money_object": { "raw": 3256.00, "display": "৳3,256.00", "currency": { "code": "BDT", "symbol": "৳" } },
                 "base_items_subtotal_money_object": { "raw": 29.60, "display": "$29.60", "currency": { "code": "USD", "symbol": "$" } },

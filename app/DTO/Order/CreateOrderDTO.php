@@ -76,6 +76,9 @@ class CreateOrderDTO extends DTO
     /** @var bool */
     public $is_tax_inclusive = false;
 
+    /** @var string|null */
+    public $tax_destination;
+
     /** @var int */
     public $invoiced_total;
 

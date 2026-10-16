@@ -36,6 +36,8 @@ class CalculationResultDTO extends DTO
     public $base_shipping_total = 0;
     /** @var int */
     public $base_tax_total = 0;
+    /** @var string|null Address the tax was calculated from; null when no tax was calculated */
+    public $tax_destination;
     /** @var int */
     public $base_total = 0;
     /** @var int */
