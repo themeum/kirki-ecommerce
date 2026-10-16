@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\DTO\Order\PerformOrderActionDTO;
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -49,7 +50,7 @@ class PerformOrderAction
      *
      * @param PerformOrderActionDTO $dto Order ID, the action to perform and its parameters.
      * @return Order The order reloaded with its refunds, items and coupons.
-     * @throws ValidationException When the action is not allowed for the current order state or is unknown.
+     * @throws ValidationException When the action is not allowed for the current order state or is unknown, or when mark-as-paid names an unregistered payment provider.
      * @throws Exception When performing the action fails; the transaction is rolled back.
      */
     public function execute(PerformOrderActionDTO $dto)
@@ -89,6 +90,7 @@ class PerformOrderAction
                     ]);
                     break;
                 case OrderAction::MARK_AS_PAID:
+                    throw_if(!empty($dto->payment_provider) && !Payment::get_provider($dto->payment_provider), __('Invalid payment method.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
                     OrderManager::mark_payment_as_paid($order->id, $dto->payment_provider);
                     break;
                 case OrderAction::SEND_PAYMENT_LINK:

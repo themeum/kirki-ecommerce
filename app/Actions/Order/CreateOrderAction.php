@@ -682,7 +682,7 @@ class CreateOrderAction
 
         $order_dto->payment_status = PaymentStatus::UNPAID;
         $order_dto->payment_provider = $dto->payment_provider;
-        $order_dto->payment_metadata = $this->build_payment_provider_snapshot($dto->payment_provider);
+        $order_dto->payment_metadata = Payment::build_snapshot($dto->payment_provider);
         $order_dto->shipping_method = $dto->shipping_method;
         $order_dto->shipping_metadata = $this->build_shipping_method_snapshot($context);
 
@@ -827,32 +827,6 @@ class CreateOrderAction
         }
 
         return Money::convert_to_currency(Money::from_minor($amount, $this->base_currency_code), $target_currency_code, $exchange_rate)->getMinorAmount()->toInt();
-    }
-
-    /**
-     * Build the payment provider snapshot stored on the order.
-     *
-     * @since 1.0.0
-     *
-     * @param string|null $payment_provider_id Payment provider ID.
-     * @return array<string, mixed>|null Provider id, name, icon and offline flag; null when the provider is unknown.
-     */
-    protected function build_payment_provider_snapshot($payment_provider_id)
-    {
-        $provider = Payment::get_provider($payment_provider_id);
-
-        if (!$provider) {
-            return null;
-        }
-
-        return [
-            'payment_provider' => [
-                'id' => $provider->id(),
-                'name' => $provider->title(),
-                'icon' => $provider->icon(),
-                'is_offline' => $provider->is_offline(),
-            ],
-        ];
     }
 
     /**

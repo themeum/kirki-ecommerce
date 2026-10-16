@@ -3,7 +3,13 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Facades\Order as OrderManager;
+use Kirki\Ecommerce\App\Constants\Order\OrderAction;
+use Kirki\Ecommerce\App\Constants\Order\OrderActivityType;
+use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Models\Order;
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
+use Kirki\Ecommerce\App\Payment\PaymentManager;
+use Kirki\Ecommerce\App\Services\OrderActivityService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
@@ -167,5 +173,306 @@ class OrderPaymentMetadataTest extends RestTestCase
     public function test_unknown_order_returns_false(): void
     {
         $this->assertFalse(OrderManager::set_payment_metadata(999999, wp_json_encode(['id' => 'CAPTURE-1'])));
+    }
+
+    /**
+     * The snapshot of a registered provider holds its id, name, icon and offline flag.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_build_snapshot_returns_the_provider_fields(): void
+    {
+        $snapshot = Payment::build_snapshot('paypal');
+
+        $this->assertSame('paypal', $snapshot['payment_provider']['id']);
+        $this->assertSame('PayPal', $snapshot['payment_provider']['name']);
+        $this->assertNotEmpty($snapshot['payment_provider']['icon']);
+        $this->assertFalse($snapshot['payment_provider']['is_offline']);
+
+        $offline_id = $this->create_offline_provider('Cash on Delivery');
+        $offline = Payment::build_snapshot($offline_id)['payment_provider'];
+
+        $this->assertSame($offline_id, $offline['id']);
+        $this->assertSame('Cash on Delivery', $offline['name']);
+        $this->assertTrue($offline['is_offline']);
+    }
+
+    /**
+     * An unknown or empty provider id has no snapshot.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_build_snapshot_returns_null_for_unknown_or_empty_id(): void
+    {
+        $this->assertNull(Payment::build_snapshot('no-such-provider'));
+        $this->assertNull(Payment::build_snapshot(null));
+        $this->assertNull(Payment::build_snapshot(''));
+    }
+
+    /**
+     * Marking an order paid with another provider moves the column and the snapshot together.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_with_another_provider_refreshes_the_snapshot(): void
+    {
+        $offline_id = $this->create_offline_provider('Cash on Delivery');
+
+        $this->mark_as_paid($offline_id);
+
+        $order = Order::find($this->order_id);
+        $this->assertSame(PaymentStatus::PAID, $order->payment_status);
+        $this->assertSame($offline_id, $order->payment_provider);
+        $this->assertSame($offline_id, $order->payment_metadata['payment_provider']['id']);
+
+        $details = $this->assert_api_success($this->request('GET', 'orders/' . $this->order_id))['data'];
+        $this->assertSame('Cash on Delivery', $details['payment_provider_name']);
+        $this->assertTrue($details['payment_provider_is_offline']);
+
+        $results = $this->assert_api_success($this->request('GET', 'orders', ['page' => 1, 'limit' => 10]))['data']['results'];
+        $listed = array_values(array_filter($results, fn($result) => $result['id'] == $this->order_id));
+        $this->assertSame('Cash on Delivery', $listed[0]['payment_provider_name']);
+        $this->assertTrue($listed[0]['payment_provider_is_offline']);
+    }
+
+    /**
+     * The old provider's gateway data is dropped when the provider changes.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_with_another_provider_drops_gateway_data(): void
+    {
+        OrderManager::set_payment_metadata($this->order_id, wp_json_encode(['id' => 'CAPTURE-1']));
+        $offline_id = $this->create_offline_provider('Cash on Delivery');
+
+        $this->mark_as_paid($offline_id);
+
+        $this->assertArrayNotHasKey('gateway', Order::find($this->order_id)->payment_metadata);
+    }
+
+    /**
+     * Marking an order paid with the provider already in the snapshot keeps the gateway data.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_with_the_same_provider_keeps_the_metadata(): void
+    {
+        OrderManager::set_payment_metadata($this->order_id, wp_json_encode(['id' => 'CAPTURE-1']));
+        $before = Order::find($this->order_id)->payment_metadata;
+
+        $this->mark_as_paid('paypal');
+
+        $this->assertSame($before, Order::find($this->order_id)->payment_metadata);
+    }
+
+    /**
+     * Marking an order paid without a provider, as a gateway webhook does, leaves the provider and metadata alone.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_without_a_provider_changes_nothing(): void
+    {
+        OrderManager::set_payment_metadata($this->order_id, wp_json_encode(['id' => 'CAPTURE-1']));
+        $before = Order::find($this->order_id)->payment_metadata;
+
+        $this->assertTrue(OrderManager::mark_payment_as_paid($this->order_id));
+
+        $order = Order::find($this->order_id);
+        $this->assertSame('paypal', $order->payment_provider);
+        $this->assertSame($before, $order->payment_metadata);
+    }
+
+    /**
+     * An order that has no provider and no snapshot gets both when it is marked paid with a provider.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_creates_a_snapshot_for_an_order_without_a_provider(): void
+    {
+        $order = Order::find($this->order_id);
+        $order->payment_provider = null;
+        $order->payment_metadata = null;
+        $order->save();
+        $offline_id = $this->create_offline_provider('Cash on Delivery');
+
+        $this->mark_as_paid($offline_id);
+
+        $order = Order::find($this->order_id);
+        $this->assertSame($offline_id, $order->payment_provider);
+        $this->assertSame('Cash on Delivery', $order->payment_metadata['payment_provider']['name']);
+    }
+
+    /**
+     * An unregistered provider is rejected and the order stays unpaid and unchanged.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_with_an_unknown_provider_is_rejected(): void
+    {
+        $before = Order::find($this->order_id)->payment_metadata;
+
+        $this->assert_api_error($this->request('PATCH', 'orders/' . $this->order_id . '/action', [
+            'action' => OrderAction::MARK_AS_PAID,
+            'payment_provider' => 'no-such-provider',
+        ]), 422);
+
+        $order = Order::find($this->order_id);
+        $this->assertSame(PaymentStatus::UNPAID, $order->payment_status);
+        $this->assertSame('paypal', $order->payment_provider);
+        $this->assertSame($before, $order->payment_metadata);
+    }
+
+    /**
+     * A registered provider that is disabled is still accepted.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_mark_as_paid_with_a_disabled_provider_is_accepted(): void
+    {
+        $disabled_id = $this->create_offline_provider('Bank transfer', false);
+
+        $this->mark_as_paid($disabled_id);
+
+        $order = Order::find($this->order_id);
+        $this->assertSame(PaymentStatus::PAID, $order->payment_status);
+        $this->assertSame($disabled_id, $order->payment_provider);
+    }
+
+    /**
+     * Mark the order as paid through the order action endpoint.
+     *
+     * @param string $payment_provider Provider ID.
+     * @return void
+     * @since 1.0.0
+     */
+    protected function mark_as_paid(string $payment_provider): void
+    {
+        $this->assert_api_success($this->request('PATCH', 'orders/' . $this->order_id . '/action', [
+            'action' => OrderAction::MARK_AS_PAID,
+            'payment_provider' => $payment_provider,
+        ]));
+    }
+
+    /**
+     * The payment-completed activity names the provider the order was paid with.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_payment_completed_activity_names_the_new_provider(): void
+    {
+        $offline_id = $this->create_offline_provider('Bank transfer');
+
+        $this->mark_as_paid($offline_id);
+
+        $description = $this->payment_completed_description();
+        $this->assertStringContainsString('via Bank transfer.', $description);
+        $this->assertStringNotContainsString($offline_id, $description);
+        $this->assertStringNotContainsString('PayPal', $description);
+    }
+
+    /**
+     * A provider renamed after the payment does not change the recorded activity.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_payment_completed_activity_keeps_the_name_after_a_rename(): void
+    {
+        $offline_id = $this->create_offline_provider('Bank transfer');
+        $this->mark_as_paid($offline_id);
+
+        $this->assert_api_success($this->request('PATCH', 'offline-payments/' . $offline_id, ['name' => 'Wire transfer']));
+
+        $this->assertStringContainsString('via Bank transfer.', $this->payment_completed_description());
+    }
+
+    /**
+     * An older activity that holds only the provider id still shows the id.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_payment_completed_activity_without_a_name_shows_the_id(): void
+    {
+        (new OrderActivityService())->create($this->order_id, OrderActivityType::PAYMENT_COMPLETED, null, [
+            'amount' => 1000,
+            'currency_code' => 'USD',
+            'provider' => 'bank_transfer',
+        ], null);
+
+        $this->assertStringContainsString('via bank_transfer.', $this->payment_completed_description());
+    }
+
+    /**
+     * An order paid with no provider known has an activity that names none.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_payment_completed_activity_without_a_provider_names_none(): void
+    {
+        $order = Order::find($this->order_id);
+        $order->payment_provider = null;
+        $order->payment_metadata = null;
+        $order->save();
+
+        OrderManager::mark_payment_as_paid($this->order_id);
+
+        $this->assertStringNotContainsString(' via ', $this->payment_completed_description());
+    }
+
+    /**
+     * Get the description of the order's payment-completed activity from the admin timeline.
+     *
+     * @return string
+     * @since 1.0.0
+     */
+    protected function payment_completed_description(): string
+    {
+        $results = $this->assert_api_success($this->request('GET', 'orders/' . $this->order_id . '/activities'))['data']['results'];
+        $activities = array_values(array_filter($results, fn($activity) => $activity['activity_type'] === 'payment-completed'));
+
+        $this->assertCount(1, $activities);
+
+        return $activities[0]['description'];
+    }
+
+    /**
+     * Create an offline payment provider and return its ID.
+     *
+     * @param string $name       Provider name.
+     * @param bool   $is_enabled Whether the provider is enabled.
+     * @return string
+     * @since 1.0.0
+     */
+    protected function create_offline_provider(string $name, bool $is_enabled = true): string
+    {
+        $created = $this->request('POST', 'offline-payments', ['name' => $name, 'is_enabled' => $is_enabled]);
+        $id = $this->assert_api_success($created, 201)['data']['id'];
+        $this->start_new_request();
+
+        return $id;
+    }
+
+    /**
+     * Rebuild the provider registry, as the next real request would.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    protected function start_new_request(): void
+    {
+        static::forget_singleton(PaymentManager::class);
+        $this->reset_facade_cache();
     }
 }

@@ -124,6 +124,7 @@ class OrderActivityManager
             'amount' => $order->invoiced_total,
             'currency_code' => $order->currency_code,
             'provider' => $order->payment_provider,
+            'provider_name' => is_array($order->payment_metadata) ? ($order->payment_metadata['payment_provider']['name'] ?? null) : null,
         ], $this->resolve_author());
     }
 
@@ -507,9 +508,11 @@ class OrderActivityManager
             return __('Payment completed.', 'kirki-ecommerce');
         }
 
-        if (!empty($metadata['provider'])) {
+        $provider = !empty($metadata['provider_name']) ? $metadata['provider_name'] : ($metadata['provider'] ?? null);
+
+        if (!empty($provider)) {
             /* translators: %1$s: payment amount, %2$s: payment provider name */
-            return sprintf(__('Payment of %1$s completed via %2$s.', 'kirki-ecommerce'), $amount, $metadata['provider']);
+            return sprintf(__('Payment of %1$s completed via %2$s.', 'kirki-ecommerce'), $amount, $provider);
         }
 
         /* translators: %s: payment amount */

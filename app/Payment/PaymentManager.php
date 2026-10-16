@@ -192,6 +192,32 @@ class PaymentManager
     }
 
     /**
+     * Build the provider snapshot stored in an order's payment metadata.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null $id Provider ID.
+     * @return array<string, mixed>|null Provider id, name, icon and offline flag; null when the provider is unknown.
+     */
+    public function build_snapshot($id)
+    {
+        $provider = empty($id) ? null : $this->get_provider($id);
+
+        if (!$provider) {
+            return null;
+        }
+
+        return [
+            'payment_provider' => [
+                'id' => $provider->id(),
+                'name' => $provider->title(),
+                'icon' => $provider->icon(),
+                'is_offline' => $provider->is_offline(),
+            ],
+        ];
+    }
+
+    /**
      * Get the next payment step for an order from its payment provider.
      *
      * @since 1.0.0

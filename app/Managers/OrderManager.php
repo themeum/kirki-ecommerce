@@ -30,6 +30,7 @@ use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderPayloadDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderPayloadDTO;
 use Kirki\Ecommerce\App\Facades\Money;
+use Kirki\Ecommerce\App\Payment\Facades\Payment;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\Framework\Supports\Facades\Date;
 
@@ -335,7 +336,9 @@ class OrderManager
      * Mark an order's payment as paid.
      *
      * Records the payment time and provider, confirms reserved stock when the
-     * order is already delivered, and logs the activity.
+     * order is already delivered, and logs the activity. When the provider differs
+     * from the one in the order's snapshot, the payment metadata is replaced with
+     * the new provider's snapshot, which drops the old provider's gateway data.
      *
      * @since 1.0.0
      *
@@ -353,6 +356,12 @@ class OrderManager
 
             if (!empty($payment_provider)) {
                 $update['payment_provider'] = $payment_provider;
+
+                $snapshot_provider_id = is_array($order->payment_metadata) ? ($order->payment_metadata['payment_provider']['id'] ?? null) : null;
+
+                if ($snapshot_provider_id !== $payment_provider) {
+                    $update['payment_metadata'] = Payment::build_snapshot($payment_provider);
+                }
             }
 
             $this->order_service->partial_update_order($id, $update);

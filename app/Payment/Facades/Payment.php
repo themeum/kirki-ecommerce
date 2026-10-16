@@ -20,6 +20,7 @@ use Kirki\Ecommerce\App\Payment\PaymentManager;
  * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_available_online_providers()
  * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] get_available_offline_providers()
  * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider|null get_provider($id)
+ * @method static array<string, mixed>|null build_snapshot($id)
  * @method static \Kirki\Ecommerce\App\Payment\PaymentProvider[] order_providers(array $providers)
  *
  * @see \Kirki\Ecommerce\App\Payment\PaymentManager
