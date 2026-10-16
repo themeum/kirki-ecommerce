@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\DTO\Variant\VariantListFilterDTO;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
@@ -80,7 +81,9 @@ class VariantService
      */
     public function paginated(VariantListFilterDTO $filters)
     {
-        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        $page = $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+
+        return ListPaginator::from($page, Variant::query());
     }
 
     /**

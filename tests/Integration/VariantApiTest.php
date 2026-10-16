@@ -4,10 +4,14 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\InventoryType;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
+use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class VariantApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use CreatesTestProducts;
 
     /**
@@ -491,5 +495,39 @@ class VariantApiTest extends RestTestCase
             'track_inventory' => true,
             'attribute_values' => [],
         ];
+    }
+
+    /**
+     * List variants reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_reports_has_records(): void
+    {
+        Variant::query()->delete();
+
+        $this->assertFalse($this->list_has_records('variants'));
+
+        $this->create_product();
+
+        $this->assertTrue($this->list_has_records('variants'));
+    }
+
+    /**
+     * List variants keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_variants_has_records_ignores_search(): void
+    {
+        $this->create_product();
+
+        $response = $this->request('GET', 'variants', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

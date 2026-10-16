@@ -28,16 +28,16 @@ must also decide whether to show the table at all
 
 ```tsx
 const Brands = () => {
-  const { params, hasActiveFilters } = useDataTableParams(brandListOptions);
+  const { params } = useDataTableParams(brandListOptions);
   const { data, isFetching } = useBrandsQuery(params);
 
-  const hasNoRecord = !isFetching && !hasActiveFilters && data?.total === 0;
+  const hasRecord = data?.has_records !== false;
 
   return (
     <Page>
-      <PageHeading text={__('Brands', 'kirki-ecommerce')} actions={!hasNoRecord && <NewBrandButton />} />
+      <PageHeading text={__('Brands', 'kirki-ecommerce')} actions={hasRecord && <NewBrandButton />} />
       <PageContent>
-        {hasNoRecord ? (
+        {!hasRecord ? (
           <NotFoundState ... />
         ) : (
           <BrandTable data={data} isLoading={isFetching} />
@@ -297,22 +297,23 @@ An empty list is one of two situations, and they are handled in two places:
 
 | Situation | Handled by | Shown | Toolbar, headers, pagination |
 | --- | --- | --- | --- |
-| No filters, `total` of `0` (first use) | The **page** | `NotFoundState` instead of the table | Not rendered; the page card holds only the message |
+| The table holds no record (`has_records` is `false`) | The **page** | `NotFoundState` instead of the table | Not rendered; the page card holds only the message |
 | Filters active, or any other case with no rows | `DataTable` | `emptyState` in the table body | Kept, so the criteria can be changed |
 
 **First use belongs to the page.** `DataTable` does not know about first use and
 has no `total`-based branch for it. The page already holds the query and the
-filters, so it makes the call and hides the table:
+filters, so it makes the call and hides the table. The call reads
+`has_records` from the list response:
 
 ```tsx
-const { params, hasActiveFilters } = useDataTableParams(productListOptions);
+const { params } = useDataTableParams(productListOptions);
 const { data, isFetching } = useProductsQuery(params);
 
-const hasNoRecord = !isFetching && !hasActiveFilters && data?.total === 0;
+const hasRecord = data?.has_records !== false;
 
-<PageHeading text=... actions={!hasNoRecord && <AddProductButton />} />
+<PageHeading text=... actions={hasRecord && <AddProductButton />} />
 <PageContent>
-  {hasNoRecord ? (
+  {!hasRecord ? (
     <NotFoundState
       icon={<ProductEmptyStateIcon />}
       text={__('Add a product', 'kirki-ecommerce')}
@@ -326,8 +327,8 @@ const hasNoRecord = !isFetching && !hasActiveFilters && data?.total === 0;
 ```
 
 The page's header action is hidden while `NotFoundState` is shown, so the
-screen offers one call to action, not two. The page number plays no part:
-`total` of `0` with no filters is first use on every page.
+screen offers one call to action, not two. Neither the page number nor the
+filters play a part: only the server says if the table is empty.
 
 **Filtered-empty belongs to the table.** The table passes `emptyState` to
 `DataTable`, which renders it in a single full-width row of the body, with the
@@ -357,10 +358,25 @@ const { ..., clearFilters } = useDataTableParams(productListOptions);
 `emptyState` is omitted, `DataTable` renders that default. The entity icons used
 by `NotFoundState` live in `@/icons/empty-state`.
 
-**Wait for `isFetching`.** `hasNoRecord` requires `!isFetching`, so a refetch
-never flashes the first-use screen. A failed request leaves `data` undefined, and
-`data?.total === 0` is then false, so an error never reads as "add your first
-item".
+**Only an explicit `false` shows the first-use screen.** While the first request
+loads, or after a failed request, `data` is undefined and `has_records` is
+undefined. The check `!== false` keeps the table, so an error never reads as "add
+your first item", and a refetch never flashes the first-use screen.
+
+**Where `has_records` comes from.** The nine top-level list endpoints (products,
+orders, inventory, collections, categories, tags, brands, customers, coupons)
+return `has_records` in the `data` object, beside `total`. It is `true` when the
+table holds at least one record, whatever the search or filters in the request.
+A search that matches nothing therefore gives `total` of `0` and `has_records` of
+`true`, and the page keeps the table and shows the filtered-empty message.
+
+The service builds it with `ListPaginator::from( $page, $query )`. The query is a
+fresh, unfiltered query, for example `Brand::query()`. It runs only when the page
+total is `0`; when the page has rows, no extra query runs. To change which
+records count, change that query in the service. Products pass
+`Product::query()->where_not( 'status', ProductStatus::TRASHED )`, so a store with
+only trashed products gets the first-use screen. The `limit=-1` branch (all
+records, for pickers) and storefront lists do not return the key.
 
 **`hasActiveFilters` and `clearFilters`.** `useDataTableParams` returns both.
 The flag is true when the search term, a date range or any declared filter holds
@@ -391,7 +407,7 @@ page calls the hook and the table calls it again for `clearFilters`.
 - **Row identity is `row.id`.** `getRowId` returns `String(row.id)`, so selection
   survives a refetch that reorders rows. Every item must have an `id`.
 - **An empty result is not one state.** TanStack has no notion of "no rows".
-  Here first use (no filters, `total` of `0`) replaces the whole table with a
+  Here first use (the server reports `has_records` as `false`) replaces the whole table with a
   page-level `NotFoundState`, while a filtered-empty table keeps its toolbar and
   headers and shows `emptyState` in the body. `DataTable` itself only knows the
   second case. See [7. Empty states](#7-empty-states).

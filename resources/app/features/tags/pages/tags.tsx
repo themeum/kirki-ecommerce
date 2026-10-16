@@ -9,11 +9,11 @@ import { TagEmptyStateIcon } from '@/icons/empty-state';
 import { __ } from '@/wpi18n';
 
 const Tags = () => {
-  const { params, hasActiveFilters } = useDataTableParams(tagListOptions);
+  const { params } = useDataTableParams(tagListOptions);
 
   const { data, isFetching } = useTagsQuery(params);
 
-  const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
+  const hasRecord = data?.has_records !== false;
 
   return (
     <Page>

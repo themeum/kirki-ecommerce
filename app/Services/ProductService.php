@@ -19,6 +19,7 @@ use Kirki\Ecommerce\Framework\Collections\Collection;
 use Kirki\Ecommerce\App\DTO\Product\UpdateProductDTO;
 use Kirki\Ecommerce\App\DTO\Product\CreateProductDTO;
 use Kirki\Ecommerce\App\Jobs\PublishScheduledProductJob;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Supports\Url;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -70,7 +71,9 @@ class ProductService
     {
         $query = $this->list_query();
 
-        return $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        $page = $this->apply_filters($query, $filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+
+        return ListPaginator::from($page, Product::query()->where_not('status', ProductStatus::TRASHED));
     }
 
     /**

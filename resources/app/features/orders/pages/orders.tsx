@@ -13,11 +13,11 @@ import { __ } from '@/wpi18n';
 
 const Orders = () => {
   const navigate = useNavigate();
-  const { params, hasActiveFilters } = useDataTableParams(orderListOptions);
+  const { params } = useDataTableParams(orderListOptions);
 
   const { data, isFetching } = useOrdersQuery(params);
 
-  const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
+  const hasRecord = data?.has_records !== false;
 
   return (
     <Page>

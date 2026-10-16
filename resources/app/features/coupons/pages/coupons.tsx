@@ -15,11 +15,11 @@ import { __ } from '@/wpi18n';
 
 const Coupons = () => {
   const navigate = useNavigate();
-  const { params, hasActiveFilters } = useDataTableParams<CouponListFilter>(couponListOptions);
+  const { params } = useDataTableParams<CouponListFilter>(couponListOptions);
 
   const { data, isFetching } = useCouponsQuery(params);
 
-  const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
+  const hasRecord = data?.has_records !== false;
 
   return (
     <Page>

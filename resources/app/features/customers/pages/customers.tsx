@@ -15,11 +15,11 @@ import { __ } from '@/wpi18n';
 
 const Customers = () => {
   const navigate = useNavigate();
-  const { params, hasActiveFilters } = useDataTableParams(customerListOptions);
+  const { params } = useDataTableParams(customerListOptions);
 
   const { data, isFetching } = useCustomersQuery(params);
 
-  const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
+  const hasRecord = data?.has_records !== false;
 
   const handleAddNewCustomer = () => {
     void navigate(RouteConfig.Customers.get('CustomerDetail').buildLink({ id: NEW_ITEM_ID }));

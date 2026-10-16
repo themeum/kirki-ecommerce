@@ -106,6 +106,27 @@ class DashboardApiTest extends RestTestCase
     }
 
     /**
+     * Net sales takes the shipping tax off once, because the tax total and the shipping total both hold it.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_net_sales_does_not_remove_shipping_tax_twice(): void
+    {
+        $this->create_order([
+            'base_total' => 12000,
+            'invoiced_total' => 12000,
+            'base_tax_total' => 1000,
+            'base_shipping_total' => 1000,
+            'base_shipping_tax_amount' => 200,
+        ], [['quantity' => 1]]);
+
+        $metrics = $this->get_overview()['metrics'];
+
+        $this->assertSame(10200, $this->minor($metrics['base_net_sales_money_object']));
+    }
+
+    /**
      * A refund in another currency is converted with its own order's base-to-invoiced ratio.
      *
      * @return void

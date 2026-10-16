@@ -10,6 +10,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Coupon\CouponFilterDTO;
 use Kirki\Ecommerce\App\Models\Coupon;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Database\Query\QueryBuilder;
 use Kirki\Ecommerce\Framework\Collections\Collection;
@@ -81,7 +82,9 @@ class CouponService
      */
     public function paginated(CouponFilterDTO $filters)
     {
-        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        $page = $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+
+        return ListPaginator::from($page, Coupon::query());
     }
 
     /**

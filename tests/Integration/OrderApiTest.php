@@ -45,6 +45,7 @@ use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\EnablesPaymentProviders;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestShipping;
 use Exception;
@@ -54,6 +55,8 @@ use function Kirki\Ecommerce\Framework\app;
 
 class OrderApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use CreatesTestProducts;
     use EnablesPaymentProviders;
     use SeedsTestShipping;
@@ -3351,5 +3354,39 @@ class OrderApiTest extends RestTestCase
         $response = $this->request('POST', 'orders', $this->order_payload(['is_manual' => false]));
 
         $this->assert_api_success($response, 201);
+    }
+
+    /**
+     * List orders reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_reports_has_records(): void
+    {
+        Order::query()->delete();
+
+        $this->assertFalse($this->list_has_records('orders'));
+
+        $this->create_order();
+
+        $this->assertTrue($this->list_has_records('orders'));
+    }
+
+    /**
+     * List orders keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_orders_has_records_ignores_search(): void
+    {
+        $this->create_order();
+
+        $response = $this->request('GET', 'orders', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

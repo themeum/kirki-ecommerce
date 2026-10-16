@@ -4,11 +4,15 @@ namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\App\Constants\BulkActions;
 use Kirki\Ecommerce\App\Supports\CountryData;
+use Kirki\Ecommerce\App\Models\Customer;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsTestCurrency;
 
 class CustomerApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use SeedsTestCurrency;
 
     /**
@@ -854,5 +858,39 @@ class CustomerApiTest extends RestTestCase
         $payload = $this->assert_api_success($response);
 
         return array_map('intval', array_column($payload['data']['results'], 'id'));
+    }
+
+    /**
+     * List customers reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_customers_reports_has_records(): void
+    {
+        Customer::query()->delete();
+
+        $this->assertFalse($this->list_has_records('customers'));
+
+        $this->create_customer(['first_name' => 'HasRecords']);
+
+        $this->assertTrue($this->list_has_records('customers'));
+    }
+
+    /**
+     * List customers keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_customers_has_records_ignores_search(): void
+    {
+        $this->create_customer(['first_name' => 'HasRecords']);
+
+        $response = $this->request('GET', 'customers', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
     }
 }

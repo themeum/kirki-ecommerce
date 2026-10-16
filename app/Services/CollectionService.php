@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\HasSortableColumns;
 use Kirki\Ecommerce\App\Models\Collection;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Constants\Pagination;
 use Kirki\Ecommerce\App\DTO\Collection\CreateCollectionDTO;
 use Kirki\Ecommerce\App\DTO\Collection\UpdateCollectionDTO;
@@ -82,7 +83,9 @@ class CollectionService
      */
     public function paginated(ListFilterDTO $filters)
     {
-        return $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+        $page = $this->list_query($filters)->paginate($filters->limit ?? Pagination::LIMIT, $filters->page ?? 1);
+
+        return ListPaginator::from($page, Collection::query());
     }
 
     /**

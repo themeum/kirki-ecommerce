@@ -9,11 +9,11 @@ import { BrandEmptyStateIcon } from '@/icons/empty-state';
 import { __ } from '@/wpi18n';
 
 const Brands = () => {
-  const { params, hasActiveFilters } = useDataTableParams(brandListOptions);
+  const { params } = useDataTableParams(brandListOptions);
 
   const { data, isFetching } = useBrandsQuery(params);
 
-  const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
+  const hasRecord = data?.has_records !== false;
 
   return (
     <Page>

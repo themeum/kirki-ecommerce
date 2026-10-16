@@ -175,7 +175,7 @@ processing and cancelled payments are never counted. All figures are **all time*
 | Card | Value |
 |---|---|
 | Total sales | Sum of `base_total` of counted orders. |
-| Net sales | Total sales − sum of `base_tax_total` − sum of `base_shipping_total` − completed refunds of counted orders, in the base currency. |
+| Net sales | Total sales − sum of `base_tax_total` − (sum of `base_shipping_total` − sum of `base_shipping_tax_amount`) − completed refunds of counted orders, in the base currency. `base_tax_total` and `base_shipping_total` both hold the shipping tax, so it is taken off once. |
 | Orders | Number of counted orders. |
 | Products sold | Sum of order item `quantity` of counted orders. |
 

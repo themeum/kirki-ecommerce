@@ -7,10 +7,14 @@ use Kirki\Ecommerce\App\Constants\Product\AvailabilityStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Models\AttributeValue;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
+use Kirki\Ecommerce\App\Models\Product;
+use Kirki\Ecommerce\Tests\Support\ListsHaveRecords;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 
 class ProductApiTest extends RestTestCase
 {
+    use ListsHaveRecords;
+
     use CreatesTestProducts;
 
     /**
@@ -1130,5 +1134,59 @@ class ProductApiTest extends RestTestCase
 
         $payload = $this->assert_api_success($response);
         $this->assertEquals([$unique . ' OutOfStock'], $this->listed_titles($payload));
+    }
+
+    /**
+     * List products reports whether the table holds any record.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_reports_has_records(): void
+    {
+        Product::query()->delete();
+
+        $this->assertFalse($this->list_has_records('products'));
+
+        $this->create_product(['title' => 'Has Records Product']);
+
+        $this->assertTrue($this->list_has_records('products'));
+    }
+
+    /**
+     * List products keeps has_records true when a search matches nothing.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_has_records_ignores_search(): void
+    {
+        $this->create_product(['title' => 'Has Records Product']);
+
+        $response = $this->request('GET', 'products', ['search' => 'no-such-record-zzz']);
+        $payload = $this->assert_api_success($response);
+
+        $this->assertSame(0, $payload['data']['total']);
+        $this->assertTrue($payload['data']['has_records']);
+    }
+
+    /**
+     * Products report no record when only trashed products exist.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_list_products_has_records_ignores_trashed(): void
+    {
+        Product::query()->delete();
+
+        $product = $this->create_product(['title' => 'Has Records Trashed']);
+
+        $this->request('POST', 'products/bulk', [
+            'action' => BulkActions::TRASH,
+            'ids' => [$product['id']],
+        ]);
+
+        $this->assertFalse($this->list_has_records('products'));
     }
 }

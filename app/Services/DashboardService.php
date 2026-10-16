@@ -72,7 +72,8 @@ class DashboardService
                 'COUNT(*) AS orders_count, '
                 . 'COALESCE(SUM(base_total), 0) AS base_total, '
                 . 'COALESCE(SUM(base_tax_total), 0) AS base_tax_total, '
-                . 'COALESCE(SUM(base_shipping_total), 0) AS base_shipping_total'
+                . 'COALESCE(SUM(base_shipping_total), 0) AS base_shipping_total, '
+                . 'COALESCE(SUM(base_shipping_tax_amount), 0) AS base_shipping_tax_amount'
             )
             ->first();
 
@@ -84,7 +85,7 @@ class DashboardService
         $base_total_sales = (int) ($totals->base_total ?? 0);
         $base_net_sales = $base_total_sales
             - (int) ($totals->base_tax_total ?? 0)
-            - (int) ($totals->base_shipping_total ?? 0)
+            - ((int) ($totals->base_shipping_total ?? 0) - (int) ($totals->base_shipping_tax_amount ?? 0))
             - $this->get_base_refunded_total();
 
         return [

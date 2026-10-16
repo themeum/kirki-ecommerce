@@ -103,8 +103,9 @@ The overview SHALL show four metric cards, in this order:
 
 1. **Total sales**: the sum of the base-currency total of all counted orders.
 2. **Net sales**: Total sales minus the base-currency tax total, minus the
-   base-currency shipping total, minus the base-currency amount of completed
-   refunds on counted orders.
+   base-currency shipping total without its tax, minus the base-currency amount
+   of completed refunds on counted orders. The tax total already holds the
+   shipping tax, so the shipping tax is not taken off a second time.
 3. **Orders**: the number of counted orders.
 4. **Products sold**: the sum of item quantities on counted orders.
 
@@ -117,6 +118,11 @@ or a trend.
 
 - **WHEN** the only counted order has base total 120.00, tax 10.00 and shipping 10.00, with no refunds
 - **THEN** Total sales shows 120.00, Net sales shows 100.00, Orders shows 1 and Products sold shows the item quantity of that order
+
+#### Scenario: Shipping with tax
+
+- **WHEN** the only counted order has base total 120.00, tax 10.00 of which 2.00 is shipping tax, and shipping 10.00 that includes the 2.00 tax
+- **THEN** Net sales shows 102.00
 
 #### Scenario: Partial refund
 

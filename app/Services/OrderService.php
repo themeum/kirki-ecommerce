@@ -27,6 +27,7 @@ use Kirki\Ecommerce\App\DTO\Order\CreateOrderTaxDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderDTO;
 use Kirki\Ecommerce\App\DTO\Order\UpdateOrderItemDTO;
 use Kirki\Ecommerce\App\Resources\Site\Order\OrderListResource;
+use Kirki\Ecommerce\App\Supports\ListPaginator;
 use Kirki\Ecommerce\App\Supports\OrderNumberGenerator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Http\Response;
@@ -117,9 +118,15 @@ class OrderService
      */
     public function paginated_orders(OrderListFilterDTO $dto)
     {
-        return $this->list_query($dto)
+        $page = $this->list_query($dto)
             ->with('items')
             ->paginate($dto->limit ?? Pagination::LIMIT, $dto->page ?? 1);
+
+        $has_records = Order::query()->when(is_numeric($dto->customer_id), function (QueryBuilder $query) use ($dto) {
+            return $query->where('customer_id', $dto->customer_id);
+        });
+
+        return ListPaginator::from($page, $has_records);
     }
 
     /**
