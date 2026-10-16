@@ -12,6 +12,7 @@ import {
   getFulfillmentBadgeInfo,
   type OrderListItem,
 } from '@/features/orders';
+import { OrderEmptyStateIcon } from '@/icons/empty-state';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
@@ -31,6 +32,17 @@ const LINE_HEIGHT = '22px';
 
 type RecentOrdersCardProps = {
   orders?: OrderListItem[];
+};
+
+const NoOrderState = () => {
+  return (
+    <Flex direction="column" align="center">
+      <OrderEmptyStateIcon />
+      <Text color="subdued" cssOverride={styles.empty}>
+        {__('No orders yet', 'kirki-ecommerce')}
+      </Text>
+    </Flex>
+  );
 };
 
 const RecentOrdersCard = ({ orders }: RecentOrdersCardProps) => {
@@ -64,9 +76,7 @@ const RecentOrdersCard = ({ orders }: RecentOrdersCardProps) => {
           </StackedItems>
         </div>
       ) : orders.length === 0 ? (
-        <Text color="subdued" cssOverride={styles.empty}>
-          {__('No orders yet', 'kirki-ecommerce')}
-        </Text>
+        <NoOrderState />
       ) : (
         <div css={scoped(styles.body)}>
           <StackedItems>

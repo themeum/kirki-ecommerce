@@ -27,6 +27,8 @@ type UseOrderDetailsResult = {
   order: ReturnType<typeof useOrderQuery>['data'];
   isLoading: boolean;
   isError: boolean;
+  isFetching: boolean;
+  refetch: () => void;
   form: UseFormReturn<OrderFormInput, unknown, OrderFormPayload>;
   paymentBadge: ReturnType<typeof getPaymentBadgeInfo> | undefined;
   fulfillmentBadge: ReturnType<typeof getFulfillmentBadgeInfo> | undefined;
@@ -52,7 +54,13 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
   const [isTrackingDialogOpen, setIsTrackingDialogOpen] = useState(false);
   const [isMarkAsPaidDialogOpen, setIsMarkAsPaidDialogOpen] = useState(false);
 
-  const { data: order, isLoading, isError } = useOrderQuery(id!, Boolean(id));
+  const {
+    data: order,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useOrderQuery(id!, Boolean(id));
   const actionMutation = useOrderActionMutation();
   const updateMutation = useUpdateOrderMutation();
 
@@ -137,6 +145,8 @@ export const useOrderDetails = (id: string | undefined): UseOrderDetailsResult =
     order,
     isLoading,
     isError,
+    isFetching,
+    refetch: () => void refetch(),
     form,
     paymentBadge: order ? getPaymentBadgeInfo(order.payment_status) : undefined,
     fulfillmentBadge: order ? getFulfillmentBadgeInfo(order.fulfillment_status) : undefined,

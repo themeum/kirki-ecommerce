@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Dispatch, SetStateAction } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 
@@ -37,11 +37,13 @@ export type UseAddCurrencyDialogProps = {
   handleSearchCurrency: (event: unknown) => void;
   handleClosePopup: () => void;
   handleSubmit: (values: AddCurrencyPopupFormPayload) => void;
+  handleCloseAutoFocus: (event: Event) => void;
 };
 
 export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   const [openPopup, setOpenPopup] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const pendingFocusId = useRef<string | null>(null);
 
   const { data: availableCurrencies } = useAvailableCurrenciesQuery({ limit: -1 });
   const { data: allCurrenciesData } = useAllCurrenciesQuery({}, openPopup);
@@ -97,15 +99,32 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
   };
 
   const handleSubmit = (values: AddCurrencyPopupFormPayload) => {
+    const firstNewIndex = formCurrencies?.length ?? 0;
+
     append(
       values.selectedCurrencies.map((currency) => ({
         ...currency,
-        exchange_rate: null,
+        exchange_rate: 1,
       })),
+      { shouldFocus: false },
     );
+    pendingFocusId.current = `currencies.${firstNewIndex}.exchange_rate`;
     setSearchValue('');
     form.reset({ selectedCurrencies: [] });
     setOpenPopup(false);
+  };
+
+  const handleCloseAutoFocus = (event: Event) => {
+    const inputId = pendingFocusId.current;
+    pendingFocusId.current = null;
+
+    if (!inputId) {
+      return;
+    }
+
+    // Keep the dialog from returning focus to its trigger; focus the first new rate instead.
+    event.preventDefault();
+    document.getElementById(inputId)?.focus();
   };
 
   return {
@@ -120,5 +139,6 @@ export const useAddCurrencyDialog = (): UseAddCurrencyDialogProps => {
     handleSearchCurrency,
     handleClosePopup,
     handleSubmit,
+    handleCloseAutoFocus,
   };
 };

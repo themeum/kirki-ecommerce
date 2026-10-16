@@ -1,5 +1,6 @@
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import CategoryTable from '@/features/categories/components/category-table/category-table';
 import NewCategoryButton from '@/features/categories/components/new-category-button';
 import { useCategoriesQuery } from '@/features/categories/services/category';
@@ -11,7 +12,7 @@ import { __ } from '@/wpi18n';
 const Categories = () => {
   const { params, hasActiveFilters } = useDataTableParams(categoryListOptions);
 
-  const { data, isFetching } = useCategoriesQuery(params);
+  const { data, isFetching, isError, refetch } = useCategoriesQuery(params);
 
   const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
 
@@ -22,7 +23,9 @@ const Categories = () => {
         actions={hasRecord && <NewCategoryButton />}
       />
       <PageContent>
-        {!hasRecord ? (
+        {isError ? (
+          <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />
+        ) : !hasRecord ? (
           <NotFoundState
             icon={<CategoryEmptyStateIcon />}
             text={__('Organize products into categories', 'kirki-ecommerce')}

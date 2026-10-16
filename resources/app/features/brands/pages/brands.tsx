@@ -1,5 +1,6 @@
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import BrandTable from '@/features/brands/components/brand-table/brand-table';
 import NewBrandButton from '@/features/brands/components/new-brand-button';
 import { useBrandsQuery } from '@/features/brands/services/brand';
@@ -11,7 +12,7 @@ import { __ } from '@/wpi18n';
 const Brands = () => {
   const { params, hasActiveFilters } = useDataTableParams(brandListOptions);
 
-  const { data, isFetching } = useBrandsQuery(params);
+  const { data, isFetching, isError, refetch } = useBrandsQuery(params);
 
   const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
 
@@ -22,7 +23,9 @@ const Brands = () => {
         actions={hasRecord && <NewBrandButton />}
       />
       <PageContent>
-        {!hasRecord ? (
+        {isError ? (
+          <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />
+        ) : !hasRecord ? (
           <NotFoundState
             icon={<BrandEmptyStateIcon />}
             text={__('Add your brands', 'kirki-ecommerce')}

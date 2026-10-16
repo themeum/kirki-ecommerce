@@ -4,6 +4,7 @@ import Button from '@/components/ui/button';
 import Flex from '@/components/ui/flex';
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CustomerTable from '@/features/customers/components/customer-table/customer-table';
@@ -17,7 +18,7 @@ const Customers = () => {
   const navigate = useNavigate();
   const { params, hasActiveFilters } = useDataTableParams(customerListOptions);
 
-  const { data, isFetching } = useCustomersQuery(params);
+  const { data, isFetching, isError, refetch } = useCustomersQuery(params);
 
   const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
 
@@ -73,7 +74,9 @@ const Customers = () => {
               </Flex>
             </CardContent>
           </Card> */}
-          {!hasRecord ? (
+          {isError ? (
+          <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />
+        ) : !hasRecord ? (
             <NotFoundState
               icon={<CustomerEmptyStateIcon />}
               text={__('Waiting on customer #1', 'kirki-ecommerce')}

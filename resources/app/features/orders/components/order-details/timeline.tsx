@@ -251,14 +251,14 @@ const styles = defineStyles({
     flexShrink: 0,
   },
   actionIconSlot: {
-    width: '2rem',
-    height: '2rem',
+    width: '32px',
+    height: '32px',
     flexShrink: 0,
   },
   avatar: {
     ...flexCenter(),
-    width: '2rem',
-    height: '2rem',
+    minWidth: '32px',
+    minHeight: '32px',
     borderRadius: theme.radius.full,
     backgroundColor: theme.colors.background.solidSurfaceSecondary,
     color: theme.colors.text.secondary,
@@ -267,7 +267,7 @@ const styles = defineStyles({
     zIndex: 1,
   },
   actionRow: {
-    minHeight: '3rem',
+    minHeight: '48px',
   },
   commentRow: {
     position: 'relative',

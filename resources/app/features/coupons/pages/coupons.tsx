@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import Button from '@/components/ui/button';
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import { NEW_ITEM_ID } from '@/conf';
 import { RouteConfig } from '@/config/route-config';
 import CouponTable from '@/features/coupons/components/coupon-table/coupon-table';
@@ -17,7 +18,7 @@ const Coupons = () => {
   const navigate = useNavigate();
   const { params, hasActiveFilters } = useDataTableParams<CouponListFilter>(couponListOptions);
 
-  const { data, isFetching } = useCouponsQuery(params);
+  const { data, isFetching, isError, refetch } = useCouponsQuery(params);
 
   const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
 
@@ -39,7 +40,9 @@ const Coupons = () => {
         }
       />
       <PageContent>
-        {!hasRecord ? (
+        {isError ? (
+          <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />
+        ) : !hasRecord ? (
           <NotFoundState
             icon={<CouponEmptyStateIcon />}
             text={__('Create your first coupon', 'kirki-ecommerce')}

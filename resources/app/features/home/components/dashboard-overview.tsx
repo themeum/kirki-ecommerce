@@ -1,6 +1,5 @@
-import { Card } from '@/components/ui/card';
 import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
+import QueryErrorState from '@/components/ui/query-error-state';
 import MetricCard from '@/features/home/components/metric-card';
 import RecentOrdersCard from '@/features/home/components/recent-orders-card';
 import TopProductsCard from '@/features/home/components/top-products-card';
@@ -43,16 +42,10 @@ const getMetricCards = (metrics?: DashboardMetrics) => [
 ];
 
 const DashboardOverview = () => {
-  const { data, isLoading, isError } = useDashboardOverviewQuery();
+  const { data, isLoading, isError, isFetching, refetch } = useDashboardOverviewQuery();
 
   if (isError || (!isLoading && !data)) {
-    return (
-      <Card>
-        <Text color="critical">
-          {__('We could not load your store overview. Please reload the page.', 'kirki-ecommerce')}
-        </Text>
-      </Card>
-    );
+    return <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />;
   }
 
   return (

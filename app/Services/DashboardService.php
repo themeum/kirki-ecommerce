@@ -70,9 +70,9 @@ class DashboardService
         $totals = $this->counted_orders()
             ->select_raw(
                 'COUNT(*) AS orders_count, '
-                . 'COALESCE(SUM(base_total), 0) AS base_total, '
-                . 'COALESCE(SUM(base_tax_total), 0) AS base_tax_total, '
-                . 'COALESCE(SUM(base_shipping_total), 0) AS base_shipping_total'
+                    . 'COALESCE(SUM(base_total), 0) AS base_total, '
+                    . 'COALESCE(SUM(base_tax_total), 0) AS base_tax_total, '
+                    . 'COALESCE(SUM(base_shipping_total), 0) AS base_shipping_total'
             )
             ->first();
 
@@ -175,7 +175,7 @@ class DashboardService
             ->where_in('order_id', $this->counted_order_ids())
             ->select_raw(
                 'MAX(product_id) AS product_id, MAX(id) AS latest_item_id, '
-                . 'SUM(quantity) AS units_sold, SUM(base_total) AS base_revenue'
+                    . 'SUM(quantity) AS units_sold, SUM(base_total) AS base_revenue'
             )
             ->group_by_raw("CASE WHEN product_id IS NULL THEN CONCAT('name:', product_name) ELSE product_id END")
             ->order_by_raw('units_sold DESC, base_revenue DESC')

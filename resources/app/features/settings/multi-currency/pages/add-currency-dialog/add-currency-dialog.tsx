@@ -22,8 +22,15 @@ import CurrencySearchField from '@/features/settings/multi-currency/pages/add-cu
 import { __ } from '@/wpi18n';
 
 const AddCurrencyDialogPanel = () => {
-  const { form, openPopup, setOpenPopup, formSelected, handleClosePopup, handleSubmit } =
-    useAddCurrencyDialogContext();
+  const {
+    form,
+    openPopup,
+    setOpenPopup,
+    formSelected,
+    handleClosePopup,
+    handleSubmit,
+    handleCloseAutoFocus,
+  } = useAddCurrencyDialogContext();
 
   return (
     <>
@@ -38,7 +45,7 @@ const AddCurrencyDialogPanel = () => {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent onCloseAutoFocus={handleCloseAutoFocus}>
           <DialogCloseButton />
           <DialogHeader>
             <DialogTitle>{__('Select Additional Currencies', 'kirki-ecommerce')}</DialogTitle>

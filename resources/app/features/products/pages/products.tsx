@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import Button from '@/components/ui/button';
 import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import { RouteConfig } from '@/config/route-config';
 import { productListOptions } from '@/features/products';
 import ProductTable from '@/features/products/components/product-table/product-table';
@@ -15,7 +16,7 @@ const Products = () => {
   const navigate = useNavigate();
   const { params, hasActiveFilters } = useDataTableParams(productListOptions);
 
-  const { data, isFetching } = useProductsQuery(params);
+  const { data, isFetching, isError, refetch } = useProductsQuery(params);
 
   const hasRecord = !(!isFetching && !hasActiveFilters && data?.total === 0); // @todo: later will use isDefined(data) && isDefined(data.has_record) && data?.has_record
 
@@ -37,7 +38,9 @@ const Products = () => {
         }
       />
       <PageContent>
-        {!hasRecord ? (
+        {isError ? (
+          <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />
+        ) : !hasRecord ? (
           <NotFoundState
             icon={<ProductEmptyStateIcon />}
             text={__('Add a product', 'kirki-ecommerce')}

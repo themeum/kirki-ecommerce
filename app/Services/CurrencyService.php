@@ -253,7 +253,8 @@ class CurrencyService
      *
      * When any of the items is flagged as base, the existing base currency is demoted in the same transaction, the
      * stored rates are recalculated against the item's rate, and the item is inserted with a rate of 1. The other
-     * items are inserted with the rates they carry.
+     * items are inserted with the rates they carry. When no base currency exists yet and none of the items is flagged
+     * as base, the first item becomes the base.
      *
      * @since 1.0.0
      *
@@ -265,6 +266,12 @@ class CurrencyService
     {
         $items_array = collection($items)->map(fn($item) => $item instanceof Arrayable ? $item->to_array() : $item)->all();
         $base_index = array_key_first(array_filter($items_array, fn($item) => !empty($item['is_base'])));
+
+        if (is_null($base_index) && !empty($items_array) && !$this->get_base_currency()) {
+            $first_index = array_key_first($items_array);
+            $items_array[$first_index]['is_base'] = true;
+            $base_index = $first_index;
+        }
 
         if (is_null($base_index)) {
             return Currency::insert($items_array);

@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Flex from '@/components/ui/flex';
 import { Form } from '@/components/ui/form';
-import NotFoundState from '@/components/ui/not-found-state';
 import { Page, PageContent, PageHeading } from '@/components/ui/page';
+import QueryErrorState from '@/components/ui/query-error-state';
 import Text from '@/components/ui/text';
 import {
   TooltipContent,
@@ -58,7 +58,13 @@ const EditInventory = () => {
   const variantId = Number(id);
   const navigate = useNavigate();
 
-  const { data: variant, isLoading, isError } = useVariantQuery(variantId);
+  const {
+    data: variant,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useVariantQuery(variantId);
   const updateMutation = useUpdateVariantMutation();
   const generateSkuMutation = useGenerateSkuMutation();
   const isSubmitting = updateMutation.isPending;
@@ -151,7 +157,7 @@ const EditInventory = () => {
       <Page containerSize="lg">
         <PageHeading text={__('Inventory', 'kirki-ecommerce')} hasBack onBack={handleBack} />
         <PageContent>
-          <NotFoundState text={__('This variant could not be found.', 'kirki-ecommerce')} />
+          <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />
         </PageContent>
       </Page>
     );

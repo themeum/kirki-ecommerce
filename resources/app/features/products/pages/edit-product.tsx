@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from 'react-router';
 
-import Flex from '@/components/ui/flex';
-import Text from '@/components/ui/text';
+import QueryErrorState from '@/components/ui/query-error-state';
 import { RouteConfig } from '@/config/route-config';
 import ProductForm from '@/features/products/components/product-form/product-form';
 import { mapProductToFormValues, type ProductFormPayload } from '@/features/products/schemas/forms/product-form';
@@ -23,6 +22,8 @@ const EditProduct = () => {
     data: product,
     isLoading,
     isError,
+    isFetching,
+    refetch,
   } = useProductQuery(id!, Boolean(id));
   const updateProductMutation = useUpdateProductMutation();
   const duplicateProductMutation = useDuplicateProductMutation();
@@ -34,13 +35,7 @@ const EditProduct = () => {
   }
 
   if (isError || !product) {
-    return (
-      <Flex justify="center" align="center" cssOverride={{ minHeight: 200 }}>
-        <Text color="secondary">
-          {__('Product could not be loaded.', 'kirki-ecommerce')}
-        </Text>
-      </Flex>
-    );
+    return <QueryErrorState onRetry={() => void refetch()} isRetrying={isFetching} />;
   }
 
   const handleSubmit = async (data: ProductFormPayload) => {

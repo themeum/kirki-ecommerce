@@ -14,6 +14,7 @@ import OverviewCard from '@/features/home/components/overview-card';
 import SkeletonLine from '@/features/home/components/skeleton-line';
 import { getStockBadge } from '@/features/home/lib/stock';
 import type { TopProduct } from '@/features/home/schemas/catalog/dashboard-overview';
+import { ProductEmptyStateIcon } from '@/icons/empty-state';
 import { theme } from '@/theme';
 import { defineStyles, scoped } from '@/theme/mixins';
 import { __, _n, sprintf } from '@/wpi18n';
@@ -24,6 +25,17 @@ const LINE_HEIGHT = '22px';
 
 type TopProductsCardProps = {
   products?: TopProduct[];
+};
+
+const NoProductState = () => {
+  return (
+    <Flex direction="column" align="center">
+      <ProductEmptyStateIcon />
+      <Text color="subdued" cssOverride={styles.empty}>
+        {__('No sales yet', 'kirki-ecommerce')}
+      </Text>
+    </Flex>
+  );
 };
 
 const TopProductsCard = ({ products }: TopProductsCardProps) => {
@@ -54,9 +66,7 @@ const TopProductsCard = ({ products }: TopProductsCardProps) => {
           </StackedItems>
         </div>
       ) : products.length === 0 ? (
-        <Text color="subdued" cssOverride={styles.empty}>
-          {__('No sales yet', 'kirki-ecommerce')}
-        </Text>
+        <NoProductState />
       ) : (
         <div css={scoped(styles.body)}>
           <StackedItems>
