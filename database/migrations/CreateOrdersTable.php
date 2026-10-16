@@ -39,27 +39,27 @@ class CreateOrdersTable implements Migration
             $table->string('base_currency_code', 3);
             $table->decimal('exchange_rate', 15, 6)->nullable()->comment('Exchange rate at time of order for accurate historical reporting');
 
-            $table->integer('invoiced_subtotal')->default(0);
-            $table->integer('base_subtotal')->default(0);
+            $table->integer('invoiced_subtotal')->default(0)->comment('Sum of the item subtotals: net of tax, before discounts, in the invoiced currency, minor units');
+            $table->integer('base_subtotal')->default(0)->comment('Sum of the item subtotals: net of tax, before discounts, in the base currency, minor units');
 
             $table->string('tax_id_number', 100)->nullable();
             $table->string('tax_id_type', 50)->nullable()->comment('Available: vat, gst, ein, etc.');
             $table->boolean('reverse_charge')->default(0)->comment('EU reverse charge mechanism');
 
-            $table->integer('invoiced_shipping_total')->default(0);
-            $table->integer('base_shipping_total')->default(0);
+            $table->integer('invoiced_shipping_total')->default(0)->comment('Shipping after shipping discount, with shipping tax added on top (shipping tax is never inclusive), in the invoiced currency, minor units');
+            $table->integer('base_shipping_total')->default(0)->comment('Shipping after shipping discount, with shipping tax added on top (shipping tax is never inclusive), in the base currency, minor units');
 
-            $table->integer('invoiced_discount_total')->default(0);
-            $table->integer('base_discount_total')->default(0);
+            $table->integer('invoiced_discount_total')->default(0)->comment('Item discounts plus shipping discount; item discounts include tax when is_tax_inclusive is true, in the invoiced currency, minor units');
+            $table->integer('base_discount_total')->default(0)->comment('Item discounts plus shipping discount; item discounts include tax when is_tax_inclusive is true, in the base currency, minor units');
 
-            $table->integer('invoiced_tax_total')->default(0);
-            $table->integer('base_tax_total')->default(0);
-            $table->integer('invoiced_shipping_tax_amount')->default(0);
-            $table->integer('base_shipping_tax_amount')->default(0);
+            $table->integer('invoiced_tax_total')->default(0)->comment('Tax on all items plus shipping tax, after discounts, in the invoiced currency, minor units');
+            $table->integer('base_tax_total')->default(0)->comment('Tax on all items plus shipping tax, after discounts, in the base currency, minor units');
+            $table->integer('invoiced_shipping_tax_amount')->default(0)->comment('The tax part of shipping_total, in the invoiced currency, minor units');
+            $table->integer('base_shipping_tax_amount')->default(0)->comment('The tax part of shipping_total, in the base currency, minor units');
             $table->boolean('is_tax_inclusive')->default(0)->comment('Whether the store priced items inclusive of tax when this order was last calculated');
 
-            $table->integer('invoiced_total')->default(0);
-            $table->integer('base_total')->default(0);
+            $table->integer('invoiced_total')->default(0)->comment('Amount payable: item totals plus shipping_total, never below zero; always includes tax; excludes payment_provider_fee, in the invoiced currency, minor units');
+            $table->integer('base_total')->default(0)->comment('Amount payable: item totals plus shipping_total, never below zero; always includes tax; excludes payment_provider_fee, in the base currency, minor units');
 
             $table->integer('items_count')->default(0);
             $table->decimal('total_weight', 10, 2)->nullable();
@@ -67,8 +67,8 @@ class CreateOrdersTable implements Migration
             $table->string('payment_status', 50)->default('pending')->comment('Available: paid, unpaid, failed, refunding, refunded');
             $table->string('payment_provider', 100)->nullable();
             $table->string('payment_transaction_id')->nullable();
-            $table->integer('invoiced_payment_provider_fee')->default(0);
-            $table->integer('base_payment_provider_fee')->default(0);
+            $table->integer('invoiced_payment_provider_fee')->default(0)->comment('Fee the payment provider charged, recorded after payment from the provider response; not part of total, in the invoiced currency, minor units');
+            $table->integer('base_payment_provider_fee')->default(0)->comment('Fee the payment provider charged, recorded after payment from the provider response; not part of total, in the base currency, minor units');
             $table->text('payment_metadata')->nullable();
 
             $table->string('shipping_method', 100)->nullable();

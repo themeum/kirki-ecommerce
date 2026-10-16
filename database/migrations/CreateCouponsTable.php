@@ -33,12 +33,12 @@ class CreateCouponsTable implements Migration
             $table->string('discount_type', 50)->default('amount-off')->comment('Supported values: amount-off, free-shipping, buy-x-get-y');
             $table->string('discount_target', 50)->nullable()->comment('Supported values: order, products');
             $table->string('discount_value_type', 50)->nullable()->comment('Supported values: percentage, fixed');
-            $table->integer('base_discount_amount_fixed')->nullable();
+            $table->integer('base_discount_amount_fixed')->nullable()->comment('Fixed discount amount, used when discount_value_type is fixed, in the base currency, minor units; compared against catalog prices, so it includes tax when the store prices items inclusive of tax');
             $table->float('discount_amount_percentage')->nullable();
 
             $table->string('eligible_item_type', 50)->nullable()->comment('Supported values: specific-products, specific-categories, all-products');
             $table->string('spend_condition_type', 50)->nullable()->comment('Supported values: min-cart-amount, min-items');
-            $table->integer('spend_condition_value')->nullable();
+            $table->integer('spend_condition_value')->nullable()->comment('Threshold for spend_condition_type: min-cart-amount is a cart subtotal at catalog prices in the base currency, minor units (includes tax when the store prices items inclusive of tax); min-items is an item count');
             $table->integer('reward_quantity')->nullable();
             $table->integer('reward_value')->nullable();
 

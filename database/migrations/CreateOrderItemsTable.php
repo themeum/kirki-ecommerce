@@ -35,18 +35,18 @@ class CreateOrderItemsTable implements Migration
             $table->string('barcode', 100)->nullable();
             $table->unsigned_big_integer('product_image')->nullable();
 
-            $table->integer('invoiced_tax_total')->default(0);
-            $table->integer('base_tax_total')->default(0);
+            $table->integer('invoiced_tax_total')->default(0)->comment('Tax on this line after discounts, in the invoiced currency, minor units');
+            $table->integer('base_tax_total')->default(0)->comment('Tax on this line after discounts, in the base currency, minor units');
 
-            $table->integer('invoiced_discount_amount')->default(0);
-            $table->integer('base_discount_amount')->default(0);
+            $table->integer('invoiced_discount_amount')->default(0)->comment('Total discount on this line from all coupons; includes tax when orders.is_tax_inclusive is true, in the invoiced currency, minor units');
+            $table->integer('base_discount_amount')->default(0)->comment('Total discount on this line from all coupons; includes tax when orders.is_tax_inclusive is true, in the base currency, minor units');
 
-            $table->integer('invoiced_price');
-            $table->integer('base_price');
-            $table->integer('invoiced_regular_price')->default(0);
-            $table->integer('base_regular_price')->default(0);
-            $table->integer('invoiced_regular_tax_total')->default(0);
-            $table->integer('base_regular_tax_total')->default(0);
+            $table->integer('invoiced_price')->comment('Unit sale price (regular price when no sale was active), always net of tax, in the invoiced currency, minor units');
+            $table->integer('base_price')->comment('Unit sale price (regular price when no sale was active), always net of tax, in the base currency, minor units');
+            $table->integer('invoiced_regular_price')->default(0)->comment('Unit regular price before any sale, always net of tax, in the invoiced currency, minor units');
+            $table->integer('base_regular_price')->default(0)->comment('Unit regular price before any sale, always net of tax, in the base currency, minor units');
+            $table->integer('invoiced_regular_tax_total')->default(0)->comment('Tax on the regular price line total (regular price x quantity), in the invoiced currency, minor units');
+            $table->integer('base_regular_tax_total')->default(0)->comment('Tax on the regular price line total (regular price x quantity), in the base currency, minor units');
 
             $table->integer('invoiced_catalog_regular_price')->default(0)->comment('Unit regular price exactly as set on the variant, in the invoiced currency; includes tax when orders.is_tax_inclusive is true');
             $table->integer('base_catalog_regular_price')->default(0)->comment('Unit regular price exactly as set on the variant, in the base currency; includes tax when orders.is_tax_inclusive is true');
@@ -59,11 +59,11 @@ class CreateOrderItemsTable implements Migration
 
             $table->integer('quantity')->default(1);
 
-            $table->integer('invoiced_subtotal')->default(0);
-            $table->integer('base_subtotal')->default(0);
+            $table->integer('invoiced_subtotal')->default(0)->comment('Line total before discounts (unit price x quantity), always net of tax, in the invoiced currency, minor units');
+            $table->integer('base_subtotal')->default(0)->comment('Line total before discounts (unit price x quantity), always net of tax, in the base currency, minor units');
 
-            $table->integer('invoiced_total')->default(0);
-            $table->integer('base_total')->default(0);
+            $table->integer('invoiced_total')->default(0)->comment('Line total after discounts; always includes tax (already inside the price when orders.is_tax_inclusive is true, added on top otherwise), in the invoiced currency, minor units');
+            $table->integer('base_total')->default(0)->comment('Line total after discounts; always includes tax (already inside the price when orders.is_tax_inclusive is true, added on top otherwise), in the base currency, minor units');
 
             $table->boolean('is_physical_product')->default(1);
             $table->decimal('weight', 10, 2)->nullable();

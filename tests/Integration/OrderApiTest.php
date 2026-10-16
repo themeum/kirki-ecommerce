@@ -1218,6 +1218,50 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
+     * The base-currency fee is divided by the order's frozen rate exactly.
+     * 256115 / 2.896 is exactly 88437.5 minor units, which must round up;
+     * the float reciprocal 1 / 2.896 rounds it down to 88437.
+     *
+     * @return void
+     */
+    public function test_set_payment_provider_fee_base_fee_is_exact_at_half_unit_boundary(): void
+    {
+        $currency_code = $this->create_test_currency(['code' => 'CHF', 'exchange_rate' => 2.896]);
+
+        $order = $this->create_order(['currency_code' => $currency_code]);
+        $this->order_id = $order['id'];
+
+        OrderManager::set_payment_provider_fee($this->order_id, 256115);
+
+        $stored = OrderManager::find($this->order_id);
+
+        $this->assertSame(256115, $stored->invoiced_payment_provider_fee);
+        $this->assertSame(88438, $stored->base_payment_provider_fee);
+    }
+
+    /**
+     * A fee in a zero-decimal order currency is converted using that
+     * currency's own minor-unit scale: 30000 yen at 150 per base unit is
+     * 200.00 in the base currency.
+     *
+     * @return void
+     */
+    public function test_set_payment_provider_fee_zero_decimal_order_currency(): void
+    {
+        $currency_code = $this->create_test_currency(['code' => 'JPY', 'exchange_rate' => 150]);
+
+        $order = $this->create_order(['currency_code' => $currency_code]);
+        $this->order_id = $order['id'];
+
+        OrderManager::set_payment_provider_fee($this->order_id, 30000);
+
+        $stored = OrderManager::find($this->order_id);
+
+        $this->assertSame(30000, $stored->invoiced_payment_provider_fee);
+        $this->assertSame(20000, $stored->base_payment_provider_fee);
+    }
+
+    /**
      * Setting a payment provider fee for an order already in the base
      * currency skips conversion entirely.
      *

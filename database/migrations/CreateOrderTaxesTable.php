@@ -33,8 +33,8 @@ class CreateOrderTaxesTable implements Migration
             $table->string('name', 100);
             $table->decimal('rate', 8, 4);
 
-            $table->integer('invoiced_amount')->default(0);
-            $table->integer('base_amount')->default(0);
+            $table->integer('invoiced_amount')->default(0)->comment('Tax charged at this rate on the item or on shipping (see type), in the invoiced currency, minor units');
+            $table->integer('base_amount')->default(0)->comment('Tax charged at this rate on the item or on shipping (see type), in the base currency, minor units; all rows of an order add up exactly to orders.base_tax_total');
 
             $table->timestamps();
 

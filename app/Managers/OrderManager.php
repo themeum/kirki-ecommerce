@@ -4,6 +4,7 @@ namespace Kirki\Ecommerce\App\Managers;
 
 defined('ABSPATH') || exit;
 
+use Brick\Math\RoundingMode;
 use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Actions\Order\CreateRefundAction;
 use Kirki\Ecommerce\App\Actions\Order\UpdateOrderAction;
@@ -563,7 +564,8 @@ class OrderManager
     /**
      * Convert an invoiced-currency fee to the store's base currency.
      *
-     * Uses the order's own frozen exchange rate rather than a live rate.
+     * Uses the order's own frozen exchange rate rather than a live rate, dividing
+     * by it exactly so the result is not skewed by a float reciprocal.
      *
      * @since 1.0.0
      *
@@ -577,10 +579,13 @@ class OrderManager
             return $fee;
         }
 
-        return Money::convert_to_currency(
-            Money::from_minor($fee, $order->currency_code),
+        $invoiced_amount = Money::from_minor($fee, $order->currency_code)->getAmount();
+
+        return Money::of(
+            $invoiced_amount->dividedBy((string) $order->exchange_rate, 20, RoundingMode::HALF_UP),
             $order->base_currency_code,
-            1 / $order->exchange_rate
+            null,
+            RoundingMode::HALF_UP
         )->getMinorAmount()->toInt();
     }
 

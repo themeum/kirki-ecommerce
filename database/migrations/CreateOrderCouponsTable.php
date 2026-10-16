@@ -36,8 +36,8 @@ class CreateOrderCouponsTable implements Migration
             $table->string('discount_target', 50)->nullable();
             $table->text('coupon_snapshot')->nullable()->comment('JSON snapshot of the coupon rules at checkout');
 
-            $table->integer('invoiced_discount_amount')->default(0);
-            $table->integer('base_discount_amount')->default(0);
+            $table->integer('invoiced_discount_amount')->default(0)->comment('Total discount this coupon gave: the sum over the items, or the shipping discount for a shipping coupon; includes tax when orders.is_tax_inclusive is true; in the invoiced currency, minor units');
+            $table->integer('base_discount_amount')->default(0)->comment('Total discount this coupon gave: the sum over the items, or the shipping discount for a shipping coupon; includes tax when orders.is_tax_inclusive is true; in the base currency, minor units');
 
             $table->timestamp('usage_reversed_at')->nullable()->comment('Set when the owning order is cancelled, reversing this coupon usage without deleting the record');
             $table->timestamps();
