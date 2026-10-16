@@ -20,6 +20,7 @@ use Kirki\Ecommerce\App\Services\ProductService;
 use Kirki\Ecommerce\App\Services\VariantService;
 use Kirki\Ecommerce\App\Supports\SkuGenerator;
 use Kirki\Ecommerce\App\Constants\Pagination;
+use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\Framework\Contracts\Request;
 use Kirki\Ecommerce\Framework\Database\Query\Paginator;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
@@ -65,6 +66,7 @@ class VariantController
     public function get(VariantListRequest $request)
     {
         $filters = VariantListFilterDTO::from_array($request->all());
+        $filters->status = ProductStatus::PUBLISHED;
 
         if ((int) $filters->limit === Pagination::ALL) {
             $data = $this->service->all($filters);
@@ -292,10 +294,10 @@ class VariantController
             'title' => $variant->product->title ?? null,
             'attribute_values' => !empty($variant->attribute_values)
                 ? $variant->attribute_values
-                    ->map(fn($attribute_value) => $attribute_value->value ?? $attribute_value->color)
-                    ->filter()
-                    ->values()
-                    ->all()
+                ->map(fn($attribute_value) => $attribute_value->value ?? $attribute_value->color)
+                ->filter()
+                ->values()
+                ->all()
                 : [],
             'brand' => $variant->product->brand->name ?? null,
             'category' => $variant->product->categories->first()->name ?? null,
