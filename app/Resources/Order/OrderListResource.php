@@ -40,6 +40,7 @@ class OrderListResource extends Resource
             'status' => $this->order_status,
             'fulfillment_status' => $this->fulfillment_status,
             'is_refund_initiated' => $this->is_refund_initiated,
+            'is_editable' => $this->is_editable(),
             'payment_status' => $this->payment_status,
             'payment_provider' => $this->payment_provider,
             'payment_provider_name' => $this->payment_metadata['payment_provider']['name'] ?? null,

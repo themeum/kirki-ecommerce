@@ -630,6 +630,24 @@ class OrderService
     }
 
     /**
+     * Tell whether an order still holds a counted use of a coupon, one that was not reversed.
+     *
+     * @since 1.0.0
+     *
+     * @param int $order_id  Order ID.
+     * @param int $coupon_id Coupon ID.
+     * @return bool
+     */
+    public function holds_coupon_usage($order_id, $coupon_id)
+    {
+        return OrderCoupon::query()
+            ->where('order_id', $order_id)
+            ->where('coupon_id', $coupon_id)
+            ->where_null('usage_reversed_at')
+            ->count() > 0;
+    }
+
+    /**
      * Assign a user's matching guest orders to their customer account.
      *
      * Creates the customer record if the user has none yet.

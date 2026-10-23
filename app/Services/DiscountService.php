@@ -147,7 +147,7 @@ class DiscountService
     protected function validate_conditions(Coupon $coupon, CalculationContextDTO $context)
     {
         throw_if($coupon->discount_type === DiscountType::FREE_SHIPPING && $context->shipping_subtotal <= 0, __('Free shipping coupon cannot be applied when shipping cost is zero.', 'kirki-ecommerce'), ValidationException::class);
-        throw_if($coupon->has_usage_limit && $coupon->current_usage_count >= $coupon->usage_limit, __('Coupon usage limit reached.', 'kirki-ecommerce'), ValidationException::class);
+        throw_if($coupon->has_usage_limit && $this->count_other_usages($coupon, $context) >= $coupon->usage_limit, __('Coupon usage limit reached.', 'kirki-ecommerce'), ValidationException::class);
 
         /* translators: %s: minimum spend amount */
         throw_if($coupon->spend_condition_type === SpendConditionType::MIN_CART_AMOUNT && $coupon->spend_condition_value > $context->get_subtotal(), sprintf(__('Minimum spend of %s required.', 'kirki-ecommerce'), $coupon->spend_condition_value), ValidationException::class);
@@ -163,6 +163,26 @@ class DiscountService
 
             throw_if($current_customer_usage >= $coupon->customer_limit, __('You have reached the usage limit for this coupon.', 'kirki-ecommerce'), ValidationException::class);
         }
+    }
+
+    /**
+     * Count a coupon's uses, leaving out the use held by the order being edited.
+     *
+     * Without this, an order that took a coupon's last use would lose that coupon on its own edit.
+     *
+     * @since 1.0.0
+     *
+     * @param Coupon                $coupon  Coupon to count.
+     * @param CalculationContextDTO $context Cart or order context; `order_id` is set when an order is edited.
+     * @return int
+     */
+    protected function count_other_usages(Coupon $coupon, CalculationContextDTO $context)
+    {
+        if (!empty($context->order_id) && $this->order_service->holds_coupon_usage($context->order_id, $coupon->id)) {
+            return $coupon->current_usage_count - 1;
+        }
+
+        return $coupon->current_usage_count;
     }
 
     /**

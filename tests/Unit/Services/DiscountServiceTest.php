@@ -207,6 +207,44 @@ class DiscountServiceTest extends TestCase
         $this->service->validate_coupon($this->customer_limited_coupon(1), $context);
     }
 
+    public function test_usage_limit_leaves_out_the_use_held_by_the_edited_order(): void
+    {
+        $this->order_service->expects($this->once())
+            ->method('holds_coupon_usage')
+            ->with(42, 9)
+            ->willReturn(true);
+
+        $context = $this->guest_context('guest@example.com');
+        $context->order_id = 42;
+
+        $this->service->validate_coupon($this->usage_limited_coupon(10, 10), $context);
+
+        $this->addToAssertionCount(1);
+    }
+
+    public function test_usage_limit_counts_every_use_for_an_order_that_holds_none(): void
+    {
+        $this->order_service->method('holds_coupon_usage')->willReturn(false);
+
+        $context = $this->guest_context('guest@example.com');
+        $context->order_id = 42;
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Coupon usage limit reached.');
+
+        $this->service->validate_coupon($this->usage_limited_coupon(10, 10), $context);
+    }
+
+    public function test_usage_limit_counts_every_use_without_an_order(): void
+    {
+        $this->order_service->expects($this->never())->method('holds_coupon_usage');
+
+        $this->expectException(ValidationException::class);
+        $this->expectExceptionMessage('Coupon usage limit reached.');
+
+        $this->service->validate_coupon($this->usage_limited_coupon(10, 10), $this->guest_context('guest@example.com'));
+    }
+
     protected function guest_context(?string $email): CalculationContextDTO
     {
         $context = new CalculationContextDTO();
@@ -234,6 +272,20 @@ class DiscountServiceTest extends TestCase
         $coupon->is_active = true;
         $coupon->has_customer_limit = true;
         $coupon->customer_limit = $limit;
+        $coupon->set_relation('customers', collection());
+
+        return $coupon;
+    }
+
+    protected function usage_limited_coupon(int $limit, int $current_usage_count): Coupon
+    {
+        $coupon = new Coupon();
+        $coupon->id = 9;
+        $coupon->code = 'LIMITED';
+        $coupon->is_active = true;
+        $coupon->has_usage_limit = true;
+        $coupon->usage_limit = $limit;
+        $coupon->current_usage_count = $current_usage_count;
         $coupon->set_relation('customers', collection());
 
         return $coupon;

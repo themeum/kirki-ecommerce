@@ -88,6 +88,9 @@ class UpdateOrderDTO extends DTO
     /** @var string */
     public $shipping_method;
 
+    /** @var array|null */
+    public $shipping_metadata;
+
     // Shipping Address Fields
     /** @var string|null */
     public $shipping_first_name;

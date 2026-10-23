@@ -503,60 +503,46 @@ An order **edit does not write a timeline entry today**, and it does not keep th
 
 ## 7. What happens when an order is edited
 
-The edit action takes the new list of items, the coupon codes, the shipping
-method and the addresses. Then it does the following in one transaction.
+An edit **syncs the whole order to today's values**. The full rules, the API
+and the errors are in [Order Editing](order-editing.md). In short, the edit
+action takes the new list of items, the coupon codes, the shipping method and
+the addresses. Then it does the following in one transaction.
 
 1. **Locks the order**, so two edits cannot run at the same time.
-2. **Runs the full calculation again** (section 4) with the new input, but with **today's** values for everything the calculation reads.
-3. **Updates the order items**:
-   - Variant already on the order → the row is updated (quantity and money).
+2. **Checks that the order can be edited.** Only orders that are not paid, not cancelled and not shipped can be edited (`Order::is_editable()`).
+3. **Runs the full calculation again** (section 4) with the new input and with **today's** values for everything the calculation reads. The calculation input is built in the same way as for the preview and for order creation, including each variant's tax profile.
+4. **Updates the order items**:
+   - Variant already on the order → the row gets a **fresh snapshot** (price, regular price, catalog prices, name, SKU, image, weight, `product_data`) and the new quantity and money.
    - New variant → a new row, with a new snapshot.
-   - Variant removed (or quantity 0) → the row is deleted.
-4. **Updates stock**: reserves more or gives back stock for the quantity difference. If stock is short, the whole edit fails.
-5. **Overwrites the order totals** (`subtotal`, `discount`, `shipping`, `tax`, `total`, `items_count`) and the addresses and notes.
-6. **Deletes and rebuilds** all `order_coupons`, `order_item_coupons` and `order_taxes` rows from the new result. The coupon usage count goes up for a new coupon and down for a removed coupon.
+   - Variant left out → the row is deleted.
+   - Variant or product deleted from the store → the row is deleted.
+5. **Updates stock**: reserves more or gives back stock for the quantity difference only. If stock is short, the whole edit fails.
+6. **Overwrites the order totals** (`subtotal`, `discount`, `shipping`, `tax`, `total`, `items_count`), the addresses, the notes, the exchange rate and the shipping method snapshot.
+7. **Deletes and rebuilds** all `order_coupons`, `order_item_coupons` and `order_taxes` rows from the new result. The coupon usage count goes up for a new coupon and down for a removed coupon.
 
-### What is frozen and what is refreshed
+### What is kept and what is refreshed
 
 | Thing | On edit |
 |---|---|
-| Product name, SKU, image, weight, `product_data` of a line **already on the order** | **Kept** (old snapshot) |
-| `price` and `regular_price` of a line already on the order | **Kept** (old snapshot) |
-| Line `subtotal`, `discount`, `tax`, `total`, and the `catalog_` prices | **Recalculated from today's variant price** |
-| Variant price (sale or regular) | **Today's value** |
-| A new line's snapshot | Taken now |
-| Coupon rules | **Today's rules.** A coupon that is now expired, inactive or over its limit is dropped. Its discount disappears. |
+| Line price, regular price, catalog prices | **Today's** variant values |
+| Line name, SKU, image, weight, `product_data` | **Today's** values (fresh snapshot) |
+| Line `subtotal`, `discount`, `tax`, `total` | Recalculated from today's price |
+| Coupon rules | **Today's rules.** A coupon that is now expired, inactive or over its limit is dropped. The order's own use does not count against the coupon's total limit. |
 | Coupon snapshot (`coupon_snapshot`) | Replaced with today's coupon |
 | Tax rate and tax mode | **Today's settings**, and the `is_tax_inclusive` flag is updated |
 | Shipping fee | **Today's shipping settings** for the chosen method |
-| Exchange rate | **Today's rate.** The old rate is lost. All `invoiced_` values are converted again. |
-| Currency of the order | Sent in the request. It can be changed. |
-| Shipping method id | Taken from the request |
-| Shipping method snapshot (`shipping_metadata`) | **Not refreshed.** It can show the old method name after the method was changed. |
+| Shipping method snapshot (`shipping_metadata`) | Refreshed |
+| Exchange rate | **Today's rate.** All `invoiced_` values are converted again. |
+| Currency of the order | **Kept.** A request with another currency is refused. |
 | Payment status, paid date, payment provider, transaction id | **Not touched** |
 | Fulfillment status, order status | **Not touched** |
 | Existing refunds | **Not touched** |
 | Order number, invoice number, uuid | Kept |
 
-### An example of the problem
-
-Our T-shirt order (section 5) was placed with the T-shirt at a sale price of `2500`.
-Later the shop owner raises the sale price to `2800`. An admin edits the order and changes the quantity from 2 to 3.
-
-| Value on the T-shirt line | Result |
-|---|---|
-| `base_price` | **2500** (old snapshot, kept) |
-| `quantity` | 3 |
-| `base_subtotal` | **8400** (3 × 2800, today's price) |
-| What `price × quantity` would give | 7500 |
-
-The line now says "3 × $25.00" but its subtotal is $84.00. The old price is not applied to the new quantity. Section 9 asks what we want here.
-
 ### Limits of the edit today
 
-- The backend does **not** check the order status. A paid, shipped, cancelled or refunded order can be edited. There is an open note in the code about cancelled and refunded orders.
+- Paid, cancelled and shipped orders cannot be edited. Changing a paid order (and charging or refunding the difference) is not built.
 - The admin screen has an **Edit button that is not working yet**. The backend edit exists, the screen does not use it.
-- An edit does not change `payment_status`. If a paid order gets more expensive, the order still says "paid" and nothing asks for the difference. If it gets cheaper, nothing refunds the difference.
 - An edit does not write an activity entry and does not keep the old totals.
 
 ---
@@ -598,12 +584,12 @@ Cancelling does **not** change any money on the order. It:
 | # | Finding |
 |---|---|
 | G1 | **Edit reprices the whole order at today's values.** It uses today's variant prices, coupon rules, tax settings, shipping settings and exchange rate. |
-| G2 | **Mixed price data on one line.** After a price change, an edited line keeps the old `price` and `regular_price` but gets a new `subtotal` and `total` from the new price. |
-| G3 | **No status protection.** Paid, shipped, cancelled and refunded orders can be edited by the backend. |
+| G2 | **Fixed.** ~~Mixed price data on one line.~~ An edited line now takes today's `price`, `regular_price` and totals together. |
+| G3 | **Fixed.** ~~No status protection.~~ Only orders that are not paid, not cancelled and not shipped can be edited (`Order::is_editable()`). |
 | G4 | **Payment is not adjusted.** The order stays "paid" even when the total changes. No extra charge, no automatic refund. |
 | G5 | **No history.** The old totals, old items and old coupons are lost on edit. The timeline gets no entry. |
-| G6 | **Tax profile is not passed on create or edit.** The cart and the admin preview pass the variant's tax profile to the tax rules. The order create and edit actions do not. This could make an order tax differ from its preview if rules depend on tax profiles. This needs to be confirmed by engineering. |
-| G7 | **A coupon can silently disappear on edit.** If a coupon expired after the order was placed, an edit removes it and the customer's discount is gone. |
+| G6 | **Fixed.** ~~Tax profile is not passed on create or edit.~~ The preview, order creation (manual and checkout) and the edit now build their calculation input in one place, `OrderCalculationContextBuilder`, which passes the variant's tax profile (or the product's when the variant has none). |
+| G7 | **By design (D3).** A coupon that expired after the order was placed is removed by an edit, and the customer's discount is gone. |
 | G8 | **Refunds are not connected to lines or tax.** One amount, order currency only. Editing an order after a refund does not look at the refund. |
 | G9 | **`charge_taxes` on the variant is not used** by the calculation. A "no tax" item is still taxed. |
 | G10 | **Original shipping fee is not saved.** Only the total after discount and tax is. The free-shipping discount is mixed into `discount_total`. |
@@ -615,17 +601,19 @@ For each question we list the options and what the current system would do.
 
 **D1. Which orders can be edited?**
 Options: only unpaid and unfulfilled · also paid but not shipped · any status.
-*Today:* any status (G3). The screen does not offer edit yet.
+*Decided:* only orders that are not paid, not cancelled and not shipped (payment `pending`, `unpaid` or `failed`; fulfillment `unfulfilled`, `processing` or `on-hold`). See [Order Editing](order-editing.md#2-when-an-order-can-be-edited).
 
 **D2. Which prices apply when an item is edited?**
 Options: (a) keep the price the customer originally paid for lines already on the order, and use today's price only for new lines · (b) use today's price for the whole order (today's behavior, G1/G2) · (c) the admin chooses per edit.
-*Today:* (b) for totals, while the displayed unit price stays old (G2).
+*Decided:* (b). Today's price for the whole order, for the unit price and the totals alike.
 
 **D3. Should the discount stay the same?**
 Options: keep the coupon the customer used even if it expired · check coupons again and drop invalid ones (today, G7) · the admin decides.
+*Decided:* check coupons again and drop invalid ones. The order's own use does not count against the coupon's total limit.
 
 **D4. Should tax, shipping and exchange rate be fixed at order time?**
 Options: keep the original tax rate, shipping fee and exchange rate unless the address or currency changes · recalculate everything with today's settings (today).
+*Decided:* recalculate everything with today's settings, including today's exchange rate. The currency cannot change.
 *Why it matters:* a customer who paid 10% VAT yesterday could see 12% today after an edit.
 
 **D5. What can the admin change?**

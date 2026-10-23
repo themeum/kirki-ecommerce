@@ -5,7 +5,6 @@ namespace Kirki\Ecommerce\App\Http\Requests\Order;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\ValidatesAddressFields;
-use Kirki\Ecommerce\App\Facades\Money;
 use Kirki\Ecommerce\Framework\Sanitizer;
 use Kirki\Ecommerce\Framework\Http\Request;
 
@@ -19,9 +18,9 @@ class OrderUpdateRequest extends Request
     use ValidatesAddressFields;
 
     /**
-     * Default the customer ID and currency code before validation.
+     * Default the customer ID before validation.
      *
-     * A missing customer ID becomes 0 and a missing currency falls back to the display currency.
+     * A missing customer ID becomes 0. A missing currency is left empty, so the order keeps its own currency.
      *
      * @since 1.0.0
      *
@@ -33,7 +32,6 @@ class OrderUpdateRequest extends Request
 
         $this->merge([
             'customer_id' => $customer_id ?? 0,
-            'currency_code' => $this->input('currency_code') ?? Money::resolve_display_currency(),
         ]);
     }
 

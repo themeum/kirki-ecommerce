@@ -62,6 +62,11 @@ trait PersistsOrderCoupons
         $existing_order_coupons_by_coupon_id = [];
 
         foreach ($order->order_coupons as $existing_order_coupon) {
+            // A deleted coupon has no usage count to keep or give back; its row is dropped with the rest.
+            if (empty($existing_order_coupon->coupon_id)) {
+                continue;
+            }
+
             $existing_order_coupons_by_coupon_id[$existing_order_coupon->coupon_id] = $existing_order_coupon;
         }
 

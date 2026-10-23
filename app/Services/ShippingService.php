@@ -228,6 +228,31 @@ class ShippingService
     }
 
     /**
+     * Build the snapshot of the selected shipping method that an order stores.
+     *
+     * @since 1.0.0
+     *
+     * @param CalculationContextDTO $context Calculation context with the selected shipping method.
+     * @return array<string, mixed>|null Shipping method id, name and type; null when no method is selected.
+     */
+    public function get_selected_shipping_method_snapshot(CalculationContextDTO $context)
+    {
+        $method = $this->get_selected_shipping_method($context);
+
+        if (!$method) {
+            return null;
+        }
+
+        return [
+            'shipping_method' => [
+                'id' => $method['id'],
+                'name' => $method['name'],
+                'type' => $method['type'],
+            ],
+        ];
+    }
+
+    /**
      * Check whether the context's selected shipping method is currently available.
      *
      * @since 1.0.0

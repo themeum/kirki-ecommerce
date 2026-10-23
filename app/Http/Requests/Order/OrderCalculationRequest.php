@@ -22,6 +22,7 @@ class OrderCalculationRequest extends Request
     public function rules()
     {
         return [
+            'order_id' => 'nullable|integer',
             'customer_id' => 'nullable|integer',
             'items' => 'nullable|array|min:1',
             'items.*.variant_id' => 'required|integer',
@@ -75,6 +76,7 @@ class OrderCalculationRequest extends Request
     public function filters()
     {
         return [
+            'order_id' => Sanitizer::INT,
             'customer_id' => Sanitizer::INT,
             'items' => Sanitizer::ARRAY,
             'items.*.variant_id' => Sanitizer::INT,

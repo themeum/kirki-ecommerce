@@ -288,6 +288,8 @@ class InventoryService
     /**
      * Release the reserved stock of every item in an order.
      *
+     * Items whose variant was deleted are skipped, since there is no stock left to give back.
+     *
      * @since 1.0.0
      *
      * @param Order $order Order whose items are released.
@@ -296,6 +298,10 @@ class InventoryService
     public function release_all_reserved_stock(Order $order)
     {
         $order->items->each(function ($item) {
+            if (empty($item->variant_id)) {
+                return;
+            }
+
             $this->release_reserved_stock($item->variant_id, $item->quantity);
         });
     }
