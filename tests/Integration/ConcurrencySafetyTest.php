@@ -681,7 +681,7 @@ class ConcurrencySafetyTest extends RestTestCase
 
         $edit = fn() => $this->order_payload([
             'id' => $order['id'],
-            'items' => [['id' => $order['items'][0]['id'] ?? null, 'variant_id' => $this->variant_id, 'quantity' => 3]],
+            'items' => [['order_item_id' => $order['items'][0]['id'] ?? null, 'variant_id' => $this->variant_id, 'quantity' => 3]],
         ]);
 
         $racing = new RacingOrderService();

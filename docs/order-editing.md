@@ -4,19 +4,20 @@ How an admin edits an existing order through the REST API, and what the store
 does when the edit is saved. This document is for developers who build an
 order-edit screen or call the API directly.
 
-An edit **syncs the whole order to the store's current state**. When the edit
-is saved, every line gets its variant's current price, coupons are checked
-again, and shipping, tax and the exchange rate are calculated again with
-today's settings. An edit never keeps an old price.
+An edit **keeps what the customer was promised**. The customer bought at a
+price, with a coupon, at an exchange rate, with shipping and tax for an
+address. An edit never re-prices those to today's catalog and settings. Only a
+**new delivery address** (or a new shipping method) asks for a new shipping
+quote and new tax, because the store never quoted those.
 
 - [1. Quick start](#1-quick-start)
-- [2. Previewing an edit](#2-previewing-an-edit)
-- [3. When an order can be edited](#3-when-an-order-can-be-edited)
-- [4. What a save changes](#4-what-a-save-changes)
-- [5. Line rules](#5-line-rules)
-- [6. Stock and per-order limits](#6-stock-and-per-order-limits)
-- [7. Currency and exchange rate](#7-currency-and-exchange-rate)
-- [8. Coupons](#8-coupons)
+- [2. When an order can be edited](#2-when-an-order-can-be-edited)
+- [3. What an edit keeps and what it changes](#3-what-an-edit-keeps-and-what-it-changes)
+- [4. Lines](#4-lines)
+- [5. Stock and per-order limits](#5-stock-and-per-order-limits)
+- [6. Coupons](#6-coupons)
+- [7. Shipping, tax, currency and exchange rate](#7-shipping-tax-currency-and-exchange-rate)
+- [8. Previewing an edit](#8-previewing-an-edit)
 - [9. Errors](#9-errors)
 - [10. Where this differs from WooCommerce](#10-where-this-differs-from-woocommerce)
 
@@ -27,23 +28,27 @@ today's settings. An edit never keeps an old price.
 1. Read the order with `GET /orders/{id}`. Do not show an edit screen when
    `is_editable` is `false`.
 2. After each change on the screen, send the full order with its `order_id`
-   to `POST /calculate/order` to show the new totals and what changed
-   (section 2).
-3. To save, send the full order to `PUT /orders/{id}`. The payload has the same shape
-   as `POST /orders`: `items` (each with `variant_id` and `quantity`),
-   `coupon_codes`, `shipping_method`, the `shipping_*`, `billing_*` and
-   `customer_*` fields, `order_notes` and `flags`.
+   to `POST /calculate/order` to show the new totals (section 8).
+3. To save, send the full order to `PUT /orders/{id}`. The payload has the same
+   shape as `POST /orders`: `items`, `coupon_codes`, `shipping_method`, the
+   `shipping_*`, `billing_*` and `customer_*` fields, `order_notes` and
+   `flags`.
+
+A line **already on the order** is sent with its `order_item_id` and the new
+`quantity`. A **new line** is sent with a `variant_id`.
 
 ```json
 {
   "items": [
-    { "variant_id": 12, "quantity": 3 },
-    { "variant_id": 40, "quantity": 1 }
+    { "order_item_id": 301, "quantity": 3 },
+    { "order_item_id": 302, "quantity": 1 },
+    { "variant_id": 40, "quantity": 2 }
   ],
   "coupon_codes": ["SPRING10"],
   "shipping_method": "method-0001",
   "shipping_first_name": "John",
-  "shipping_country": "US"
+  "shipping_country": "US",
+  "shipping_state": "NY"
 }
 ```
 
@@ -52,77 +57,14 @@ The payload is the **complete** new order, not a list of changes:
 | You want to | Do this |
 |---|---|
 | Change a quantity | Send the line with the new `quantity`. |
-| Add a line | Add a line with a new `variant_id`. |
+| Add a line | Add a line with a `variant_id` and no `order_item_id`. |
 | Remove a line | Leave the line out. |
 | Remove a coupon | Leave the code out of `coupon_codes`. |
-
-Lines are matched to the stored order by `variant_id`.
-
----
-
-## 2. Previewing an edit
-
-`POST /calculate/order` calculates an order without saving it. With no
-`order_id` it previews a new order. With an `order_id` it previews an
-**edit** of that order, and it also reports what changed since the order was
-last saved. Send the same payload that you will send to `PUT /orders/{id}`,
-plus `order_id`.
-
-The preview calculates in exactly the same way as the save. For the same
-payload and the same store settings, the saved totals equal the preview
-totals.
-
-The preview fails with 404 when the order does not exist, and with 422 when
-the order cannot be edited (section 3).
-
-### `current_state`
-
-The root, every item and every coupon in the preview have a `current_state`
-list. Each key in it is a change since the order was **last saved** (its
-creation or its last edit) that affects the calculation. The list is empty
-when nothing changed, and it is always empty in a new-order preview. After an
-edit is saved, the next preview compares with that save, so the same change
-is not reported again.
-
-| Where | Key | When |
-|---|---|---|
-| Item | `item_deleted` | The line's variant or product was deleted. The save removes the line. No other key is set on that item. |
-| Item | `price_changed` | The variant's current price (sale price, or regular price when there is no sale) or its regular price differs from the price stored on the line. A quantity change alone does not set it. A new line never has it. |
-| Coupon | `coupon_removed` | The coupon is on the order, but the preview does not apply it: it was deleted, expired, made inactive, reached a limit, is no longer eligible, or was left out of `coupon_codes`. No other key is set on that coupon. |
-| Coupon | `coupon_changed` | The coupon still applies, but one of its discount rules changed: discount type, target, value type, fixed amount, percentage, eligible item type, reward quantity, reward value, target products (with their reward flag) or target categories. A change to dates, limits, spend conditions, countries or customers does not set it. |
-| Root | `shipping_method_removed` | The payload uses the order's stored shipping method, and that method is no longer available. `shipping_cost_changed` is then not set. |
-| Root | `shipping_cost_changed` | The shipping total (after shipping discount, with shipping tax) differs from the stored one. |
-| Root | `tax_mode_changed` | The store's tax-inclusive setting differs from the one stored on the order. It can be set together with a shipping key. |
-
-The keys are constants on `App\Constants\Order\OrderChangeState`.
-
-### Extra rows and fields in an edit preview
-
-- **Deleted lines.** Each stored line whose variant was deleted is added to
-  `items` as a row with `id: null`, its `order_item_id`, its stored quantity
-  and stored amounts, and `current_state: ["item_deleted"]`. These rows are
-  **not** part of `totals` or `items_count`.
-- **Removed coupons.** Each stored coupon that the preview does not apply is
-  added to `coupons` with a zero discount and
-  `current_state: ["coupon_removed"]`. Its terms come from the coupon record
-  stored on the order. A new code that does not apply is not listed, the same
-  as in a new-order preview.
-- **`order_item_id`** on every item: the ID of the stored line for the same
-  variant, or `null` for a new line and in a new-order preview.
-
-### Stock and limit values
-
-Every item has the variant's current `allow_back_order`, `track_inventory`,
-`available_quantity`, `in_stock`, `has_limit_per_order` and `max_per_order`.
-They are `null` on a deleted-line row.
-
-The preview does **not** fail when a quantity is above the available stock or
-the per-order limit. Use these values to show the problem. The save enforces
-both rules (section 6).
+| Add a coupon | Add the code to `coupon_codes`. |
 
 ---
 
-## 3. When an order can be edited
+## 2. When an order can be edited
 
 An order can be edited only when **all** of these are true:
 
@@ -148,95 +90,173 @@ changes.
 
 ---
 
-## 4. What a save changes
+## 3. What an edit keeps and what it changes
 
 A save runs in one database transaction, after it locks the order.
 
 | Thing | After the save |
 |---|---|
-| Line price, regular price, catalog prices | The variant's **current** values |
-| Line name, SKU, barcode, image, weight, `product_data` | The variant's and product's **current** values |
-| Line subtotal, discount, tax, total | Calculated again from the current price |
-| Coupons | Checked again. A coupon that is no longer valid is removed (section 8). |
-| Shipping cost | Today's shipping settings for the chosen method |
-| `shipping_metadata` (method name and type) | The chosen method's current name and type |
-| Tax rates and `is_tax_inclusive` | Today's tax settings |
-| `exchange_rate` and every `invoiced_*` amount | Today's exchange rate (section 7) |
-| Currency | Not changed (section 7) |
+| Unit price, regular price and catalog prices of a line already on the order | **Kept** as sold |
+| Name, SKU, barcode, image, weight and `product_data` of a line already on the order | **Kept** as sold |
+| Subtotal, discount, tax and total of a line | Calculated again from the stored price and the new quantity |
+| A new line | The variant's **current** price, with a full snapshot of the variant |
+| Coupons that were on the order | **Kept** with their stored terms (section 6) |
+| Exchange rate and every `invoiced_*` conversion | **Kept** (section 7) |
+| `is_tax_inclusive` (tax mode) | **Kept** (section 7) |
+| Shipping charge and tax rates | **Kept**, unless the delivery address or the shipping method changes (section 7) |
+| Currency | Cannot change (section 7) |
 | Payment, fulfillment and order status | Not changed |
 | Order number, invoice number, UUID | Not changed |
 
-The calculation uses each variant's own tax profile (or the product's tax
-profile when the variant has none), in the same way as the cart, the order
-calculation preview and order creation. So for the same payload and the same
-store settings, the saved totals equal the preview totals.
+The calculation uses the stored values where the order has them. A new line
+uses the variant's own tax profile (or the product's tax profile when the
+variant has none), the same as the cart, the order calculation preview and
+order creation. So for the same payload and the same store settings, the saved
+totals equal the preview totals.
 
 ---
 
-## 5. Line rules
+## 4. Lines
+
+Every line is sent by `order_item_id` (a line already on the order) or by
+`variant_id` (a new line). When both are sent, the `variant_id` is ignored.
 
 | Line | Rule |
 |---|---|
-| Already on the order, product published | Normal line. |
-| Already on the order, product is **draft, scheduled or trashed**, or the variant is hidden | Stays on the order. Its quantity can change. It uses the current price. |
-| Already on the order, **variant or product deleted** | **Removed** on save. Its stock is not released, because the variant is gone. The client cannot send this line, because it has no `variant_id`. |
+| Already on the order, product reachable | Normal line. The quantity can go up or down (section 5). |
+| Already on the order, **not reachable** | **Locked.** The quantity cannot go up or down. The line can stay as it is or be removed. |
 | New line | The product must be published and the variant visible, the same as for order creation. Otherwise the save fails with 422. |
-| The same `variant_id` on two lines | The save fails with 422. To add more of an item already on the order, raise that line's quantity. |
+| A new line for a variant the order already holds | The save fails with 422. To add more of an item that is on the order, raise that line's quantity. |
+| The same `variant_id` on two new lines | The save fails with 422. |
+| An `order_item_id` of another order, or sent twice | The save fails with 422. |
+
+A line is **not reachable** when its variant or product was deleted, when its
+product is draft, scheduled or trashed, or when its variant is hidden. A line
+whose variant was deleted stays on the order with its stored values. It has no
+stock to check or to release, and the preview marks it with
+`is_reachable: false`.
 
 ---
 
-## 6. Stock and per-order limits
+## 5. Stock and per-order limits
 
-**Stock** is reserved when an order is placed. So an edit checks stock only
-for the **difference**:
+**Stock** is reserved when an order is placed. So an edit checks the live stock
+only for the **difference**:
 
 | Change | Stock |
 |---|---|
-| Quantity raised from 2 to 4 | 2 units must be available. They are reserved. |
+| Quantity raised from 2 to 4 | 2 units must be available now. They are reserved. |
 | Quantity lowered from 5 to 2 | 3 units are released. |
 | Quantity unchanged | Nothing is checked. A line on a sold-out variant can still be saved. |
 | Line removed (variant still exists) | Its full quantity is released. |
+| Line removed (variant deleted) | Nothing is released. |
 | New line | Its full quantity must be available. It is reserved. |
 
 Variants that do not track inventory, or that allow back orders, are not
 limited by stock.
 
-The **per-order limit** (`max_per_order`) applies to the **full** quantity of
-every line, new or existing. If the limit was lowered after the order was
-placed, the save fails with 422 until the line's quantity is within the limit.
+The **per-order limit** (`max_per_order`) only stops a **raised** quantity. The
+quantity on the order is never taken away because a limit was lowered:
+
+| Stored quantity | Limit now | Quantity sent | Result |
+|---|---|---|---|
+| 4 | 5 | 5 | Saved |
+| 4 | 5 | 6 | Refused (422) |
+| 4 | 2 | 4 | Saved. The 4 stay. |
+| 4 | 2 | 3 | Saved |
+| 4 | 2 | 5 | Refused (422) |
+
+A new line must stay within the limit for its full quantity.
 
 ---
 
-## 7. Currency and exchange rate
+## 6. Coupons
 
-- **The currency cannot change.** When `currency_code` is not sent, the order
-  keeps its currency. When it is sent and differs from the order's currency,
-  the save fails with 422.
-- **The exchange rate is today's rate.** Every `invoiced_*` amount is
-  converted again with the current rate, and the new rate is stored on the
-  order. To keep the rate the order was placed at instead, change
-  `UpdateOrderAction::resolve_exchange_rate()` to return
-  `$order->exchange_rate`.
+A coupon that is **already on the order** is locked. It stays applied with the
+terms stored on the order, even when the coupon was changed, expired, made
+inactive, reached its limit or was deleted since. It is not checked again and
+it does not count a second use.
 
----
+The terms are in the `order_coupons` and `order_item_coupons` rows: the type,
+the target, the percentage (`discount_rate`), the amount the coupon gave, and
+which lines it discounted.
 
-## 8. Coupons
+| Stored coupon | When a quantity changes | When a line is added |
+|---|---|---|
+| Product coupon, percentage | The line gets the stored percentage of its new subtotal. | The new line gets **nothing**, even if it would have qualified. |
+| Product coupon, fixed amount | The line keeps the stored amount, capped at its new subtotal. | The new line gets **nothing**. |
+| Order-wide coupon, percentage | The stored percentage of what is left after product coupons. | The new line is discounted too. |
+| Order-wide coupon, fixed amount | The stored total, capped at what is left, shared over all lines. | The new line gets a share of the same total. |
+| Free shipping | Waives the shipping charge. | - |
 
-Every coupon in `coupon_codes` is checked again with today's rules. A coupon
-that is expired, inactive, deleted, over a limit or no longer eligible is not
-applied. It is removed from the order, and its use is given back.
+The stored amount of a fixed coupon is what the coupon gave at checkout. It can
+be lower than the amount in the coupon record when the order was too small.
 
 | Case | Result |
 |---|---|
 | Coupon kept | Its use is not counted again. |
-| Coupon added | One use is counted. The save fails if the coupon reached its limit in the meantime. |
-| Coupon removed | One use is given back. |
-| Coupon deleted from the store | The order coupon record is removed. No use is given back, because the coupon is gone. |
+| Coupon removed (code left out) | One use is given back. |
+| Code that is not on the order | Treated as a **new** coupon: checked and priced from the coupon record, and one use is counted. The save fails if the coupon reached its limit in the meantime. |
+| Code that matches no coupon | Not applied. It is not an error. |
+| Coupon deleted from the store | Stays on the order while the order keeps it. Once an admin removes it, the code matches no coupon, so it cannot be applied again. |
 
-**Usage limits.** When a coupon's total usage limit is checked for an edit,
-the use held by the order itself is not counted. So an order that took the
-**last** use of a coupon keeps that coupon when it is edited. The
-per-customer limit leaves out the edited order in the same way.
+---
+
+## 7. Shipping, tax, currency and exchange rate
+
+**Exchange rate and currency.** The order keeps its exchange rate. Every
+`invoiced_*` amount is converted with it. The currency cannot change: when
+`currency_code` is not sent, the order keeps its currency, and when it is sent
+and differs, the save fails with 422.
+
+**Tax mode.** The order keeps `is_tax_inclusive`. If the store changes how it
+prices, an edit of an old order still calculates in the old mode.
+
+**Shipping and tax.** An edit uses the shipping charge, the shipping method
+name and the tax rates stored on the order. It quotes them again from today's
+settings only in these cases:
+
+| What changed | Quoted again |
+|---|---|
+| The shipping **country or state** | The shipping charge and `shipping_metadata`. |
+| The **shipping method** | The shipping charge and `shipping_metadata`. |
+| The country or state of the address that **tax follows** (the order's `tax_destination`: shipping or billing address) | The tax rates of every line and of shipping. |
+
+Street, city, postcode, names and phone numbers never count as a new address.
+When tax follows the store address, the tax rates are never quoted again.
+
+A new line has no stored tax rate, so it is taxed at the current rate for the
+order's address. A shipping method that is not available for the new address
+fails the save with 422. When the shipping charge is kept, the chosen method is
+not checked against today's settings.
+
+---
+
+## 8. Previewing an edit
+
+`POST /calculate/order` calculates an order without saving it. With no
+`order_id` it previews a new order. With an `order_id` it previews an **edit** of
+that order with the terms in sections 3 to 7. Send the same payload that you
+will send to `PUT /orders/{id}`, plus `order_id`. The preview calculates in
+exactly the same way as the save.
+
+The preview fails with 404 when the order does not exist, and with 422 when
+the order cannot be edited (section 2).
+
+Every item in the response has:
+
+| Key | Meaning |
+|---|---|
+| `order_item_id` | The stored line, or `null` for a new line and in a new-order preview. |
+| `is_reachable` | `false` when the line is locked (section 4). Disable its quantity buttons. |
+| `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order` | The variant's live values. All `null` when the variant was deleted. |
+
+The preview does **not** fail when a quantity is above the available stock or
+the per-order limit, or when the quantity of a locked line changed. Use the
+values above to show the problem. The save enforces these rules.
+
+There is no marker for a changed catalog price. The edit keeps the price the
+customer paid.
 
 ---
 
@@ -245,14 +265,17 @@ per-customer limit leaves out the edited order in the same way.
 | Status | When |
 |---|---|
 | 404 | The order does not exist, or a `variant_id` does not exist. |
-| 422 | The order cannot be edited (section 3). |
+| 422 | The order cannot be edited (section 2). |
 | 422 | `currency_code` differs from the order's currency. |
-| 422 | The same `variant_id` is on two lines. |
+| 422 | A line has neither `order_item_id` nor `variant_id`. |
+| 422 | An `order_item_id` is not on the order or is sent twice. |
+| 422 | A variant is on more than one line, or a new line is for a variant the order already holds. |
 | 422 | A new line's product is not published, or its variant is hidden. |
-| 422 | A line's quantity is above the variant's `max_per_order`. |
+| 422 | The quantity of a locked line (section 4) changed. |
+| 422 | A raised quantity, or a new line, is above the variant's `max_per_order`. |
+| 422 | The shipping method is not available for a new shipping address or a new method ("Invalid shipping method"). |
 | 422 | Stock was taken by another request between the check and the reservation ("Insufficient stock to reserve."). |
 | 500 | Stock is short for an added quantity ("Not enough stock for variant: N"). This is the same status that order creation gives. |
-| 500 | The shipping method is not available for the order ("Invalid shipping method"). This is the same status that order creation gives. |
 
 When a save fails, nothing on the order changes: not the lines, the stock, the
 coupons nor the totals.
@@ -261,19 +284,27 @@ coupons nor the totals.
 
 ## 10. Where this differs from WooCommerce
 
-- **No old-price option.** WooCommerce keeps a line's price until you choose
-  to recalculate. Here every save re-prices every line at the current price.
+- **Prices and coupons are frozen on purpose.** WooCommerce keeps a line's
+  price until you press *Recalculate*, and then it re-prices and re-applies
+  coupons with today's rules. Here there is no recalculate. The order keeps its
+  promised prices and coupon terms, and only the shipping and tax follow a new
+  address.
+- **A product coupon never reaches a new line.** The order stores which lines
+  a coupon discounted, not the coupon's conditions. WooCommerce checks the
+  coupon again on recalculation.
 - **A different edit rule.** WooCommerce lets you edit items only while the
   order status is *pending payment* or *on hold*. Here the rule uses the
-  payment and fulfillment statuses (section 3). An unpaid order that is
+  payment and fulfillment statuses (section 2). An unpaid order that is
   *processing* can be edited. A paid, cancelled or shipped order cannot. A
   changed total never triggers an extra charge or a refund.
-- **Deleted products leave the order.** WooCommerce keeps a line whose product
-  was deleted, with its stored name and price. Here such a line is removed on
-  the next save.
-- **One line per variant.** WooCommerce allows the same product on two lines.
-  Here a variant can be on one line only.
-- **The exchange rate is not kept.** Every save converts with today's rate.
+- **Deleted and unpublished products stay, locked.** WooCommerce lets you
+  change the quantity of such a line. Here its quantity cannot change, and the
+  line can only stay or be removed.
+- **One line per variant for new lines.** WooCommerce allows the same product
+  on two lines. Here a new line cannot repeat a variant on the order. Old
+  orders that already hold two lines for one variant keep both, and each is
+  edited by its own `order_item_id`.
+- **The exchange rate and the tax mode are kept.**
 - **No edit history and no emails.** WooCommerce adds order notes when items
   are added or removed and when stock changes. Here a save does not add a
   timeline entry, it does not keep the old totals, and it does not email the

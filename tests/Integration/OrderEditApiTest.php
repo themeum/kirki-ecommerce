@@ -8,9 +8,9 @@ use Kirki\Ecommerce\App\Actions\Order\CreateOrderAction;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
-use Kirki\Ecommerce\App\Constants\Order\OrderChangeState;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
@@ -23,9 +23,9 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
-use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\Tests\Support\CreatesTestProducts;
 use Kirki\Ecommerce\Tests\Support\EnablesPaymentProviders;
@@ -37,6 +37,10 @@ use function Kirki\Ecommerce\Framework\app;
 /**
  * Order calculation previews, order creation inputs, and edits and cancels of
  * orders whose catalog records changed or were deleted.
+ *
+ * An edit keeps what the customer was promised: line prices, coupon terms,
+ * the exchange rate, the tax mode, and the shipping cost and tax rates for
+ * an address that did not change.
  */
 class OrderEditApiTest extends RestTestCase
 {
@@ -75,6 +79,8 @@ class OrderEditApiTest extends RestTestCase
 
         $this->variant_id = $this->default_variant_id($this->create_product());
     }
+
+    // Preview and create inputs
 
     public function test_preview_item_ids_are_the_payload_indexes(): void
     {
@@ -137,6 +143,20 @@ class OrderEditApiTest extends RestTestCase
         ]])), 422);
     }
 
+    public function test_an_order_stores_the_rate_of_a_percentage_coupon_and_not_of_a_fixed_one(): void
+    {
+        $percentage_coupon = $this->create_percentage_coupon(15);
+        $percentage_order = $this->create_order(['coupon_codes' => [$percentage_coupon->code]]);
+
+        $fixed_coupon = $this->create_amount_off_coupon(DiscountTarget::ORDER, DiscountValueType::FIXED, 300);
+        $fixed_order = $this->create_order(['coupon_codes' => [$fixed_coupon->code]]);
+
+        $this->assertEquals(15, OrderCoupon::where('order_id', $percentage_order['id'])->first()->discount_rate);
+        $this->assertNull(OrderCoupon::where('order_id', $fixed_order['id'])->first()->discount_rate);
+    }
+
+    // Cancelling orders whose records were deleted
+
     public function test_cancelling_an_order_whose_variant_was_deleted_succeeds(): void
     {
         $deleted_product = $this->create_product();
@@ -171,68 +191,7 @@ class OrderEditApiTest extends RestTestCase
         $this->assertNotNull($order_coupon->usage_reversed_at);
     }
 
-    public function test_editing_an_order_whose_coupon_was_deleted_removes_the_coupon(): void
-    {
-        $coupon = $this->create_percentage_coupon(10);
-        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
-
-        Coupon::query()->where('id', $coupon->id)->delete();
-
-        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'coupon_codes' => [$coupon->code],
-        ])));
-
-        $this->assertEquals(0, OrderCoupon::where('order_id', $order['id'])->count());
-        $this->assertEquals(0, Order::find($order['id'])->base_discount_total);
-    }
-
-    public function test_editing_the_order_that_took_a_coupons_last_use_keeps_the_coupon(): void
-    {
-        $coupon = $this->create_percentage_coupon(10);
-        $coupon->update(['has_usage_limit' => true, 'usage_limit' => 1]);
-
-        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
-        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
-
-        $preview = $this->preview(['order_id' => $order['id'], 'coupon_codes' => [$coupon->code]]);
-        $this->assertSame([[]], array_column($preview['coupons'], 'current_state'));
-
-        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'coupon_codes' => [$coupon->code],
-        ])));
-
-        $this->assertEquals(1, OrderCoupon::where('order_id', $order['id'])->count());
-        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
-    }
-
-    public function test_another_order_cannot_take_a_coupon_at_its_limit(): void
-    {
-        $coupon = $this->create_percentage_coupon(10);
-        $coupon->update(['has_usage_limit' => true, 'usage_limit' => 1]);
-
-        $this->create_order(['coupon_codes' => [$coupon->code]]);
-        $other_order = $this->create_order();
-
-        $this->assert_api_success($this->request('PUT', 'orders/' . $other_order['id'], $this->order_payload([
-            'coupon_codes' => [$coupon->code],
-        ])));
-
-        $this->assertEquals(0, OrderCoupon::where('order_id', $other_order['id'])->count());
-        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
-    }
-
-    public function test_a_reversed_coupon_use_is_not_held_by_the_order(): void
-    {
-        $coupon = $this->create_percentage_coupon(10);
-        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
-        $order_service = app()->make(OrderService::class);
-
-        $this->assertTrue($order_service->holds_coupon_usage($order['id'], $coupon->id));
-
-        OrderManager::mark_as_cancel($order['id']);
-
-        $this->assertFalse($order_service->holds_coupon_usage($order['id'], $coupon->id));
-    }
+    // Which orders can be edited
 
     /**
      * @return array<string, array{0: array<string, mixed>}>
@@ -259,7 +218,7 @@ class OrderEditApiTest extends RestTestCase
         Order::find($order['id'])->update($state);
 
         $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 3]],
+            'items' => [$this->line($order, 3)],
             'shipping_city' => 'Albany',
         ])), 422);
 
@@ -275,22 +234,29 @@ class OrderEditApiTest extends RestTestCase
     {
         $order = $this->create_order();
 
-        $this->preview(['items' => [['variant_id' => $this->variant_id, 'quantity' => 2]]]);
+        $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 2)]]);
         OrderManager::mark_payment_as_paid($order['id']);
 
         $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'items' => [$this->line($order, 2)],
         ])), 422);
 
         $this->assertEquals(1, OrderItem::where('order_id', $order['id'])->first()->quantity);
     }
+
+    public function test_saving_an_edit_of_an_unknown_order_is_not_found(): void
+    {
+        $this->assert_api_error($this->request('PUT', 'orders/999999', $this->order_payload()), 404);
+    }
+
+    // Currency and exchange rate
 
     public function test_an_edit_without_a_currency_keeps_the_order_currency(): void
     {
         $code = $this->create_test_currency(1.3);
         $order = $this->create_order(['currency_code' => $code]);
 
-        $payload = $this->order_payload();
+        $payload = $this->order_payload(['items' => [$this->line($order, 1)]]);
         unset($payload['currency_code']);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $payload));
@@ -303,77 +269,130 @@ class OrderEditApiTest extends RestTestCase
         $code = $this->create_test_currency(1.3);
         $order = $this->create_order(['currency_code' => $code]);
 
-        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload(['currency_code' => 'USD'])), 422);
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload(['currency_code' => 'USD', 'items' => [$this->line($order, 1)]])), 422);
 
         $this->assertEquals($code, Order::find($order['id'])->currency_code);
     }
 
-    public function test_an_edit_converts_amounts_with_the_current_exchange_rate(): void
+    public function test_an_edit_converts_amounts_with_the_exchange_rate_the_order_was_placed_with(): void
     {
         $code = $this->create_test_currency(1.3);
         $order = $this->create_order(['currency_code' => $code]);
 
         Currency::query()->where('code', $code)->update(['exchange_rate' => 1.5]);
 
-        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload(['currency_code' => $code])));
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload(['currency_code' => $code, 'items' => [$this->line($order, 2)]])));
 
         $stored = Order::find($order['id']);
-        $this->assertEquals(1.5, $stored->exchange_rate);
-        $this->assertEquals((int) round($stored->base_total * 1.5), $stored->invoiced_total);
+        $this->assertEquals(1.3, $stored->exchange_rate);
+        $this->assertEquals((int) round($stored->base_total * 1.3), $stored->invoiced_total);
     }
 
-    public function test_an_edit_refreshes_every_line_from_the_current_variant(): void
+    // Lines
+
+    public function test_an_edit_keeps_every_line_as_it_was_sold(): void
     {
         $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 2]]]);
-        $old_price = Variant::find($this->variant_id)->base_price;
+        $sold = OrderItem::find($order['items'][0]['id']);
 
-        Variant::query()->where('id', $this->variant_id)->update(['base_price' => $old_price + 500]);
-        Product::query()->where('id', Variant::find($this->variant_id)->product_id)->update(['title' => 'Renamed Product']);
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => $sold->base_price + 500]);
+        Product::query()->where('id', $sold->product_id)->update(['title' => 'Renamed Product']);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'items' => [$this->line($order, 3)],
             'shipping_city' => 'Albany',
         ])));
 
-        $item = OrderItem::where('order_id', $order['id'])->first();
-        $this->assertEquals('Renamed Product', $item->product_name);
-        $this->assertEquals($old_price + 500, $item->base_price);
-        $this->assertEquals($old_price + 500, $item->base_catalog_sale_price);
-        $this->assertEquals($old_price + 500, $item->base_catalog_regular_price);
-        $this->assertEquals(($old_price + 500) * 2, $item->base_subtotal);
+        $item = OrderItem::find($sold->id);
+        $this->assertSame($sold->product_name, $item->product_name);
+        $this->assertSame($sold->base_price, $item->base_price);
+        $this->assertSame($sold->base_catalog_sale_price, $item->base_catalog_sale_price);
+        $this->assertSame($sold->base_catalog_regular_price, $item->base_catalog_regular_price);
+        $this->assertEquals($sold->base_price * 3, $item->base_subtotal);
+        $this->assertSame(3, $item->quantity);
     }
 
-    public function test_an_edit_removes_a_line_whose_product_was_deleted(): void
+    public function test_a_new_line_takes_the_current_variant_price(): void
     {
+        $order = $this->create_order();
+        $added_variant_id = $this->default_variant_id($this->create_product());
+        Variant::query()->where('id', $added_variant_id)->update(['base_price' => 4321, 'base_sale_price' => null]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1), ['variant_id' => $added_variant_id, 'quantity' => 2]],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $order['id'])->where('variant_id', $added_variant_id)->first();
+        $this->assertEquals(4321, $added_item->base_price);
+        $this->assertEquals(4321 * 2, $added_item->base_subtotal);
+        $this->assertNotEmpty($added_item->product_name);
+    }
+
+    public function test_a_line_whose_product_was_deleted_stays_with_its_stored_values(): void
+    {
+        $deleted_product = $this->create_product();
+        $deleted_variant_id = $this->default_variant_id($deleted_product);
+        $order = $this->create_order(['items' => [
+            ['variant_id' => $this->variant_id, 'quantity' => 1],
+            ['variant_id' => $deleted_variant_id, 'quantity' => 2],
+        ]]);
+        $stored_line = OrderItem::where('order_id', $order['id'])->where('variant_id', $deleted_variant_id)->first();
+
+        $this->delete_product($deleted_product['id']);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1, 0), $this->line($order, 2, 1)],
+            'shipping_city' => 'Albany',
+        ])));
+
+        $line = OrderItem::find($stored_line->id);
+        $this->assertNotNull($line);
+        $this->assertNull($line->variant_id);
+        $this->assertSame($stored_line->base_total, $line->base_total);
+        $this->assertSame(2, $line->quantity);
+        $this->assertCount(2, OrderItem::where('order_id', $order['id'])->get());
+        $this->assertSame(3, Order::find($order['id'])->items_count);
+    }
+
+    public function test_removing_a_line_whose_variant_was_deleted_gives_back_no_stock(): void
+    {
+        $this->track_stock($this->variant_id, 10);
         $deleted_product = $this->create_product();
         $deleted_variant_id = $this->default_variant_id($deleted_product);
         $order = $this->create_order(['items' => [
             ['variant_id' => $this->variant_id, 'quantity' => 1],
             ['variant_id' => $deleted_variant_id, 'quantity' => 1],
         ]]);
+        $deleted_line_id = (int) $order['items'][1]['id'];
 
         $this->delete_product($deleted_product['id']);
 
-        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload()));
-
-        $items = OrderItem::where('order_id', $order['id'])->get();
-        $stored = Order::find($order['id']);
-        $this->assertCount(1, $items);
-        $this->assertEquals($this->variant_id, $items->first()->variant_id);
-        $this->assertEquals(1, $stored->items_count);
-        $this->assertEquals($items->first()->base_subtotal, $stored->base_subtotal);
-    }
-
-    public function test_a_line_whose_product_is_now_a_draft_can_change_its_quantity(): void
-    {
-        $order = $this->create_order();
-        Product::query()->where('id', Variant::find($this->variant_id)->product_id)->update(['status' => ProductStatus::DRAFT]);
-
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 3]],
+            'items' => [$this->line($order, 1, 0)],
         ])));
 
-        $this->assertEquals(3, OrderItem::where('order_id', $order['id'])->first()->quantity);
+        $this->assertNull(OrderItem::find($deleted_line_id));
+        $this->assertEquals(9, Variant::find($this->variant_id)->available_quantity);
+        $this->assertEquals(1, Order::find($order['id'])->items_count);
+    }
+
+    public function test_an_order_line_of_another_order_is_refused(): void
+    {
+        $order = $this->create_order();
+        $other_order = $this->create_order();
+
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($other_order, 1)],
+        ])), 422);
+    }
+
+    public function test_a_new_line_for_a_variant_the_order_already_holds_is_refused(): void
+    {
+        $order = $this->create_order();
+
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1), ['variant_id' => $this->variant_id, 'quantity' => 1]],
+        ])), 422);
     }
 
     public function test_a_new_line_for_a_draft_product_is_refused(): void
@@ -382,12 +401,50 @@ class OrderEditApiTest extends RestTestCase
         $draft_product = $this->create_product(['status' => ProductStatus::DRAFT]);
 
         $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [
-                ['variant_id' => $this->variant_id, 'quantity' => 1],
-                ['variant_id' => $this->default_variant_id($draft_product), 'quantity' => 1],
-            ],
+            'items' => [$this->line($order, 1), ['variant_id' => $this->default_variant_id($draft_product), 'quantity' => 1]],
         ])), 422);
     }
+
+    // Lines that can no longer be bought
+
+    public function test_the_quantity_of_a_line_whose_product_is_now_a_draft_cannot_change(): void
+    {
+        $order = $this->create_order();
+        Product::query()->where('id', Variant::find($this->variant_id)->product_id)->update(['status' => ProductStatus::DRAFT]);
+
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 3)],
+        ])), 422);
+
+        $this->assertSame(1, OrderItem::where('order_id', $order['id'])->first()->quantity);
+    }
+
+    public function test_a_line_whose_product_is_now_a_draft_stays_when_its_quantity_is_not_changed(): void
+    {
+        $order = $this->create_order();
+        Product::query()->where('id', Variant::find($this->variant_id)->product_id)->update(['status' => ProductStatus::DRAFT]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'order_notes' => 'Draft product kept',
+        ])));
+
+        $this->assertSame(1, OrderItem::where('order_id', $order['id'])->first()->quantity);
+    }
+
+    public function test_the_quantity_of_a_line_whose_variant_was_deleted_cannot_be_lowered(): void
+    {
+        $deleted_product = $this->create_product();
+        $order = $this->create_order(['items' => [['variant_id' => $this->default_variant_id($deleted_product), 'quantity' => 2]]]);
+
+        $this->delete_product($deleted_product['id']);
+
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+        ])), 422);
+    }
+
+    // Stock and the per-order limit
 
     public function test_an_unchanged_line_on_a_sold_out_variant_can_be_saved(): void
     {
@@ -396,7 +453,7 @@ class OrderEditApiTest extends RestTestCase
         $this->assertEquals(0, Variant::find($this->variant_id)->available_quantity);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 5]],
+            'items' => [$this->line($order, 5)],
             'shipping_city' => 'Albany',
         ])));
 
@@ -410,12 +467,24 @@ class OrderEditApiTest extends RestTestCase
         $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 2]]]);
 
         $response = $this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 4]],
+            'items' => [$this->line($order, 4)],
         ]));
 
         $this->assertGreaterThanOrEqual(400, $response->get_status());
         $this->assertEquals(2, OrderItem::where('order_id', $order['id'])->first()->quantity);
         $this->assertEquals(1, Variant::find($this->variant_id)->available_quantity);
+    }
+
+    public function test_raising_a_quantity_reserves_the_live_stock_for_the_added_units(): void
+    {
+        $this->track_stock($this->variant_id, 10);
+        $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 2]]]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 5)],
+        ])));
+
+        $this->assertEquals(5, Variant::find($this->variant_id)->available_quantity);
     }
 
     public function test_lowering_a_quantity_releases_the_difference(): void
@@ -424,45 +493,349 @@ class OrderEditApiTest extends RestTestCase
         $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 5]]]);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'items' => [$this->line($order, 2)],
         ])));
 
         $this->assertEquals(8, Variant::find($this->variant_id)->available_quantity);
     }
 
-    public function test_a_per_order_limit_lowered_below_the_stored_quantity_blocks_the_save(): void
+    /**
+     * @return array<string, array{0: int, 1: int, 2: int, 3: bool}>
+     */
+    public function per_order_limit_changes(): array
     {
-        $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 5]]]);
-        Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 3]);
+        return [
+            'limit lowered, room for one more' => [5, 4, 5, true],
+            'limit lowered, no room for two more' => [5, 4, 6, false],
+            'limit below the stored quantity, quantity kept' => [2, 4, 4, true],
+            'limit below the stored quantity, quantity lowered' => [2, 4, 3, true],
+            'limit below the stored quantity, quantity raised' => [2, 4, 5, false],
+        ];
+    }
 
-        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 5]],
-        ])), 422);
+    /**
+     * @dataProvider per_order_limit_changes
+     *
+     * @param int  $limit           Per-order limit when the edit is saved.
+     * @param int  $stored_quantity Quantity on the order.
+     * @param int  $new_quantity    Quantity sent.
+     * @param bool $is_saved        Whether the edit is accepted.
+     */
+    public function test_a_per_order_limit_blocks_only_a_raised_quantity(int $limit, int $stored_quantity, int $new_quantity, bool $is_saved): void
+    {
+        $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => $stored_quantity]]]);
+        Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => $limit]);
+
+        $response = $this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, $new_quantity)],
+        ]));
+
+        if ($is_saved) {
+            $this->assert_api_success($response);
+            $this->assertSame($new_quantity, OrderItem::where('order_id', $order['id'])->first()->quantity);
+
+            return;
+        }
+
+        $this->assert_api_error($response, 422);
+        $this->assertSame($stored_quantity, OrderItem::where('order_id', $order['id'])->first()->quantity);
+    }
+
+    // Coupons
+
+    public function test_a_stored_coupon_keeps_its_rate_after_the_coupon_changed_and_expired(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        $coupon->update(['discount_amount_percentage' => 50, 'is_active' => false]);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 3]],
+            'items' => [$this->line($order, 3)],
+            'coupon_codes' => [$coupon->code],
         ])));
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $order_coupon = OrderCoupon::where('order_id', $order['id'])->first();
+        $this->assertEquals(10, $order_coupon->discount_rate);
+        $this->assertSame((int) round($item->base_subtotal * 0.10), $order_coupon->base_discount_amount);
+        $this->assertEquals($order_coupon->base_discount_amount, Order::find($order['id'])->base_discount_total);
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
     }
 
-    public function test_an_edit_stores_the_shipping_methods_current_name(): void
+    public function test_a_stored_coupon_still_applies_when_its_coupon_was_deleted(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        Coupon::query()->where('id', $coupon->id)->delete();
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $order_coupon = OrderCoupon::where('order_id', $order['id'])->first();
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertNotNull($order_coupon);
+        $this->assertNull($order_coupon->coupon_id);
+        $this->assertSame((int) round($item->base_subtotal * 0.10), $order_coupon->base_discount_amount);
+    }
+
+    public function test_editing_the_order_that_took_a_coupons_last_use_keeps_the_coupon(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $coupon->update(['has_usage_limit' => true, 'usage_limit' => 1]);
+
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertEquals(1, OrderCoupon::where('order_id', $order['id'])->count());
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
+    public function test_another_order_cannot_take_a_coupon_at_its_limit(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $coupon->update(['has_usage_limit' => true, 'usage_limit' => 1]);
+
+        $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $other_order = $this->create_order();
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $other_order['id'], $this->order_payload([
+            'items' => [$this->line($other_order, 1)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertEquals(0, OrderCoupon::where('order_id', $other_order['id'])->count());
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
+    public function test_a_coupon_removed_from_an_order_after_it_was_deleted_cannot_be_applied_again(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        Coupon::query()->where('id', $coupon->id)->delete();
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'coupon_codes' => [],
+        ])));
+        $this->assertEquals(0, OrderCoupon::where('order_id', $order['id'])->count());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+        $this->assertEquals(0, OrderCoupon::where('order_id', $order['id'])->count());
+        $this->assertEquals(0, Order::find($order['id'])->base_discount_total);
+    }
+
+    public function test_a_live_coupon_added_in_an_edit_is_priced_from_the_coupon_and_counts_a_use(): void
+    {
+        $coupon = $this->create_percentage_coupon(20);
+        $order = $this->create_order();
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $order_coupon = OrderCoupon::where('order_id', $order['id'])->first();
+        $this->assertEquals(20, $order_coupon->discount_rate);
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+    }
+
+    public function test_a_product_coupon_follows_the_new_quantity_of_its_line(): void
+    {
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::PERCENTAGE, 10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 3)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals((int) round($item->base_subtotal * 0.10), $item->base_discount_amount);
+    }
+
+    public function test_a_fixed_product_coupon_keeps_its_amount_for_its_line(): void
+    {
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 300);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 3)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertEquals(300, OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
+    public function test_an_order_wide_coupon_also_discounts_a_new_line(): void
+    {
+        $coupon = $this->create_percentage_coupon(10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $added_variant_id = $this->default_variant_id($this->create_product());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1), ['variant_id' => $added_variant_id, 'quantity' => 1]],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $added_item = OrderItem::where('order_id', $order['id'])->where('variant_id', $added_variant_id)->first();
+        $this->assertGreaterThan(0, $added_item->base_discount_amount);
+        $this->assertEquals((int) round($added_item->base_subtotal * 0.10), $added_item->base_discount_amount);
+        $this->assertEquals(OrderItem::where('order_id', $order['id'])->sum('base_discount_amount'), OrderCoupon::where('order_id', $order['id'])->first()->base_discount_amount);
+    }
+
+    public function test_a_product_coupon_never_discounts_a_new_line(): void
+    {
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::PERCENTAGE, 10);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $added_variant_id = $this->default_variant_id($this->create_product());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1), ['variant_id' => $added_variant_id, 'quantity' => 1]],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertEquals(0, OrderItem::where('order_id', $order['id'])->where('variant_id', $added_variant_id)->first()->base_discount_amount);
+        $this->assertGreaterThan(0, OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
+    public function test_a_fixed_order_coupon_keeps_its_total_and_shares_it_with_a_new_line(): void
+    {
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::ORDER, DiscountValueType::FIXED, 300);
+        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
+        $added_variant_id = $this->default_variant_id($this->create_product());
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1), ['variant_id' => $added_variant_id, 'quantity' => 1]],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertSame(300, OrderCoupon::where('order_id', $order['id'])->first()->base_discount_amount);
+        $this->assertSame(300, (int) OrderItem::where('order_id', $order['id'])->sum('base_discount_amount'));
+        $this->assertGreaterThan(0, OrderItem::where('order_id', $order['id'])->where('variant_id', $added_variant_id)->first()->base_discount_amount);
+    }
+
+    // Shipping and tax
+
+    public function test_an_edit_keeps_the_shipping_cost_and_method_name_for_an_address_that_did_not_change(): void
     {
         $order = $this->create_order();
-        $this->rename_shipping_method('Express Delivery');
+        $stored = Order::find($order['id']);
 
-        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload()));
+        $this->rename_shipping_method('Express Delivery', 15);
 
-        $this->assertEquals('Express Delivery', Order::find($order['id'])->shipping_metadata['shipping_method']['name']);
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'shipping_city' => 'Albany',
+        ])));
+
+        $saved = Order::find($order['id']);
+        $this->assertSame($stored->base_shipping_total, $saved->base_shipping_total);
+        $this->assertSame($stored->shipping_metadata, $saved->shipping_metadata);
     }
+
+    public function test_an_edit_that_changes_the_state_quotes_shipping_again(): void
+    {
+        $order = $this->create_order();
+        $stored = Order::find($order['id']);
+
+        $this->rename_shipping_method('Express Delivery', 15);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'shipping_state' => 'CA',
+        ])));
+
+        $saved = Order::find($order['id']);
+        $this->assertGreaterThan($stored->base_shipping_total, $saved->base_shipping_total);
+        $this->assertEquals('Express Delivery', $saved->shipping_metadata['shipping_method']['name']);
+    }
+
+    public function test_an_edit_that_changes_the_state_to_one_the_method_does_not_serve_is_refused(): void
+    {
+        $order = $this->create_order();
+
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'shipping_country' => 'CA',
+            'shipping_state' => 'ON',
+        ])), 422);
+    }
+
+    public function test_an_edit_keeps_the_tax_rate_for_an_address_that_did_not_change(): void
+    {
+        $this->enable_tax(false, 10);
+        $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 1]]]);
+
+        $this->enable_tax(false, 20);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'shipping_city' => 'Albany',
+        ])));
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals(10, OrderTax::where('order_id', $order['id'])->first()->rate);
+        $this->assertEquals((int) round($item->base_subtotal * 0.10), $item->base_tax_total);
+    }
+
+    public function test_an_edit_that_changes_the_state_calculates_the_tax_rate_again(): void
+    {
+        $this->enable_tax(false, 10);
+        $order = $this->create_order();
+
+        $this->enable_tax(false, 20);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'shipping_state' => 'CA',
+        ])));
+
+        $item = OrderItem::find($order['items'][0]['id']);
+        $this->assertEquals(20, OrderTax::where('order_id', $order['id'])->first()->rate);
+        $this->assertEquals((int) round($item->base_subtotal * 0.20), $item->base_tax_total);
+    }
+
+    public function test_a_new_line_is_taxed_at_the_current_rate_for_an_address_that_did_not_change(): void
+    {
+        $this->enable_tax(false, 10);
+        $order = $this->create_order();
+        $added_variant_id = $this->default_variant_id($this->create_product());
+
+        $this->enable_tax(false, 20);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1), ['variant_id' => $added_variant_id, 'quantity' => 1]],
+        ])));
+
+        $old_item = OrderItem::find($order['items'][0]['id']);
+        $added_item = OrderItem::where('order_id', $order['id'])->where('variant_id', $added_variant_id)->first();
+        $this->assertEquals((int) round($old_item->base_subtotal * 0.10), $old_item->base_tax_total);
+        $this->assertEquals((int) round($added_item->base_subtotal * 0.20), $added_item->base_tax_total);
+    }
+
+    // Previews
 
     public function test_previewing_an_edit_of_an_editable_order_succeeds(): void
     {
         $order = $this->create_order();
 
-        $preview = $this->preview(['order_id' => $order['id']]);
+        $preview = $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]]);
 
-        $this->assertSame([], $preview['current_state']);
         $this->assertSame((int) $order['items'][0]['id'], $preview['items'][0]['order_item_id']);
-        $this->assertSame([], $preview['items'][0]['current_state']);
+        $this->assertTrue($preview['items'][0]['is_reachable']);
     }
 
     public function test_previewing_an_edit_of_a_paid_order_is_refused(): void
@@ -470,7 +843,7 @@ class OrderEditApiTest extends RestTestCase
         $order = $this->create_order();
         Order::find($order['id'])->update(['payment_status' => PaymentStatus::PAID]);
 
-        $this->assert_api_error($this->request('POST', 'calculate/order', $this->order_payload(['order_id' => $order['id']])), 422);
+        $this->assert_api_error($this->request('POST', 'calculate/order', $this->order_payload(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]])), 422);
     }
 
     public function test_previewing_an_edit_of_an_unknown_order_is_not_found(): void
@@ -478,12 +851,7 @@ class OrderEditApiTest extends RestTestCase
         $this->assert_api_error($this->request('POST', 'calculate/order', $this->order_payload(['order_id' => 999999])), 404);
     }
 
-    public function test_saving_an_edit_of_an_unknown_order_is_not_found(): void
-    {
-        $this->assert_api_error($this->request('PUT', 'orders/999999', $this->order_payload()), 404);
-    }
-
-    public function test_a_create_preview_has_empty_states_and_live_stock_values(): void
+    public function test_a_create_preview_has_no_order_line_and_live_stock_values(): void
     {
         $this->track_stock($this->variant_id, 7);
         Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 4]);
@@ -491,10 +859,9 @@ class OrderEditApiTest extends RestTestCase
 
         $preview = $this->preview(['coupon_codes' => [$coupon->code, 'NOSUCHCODE']]);
 
-        $this->assertSame([], $preview['current_state']);
         $this->assertCount(1, $preview['items']);
         $this->assertNull($preview['items'][0]['order_item_id']);
-        $this->assertSame([], $preview['items'][0]['current_state']);
+        $this->assertTrue($preview['items'][0]['is_reachable']);
         $this->assertTrue($preview['items'][0]['track_inventory']);
         $this->assertFalse($preview['items'][0]['allow_back_order']);
         $this->assertSame(7, $preview['items'][0]['available_quantity']);
@@ -502,94 +869,49 @@ class OrderEditApiTest extends RestTestCase
         $this->assertTrue($preview['items'][0]['has_limit_per_order']);
         $this->assertSame(4, $preview['items'][0]['max_per_order']);
         $this->assertSame([$coupon->code], array_column($preview['coupons'], 'code'));
-        $this->assertSame([[]], array_column($preview['coupons'], 'current_state'));
     }
 
-    public function test_an_edit_preview_reports_each_change_in_its_place(): void
+    public function test_an_edit_preview_marks_the_lines_that_are_not_reachable(): void
     {
-        $this->enable_tax(false);
-
+        $draft_product = $this->create_product();
         $deleted_product = $this->create_product();
-        $deleted_variant_id = $this->default_variant_id($deleted_product);
-        $coupon = $this->create_percentage_coupon(10);
-        $order = $this->create_order([
-            'items' => [
-                ['variant_id' => $this->variant_id, 'quantity' => 1],
-                ['variant_id' => $deleted_variant_id, 'quantity' => 1],
-            ],
-            'coupon_codes' => [$coupon->code],
-        ]);
-        $deleted_line_id = (int) OrderItem::where('order_id', $order['id'])->where('variant_id', $deleted_variant_id)->first()->id;
+        $order = $this->create_order(['items' => [
+            ['variant_id' => $this->variant_id, 'quantity' => 1],
+            ['variant_id' => $this->default_variant_id($draft_product), 'quantity' => 1],
+            ['variant_id' => $this->default_variant_id($deleted_product), 'quantity' => 1],
+        ]]);
 
+        Product::query()->where('id', $draft_product['id'])->update(['status' => ProductStatus::DRAFT]);
         $this->delete_product($deleted_product['id']);
-        Variant::query()->where('id', $this->variant_id)->update(['base_price' => Variant::find($this->variant_id)->base_price + 500]);
-        $coupon->update(['is_active' => false]);
-        $this->enable_tax(true);
 
-        $preview = $this->preview(['order_id' => $order['id'], 'coupon_codes' => [$coupon->code]]);
+        $preview = $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 1, 0), $this->line($order, 1, 1), $this->line($order, 1, 2)]]);
 
-        $states_by_line = array_column($preview['items'], 'current_state', 'order_item_id');
-        $this->assertCount(2, $preview['items']);
-        $this->assertSame([OrderChangeState::PRICE_CHANGED], $states_by_line[(int) $order['items'][0]['id'] === $deleted_line_id ? (int) $order['items'][1]['id'] : (int) $order['items'][0]['id']]);
-        $this->assertSame([OrderChangeState::ITEM_DELETED], $states_by_line[$deleted_line_id]);
-
-        $this->assertSame([$coupon->code], array_column($preview['coupons'], 'code'));
-        $this->assertSame([OrderChangeState::COUPON_REMOVED], $preview['coupons'][0]['current_state']);
-        $this->assertEquals(0, $preview['coupons'][0]['base_discount_amount_money_object']['raw']);
-
-        $this->assertSame([OrderChangeState::TAX_MODE_CHANGED], $preview['current_state']);
-
-        $live_row = $preview['items'][0]['order_item_id'] === $deleted_line_id ? $preview['items'][1] : $preview['items'][0];
-        $this->assertEquals($live_row['base_subtotal_money_object']['raw'], $preview['totals']['base_items_subtotal_money_object']['raw']);
-        $this->assertSame(1, $preview['items_count']);
+        $this->assertSame([true, false, false], array_column($preview['items'], 'is_reachable'));
+        $this->assertNotNull($preview['items'][1]['available_quantity']);
+        $this->assertNull($preview['items'][2]['available_quantity']);
+        $this->assertNull($preview['items'][2]['max_per_order']);
+        $this->assertSame(3, $preview['items_count']);
     }
 
-    public function test_an_edit_preview_reports_a_coupon_whose_rules_changed(): void
-    {
-        $coupon = $this->create_percentage_coupon(10);
-        $order = $this->create_order(['coupon_codes' => [$coupon->code]]);
-
-        $unchanged = $this->preview(['order_id' => $order['id'], 'coupon_codes' => [$coupon->code]]);
-        $this->assertSame([], $unchanged['coupons'][0]['current_state']);
-
-        $coupon->update(['discount_amount_percentage' => 15]);
-
-        $changed = $this->preview(['order_id' => $order['id'], 'coupon_codes' => [$coupon->code]]);
-        $this->assertSame([OrderChangeState::COUPON_CHANGED], $changed['coupons'][0]['current_state']);
-    }
-
-    public function test_an_edit_preview_reports_a_removed_shipping_method_and_a_changed_cost(): void
-    {
-        $order = $this->create_order();
-
-        $this->rename_shipping_method('Standard Delivery', 15);
-        $cost_changed = $this->preview(['order_id' => $order['id']]);
-        $this->assertSame([OrderChangeState::SHIPPING_COST_CHANGED], $cost_changed['current_state']);
-
-        $this->rename_shipping_method('Standard Delivery', 10, false);
-        $removed = $this->preview(['order_id' => $order['id']]);
-        $this->assertSame([OrderChangeState::SHIPPING_METHOD_REMOVED], $removed['current_state']);
-    }
-
-    public function test_a_preview_does_not_block_on_stock_or_the_per_order_limit_but_the_save_does(): void
+    public function test_a_preview_does_not_block_on_stock_the_per_order_limit_or_a_locked_line_but_the_save_does(): void
     {
         $this->track_stock($this->variant_id, 2);
         Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 3]);
         $order = $this->create_order();
 
-        $preview = $this->preview(['order_id' => $order['id'], 'items' => [['variant_id' => $this->variant_id, 'quantity' => 5]]]);
+        $payload = ['order_id' => $order['id'], 'items' => [$this->line($order, 5)]];
+        $preview = $this->preview($payload);
 
         $this->assertSame(5, $preview['items'][0]['quantity']);
         $this->assertSame(1, $preview['items'][0]['available_quantity']);
         $this->assertSame(3, $preview['items'][0]['max_per_order']);
 
-        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 5]],
-        ])), 422);
+        $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)), 422);
     }
 
-    public function test_an_edit_previews_saves_and_then_reports_no_changes(): void
+    public function test_an_edit_preview_prices_the_order_with_the_promised_terms_and_the_save_matches_it(): void
     {
+        $this->enable_tax(false, 10);
         $other_product = $this->create_product();
         $other_variant_id = $this->default_variant_id($other_product);
         $coupon = $this->create_percentage_coupon(10);
@@ -600,40 +922,50 @@ class OrderEditApiTest extends RestTestCase
             ],
             'coupon_codes' => [$coupon->code],
         ]);
-        $live_line_id = (int) OrderItem::where('order_id', $order['id'])->where('variant_id', $this->variant_id)->first()->id;
-        $other_line_id = (int) OrderItem::where('order_id', $order['id'])->where('variant_id', $other_variant_id)->first()->id;
+        $stored = Order::find($order['id']);
+        $stored_price = OrderItem::find($order['items'][0]['id'])->base_price;
 
-        Variant::query()->where('id', $this->variant_id)->update(['base_price' => Variant::find($this->variant_id)->base_price + 500]);
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => $stored_price + 500]);
+        $coupon->update(['is_active' => false, 'discount_amount_percentage' => 50]);
         $this->delete_product($other_product['id']);
-        $this->rename_shipping_method('Standard Delivery', 15);
+        $this->rename_shipping_method('Express Delivery', 15);
+        $this->enable_tax(false, 20);
 
         $payload = [
             'order_id' => $order['id'],
-            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'items' => [$this->line($order, 3, 0), $this->line($order, 1, 1)],
             'coupon_codes' => [$coupon->code],
         ];
         $preview = $this->preview($payload);
 
-        $states_by_line = array_column($preview['items'], 'current_state', 'order_item_id');
-        $this->assertSame([OrderChangeState::PRICE_CHANGED], $states_by_line[$live_line_id]);
-        $this->assertSame([OrderChangeState::ITEM_DELETED], $states_by_line[$other_line_id]);
-        $this->assertSame([OrderChangeState::SHIPPING_COST_CHANGED], $preview['current_state']);
-        $this->assertSame([[]], array_column($preview['coupons'], 'current_state'));
+        $this->assertSame([true, false], array_column($preview['items'], 'is_reachable'));
+        $this->assertEquals(10, $preview['tax_lines'][0]['rate']);
+        $this->assertSame([$coupon->code], array_column($preview['coupons'], 'code'));
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)));
 
         $saved = Order::find($order['id']);
         $this->assertEquals($preview['totals']['base_total_money_object']['raw'], $saved->base_total / 100);
         $this->assertEquals($preview['totals']['base_tax_total_money_object']['raw'], $saved->base_tax_total / 100);
-        $this->assertNull(OrderItem::find($other_line_id));
-        $this->assertCount(1, OrderItem::where('order_id', $order['id'])->get());
+        $this->assertEquals($preview['totals']['base_shipping_amount_money_object']['raw'], $saved->base_shipping_total / 100);
+        $this->assertSame($stored->base_shipping_total, $saved->base_shipping_total);
+        $this->assertSame($stored_price, OrderItem::find($order['items'][0]['id'])->base_price);
         $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
+        $this->assertCount(2, OrderItem::where('order_id', $order['id'])->get());
 
-        $after_save = $this->preview($payload);
+        // A new delivery state is the one thing that quotes shipping and tax again, preview and save alike.
+        $payload['shipping_state'] = 'CA';
+        $moved_preview = $this->preview($payload);
 
-        $this->assertSame([], $after_save['current_state']);
-        $this->assertSame([[]], array_column($after_save['items'], 'current_state'));
-        $this->assertSame([[]], array_column($after_save['coupons'], 'current_state'));
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)));
+
+        $moved = Order::find($order['id']);
+        $this->assertGreaterThan($saved->base_shipping_total, $moved->base_shipping_total);
+        $this->assertEquals(20, OrderTax::where('order_id', $order['id'])->first()->rate);
+        $this->assertEquals($moved_preview['totals']['base_total_money_object']['raw'], $moved->base_total / 100);
+        $this->assertEquals($moved_preview['totals']['base_shipping_amount_money_object']['raw'], $moved->base_shipping_total / 100);
+        $this->assertEquals($moved_preview['totals']['base_tax_total_money_object']['raw'], $moved->base_tax_total / 100);
+        $this->assertEquals(1, Coupon::find($coupon->id)->current_usage_count);
     }
 
     /**
@@ -652,12 +984,13 @@ class OrderEditApiTest extends RestTestCase
     }
 
     /**
-     * Tax US orders at 10%, inclusive or exclusive of the price.
+     * Tax US orders at a central rate, inclusive or exclusive of the price.
      *
-     * @param bool $is_tax_inclusive Whether prices include tax.
+     * @param bool      $is_tax_inclusive Whether prices include tax.
+     * @param int|float $rate             Tax rate in percent.
      * @return void
      */
-    protected function enable_tax(bool $is_tax_inclusive): void
+    protected function enable_tax(bool $is_tax_inclusive, $rate = 10): void
     {
         $this->assert_api_success($this->request('PUT', 'settings', [
             'key' => OptionKeys::TAX_SETTINGS,
@@ -671,7 +1004,7 @@ class OrderEditApiTest extends RestTestCase
                         'is_enabled' => true,
                         'type' => null,
                         'is_central_tax_enabled' => true,
-                        'central_product_tax' => 10,
+                        'central_product_tax' => $rate,
                         'central_shipping_tax' => 0,
                         'states' => [],
                         'rules' => [],
@@ -851,15 +1184,41 @@ class OrderEditApiTest extends RestTestCase
      */
     protected function create_percentage_coupon($percentage): Coupon
     {
-        return Coupon::create([
+        return $this->create_amount_off_coupon(DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, $percentage);
+    }
+
+    /**
+     * Create an active amount-off coupon for every product.
+     *
+     * @param string    $target     A DiscountTarget value: the whole order, or each product line.
+     * @param string    $value_type A DiscountValueType value.
+     * @param int|float $amount     Percentage, or fixed amount in minor units.
+     * @return Coupon
+     */
+    protected function create_amount_off_coupon(string $target, string $value_type, $amount): Coupon
+    {
+        return Coupon::create(array_merge([
             'title' => 'Edit Coupon',
             'code' => 'EDIT' . strtoupper(wp_generate_password(6, false)),
             'discount_type' => DiscountType::AMOUNT_OFF,
-            'discount_target' => DiscountTarget::ORDER,
-            'discount_value_type' => DiscountValueType::PERCENTAGE,
-            'discount_amount_percentage' => $percentage,
+            'discount_target' => $target,
+            'discount_value_type' => $value_type,
+            'eligible_item_type' => EligibleItemType::ALL_PRODUCTS,
             'is_active' => true,
-        ]);
+        ], $value_type === DiscountValueType::FIXED ? ['base_discount_amount_fixed' => $amount] : ['discount_amount_percentage' => $amount]));
+    }
+
+    /**
+     * Build the payload line of a line that is already on the order.
+     *
+     * @param array<string, mixed> $order    Order resource data, as created.
+     * @param int                  $quantity New quantity of the line.
+     * @param int                  $index    Position of the line on the order.
+     * @return array{order_item_id: int, quantity: int}
+     */
+    protected function line(array $order, int $quantity, int $index = 0): array
+    {
+        return ['order_item_id' => (int) $order['items'][$index]['id'], 'quantity' => $quantity];
     }
 
     /**

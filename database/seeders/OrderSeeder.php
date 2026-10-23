@@ -605,6 +605,7 @@ class OrderSeeder extends Seeder
             'title' => $coupon['title'],
             'discount_type' => $coupon['discount_type'],
             'discount_target' => $coupon['discount_target'],
+            'discount_rate' => $coupon['percentage'] > 0 ? $coupon['percentage'] : null,
             'base_discount_amount' => $discount,
             'invoiced_discount_amount' => $this->convert($discount, $currency),
             'usage_reversed_at' => $order['fulfillment_status'] === FulfillmentStatus::CANCELLED ? $order['cancelled_at'] : null,

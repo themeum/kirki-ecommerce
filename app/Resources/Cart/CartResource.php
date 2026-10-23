@@ -147,7 +147,7 @@ class CartResource extends Resource
      * @since 1.0.0
      *
      * @param \Kirki\Ecommerce\App\Models\CartItem[]                    $items            Items of the cart.
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result           Calculation result holding the per-variant totals.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result           Calculation result holding the per-line totals.
      * @param string                                                    $display_currency Currency code the amounts are converted to.
      * @return array<int, array<string, mixed>> Line item data, skipping items missing from the calculation result.
      */
@@ -156,8 +156,8 @@ class CartResource extends Resource
         $cart_items = [];
 
         foreach ($items as $item) {
-            if (isset($result->items[$item->variant_id])) {
-                $calculated_item = $result->items[$item->variant_id];
+            if (isset($result->items[$item->id])) {
+                $calculated_item = $result->items[$item->id];
 
                 $subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
                 $strikethrough = $this->get_strikethrough_amount($calculated_item->base_catalog_regular_price, $calculated_item->base_catalog_sale_price, $subtotal, $item->quantity);
@@ -195,7 +195,7 @@ class CartResource extends Resource
                     ],
                     'display_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal, $this->base_currency_code, $display_currency),
                     'display_strikethrough_price_money_object' => $strikethrough === null ? null : Money::prepare_amount_object_from_minor($strikethrough, $this->base_currency_code, $display_currency),
-                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id, $this->base_currency_code, $display_currency),
+                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->id, $this->base_currency_code, $display_currency),
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
                 ];
@@ -241,7 +241,7 @@ class CartResource extends Resource
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by variant ID.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by line key.
      * @return int Subtotal in minor units.
      */
     protected function get_items_subtotal(array $calculated_items)
@@ -290,12 +290,12 @@ class CartResource extends Resource
      * @since 1.0.0
      *
      * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results     Coupon results from the calculation.
-     * @param int                                                         $variant_id         Variant ID of the item.
+     * @param int|string                                                  $line_key           Line key of the item: its cart item ID.
      * @param string                                                      $base_currency_code Currency code of the cart amounts.
      * @param string                                                      $display_currency   Currency code the amounts are converted to.
      * @return array<int, array<string, mixed>> Coupon details with the discount this item received.
      */
-    protected function get_applied_product_coupons_for_item(array $coupon_results, $variant_id, $base_currency_code, $display_currency)
+    protected function get_applied_product_coupons_for_item(array $coupon_results, $line_key, $base_currency_code, $display_currency)
     {
         $applied = [];
 
@@ -304,7 +304,7 @@ class CartResource extends Resource
                 continue;
             }
 
-            $discount_amount = $coupon_result->item_discounts[$variant_id] ?? 0;
+            $discount_amount = $coupon_result->item_discounts[$line_key] ?? 0;
 
             if ($discount_amount <= 0) {
                 continue;

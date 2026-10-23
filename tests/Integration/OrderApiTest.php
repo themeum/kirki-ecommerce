@@ -299,20 +299,20 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Re-quantifying an existing order under the current (now different)
-     * tax setting updates the recorded is_tax_inclusive flag, since its
-     * prices are genuinely recalculated under that setting.
+     * An edit keeps the tax mode the order was placed with, even when the
+     * store has switched its tax setting since.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_update_order_refreshes_is_tax_inclusive_when_the_setting_has_changed(): void
+    public function test_update_order_keeps_the_tax_mode_the_order_was_placed_with(): void
     {
         $this->enable_us_inclusive_tax(20);
 
         $order = $this->create_order();
         $this->order_id = $order['id'];
         $existing_item_id = $order['items'][0]['id'];
+        $placed_total = Order::find($this->order_id)->base_total;
 
         $this->assert_api_success($this->request('PUT', 'settings', [
             'key' => OptionKeys::TAX_SETTINGS,
@@ -329,14 +329,14 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['order_item_id' => $existing_item_id, 'quantity' => 1],
             ],
         ])));
 
-        $response = $this->request('GET', 'orders/' . $this->order_id);
-        $payload = $this->assert_api_success($response);
+        $payload = $this->assert_api_success($this->request('GET', 'orders/' . $this->order_id));
 
-        $this->assertFalse($payload['data']['is_tax_inclusive']);
+        $this->assertTrue($payload['data']['is_tax_inclusive']);
+        $this->assertSame($placed_total, Order::find($this->order_id)->base_total);
     }
 
     /**
@@ -418,7 +418,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Updated notes',
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -488,7 +488,7 @@ class OrderApiTest extends RestTestCase
             'customer_notes' => 'Old customer',
             'admin_notes' => 'Old admin',
             'items' => [[
-                'id' => $order['items'][0]['id'] ?? null,
+                'order_item_id' => $order['items'][0]['id'] ?? null,
                 'variant_id' => $this->variant_id,
                 'quantity' => 1,
             ]],
@@ -517,7 +517,7 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'order_notes' => null,
             'items' => [[
-                'id' => $order['items'][0]['id'] ?? null,
+                'order_item_id' => $order['items'][0]['id'] ?? null,
                 'variant_id' => $this->variant_id,
                 'quantity' => 1,
             ]],
@@ -599,6 +599,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'customer_first_name' => 'Jane',
             'customer_last_name' => 'Roe',
@@ -671,7 +672,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Updated by store manager',
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -723,7 +724,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Guest order edit',
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -847,7 +848,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['order_item_id' => $existing_item_id, 'quantity' => 1],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -885,7 +886,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['order_item_id' => $existing_item_id, 'quantity' => 2],
             ],
         ])));
 
@@ -1000,7 +1001,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 3],
+                ['order_item_id' => $existing_item_id, 'quantity' => 3],
             ],
         ])));
 
@@ -1013,14 +1014,14 @@ class OrderApiTest extends RestTestCase
     }
 
     /**
-     * Editing an order syncs an existing item's regular price to the
-     * variant's current one when the variant was repriced, and records the
-     * current regular price for an item added in the edit.
+     * Editing an order keeps an existing item's regular price as it was sold,
+     * even when the variant was repriced, and records the current regular
+     * price for an item added in the edit.
      *
      * @return void
      * @since 1.0.0
      */
-    public function test_update_order_syncs_existing_regular_price_and_records_it_for_added_items(): void
+    public function test_update_order_keeps_existing_regular_price_and_records_it_for_added_items(): void
     {
         $original_regular_price = Variant::find($this->variant_id)->base_price;
 
@@ -1038,15 +1039,15 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'items' => [
-                ['id' => $existing_item_id, 'variant_id' => $this->variant_id, 'quantity' => 2],
+                ['order_item_id' => $existing_item_id, 'quantity' => 2],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
 
         $existing_item = OrderItem::find($existing_item_id);
         $this->assertEquals(2, $existing_item->quantity);
-        $this->assertEquals($original_regular_price + 500, $existing_item->base_regular_price);
-        $this->assertEquals($original_regular_price + 500, $existing_item->invoiced_regular_price);
+        $this->assertEquals($original_regular_price, $existing_item->base_regular_price);
+        $this->assertEquals($original_regular_price, $existing_item->invoiced_regular_price);
 
         $added_item = OrderItem::where('order_id', $this->order_id)->where('variant_id', $added_variant_id)->first();
         $this->assertEquals($added_regular_price, $added_item->base_regular_price);
@@ -1070,7 +1071,7 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'items' => [
-                ['id' => $order['items'][0]['id'], 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['order_item_id' => $order['items'][0]['id'], 'variant_id' => $this->variant_id, 'quantity' => 1],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -1098,7 +1099,7 @@ class OrderApiTest extends RestTestCase
             'flags' => ['gift', 'priority'],
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -1140,7 +1141,7 @@ class OrderApiTest extends RestTestCase
             'flags' => ['gift'],
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -1153,7 +1154,7 @@ class OrderApiTest extends RestTestCase
             'flags' => [],
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -2185,7 +2186,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Unrelated edit',
             'items' => [
                 [
-                    'id' => $order['items'][0]['id'] ?? null,
+                    'order_item_id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -2388,6 +2389,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
         ])));
@@ -2420,6 +2422,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [],
         ])));
@@ -2453,6 +2456,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
+            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
             'order_notes' => 'Unrelated edit',
@@ -2571,13 +2575,13 @@ class OrderApiTest extends RestTestCase
 
     /**
      * `sync_order_coupons()` fails loudly, instead of silently under-recording,
-     * when a coupon result attributes a discount to a variant that has no
+     * when a coupon result attributes a discount to a line that has no
      * matching order item - the fail-loud backstop this change adds in place
      * of the previous silent `continue`.
      *
      * @return void
      */
-    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_variant(): void
+    public function test_sync_order_coupons_throws_when_item_discount_references_unmatched_line(): void
     {
         $order = $this->create_order();
         $this->order_id = $order['id'];
@@ -2610,7 +2614,7 @@ class OrderApiTest extends RestTestCase
 
         $this->expectException(Exception::class);
 
-        $sync_order_coupons->invoke($action, $order_model, $calculated_result, 'USD', 1.0);
+        $sync_order_coupons->invoke($action, $order_model, $calculated_result, [0 => OrderItem::find($order['items'][0]['id'])], 'USD', 1.0);
     }
 
     /**

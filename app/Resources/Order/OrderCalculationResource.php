@@ -6,8 +6,6 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Concerns\ResolvesLineItemPricing;
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountTarget;
-use Kirki\Ecommerce\App\Constants\Order\OrderChangeState;
-use Kirki\Ecommerce\App\DTO\Order\OrderChangesDTO;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Resource;
@@ -33,10 +31,8 @@ class OrderCalculationResource extends Resource
      * in the store's base currency. Item and root pricing figures are in the store's tax
      * mode, which `is_tax_inclusive` reports.
      *
-     * For an edit preview it also maps the detected changes: a `current_state` on the root,
-     * each item and each coupon, a row for each line whose variant was deleted, and an
-     * entry for each stored coupon that no longer applies. These extra rows are not part
-     * of any total.
+     * Each item also says whether its line is reachable and what its variant's stock and
+     * per-order limit are now, so the client can lock or limit the quantity of the line.
      *
      * @since 1.0.0
      *
@@ -46,7 +42,6 @@ class OrderCalculationResource extends Resource
     {
         $result = $this->result;
         $context = $this->context;
-        $changes = isset($this->changes) ? $this->changes : new OrderChangesDTO();
 
         $shipping_service = app()->make(ShippingService::class);
         $shipping_options = $shipping_service->get_final_available_shipping_options($context);
@@ -58,7 +53,7 @@ class OrderCalculationResource extends Resource
         $order_total = $items_subtotal - $order_discount;
 
         return [
-            'is_tax_inclusive' => (bool) Settings::get('tax.is_tax_inclusive_price', false),
+            'is_tax_inclusive' => $context->stored ? $context->stored->is_tax_inclusive : (bool) Settings::get('tax.is_tax_inclusive_price', false),
 
             'totals' => [
                 'base_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal),
@@ -80,16 +75,10 @@ class OrderCalculationResource extends Resource
             'tax_lines' => $this->format_tax_breakdown(
                 array_merge($this->flatten_item_tax_lines($result), $result->shipping_tax_lines)
             ),
-            'coupons' => array_merge(
-                $this->format_coupon_results($result->coupon_results, $changes),
-                $this->format_removed_coupons($changes)
-            ),
+            'coupons' => $this->format_coupon_results($result->coupon_results),
 
             'items_count' => $result->items_count,
-            'items' => array_merge(
-                $this->prepare_items($result->items, $result, $changes),
-                $this->prepare_deleted_items($changes)
-            ),
+            'items' => $this->prepare_items($result->items, $result),
 
             'available_shipping_methods' => array_map(function ($method) {
                 $cost = $method['base_cost'];
@@ -99,53 +88,41 @@ class OrderCalculationResource extends Resource
             }, $shipping_options),
 
             'shipping_method' => $selected_shipping_method['id'] ?? null,
-
-            'current_state' => $changes->order_state,
         ];
     }
 
     /**
-     * Build the priced line items, skipping items missing from the calculation result.
+     * Build the priced line items.
      *
-     * Each item also carries its stored line ID when the order already has a line
-     * for the variant, its change state, and its variant's current stock and limit values.
+     * Each item also carries its stored line ID when it is a line already on the edited order,
+     * whether its line is reachable, and its variant's current stock and per-order limit values.
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $items   Items to render.
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result  Calculation result holding the per-variant totals.
-     * @param OrderChangesDTO|null                                        $changes Changes since the edited order was saved; empty for a new order.
-     * @return array<int, array<string, mixed>> Item amounts, applied product coupons, stock values and change state.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $items  Calculated items, keyed by line key.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result Calculation result holding the coupon discounts.
+     * @return array<int, array<string, mixed>> Item amounts, applied product coupons and stock values.
      */
-    protected function prepare_items($items, $result, $changes = null)
+    protected function prepare_items($items, $result)
     {
-        $changes = $changes ?: new OrderChangesDTO();
         $cart_items = [];
-        $stored_item_ids = $this->get_stored_item_ids_by_variant_id();
         $variants = isset($this->variants) ? $this->variants : [];
 
         foreach ($items as $item) {
-            if (isset($result->items[$item->variant_id])) {
-                $calculated_item = $result->items[$item->variant_id];
+            $subtotal = $item->base_catalog_product_coupon_discounted_subtotal;
+            $strikethrough = $this->get_strikethrough_amount($item->base_catalog_regular_price, $item->base_catalog_sale_price, $subtotal, $item->quantity);
 
-                $subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
-                $strikethrough = $this->get_strikethrough_amount($calculated_item->base_catalog_regular_price, $calculated_item->base_catalog_sale_price, $subtotal, $item->quantity);
-
-                $order_item_id = $stored_item_ids[$item->variant_id] ?? null;
-
-                $cart_items[] = array_merge([
-                    'id' => $item->id,
-                    'order_item_id' => $order_item_id,
-                    'quantity' => $item->quantity,
-                    'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal),
-                    'base_strikethrough_price_money_object' => $strikethrough === null ? null : Money::prepare_amount_object_from_minor($strikethrough),
-                    'base_unit_price_money_object' => $this->prepare_unit_amount_object($subtotal, $item->quantity),
-                    'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough, $item->quantity),
-                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id),
-                ], $this->prepare_stock_values($variants[$item->variant_id] ?? null), [
-                    'current_state' => $order_item_id ? ($changes->item_states[$order_item_id] ?? []) : [],
-                ]);
-            }
+            $cart_items[] = array_merge([
+                'id' => $item->id,
+                'order_item_id' => $item->order_item_id,
+                'is_reachable' => $item->is_reachable,
+                'quantity' => $item->quantity,
+                'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal),
+                'base_strikethrough_price_money_object' => $strikethrough === null ? null : Money::prepare_amount_object_from_minor($strikethrough),
+                'base_unit_price_money_object' => $this->prepare_unit_amount_object($subtotal, $item->quantity),
+                'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough, $item->quantity),
+                'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->line_key),
+            ], $this->prepare_stock_values($item->variant_id ? ($variants[$item->variant_id] ?? null) : null));
         }
 
         return $cart_items;
@@ -157,14 +134,11 @@ class OrderCalculationResource extends Resource
      * @since 1.0.0
      *
      * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
-     * @param OrderChangesDTO|null                                        $changes        Changes since the edited order was saved; empty for a new order.
-     * @return array<int, array<string, mixed>> Coupon details, discount amounts and change state.
+     * @return array<int, array<string, mixed>> Coupon details and discount amounts.
      */
-    protected function format_coupon_results(array $coupon_results, $changes = null)
+    protected function format_coupon_results(array $coupon_results)
     {
-        $changes = $changes ?: new OrderChangesDTO();
-
-        return array_map(function ($coupon_result) use ($changes) {
+        return array_map(function ($coupon_result) {
             $coupon = $coupon_result->coupon;
             $base_discount_amount_fixed = $coupon->base_discount_amount_fixed;
 
@@ -177,72 +151,8 @@ class OrderCalculationResource extends Resource
                 'discount_amount_percentage' => $coupon->discount_amount_percentage,
                 'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor($base_discount_amount_fixed) : null,
                 'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor($coupon_result->total_discount),
-                'current_state' => $changes->coupon_states[$coupon->code] ?? [],
             ];
         }, $coupon_results);
-    }
-
-    /**
-     * Build an entry for each stored coupon the edit no longer applies, with a zero discount.
-     *
-     * The coupon's terms come from the snapshot stored on the order, since the
-     * coupon may have been deleted or changed since.
-     *
-     * @since 1.0.0
-     *
-     * @param OrderChangesDTO $changes Changes since the edited order was saved.
-     * @return array<int, array<string, mixed>> Coupon entries in the same shape as applied coupons.
-     */
-    protected function format_removed_coupons(OrderChangesDTO $changes)
-    {
-        return array_map(function ($order_coupon) {
-            $snapshot = $order_coupon->coupon_snapshot ?: [];
-            $base_discount_amount_fixed = $snapshot['base_discount_amount_fixed'] ?? null;
-
-            return [
-                'code' => $order_coupon->code,
-                'title' => $order_coupon->title,
-                'discount_type' => $order_coupon->discount_type,
-                'discount_target' => $order_coupon->discount_target,
-                'discount_value_type' => $snapshot['discount_value_type'] ?? null,
-                'discount_amount_percentage' => $snapshot['discount_amount_percentage'] ?? null,
-                'base_discount_amount_fixed_money_object' => !empty($base_discount_amount_fixed) ? Money::prepare_amount_object_from_minor((int) $base_discount_amount_fixed) : null,
-                'base_discount_amount_money_object' => Money::prepare_amount_object_from_minor(0),
-                'current_state' => [OrderChangeState::COUPON_REMOVED],
-            ];
-        }, $changes->removed_coupons);
-    }
-
-    /**
-     * Build a row for each stored line whose variant was deleted, from the amounts stored on the line.
-     *
-     * The rows are in the same shape as the priced items but are not part of any
-     * total, and have no stock values since the variant is gone.
-     *
-     * @since 1.0.0
-     *
-     * @param OrderChangesDTO $changes Changes since the edited order was saved.
-     * @return array<int, array<string, mixed>>
-     */
-    protected function prepare_deleted_items(OrderChangesDTO $changes)
-    {
-        return array_map(function ($order_item) {
-            $subtotal = (int) $order_item->base_catalog_product_coupon_discounted_subtotal;
-            $strikethrough = $this->get_order_item_strikethrough_amounts($order_item)['base'];
-
-            return array_merge([
-                'id' => null,
-                'order_item_id' => $order_item->id,
-                'quantity' => $order_item->quantity,
-                'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal),
-                'base_strikethrough_price_money_object' => $strikethrough === null ? null : Money::prepare_amount_object_from_minor($strikethrough),
-                'base_unit_price_money_object' => $this->prepare_unit_amount_object($subtotal, $order_item->quantity),
-                'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough, $order_item->quantity),
-                'applied_product_coupons' => [],
-            ], $this->prepare_stock_values(null), [
-                'current_state' => [OrderChangeState::ITEM_DELETED],
-            ]);
-        }, $changes->deleted_items);
     }
 
     /**
@@ -266,37 +176,13 @@ class OrderCalculationResource extends Resource
     }
 
     /**
-     * Get the edited order's stored line IDs, keyed by variant ID.
-     *
-     * @since 1.0.0
-     *
-     * @return array<int, int> Empty for a new order.
-     */
-    protected function get_stored_item_ids_by_variant_id()
-    {
-        if (empty($this->order)) {
-            return [];
-        }
-
-        $ids = [];
-
-        foreach ($this->order->items as $order_item) {
-            if (!empty($order_item->variant_id)) {
-                $ids[$order_item->variant_id] = $order_item->id;
-            }
-        }
-
-        return $ids;
-    }
-
-    /**
      * Sum every item's own subtotal - its catalog total after product-scoped
      * coupons only. An order-wide coupon's allocation is excluded so the root
      * items subtotal matches the sum of what each item's own subtotal shows.
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by variant ID.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by line key.
      * @return int Subtotal in minor units.
      */
     protected function get_items_subtotal(array $calculated_items)
@@ -345,10 +231,10 @@ class OrderCalculationResource extends Resource
      * @since 1.0.0
      *
      * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
-     * @param int                                                         $variant_id     Variant ID of the item.
+     * @param int|string                                                  $line_key       Line key of the item.
      * @return array<int, array<string, mixed>> Coupon details with the discount this item received.
      */
-    protected function get_applied_product_coupons_for_item(array $coupon_results, $variant_id)
+    protected function get_applied_product_coupons_for_item(array $coupon_results, $line_key)
     {
         $applied = [];
 
@@ -357,7 +243,7 @@ class OrderCalculationResource extends Resource
                 continue;
             }
 
-            $discount_amount = $coupon_result->item_discounts[$variant_id] ?? 0;
+            $discount_amount = $coupon_result->item_discounts[$line_key] ?? 0;
 
             if ($discount_amount <= 0) {
                 continue;

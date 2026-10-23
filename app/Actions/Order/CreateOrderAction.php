@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Kirki\Ecommerce\App\Actions\Customer\CreateCustomerAction;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderCoupons;
 use Kirki\Ecommerce\App\Concerns\PersistsOrderTaxes;
+use Kirki\Ecommerce\App\Concerns\PreparesOrderItems;
 use Kirki\Ecommerce\App\Constants\AddressPurpose;
 use Kirki\Ecommerce\App\Constants\AddressType;
 use Kirki\Ecommerce\App\DTO\Address\UpdateAddressDTO;
@@ -59,6 +60,7 @@ class CreateOrderAction
 {
     use PersistsOrderCoupons;
     use PersistsOrderTaxes;
+    use PreparesOrderItems;
 
     /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
@@ -182,22 +184,24 @@ class CreateOrderAction
             $order = $this->order_service->create_order($create_order_dto);
             $this->sync_address($dto, $order);
 
-            $this->inventory_service->collect_stock_alerts(function () use ($dto, $order, $calculated_result) {
-                foreach ($dto->items as $item_data) {
-                    $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$item_data['variant_id']], $dto->currency_code, $order->exchange_rate);
+            $order_items_by_line_key = [];
+
+            $this->inventory_service->collect_stock_alerts(function () use ($dto, $order, $calculated_result, &$order_items_by_line_key) {
+                foreach (array_keys($dto->items) as $line_key) {
+                    $order_item_dto = $this->prepare_order_item_dto($order->id, $calculated_result->items[$line_key], $dto->currency_code, $order->exchange_rate);
 
                     /* translators: %s: variant ID */
                     throw_if(!$this->inventory_service->has_stock($order_item_dto->variant_id, $order_item_dto->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $order_item_dto->variant_id));
 
-                    $this->order_service->create_order_item($order_item_dto);
+                    $order_items_by_line_key[$line_key] = $this->order_service->create_order_item($order_item_dto);
                     $this->inventory_service->reserve_stock($order_item_dto->variant_id, $order_item_dto->quantity);
                 }
             });
 
-            $order_with_items = $order->fresh('items');
+            $saved_order = $order->fresh();
 
-            $this->sync_order_coupons($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
-            $this->sync_order_taxes($order_with_items, $calculated_result, $dto->currency_code, $order->exchange_rate);
+            $this->sync_order_coupons($saved_order, $calculated_result, $order_items_by_line_key, $dto->currency_code, $order->exchange_rate);
+            $this->sync_order_taxes($saved_order, $calculated_result, $order_items_by_line_key, $dto->currency_code, $order->exchange_rate);
 
             if ((!empty($create_order_dto->customer_id) || !empty($dto->cart_token)) && !$dto->is_manual) {
                 $empty_cart_dto = new EmptyCartDTO();
@@ -621,86 +625,22 @@ class CreateOrderAction
      * Build an order item DTO from a calculated item and its variant.
      *
      * Snapshots the product and variant data, and stores amounts in both the base and order currency.
-     * Fails when the variant's product is missing.
      *
      * @since 1.0.0
      *
      * @param int                $order_id        ID of the order the item belongs to.
-     * @param CalculationItemDTO $calculated_item Recalculated item.
+     * @param CalculationItemDTO $calculated_item Calculated item.
      * @param string             $currency_code   Order currency code.
      * @param float              $exchange_rate   Rate from the base currency to the order currency.
      * @return CreateOrderItemDTO Order item data ready to persist.
-     * @throws \Exception When the variant's product is missing.
      */
     protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
         $variant = $this->context_builder->get_variants_map()[$calculated_item->variant_id];
-        $product = $variant->product;
 
-        /* translators: %s: variant ID */
-        throw_if(empty($product), sprintf(__('Product not found for variant: %s', 'kirki-ecommerce'), $variant->id));
+        $item_dto = $this->fill_order_item_snapshot(new CreateOrderItemDTO(), $variant);
 
-        $product->load('media');
-
-        $first_media = !empty($product->media) ? $product->media->first() : null;
-
-        $item_dto = new CreateOrderItemDTO();
-        $item_dto->order_id = $order_id;
-        $item_dto->product_id = $product->id;
-        $item_dto->variant_id = $variant->id;
-        $item_dto->product_name = $product->title;
-        $item_dto->variant_name = $variant->attribute_values
-            ? $variant->attribute_values->pluck('value')->join(', ')
-            : '';
-        $item_dto->sku = $variant->sku;
-        $item_dto->barcode = $variant->barcode;
-        $item_dto->product_image = $variant->media ?? ($first_media ? $first_media->id : null);
-
-        $item_dto->invoiced_price = $this->convert_amount($calculated_item->base_unit_price, $currency_code, $exchange_rate);
-        $item_dto->base_price = $calculated_item->base_unit_price;
-
-        $item_dto->invoiced_regular_price = $this->convert_amount($calculated_item->base_regular_unit_price, $currency_code, $exchange_rate);
-        $item_dto->base_regular_price = $calculated_item->base_regular_unit_price;
-
-        $item_dto->invoiced_regular_tax_total = $this->convert_amount($calculated_item->base_regular_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_regular_tax_total = $calculated_item->base_regular_tax_amount;
-
-        $item_dto->invoiced_catalog_regular_price = $this->convert_amount($calculated_item->base_catalog_regular_price, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_regular_price = $calculated_item->base_catalog_regular_price;
-
-        $item_dto->invoiced_catalog_sale_price = $this->convert_amount($calculated_item->base_catalog_sale_price, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_sale_price = $calculated_item->base_catalog_sale_price;
-
-        $item_dto->invoiced_catalog_product_coupon_discounted_subtotal = $this->convert_amount($calculated_item->base_catalog_product_coupon_discounted_subtotal, $currency_code, $exchange_rate);
-        $item_dto->base_catalog_product_coupon_discounted_subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
-
-        $item_dto->invoiced_discount_tax_total = $this->convert_amount($calculated_item->base_discount_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_discount_tax_total = $calculated_item->base_discount_tax_amount;
-
-        $item_dto->quantity = $calculated_item->quantity;
-
-        $item_dto->invoiced_subtotal = $this->convert_amount($calculated_item->base_subtotal, $currency_code, $exchange_rate);
-        $item_dto->base_subtotal = $calculated_item->base_subtotal;
-
-        $item_dto->invoiced_discount_amount = $this->convert_amount($calculated_item->base_discount_amount, $currency_code, $exchange_rate);
-        $item_dto->base_discount_amount = $calculated_item->base_discount_amount;
-
-        $item_dto->invoiced_tax_total = $this->convert_amount($calculated_item->base_tax_amount, $currency_code, $exchange_rate);
-        $item_dto->base_tax_total = $calculated_item->base_tax_amount;
-
-        $item_dto->invoiced_total = $this->convert_amount($calculated_item->base_total, $currency_code, $exchange_rate);
-        $item_dto->base_total = $calculated_item->base_total;
-
-        $item_dto->is_physical_product = $variant->is_physical_product ?? true;
-        $item_dto->weight = $variant->weight;
-        $item_dto->weight_unit = $variant->weight_unit;
-
-        $item_dto->product_data = [
-            'product' => $product->to_array(),
-            'variant' => $variant->to_array()
-        ];
-
-        return $item_dto;
+        return $this->fill_order_item_amounts($item_dto, $order_id, $calculated_item, $currency_code, $exchange_rate);
     }
 
     /**

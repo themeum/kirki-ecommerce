@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines when an admin can edit an existing order, and how saving an edit syncs the order's lines, prices, coupons, shipping, tax mode, currency and exchange rate to the store's current state.
+Defines when an admin can edit an existing order, and how saving an edit keeps the pricing the customer was promised (line prices, coupons, exchange rate, shipping and tax), changes shipping and tax only for a new delivery address, and applies the stock, limit and reachability rules to quantity changes.
 
 ## ADDED Requirements
 
@@ -56,34 +56,53 @@ The order update endpoint SHALL check editability after it locks the order, and 
 - **WHEN** an order is marked paid after the admin previews an edit but before the admin saves it
 - **THEN** the save fails with a 422 error and nothing on the order changes
 
-### Requirement: An edit uses the current variant price for every line
-When an edit is saved, every line SHALL take the current price, the current regular price, the current catalog prices, the current name, SKU, barcode, image, weight and product snapshot of its variant. Lines already on the order SHALL NOT keep their old price.
+### Requirement: Existing lines are identified by order line ID
+An existing line SHALL be sent with its `order_item_id`. A new line SHALL be sent with a `variant_id` and no `order_item_id`. The system SHALL reject an `order_item_id` that is not a line of the edited order, and it SHALL reject a payload that uses the same `order_item_id` twice. An existing line that the payload leaves out SHALL be removed from the order.
+
+#### Scenario: Existing line
+- **WHEN** an admin sends a line with the `order_item_id` of a stored line and a new quantity
+- **THEN** the system changes that stored line
+
+#### Scenario: Line from another order
+- **WHEN** an admin sends an `order_item_id` that belongs to a different order
+- **THEN** the request fails with a 422 error
+
+#### Scenario: Line whose variant was deleted
+- **WHEN** an order has a line whose variant was deleted, and an admin sends that line with its `order_item_id` and an unchanged quantity
+- **THEN** the line stays on the order with its stored values
+
+### Requirement: A variant can appear on only one new line, and not as a new line when the order has it
+The order calculation, order create and order update endpoints SHALL reject a payload in which two new lines have the same variant. An edit SHALL also reject a new line for a variant that an existing line of the order already holds.
+
+#### Scenario: Same variant sent twice
+- **WHEN** a payload holds two new lines with the same variant ID
+- **THEN** the request fails with a 422 error
+
+#### Scenario: Adding a variant already on the order
+- **WHEN** an admin sends a new line for a variant that is already on the order
+- **THEN** the request fails with a 422 error
+
+### Requirement: An existing line keeps its stored price
+When an edit is saved, an existing line SHALL be calculated with the unit price, regular price and catalog prices stored on the line. The system SHALL NOT read the variant's current price for it, and SHALL NOT change the line's stored name, SKU, barcode, image, weight or product data.
 
 #### Scenario: Price raised after the order was placed
 - **WHEN** a line was saved at a sale price of 25.00, the variant's sale price is now 28.00, and an admin saves an edit that changes only the shipping address
-- **THEN** the line's unit price is 28.00 and its subtotal and total are calculated from 28.00
+- **THEN** the line's unit price is still 25.00
 
-#### Scenario: Unit price and totals agree
-- **WHEN** an admin saves an edit that changes a line's quantity from 2 to 3 after a price change
-- **THEN** the line's stored unit price, regular price and catalog prices are all the current ones, and its subtotal is calculated from that same unit price
-
-### Requirement: An edit removes lines whose variant was deleted
-When an edit is saved, a line whose variant or product no longer exists SHALL be removed from the order. The system MUST NOT try to release stock for that line.
+#### Scenario: Quantity changed after a price change
+- **WHEN** an admin saves an edit that changes a line's quantity from 2 to 3 after the variant's price changed
+- **THEN** the line's unit price is the stored price, and its subtotal is the stored price times 3
 
 #### Scenario: Product deleted after the order was placed
-- **WHEN** an order has a line whose product was deleted, and an admin saves an edit of that order
-- **THEN** the saved order no longer has that line, the totals do not include it, and the save succeeds
+- **WHEN** an order has a line whose product was deleted, and an admin saves an edit that does not change that line
+- **THEN** the line stays on the order with its stored values and the save succeeds
 
-#### Scenario: Only the deleted line is affected
-- **WHEN** an order has one deleted line and one live line, and an admin saves an edit
-- **THEN** the live line stays on the order and only the deleted line is removed
+### Requirement: A new line takes the current variant price
+A line added in an edit SHALL be priced from the variant's current price and SHALL get a full snapshot of the variant (name, SKU, barcode, image, weight, product data and catalog prices), the same as order creation. The exchange rate and tax-inclusive setting that the order stores SHALL apply to it.
 
-### Requirement: Lines whose product is no longer published can still be edited
-A line already on the order whose product is now draft, scheduled or trashed, or whose variant is hidden, SHALL stay on the order. Its quantity SHALL be changeable under the same stock and limit rules as any other line.
-
-#### Scenario: Product moved to draft
-- **WHEN** a line's product was moved to draft after the order was placed, and an admin raises that line's quantity within available stock
-- **THEN** the edit is saved with the new quantity at the current price
+#### Scenario: Adding a line
+- **WHEN** an admin adds a variant whose sale price is 12.00 to an order
+- **THEN** the new line is priced at 12.00 and the lines already on the order keep their stored prices
 
 ### Requirement: New lines accept only products that can be bought
 A line added in an edit SHALL follow the same availability rule as order creation. The variant must exist and be visible, and its product must be published. Otherwise, the request SHALL fail with a validation error.
@@ -92,26 +111,27 @@ A line added in an edit SHALL follow the same availability rule as order creatio
 - **WHEN** an admin adds a new line for a variant whose product is a draft
 - **THEN** the request fails with a validation error
 
-### Requirement: A variant can appear on only one line
-The order calculation, order create and order update endpoints SHALL reject a payload in which two lines have the same variant, with a 422 validation error.
+### Requirement: A line whose product is not reachable is locked
+A line is not reachable when its variant or product no longer exists, or its product is draft, scheduled or trashed, or its variant is hidden. The system SHALL reject any change of the quantity of such a line, up or down, with a 422 error. The line MAY be removed from the order.
 
-#### Scenario: Same variant sent twice
-- **WHEN** a payload holds two lines with the same variant ID
-- **THEN** the request fails with a 422 error
+#### Scenario: Quantity raised on an unreachable line
+- **WHEN** a line's product was moved to draft and an admin raises the line's quantity
+- **THEN** the save fails with a 422 error
 
-#### Scenario: Adding a variant already on the order
-- **WHEN** an admin sends the existing line for a variant and also a new line for the same variant
-- **THEN** the request fails with a 422 error
+#### Scenario: Quantity lowered on an unreachable line
+- **WHEN** a line's variant was deleted and an admin lowers the line's quantity
+- **THEN** the save fails with a 422 error
 
-### Requirement: The per-order limit applies to the full line quantity
-When an edit or create is saved, the system SHALL reject a line whose full quantity is more than the variant's current per-order limit, when the variant has a limit. This SHALL also apply to lines already on the order.
+#### Scenario: Unreachable line left as it is
+- **WHEN** a line's product is a draft and an admin saves an edit that does not change that line
+- **THEN** the save succeeds and the line keeps its stored values
 
-#### Scenario: Limit lowered after the order was placed
-- **WHEN** a line has quantity 5, the variant's per-order limit is now 3, and an admin saves an edit
-- **THEN** the save fails with a 422 error until the line's quantity is 3 or less
+#### Scenario: Unreachable line removed
+- **WHEN** a line's variant was deleted and an admin leaves that line out of the payload
+- **THEN** the line is removed, and no stock is released for it
 
-### Requirement: Stock is checked only for the quantity added
-When an edit is saved, the system SHALL check and reserve stock only for the quantity added to a line already on the order, and for the full quantity of a new line. It SHALL release stock for the quantity taken off a line and for a removed line whose variant still exists.
+### Requirement: Stock is checked live for the quantity added
+When an edit is saved, the system SHALL check the variant's live stock and reserve it for the quantity added to a reachable line, and for the full quantity of a new line. It SHALL release stock for the quantity taken off a reachable line and for a removed line whose variant still exists. It SHALL NOT check stock for a line whose quantity does not go up.
 
 #### Scenario: Unchanged line on a sold-out variant
 - **WHEN** a line has quantity 5, the variant now has 0 available stock, and an admin saves an edit that does not change that line
@@ -125,6 +145,138 @@ When an edit is saved, the system SHALL check and reserve stock only for the qua
 - **WHEN** an admin lowers a line from 5 to 2
 - **THEN** 3 units of stock are released for that variant
 
+### Requirement: The per-order limit blocks only an increase
+When an edit is saved, the system SHALL reject a quantity increase on a line when the variant has a per-order limit and the new quantity is more than the current limit. A quantity that is not more than the stored quantity SHALL NOT be rejected by the limit, so the stored quantity always stays.
+
+#### Scenario: Limit lowered, room left
+- **WHEN** a line has quantity 4, the variant's limit is now 5, and an admin raises the quantity to 5
+- **THEN** the save succeeds
+
+#### Scenario: Limit lowered, no room
+- **WHEN** a line has quantity 4, the variant's limit is now 5, and an admin raises the quantity to 6
+- **THEN** the save fails with a 422 error
+
+#### Scenario: Limit lowered below the stored quantity
+- **WHEN** a line has quantity 4, the variant's limit is now 2, and an admin saves an edit that keeps the quantity at 4
+- **THEN** the save succeeds and the line keeps quantity 4
+
+#### Scenario: Limit lowered, increase refused
+- **WHEN** a line has quantity 4, the variant's limit is now 2, and an admin raises the quantity to 5
+- **THEN** the save fails with a 422 error
+
+### Requirement: Stored coupons are locked
+A coupon that is on the stored order SHALL stay applied with the terms stored on the order: its discount type, its target, its percent rate or its amounts, and the lines it discounted. The system SHALL NOT check the coupon record again, so a coupon that is expired, over its usage limit, changed or deleted SHALL still apply. The system SHALL NOT claim a coupon use again for a stored coupon.
+
+#### Scenario: Coupon expired after the order was placed
+- **WHEN** an order has a coupon that has expired since, and an admin saves an edit that changes a quantity
+- **THEN** the coupon stays applied with its stored terms
+
+#### Scenario: Coupon deleted after the order was placed
+- **WHEN** an order has a coupon whose record was deleted, and an admin saves an edit
+- **THEN** the coupon stays applied with its stored terms and the save succeeds
+
+#### Scenario: Coupon rate changed after the order was placed
+- **WHEN** an order has a 10% coupon, the coupon is now 20%, and an admin raises a line's quantity
+- **THEN** the discount on the line is 10% of the new line subtotal
+
+### Requirement: A stored percent coupon discounts a changed line by its stored rate
+For a stored product coupon with a percent rate, a changed line that the coupon discounted SHALL be discounted by the stored rate on its new subtotal. For a stored product coupon with a fixed amount, a changed line that the coupon discounted SHALL keep its stored discount, and the discount SHALL NOT be more than the line's new subtotal.
+
+#### Scenario: Quantity raised on a percent-discounted line
+- **WHEN** a line was discounted 10% at quantity 2, and an admin raises the quantity to 3
+- **THEN** the line's discount is 10% of the subtotal at quantity 3
+
+#### Scenario: Quantity raised on a fixed-discounted line
+- **WHEN** a line has a fixed product-coupon discount of 5.00, and an admin raises the quantity
+- **THEN** the line's discount stays 5.00
+
+### Requirement: A stored order-wide coupon also discounts a new line
+A stored coupon with the order target SHALL discount every line of the order, including a line added in the edit. A stored coupon with the product target SHALL discount only the lines it discounted before, and SHALL NOT discount a new line, even when the new line meets the original coupon's conditions.
+
+#### Scenario: Order-wide percent coupon and a new line
+- **WHEN** an order has a 10% order-wide coupon, and an admin adds a new line
+- **THEN** the new line is discounted 10%
+
+#### Scenario: Product coupon and a new line
+- **WHEN** an order has a coupon for specific products, and an admin adds a new line for a product that the coupon would have covered
+- **THEN** the new line gets no discount from that coupon
+
+### Requirement: A stored order-wide coupon keeps its stored terms
+A stored percent order coupon SHALL use its stored rate on the subtotal that is left after product coupons. A stored fixed order coupon SHALL keep its stored total, capped at the subtotal that is left, and the total SHALL be shared over all lines by their subtotal.
+
+#### Scenario: Fixed order coupon and a new line
+- **WHEN** an order has a fixed order-wide coupon of 10.00, and an admin adds a new line
+- **THEN** the total discount stays 10.00 and it is shared over all lines, including the new line
+
+#### Scenario: Fixed order coupon above the subtotal
+- **WHEN** a fixed order-wide coupon of 10.00 is stored, and an admin lowers the quantities so that the subtotal is 6.00
+- **THEN** the discount is 6.00
+
+### Requirement: A removed coupon that no longer exists cannot be added again
+An admin MAY remove a stored coupon in an edit. A coupon that is not on the stored order, including one that was removed in an earlier edit, SHALL be treated as a new coupon: it SHALL be checked and priced from the live coupon record, the same as order creation. So a coupon whose record was deleted cannot be applied again.
+
+#### Scenario: Deleted coupon removed, then added again
+- **WHEN** a deleted coupon is removed from an order in an edit, and an admin then sends its code on another edit
+- **THEN** the code matches no coupon and is not applied
+
+#### Scenario: Live coupon added
+- **WHEN** an admin adds a code of a live coupon that is not on the order
+- **THEN** the coupon is checked and priced with its live terms, and a coupon use is claimed
+
+### Requirement: An edit keeps the order's exchange rate and tax-inclusive setting
+When an edit is saved, the system SHALL convert every invoiced amount with the exchange rate stored on the order, and SHALL calculate the order with the tax-inclusive setting stored on the order. Neither SHALL change.
+
+#### Scenario: Rate changed since the order was placed
+- **WHEN** an order was placed at a rate of 0.90 and the current rate is 0.92
+- **THEN** after an edit is saved, the order's exchange rate is 0.90 and its invoiced amounts are converted at 0.90
+
+#### Scenario: Store moved to tax-inclusive prices
+- **WHEN** an order was saved under tax-exclusive pricing and the store now uses tax-inclusive pricing
+- **THEN** after an edit is saved, the order is still calculated and stored as tax-exclusive
+
+### Requirement: Shipping keeps its stored charge when the address and method are the same
+When the shipping country, the shipping state and the shipping method of an edit are the same as on the stored order, the system SHALL use the stored shipping charge and the stored shipping method record. It SHALL NOT check the method against the current shipping settings.
+
+#### Scenario: Address not changed
+- **WHEN** an admin saves an edit with the same shipping country, state and method, after the store's flat rate was raised
+- **THEN** the shipping charge and the method name are the stored ones
+
+### Requirement: A new shipping address or method quotes shipping again
+When the shipping country or state of an edit is different from the stored order's, or another shipping method is chosen, the system SHALL quote the shipping charge and the shipping method record again from the current settings. A method that is not available for the new address SHALL fail the request with a 422 error.
+
+#### Scenario: Address changed to another state
+- **WHEN** an admin saves an edit that changes the shipping state
+- **THEN** the shipping charge and the method record are quoted from the current settings for the new address
+
+#### Scenario: Shipping method not available at the new address
+- **WHEN** an admin changes the shipping country and the selected shipping method does not serve it
+- **THEN** the request fails with a 422 error
+
+### Requirement: Tax keeps its stored rates when the tax address is the same
+The system SHALL use the tax rates stored on the order, for the lines and for shipping, when the country and the state of the address that tax follows are the same as on the stored order. The address that tax follows is the order's tax destination: its shipping address, its billing address or the store address. The store address never changes. Other address fields SHALL NOT count as a new address.
+
+#### Scenario: Tax rate not changed
+- **WHEN** an admin saves an edit with the same country and state, after the store's tax rate was raised
+- **THEN** the tax is calculated with the stored rate
+
+#### Scenario: Only the street changed
+- **WHEN** an admin saves an edit that changes only the street and city of the address
+- **THEN** the stored tax rates and the stored shipping charge are used
+
+### Requirement: A new tax address calculates tax again
+When the country or the state of the address that tax follows is different from the stored order's, the system SHALL calculate the tax rates of every line and of shipping again from the current settings.
+
+#### Scenario: Address changed to another state
+- **WHEN** an admin saves an edit that changes the state of the address that tax follows
+- **THEN** the tax rates of every line are calculated from the current settings
+
+### Requirement: A new line is taxed at the current rate
+A line added in an edit has no stored tax rate. When the tax address did not change, the system SHALL tax the new line at the current rate for the order's address, and SHALL keep the stored rates for the lines already on the order.
+
+#### Scenario: Tax rate raised, new line added
+- **WHEN** the store's tax rate was raised after the order was placed, and an admin adds a line without changing the address
+- **THEN** the new line is taxed at the current rate and the existing lines keep the stored rate
+
 ### Requirement: An edit cannot change the order's currency
 The order update endpoint SHALL keep the order's currency. A request that sends a currency code different from the order's currency SHALL fail with a 422 error. A request that sends no currency code SHALL use the order's currency.
 
@@ -136,37 +288,16 @@ The order update endpoint SHALL keep the order's currency. A request that sends 
 - **WHEN** an admin saves an edit of a EUR order with currency code USD
 - **THEN** the request fails with a 422 error
 
-### Requirement: An edit converts amounts with the current exchange rate
-When an edit is saved, the system SHALL convert every invoiced amount with the current exchange rate from the base currency to the order's currency, and SHALL store that rate on the order.
+### Requirement: Coupon discount terms are stored at checkout
+When an order is created, the system SHALL store the percent rate of a percent coupon on its order coupon row in `discount_rate`. For other coupon types, `discount_rate` SHALL be empty. Together with the existing columns, this row and its item rows SHALL hold every term that a stored coupon needs in an edit.
 
-#### Scenario: Rate changed since the order was placed
-- **WHEN** an order was placed at a rate of 0.90 and the current rate is 0.92
-- **THEN** after an edit is saved, the order's exchange rate is 0.92 and its invoiced amounts are converted at 0.92
+#### Scenario: Percent coupon at checkout
+- **WHEN** an order is created with a 15% coupon
+- **THEN** its order coupon row has `discount_rate` 15
 
-### Requirement: An edit applies the current tax mode
-When an edit is saved, the system SHALL calculate the order in the store's current tax-inclusive setting and SHALL store that setting on the order.
-
-#### Scenario: Store moved to tax-inclusive prices
-- **WHEN** an order was saved under tax-exclusive pricing and the store now uses tax-inclusive pricing
-- **THEN** after an edit is saved, the order is calculated and stored as tax-inclusive
-
-### Requirement: An edit refreshes the shipping method record
-When an edit is saved, the system SHALL store the selected shipping method's current ID, name and type on the order.
-
-#### Scenario: Shipping method renamed
-- **WHEN** the order's shipping method was renamed in the settings and an admin saves an edit
-- **THEN** the order shows the method's new name
-
-### Requirement: An order's own coupon use does not count against the coupon's total limit
-When the system checks a coupon's total usage limit for an order that already holds an active use of that coupon, it SHALL NOT count that order's own use. This SHALL apply to the calculation preview and to the save.
-
-#### Scenario: The order took the last use
-- **WHEN** a coupon has a limit of 10 and 10 uses, one of them by this order, and an admin edits this order
-- **THEN** the coupon stays applied
-
-#### Scenario: Another order took the last use
-- **WHEN** a coupon has a limit of 10 and 10 uses, none of them by this order, and an admin adds the coupon in an edit
-- **THEN** the coupon is not applied
+#### Scenario: Fixed coupon at checkout
+- **WHEN** an order is created with a fixed-amount coupon
+- **THEN** its order coupon row has an empty `discount_rate`
 
 ### Requirement: Deleted variants and coupons do not block order changes
 Saving an edit, and cancelling an order, SHALL succeed when the order has a line whose variant was deleted, or an order coupon whose coupon was deleted. The system SHALL skip the stock release and the coupon-usage release for those records.
@@ -181,10 +312,10 @@ Saving an edit, and cancelling an order, SHALL succeed when the order has a line
 
 #### Scenario: Editing an order with a deleted coupon
 - **WHEN** an admin saves an edit of an order whose coupon was deleted
-- **THEN** the coupon is removed from the order and the save succeeds
+- **THEN** the coupon stays on the order and the save succeeds
 
 ### Requirement: Preview and save use the same calculation inputs
-The order calculation endpoint, order create and order update SHALL build each line's calculation input in the same way, including the variant's tax profile (or the product's tax profile when the variant has none). So for the same payload and the same store state, the preview totals SHALL equal the saved totals.
+The order calculation endpoint, order create and order update SHALL build each line's calculation input in the same way, including the variant's tax profile (or the product's tax profile when the variant has none) for a new line. So for the same payload and the same store state, the preview totals SHALL equal the saved totals.
 
 #### Scenario: Product with its own tax profile
 - **WHEN** a variant uses a tax profile with a reduced rate, and an admin previews and then saves an order with that variant

@@ -99,11 +99,7 @@ class AnalyticsMetricRequest extends Request
         }
 
         if (!empty($errors)) {
-<<<<<<< Updated upstream
             throw_exception(ValidationException::with_errors($errors));
-=======
-            throw ValidationException::with_errors($errors); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- ApiExceptionHandler encodes these field errors in a JSON response, not HTML output.
->>>>>>> Stashed changes
         }
     }
 

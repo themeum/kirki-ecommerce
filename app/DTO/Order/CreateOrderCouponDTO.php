@@ -34,6 +34,9 @@ class CreateOrderCouponDTO extends DTO
     /** @var string|null */
     public $discount_target;
 
+    /** @var float|null Percent a percentage coupon takes off; null for any other coupon */
+    public $discount_rate;
+
     /** @var array JSON snapshot of the coupon's rules at checkout */
     public $coupon_snapshot = [];
 

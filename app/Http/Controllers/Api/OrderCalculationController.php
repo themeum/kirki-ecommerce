@@ -5,11 +5,9 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
-use Kirki\Ecommerce\App\DTO\Order\OrderChangesDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
 use Kirki\Ecommerce\App\Services\OrderCalculationContextBuilder;
-use Kirki\Ecommerce\App\Services\OrderChangeDetector;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
@@ -48,19 +46,18 @@ class OrderCalculationController
     /**
      * Calculate subtotal, discounts, tax, shipping and grand total for the submitted order details.
      *
-     * With an `order_id`, the payload is an edit of that order: the result also
-     * reports what changed since the order was last saved.
+     * With an `order_id`, the payload is an edit of that order: it is priced with the
+     * terms the order was placed with, the same as when the edit is saved.
      *
      * @since 1.0.0
      *
      * @param OrderCalculationRequest $request
      * @param RecalculateCartAction   $action
-     * @param OrderChangeDetector     $change_detector Reports what changed since an edited order was saved.
      * @return \Kirki\Ecommerce\Framework\Http\JsonResponse The calculation result, in the store's base currency.
      * @throws NotFoundException When the order to edit does not exist.
      * @throws ValidationException When the order to edit can no longer be edited.
      */
-    public function get(OrderCalculationRequest $request, RecalculateCartAction $action, OrderChangeDetector $change_detector)
+    public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
     {
         $order = $this->find_editable_order($request->input('order_id'));
         $context = $this->context_builder->build($request->all(), $order, false);
@@ -70,8 +67,6 @@ class OrderCalculationController
             'data' => OrderCalculationResource::make([
                 'result' => $result,
                 'context' => $context,
-                'order' => $order,
-                'changes' => $order ? $change_detector->detect($order, $context, $result) : new OrderChangesDTO(),
                 'variants' => $this->context_builder->get_variants_map(),
             ])
         ]);
