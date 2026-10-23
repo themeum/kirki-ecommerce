@@ -212,6 +212,16 @@ A stored percent order coupon SHALL use its stored rate on the subtotal that is 
 - **WHEN** a fixed order-wide coupon of 10.00 is stored, and an admin lowers the quantities so that the subtotal is 6.00
 - **THEN** the discount is 6.00
 
+#### Scenario: Fixed coupon restored after a capped edit
+- **WHEN** a fixed coupon originally gave 10.00, an edit caps it at 6.00, and a later edit raises the subtotal above 10.00
+- **THEN** the coupon can give 10.00 again, using its unchanged `base_max_discount_amount`
+- **AND** this applies to both an order-wide coupon and a product coupon on its original line
+
+#### Scenario: A kept coupon temporarily gives no discount
+- **WHEN** another coupon consumes a line's subtotal during an edit
+- **THEN** the original coupon's attribution and fixed maximum stay stored even when its applied amount is zero
+- **AND** removing the other coupon lets the original coupon discount that line again
+
 ### Requirement: A removed coupon that no longer exists cannot be added again
 An admin MAY remove a stored coupon in an edit. A coupon that is not on the stored order, including one that was removed in an earlier edit, SHALL be treated as a new coupon: it SHALL be checked and priced from the live coupon record, the same as order creation. So a coupon whose record was deleted cannot be applied again.
 
@@ -270,6 +280,21 @@ When the country or the state of the address that tax follows is different from 
 - **WHEN** an admin saves an edit that changes the state of the address that tax follows
 - **THEN** the tax rates of every line are calculated from the current settings
 
+### Requirement: Shipping tax rates survive a zero shipping charge
+The system SHALL retain shipping tax rates in zero-amount tax rows when shipping is free, on creation and on edits. Split shipping tax SHALL retain each item's rate even when every item's taxable amount is zero.
+
+#### Scenario: Free shipping is applied and later removed
+- **WHEN** an order has a 10% shipping tax rate, free shipping is saved, the live rate changes to 20%, and free shipping is removed without changing the address
+- **THEN** the saved zero-amount tax row still holds 10% and the restored shipping charge is taxed at 10%
+
+#### Scenario: Free shipping at checkout
+- **WHEN** a new order has taxable shipping waived by a coupon
+- **THEN** its shipping tax rates are stored with zero amounts for later edits
+
+#### Scenario: Split shipping with no taxable amount
+- **WHEN** free shipping is split between items with different tax rates and every item's taxable amount is zero
+- **THEN** each item retains its shipping tax rate with a zero amount
+
 ### Requirement: A new line is taxed at the current rate
 A line added in an edit has no stored tax rate. When the tax address did not change, the system SHALL tax the new line at the current rate for the order's address, and SHALL keep the stored rates for the lines already on the order.
 
@@ -289,7 +314,7 @@ The order update endpoint SHALL keep the order's currency. A request that sends 
 - **THEN** the request fails with a 422 error
 
 ### Requirement: Coupon discount terms are stored at checkout
-When an order is created, the system SHALL store the percent rate of a percent coupon on its order coupon row in `discount_rate`. For other coupon types, `discount_rate` SHALL be empty. Together with the existing columns, this row and its item rows SHALL hold every term that a stored coupon needs in an edit.
+The system SHALL store a percentage coupon's rate in `order_coupons.discount_rate`, otherwise null. Fixed amount-off coupons SHALL store their original promised discounts in `base_max_discount_amount` on the order coupon and its item coupons, otherwise null. Edits SHALL preserve these maxima separately from applied amounts.
 
 #### Scenario: Percent coupon at checkout
 - **WHEN** an order is created with a 15% coupon

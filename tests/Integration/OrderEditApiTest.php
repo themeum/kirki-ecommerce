@@ -11,6 +11,7 @@ use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
 use Kirki\Ecommerce\App\Constants\Coupon\EligibleItemType;
 use Kirki\Ecommerce\App\Constants\OptionKeys;
 use Kirki\Ecommerce\App\Constants\Order\FulfillmentStatus;
+use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Constants\Product\ProductStatus;
 use Kirki\Ecommerce\App\Constants\ShippingMethodTypes;
@@ -23,6 +24,7 @@ use Kirki\Ecommerce\App\Models\Currency;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
+use Kirki\Ecommerce\App\Models\OrderItemCoupon;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Product;
 use Kirki\Ecommerce\App\Models\Variant;
@@ -153,6 +155,8 @@ class OrderEditApiTest extends RestTestCase
 
         $this->assertEquals(15, OrderCoupon::where('order_id', $percentage_order['id'])->first()->discount_rate);
         $this->assertNull(OrderCoupon::where('order_id', $fixed_order['id'])->first()->discount_rate);
+        $this->assertNull(OrderCoupon::where('order_id', $percentage_order['id'])->first()->base_max_discount_amount);
+        $this->assertSame(300, OrderCoupon::where('order_id', $fixed_order['id'])->first()->base_max_discount_amount);
     }
 
     // Cancelling orders whose records were deleted
@@ -727,7 +731,131 @@ class OrderEditApiTest extends RestTestCase
         $this->assertGreaterThan(0, OrderItem::where('order_id', $order['id'])->where('variant_id', $added_variant_id)->first()->base_discount_amount);
     }
 
+    /**
+     * @return array<string, array{string}>
+     */
+    public function fixed_coupon_targets(): array
+    {
+        return [
+            'order coupon' => [DiscountTarget::ORDER],
+            'product coupon' => [DiscountTarget::PRODUCTS],
+        ];
+    }
+
+    /**
+     * @dataProvider fixed_coupon_targets
+     * @param string $target Scope of the fixed coupon.
+     */
+    public function test_a_fixed_coupon_keeps_its_maximum_after_a_capped_edit(string $target): void
+    {
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => 600, 'base_sale_price' => 600]);
+        $coupon = $this->create_amount_off_coupon($target, DiscountValueType::FIXED, 1000);
+        $order = $this->create_order([
+            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'coupon_codes' => [$coupon->code],
+        ]);
+
+        Coupon::query()->where('id', $coupon->id)->delete();
+
+        foreach ([1 => 600, 2 => 1000, 3 => 1000] as $quantity => $expected_discount) {
+            $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+                'items' => [$this->line($order, $quantity)],
+                'coupon_codes' => [$coupon->code],
+            ])));
+
+            $order_coupon = OrderCoupon::where('order_id', $order['id'])->first();
+            $item_coupon = OrderItemCoupon::where('order_coupon_id', $order_coupon->id)->first();
+
+            $this->assertSame(1000, $order_coupon->base_max_discount_amount);
+            $this->assertSame(1000, $item_coupon->base_max_discount_amount);
+            $this->assertSame($expected_discount, $order_coupon->base_discount_amount);
+            $this->assertSame($expected_discount, $item_coupon->base_discount_amount);
+        }
+    }
+
+    public function test_a_fixed_product_coupon_keeps_its_maximum_when_an_edit_uses_none_of_it(): void
+    {
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => 600, 'base_sale_price' => 600]);
+        $stored_coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 1000);
+        $order = $this->create_order([
+            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'coupon_codes' => [$stored_coupon->code],
+        ]);
+        $new_coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 1200);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$stored_coupon->code, $new_coupon->code],
+        ])));
+
+        $order_coupon = OrderCoupon::where('order_id', $order['id'])->where('code', $stored_coupon->code)->first();
+        $item_coupon = OrderItemCoupon::where('order_coupon_id', $order_coupon->id)->first();
+        $this->assertSame(0, $item_coupon->base_discount_amount);
+        $this->assertSame(1000, $item_coupon->base_max_discount_amount);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$stored_coupon->code],
+        ])));
+
+        $this->assertSame(1000, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
     // Shipping and tax
+
+    /**
+     * @return array<string, array{bool}>
+     */
+    public function free_shipping_starting_states(): array
+    {
+        return [
+            'free shipping added in an edit' => [false],
+            'free shipping applied at checkout' => [true],
+        ];
+    }
+
+    /**
+     * @dataProvider free_shipping_starting_states
+     * @param bool $starts_with_free_shipping Whether checkout already applies the coupon.
+     */
+    public function test_shipping_tax_rate_survives_free_shipping_and_is_used_when_it_is_removed(bool $starts_with_free_shipping): void
+    {
+        $this->enable_tax(false, 10, 10);
+        $this->rename_shipping_method('Standard Delivery', 10, true, true);
+        $coupon = Coupon::create([
+            'title' => 'Free Shipping',
+            'code' => 'SHIP' . strtoupper(wp_generate_password(6, false)),
+            'discount_type' => DiscountType::FREE_SHIPPING,
+            'is_active' => true,
+        ]);
+        $order = $this->create_order(['coupon_codes' => $starts_with_free_shipping ? [$coupon->code] : []]);
+
+        $this->enable_tax(false, 20, 20);
+        $this->rename_shipping_method('Standard Delivery', 15, true, true);
+
+        for ($edit = 0; $edit < 2; $edit++) {
+            $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+                'items' => [$this->line($order, 1)],
+                'coupon_codes' => [$coupon->code],
+            ])));
+
+            $shipping_taxes = OrderTax::where('order_id', $order['id'])->where('type', OrderTaxType::SHIPPING)->get();
+            $this->assertCount(1, $shipping_taxes);
+            $this->assertEquals(10, $shipping_taxes->first()->rate);
+            $this->assertEquals(0, $shipping_taxes->first()->base_amount);
+            $this->assertSame(0, (int) Order::find($order['id'])->base_shipping_total);
+        }
+
+        Coupon::query()->where('id', $coupon->id)->delete();
+        $payload = ['items' => [$this->line($order, 1)], 'coupon_codes' => []];
+        $preview = $this->preview(array_merge($payload, ['order_id' => $order['id']]));
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)));
+
+        $saved = Order::find($order['id']);
+        $this->assertSame(100, $saved->base_shipping_tax_amount);
+        $this->assertSame(1100, (int) $saved->base_shipping_total);
+        $this->assertSame((int) round($preview['totals']['base_total_money_object']['raw'] * 100), (int) $saved->base_total);
+    }
 
     public function test_an_edit_keeps_the_shipping_cost_and_method_name_for_an_address_that_did_not_change(): void
     {
@@ -986,17 +1114,18 @@ class OrderEditApiTest extends RestTestCase
     /**
      * Tax US orders at a central rate, inclusive or exclusive of the price.
      *
-     * @param bool      $is_tax_inclusive Whether prices include tax.
-     * @param int|float $rate             Tax rate in percent.
+     * @param bool           $is_tax_inclusive Whether prices include tax.
+     * @param int|float      $rate             Tax rate in percent.
+     * @param int|float|null $shipping_rate    Shipping tax rate, or null when shipping tax is disabled.
      * @return void
      */
-    protected function enable_tax(bool $is_tax_inclusive, $rate = 10): void
+    protected function enable_tax(bool $is_tax_inclusive, $rate = 10, $shipping_rate = null): void
     {
         $this->assert_api_success($this->request('PUT', 'settings', [
             'key' => OptionKeys::TAX_SETTINGS,
             'data' => [
                 'is_tax_inclusive_price' => $is_tax_inclusive,
-                'is_shipping_tax_enabled' => false,
+                'is_shipping_tax_enabled' => $shipping_rate !== null,
                 'is_enabled_display_inclusive_taxed_price' => false,
                 'tax_regions' => [
                     [
@@ -1005,7 +1134,7 @@ class OrderEditApiTest extends RestTestCase
                         'type' => null,
                         'is_central_tax_enabled' => true,
                         'central_product_tax' => $rate,
-                        'central_shipping_tax' => 0,
+                        'central_shipping_tax' => $shipping_rate ?? 0,
                         'states' => [],
                         'rules' => [],
                     ],
@@ -1121,9 +1250,10 @@ class OrderEditApiTest extends RestTestCase
      * @param string $name        New method name.
      * @param int    $base_amount Flat rate, in major units.
      * @param bool   $is_enabled  Whether the method stays enabled.
+     * @param bool   $is_taxable  Whether the method is taxable.
      * @return void
      */
-    protected function rename_shipping_method(string $name, int $base_amount = 10, bool $is_enabled = true): void
+    protected function rename_shipping_method(string $name, int $base_amount = 10, bool $is_enabled = true, bool $is_taxable = false): void
     {
         $this->assert_api_success($this->request('PUT', 'settings', [
             'key' => OptionKeys::SHIPPING_SETTINGS,
@@ -1141,7 +1271,7 @@ class OrderEditApiTest extends RestTestCase
                                 'name' => $name,
                                 'type' => ShippingMethodTypes::FLAT_RATE,
                                 'base_amount' => $base_amount,
-                                'is_taxable' => false,
+                                'is_taxable' => $is_taxable,
                                 'description' => null,
                                 'shipping_rules' => [],
                             ],

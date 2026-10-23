@@ -74,7 +74,7 @@ Current state that shapes the approach:
 - A stored coupon, a stored shipping cost and stored tax rates are calculated
   from stored columns. They do not need the coupon record, the shipping
   settings or the tax settings to exist.
-- One new nullable column, and no migration file, no backfill.
+- Three new nullable coupon snapshot columns, and no migration file, no backfill.
 
 **Design constraint (keeps a later second strategy cheap):** the freeze rules
 live only in these named places, and nowhere else:
@@ -229,6 +229,11 @@ The engine does the math. For an edit, the builder gives it stored inputs.
   order's own tax mode. When tax is not calculated today, a new line has no tax.
   A stored line with no tax rows stays untaxed. The strategy needs no tax
   region to exist today.
+  Shipping tax rows retain their rates with zero amounts when shipping is
+  free. Both the live EU strategy and the stored-rate strategy retain one
+  row per item for split shipping, even when all taxable amounts are zero.
+  Creation and edits can therefore persist those rates without losing them
+  when a free-shipping coupon is later removed.
 - **Shipping:** when the address and method are not changed, the context
   carries the stored shipping charge before discount and tax
   (`StoredOrderTermsDTO::$shipping_subtotal`), and the engine does not run the
@@ -249,21 +254,24 @@ The engine does the math. For an edit, the builder gives it stored inputs.
     | Stored coupon | Terms read | Result for a line |
     | --- | --- | --- |
     | product scope, percent | `discount_rate` and the lines that have an `order_item_coupons` row | `round(rate × line subtotal)` for those lines only |
-    | product scope, fixed | the stored share on each line | the stored share, capped at the line subtotal |
+    | product scope, fixed | the original `base_max_discount_amount` on each item coupon | the stored maximum, capped at the line subtotal |
     | order scope, percent | `discount_rate` | `rate × subtotal that is left`, shared over all lines, including new ones |
-    | order scope, fixed | `base_discount_amount` (the total) | the stored total, capped at the subtotal that is left, shared over all lines |
+    | order scope, fixed | `base_max_discount_amount` on the order coupon | the stored maximum, capped at the subtotal that is left, shared over all lines |
     | free shipping | the type | waives up to the shipping subtotal |
 
     The result goes into the same `DiscountCalculationResultDTO`, with a coupon
     result that carries the stored coupon data instead of a `Coupon` model.
   - A fixed total is the amount the coupon gave at checkout, which may be less
     than the configured amount when it was capped. That is the promised
-    amount, so the edit keeps it.
+    amount, so the edit keeps it in `base_max_discount_amount`. The currently
+    applied amount is written separately. A later edit that lowers the subtotal
+    never reduces the original maximum. Existing attribution rows are retained
+    at zero applied discount so their original terms remain available.
 
 *Alternative:* store the full coupon JSON and re-run `calculate()`. The user
 rejected the JSON snapshot.
 
-### D6. `order_coupons.discount_rate`
+### D6. Coupon rate and fixed maximum snapshots
 
 A nullable `decimal(8,4)` column on `order_coupons`, added to
 `CreateOrderCouponsTable`. `PersistsOrderCoupons` writes the coupon's
@@ -273,6 +281,12 @@ the field. The feature is not released, so no migration and no backfill.
 
 Existing checkout tests that read order coupons need the new key; the seeder
 also writes the value.
+
+`base_max_discount_amount` is a nullable integer in base currency minor units
+on both `order_coupons` and `order_item_coupons`. For fixed amount-off coupons,
+it is initialized from the discount first promised and copied unchanged on
+every edit. Other coupon types leave it null. An old row without a maximum
+uses its current amount as a fallback. The applied amounts remain mutable.
 
 ### D7. Save order: lock → check → build → calculate → write
 
@@ -436,7 +450,7 @@ stored terms.
 
 ## Migration Plan
 
-- One nullable column, `order_coupons.discount_rate`, added to the existing
-  `CreateOrderCouponsTable`. The feature is not released, so there is no new
+- Three nullable coupon snapshot columns added to the existing
+  `CreateOrderCouponsTable` and `CreateOrderItemCouponsTable`. The feature is not released, so there is no new
   migration file and no backfill. Development databases are recreated.
 - Rollback: revert the code and the column. No other data needs to be undone.

@@ -5,6 +5,7 @@ namespace Kirki\Ecommerce\App\Concerns;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Coupon\DiscountValueType;
+use Kirki\Ecommerce\App\Constants\Coupon\DiscountType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO;
 use Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO;
 use Kirki\Ecommerce\App\DTO\Order\CreateOrderCouponDTO;
@@ -79,6 +80,12 @@ trait PersistsOrderCoupons
             $order_coupon_dto->invoiced_discount_amount = $this->convert_amount($coupon_result->total_discount, $currency_code, $exchange_rate);
             $order_coupon_dto->base_discount_amount = $coupon_result->total_discount;
 
+            if ($coupon_result->coupon->discount_type === DiscountType::AMOUNT_OFF && $coupon_result->coupon->discount_value_type === DiscountValueType::FIXED) {
+                $order_coupon_dto->base_max_discount_amount = $kept_order_coupon
+                    ? ($kept_order_coupon->base_max_discount_amount ?? $kept_order_coupon->base_discount_amount)
+                    : $coupon_result->total_discount;
+            }
+
             $order_coupon = $this->order_service->create_order_coupon($order_coupon_dto);
             $order_coupons[] = $order_coupon;
 
@@ -125,6 +132,7 @@ trait PersistsOrderCoupons
         $order_coupon_dto->discount_type = $kept_order_coupon->discount_type;
         $order_coupon_dto->discount_target = $kept_order_coupon->discount_target;
         $order_coupon_dto->discount_rate = $kept_order_coupon->discount_rate;
+        $order_coupon_dto->base_max_discount_amount = $kept_order_coupon->base_max_discount_amount;
         $order_coupon_dto->coupon_snapshot = $kept_order_coupon->coupon_snapshot ?: [];
         $order_coupon_dto->usage_reversed_at = $kept_order_coupon->usage_reversed_at;
 
@@ -178,11 +186,22 @@ trait PersistsOrderCoupons
      */
     protected function sync_order_item_coupons(OrderCoupon $order_coupon, CouponDiscountResultDTO $coupon_result, array $order_items_by_line_key, string $currency_code, float $exchange_rate)
     {
-        foreach ($coupon_result->item_discounts as $line_key => $amount) {
-            if (empty($amount)) {
-                continue;
+        $stored_item_coupons = [];
+        $item_discounts = $coupon_result->item_discounts;
+
+        if ($coupon_result->order_coupon) {
+            foreach ($coupon_result->order_coupon->order_item_coupons as $stored_item_coupon) {
+                $stored_item_coupons[$stored_item_coupon->order_item_id] = $stored_item_coupon;
             }
 
+            foreach ($order_items_by_line_key as $line_key => $order_item) {
+                if (isset($stored_item_coupons[$order_item->id]) && !isset($item_discounts[$line_key])) {
+                    $item_discounts[$line_key] = 0;
+                }
+            }
+        }
+
+        foreach ($item_discounts as $line_key => $amount) {
             throw_if(
                 empty($order_items_by_line_key[$line_key]),
                 sprintf(
@@ -192,11 +211,23 @@ trait PersistsOrderCoupons
                 )
             );
 
+            $stored_item_coupon = $stored_item_coupons[$order_items_by_line_key[$line_key]->id] ?? null;
+
+            if (empty($amount) && !$stored_item_coupon) {
+                continue;
+            }
+
             $item_coupon_dto = new CreateOrderItemCouponDTO();
             $item_coupon_dto->order_item_id = $order_items_by_line_key[$line_key]->id;
             $item_coupon_dto->order_coupon_id = $order_coupon->id;
             $item_coupon_dto->invoiced_discount_amount = $this->convert_amount($amount, $currency_code, $exchange_rate);
             $item_coupon_dto->base_discount_amount = $amount;
+
+            if ($coupon_result->coupon->discount_type === DiscountType::AMOUNT_OFF && $coupon_result->coupon->discount_value_type === DiscountValueType::FIXED) {
+                $item_coupon_dto->base_max_discount_amount = $stored_item_coupon
+                    ? ($stored_item_coupon->base_max_discount_amount ?? $stored_item_coupon->base_discount_amount)
+                    : $amount;
+            }
 
             $this->order_service->create_order_item_coupon($item_coupon_dto);
         }

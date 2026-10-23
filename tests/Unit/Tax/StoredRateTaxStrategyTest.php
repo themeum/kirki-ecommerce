@@ -102,6 +102,38 @@ class StoredRateTaxStrategyTest extends TestCase
         $this->assertSame([1, 2], array_map(fn($line) => $line->item_id, $result->shipping));
     }
 
+    public function test_zero_shipping_keeps_its_stored_tax_rate(): void
+    {
+        $terms = $this->stored_terms([1 => []]);
+        $terms->shipping_tax_rates = [['name' => 'Shipping Tax', 'rate' => 5.0, 'line_key' => null]];
+
+        $result = $this->make_strategy($terms)->calculate($this->tax_context(['shipping_fee' => 0]));
+
+        $this->assertCount(1, $result->shipping);
+        $this->assertSame(5.0, $result->shipping[0]->rate);
+        $this->assertSame(0, $result->shipping[0]->base_amount);
+        $this->assertNull($result->shipping[0]->item_id);
+    }
+
+    public function test_zero_shipping_keeps_each_split_rate_even_when_every_item_is_free(): void
+    {
+        $terms = $this->stored_terms([1 => [['name' => 'VAT', 'rate' => 20.0]], 2 => [['name' => 'VAT', 'rate' => 10.0]]]);
+        $terms->is_shipping_tax_split = true;
+        $terms->shipping_tax_rates = [
+            ['name' => 'VAT', 'rate' => 20.0, 'line_key' => 1],
+            ['name' => 'VAT', 'rate' => 10.0, 'line_key' => 2],
+        ];
+
+        foreach ([1000, 0] as $taxable_amount) {
+            $context = $this->tax_context(['shipping_fee' => 0], ['items' => [$this->taxable_item(1, $taxable_amount), $this->taxable_item(2, $taxable_amount)]]);
+            $result = $this->make_strategy($terms)->calculate($context);
+
+            $this->assertSame([20.0, 10.0], array_map(fn($line) => $line->rate, $result->shipping));
+            $this->assertSame([0, 0], array_map(fn($line) => $line->base_amount, $result->shipping));
+            $this->assertSame([1, 2], array_map(fn($line) => $line->item_id, $result->shipping));
+        }
+    }
+
     public function test_split_shipping_tax_uses_the_items_rate_when_its_stored_line_is_gone(): void
     {
         $terms = $this->stored_terms([2 => [['name' => 'VAT', 'rate' => 10.0]]]);

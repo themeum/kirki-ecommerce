@@ -103,20 +103,21 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
      *
      * @param TaxCalculationContextDTO $context Addresses, shipping fee and items to tax.
      * @param TaxCalculationResultDTO  $result  Result so far, holding the item tax lines.
-     * @return TaxLineDTO[] Empty when no shipping tax is stored or there is no shipping fee.
+     * @return TaxLineDTO[] Stored rates with calculated amounts, including zero amounts when shipping is free.
      */
     protected function calculate_shipping_lines(TaxCalculationContextDTO $context, TaxCalculationResultDTO $result): array
     {
         $stored_rates = $this->stored->shipping_tax_rates;
 
-        if (empty($stored_rates) || $context->shipping_fee <= 0) {
+        if (empty($stored_rates)) {
             return [];
         }
 
         $is_split_across_items = $this->stored->is_shipping_tax_split;
         $taxable_amounts = array_map(fn($item) => $item->taxable_amount, $context->items);
+        $has_taxable_amounts = array_sum($taxable_amounts) > 0;
 
-        if (!$is_split_across_items || array_sum($taxable_amounts) <= 0) {
+        if (!$is_split_across_items || (!$has_taxable_amounts && $context->shipping_fee > 0)) {
             return array_map(function ($stored_rate) use ($context) {
                 return TaxLineDTO::from_array([
                     'name' => $stored_rate['name'],
@@ -134,15 +135,11 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
             }
         }
 
-        $portions = Money::from_minor($context->shipping_fee)->allocate(...$taxable_amounts);
+        $portions = $has_taxable_amounts ? Money::from_minor($context->shipping_fee)->allocate(...$taxable_amounts) : [];
         $lines = [];
 
         foreach ($context->items as $index => $item) {
-            $portion = $portions[$index]->getMinorAmount()->toInt();
-
-            if ($portion <= 0) {
-                continue;
-            }
+            $portion = isset($portions[$index]) ? $portions[$index]->getMinorAmount()->toInt() : 0;
 
             $item_rate = $rates_by_line_key[$item->item_id] ?? $this->first_item_rate($result->items[$item->item_id] ?? [], $stored_rates[0]);
 

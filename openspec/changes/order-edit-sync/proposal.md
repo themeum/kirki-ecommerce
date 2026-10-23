@@ -55,9 +55,12 @@ quoted.
   the edit. A coupon for specific products never discounts a new line. An admin
   can remove a stored coupon. A removed coupon that was deleted cannot be added
   again.
-- **One new column:** `order_coupons.discount_rate` (the percent of a percent
-  coupon), written at checkout. The column goes into the existing
-  create-table migration. The feature is not released, so there is no backfill.
+- **Coupon snapshot columns:** `order_coupons.discount_rate` holds the percent
+  rate. `base_max_discount_amount` on `order_coupons` and `order_item_coupons`
+  keeps the original fixed discount independently of the currently applied
+  amount, so a capped edit cannot reduce the promise for later edits. The
+  columns go into the existing create-table migrations. The feature is not
+  released, so there is no backfill.
 - **One calculation endpoint for create and edit.** `POST /calculate/order`
   accepts an optional `order_id`. The rest of the payload has the same shape
   as create, except that an existing line is sent with `order_item_id`.
@@ -115,8 +118,8 @@ quoted.
   - Removed from the earlier work: `OrderChangeDetector`, `OrderChangesDTO`,
     `OrderChangeState`, `OrderService::holds_coupon_usage` and the total-limit
     change in `DiscountService`.
-- **Schema:** one nullable column, `order_coupons.discount_rate`, added in the
-  existing create-table migration. No new migration and no backfill.
+- **Schema:** three nullable coupon snapshot columns added in the existing
+  create-table migrations. No new migration and no backfill.
 - **Admin frontend:** not in scope. No frontend code changes in this change.
 - **Docs:**
   - New `docs/order-editing.md`.

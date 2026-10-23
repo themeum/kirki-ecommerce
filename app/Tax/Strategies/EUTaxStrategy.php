@@ -121,11 +121,12 @@ class EUTaxStrategy extends AbstractTaxStrategy
         }
 
         $taxable_amounts = array_map(fn($item) => $item->taxable_amount, $context->items);
+        $has_taxable_amounts = array_sum($taxable_amounts) > 0;
 
         // No items to allocate the shipping fee across (e.g. a
         // shipping-only quote) - fall back to the member country's plain
         // rate, unattributed to any item.
-        if (empty($taxable_amounts) || array_sum($taxable_amounts) <= 0) {
+        if (empty($taxable_amounts) || (!$has_taxable_amounts && $context->shipping_fee > 0)) {
             $rate = $this->get_rate($this->tax_address($context));
 
             return [
@@ -137,16 +138,12 @@ class EUTaxStrategy extends AbstractTaxStrategy
             ];
         }
 
-        $portions = Money::from_minor($context->shipping_fee)->allocate(...$taxable_amounts);
+        $portions = $has_taxable_amounts ? Money::from_minor($context->shipping_fee)->allocate(...$taxable_amounts) : [];
 
         $lines = [];
 
         foreach ($context->items as $index => $item) {
-            $portion = $portions[$index]->getMinorAmount()->toInt();
-
-            if ($portion <= 0) {
-                continue;
-            }
+            $portion = isset($portions[$index]) ? $portions[$index]->getMinorAmount()->toInt() : 0;
 
             $rate = $rates_by_item[$item->item_id];
 

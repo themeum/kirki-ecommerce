@@ -178,7 +178,8 @@ inactive, reached its limit or was deleted since. It is not checked again and
 it does not count a second use.
 
 The terms are in the `order_coupons` and `order_item_coupons` rows: the type,
-the target, the percentage (`discount_rate`), the amount the coupon gave, and
+the target, the percentage (`discount_rate`), the original fixed maximum
+(`base_max_discount_amount`), the amount currently applied, and
 which lines it discounted.
 
 | Stored coupon | When a quantity changes | When a line is added |
@@ -191,6 +192,10 @@ which lines it discounted.
 
 The stored amount of a fixed coupon is what the coupon gave at checkout. It can
 be lower than the amount in the coupon record when the order was too small.
+The maximum stays unchanged on later edits, separately from the applied amount.
+If a $10 discount is capped to $6 on one edit, an edit that raises the subtotal
+can use the original $10 again. Product coupons keep this maximum per line.
+A stored attribution stays even when its current discount is zero.
 
 | Case | Result |
 |---|---|
@@ -224,6 +229,11 @@ settings only in these cases:
 
 Street, city, postcode, names and phone numbers never count as a new address.
 When tax follows the store address, the tax rates are never quoted again.
+
+Free shipping sets the shipping tax amount to zero but keeps its saved rate.
+Removing free shipping later restores tax at that saved rate, even if the live
+rate changed. This also applies to orders placed with free shipping and to
+shipping tax split between items with different rates.
 
 A new line has no stored tax rate, so it is taxed at the current rate for the
 order's address. A shipping method that is not available for the new address

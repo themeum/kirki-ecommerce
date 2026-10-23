@@ -101,6 +101,14 @@ Group 3 was first built for "one line per variant". The first version of tasks 3
   5. Change the delivery state and save again, and assert that the shipping cost and the tax rate are the current ones. _(`test_an_edit_preview_prices_the_order_with_the_promised_terms_and_the_save_matches_it`.)_
 - [x] 10.2 Run `openspec validate order-edit-sync --strict`, the four composer commands, and `npm run typecheck && npm test` in `resources/app/`, and verify that all pass. _(Strict validation passes. Unit 532 and integration 1,151 tests pass. `phpcs:wporg` and `phpcs:docblocks` report no errors; the remaining warnings were there before. Frontend typecheck passes and 2,005 frontend tests pass. A merge-conflict marker in `AnalyticsMetricRequest.php`, left in commit f6901fca, was a PHP parse error that failed 152 analytics tests. It is fixed.)_
 
+## 11. Review follow-up: immutable coupon maxima
+
+- [x] 11.1 Store `base_max_discount_amount` on order coupons and item coupons for fixed discounts. Preserve it independently of applied amounts, including zero-discount attribution rows. Cover repeated quantity decreases and increases, deleted coupons, and a temporarily exhausted product coupon with integration tests; update the schema, DTOs, models, seeder, docs and planning artifacts, and run the required verification checks. _(532 unit tests, 1,154 Docker integration tests and 2,005 frontend tests pass. Frontend typecheck, both PHP coding checks, strict OpenSpec validation and diff checks pass.)_
+
+## 12. Review follow-up: preserve zero-amount shipping tax rates
+
+- [x] 12.1 Preserve shipping tax rates with zero amounts in the stored-rate and live EU strategies, including each split rate when all taxable amounts are zero. Cover free shipping at checkout and free shipping applied in repeated edits, then removing the deleted coupon after the live rate changes. Verify preview/save agreement, update the docs and spec, and run the required verification checks. _(534 unit tests, 1,156 Docker integration tests and 2,005 frontend tests pass. Frontend typecheck, both PHP coding checks, strict OpenSpec validation and diff checks pass.)_
+
 ## Workflow follow-up
 
 - Run `/opsx:archive` after review, and list the pre-existing bugs that this change fixed: the mixed old-price/new-total line, the missing tax profile on create, checkout and update, the cancel or edit failure for deleted variants and coupons, the display-currency default on update, and the stale `shipping_metadata` after an address change.

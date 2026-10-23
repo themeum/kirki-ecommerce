@@ -19,6 +19,9 @@ class CreateOrderItemCouponDTO extends DTO
     /** @var int */
     public $order_coupon_id;
 
+    /** @var int|null Original fixed coupon discount for this line in base currency minor units */
+    public $base_max_discount_amount;
+
     /** @var int */
     public $invoiced_discount_amount;
 

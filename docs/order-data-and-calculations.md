@@ -454,6 +454,10 @@ An order has **one row per variant**. If the same variant is added twice it is o
 | `rate` | The rate used, for example `10.0000`. |
 | `base_amount` / `invoiced_amount` | The tax amount. |
 
+Shipping tax rows keep their rate even when their amount is zero, including
+free shipping. An edit that removes free shipping can therefore use the saved
+rate rather than today's rate. Split shipping keeps each item's rate.
+
 ### 6.4 `order_coupons`: one row per coupon on the order
 
 | Column | Meaning |
@@ -462,6 +466,7 @@ An order has **one row per variant**. If the same variant is added twice it is o
 | `customer_id` | Copy of the order's customer. Used to count per-customer uses. |
 | `code`, `title`, `discount_type`, `discount_target` | Copied from the coupon. |
 | `discount_rate` | The percent a percentage coupon takes off (for example `10`). Empty for a fixed-amount, free-shipping or other coupon. An edit of the order uses it to price the coupon again. |
+| `base_max_discount_amount` | Original fixed discount promised when the coupon was first applied, in base minor units. Empty for other coupon types. An edit can cap the applied amount without reducing this maximum. |
 | `coupon_snapshot` | JSON copy of all the coupon's rules at that moment. Kept for reference. An edit does not read it. |
 | `base_discount_amount` / `invoiced_discount_amount` | Total this coupon gave. |
 | `usage_reversed_at` | Set when the order is cancelled. The coupon use is given back but the row stays. |
@@ -471,6 +476,7 @@ An order has **one row per variant**. If the same variant is added twice it is o
 | Column | Meaning |
 |---|---|
 | `order_item_id`, `order_coupon_id` | The line and the coupon. |
+| `base_max_discount_amount` | Original fixed coupon discount promised to this line, in base minor units. Kept even when the current applied amount is zero. |
 | `base_discount_amount` / `invoiced_discount_amount` | The part of the coupon's discount that went to this line. |
 
 Per coupon, the lines add up to `order_coupons.base_discount_amount`. Per line, the coupons add up to `order_items.base_discount_amount`. A free-shipping coupon has no rows here, because it is not tied to a line.
