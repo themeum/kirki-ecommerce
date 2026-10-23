@@ -56,6 +56,21 @@ class CalculationContextDTO extends DTO
     /** @var bool */
     public $should_calculate_tax = true;
 
+    /** @var StoredOrderTermsDTO|null Terms an edited order keeps; null when everything is priced from the current settings */
+    public $stored;
+
+    /**
+     * Check whether the shipping charge is the one stored on an edited order, not a new quote.
+     *
+     * @since 1.0.0
+     *
+     * @return bool
+     */
+    public function uses_stored_shipping()
+    {
+        return $this->stored !== null && $this->stored->has_stored_shipping();
+    }
+
     /**
      * Sum the base unit price times quantity of every item.
      *
@@ -121,6 +136,7 @@ class CalculationContextDTO extends DTO
         $dto->items = $cart->items->map(function ($item) {
             $item_dto = new CalculationItemDTO();
             $item_dto->id = $item->id;
+            $item_dto->line_key = $item->id;
             $item_dto->variant_id = $item->variant_id;
             $item_dto->product_id = $item->product_id;
             $item_dto->quantity = $item->quantity;

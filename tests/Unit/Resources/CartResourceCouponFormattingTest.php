@@ -88,6 +88,7 @@ class CartResourceCouponFormattingTest extends TestCase
         $variant->set_relation('attribute_values', collection([]));
 
         $item = new CartItem(['variant_id' => $variant_id, 'quantity' => 1]);
+        $item->id = $variant_id;
         $item->set_relation('product', $product);
         $item->set_relation('variant', $variant);
 

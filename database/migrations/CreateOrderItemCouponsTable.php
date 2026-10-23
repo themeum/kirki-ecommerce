@@ -28,6 +28,7 @@ class CreateOrderItemCouponsTable implements Migration
             $table->id();
             $table->unsigned_big_integer('order_item_id');
             $table->unsigned_big_integer('order_coupon_id');
+            $table->integer('base_max_discount_amount')->nullable()->comment('Fixed coupon discount promised to this line when first applied, in base currency minor units; never reduced by an edit');
 
             $table->integer('invoiced_discount_amount')->default(0)->comment('Share of the coupon discount given to this order item; includes tax when orders.is_tax_inclusive is true; in the invoiced currency, minor units');
             $table->integer('base_discount_amount')->default(0)->comment('Share of the coupon discount given to this order item; includes tax when orders.is_tax_inclusive is true; in the base currency, minor units');

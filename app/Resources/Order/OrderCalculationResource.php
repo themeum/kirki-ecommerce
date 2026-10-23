@@ -31,6 +31,9 @@ class OrderCalculationResource extends Resource
      * in the store's base currency. Item and root pricing figures are in the store's tax
      * mode, which `is_tax_inclusive` reports.
      *
+     * Each item also says whether its line is reachable and what its variant's stock and
+     * per-order limit are now, so the client can lock or limit the quantity of the line.
+     *
      * @since 1.0.0
      *
      * @return array<string, mixed> Pricing totals, priced items and available shipping methods.
@@ -42,6 +45,7 @@ class OrderCalculationResource extends Resource
 
         $shipping_service = app()->make(ShippingService::class);
         $shipping_options = $shipping_service->get_final_available_shipping_options($context);
+        $selected_shipping_method = $shipping_service->get_selected_shipping_method($context);
 
         $items_subtotal = $this->get_items_subtotal($result->items);
         $order_discount = $this->get_order_coupon_discount($result->coupon_results);
@@ -49,7 +53,7 @@ class OrderCalculationResource extends Resource
         $order_total = $items_subtotal - $order_discount;
 
         return [
-            'is_tax_inclusive' => (bool) Settings::get('tax.is_tax_inclusive_price', false),
+            'is_tax_inclusive' => $context->stored ? $context->stored->is_tax_inclusive : (bool) Settings::get('tax.is_tax_inclusive_price', false),
 
             'totals' => [
                 'base_items_subtotal_money_object' => Money::prepare_amount_object_from_minor($items_subtotal),
@@ -83,40 +87,42 @@ class OrderCalculationResource extends Resource
                 return $method;
             }, $shipping_options),
 
-            'shipping_method' => $result->shipping_method
+            'shipping_method' => $selected_shipping_method['id'] ?? null,
         ];
     }
 
     /**
-     * Build the priced line items, skipping items missing from the calculation result.
+     * Build the priced line items.
+     *
+     * Each item also carries its stored line ID when it is a line already on the edited order,
+     * whether its line is reachable, and its variant's current stock and per-order limit values.
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $items  Items to render.
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result Calculation result holding the per-variant totals.
-     * @return array<int, array<string, mixed>> Item amounts and applied product coupons.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $items  Calculated items, keyed by line key.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationResultDTO $result Calculation result holding the coupon discounts.
+     * @return array<int, array<string, mixed>> Item amounts, applied product coupons and stock values.
      */
     protected function prepare_items($items, $result)
     {
         $cart_items = [];
+        $variants = isset($this->variants) ? $this->variants : [];
 
         foreach ($items as $item) {
-            if (isset($result->items[$item->variant_id])) {
-                $calculated_item = $result->items[$item->variant_id];
+            $subtotal = $item->base_catalog_product_coupon_discounted_subtotal;
+            $strikethrough = $this->get_strikethrough_amount($item->base_catalog_regular_price, $item->base_catalog_sale_price, $subtotal, $item->quantity);
 
-                $subtotal = $calculated_item->base_catalog_product_coupon_discounted_subtotal;
-                $strikethrough = $this->get_strikethrough_amount($calculated_item->base_catalog_regular_price, $calculated_item->base_catalog_sale_price, $subtotal, $item->quantity);
-
-                $cart_items[] = [
-                    'id' => $item->id,
-                    'quantity' => $item->quantity,
-                    'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal),
-                    'base_strikethrough_price_money_object' => $strikethrough === null ? null : Money::prepare_amount_object_from_minor($strikethrough),
-                    'base_unit_price_money_object' => $this->prepare_unit_amount_object($subtotal, $item->quantity),
-                    'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough, $item->quantity),
-                    'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->variant_id),
-                ];
-            }
+            $cart_items[] = array_merge([
+                'id' => $item->id,
+                'order_item_id' => $item->order_item_id,
+                'is_reachable' => $item->is_reachable,
+                'quantity' => $item->quantity,
+                'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal),
+                'base_strikethrough_price_money_object' => $strikethrough === null ? null : Money::prepare_amount_object_from_minor($strikethrough),
+                'base_unit_price_money_object' => $this->prepare_unit_amount_object($subtotal, $item->quantity),
+                'base_unit_strikethrough_price_money_object' => $this->prepare_unit_amount_object($strikethrough, $item->quantity),
+                'applied_product_coupons' => $this->get_applied_product_coupons_for_item($result->coupon_results, $item->line_key),
+            ], $this->prepare_stock_values($item->variant_id ? ($variants[$item->variant_id] ?? null) : null));
         }
 
         return $cart_items;
@@ -150,13 +156,33 @@ class OrderCalculationResource extends Resource
     }
 
     /**
+     * Get a variant's current stock and per-order limit values.
+     *
+     * @since 1.0.0
+     *
+     * @param \Kirki\Ecommerce\App\Models\Variant|null $variant Variant; null when it was deleted.
+     * @return array<string, bool|int|null> Every value is null when there is no variant.
+     */
+    protected function prepare_stock_values($variant)
+    {
+        return [
+            'allow_back_order' => $variant ? (bool) $variant->allow_back_order : null,
+            'track_inventory' => $variant ? (bool) $variant->track_inventory : null,
+            'available_quantity' => $variant ? (int) $variant->available_quantity : null,
+            'in_stock' => $variant ? (bool) $variant->in_stock : null,
+            'has_limit_per_order' => $variant ? (bool) $variant->has_limit_per_order : null,
+            'max_per_order' => $variant && $variant->max_per_order !== null ? (int) $variant->max_per_order : null,
+        ];
+    }
+
+    /**
      * Sum every item's own subtotal - its catalog total after product-scoped
      * coupons only. An order-wide coupon's allocation is excluded so the root
      * items subtotal matches the sum of what each item's own subtotal shows.
      *
      * @since 1.0.0
      *
-     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by variant ID.
+     * @param \Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO[] $calculated_items Calculated items, keyed by line key.
      * @return int Subtotal in minor units.
      */
     protected function get_items_subtotal(array $calculated_items)
@@ -205,10 +231,10 @@ class OrderCalculationResource extends Resource
      * @since 1.0.0
      *
      * @param \Kirki\Ecommerce\App\DTO\Discount\CouponDiscountResultDTO[] $coupon_results Coupon results from the calculation.
-     * @param int                                                         $variant_id     Variant ID of the item.
+     * @param int|string                                                  $line_key       Line key of the item.
      * @return array<int, array<string, mixed>> Coupon details with the discount this item received.
      */
-    protected function get_applied_product_coupons_for_item(array $coupon_results, $variant_id)
+    protected function get_applied_product_coupons_for_item(array $coupon_results, $line_key)
     {
         $applied = [];
 
@@ -217,7 +243,7 @@ class OrderCalculationResource extends Resource
                 continue;
             }
 
-            $discount_amount = $coupon_result->item_discounts[$variant_id] ?? 0;
+            $discount_amount = $coupon_result->item_discounts[$line_key] ?? 0;
 
             if ($discount_amount <= 0) {
                 continue;
