@@ -125,6 +125,10 @@ script (`php-scoper` stages the prefixed output, then `bin/scope-framework.php`
 swaps it in). Any edit is lost on the next `composer install`. Its conventions
 belong to the upstream package, not this project.
 
+The same applies to `vendor/libraries/framework-mcp/src/`: the
+`ahamed/framework-mcp` package, scoped by its own pass
+(`scoper.framework-mcp.php`) in the same script.
+
 ---
 
 ## 3. React / TypeScript Coding Standards

@@ -4,8 +4,88 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0814668655f7c744efd5dbb60276244",
+    "content-hash": "bff0a4f84bba3b13a72aa1a2dbdbc6f4",
     "packages": [
+        {
+            "name": "ahamed/framework-mcp",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ahamed/framework-mcp.git",
+                "reference": "322f21e97530d1a73f8827ce4759380a6052d5a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ahamed/framework-mcp/zipball/322f21e97530d1a73f8827ce4759380a6052d5a0",
+                "reference": "322f21e97530d1a73f8827ce4759380a6052d5a0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4",
+                "themeum/framework": "^3.2.7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0",
+                "squizlabs/php_codesniffer": "^3.7",
+                "symfony/finder": "^5.4",
+                "yoast/phpunit-polyfills": "^2.0"
+            },
+            "suggest": {
+                "wordpress/mcp-adapter": "Required at runtime to expose MCP servers. Install the MCP Adapter plugin on the site rather than bundling it."
+            },
+            "default-branch": true,
+            "bin": [
+                "bin/framework-mcp-prefix-stubs"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ahamed\\FrameworkMcp\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Ahamed\\FrameworkMcp\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit --prepend tests/prepend.php --testdox"
+                ],
+                "test:unit": [
+                    "vendor/bin/phpunit --prepend tests/prepend.php --testsuite Unit --testdox"
+                ],
+                "phpcs": [
+                    "@php -d auto_prepend_file= scripts/run-phpcs.php"
+                ],
+                "phpcbf": [
+                    "@php -d auto_prepend_file= scripts/run-phpcs.php phpcbf"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Sajeeb Ahamed",
+                    "email": "sajeeb07ahamed@gmail.com"
+                }
+            ],
+            "description": "MCP server support for themeum/framework WordPress plugins, built on the WordPress MCP Adapter.",
+            "homepage": "https://github.com/ahamed/framework-mcp",
+            "keywords": [
+                "framework",
+                "mcp",
+                "model-context-protocol",
+                "themeum",
+                "wordpress"
+            ],
+            "support": {
+                "source": "https://github.com/ahamed/framework-mcp/tree/main",
+                "issues": "https://github.com/ahamed/framework-mcp/issues"
+            },
+            "time": "2026-10-25T16:02:04+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.10.2",
@@ -4562,7 +4642,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "ahamed/framework-mcp": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {},

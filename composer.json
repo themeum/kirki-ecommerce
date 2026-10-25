@@ -4,6 +4,7 @@
   "autoload": {
     "psr-4": {
       "Kirki\\Ecommerce\\Framework\\": "vendor/libraries/framework/src/",
+      "Kirki\\Ecommerce\\Ahamed\\FrameworkMcp\\": "vendor/libraries/framework-mcp/src/",
       "Kirki\\Ecommerce\\App\\": "app/",
       "Kirki\\Ecommerce\\Database\\Migrations\\": "database/migrations/"
     },
@@ -32,9 +33,14 @@
     {
       "type": "vcs",
       "url": "git@github.com:themeum/framework.git"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/ahamed/framework-mcp.git"
     }
   ],
   "require": {
+    "ahamed/framework-mcp": "dev-main",
     "brick/money": "0.7",
     "themeum/framework": "^3.0.0"
   },
@@ -68,6 +74,7 @@
       "@php bin/scope-framework.php --relocate",
       "@composer dump-autoload",
       "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.config.php --output-dir=./vendor/.scoper-staging --force",
+      "@php -d auto_prepend_file=scoper.bootstrap.php -d pcre.jit=0 vendor/humbug/php-scoper/bin/php-scoper add-prefix --config=scoper.framework-mcp.php --output-dir=./vendor/.scoper-staging-framework-mcp --force",
       "@php bin/scope-framework.php",
       "@composer dump-autoload"
     ],
