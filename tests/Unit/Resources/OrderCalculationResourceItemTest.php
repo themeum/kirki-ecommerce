@@ -25,7 +25,6 @@ class OrderCalculationResourceItemTest extends TestCase
     {
         $items = $this->prepare_items([$this->make_item(0, 7, 55, true)], [7 => $this->make_variant()]);
 
-        $this->assertSame(0, $items[0]['line_key']);
         $this->assertSame(55, $items[0]['id']);
         $this->assertTrue($items[0]['is_reachable']);
     }

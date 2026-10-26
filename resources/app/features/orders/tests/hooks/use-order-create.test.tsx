@@ -34,7 +34,6 @@ const buildCalculationResponse = (itemsCount: number, overrides: Record<string, 
   items_count: itemsCount,
   items: [
     {
-      line_key: 0,
       quantity: 1,
       base_subtotal_money_object: money(0),
       base_unit_price_money_object: money(0),
@@ -261,7 +260,6 @@ describe('useOrderCreate calculation reconciliation', () => {
       buildCalculationResponse(1, {
         items: [
           {
-            line_key: 0,
             quantity: 1,
             base_subtotal_money_object: money(0),
             base_unit_price_money_object: money(0),
@@ -337,8 +335,7 @@ describe('useOrderCreate calculation reconciliation', () => {
       const items = (body.items as { variant_id: number; quantity: number }[]) ?? [];
 
       return buildCalculationResponse(items.length, {
-        items: items.map((_item, index) => ({
-          line_key: index,
+        items: items.map(() => ({
           quantity: 1,
           base_subtotal_money_object: money(0),
           base_unit_price_money_object: money(0),
@@ -378,8 +375,7 @@ describe('useOrderCreate calculation reconciliation', () => {
       const items = (body.items as { variant_id: number; quantity: number }[]) ?? [];
 
       return buildCalculationResponse(items.length, {
-        items: items.map((item, index) => ({
-          line_key: index,
+        items: items.map((item) => ({
           quantity: item.variant_id === 101 ? 1 : item.quantity,
           base_subtotal_money_object: money(0),
           base_unit_price_money_object: money(0),

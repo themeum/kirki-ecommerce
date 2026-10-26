@@ -142,7 +142,6 @@ examples:
               "items_count": 4,
               "items": [
                 {
-                  "line_key": 1,
                   "id": null,
                   "is_reachable": true,
                   "quantity": 4,

@@ -199,7 +199,6 @@ export const OrderLineItemSchema = z.object({
 export type OrderLineItem = z.infer<typeof OrderLineItemSchema>;
 
 export const OrderCalculationItemSchema = z.object({
-  line_key: z.number(),
   quantity: z.number(),
   base_subtotal_money_object: MoneyObjectSchema,
   base_strikethrough_price_money_object: MoneyObjectSchema.nullish(),

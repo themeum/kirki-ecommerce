@@ -491,7 +491,6 @@ describe('OrderCalculationSchema', () => {
     items_count: 4,
     items: [
       {
-        line_key: 0,
         quantity: 4,
         base_subtotal_money_object: baseMoney(5308.68),
         base_strikethrough_price_money_object: null,

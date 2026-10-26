@@ -93,7 +93,6 @@ class OrderEditApiTest extends RestTestCase
             ['variant_id' => $second_variant_id, 'quantity' => 2],
         ]]);
 
-        $this->assertSame([0, 1], array_column($payload['items'], 'line_key'));
         $this->assertSame([1, 2], array_column($payload['items'], 'quantity'));
     }
 
@@ -1067,6 +1066,17 @@ class OrderEditApiTest extends RestTestCase
         $this->assertTrue($preview['items'][0]['has_limit_per_order']);
         $this->assertSame(4, $preview['items'][0]['max_per_order']);
         $this->assertSame([$coupon->code], array_column($preview['coupons'], 'code'));
+    }
+
+    public function test_the_preview_returns_the_items_in_the_order_they_were_sent(): void
+    {
+        $other_variant_id = $this->default_variant_id($this->create_product());
+        $order = $this->create_order();
+
+        $preview = $this->preview(['order_id' => $order['id'], 'items' => [['variant_id' => $other_variant_id, 'quantity' => 2], $this->line($order, 3)]]);
+
+        $this->assertSame([null, (int) $order['items'][0]['id']], array_column($preview['items'], 'id'));
+        $this->assertSame([2, 3], array_column($preview['items'], 'quantity'));
     }
 
     public function test_an_edit_preview_marks_the_lines_that_are_not_reachable(): void

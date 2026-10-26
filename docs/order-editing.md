@@ -267,11 +267,10 @@ exactly the same way as the save.
 The preview fails with 404 when the order does not exist, and with 422 when
 the order cannot be edited (section 2).
 
-Every item in the response has:
+The items in the response come back in the same order as the items you sent, so item `i` of the result belongs to item `i` of the request. Every item in the response has:
 
 | Key | Meaning |
 |---|---|
-| `line_key` | The position of the line in the `items` you sent (0, 1, 2 ...). Use it to match each result to the row you sent. It is not a database ID. |
 | `id` | The stored order item's ID, the same `id` as in the order response, or `null` for a new line and in a new-order preview. Send it back to keep that line. |
 | `is_reachable` | `false` when the line is locked (section 4). Disable its quantity buttons. |
 | `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order` | The variant's live values. All `null` when the variant was deleted. |

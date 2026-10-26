@@ -43,7 +43,7 @@ export type OrderCreateContextValue = {
   selections: ProductSelection[];
   rows: OrderItem[];
   calculation?: OrderCalculation;
-  calculationItemById: Map<number, OrderCalculationItem>;
+  calculationItems: OrderCalculationItem[];
   isCalculating: boolean;
   isCreating: boolean;
   rejectedCouponCodes: string[];
@@ -128,10 +128,7 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
     isApplyingCorrectionRef.current = false;
   };
 
-  const calculationItemById = useMemo(
-    () => new Map((calculation?.items ?? []).map((item) => [item.line_key, item])),
-    [calculation],
-  );
+  const calculationItems = useMemo(() => calculation?.items ?? [], [calculation]);
 
   useEffect(() => {
     if (!isDefined(calculation)) {
@@ -139,7 +136,7 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
     }
 
     pickedItems.forEach((pickedItem, index) => {
-      const calculationItem = calculationItemById.get(index);
+      const calculationItem = calculationItems[index];
 
       if (calculationItem && calculationItem.quantity !== pickedItem.quantity) {
         applyCorrection(() =>
@@ -270,7 +267,7 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
     selections,
     rows,
     calculation,
-    calculationItemById,
+    calculationItems,
     isCalculating,
     isCreating: createMutation.isPending,
     rejectedCouponCodes,

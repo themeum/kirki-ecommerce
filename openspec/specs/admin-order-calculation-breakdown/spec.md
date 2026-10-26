@@ -243,6 +243,13 @@ Each calculated line item SHALL expose `id`. Its value is the ID of the stored o
 - **WHEN** an item is new in an edit, or the calculation has no order ID
 - **THEN** that item's `id` is null
 
+### Requirement: Calculated items keep the order of the request
+The calculation endpoint SHALL return the calculated items in the same order as the items it received, so that item `i` of the response belongs to item `i` of the request.
+
+#### Scenario: Lines in another order
+- **WHEN** an admin previews an edit that sends a stored line after a new line
+- **THEN** the first calculated item is the new line and the second is the stored line
+
 ### Requirement: Calculation and save apply the same quantity and stock rules
 The calculation endpoint and the order save SHALL apply the same quantity, per-order limit and stock rules, and SHALL fail with a 422 error when a rule is broken. The calculation SHALL still return `is_reachable` and the live stock and limit values for display. The calculation SHALL NOT reserve stock; the save SHALL check stock again and reserve it under the order lock.
 

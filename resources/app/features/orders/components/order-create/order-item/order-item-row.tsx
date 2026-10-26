@@ -22,8 +22,8 @@ type OrderItemRowProps = {
 
 const OrderItemRow = ({ row, onQuantityChange, onRemove }: OrderItemRowProps) => {
   const { display, quantity, index } = row;
-  const { calculationItemById } = useOrderCreate();
-  const calculationItem = calculationItemById.get(index);
+  const { calculationItems } = useOrderCreate();
+  const calculationItem = calculationItems[index];
   const quantityLimit = getQuantityLimit(display);
   const lineTotal = calculationItem
     ? calculationItem.base_subtotal_money_object.display
