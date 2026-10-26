@@ -155,6 +155,11 @@ only for the **difference**:
 Variants that do not track inventory, or that allow back orders, are not
 limited by stock.
 
+The preview and the save check these rules in the same way (section 8). The
+preview only reads the stock, so it cannot hold it. The save checks the stock
+again and reserves it while the order is locked. If another order takes the
+stock after your preview, the save fails.
+
 The **per-order limit** (`max_per_order`) only stops a **raised** quantity. The
 quantity on the order is never taken away because a limit was lowered:
 
@@ -189,6 +194,12 @@ which lines it discounted.
 | Order-wide coupon, percentage | The stored percentage of what is left after product coupons. | The new line is discounted too. |
 | Order-wide coupon, fixed amount | The stored total, capped at what is left, shared over all lines. | The new line gets a share of the same total. |
 | Free shipping | Waives the shipping charge. | - |
+
+A stored coupon is priced **before** a new coupon in each step (product
+coupons, then order-wide coupons, then free shipping). A new coupon takes only
+what the stored coupons leave. So adding a coupon never shrinks the discount
+that a stored coupon promised. For example, with a subtotal of 100.00, a stored
+10% order-wide coupon and a new 20% order-wide coupon give 10.00 and 18.00.
 
 The stored amount of a fixed coupon is what the coupon gave at checkout. It can
 be lower than the amount in the coupon record when the order was too small.
@@ -261,9 +272,11 @@ Every item in the response has:
 | `is_reachable` | `false` when the line is locked (section 4). Disable its quantity buttons. |
 | `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order` | The variant's live values. All `null` when the variant was deleted. |
 
-The preview does **not** fail when a quantity is above the available stock or
-the per-order limit, or when the quantity of a locked line changed. Use the
-values above to show the problem. The save enforces these rules.
+The preview applies the same quantity, per-order limit and stock rules as the
+save (sections 4 and 5). When a rule is broken, it fails with 422, the same as
+the save does for the same payload. It does not reserve stock. Use the values
+above to disable the buttons that would break a rule, so the admin does not
+meet the error.
 
 There is no marker for a changed catalog price. The edit keeps the price the
 customer paid.
@@ -283,9 +296,10 @@ customer paid.
 | 422 | A new line's product is not published, or its variant is hidden. |
 | 422 | The quantity of a locked line (section 4) changed. |
 | 422 | A raised quantity, or a new line, is above the variant's `max_per_order`. |
+| 422 | Stock is short for an added quantity, or for a new line ("Not enough stock for variant: N"). The preview and the save both give it. |
 | 422 | The shipping method is not available for a new shipping address or a new method ("Invalid shipping method"). |
 | 422 | Stock was taken by another request between the check and the reservation ("Insufficient stock to reserve."). |
-| 500 | Stock is short for an added quantity ("Not enough stock for variant: N"). This is the same status that order creation gives. |
+| 500 | Stock was taken by another request after the check in the preview or in the first step of the save, and before the save's own check ("Not enough stock for variant: N"). This is the same status that order creation gives. |
 
 When a save fails, nothing on the order changes: not the lines, the stock, the
 coupons nor the totals.
@@ -319,7 +333,10 @@ coupons nor the totals.
   are added or removed and when stock changes. Here a save does not add a
   timeline entry, it does not keep the old totals, and it does not email the
   customer.
-- **Stock shortage gives HTTP 500.** The API answers 500, not 422, with the
-  message "Not enough stock for variant: N" (section 9).
+- **Stock shortage gives HTTP 422 in a preview and in a save.** WooCommerce
+  has no preview of an edit. Here the preview checks stock and the per-order
+  limit too, so the admin sees the same error before the save. A stock
+  shortage that appears only in the save's own check gives HTTP 500
+  (section 9).
 - **No manual price or custom discount.** You cannot set a line price by hand
   or add a discount that is not a coupon.

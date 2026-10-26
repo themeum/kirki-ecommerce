@@ -301,7 +301,9 @@ class DiscountService
      *
      * Coupons that stay on an edited order (`$context->stored->coupons`) are
      * not validated: they apply with the terms stored on the order. They are
-     * priced in the same passes as the other coupons, after them within a pass.
+     * priced in the same passes as the other coupons, before them within a pass.
+     * A stored coupon was applied earlier, so it keeps the amount it promised
+     * and a new coupon takes from what is left.
      *
      * @since 1.0.0
      *
@@ -352,14 +354,6 @@ class DiscountService
         // Pass 1: item-scoped coupons apply directly and independently to their
         // eligible items - two item-scoped coupons on the same item both apply,
         // summed, neither capping nor excluding the other.
-        foreach ($valid_coupons as $coupon) {
-            if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::PRODUCTS) {
-                continue;
-            }
-
-            $this->add_coupon_result($result, $this->apply_item_scoped_amount_off($context, $coupon), $remaining_per_item);
-        }
-
         foreach ($stored_coupons as $stored_coupon) {
             if ($stored_coupon->discount_type !== DiscountType::AMOUNT_OFF || $stored_coupon->discount_target !== DiscountTarget::PRODUCTS) {
                 continue;
@@ -368,16 +362,16 @@ class DiscountService
             $this->add_coupon_result($result, $this->apply_stored_item_scoped_amount_off($context, $stored_coupon), $remaining_per_item);
         }
 
-        // Pass 2: cart-wide coupons apply sequentially against whatever subtotal
-        // pass 1 (and each earlier pass-2 coupon) left remaining.
         foreach ($valid_coupons as $coupon) {
-            if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::ORDER) {
+            if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::PRODUCTS) {
                 continue;
             }
 
-            $this->add_coupon_result($result, $this->apply_order_scoped_amount_off($coupon, $remaining_per_item), $remaining_per_item);
+            $this->add_coupon_result($result, $this->apply_item_scoped_amount_off($context, $coupon), $remaining_per_item);
         }
 
+        // Pass 2: cart-wide coupons apply sequentially against whatever subtotal
+        // pass 1 (and each earlier pass-2 coupon) left remaining.
         foreach ($stored_coupons as $stored_coupon) {
             if ($stored_coupon->discount_type !== DiscountType::AMOUNT_OFF || $stored_coupon->discount_target !== DiscountTarget::ORDER) {
                 continue;
@@ -386,34 +380,42 @@ class DiscountService
             $this->add_coupon_result($result, $this->apply_stored_order_scoped_amount_off($stored_coupon, $remaining_per_item), $remaining_per_item);
         }
 
-        // Free shipping - waives up to $context->shipping_subtotal
         foreach ($valid_coupons as $coupon) {
-            if ($coupon->discount_type === DiscountType::FREE_SHIPPING) {
-                $this->add_free_shipping_result($result, $context, $coupon);
+            if ($coupon->discount_type !== DiscountType::AMOUNT_OFF || $coupon->discount_target !== DiscountTarget::ORDER) {
+                continue;
             }
+
+            $this->add_coupon_result($result, $this->apply_order_scoped_amount_off($coupon, $remaining_per_item), $remaining_per_item);
         }
 
+        // Free shipping - waives up to $context->shipping_subtotal
         foreach ($stored_coupons as $stored_coupon) {
             if ($stored_coupon->discount_type === DiscountType::FREE_SHIPPING) {
                 $this->add_free_shipping_result($result, $context, $this->make_stored_coupon($stored_coupon), $stored_coupon);
             }
         }
 
-        // Buy-x-get-y is not implemented yet - record the coupon as applied
-        // with no discount, matching today's no-op, rather than dropping it.
         foreach ($valid_coupons as $coupon) {
-            if ($coupon->discount_type === DiscountType::BUY_X_GET_Y) {
-                $coupon_result = new CouponDiscountResultDTO();
-                $coupon_result->coupon = $coupon;
-                $result->coupon_results[] = $coupon_result;
+            if ($coupon->discount_type === DiscountType::FREE_SHIPPING) {
+                $this->add_free_shipping_result($result, $context, $coupon);
             }
         }
 
+        // Buy-x-get-y is not implemented yet - record the coupon as applied
+        // with no discount, matching today's no-op, rather than dropping it.
         foreach ($stored_coupons as $stored_coupon) {
             if ($stored_coupon->discount_type === DiscountType::BUY_X_GET_Y) {
                 $coupon_result = new CouponDiscountResultDTO();
                 $coupon_result->coupon = $this->make_stored_coupon($stored_coupon);
                 $coupon_result->order_coupon = $stored_coupon;
+                $result->coupon_results[] = $coupon_result;
+            }
+        }
+
+        foreach ($valid_coupons as $coupon) {
+            if ($coupon->discount_type === DiscountType::BUY_X_GET_Y) {
+                $coupon_result = new CouponDiscountResultDTO();
+                $coupon_result->coupon = $coupon;
                 $result->coupon_results[] = $coupon_result;
             }
         }

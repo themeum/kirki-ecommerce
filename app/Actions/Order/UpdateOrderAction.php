@@ -12,7 +12,7 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Services\CouponService;
 use Kirki\Ecommerce\App\Services\InventoryService;
-use Kirki\Ecommerce\App\Services\OrderCalculationContextBuilder;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
@@ -55,8 +55,8 @@ class UpdateOrderAction
     /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
 
-    /** @var OrderCalculationContextBuilder */
-    protected $context_builder;
+    /** @var OrderCalculationContextService */
+    protected $context_service;
 
     /** @var OrderService */
     protected $order_service;
@@ -79,7 +79,7 @@ class UpdateOrderAction
      * @since 1.0.0
      *
      * @param RecalculateCartAction          $recalculate_cart_action Totals calculator.
-     * @param OrderCalculationContextBuilder $context_builder         Builds the calculation input from the payload.
+     * @param OrderCalculationContextService $context_service         Builds the calculation input from the payload.
      * @param OrderService                   $order_service           Order persistence service.
      * @param InventoryService               $inventory_service       Stock checks and reservation.
      * @param ShippingService                $shippingService         Shipping method validation.
@@ -87,14 +87,14 @@ class UpdateOrderAction
      */
     public function __construct(
         RecalculateCartAction $recalculate_cart_action,
-        OrderCalculationContextBuilder $context_builder,
+        OrderCalculationContextService $context_service,
         OrderService $order_service,
         InventoryService $inventory_service,
         ShippingService $shippingService,
         CouponService $coupon_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
-        $this->context_builder = $context_builder;
+        $this->context_service = $context_service;
         $this->order_service = $order_service;
         $this->inventory_service = $inventory_service;
         $this->shipping_service = $shippingService;
@@ -130,7 +130,7 @@ class UpdateOrderAction
             throw_if(!$order->is_editable(), __('This order can no longer be edited.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
             throw_if(!empty($dto->currency_code) && $dto->currency_code !== $order->currency_code, __('The currency of an order cannot be changed.', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
-            $context = $this->context_builder->build($dto->to_array(), $order, true);
+            $context = $this->context_service->build($dto->to_calculation_input(), $order);
 
             throw_if(!$context->uses_stored_shipping() && !$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
@@ -226,7 +226,7 @@ class UpdateOrderAction
         /* translators: %s: variant ID */
         throw_if(!$this->inventory_service->has_stock($calculated_item->variant_id, $calculated_item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $calculated_item->variant_id));
 
-        $variant = $this->context_builder->get_variants_map()[$calculated_item->variant_id];
+        $variant = $this->context_service->get_variants_map()[$calculated_item->variant_id];
         $item_dto = $this->fill_order_item_snapshot(new CreateOrderItemDTO(), $variant);
         $this->fill_order_item_amounts($item_dto, $order->id, $calculated_item, $currency_code, $exchange_rate);
 
@@ -239,7 +239,7 @@ class UpdateOrderAction
     /**
      * Update a line already on the order and move its stock by the quantity difference.
      *
-     * Only the quantity and the amounts are written. The context builder has already refused
+     * Only the quantity and the amounts are written. The context service has already refused
      * a quantity change on a line that is not reachable, so a stock move here always has a variant.
      *
      * @since 1.0.0

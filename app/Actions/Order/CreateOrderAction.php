@@ -18,7 +18,7 @@ use Kirki\Ecommerce\App\Services\CustomerService;
 use Kirki\Ecommerce\App\Services\InventoryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Services\ShippingService;
-use Kirki\Ecommerce\App\Services\OrderCalculationContextBuilder;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Constants\Order\OrderStatus;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\DTO\Address\CreateAddressDTO;
@@ -65,8 +65,8 @@ class CreateOrderAction
     /** @var RecalculateCartAction */
     protected $recalculate_cart_action;
 
-    /** @var OrderCalculationContextBuilder */
-    protected $context_builder;
+    /** @var OrderCalculationContextService */
+    protected $context_service;
 
     /** @var OrderService */
     protected $order_service;
@@ -101,7 +101,7 @@ class CreateOrderAction
      * @since 1.0.0
      *
      * @param RecalculateCartAction $recalculate_cart_action Totals calculator.
-     * @param OrderCalculationContextBuilder $context_builder Builds the calculation input from the payload.
+     * @param OrderCalculationContextService $context_service Builds the calculation input from the payload.
      * @param OrderService          $order_service           Order persistence service.
      * @param InventoryService      $inventory_service       Stock checks and reservation.
      * @param ShippingService       $shipping_service        Shipping method validation.
@@ -113,7 +113,7 @@ class CreateOrderAction
      */
     public function __construct(
         RecalculateCartAction $recalculate_cart_action,
-        OrderCalculationContextBuilder $context_builder,
+        OrderCalculationContextService $context_service,
         OrderService $order_service,
         InventoryService $inventory_service,
         ShippingService $shipping_service,
@@ -124,7 +124,7 @@ class CreateOrderAction
         AddressService $address_service
     ) {
         $this->recalculate_cart_action = $recalculate_cart_action;
-        $this->context_builder = $context_builder;
+        $this->context_service = $context_service;
         $this->order_service = $order_service;
         $this->inventory_service = $inventory_service;
         $this->shipping_service = $shipping_service;
@@ -171,7 +171,7 @@ class CreateOrderAction
             $dto->customer_id = $this->resolve_checkout_customer_id($dto);
         }
 
-        $context = $this->context_builder->build($dto->to_array(), null, true);
+        $context = $this->context_service->build($dto->to_calculation_input(), null);
 
         throw_if(!$this->shipping_service->has_valid_shipping_method($context), __('Invalid shipping method', 'kirki-ecommerce'));
 
@@ -636,7 +636,7 @@ class CreateOrderAction
      */
     protected function prepare_order_item_dto(int $order_id, CalculationItemDTO $calculated_item, $currency_code, $exchange_rate)
     {
-        $variant = $this->context_builder->get_variants_map()[$calculated_item->variant_id];
+        $variant = $this->context_service->get_variants_map()[$calculated_item->variant_id];
 
         $item_dto = $this->fill_order_item_snapshot(new CreateOrderItemDTO(), $variant);
 

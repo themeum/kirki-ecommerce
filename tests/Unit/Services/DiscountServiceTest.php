@@ -293,6 +293,36 @@ class DiscountServiceTest extends TestCase
         $this->assertSame(['ITEM', 'ORDER'], array_map(fn($coupon_result) => $coupon_result->coupon->code, $result->coupon_results));
     }
 
+    public function test_a_stored_percentage_order_coupon_keeps_its_amount_when_a_new_percentage_order_coupon_is_added(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::ORDER, ['discount_rate' => 10], [10 => 1000]),
+        ], [$this->make_line(1, 10000, 1, 10)]);
+
+        $result = $this->service->calculate($context, [
+            $this->make_amount_off_coupon('NEW', DiscountTarget::ORDER, DiscountValueType::PERCENTAGE, 20),
+        ]);
+
+        // The stored coupon takes 10% of 10000 first, then the new coupon takes 20% of the 9000 that is left.
+        $this->assertSame(['STORED', 'NEW'], array_map(fn($coupon_result) => $coupon_result->coupon->code, $result->coupon_results));
+        $this->assertSame([1000, 1800], array_map(fn($coupon_result) => $coupon_result->total_discount, $result->coupon_results));
+        $this->assertSame([1 => 2800], $result->item_discounts);
+    }
+
+    public function test_a_stored_fixed_order_coupon_keeps_its_total_and_the_new_coupon_takes_what_is_left(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::ORDER, ['base_discount_amount' => 9500], [10 => 9500]),
+        ], [$this->make_line(1, 10000, 1, 10)]);
+
+        $result = $this->service->calculate($context, [
+            $this->make_amount_off_coupon('NEW', DiscountTarget::ORDER, DiscountValueType::FIXED, 2000),
+        ]);
+
+        $this->assertSame([9500, 500], array_map(fn($coupon_result) => $coupon_result->total_discount, $result->coupon_results));
+        $this->assertSame([1 => 10000], $result->item_discounts);
+    }
+
     public function test_a_stored_coupon_applies_with_no_coupon_record_and_no_validation(): void
     {
         $context = $this->make_stored_context([

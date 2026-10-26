@@ -24,10 +24,10 @@ class StoredOrderTermsDTO extends DTO
     /** @var int|null Shipping charge before discount and tax in base minor units; null when shipping is quoted again */
     public $shipping_subtotal;
 
-    /** @var array<int|string, array<int, array{name: string, rate: float}>>|null Product tax rates per line key; null when tax is calculated again */
+    /** @var array<int|string, TaxRateDTO[]>|null Product tax rates per line key; null when tax is calculated again */
     public $item_tax_rates;
 
-    /** @var array<int, array{name: string, rate: float, line_key: int|string|null}>|null Shipping tax rates, each with the line it was split to when the shipping tax was split across items; null when shipping tax is calculated again */
+    /** @var TaxRateDTO[]|null Shipping tax rates, each with the line it was split to when the shipping tax was split across items; null when shipping tax is calculated again */
     public $shipping_tax_rates;
 
     /** @var bool Whether the stored shipping tax was split across the items, as in the EU */

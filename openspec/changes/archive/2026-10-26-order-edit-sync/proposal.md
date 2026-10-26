@@ -47,6 +47,9 @@ quoted.
     When a quantity goes down, the stock is released.
   - `max_per_order` only blocks an increase. A quantity can go up only to the
     current limit, and the stored quantity is always kept.
+  - The preview and the save apply these rules in the same way. A broken rule
+    is a 422 in both. The save checks stock again under the order lock and
+    reserves it.
   - A new line accepts only products that can be bought, the same as create.
 - **Coupons are locked.** A stored coupon is priced from the stored values
   (its type, target and rate or amount, and which lines it discounted). It is
@@ -67,10 +70,18 @@ quoted.
 - **Per line, the preview says if the line is reachable.** Each calculated item
   gets `is_reachable` and the live stock data (`allow_back_order`,
   `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`,
-  `max_per_order`). The client shows one badge for a line that is not reachable
-  and disables its quantity buttons. There is no badge for a price change.
+  `max_per_order`) for display. The client shows one badge for a line that is
+  not reachable and disables its quantity buttons. There is no badge for a
+  price change. A line that breaks a quantity or stock rule makes the preview
+  fail with a 422, as the save does.
+- **Stored coupons are priced first.** Within each pass, a stored coupon is
+  priced before a new coupon, so a new coupon cannot shrink the discount that
+  a stored coupon promised.
+- **Typed data in the context service.** The context service takes one typed input DTO
+  and not an array. The stored tax rates use a `TaxRateDTO` and not nested
+  arrays.
 - **Fixes in the same change:**
-  - One shared context builder gives the same tax profile to the calculation
+  - One shared context service gives the same tax profile to the calculation
     preview, create and update.
   - Cancelling or editing an order whose variant or coupon was deleted no
     longer fails.
@@ -114,7 +125,7 @@ quoted.
     (results are keyed by a line key, not by `variant_id`) change.
   - `PersistsOrderCoupons`, `InventoryService::release_all_reserved_stock` and
     the `OrderManager::mark_as_cancel` coupon release change.
-  - New: `Order::is_editable()` and `App\Services\OrderCalculationContextBuilder`.
+  - New: `Order::is_editable()` and `App\Services\OrderCalculationContextService`.
   - Removed from the earlier work: `OrderChangeDetector`, `OrderChangesDTO`,
     `OrderChangeState`, `OrderService::holds_coupon_usage` and the total-limit
     change in `DiscountService`.

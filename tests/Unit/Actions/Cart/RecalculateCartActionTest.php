@@ -912,7 +912,7 @@ class RecalculateCartActionTest extends TestCase
         $this->bind_default_region(20, 0, false);
 
         $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
-        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [['name' => 'Tax', 'rate' => 10.0]]]]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
 
         $result = $this->make_action()->execute($context);
 
@@ -931,7 +931,7 @@ class RecalculateCartActionTest extends TestCase
         $this->bind_default_region(20, 0, true);
 
         $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
-        $context->stored = $this->make_stored_terms(['is_tax_inclusive' => false, 'item_tax_rates' => [1 => [['name' => 'Tax', 'rate' => 10.0]]]]);
+        $context->stored = $this->make_stored_terms(['is_tax_inclusive' => false, 'item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
 
         $result = $this->make_action()->execute($context);
 
@@ -950,7 +950,7 @@ class RecalculateCartActionTest extends TestCase
         $this->bind_full_tax_settings([], false);
 
         $context = $this->make_context([$this->make_item(1, 10000)], ['shipping_address' => ['country' => 'BD']]);
-        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [['name' => 'Tax', 'rate' => 10.0]]], 'tax_destination' => OrderTaxDestination::SHIPPING]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]], 'tax_destination' => OrderTaxDestination::SHIPPING]);
 
         $result = $this->make_action()->execute($context);
 
@@ -967,7 +967,7 @@ class RecalculateCartActionTest extends TestCase
         $this->bind_default_region(20, 0, false);
 
         $context = $this->make_context([$this->make_item(1, 10000), $this->make_item(2, 10000)], ['shipping_address' => ['country' => 'BD']]);
-        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [['name' => 'Tax', 'rate' => 10.0]]]]);
+        $context->stored = $this->make_stored_terms(['item_tax_rates' => [1 => [$this->make_tax_rate('Tax', 10.0)]]]);
 
         $result = $this->make_action()->execute($context);
 

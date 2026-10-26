@@ -1926,7 +1926,8 @@ class OrderApiTest extends RestTestCase
             'is_manual' => false,
         ]));
 
-        $this->assert_api_error($response, 500);
+        // The stock check in the context builder refuses the sold-out line before any order is written.
+        $this->assert_api_error($response, 422);
 
         $customer = Customer::where('user_id', $user_id)->first();
 

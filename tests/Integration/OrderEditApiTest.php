@@ -773,7 +773,37 @@ class OrderEditApiTest extends RestTestCase
         }
     }
 
-    public function test_a_fixed_product_coupon_keeps_its_maximum_when_an_edit_uses_none_of_it(): void
+    public function test_a_fixed_product_coupon_keeps_its_maximum_when_an_earlier_stored_coupon_uses_all_of_the_line(): void
+    {
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => 600, 'base_sale_price' => 600]);
+        $first_coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 1000);
+        $second_coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 200);
+        $order = $this->create_order([
+            'items' => [['variant_id' => $this->variant_id, 'quantity' => 2]],
+            'coupon_codes' => [$first_coupon->code, $second_coupon->code],
+        ]);
+        $coupon_codes = [$first_coupon->code, $second_coupon->code];
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 1)],
+            'coupon_codes' => $coupon_codes,
+        ])));
+
+        $second_order_coupon = OrderCoupon::where('order_id', $order['id'])->where('code', $second_coupon->code)->first();
+        $second_item_coupon = OrderItemCoupon::where('order_coupon_id', $second_order_coupon->id)->first();
+        $this->assertSame(0, $second_item_coupon->base_discount_amount);
+        $this->assertSame(200, $second_item_coupon->base_max_discount_amount);
+        $this->assertSame(600, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => $coupon_codes,
+        ])));
+
+        $this->assertSame(1200, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
+    public function test_a_new_fixed_product_coupon_does_not_take_from_a_stored_one(): void
     {
         Variant::query()->where('id', $this->variant_id)->update(['base_price' => 600, 'base_sale_price' => 600]);
         $stored_coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 1000);
@@ -788,17 +818,10 @@ class OrderEditApiTest extends RestTestCase
             'coupon_codes' => [$stored_coupon->code, $new_coupon->code],
         ])));
 
-        $order_coupon = OrderCoupon::where('order_id', $order['id'])->where('code', $stored_coupon->code)->first();
-        $item_coupon = OrderItemCoupon::where('order_coupon_id', $order_coupon->id)->first();
-        $this->assertSame(0, $item_coupon->base_discount_amount);
-        $this->assertSame(1000, $item_coupon->base_max_discount_amount);
-
-        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
-            'items' => [$this->line($order, 2)],
-            'coupon_codes' => [$stored_coupon->code],
-        ])));
-
-        $this->assertSame(1000, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+        $stored_order_coupon = OrderCoupon::where('order_id', $order['id'])->where('code', $stored_coupon->code)->first();
+        $new_order_coupon = OrderCoupon::where('order_id', $order['id'])->where('code', $new_coupon->code)->first();
+        $this->assertSame(1000, $stored_order_coupon->base_discount_amount);
+        $this->assertSame(200, $new_order_coupon->base_discount_amount);
     }
 
     // Shipping and tax
@@ -1021,20 +1044,81 @@ class OrderEditApiTest extends RestTestCase
         $this->assertSame(3, $preview['items_count']);
     }
 
-    public function test_a_preview_does_not_block_on_stock_the_per_order_limit_or_a_locked_line_but_the_save_does(): void
+    public function test_the_preview_and_the_save_both_refuse_a_quantity_over_the_per_order_limit(): void
     {
-        $this->track_stock($this->variant_id, 2);
         Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 3]);
         $order = $this->create_order();
 
-        $payload = ['order_id' => $order['id'], 'items' => [$this->line($order, 5)]];
+        $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'items' => [$this->line($order, 5)]]);
+    }
+
+    public function test_the_preview_and_the_save_both_refuse_a_quantity_raised_beyond_the_stock(): void
+    {
+        $this->track_stock($this->variant_id, 2);
+        $order = $this->create_order();
+
+        $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'items' => [$this->line($order, 5)]]);
+    }
+
+    public function test_the_preview_and_the_save_both_refuse_a_quantity_change_on_a_line_that_is_not_reachable(): void
+    {
+        $draft_product = $this->create_product();
+        $order = $this->create_order(['items' => [
+            ['variant_id' => $this->variant_id, 'quantity' => 1],
+            ['variant_id' => $this->default_variant_id($draft_product), 'quantity' => 1],
+        ]]);
+
+        Product::query()->where('id', $draft_product['id'])->update(['status' => ProductStatus::DRAFT]);
+
+        $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'items' => [$this->line($order, 1, 0), $this->line($order, 2, 1)]]);
+    }
+
+    public function test_the_preview_and_the_save_both_refuse_a_new_line_beyond_the_stock(): void
+    {
+        $other_variant_id = $this->default_variant_id($this->create_product());
+        $this->track_stock($other_variant_id, 1);
+        $order = $this->create_order();
+
+        $this->assert_preview_and_save_refuse(['order_id' => $order['id'], 'items' => [$this->line($order, 1), ['variant_id' => $other_variant_id, 'quantity' => 2]]]);
+    }
+
+    public function test_the_preview_and_the_save_both_accept_an_unchanged_line_on_a_sold_out_variant(): void
+    {
+        $this->track_stock($this->variant_id, 2);
+        $order = $this->create_order(['items' => [['variant_id' => $this->variant_id, 'quantity' => 2]]]);
+        Variant::query()->where('id', $this->variant_id)->update(['has_limit_per_order' => true, 'max_per_order' => 1]);
+
+        $payload = ['order_id' => $order['id'], 'items' => [$this->line($order, 2)]];
         $preview = $this->preview($payload);
 
-        $this->assertSame(5, $preview['items'][0]['quantity']);
-        $this->assertSame(1, $preview['items'][0]['available_quantity']);
-        $this->assertSame(3, $preview['items'][0]['max_per_order']);
+        $this->assertSame(2, $preview['items'][0]['quantity']);
+        $this->assertSame(0, $preview['items'][0]['available_quantity']);
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)));
+    }
+
+    public function test_the_save_fails_when_the_stock_was_taken_after_the_preview(): void
+    {
+        $this->track_stock($this->variant_id, 3);
+        $order = $this->create_order();
+        $payload = ['order_id' => $order['id'], 'items' => [$this->line($order, 3)]];
+
+        $this->preview($payload);
+        Variant::query()->where('id', $this->variant_id)->update(['available_quantity' => 0]);
 
         $this->assert_api_error($this->request('PUT', 'orders/' . $order['id'], $this->order_payload($payload)), 422);
+        $this->assertSame(1, (int) OrderItem::find($order['items'][0]['id'])->quantity);
+    }
+
+    /**
+     * Assert that the preview and the save of the same payload both fail with a 422 error.
+     *
+     * @param array<string, mixed> $payload Edit payload with an order ID.
+     * @return void
+     */
+    protected function assert_preview_and_save_refuse(array $payload): void
+    {
+        $this->assert_api_error($this->request('POST', 'calculate/order', $this->order_payload($payload)), 422);
+        $this->assert_api_error($this->request('PUT', 'orders/' . $payload['order_id'], $this->order_payload($payload)), 422);
     }
 
     public function test_an_edit_preview_prices_the_order_with_the_promised_terms_and_the_save_matches_it(): void

@@ -13,17 +13,11 @@ http:
     data: |-
       {
         "items": [
-          {
-            "variant_id": 252,
-            "quantity": 2
-          }
+          { "order_item_id": 35, "quantity": 2 },
+          { "variant_id": 252, "quantity": 1 }
         ],
-        "order_status": "pending",
-        "payment_status": "unpaid",
-        "is_manual": true,
         "customer_id": 2,
         "currency_code": "BDT",
-        "payment_provider": "stripe",
         "coupon_codes": ["WINTER20"],
         "shipping_method": "fsdfdsfsdfsdf343432jh4",
         "shipping_first_name": "Sunny",
@@ -72,17 +66,11 @@ examples:
         data: |-
           {
             "items": [
-              {
-                "variant_id": 252,
-                "quantity": 2
-              }
+              { "order_item_id": 35, "quantity": 2 },
+              { "variant_id": 252, "quantity": 1 }
             ],
-            "order_status": "pending",
-            "payment_status": "unpaid",
-            "is_manual": true,
             "customer_id": 2,
             "currency_code": "BDT",
-            "payment_provider": "stripe",
             "coupon_codes": ["WINTER20"],
             "shipping_method": "fsdfdsfsdfsdf343432jh4",
             "shipping_first_name": "Sunny",
@@ -107,6 +95,8 @@ examples:
             "billing_phone": "+1 555-000-2000",
             "billing_email": "jane.shipping@example.com",
             "billing_company": null,
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
             "customer_email": "jane.shipping@example.com",
             "customer_phone": "+1 555-000-2000",
             "order_notes": "testing"
@@ -266,17 +256,11 @@ examples:
         data: |-
           {
             "items": [
-              {
-                "variant_id": 252,
-                "quantity": 2
-              }
+              { "order_item_id": 35, "quantity": 2 },
+              { "variant_id": 252, "quantity": 1 }
             ],
-            "order_status": "pending",
-            "payment_status": "unpaid",
-            "is_manual": true,
             "customer_id": 2,
             "currency_code": "BDT",
-            "payment_provider": "stripe",
             "coupon_codes": ["WINTER20"],
             "shipping_method": "fsdfdsfsdfsdf343432jh4",
             "shipping_first_name": "Sunny",
@@ -301,6 +285,8 @@ examples:
             "billing_phone": "+1 555-000-2000",
             "billing_email": "jane.shipping@example.com",
             "billing_company": null,
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
             "customer_email": "jane.shipping@example.com",
             "customer_phone": "+1 555-000-2000",
             "order_notes": "testing"
@@ -319,7 +305,281 @@ examples:
             "errors": {},
             "message": "Order not found."
           }
+  - name: 422 Order cannot be edited
+    description: The order is paid, cancelled or shipped
+    request:
+      url: "{{baseUrl}}/orders/36"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 2
+              },
+              {
+                "variant_id": 252,
+                "quantity": 1
+              }
+            ],
+            "customer_id": 2,
+            "currency_code": "BDT",
+            "coupon_codes": [
+              "WINTER20"
+            ],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "order_notes": "testing"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "This order can no longer be edited."
+          }
+  - name: 422 Locked line
+    description: The quantity of a line whose product is no longer for sale cannot change
+    request:
+      url: "{{baseUrl}}/orders/36"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 3
+              }
+            ],
+            "customer_id": 2,
+            "currency_code": "BDT",
+            "coupon_codes": [
+              "WINTER20"
+            ],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "order_notes": "testing"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "The quantity of an item that is no longer available cannot be changed."
+          }
+  - name: 422 Per-order limit
+    description: A raised quantity, or a new line, is above max_per_order
+    request:
+      url: "{{baseUrl}}/orders/36"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 2
+              },
+              {
+                "variant_id": 252,
+                "quantity": 9
+              }
+            ],
+            "customer_id": 2,
+            "currency_code": "BDT",
+            "coupon_codes": [
+              "WINTER20"
+            ],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "order_notes": "testing"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Max per order limit exceeded for variant: 252"
+          }
+  - name: 422 Not enough stock
+    description: The added quantity is more than the available stock
+    request:
+      url: "{{baseUrl}}/orders/36"
+      method: PUT
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 50
+              }
+            ],
+            "customer_id": 2,
+            "currency_code": "BDT",
+            "coupon_codes": [
+              "WINTER20"
+            ],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "shipping_phone": "+1 555-000-2000",
+            "shipping_email": "jane.shipping@example.com",
+            "shipping_company": null,
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "billing_phone": "+1 555-000-2000",
+            "billing_email": "jane.shipping@example.com",
+            "billing_company": null,
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com",
+            "customer_phone": "+1 555-000-2000",
+            "order_notes": "testing"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Not enough stock for variant: 18"
+          }
 
 docs: |-
   ## Edit Order
-  Updates an existing resource with the provided data.
+  Edits an order that is not paid, not cancelled and not shipped. The edit keeps what the
+  customer was promised: line prices, coupon terms, exchange rate, tax mode, and the shipping
+  charge and tax rates for an address that did not change. Full rules: `docs/order-editing.md`.
+
+  ### Lines
+  - A line already on the order is sent with `order_item_id` (the `id` of the item in the order response).
+  - A new line is sent with `variant_id`. A line left out of the payload is removed and its stock is given back.
+  - `currency_code` is optional. When sent, it must equal the order's currency.
+  - A coupon code that is already on the order stays with its stored terms. A new code is checked and priced from the coupon.
+
+  ### Errors
+  - 404: the order does not exist.
+  - 422: the order cannot be edited; a locked line changed quantity; a raised quantity or a new line is above
+    `max_per_order`; stock is short for an added quantity; the shipping method is not valid for a new address.
+  - Use `POST {{baseUrl}}/calculate/order` with an `order_id` to preview the same edit. It gives the same 422 errors.

@@ -47,7 +47,7 @@ class CalculationContextDTO extends DTO
     /** @var string[] */
     public $coupon_codes = [];
 
-    /** @var int */
+    /** @var string */
     public $shipping_method_id;
 
     /** @var int Base shipping cost in minor units */

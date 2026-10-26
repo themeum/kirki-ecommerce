@@ -58,12 +58,32 @@ Each calculated line item SHALL expose `order_item_id`. Its value is the ID of t
 - **WHEN** an item is new in an edit, or the calculation has no order ID
 - **THEN** that item's `order_item_id` is null
 
-### Requirement: Calculation does not block on stock, per-order limits or locked lines
-The calculation endpoint SHALL NOT fail because a line's quantity is more than the available stock or the per-order limit, or because the quantity of an unreachable line changed. It SHALL return `is_reachable` and the live stock and limit values, so the client can show the problem. Saving the order SHALL enforce these rules.
+### Requirement: Calculation and save apply the same quantity and stock rules
+The calculation endpoint and the order save SHALL apply the same quantity, per-order limit and stock rules, and SHALL fail with a 422 error when a rule is broken. The calculation SHALL still return `is_reachable` and the live stock and limit values for display. The calculation SHALL NOT reserve stock; the save SHALL check stock again and reserve it under the order lock.
 
 #### Scenario: Quantity over the limit in a preview
-- **WHEN** an admin previews a line with quantity 5 for a variant whose per-order limit is 3
-- **THEN** the calculation succeeds and the item shows `max_per_order` 3
+- **WHEN** an admin previews a new line with quantity 5 for a variant whose per-order limit is 3
+- **THEN** the calculation fails with a 422 error
+
+#### Scenario: Quantity of an unreachable line changed in a preview
+- **WHEN** an admin previews a changed quantity for a line whose product is a draft
+- **THEN** the calculation fails with a 422 error
+
+#### Scenario: Increase beyond stock in a preview
+- **WHEN** a line has quantity 2, the variant has 1 available unit and does not allow back orders, and an admin previews a quantity of 4
+- **THEN** the calculation fails with a 422 error
+
+#### Scenario: Unchanged line on a sold-out variant in a preview
+- **WHEN** a line has quantity 5, the variant now has 0 available stock, and an admin previews an edit that does not change that line
+- **THEN** the calculation succeeds and the item shows `available_quantity` 0
+
+#### Scenario: Quantity lowered or line removed in a preview
+- **WHEN** an admin previews a lower quantity for a line, or leaves a line out of the payload
+- **THEN** the calculation succeeds, and no limit or stock check applies to that line
+
+#### Scenario: Stock changes between preview and save
+- **WHEN** a preview succeeds, and the stock of the variant is used by another order before the admin saves
+- **THEN** the save fails with an insufficient-stock error and nothing on the order changes
 
 ## MODIFIED Requirements
 

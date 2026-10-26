@@ -11,27 +11,27 @@ use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderTax;
-use Kirki\Ecommerce\App\Services\StoredOrderTermsBuilder;
+use Kirki\Ecommerce\App\Services\StoredOrderTermsService;
 use Kirki\Ecommerce\Tests\Unit\TestCase;
 
 use function Kirki\Ecommerce\Framework\collection;
 
-class StoredOrderTermsBuilderTest extends TestCase
+class StoredOrderTermsServiceTest extends TestCase
 {
-    protected StoredOrderTermsBuilder $builder;
+    protected StoredOrderTermsService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->builder = new StoredOrderTermsBuilder();
+        $this->service = new StoredOrderTermsService();
     }
 
     public function test_it_keeps_the_tax_mode_and_tax_destination_of_the_order(): void
     {
         $order = $this->make_order(['is_tax_inclusive' => true, 'tax_destination' => OrderTaxDestination::BILLING]);
 
-        $stored = $this->builder->build($order, $this->make_context());
+        $stored = $this->service->build($order, $this->make_context());
 
         $this->assertTrue($stored->is_tax_inclusive);
         $this->assertSame(OrderTaxDestination::BILLING, $stored->tax_destination);
@@ -43,11 +43,11 @@ class StoredOrderTermsBuilderTest extends TestCase
             ['id' => 5, 'taxes' => [['type' => OrderTaxType::PRODUCT, 'name' => 'VAT', 'rate' => 10]]],
         ], [['name' => 'Shipping Tax', 'rate' => 10, 'order_item_id' => null]]);
 
-        $stored = $this->builder->build($order, $this->make_context());
+        $stored = $this->service->build($order, $this->make_context());
 
         $this->assertSame(1000, $stored->shipping_subtotal);
-        $this->assertSame([0 => [['name' => 'VAT', 'rate' => 10.0]]], $stored->item_tax_rates);
-        $this->assertSame([['name' => 'Shipping Tax', 'rate' => 10.0, 'line_key' => null]], $stored->shipping_tax_rates);
+        $this->assertEquals([0 => [$this->make_tax_rate('VAT', 10.0)]], $stored->item_tax_rates);
+        $this->assertEquals([$this->make_tax_rate('Shipping Tax', 10.0)], $stored->shipping_tax_rates);
         $this->assertFalse($stored->is_shipping_tax_split);
     }
 
@@ -56,7 +56,7 @@ class StoredOrderTermsBuilderTest extends TestCase
         $order = $this->make_order(['base_shipping_total' => 0, 'base_shipping_tax_amount' => 0]);
         $order->set_relation('order_coupons', collection([$this->make_order_coupon(['code' => 'SHIPFREE', 'discount_type' => DiscountType::FREE_SHIPPING, 'base_discount_amount' => 900])]));
 
-        $stored = $this->builder->build($order, $this->make_context());
+        $stored = $this->service->build($order, $this->make_context());
 
         $this->assertSame(900, $stored->shipping_subtotal);
     }
@@ -70,23 +70,23 @@ class StoredOrderTermsBuilderTest extends TestCase
             ]],
         ], [['name' => 'VAT', 'rate' => 20, 'order_item_id' => 5]]);
 
-        $stored = $this->builder->build($order, $this->make_context());
+        $stored = $this->service->build($order, $this->make_context());
 
-        $this->assertSame([0 => [['name' => 'VAT', 'rate' => 20.0]]], $stored->item_tax_rates);
-        $this->assertSame([['name' => 'VAT', 'rate' => 20.0, 'line_key' => 0]], $stored->shipping_tax_rates);
+        $this->assertEquals([0 => [$this->make_tax_rate('VAT', 20.0)]], $stored->item_tax_rates);
+        $this->assertEquals([$this->make_tax_rate('VAT', 20.0, 0)], $stored->shipping_tax_rates);
         $this->assertTrue($stored->is_shipping_tax_split);
     }
 
     public function test_a_line_with_no_stored_tax_has_an_empty_rate_list(): void
     {
-        $stored = $this->builder->build($this->make_order(), $this->make_context());
+        $stored = $this->service->build($this->make_order(), $this->make_context());
 
         $this->assertSame([0 => []], $stored->item_tax_rates);
     }
 
     public function test_it_quotes_shipping_and_tax_again_when_the_shipping_state_changed(): void
     {
-        $stored = $this->builder->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'CA']]));
+        $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'CA']]));
 
         $this->assertNull($stored->shipping_subtotal);
         $this->assertNull($stored->shipping_tax_rates);
@@ -95,7 +95,7 @@ class StoredOrderTermsBuilderTest extends TestCase
 
     public function test_it_quotes_shipping_and_tax_again_when_the_shipping_country_changed(): void
     {
-        $stored = $this->builder->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'CA', 'state' => 'NY']]));
+        $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'CA', 'state' => 'NY']]));
 
         $this->assertNull($stored->shipping_subtotal);
         $this->assertNull($stored->item_tax_rates);
@@ -103,7 +103,7 @@ class StoredOrderTermsBuilderTest extends TestCase
 
     public function test_other_address_fields_do_not_count_as_a_new_address(): void
     {
-        $stored = $this->builder->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'NY', 'city' => 'Albany', 'postal_code' => '12207']]));
+        $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'NY', 'city' => 'Albany', 'postal_code' => '12207']]));
 
         $this->assertNotNull($stored->shipping_subtotal);
         $this->assertNotNull($stored->item_tax_rates);
@@ -111,7 +111,7 @@ class StoredOrderTermsBuilderTest extends TestCase
 
     public function test_it_quotes_shipping_again_when_another_shipping_method_is_picked(): void
     {
-        $stored = $this->builder->build($this->make_order(), $this->make_context(['shipping_method_id' => 'method-0002']));
+        $stored = $this->service->build($this->make_order(), $this->make_context(['shipping_method_id' => 'method-0002']));
 
         $this->assertNull($stored->shipping_subtotal);
         $this->assertNull($stored->shipping_tax_rates);
@@ -122,7 +122,7 @@ class StoredOrderTermsBuilderTest extends TestCase
     {
         $order = $this->make_order(['tax_destination' => OrderTaxDestination::BILLING]);
 
-        $stored = $this->builder->build($order, $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'CA']]));
+        $stored = $this->service->build($order, $this->make_context(['shipping_address' => ['country' => 'US', 'state' => 'CA']]));
 
         $this->assertNull($stored->shipping_subtotal);
         $this->assertNotNull($stored->item_tax_rates);
@@ -133,7 +133,7 @@ class StoredOrderTermsBuilderTest extends TestCase
     {
         $order = $this->make_order(['tax_destination' => OrderTaxDestination::BILLING]);
 
-        $stored = $this->builder->build($order, $this->make_context(['billing_address' => ['country' => 'US', 'state' => 'CA']]));
+        $stored = $this->service->build($order, $this->make_context(['billing_address' => ['country' => 'US', 'state' => 'CA']]));
 
         $this->assertNotNull($stored->shipping_subtotal);
         $this->assertNull($stored->item_tax_rates);
@@ -143,7 +143,7 @@ class StoredOrderTermsBuilderTest extends TestCase
     {
         $order = $this->make_order(['tax_destination' => OrderTaxDestination::STORE]);
 
-        $stored = $this->builder->build($order, $this->make_context(['shipping_address' => ['country' => 'CA', 'state' => 'ON'], 'billing_address' => ['country' => 'CA', 'state' => 'ON']]));
+        $stored = $this->service->build($order, $this->make_context(['shipping_address' => ['country' => 'CA', 'state' => 'ON'], 'billing_address' => ['country' => 'CA', 'state' => 'ON']]));
 
         $this->assertNotNull($stored->item_tax_rates);
     }
@@ -156,7 +156,7 @@ class StoredOrderTermsBuilderTest extends TestCase
             $this->make_order_coupon(['code' => 'DROP']),
         ]));
 
-        $stored = $this->builder->build($order, $this->make_context(['coupon_codes' => ['KEEP', 'NEW']]));
+        $stored = $this->service->build($order, $this->make_context(['coupon_codes' => ['KEEP', 'NEW']]));
 
         $this->assertSame(['KEEP'], array_keys($stored->coupons));
         $this->assertSame('KEEP', $stored->coupons['KEEP']->code);

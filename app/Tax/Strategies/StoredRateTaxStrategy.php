@@ -6,6 +6,7 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\DTO\Calculation\StoredOrderTermsDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\TaxRateDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxableItemDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Tax\TaxCalculationResultDTO;
@@ -77,17 +78,17 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
      *
      * @since 1.0.0
      *
-     * @param TaxableItemDTO                                    $item         Item to tax.
-     * @param array<int, array{name: string, rate: float}> $stored_rates Rates stored for the item.
+     * @param TaxableItemDTO $item         Item to tax.
+     * @param TaxRateDTO[]   $stored_rates Rates stored for the item.
      * @return TaxLineDTO[]
      */
     protected function calculate_item_lines(TaxableItemDTO $item, array $stored_rates): array
     {
         return array_map(function ($stored_rate) use ($item) {
             return TaxLineDTO::from_array([
-                'name' => $stored_rate['name'],
-                'rate' => $stored_rate['rate'],
-                'base_amount' => $this->calculate_tax_amount($stored_rate['rate'], $item->taxable_amount),
+                'name' => $stored_rate->name,
+                'rate' => $stored_rate->rate,
+                'base_amount' => $this->calculate_tax_amount($stored_rate->rate, $item->taxable_amount),
                 'item_id' => $item->item_id,
             ]);
         }, $stored_rates);
@@ -120,9 +121,9 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
         if (!$is_split_across_items || (!$has_taxable_amounts && $context->shipping_fee > 0)) {
             return array_map(function ($stored_rate) use ($context) {
                 return TaxLineDTO::from_array([
-                    'name' => $stored_rate['name'],
-                    'rate' => $stored_rate['rate'],
-                    'base_amount' => $this->calculate_shipping_tax_amount($stored_rate['rate'], $context->shipping_fee),
+                    'name' => $stored_rate->name,
+                    'rate' => $stored_rate->rate,
+                    'base_amount' => $this->calculate_shipping_tax_amount($stored_rate->rate, $context->shipping_fee),
                 ]);
             }, $is_split_across_items ? [$stored_rates[0]] : $stored_rates);
         }
@@ -130,8 +131,8 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
         $rates_by_line_key = [];
 
         foreach ($stored_rates as $stored_rate) {
-            if ($stored_rate['line_key'] !== null) {
-                $rates_by_line_key[$stored_rate['line_key']] = $stored_rate;
+            if ($stored_rate->line_key !== null) {
+                $rates_by_line_key[$stored_rate->line_key] = $stored_rate;
             }
         }
 
@@ -144,9 +145,9 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
             $item_rate = $rates_by_line_key[$item->item_id] ?? $this->first_item_rate($result->items[$item->item_id] ?? [], $stored_rates[0]);
 
             $lines[] = TaxLineDTO::from_array([
-                'name' => $item_rate['name'],
-                'rate' => $item_rate['rate'],
-                'base_amount' => $this->calculate_shipping_tax_amount($item_rate['rate'], $portion),
+                'name' => $item_rate->name,
+                'rate' => $item_rate->rate,
+                'base_amount' => $this->calculate_shipping_tax_amount($item_rate->rate, $portion),
                 'item_id' => $item->item_id,
             ]);
         }
@@ -159,16 +160,20 @@ class StoredRateTaxStrategy extends AbstractTaxStrategy
      *
      * @since 1.0.0
      *
-     * @param TaxLineDTO[]                         $item_lines Tax lines of the item.
-     * @param array{name: string, rate: float} $fallback   Rate to use when the item has no tax line.
-     * @return array{name: string, rate: float}
+     * @param TaxLineDTO[] $item_lines Tax lines of the item.
+     * @param TaxRateDTO   $fallback   Rate to use when the item has no tax line.
+     * @return TaxRateDTO
      */
-    protected function first_item_rate(array $item_lines, array $fallback): array
+    protected function first_item_rate(array $item_lines, TaxRateDTO $fallback): TaxRateDTO
     {
         if (empty($item_lines)) {
             return $fallback;
         }
 
-        return ['name' => $item_lines[0]->name, 'rate' => $item_lines[0]->rate];
+        $item_rate = new TaxRateDTO();
+        $item_rate->name = $item_lines[0]->name;
+        $item_rate->rate = $item_lines[0]->rate;
+
+        return $item_rate;
     }
 }

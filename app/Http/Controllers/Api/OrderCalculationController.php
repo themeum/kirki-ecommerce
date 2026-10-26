@@ -5,9 +5,10 @@ namespace Kirki\Ecommerce\App\Http\Controllers\Api;
 defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\Actions\Cart\RecalculateCartAction;
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
 use Kirki\Ecommerce\App\Http\Requests\Order\OrderCalculationRequest;
 use Kirki\Ecommerce\App\Resources\Order\OrderCalculationResource;
-use Kirki\Ecommerce\App\Services\OrderCalculationContextBuilder;
+use Kirki\Ecommerce\App\Services\OrderCalculationContextService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\Framework\Exceptions\NotFoundException;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
@@ -23,8 +24,8 @@ use function Kirki\Ecommerce\Framework\throw_if;
  */
 class OrderCalculationController
 {
-    /** @var OrderCalculationContextBuilder */
-    protected $context_builder;
+    /** @var OrderCalculationContextService */
+    protected $context_service;
 
     /** @var OrderService */
     protected $order_service;
@@ -34,12 +35,12 @@ class OrderCalculationController
      *
      * @since 1.0.0
      *
-     * @param OrderCalculationContextBuilder $context_builder Builds the calculation input from the payload.
+     * @param OrderCalculationContextService $context_service Builds the calculation input from the payload.
      * @param OrderService                   $order_service   Order lookup.
      */
-    public function __construct(OrderCalculationContextBuilder $context_builder, OrderService $order_service)
+    public function __construct(OrderCalculationContextService $context_service, OrderService $order_service)
     {
-        $this->context_builder = $context_builder;
+        $this->context_service = $context_service;
         $this->order_service = $order_service;
     }
 
@@ -60,14 +61,14 @@ class OrderCalculationController
     public function get(OrderCalculationRequest $request, RecalculateCartAction $action)
     {
         $order = $this->find_editable_order($request->input('order_id'));
-        $context = $this->context_builder->build($request->all(), $order, false);
+        $context = $this->context_service->build(OrderCalculationInputDTO::from_payload($request->all()), $order);
         $result = $action->execute($context);
 
         return response()->json([
             'data' => OrderCalculationResource::make([
                 'result' => $result,
                 'context' => $context,
-                'variants' => $this->context_builder->get_variants_map(),
+                'variants' => $this->context_service->get_variants_map(),
             ])
         ]);
     }

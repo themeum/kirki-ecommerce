@@ -9,6 +9,7 @@ use Kirki\Ecommerce\App\Constants\Order\OrderTaxDestination;
 use Kirki\Ecommerce\App\Constants\Order\OrderTaxType;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\StoredOrderTermsDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\TaxRateDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderCoupon;
 
@@ -23,7 +24,7 @@ use Kirki\Ecommerce\App\Models\OrderCoupon;
  *
  * @since 1.0.0
  */
-class StoredOrderTermsBuilder
+class StoredOrderTermsService
 {
     /**
      * Build the stored terms for an edit of an order.
@@ -96,7 +97,7 @@ class StoredOrderTermsBuilder
      */
     protected function is_shipping_quoted_again(Order $order, CalculationContextDTO $context)
     {
-        return (string) $context->shipping_method_id !== (string) $order->shipping_method
+        return $context->shipping_method_id !== $order->shipping_method
             || $this->has_region_changed($context->shipping_address, $order->shipping_country, $order->shipping_state);
     }
 
@@ -191,7 +192,7 @@ class StoredOrderTermsBuilder
      *
      * @param Order                  $order     Order being edited.
      * @param array<int, int|string> $line_keys Line key per order item ID.
-     * @return array<int|string, array<int, array{name: string, rate: float}>> Rates per line key; empty for a line that was not taxed.
+     * @return array<int|string, TaxRateDTO[]> Rates per line key; empty for a line that was not taxed.
      */
     protected function get_item_tax_rates(Order $order, array $line_keys)
     {
@@ -206,7 +207,7 @@ class StoredOrderTermsBuilder
 
             foreach ($order_item->taxes as $order_tax) {
                 if ($order_tax->type === OrderTaxType::PRODUCT) {
-                    $item_tax_rates[$line_keys[$order_item->id]][] = ['name' => $order_tax->name, 'rate' => (float) $order_tax->rate];
+                    $item_tax_rates[$line_keys[$order_item->id]][] = $this->make_tax_rate($order_tax->name, $order_tax->rate);
                 }
             }
         }
@@ -221,20 +222,36 @@ class StoredOrderTermsBuilder
      *
      * @param Order                  $order     Order being edited.
      * @param array<int, int|string> $line_keys Line key per order item ID.
-     * @return array<int, array{name: string, rate: float, line_key: int|string|null}> The line key is set when the rate was split to a line that is in the edit.
+     * @return TaxRateDTO[] The line key is set when the rate was split to a line that is in the edit.
      */
     protected function get_shipping_tax_rates(Order $order, array $line_keys)
     {
         $shipping_tax_rates = [];
 
         foreach ($order->shipping_taxes as $order_tax) {
-            $shipping_tax_rates[] = [
-                'name' => $order_tax->name,
-                'rate' => (float) $order_tax->rate,
-                'line_key' => $line_keys[$order_tax->order_item_id] ?? null,
-            ];
+            $shipping_tax_rates[] = $this->make_tax_rate($order_tax->name, $order_tax->rate, $line_keys[$order_tax->order_item_id] ?? null);
         }
 
         return $shipping_tax_rates;
+    }
+
+    /**
+     * Make a stored tax rate.
+     *
+     * @since 1.0.0
+     *
+     * @param string|null     $name     Name of the tax.
+     * @param float|string    $rate     Rate in percent.
+     * @param int|string|null $line_key Line the rate was split to; null when it was not split.
+     * @return TaxRateDTO
+     */
+    protected function make_tax_rate($name, $rate, $line_key = null)
+    {
+        $tax_rate = new TaxRateDTO();
+        $tax_rate->name = $name;
+        $tax_rate->rate = (float) $rate;
+        $tax_rate->line_key = $line_key;
+
+        return $tax_rate;
     }
 }

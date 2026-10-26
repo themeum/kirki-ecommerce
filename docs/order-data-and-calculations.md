@@ -150,7 +150,7 @@ There is **no date range for a sale**. A sale price is either on or off.
 ## 4. The calculation, step by step
 
 This is the order of the steps. Each step uses the result of the one before.
-The same calculation runs when an order is **created**, when it is **edited**, and in the admin "preview" while building a manual order.
+The same calculation runs when an order is **created**, when it is **edited**, and in the admin "preview" while building a manual order. The preview and the save also apply the same quantity, per-order limit and stock checks, so one payload gives the same answer in both.
 
 | # | Step | What happens |
 |---|---|---|
@@ -158,7 +158,7 @@ The same calculation runs when an order is **created**, when it is **edited**, a
 | 2 | **Line price** | For each line: `unit price × quantity`. The unit price is the variant's sale price, or its regular price when there is no sale. This is the "before discount" amount. |
 | 3 | **Check coupons** | Each coupon is checked: active, dates, minimum spend, usage limits, country, customer rules. A coupon that fails is dropped and reported. The rest still apply. Only one free-shipping coupon is allowed. |
 | 4 | **Product coupons** | Coupons with target `products` apply first. Each one works alone on its own eligible lines. If two product coupons hit the same line, both apply and the amounts are added up. |
-| 5 | **Order coupons** | Coupons with target `order` apply next, one after the other, on **what is left** after step 4. The discount is shared between lines by their remaining value. The store splits cents fairly so the shares add up exactly. |
+| 5 | **Order coupons** | Coupons with target `order` apply next, one after the other, on **what is left** after step 4. The discount is shared between lines by their remaining value. The store splits cents fairly so the shares add up exactly. When an order is edited, a coupon that is already on the order is priced before a new coupon, in steps 4, 5 and 6, so a new coupon cannot shrink a discount that was promised. |
 | 6 | **Free shipping** | A free-shipping coupon removes the whole shipping fee. |
 | 7 | **Cap** | A line can never go below zero. If the discounts on a line add up to more than the line price, the last coupons are cut back. |
 | 8 | **Taxable amount** | For each line: `line price − discount`. For shipping: `shipping fee − shipping discount`. Shipping is only taxed if the method is taxable and shipping tax is on. |
@@ -519,13 +519,13 @@ does the following in one transaction.
 
 1. **Locks the order**, so two edits cannot run at the same time.
 2. **Checks that the order can be edited.** Only orders that are not paid, not cancelled and not shipped can be edited (`Order::is_editable()`).
-3. **Reads the terms stored on the order** (`StoredOrderTermsBuilder`): the unit prices of the lines, the exchange rate, the tax mode, the shipping charge, the tax rates, and the coupons with the lines they discounted.
+3. **Reads the terms stored on the order** (`StoredOrderTermsService`): the unit prices of the lines, the exchange rate, the tax mode, the shipping charge, the tax rates, and the coupons with the lines they discounted.
 4. **Runs the full calculation again** (section 4) with the new input and with the **stored** terms in place of today's settings. Today's settings are read only for a new line, for a coupon that is new to the order, and for the shipping and tax of a new delivery address.
 5. **Updates the order items**:
    - Line already on the order (sent by `order_item_id`) → the row keeps its snapshot and prices. Only the quantity and the money change.
    - New line (sent by `variant_id`) → a new row, with a snapshot of the variant as it is now.
    - Line left out → the row is deleted.
-6. **Updates stock**: reserves more (live stock is checked) or gives back stock for the quantity difference only. If stock is short, the whole edit fails.
+6. **Updates stock**: reserves more or gives back stock for the quantity difference only. The live stock is checked in the preview and again here, while the order is locked. If stock is short, the whole edit fails.
 7. **Overwrites the order totals** (`subtotal`, `discount`, `shipping`, `tax`, `total`, `items_count`), the addresses, the notes and the customer details.
 8. **Deletes and rebuilds** all `order_coupons`, `order_item_coupons` and `order_taxes` rows from the new result. A coupon that stays keeps its stored terms. The coupon usage count goes up for a new coupon and down for a removed coupon.
 
@@ -598,7 +598,7 @@ Cancelling does **not** change any money on the order. It:
 | G3 | **Fixed.** ~~No status protection.~~ Only orders that are not paid, not cancelled and not shipped can be edited (`Order::is_editable()`). |
 | G4 | **Payment is not adjusted.** The order stays "paid" even when the total changes. No extra charge, no automatic refund. |
 | G5 | **No history.** The old totals, old items and old coupons are lost on edit. The timeline gets no entry. |
-| G6 | **Fixed.** ~~Tax profile is not passed on create or edit.~~ The preview, order creation (manual and checkout) and the edit now build their calculation input in one place, `OrderCalculationContextBuilder`, which passes the variant's tax profile (or the product's when the variant has none). |
+| G6 | **Fixed.** ~~Tax profile is not passed on create or edit.~~ The preview, order creation (manual and checkout) and the edit now build their calculation input in one place, `OrderCalculationContextService`, which passes the variant's tax profile (or the product's when the variant has none). |
 | G7 | **Fixed.** ~~A coupon that expired after the order was placed was removed by an edit.~~ A coupon on the order is locked and keeps its stored terms, even when it expired, changed or was deleted. |
 | G8 | **Refunds are not connected to lines or tax.** One amount, order currency only. Editing an order after a refund does not look at the refund. |
 | G9 | **`charge_taxes` on the variant is not used** by the calculation. A "no tax" item is still taxed. |

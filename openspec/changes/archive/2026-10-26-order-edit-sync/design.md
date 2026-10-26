@@ -78,7 +78,7 @@ Current state that shapes the approach:
 
 **Design constraint (keeps a later second strategy cheap):** the freeze rules
 live only in these named places, and nowhere else:
-- the existing-line branch of `OrderCalculationContextBuilder` (D3)
+- the existing-line branch of `OrderCalculationContextService` (D3)
 - the stored-value inputs on `CalculationContextDTO` (D5)
 - `DiscountService::calculate_stored()` (D5)
 - the stored-coupon and existing-line branches of the sync code (D9)
@@ -139,23 +139,35 @@ same variant also work, because each line has its own `order_item_id`.
 *Alternative:* keep `variant_id` as the key and drop lines with no variant.
 This breaks the rule that a deleted-product line stays on the order.
 
-### D3. `App\Services\OrderCalculationContextBuilder` replaces the three item builders
+### D3. `App\Services\OrderCalculationContextService` replaces the three item builders
 
 Public methods:
-- `build_items(array $items, ?Order $order, bool $is_saving): Collection`
-- `build(array $payload, ?Order $order, bool $is_saving): CalculationContextDTO`
+- `build_items(array $items, ?Order $order): Collection`
+- `build(OrderCalculationInputDTO $input, ?Order $order): CalculationContextDTO`
 
-The builder handles the address, customer, coupon and shipping fields that
-are the same in all three callers. The controller passes `$request->all()`.
-The actions pass their payload DTO as an array. For an edit it also sets
-`$context->stored`, which `StoredOrderTermsBuilder` reads from the order (D5).
+There is no `$is_saving` flag. The preview and the save run the same checks
+(D4), so the same payload gives the same result in both.
+
+The context service handles the address, customer, coupon and shipping fields that
+are the same in all three callers. `OrderCalculationInputDTO` holds exactly
+the fields the context service reads: `customer_id`, `customer_email`, `coupon_codes`,
+`shipping_method`, the flat `shipping_*` and `billing_*` address fields, and
+`items` as a list of `OrderCalculationLineDTO` (`order_item_id`, `variant_id`,
+`quantity`). It has no other fields, so it is smaller than the create and
+update payload DTOs, and a typo in a field name is an error and not a silent
+null. Each caller builds it: the controller from the request, and
+`CreateOrderPayloadDTO` and `UpdateOrderPayloadDTO` through a
+`to_calculation_input()` method. The address stays as flat fields, as the
+request has them; `prepare_address()` still picks one address by its prefix.
+For an edit the context service also sets `$context->stored`, which
+`StoredOrderTermsService` reads from the order (D5).
 
 For a **new line**, it does the following:
 1. Rejects a duplicate variant (D2).
 2. Loads the variant. If the variant is missing or has no product → 404.
 3. Requires `Variant::is_available()` (422).
-4. When `$is_saving` is true, rejects `has_limit_per_order && max_per_order <
-   quantity` (422). The preview does not enforce this rule or stock.
+4. Rejects `has_limit_per_order && max_per_order < quantity` (422), and
+   rejects a quantity above the available stock (422), as in D4.
 5. Fills the DTO from the live variant:
    - `base_unit_price = base_sale_price ?: base_price`
    - `base_product_total = base_price`
@@ -172,7 +184,7 @@ For an **existing line**, it fills the DTO from the stored order item:
   evaluated live; see D5 and D7)
 
 For every line, `id` is the payload index and `line_key` is the same value.
-The builder keeps the loaded variants in a variant map that the callers and
+The context service keeps the loaded variants in a variant map that the callers and
 the resource read, so the stock fields need no extra queries. It also gives
 `is_reachable` for each line (D4).
 
@@ -188,9 +200,10 @@ already differ, and they would differ again.
 
 A line is **reachable** when its variant exists, has a product, and
 `Variant::is_available()` is true (this is the rule that create already uses).
-Otherwise it is not reachable. The builder gives `is_reachable` per line.
+Otherwise it is not reachable. The context service gives `is_reachable` per line.
 
-On save, for each existing line, compare the payload quantity with the stored
+The context service runs these checks for every build, in the preview and in the save.
+For each existing line, it compares the payload quantity with the stored
 quantity:
 - Equal: no check, no stock move. A sold-out variant or a lowered limit
   does not block it.
@@ -199,22 +212,34 @@ quantity:
   - `has_limit_per_order && quantity > max_per_order` → 422. (The stored
     quantity is never reduced by a lower limit, because an equal quantity is
     not checked.)
-  - Check and reserve live stock for the added quantity only
-    (`has_stock` / `reserve_available`, which is atomic).
-- Lower (reachable line): release the difference.
+  - The live stock must cover the added quantity only (`has_stock`) → 422.
+- Lower (reachable line): no check. The save releases the difference.
 
 A new line: stock for the full quantity, the limit on the full quantity.
+
+The stock check in the context service is a read without a lock. It gives the admin
+the answer early, but it cannot hold stock. So the save checks stock again and
+reserves it (`has_stock` / `reserve_available`, which is atomic) inside
+`lock_order()`, and stock moves only there. If another order took the stock
+between the preview and the save, the save fails with the insufficient-stock
+error. This is the same rule run in a safe place, not a second rule.
 
 A line that the payload leaves out is deleted. Its stock is released only when
 its variant still exists (a deleted variant has nothing to release).
 
-The preview does not enforce any of this. It returns `is_reachable` and the
-stock fields so the client can show the problem (spec "Calculation does not
-block ...").
+The preview returns `is_reachable` and the stock fields for display, and it
+fails with the same 422 as the save when a rule is broken (spec "Calculation
+and save apply the same quantity and stock rules"). The client disables the
+quantity buttons of a line that is not reachable, so an admin does not meet
+the error for that case.
+
+*Alternative:* keep the preview soft with an `$is_saving` flag. The preview then
+passes a payload that the save refuses, and the two paths can drift. The
+user chose one behaviour for both.
 
 ### D5. Frozen calculation: stored values go into the engine
 
-The engine does the math. For an edit, the builder gives it stored inputs.
+The engine does the math. For an edit, the context service gives it stored inputs.
 
 - **Line prices:** from the stored line (D3).
 - **Tax-inclusive setting:** `$order->is_tax_inclusive` replaces
@@ -238,7 +263,7 @@ The engine does the math. For an edit, the builder gives it stored inputs.
   carries the stored shipping charge before discount and tax
   (`StoredOrderTermsDTO::$shipping_subtotal`), and the engine does not run the
   shipping-rate lookup. The order stores the charge after the free-shipping
-  discount and the shipping tax, so `StoredOrderTermsBuilder` adds the
+  discount and the shipping tax, so `StoredOrderTermsService` adds the
   discount back and takes the tax off.
 - **Coupons:** the payload lists coupon codes. A code that matches an
   `order_coupons.code` of the order is a **stored coupon**. Any other code is a
@@ -249,7 +274,12 @@ The engine does the math. For an edit, the builder gives it stored inputs.
   - A stored coupon follows a new `DiscountService::calculate_stored()` path.
     It does no validation and needs no coupon record. It prices each stored
     coupon with the same order and rules as `calculate()` (product coupons
-    first, then order coupons, then free shipping), using the stored terms:
+    first, then order coupons, then free shipping), using the stored terms.
+    Within each of these passes, stored coupons are priced **before** new
+    coupons. The order matters for the order-wide coupons, which take from
+    the subtotal that is left. A stored coupon was applied earlier, so it
+    keeps the amount it promised and a new coupon takes from the rest. Example:
+    subtotal 100, a stored 10% and a new 20% give 10 and 18, not 8 and 20.
 
     | Stored coupon | Terms read | Result for a line |
     | --- | --- | --- |
@@ -297,7 +327,7 @@ uses its current amount as a fallback. The applied amounts remain mutable.
 4. If `!$order->is_editable()` → 422.
 5. Check the currency. If a currency was sent and it is not
    `$order->currency_code` → 422. Otherwise use `$order->currency_code`.
-6. Build the context with the builder (`$is_saving = true`).
+6. Build the context with the context service.
 7. Decide if the address changed (D8). If it changed, check that the shipping
    method is valid for the new address.
 8. Calculate.
@@ -311,7 +341,7 @@ currency code.
 
 ### D8. What asks for a new shipping or tax quote
 
-`StoredOrderTermsBuilder` decides, from the payload and the stored order:
+`StoredOrderTermsService` decides, from the payload and the stored order:
 
 - **Shipping is quoted again** when the shipping **country or state** differs
   from the stored order's, or when the payload picks another shipping method
@@ -386,7 +416,7 @@ always writes it. Update writes it only when shipping is quoted again (D8).
 ### D13. Resource mapping
 
 `OrderCalculationController` passes `order` (or null) to
-`OrderCalculationResource::make([...])`, with the builder's variant map. The
+`OrderCalculationResource::make([...])`, with the context service's variant map. The
 resource adds these keys to each calculated item:
 - `order_item_id`, from the line.
 - `is_reachable`.
@@ -408,8 +438,19 @@ stored terms.
   have. When notices were on, every preview returned HTTP 500. The resource now
   returns the selected method's ID (or null when it is not available). The
   create screen uses this value only when it is not null.
-- **Category loading.** The builder calls `load_missing('categories')`, not
+- **Category loading.** The context service calls `load_missing('categories')`, not
   `load('categories')`.
+
+### D14. `TaxRateDTO` for stored tax rates
+
+`StoredOrderTermsDTO::$item_tax_rates` and `$shipping_tax_rates` held nested
+arrays of `{name, rate}` and `{name, rate, line_key}`. A new `TaxRateDTO`
+(`name`, `rate`, and `line_key` that is null for a product rate) replaces both
+shapes: `item_tax_rates` is `array<int|string, TaxRateDTO[]>|null` and
+`shipping_tax_rates` is `TaxRateDTO[]|null`. `StoredOrderTermsService` builds
+it, and the tax strategies read the properties and not the keys. Simple maps
+such as the remaining subtotal per line stay as arrays, because a DTO adds
+nothing there.
 
 ## Risks / Trade-offs
 

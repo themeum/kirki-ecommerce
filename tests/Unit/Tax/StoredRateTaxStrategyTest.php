@@ -24,7 +24,7 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_an_item_is_taxed_at_its_stored_rate(): void
     {
-        $strategy = $this->make_strategy($this->stored_terms([1 => [['name' => 'VAT', 'rate' => 10.0]]]));
+        $strategy = $this->make_strategy($this->stored_terms([1 => [$this->make_tax_rate('VAT', 10.0)]]));
 
         $result = $strategy->calculate($this->tax_context());
 
@@ -36,7 +36,7 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_a_stored_rate_extracts_the_tax_when_the_order_prices_include_tax(): void
     {
-        $strategy = $this->make_strategy($this->stored_terms([1 => [['name' => 'VAT', 'rate' => 25.0]]]), null, true);
+        $strategy = $this->make_strategy($this->stored_terms([1 => [$this->make_tax_rate('VAT', 25.0)]]), null, true);
 
         $result = $strategy->calculate($this->tax_context());
 
@@ -54,7 +54,7 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_an_item_without_a_stored_rate_takes_the_live_rate(): void
     {
-        $strategy = $this->make_strategy($this->stored_terms([1 => [['name' => 'VAT', 'rate' => 10.0]]]), $this->live_strategy(20));
+        $strategy = $this->make_strategy($this->stored_terms([1 => [$this->make_tax_rate('VAT', 10.0)]]), $this->live_strategy(20));
 
         $result = $strategy->calculate($this->tax_context([], ['items' => [$this->taxable_item(1, 10000), $this->taxable_item(2, 5000)]]));
 
@@ -65,7 +65,7 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_an_item_without_a_stored_rate_is_untaxed_when_no_live_strategy_exists(): void
     {
-        $strategy = $this->make_strategy($this->stored_terms([1 => [['name' => 'VAT', 'rate' => 10.0]]]));
+        $strategy = $this->make_strategy($this->stored_terms([1 => [$this->make_tax_rate('VAT', 10.0)]]));
 
         $result = $strategy->calculate($this->tax_context([], ['items' => [$this->taxable_item(1, 10000), $this->taxable_item(2, 5000)]]));
 
@@ -75,7 +75,7 @@ class StoredRateTaxStrategyTest extends TestCase
     public function test_shipping_is_taxed_at_its_stored_rate(): void
     {
         $terms = $this->stored_terms([1 => []]);
-        $terms->shipping_tax_rates = [['name' => 'Shipping Tax', 'rate' => 5.0, 'line_key' => null]];
+        $terms->shipping_tax_rates = [$this->make_tax_rate('Shipping Tax', 5.0)];
 
         $result = $this->make_strategy($terms)->calculate($this->tax_context());
 
@@ -87,11 +87,11 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_shipping_tax_that_was_split_across_items_is_split_again_at_each_items_rate(): void
     {
-        $terms = $this->stored_terms([1 => [['name' => 'VAT', 'rate' => 20.0]], 2 => [['name' => 'VAT', 'rate' => 10.0]]]);
+        $terms = $this->stored_terms([1 => [$this->make_tax_rate('VAT', 20.0)], 2 => [$this->make_tax_rate('VAT', 10.0)]]);
         $terms->is_shipping_tax_split = true;
         $terms->shipping_tax_rates = [
-            ['name' => 'VAT', 'rate' => 20.0, 'line_key' => 1],
-            ['name' => 'VAT', 'rate' => 10.0, 'line_key' => 2],
+            $this->make_tax_rate('VAT', 20.0, 1),
+            $this->make_tax_rate('VAT', 10.0, 2),
         ];
         $context = $this->tax_context(['shipping_fee' => 1000], ['items' => [$this->taxable_item(1, 3000), $this->taxable_item(2, 1000)]]);
 
@@ -105,7 +105,7 @@ class StoredRateTaxStrategyTest extends TestCase
     public function test_zero_shipping_keeps_its_stored_tax_rate(): void
     {
         $terms = $this->stored_terms([1 => []]);
-        $terms->shipping_tax_rates = [['name' => 'Shipping Tax', 'rate' => 5.0, 'line_key' => null]];
+        $terms->shipping_tax_rates = [$this->make_tax_rate('Shipping Tax', 5.0)];
 
         $result = $this->make_strategy($terms)->calculate($this->tax_context(['shipping_fee' => 0]));
 
@@ -117,11 +117,11 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_zero_shipping_keeps_each_split_rate_even_when_every_item_is_free(): void
     {
-        $terms = $this->stored_terms([1 => [['name' => 'VAT', 'rate' => 20.0]], 2 => [['name' => 'VAT', 'rate' => 10.0]]]);
+        $terms = $this->stored_terms([1 => [$this->make_tax_rate('VAT', 20.0)], 2 => [$this->make_tax_rate('VAT', 10.0)]]);
         $terms->is_shipping_tax_split = true;
         $terms->shipping_tax_rates = [
-            ['name' => 'VAT', 'rate' => 20.0, 'line_key' => 1],
-            ['name' => 'VAT', 'rate' => 10.0, 'line_key' => 2],
+            $this->make_tax_rate('VAT', 20.0, 1),
+            $this->make_tax_rate('VAT', 10.0, 2),
         ];
 
         foreach ([1000, 0] as $taxable_amount) {
@@ -136,9 +136,9 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_split_shipping_tax_uses_the_items_rate_when_its_stored_line_is_gone(): void
     {
-        $terms = $this->stored_terms([2 => [['name' => 'VAT', 'rate' => 10.0]]]);
+        $terms = $this->stored_terms([2 => [$this->make_tax_rate('VAT', 10.0)]]);
         $terms->is_shipping_tax_split = true;
-        $terms->shipping_tax_rates = [['name' => 'VAT', 'rate' => 20.0, 'line_key' => null]];
+        $terms->shipping_tax_rates = [$this->make_tax_rate('VAT', 20.0)];
         $context = $this->tax_context(['shipping_fee' => 1000], ['items' => [$this->taxable_item(2, 1000)]]);
 
         $result = $this->make_strategy($terms)->calculate($context);
@@ -159,7 +159,7 @@ class StoredRateTaxStrategyTest extends TestCase
 
     public function test_shipping_tax_is_calculated_again_when_it_is_not_stored(): void
     {
-        $terms = $this->stored_terms([1 => [['name' => 'VAT', 'rate' => 10.0]]]);
+        $terms = $this->stored_terms([1 => [$this->make_tax_rate('VAT', 10.0)]]);
         $terms->shipping_tax_rates = null;
 
         $result = $this->make_strategy($terms, $this->live_strategy(20))->calculate($this->tax_context());
@@ -179,7 +179,7 @@ class StoredRateTaxStrategyTest extends TestCase
     }
 
     /**
-     * @param array<int|string, array<int, array{name: string, rate: float}>> $item_tax_rates Stored product rates per line key.
+     * @param array<int|string, TaxRateDTO[]> $item_tax_rates Stored product rates per line key.
      * @return StoredOrderTermsDTO
      */
     protected function stored_terms(array $item_tax_rates): StoredOrderTermsDTO

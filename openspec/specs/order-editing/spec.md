@@ -1,10 +1,9 @@
-# Spec Delta
+# order-editing Specification
 
 ## Purpose
-
 Defines when an admin can edit an existing order, and how saving an edit keeps the pricing the customer was promised (line prices, coupons, exchange rate, shipping and tax), changes shipping and tax only for a new delivery address, and applies the stock, limit and reachability rules to quantity changes.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Only unpaid, open, unshipped orders can be edited
 An order SHALL be editable only when all of these are true:
@@ -112,7 +111,7 @@ A line added in an edit SHALL follow the same availability rule as order creatio
 - **THEN** the request fails with a validation error
 
 ### Requirement: A line whose product is not reachable is locked
-A line is not reachable when its variant or product no longer exists, or its product is draft, scheduled or trashed, or its variant is hidden. The system SHALL reject any change of the quantity of such a line, up or down, with a 422 error. The line MAY be removed from the order.
+A line is not reachable when its variant or product no longer exists, or its product is draft, scheduled or trashed, or its variant is hidden. The system SHALL reject any change of the quantity of such a line, up or down, with a 422 error, in a preview and in a save. The line MAY be removed from the order.
 
 #### Scenario: Quantity raised on an unreachable line
 - **WHEN** a line's product was moved to draft and an admin raises the line's quantity
@@ -131,7 +130,7 @@ A line is not reachable when its variant or product no longer exists, or its pro
 - **THEN** the line is removed, and no stock is released for it
 
 ### Requirement: Stock is checked live for the quantity added
-When an edit is saved, the system SHALL check the variant's live stock and reserve it for the quantity added to a reachable line, and for the full quantity of a new line. It SHALL release stock for the quantity taken off a reachable line and for a removed line whose variant still exists. It SHALL NOT check stock for a line whose quantity does not go up.
+When an edit is previewed or saved, the system SHALL check the variant's live stock for the quantity added to a reachable line, and for the full quantity of a new line. When an edit is saved, the system SHALL also reserve that stock, and SHALL release stock for the quantity taken off a reachable line and for a removed line whose variant still exists. It SHALL NOT check stock for a line whose quantity does not go up.
 
 #### Scenario: Unchanged line on a sold-out variant
 - **WHEN** a line has quantity 5, the variant now has 0 available stock, and an admin saves an edit that does not change that line
@@ -146,7 +145,7 @@ When an edit is saved, the system SHALL check the variant's live stock and reser
 - **THEN** 3 units of stock are released for that variant
 
 ### Requirement: The per-order limit blocks only an increase
-When an edit is saved, the system SHALL reject a quantity increase on a line when the variant has a per-order limit and the new quantity is more than the current limit. A quantity that is not more than the stored quantity SHALL NOT be rejected by the limit, so the stored quantity always stays.
+When an edit is previewed or saved, the system SHALL reject a quantity increase on a line when the variant has a per-order limit and the new quantity is more than the current limit. A quantity that is not more than the stored quantity SHALL NOT be rejected by the limit, so the stored quantity always stays.
 
 #### Scenario: Limit lowered, room left
 - **WHEN** a line has quantity 4, the variant's limit is now 5, and an admin raises the quantity to 5
@@ -202,7 +201,15 @@ A stored coupon with the order target SHALL discount every line of the order, in
 - **THEN** the new line gets no discount from that coupon
 
 ### Requirement: A stored order-wide coupon keeps its stored terms
-A stored percent order coupon SHALL use its stored rate on the subtotal that is left after product coupons. A stored fixed order coupon SHALL keep its stored total, capped at the subtotal that is left, and the total SHALL be shared over all lines by their subtotal.
+A stored percent order coupon SHALL use its stored rate on the subtotal that is left after product coupons. A stored fixed order coupon SHALL keep its stored total, capped at the subtotal that is left, and the total SHALL be shared over all lines by their subtotal. Within each pass, stored coupons SHALL be priced before new coupons, so that a new coupon takes only from what the stored coupons leave.
+
+#### Scenario: New order-wide percent coupon added to a stored one
+- **WHEN** an order with a subtotal of 100.00 has a stored 10% order-wide coupon, and an admin adds a new 20% order-wide coupon
+- **THEN** the stored coupon gives 10.00 and the new coupon gives 18.00
+
+#### Scenario: New fixed order-wide coupon added to a stored one
+- **WHEN** an order with a subtotal of 100.00 has a stored fixed order-wide coupon of 95.00, and an admin adds a new fixed order-wide coupon of 20.00
+- **THEN** the stored coupon keeps 95.00 and the new coupon gives 5.00
 
 #### Scenario: Fixed order coupon and a new line
 - **WHEN** an order has a fixed order-wide coupon of 10.00, and an admin adds a new line
@@ -218,9 +225,13 @@ A stored percent order coupon SHALL use its stored rate on the subtotal that is 
 - **AND** this applies to both an order-wide coupon and a product coupon on its original line
 
 #### Scenario: A kept coupon temporarily gives no discount
-- **WHEN** another coupon consumes a line's subtotal during an edit
-- **THEN** the original coupon's attribution and fixed maximum stay stored even when its applied amount is zero
-- **AND** removing the other coupon lets the original coupon discount that line again
+- **WHEN** an edit lowers a line's quantity so that an earlier stored coupon uses the whole line subtotal
+- **THEN** the later stored coupon's attribution and fixed maximum stay stored even when its applied amount is zero
+- **AND** raising the quantity again lets that coupon discount the line again
+
+#### Scenario: A new coupon does not take from a stored product coupon
+- **WHEN** a stored fixed product coupon of 10.00 is on a line with a subtotal of 12.00, and an admin adds a new fixed product coupon of 12.00 for the same line
+- **THEN** the stored coupon keeps 10.00 and the new coupon gives 2.00
 
 ### Requirement: A removed coupon that no longer exists cannot be added again
 An admin MAY remove a stored coupon in an edit. A coupon that is not on the stored order, including one that was removed in an earlier edit, SHALL be treated as a new coupon: it SHALL be checked and priced from the live coupon record, the same as order creation. So a coupon whose record was deleted cannot be applied again.
@@ -345,3 +356,7 @@ The order calculation endpoint, order create and order update SHALL build each l
 #### Scenario: Product with its own tax profile
 - **WHEN** a variant uses a tax profile with a reduced rate, and an admin previews and then saves an order with that variant
 - **THEN** the saved order's tax equals the preview's tax
+
+#### Scenario: Same payload, same result
+- **WHEN** the same payload breaks a quantity, limit or stock rule
+- **THEN** the preview and the save both fail with a 422 error, and when the payload breaks no rule, both succeed

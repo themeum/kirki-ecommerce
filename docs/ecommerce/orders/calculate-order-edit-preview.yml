@@ -1,0 +1,928 @@
+info:
+  name: Calculate Order Edit Preview
+  type: http
+  seq: 14
+  tags:
+    - orders
+
+http:
+  method: POST
+  url: "{{baseUrl}}/calculate/order"
+  body:
+    type: json
+    data: |-
+      {
+        "order_id": 36,
+        "items": [
+          {
+            "order_item_id": 35,
+            "quantity": 3
+          },
+          {
+            "variant_id": 252,
+            "quantity": 1
+          }
+        ],
+        "coupon_codes": [],
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postal_code": "5665",
+        "shipping_country": "BD",
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postal_code": "90001",
+        "billing_country": "US",
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
+        "customer_email": "jane.shipping@example.com"
+      }
+response:
+  status: 200
+  statusText: OK
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "success": true,
+        "data": {
+          "is_tax_inclusive": false,
+          "totals": {
+            "base_items_subtotal_money_object": {
+              "raw": 63.2,
+              "display": "$63.20",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "base_order_discount_money_object": {
+              "raw": 0,
+              "display": "$0.00",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "base_order_total_money_object": {
+              "raw": 63.2,
+              "display": "$63.20",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "base_tax_total_money_object": {
+              "raw": 0,
+              "display": "$0.00",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "coupons": [],
+            "base_shipping_amount_money_object": {
+              "raw": 64.0,
+              "display": "$64.00",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "base_shipping_strikethrough_money_object": {
+              "raw": 64.0,
+              "display": "$64.00",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "base_total_money_object": {
+              "raw": 127.2,
+              "display": "$127.20",
+              "currency": {
+                "code": "USD",
+                "symbol": "$"
+              }
+            },
+            "tax_lines": []
+          },
+          "items_count": 4,
+          "items": [
+            {
+              "id": 0,
+              "order_item_id": 35,
+              "is_reachable": true,
+              "quantity": 3,
+              "base_subtotal_money_object": {
+                "raw": 47.4,
+                "display": "$47.40",
+                "currency": {
+                  "code": "USD",
+                  "symbol": "$"
+                }
+              },
+              "base_strikethrough_price_money_object": null,
+              "applied_product_coupons": [],
+              "allow_back_order": false,
+              "track_inventory": true,
+              "available_quantity": 12,
+              "in_stock": true,
+              "has_limit_per_order": false,
+              "max_per_order": null
+            },
+            {
+              "id": 1,
+              "order_item_id": null,
+              "is_reachable": true,
+              "quantity": 1,
+              "base_subtotal_money_object": {
+                "raw": 15.8,
+                "display": "$15.80",
+                "currency": {
+                  "code": "USD",
+                  "symbol": "$"
+                }
+              },
+              "base_strikethrough_price_money_object": null,
+              "applied_product_coupons": [],
+              "allow_back_order": false,
+              "track_inventory": true,
+              "available_quantity": 7,
+              "in_stock": true,
+              "has_limit_per_order": true,
+              "max_per_order": 5
+            }
+          ],
+          "available_shipping_methods": [
+            {
+              "id": "fsdfdsfsdfsdf343432jh4",
+              "name": "Standard Delivery",
+              "type": "flat_rate",
+              "base_cost_money_object": {
+                "raw": 64.0,
+                "display": "$64.00",
+                "currency": {
+                  "code": "USD",
+                  "symbol": "$"
+                }
+              }
+            }
+          ],
+          "shipping_method": "fsdfdsfsdfsdf343432jh4"
+        },
+        "message": "Order totals calculated successfully."
+      }
+name: 404 Order not found
+description: The order_id does not exist
+request:
+  url: "{{baseUrl}}/calculate/order"
+  method: POST
+  body:
+    type: json
+    data: |-
+      {
+        "order_id": 999999,
+        "items": [
+          {
+            "order_item_id": 35,
+            "quantity": 3
+          },
+          {
+            "variant_id": 252,
+            "quantity": 1
+          }
+        ],
+        "coupon_codes": [],
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postal_code": "5665",
+        "shipping_country": "BD",
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postal_code": "90001",
+        "billing_country": "US",
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
+        "customer_email": "jane.shipping@example.com"
+      }
+response:
+  status: 404
+  statusText: Not Found
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "success": false,
+        "errors": {},
+        "message": "Order not found."
+      }
+name: 422 Order cannot be edited
+description: The order is paid, cancelled or shipped
+request:
+  url: "{{baseUrl}}/calculate/order"
+  method: POST
+  body:
+    type: json
+    data: |-
+      {
+        "order_id": 36,
+        "items": [
+          {
+            "order_item_id": 35,
+            "quantity": 3
+          },
+          {
+            "variant_id": 252,
+            "quantity": 1
+          }
+        ],
+        "coupon_codes": [],
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postal_code": "5665",
+        "shipping_country": "BD",
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postal_code": "90001",
+        "billing_country": "US",
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
+        "customer_email": "jane.shipping@example.com"
+      }
+response:
+  status: 422
+  statusText: Unprocessable Entity
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "success": false,
+        "errors": {},
+        "message": "This order can no longer be edited."
+      }
+name: 422 Locked line
+description: The quantity of a line whose product is no longer for sale cannot change
+request:
+  url: "{{baseUrl}}/calculate/order"
+  method: POST
+  body:
+    type: json
+    data: |-
+      {
+        "order_id": 36,
+        "items": [
+          {
+            "order_item_id": 35,
+            "quantity": 5
+          }
+        ],
+        "coupon_codes": [],
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postal_code": "5665",
+        "shipping_country": "BD",
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postal_code": "90001",
+        "billing_country": "US",
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
+        "customer_email": "jane.shipping@example.com"
+      }
+response:
+  status: 422
+  statusText: Unprocessable Entity
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "success": false,
+        "errors": {},
+        "message": "The quantity of an item that is no longer available cannot be changed."
+      }
+name: 422 Per-order limit
+description: A raised quantity, or a new line, is above max_per_order
+request:
+  url: "{{baseUrl}}/calculate/order"
+  method: POST
+  body:
+    type: json
+    data: |-
+      {
+        "order_id": 36,
+        "items": [
+          {
+            "order_item_id": 35,
+            "quantity": 3
+          },
+          {
+            "variant_id": 252,
+            "quantity": 9
+          }
+        ],
+        "coupon_codes": [],
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postal_code": "5665",
+        "shipping_country": "BD",
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postal_code": "90001",
+        "billing_country": "US",
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
+        "customer_email": "jane.shipping@example.com"
+      }
+response:
+  status: 422
+  statusText: Unprocessable Entity
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "success": false,
+        "errors": {},
+        "message": "Max per order limit exceeded for variant: 252"
+      }
+name: 422 Not enough stock
+description: The added quantity is more than the available stock
+request:
+  url: "{{baseUrl}}/calculate/order"
+  method: POST
+  body:
+    type: json
+    data: |-
+      {
+        "order_id": 36,
+        "items": [
+          {
+            "order_item_id": 35,
+            "quantity": 50
+          }
+        ],
+        "coupon_codes": [],
+        "shipping_method": "fsdfdsfsdfsdf343432jh4",
+        "shipping_first_name": "Sunny",
+        "shipping_last_name": "Doe",
+        "shipping_address_line1": "Nikunja 2, Khilket",
+        "shipping_address_line2": "",
+        "shipping_city": "Dhaka",
+        "shipping_state": "5665",
+        "shipping_postal_code": "5665",
+        "shipping_country": "BD",
+        "billing_first_name": "Jane",
+        "billing_last_name": "Doe",
+        "billing_address_line1": "78 Sunset Blvd",
+        "billing_address_line2": "",
+        "billing_city": "Los Angeles",
+        "billing_state": "CA",
+        "billing_postal_code": "90001",
+        "billing_country": "US",
+        "customer_first_name": "Jane",
+        "customer_last_name": "Doe",
+        "customer_email": "jane.shipping@example.com"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Edit preview
+    description: Success, a preview of an edit. Existing lines keep their stored price; a new line is priced from the variant
+    request:
+      url: "{{baseUrl}}/calculate/order"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "order_id": 36,
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 3
+              },
+              {
+                "variant_id": 252,
+                "quantity": 1
+              }
+            ],
+            "coupon_codes": [],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": true,
+            "data": {
+              "is_tax_inclusive": false,
+              "totals": {
+                "base_items_subtotal_money_object": {
+                  "raw": 63.2,
+                  "display": "$63.20",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "base_order_discount_money_object": {
+                  "raw": 0,
+                  "display": "$0.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "base_order_total_money_object": {
+                  "raw": 63.2,
+                  "display": "$63.20",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "base_tax_total_money_object": {
+                  "raw": 0,
+                  "display": "$0.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "coupons": [],
+                "base_shipping_amount_money_object": {
+                  "raw": 64.0,
+                  "display": "$64.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "base_shipping_strikethrough_money_object": {
+                  "raw": 64.0,
+                  "display": "$64.00",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "base_total_money_object": {
+                  "raw": 127.2,
+                  "display": "$127.20",
+                  "currency": {
+                    "code": "USD",
+                    "symbol": "$"
+                  }
+                },
+                "tax_lines": []
+              },
+              "items_count": 4,
+              "items": [
+                {
+                  "id": 0,
+                  "order_item_id": 35,
+                  "is_reachable": true,
+                  "quantity": 3,
+                  "base_subtotal_money_object": {
+                    "raw": 47.4,
+                    "display": "$47.40",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "base_strikethrough_price_money_object": null,
+                  "applied_product_coupons": [],
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 12,
+                  "in_stock": true,
+                  "has_limit_per_order": false,
+                  "max_per_order": null
+                },
+                {
+                  "id": 1,
+                  "order_item_id": null,
+                  "is_reachable": true,
+                  "quantity": 1,
+                  "base_subtotal_money_object": {
+                    "raw": 15.8,
+                    "display": "$15.80",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  },
+                  "base_strikethrough_price_money_object": null,
+                  "applied_product_coupons": [],
+                  "allow_back_order": false,
+                  "track_inventory": true,
+                  "available_quantity": 7,
+                  "in_stock": true,
+                  "has_limit_per_order": true,
+                  "max_per_order": 5
+                }
+              ],
+              "available_shipping_methods": [
+                {
+                  "id": "fsdfdsfsdfsdf343432jh4",
+                  "name": "Standard Delivery",
+                  "type": "flat_rate",
+                  "base_cost_money_object": {
+                    "raw": 64.0,
+                    "display": "$64.00",
+                    "currency": {
+                      "code": "USD",
+                      "symbol": "$"
+                    }
+                  }
+                }
+              ],
+              "shipping_method": "fsdfdsfsdfsdf343432jh4"
+            },
+            "message": "Order totals calculated successfully."
+          }
+  - name: 404 Order not found
+    description: The order_id does not exist
+    request:
+      url: "{{baseUrl}}/calculate/order"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "order_id": 999999,
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 3
+              },
+              {
+                "variant_id": 252,
+                "quantity": 1
+              }
+            ],
+            "coupon_codes": [],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com"
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Order not found."
+          }
+  - name: 422 Order cannot be edited
+    description: The order is paid, cancelled or shipped
+    request:
+      url: "{{baseUrl}}/calculate/order"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "order_id": 36,
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 3
+              },
+              {
+                "variant_id": 252,
+                "quantity": 1
+              }
+            ],
+            "coupon_codes": [],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "This order can no longer be edited."
+          }
+  - name: 422 Locked line
+    description: The quantity of a line whose product is no longer for sale cannot change
+    request:
+      url: "{{baseUrl}}/calculate/order"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "order_id": 36,
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 5
+              }
+            ],
+            "coupon_codes": [],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "The quantity of an item that is no longer available cannot be changed."
+          }
+  - name: 422 Per-order limit
+    description: A raised quantity, or a new line, is above max_per_order
+    request:
+      url: "{{baseUrl}}/calculate/order"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "order_id": 36,
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 3
+              },
+              {
+                "variant_id": 252,
+                "quantity": 9
+              }
+            ],
+            "coupon_codes": [],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Max per order limit exceeded for variant: 252"
+          }
+  - name: 422 Not enough stock
+    description: The added quantity is more than the available stock
+    request:
+      url: "{{baseUrl}}/calculate/order"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "order_id": 36,
+            "items": [
+              {
+                "order_item_id": 35,
+                "quantity": 50
+              }
+            ],
+            "coupon_codes": [],
+            "shipping_method": "fsdfdsfsdfsdf343432jh4",
+            "shipping_first_name": "Sunny",
+            "shipping_last_name": "Doe",
+            "shipping_address_line1": "Nikunja 2, Khilket",
+            "shipping_address_line2": "",
+            "shipping_city": "Dhaka",
+            "shipping_state": "5665",
+            "shipping_postal_code": "5665",
+            "shipping_country": "BD",
+            "billing_first_name": "Jane",
+            "billing_last_name": "Doe",
+            "billing_address_line1": "78 Sunset Blvd",
+            "billing_address_line2": "",
+            "billing_city": "Los Angeles",
+            "billing_state": "CA",
+            "billing_postal_code": "90001",
+            "billing_country": "US",
+            "customer_first_name": "Jane",
+            "customer_last_name": "Doe",
+            "customer_email": "jane.shipping@example.com"
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "success": false,
+            "errors": {},
+            "message": "Not enough stock for variant: 18"
+          }
+
+docs: |-
+  ## Calculate Order Edit Preview
+  Previews the edit of an existing order without saving it. Send the same payload that you will send to
+  `PUT {{baseUrl}}/orders/{id}`, plus `order_id`.
+
+  - A line already on the order is sent with `order_item_id`. It keeps its stored price. A new line is sent with `variant_id`.
+  - Coupons, exchange rate, tax mode, and the shipping charge and tax rates are the ones stored on the order.
+    Shipping and tax are quoted again only when the delivery country or state, or the shipping method, changes.
+  - The preview applies the same quantity, per-order limit and stock rules as the save, so it gives the same 422 errors.
+    It does not reserve stock.
+
+  ### Item keys
+  `order_item_id` (null for a new line), `is_reachable` (false for a locked line), and the live variant values
+  `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order`
+  (all null when the variant was deleted).
+
+  ### Errors
+  - 404: the order does not exist.
+  - 422: the order cannot be edited, a locked line changed quantity, a quantity or new line is above `max_per_order`, or stock is short.
+
+  Full rules: `docs/order-editing.md`.

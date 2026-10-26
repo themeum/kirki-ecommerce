@@ -6,6 +6,8 @@ defined('ABSPATH') || exit;
 
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationContextDTO;
 use Kirki\Ecommerce\App\DTO\Calculation\CalculationItemDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationInputDTO;
+use Kirki\Ecommerce\App\DTO\Calculation\OrderCalculationLineDTO;
 use Kirki\Ecommerce\App\Models\Order;
 use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\Variant;
@@ -26,7 +28,7 @@ use function Kirki\Ecommerce\Framework\throw_if;
  *
  * @since 1.0.0
  */
-class OrderCalculationContextBuilder
+class OrderCalculationContextService
 {
     /** @var VariantService */
     protected $variant_service;
@@ -34,26 +36,31 @@ class OrderCalculationContextBuilder
     /** @var CustomerService */
     protected $customer_service;
 
-    /** @var StoredOrderTermsBuilder */
-    protected $stored_terms_builder;
+    /** @var StoredOrderTermsService */
+    protected $stored_terms_service;
+
+    /** @var InventoryService */
+    protected $inventory_service;
 
     /** @var array<int, Variant> Variants loaded by the last build, keyed by variant ID. */
     protected $variants_map = [];
 
     /**
-     * Create the builder with the variant and customer services.
+     * Create the service with the variant, customer and inventory services.
      *
      * @since 1.0.0
      *
      * @param VariantService          $variant_service      Variant lookup.
      * @param CustomerService         $customer_service     Buyer email lookup.
-     * @param StoredOrderTermsBuilder $stored_terms_builder Reads the terms an edited order keeps.
+     * @param StoredOrderTermsService $stored_terms_service Reads the terms an edited order keeps.
+     * @param InventoryService        $inventory_service    Stock check for a quantity.
      */
-    public function __construct(VariantService $variant_service, CustomerService $customer_service, StoredOrderTermsBuilder $stored_terms_builder)
+    public function __construct(VariantService $variant_service, CustomerService $customer_service, StoredOrderTermsService $stored_terms_service, InventoryService $inventory_service)
     {
         $this->variant_service = $variant_service;
         $this->customer_service = $customer_service;
-        $this->stored_terms_builder = $stored_terms_builder;
+        $this->stored_terms_service = $stored_terms_service;
+        $this->inventory_service = $inventory_service;
     }
 
     /**
@@ -61,25 +68,24 @@ class OrderCalculationContextBuilder
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $payload   Order payload: items, customer, coupon codes, shipping method and addresses.
-     * @param Order|null           $order     Order being edited, with its items, taxes and coupons loaded; null for a new order.
-     * @param bool                 $is_saving True when the order is being saved, so quantity rules are enforced.
+     * @param OrderCalculationInputDTO $input Order payload: items, customer, coupon codes, shipping method and addresses.
+     * @param Order|null               $order Order being edited, with its items, taxes and coupons loaded; null for a new order.
      * @return CalculationContextDTO
      * @throws NotFoundException When a variant or its product does not exist.
-     * @throws ValidationException When a line is sent twice, a new line is not for sale, or a quantity rule is broken on save.
+     * @throws ValidationException When a line is sent twice, a new line is not for sale, or a quantity, per-order limit or stock rule is broken.
      */
-    public function build(array $payload, ?Order $order, bool $is_saving)
+    public function build(OrderCalculationInputDTO $input, ?Order $order)
     {
         $context = new CalculationContextDTO();
         $context->order_id = $order ? $order->id : null;
-        $context->customer_id = $payload['customer_id'] ?? 0;
-        $context->customer_email = $this->customer_service->resolve_buyer_email($context->customer_id, null, $payload['customer_email'] ?? null);
-        $context->shipping_address = $this->prepare_address($payload, 'shipping');
-        $context->billing_address = $this->prepare_address($payload, 'billing');
-        $context->coupon_codes = $payload['coupon_codes'] ?? [];
-        $context->shipping_method_id = $payload['shipping_method'] ?? null;
-        $context->items = $this->build_items($payload['items'] ?? [], $order, $is_saving);
-        $context->stored = $order ? $this->stored_terms_builder->build($order, $context) : null;
+        $context->customer_id = $input->customer_id ?? 0;
+        $context->customer_email = $this->customer_service->resolve_buyer_email($context->customer_id, null, $input->customer_email);
+        $context->shipping_address = $input->get_address('shipping');
+        $context->billing_address = $input->get_address('billing');
+        $context->coupon_codes = $input->coupon_codes;
+        $context->shipping_method_id = $input->shipping_method;
+        $context->items = $this->build_items($input->items, $order);
+        $context->stored = $order ? $this->stored_terms_service->build($order, $context) : null;
 
         return $context;
     }
@@ -94,14 +100,13 @@ class OrderCalculationContextBuilder
      *
      * @since 1.0.0
      *
-     * @param array<int|string, array<string, mixed>> $items     Lines with `quantity` and either `order_item_id` or `variant_id`.
-     * @param Order|null                              $order     Order being edited, with its items loaded; null for a new order.
-     * @param bool                                    $is_saving True when the order is being saved, so quantity rules are enforced.
+     * @param array<int|string, OrderCalculationLineDTO> $items Lines with `quantity` and either `order_item_id` or `variant_id`.
+     * @param Order|null                                 $order Order being edited, with its items loaded; null for a new order.
      * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO, keyed like the input.
      * @throws NotFoundException When a variant or its product does not exist.
-     * @throws ValidationException When a line is sent twice, a new line is not for sale, or a quantity rule is broken on save.
+     * @throws ValidationException When a line is sent twice, a new line is not for sale, or a quantity, per-order limit or stock rule is broken.
      */
-    public function build_items(array $items, ?Order $order, bool $is_saving)
+    public function build_items(array $items, ?Order $order)
     {
         $this->variants_map = [];
 
@@ -113,12 +118,12 @@ class OrderCalculationContextBuilder
 
         $this->validate_lines($items, $order_items_by_id);
 
-        return collection($items)->map(function ($item, $key) use ($order_items_by_id, $is_saving) {
-            if (empty($item['order_item_id'])) {
-                return $this->build_new_item($item, $key, $is_saving);
+        return collection($items)->map(function ($item, $key) use ($order_items_by_id) {
+            if (empty($item->order_item_id)) {
+                return $this->build_new_item($item, $key);
             }
 
-            return $this->build_existing_item($item, $key, $order_items_by_id[$item['order_item_id']], $is_saving);
+            return $this->build_existing_item($item, $key, $order_items_by_id[$item->order_item_id]);
         });
     }
 
@@ -139,18 +144,18 @@ class OrderCalculationContextBuilder
      *
      * @since 1.0.0
      *
-     * @param array<int|string, array<string, mixed>> $items              Lines of the payload.
-     * @param array<int, OrderItem>                   $order_items_by_id  Lines stored on the edited order, keyed by ID; empty for a new order.
+     * @param array<int|string, OrderCalculationLineDTO> $items             Lines of the payload.
+     * @param array<int, OrderItem>                      $order_items_by_id Lines stored on the edited order, keyed by ID; empty for a new order.
      * @return void
      * @throws ValidationException When a line names neither an order line nor a variant, an order line is unknown or sent twice, or a variant is on more than one line of the order.
      */
     protected function validate_lines(array $items, array $order_items_by_id)
     {
-        $order_item_ids = array_filter(array_column($items, 'order_item_id'));
-        $new_variant_ids = array_column(array_filter($items, fn($item) => empty($item['order_item_id'])), 'variant_id');
+        $order_item_ids = array_filter(array_map(fn($item) => $item->order_item_id, $items));
+        $new_variant_ids = array_map(fn($item) => $item->variant_id, array_filter($items, fn($item) => empty($item->order_item_id)));
         $stored_variant_ids = array_filter(array_map(fn($order_item) => $order_item->variant_id, $order_items_by_id));
 
-        $has_line_without_target = !empty(array_filter($items, fn($item) => empty($item['order_item_id']) && empty($item['variant_id'])));
+        $has_line_without_target = !empty(array_filter($items, fn($item) => empty($item->order_item_id) && empty($item->variant_id)));
         $has_repeated_order_line = count(array_unique($order_item_ids)) !== count($order_item_ids);
         $has_unknown_order_line = !empty(array_diff($order_item_ids, array_keys($order_items_by_id)));
         $has_repeated_variant = count(array_unique($new_variant_ids)) !== count($new_variant_ids) || !empty(array_intersect($new_variant_ids, $stored_variant_ids));
@@ -166,16 +171,15 @@ class OrderCalculationContextBuilder
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $item      Payload line with `variant_id` and `quantity`.
-     * @param int|string           $line_key  Key of the line in the payload.
-     * @param bool                 $is_saving True when the order is being saved, so the per-order limit is enforced.
+     * @param OrderCalculationLineDTO $item     Payload line with `variant_id` and `quantity`.
+     * @param int|string              $line_key Key of the line in the payload.
      * @return CalculationItemDTO
      * @throws NotFoundException When the variant or its product does not exist.
-     * @throws ValidationException When the variant is not for sale, or the per-order limit is exceeded on save.
+     * @throws ValidationException When the variant is not for sale, or the per-order limit or the stock is exceeded.
      */
-    protected function build_new_item(array $item, $line_key, bool $is_saving)
+    protected function build_new_item(OrderCalculationLineDTO $item, $line_key)
     {
-        $variant = $this->variant_service->find($item['variant_id']);
+        $variant = $this->variant_service->find($item->variant_id);
         $product = $variant->product;
 
         /* translators: %s: variant ID */
@@ -185,7 +189,10 @@ class OrderCalculationContextBuilder
         throw_if(!$variant->is_available(), sprintf(__('This item is no longer available: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         /* translators: %s: variant ID */
-        throw_if($is_saving && $variant->has_limit_per_order && $variant->max_per_order < $item['quantity'], sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+        throw_if($variant->has_limit_per_order && $variant->max_per_order < $item->quantity, sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
+
+        /* translators: %s: variant ID */
+        throw_if(!$this->inventory_service->has_stock($variant->id, $item->quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
 
         $product->load_missing('categories');
 
@@ -196,7 +203,7 @@ class OrderCalculationContextBuilder
         $item_dto->line_key = $line_key;
         $item_dto->variant_id = $variant->id;
         $item_dto->product_id = $product->id;
-        $item_dto->quantity = $item['quantity'];
+        $item_dto->quantity = $item->quantity;
         $item_dto->base_unit_price = $variant->base_sale_price ?: $variant->base_price;
         $item_dto->base_product_total = $variant->base_price;
         $item_dto->weight = $variant->weight;
@@ -215,22 +222,19 @@ class OrderCalculationContextBuilder
      *
      * @since 1.0.0
      *
-     * @param array<string, mixed> $item       Payload line with `order_item_id` and `quantity`.
-     * @param int|string           $line_key   Key of the line in the payload.
-     * @param OrderItem            $order_item Line as stored on the order.
-     * @param bool                 $is_saving  True when the order is being saved, so quantity rules are enforced.
+     * @param OrderCalculationLineDTO $item       Payload line with `order_item_id` and `quantity`.
+     * @param int|string              $line_key   Key of the line in the payload.
+     * @param OrderItem               $order_item Line as stored on the order.
      * @return CalculationItemDTO
-     * @throws ValidationException When, on save, the quantity of an unreachable line changes or an increase is over the per-order limit.
+     * @throws ValidationException When the quantity of an unreachable line changes, or an increase is over the per-order limit or the stock.
      */
-    protected function build_existing_item(array $item, $line_key, OrderItem $order_item, bool $is_saving)
+    protected function build_existing_item(OrderCalculationLineDTO $item, $line_key, OrderItem $order_item)
     {
         $variant = $order_item->variant_id ? $this->variant_service->find_or_null($order_item->variant_id) : null;
         $product = $variant ? $variant->product : null;
         $is_reachable = $variant && $variant->is_available();
 
-        if ($is_saving) {
-            $this->validate_quantity_change($variant, $is_reachable, $order_item->quantity, $item['quantity']);
-        }
+        $this->validate_quantity_change($variant, $is_reachable, $order_item->quantity, $item->quantity);
 
         if ($variant) {
             $this->variants_map[$variant->id] = $variant;
@@ -246,8 +250,8 @@ class OrderCalculationContextBuilder
         $item_dto->order_item_id = $order_item->id;
         $item_dto->variant_id = $order_item->variant_id;
         $item_dto->product_id = $order_item->product_id;
-        $item_dto->is_reachable = (bool) $is_reachable;
-        $item_dto->quantity = $item['quantity'];
+        $item_dto->is_reachable = $is_reachable;
+        $item_dto->quantity = $item->quantity;
         $item_dto->base_unit_price = $order_item->base_catalog_sale_price;
         $item_dto->base_product_total = $order_item->base_catalog_regular_price;
         $item_dto->weight = $variant ? $variant->weight : $order_item->weight;
@@ -262,8 +266,9 @@ class OrderCalculationContextBuilder
      * Check the quantity change of a line already on the order.
      *
      * A line that is not reachable keeps its quantity. An increase must stay within the
-     * variant's per-order limit as it is now. A quantity that is not raised is never
-     * refused, so the quantity on the order stays even when the limit was lowered.
+     * variant's per-order limit as it is now, and the stock must cover the added quantity.
+     * A quantity that is not raised is never refused, so the quantity on the order stays
+     * even when the limit was lowered or the variant sold out.
      *
      * @since 1.0.0
      *
@@ -284,25 +289,8 @@ class OrderCalculationContextBuilder
 
         /* translators: %s: variant ID */
         throw_if($quantity > $stored_quantity && $variant->has_limit_per_order && $variant->max_per_order < $quantity, sprintf(__('Max per order limit exceeded for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
-    }
 
-    /**
-     * Pick one address out of the flat payload fields with the given prefix.
-     *
-     * @since 1.0.0
-     *
-     * @param array<string, mixed> $payload Order payload.
-     * @param string               $type    Address prefix: `shipping` or `billing`.
-     * @return array<string, mixed>
-     */
-    protected function prepare_address(array $payload, string $type)
-    {
-        $address = [];
-
-        foreach (['first_name', 'last_name', 'email', 'phone', 'address_line1', 'address_line2', 'city', 'state', 'postal_code', 'country'] as $field) {
-            $address[$field] = $payload[$type . '_' . $field] ?? null;
-        }
-
-        return $address;
+        /* translators: %s: variant ID */
+        throw_if($quantity > $stored_quantity && !$this->inventory_service->has_stock($variant->id, $quantity - $stored_quantity), sprintf(__('Not enough stock for variant: %s', 'kirki-ecommerce'), $variant->id), ValidationException::class, Response::UNPROCESSABLE_ENTITY);
     }
 }
