@@ -25,7 +25,7 @@ class OrderCalculationResourceItemTest extends TestCase
     {
         $items = $this->prepare_items([$this->make_item(0, 7, 55, true)], [7 => $this->make_variant()]);
 
-        $this->assertSame(0, $items[0]['id']);
+        $this->assertSame(0, $items[0]['line_key']);
         $this->assertSame(55, $items[0]['order_item_id']);
         $this->assertTrue($items[0]['is_reachable']);
     }
@@ -83,7 +83,6 @@ class OrderCalculationResourceItemTest extends TestCase
     protected function make_item(int $line_key, ?int $variant_id, ?int $order_item_id, bool $is_reachable): CalculationItemDTO
     {
         $item = new CalculationItemDTO();
-        $item->id = $line_key;
         $item->line_key = $line_key;
         $item->variant_id = $variant_id;
         $item->order_item_id = $order_item_id;

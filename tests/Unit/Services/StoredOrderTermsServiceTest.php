@@ -37,6 +37,27 @@ class StoredOrderTermsServiceTest extends TestCase
         $this->assertSame(OrderTaxDestination::BILLING, $stored->tax_destination);
     }
 
+    public function test_a_line_key_that_equals_another_lines_order_item_id_does_not_mix_up_the_stored_rates(): void
+    {
+        $order = $this->make_order([], [
+            ['id' => 1, 'taxes' => [['type' => OrderTaxType::PRODUCT, 'name' => 'VAT', 'rate' => 10]]],
+            ['id' => 2, 'taxes' => [['type' => OrderTaxType::PRODUCT, 'name' => 'VAT', 'rate' => 20]]],
+        ]);
+        $context = $this->make_context();
+        $first = new CalculationItemDTO();
+        $first->line_key = 2;
+        $first->order_item_id = 1;
+        $second = new CalculationItemDTO();
+        $second->line_key = 1;
+        $second->order_item_id = 2;
+        $context->items = collection([$first, $second]);
+
+        $stored = $this->service->build($order, $context);
+
+        // Order item 1 sits at line key 2, and order item 2 at line key 1.
+        $this->assertEquals([2 => [$this->make_tax_rate('VAT', 10.0)], 1 => [$this->make_tax_rate('VAT', 20.0)]], $stored->item_tax_rates);
+    }
+
     public function test_it_keeps_the_shipping_charge_and_the_tax_rates_when_nothing_moved(): void
     {
         $order = $this->make_order(['base_shipping_total' => 1100, 'base_shipping_tax_amount' => 100], [

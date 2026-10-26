@@ -135,7 +135,6 @@ class CalculationContextDTO extends DTO
 
         $dto->items = $cart->items->map(function ($item) {
             $item_dto = new CalculationItemDTO();
-            $item_dto->id = $item->id;
             $item_dto->line_key = $item->id;
             $item_dto->variant_id = $item->variant_id;
             $item_dto->product_id = $item->product_id;

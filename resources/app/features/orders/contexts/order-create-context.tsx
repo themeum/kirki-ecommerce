@@ -129,7 +129,7 @@ const OrderCreateProvider = ({ children }: OrderCreateProviderProps) => {
   };
 
   const calculationItemById = useMemo(
-    () => new Map((calculation?.items ?? []).map((item) => [item.id, item])),
+    () => new Map((calculation?.items ?? []).map((item) => [item.line_key, item])),
     [calculation],
   );
 

@@ -113,7 +113,7 @@ class OrderCalculationResource extends Resource
             $strikethrough = $this->get_strikethrough_amount($item->base_catalog_regular_price, $item->base_catalog_sale_price, $subtotal, $item->quantity);
 
             $cart_items[] = array_merge([
-                'id' => $item->id,
+                'line_key' => $item->line_key,
                 'order_item_id' => $item->order_item_id,
                 'is_reachable' => $item->is_reachable,
                 'quantity' => $item->quantity,

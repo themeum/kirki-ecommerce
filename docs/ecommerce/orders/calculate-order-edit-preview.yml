@@ -121,7 +121,7 @@ response:
           "items_count": 4,
           "items": [
             {
-              "id": 0,
+              "line_key": 0,
               "order_item_id": 35,
               "is_reachable": true,
               "quantity": 3,
@@ -143,7 +143,7 @@ response:
               "max_per_order": null
             },
             {
-              "id": 1,
+              "line_key": 1,
               "order_item_id": null,
               "is_reachable": true,
               "quantity": 1,
@@ -917,7 +917,7 @@ docs: |-
     It does not reserve stock.
 
   ### Item keys
-  `order_item_id` (null for a new line), `is_reachable` (false for a locked line), and the live variant values
+  `line_key` (the position of the line in the `items` you sent), `order_item_id` (null for a new line), `is_reachable` (false for a locked line), and the live variant values
   `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order`
   (all null when the variant was deleted).
 

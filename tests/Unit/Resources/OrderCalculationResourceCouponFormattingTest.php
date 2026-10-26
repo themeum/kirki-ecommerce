@@ -196,7 +196,6 @@ class OrderCalculationResourceCouponFormattingTest extends TestCase
 
     protected function prepare_single_item(CalculationItemDTO $calculated_item, int $quantity): array
     {
-        $calculated_item->id = 1;
         $calculated_item->line_key = 1;
         $calculated_item->variant_id = 101;
         $calculated_item->quantity = $quantity;

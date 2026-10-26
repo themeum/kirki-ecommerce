@@ -1074,8 +1074,7 @@ class RecalculateCartActionTest extends TestCase
     protected function make_item(int $variant_id, int $base_unit_price, int $quantity = 1, array $overrides = []): CalculationItemDTO
     {
         $item = new CalculationItemDTO();
-        $item->id = $overrides['id'] ?? $variant_id;
-        $item->line_key = $item->id;
+        $item->line_key = $overrides['id'] ?? $variant_id;
         $item->variant_id = $variant_id;
         $item->product_id = $overrides['product_id'] ?? $variant_id;
         $item->quantity = $quantity;

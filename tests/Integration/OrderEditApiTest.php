@@ -93,7 +93,7 @@ class OrderEditApiTest extends RestTestCase
             ['variant_id' => $second_variant_id, 'quantity' => 2],
         ]]);
 
-        $this->assertSame([0, 1], array_column($payload['items'], 'id'));
+        $this->assertSame([0, 1], array_column($payload['items'], 'line_key'));
         $this->assertSame([1, 2], array_column($payload['items'], 'quantity'));
     }
 
@@ -822,6 +822,32 @@ class OrderEditApiTest extends RestTestCase
 
         $this->assertSame(1000, OrderCoupon::where('order_id', $order['id'])->first()->base_discount_amount);
         $this->assertSame(1000, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
+    public function test_lines_sent_in_another_order_keep_their_own_quantities_and_coupon_shares(): void
+    {
+        $other_variant_id = $this->default_variant_id($this->create_product());
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::PERCENTAGE, 10);
+        $order = $this->create_order([
+            'items' => [
+                ['variant_id' => $this->variant_id, 'quantity' => 1],
+                ['variant_id' => $other_variant_id, 'quantity' => 1],
+            ],
+            'coupon_codes' => [$coupon->code],
+        ]);
+
+        // The second stored line is sent first, so every line key differs from the line's own position on the order.
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 3, 1), $this->line($order, 2, 0)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $first = OrderItem::find($order['items'][0]['id']);
+        $second = OrderItem::find($order['items'][1]['id']);
+        $this->assertSame(2, (int) $first->quantity);
+        $this->assertSame(3, (int) $second->quantity);
+        $this->assertSame((int) round($first->base_price * 2 * 0.10), (int) $first->base_discount_amount);
+        $this->assertSame((int) round($second->base_price * 3 * 0.10), (int) $second->base_discount_amount);
     }
 
     public function test_a_new_fixed_product_coupon_does_not_take_from_a_stored_one(): void

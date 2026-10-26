@@ -13,7 +13,7 @@ use Kirki\Ecommerce\Framework\DTO;
  */
 class CalculationResultDTO extends DTO
 {
-    /** @var array<int, CalculationItemDTO> Keyed by item ID */
+    /** @var array<int, CalculationItemDTO> Keyed by line key */
     public $items = [];
 
     /** @var int */

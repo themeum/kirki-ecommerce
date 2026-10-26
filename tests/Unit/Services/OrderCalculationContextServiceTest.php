@@ -164,7 +164,6 @@ class OrderCalculationContextServiceTest extends TestCase
         $items = $this->service->build_items($this->lines([['variant_id' => 1, 'quantity' => 2]]), null);
         $item = $items->first();
 
-        $this->assertSame(0, $item->id);
         $this->assertSame(0, $item->line_key);
         $this->assertNull($item->order_item_id);
         $this->assertSame(1, $item->variant_id);

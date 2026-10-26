@@ -491,7 +491,7 @@ describe('OrderCalculationSchema', () => {
     items_count: 4,
     items: [
       {
-        id: 0,
+        line_key: 0,
         quantity: 4,
         base_subtotal_money_object: baseMoney(5308.68),
         base_strikethrough_price_money_object: null,
@@ -543,7 +543,7 @@ describe('OrderCalculationSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts an applied coupon and a strikethrough item price, since the calculation item id is the submitted-array index', () => {
+  it('accepts an applied coupon and a strikethrough item price, since the calculation item line key is the submitted-array index', () => {
     const result = OrderCalculationSchema.safeParse({
       ...documentedCalculation,
       coupons: [

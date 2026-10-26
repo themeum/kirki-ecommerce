@@ -271,7 +271,8 @@ Every item in the response has:
 
 | Key | Meaning |
 |---|---|
-| `order_item_id` | The stored line, or `null` for a new line and in a new-order preview. |
+| `line_key` | The position of the line in the `items` you sent (0, 1, 2 ...). Use it to match each result to the row you sent. It is not a database ID. |
+| `order_item_id` | The stored order line's ID, or `null` for a new line and in a new-order preview. Send it back to keep that line. |
 | `is_reachable` | `false` when the line is locked (section 4). Disable its quantity buttons. |
 | `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order` | The variant's live values. All `null` when the variant was deleted. |
 

@@ -199,7 +199,6 @@ class OrderCalculationContextService
         $this->variants_map[$variant->id] = $variant;
 
         $item_dto = new CalculationItemDTO();
-        $item_dto->id = $line_key;
         $item_dto->line_key = $line_key;
         $item_dto->variant_id = $variant->id;
         $item_dto->product_id = $product->id;
@@ -245,7 +244,6 @@ class OrderCalculationContextService
         }
 
         $item_dto = new CalculationItemDTO();
-        $item_dto->id = $line_key;
         $item_dto->line_key = $line_key;
         $item_dto->order_item_id = $order_item->id;
         $item_dto->variant_id = $order_item->variant_id;

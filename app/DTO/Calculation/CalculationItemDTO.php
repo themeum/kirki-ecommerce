@@ -13,9 +13,7 @@ use Kirki\Ecommerce\Framework\DTO;
  */
 class CalculationItemDTO extends DTO
 {
-    /** @var int */
-    public $id;
-    /** @var int|string Key that tells this line from the other lines of the same calculation; results are keyed by it */
+    /** @var int|string Key that tells this line from the other lines of the same calculation; results are keyed by it. For an order it is the position of the line in the payload; for a cart it is the cart item ID */
     public $line_key;
     /** @var int|null Stored order line this item is, when an order is being edited */
     public $order_item_id;

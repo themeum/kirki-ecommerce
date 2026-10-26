@@ -244,6 +244,18 @@ class DiscountServiceTest extends TestCase
         $this->assertSame([1 => 1000], $this->service->calculate($context, [])->item_discounts);
     }
 
+    public function test_a_new_lines_key_that_equals_a_stored_lines_order_item_id_gets_no_stored_product_discount(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::PRODUCTS, ['discount_rate' => 10], [1 => 100]),
+        ], [$this->make_line(5, 1000, 1, 1), $this->make_line(1, 1000, 1, null)]);
+
+        $result = $this->service->calculate($context, []);
+
+        // The stored line (order item 1) sits at line key 5. The new line at line key 1 is not order item 1.
+        $this->assertSame([5 => 100], $result->item_discounts);
+    }
+
     public function test_a_stored_fixed_product_coupon_is_capped_at_the_new_line_subtotal(): void
     {
         $context = $this->make_stored_context([
