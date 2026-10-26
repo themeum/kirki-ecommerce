@@ -14,6 +14,7 @@ use Kirki\Ecommerce\App\Models\OrderItem;
 use Kirki\Ecommerce\App\Models\OrderTax;
 use Kirki\Ecommerce\App\Models\Refund;
 use Kirki\Ecommerce\App\Models\Variant;
+use Kirki\Ecommerce\App\Services\AnalyticsQueryService;
 use Kirki\Ecommerce\App\Services\OrderService;
 use Kirki\Ecommerce\App\Supports\Facades\Settings;
 use Kirki\Ecommerce\Framework\Queue\QueueManager;
@@ -1719,6 +1720,98 @@ class AnalyticsMetricsTest extends RestTestCase
         $this->assertSame(0, $first['returning_total']);
         $this->assertSame(0, $second['new_total']);
         $this->assertSame(1, $second['returning_total']);
+    }
+
+    /**
+     * Get the rows of one ranked metric from the service for Oct 1 – Oct 14, 2026, with optional extra parameters.
+     *
+     * @param string $key    Metric key.
+     * @param array  $params Extra parameters, such as limit.
+     *
+     * @return array
+     * @since 1.0.0
+     */
+    protected function service_metric(string $key, array $params = []): array
+    {
+        $params = array_merge(['range' => 'custom', 'from' => '2026-10-01', 'to' => '2026-10-14', 'compare' => 'none'], $params);
+
+        return app()->make(AnalyticsQueryService::class)->get_metric($key, $params)['data']['items'];
+    }
+
+    /**
+     * MCP limit: without a limit the ranked metrics keep the page limits (5 products, 6 categories); a limit changes them.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_ranked_metrics_keep_the_page_limits_unless_a_limit_is_sent(): void
+    {
+        for ($index = 1; $index <= 8; $index++) {
+            $category_id = $this->create_category('Limit category ' . $index);
+            $product_id = $this->create_product(['categories' => [$category_id]])['id'];
+            $this->make_sale_with_item('2026-10-01 10:00:00', ['product_id' => $product_id, 'base_subtotal' => $index * 1000, 'base_total' => $index * 1000]);
+        }
+
+        $this->assertCount(5, $this->overview_between('2026-10-01', '2026-10-14')['cards']['sales_by_product']['items']);
+        $this->assertCount(5, $this->service_metric('sales_by_product'));
+        $this->assertCount(6, $this->service_metric('sales_by_category'));
+
+        $products = $this->service_metric('sales_by_product', ['limit' => 7]);
+
+        $this->assertCount(7, $products);
+        $this->assertSame(80.0, $products[0]['net_sales_money_object']->raw);
+        $this->assertCount(7, $this->service_metric('sales_by_category', ['limit' => 7]));
+    }
+
+    /**
+     * MCP stock levels: the counts equal the Inventory health card, and the card lists the first 4 variants of the full list.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_stock_levels_match_the_inventory_health_card(): void
+    {
+        Settings::get('product')->set(['low_stock_threshold' => 5], false);
+        $product_id = $this->create_product()['id'];
+
+        for ($quantity = 0; $quantity <= 5; $quantity++) {
+            $this->make_variant($product_id, ['available_quantity' => $quantity]);
+        }
+
+        $card = $this->overview()['cards']['inventory_health'];
+        $levels = app()->make(AnalyticsQueryService::class)->stock_levels(['out_of_stock', 'low_stock'], 100, 1);
+
+        $this->assertSame(['out_of_stock' => $card['out_of_stock'], 'low_stock' => $card['low_stock'], 'in_stock' => $card['in_stock']], $levels['counts']);
+        $this->assertSame(6, $levels['total']);
+        $this->assertSame([0, 1, 2, 3, 4, 5], array_column($levels['variants'], 'available_quantity'));
+        $this->assertSame(array_column(array_slice($levels['variants'], 0, 4), 'variant_id'), array_column($card['lowest'], 'variant_id'));
+
+        $second_page = app()->make(AnalyticsQueryService::class)->stock_levels(['low_stock'], 2, 2);
+
+        $this->assertSame(5, $second_page['total']);
+        $this->assertSame([3, 4], array_column($second_page['variants'], 'available_quantity'));
+    }
+
+    /**
+     * MCP stock levels: a variant threshold overrides the store default, and an untracked variant is never listed.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_stock_levels_use_the_variant_threshold_and_skip_untracked_variants(): void
+    {
+        Settings::get('product')->set(['low_stock_threshold' => 5], false);
+        $product_id = $this->create_product()['id'];
+        $override = $this->make_variant($product_id, ['available_quantity' => 8, 'low_stock_threshold' => 10]);
+        $untracked = $this->make_variant($product_id, ['available_quantity' => 0, 'track_inventory' => false, 'in_stock' => true]);
+
+        $levels = app()->make(AnalyticsQueryService::class)->stock_levels(['out_of_stock', 'low_stock'], 100, 1);
+        $listed = array_column($levels['variants'], null, 'variant_id');
+
+        $this->assertSame('low_stock', $listed[$override->id]['status']);
+        $this->assertSame(10, $listed[$override->id]['low_stock_threshold']);
+        $this->assertSame($override->sku, $listed[$override->id]['sku']);
+        $this->assertArrayNotHasKey($untracked->id, $listed);
     }
 
     /**

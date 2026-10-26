@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ahamed/framework-mcp.git",
-                "reference": "322f21e97530d1a73f8827ce4759380a6052d5a0"
+                "reference": "128fe0c2bd0eda1b1b44cbc328034a48b1a752ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ahamed/framework-mcp/zipball/322f21e97530d1a73f8827ce4759380a6052d5a0",
-                "reference": "322f21e97530d1a73f8827ce4759380a6052d5a0",
+                "url": "https://api.github.com/repos/ahamed/framework-mcp/zipball/128fe0c2bd0eda1b1b44cbc328034a48b1a752ad",
+                "reference": "128fe0c2bd0eda1b1b44cbc328034a48b1a752ad",
                 "shasum": ""
             },
             "require": {
@@ -84,7 +84,7 @@
                 "source": "https://github.com/ahamed/framework-mcp/tree/main",
                 "issues": "https://github.com/ahamed/framework-mcp/issues"
             },
-            "time": "2026-10-25T16:02:04+00:00"
+            "time": "2026-10-26T08:01:04+00:00"
         },
         {
             "name": "brick/math",

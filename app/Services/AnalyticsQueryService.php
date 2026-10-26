@@ -43,6 +43,8 @@ class AnalyticsQueryService
 
     const LOWEST_STOCK_LIMIT = 4;
 
+    const MAX_LIMIT = 25;
+
     const VARIANT_CHUNK_SIZE = 1000;
 
     const AMOUNT_EXAMPLE = '20345';
@@ -97,6 +99,9 @@ class AnalyticsQueryService
     /** @var string Base currency code of the store. */
     protected $base_currency;
 
+    /** @var int|null Row limit of the ranked metrics, or null for the limits of the Analytics page. */
+    protected $limit;
+
     /**
      * Create the service.
      *
@@ -125,6 +130,7 @@ class AnalyticsQueryService
     {
         $this->table_prefix = DB::connection()->get_table_prefix();
         $this->base_currency = Money::get_base_currency();
+        $this->limit = isset($params['limit']) ? max(1, min(static::MAX_LIMIT, (int) $params['limit'])) : null;
 
         $range = $this->range_resolver->resolve($params);
 
@@ -1224,7 +1230,7 @@ class AnalyticsQueryService
                 $this->table('orders'),
                 $this->table('products'),
                 $scope,
-                static::PRODUCT_LIMIT
+                $this->row_limit(static::PRODUCT_LIMIT)
             ),
             $bindings
         );
@@ -1489,7 +1495,7 @@ class AnalyticsQueryService
                 'previous_net_sales_money_object' => $previous_net === null ? null : $this->money($previous_net),
                 'change' => $this->change($row['net_sales'], $previous_net),
             ];
-        }, array_slice($rows, 0, static::CATEGORY_LIMIT));
+        }, array_slice($rows, 0, $this->row_limit(static::CATEGORY_LIMIT)));
     }
 
     /**
@@ -1562,7 +1568,7 @@ class AnalyticsQueryService
      */
     protected function build_sales_by_coupon(array $range)
     {
-        $rows = $this->query_coupon_orders($range['from'], $range['to'], static::LIST_LIMIT);
+        $rows = $this->query_coupon_orders($range['from'], $range['to'], $this->row_limit(static::LIST_LIMIT));
 
         if (empty($rows)) {
             return [];
@@ -1869,7 +1875,7 @@ class AnalyticsQueryService
      */
     protected function build_sales_by_payment_method(array $range)
     {
-        $rows = $this->query_payment_method_sales($range['from'], $range['to'], static::LIST_LIMIT);
+        $rows = $this->query_payment_method_sales($range['from'], $range['to'], $this->row_limit(static::LIST_LIMIT));
         $previous = null;
 
         if ($range['compare'] !== null && !empty($rows)) {
@@ -1940,7 +1946,7 @@ class AnalyticsQueryService
      */
     protected function build_shipping_by_method(array $range)
     {
-        $rows = $this->query_shipping_method_charges($range['from'], $range['to'], static::LIST_LIMIT);
+        $rows = $this->query_shipping_method_charges($range['from'], $range['to'], $this->row_limit(static::LIST_LIMIT));
         $previous = null;
 
         if ($range['compare'] !== null && !empty($rows)) {
@@ -2057,7 +2063,7 @@ class AnalyticsQueryService
      */
     protected function build_taxes_by_region(array $range)
     {
-        $rows = $this->query_region_taxes($range['from'], $range['to'], static::LIST_LIMIT);
+        $rows = $this->query_region_taxes($range['from'], $range['to'], $this->row_limit(static::LIST_LIMIT));
         $previous = null;
 
         if ($range['compare'] !== null && !empty($rows)) {
@@ -2185,6 +2191,20 @@ class AnalyticsQueryService
     }
 
     /**
+     * Get the row limit of a ranked metric: the requested limit, else the limit of the Analytics page.
+     *
+     * @since 1.0.0
+     *
+     * @param int $default Limit of the Analytics page.
+     *
+     * @return int
+     */
+    protected function row_limit(int $default)
+    {
+        return $this->limit ?? $default;
+    }
+
+    /**
      * Build the Inventory health card from the variants as they are now.
      *
      * @since 1.0.0
@@ -2193,9 +2213,30 @@ class AnalyticsQueryService
      */
     protected function build_inventory_health()
     {
+        $levels = $this->stock_levels([AvailabilityStatus::OUT_OF_STOCK, AvailabilityStatus::LOW_STOCK], static::LOWEST_STOCK_LIMIT, 1);
+
+        return array_merge($levels['counts'], ['lowest' => $levels['variants']]);
+    }
+
+    /**
+     * Get the stock counts of all variants and a page of the tracked variants with the requested statuses.
+     *
+     * The counts have every variant. The list has only the variants that track inventory, lowest
+     * available quantity first. A variant threshold overrides the store default threshold.
+     *
+     * @since 1.0.0
+     *
+     * @param string[] $statuses AvailabilityStatus values to list.
+     * @param int      $per_page Number of variants on one page.
+     * @param int      $page     Page, from 1.
+     *
+     * @return array{counts: array<string, int>, total: int, variants: array<int, array<string, mixed>>}
+     */
+    public function stock_levels(array $statuses, int $per_page, int $page)
+    {
         $threshold = (int) Settings::get('product.low_stock_threshold', 0);
         $counts = ['out_of_stock' => 0, 'low_stock' => 0, 'in_stock' => 0];
-        $tracked = [];
+        $listed = [];
         $last_id = 0;
 
         do {
@@ -2211,15 +2252,19 @@ class AnalyticsQueryService
                 $status = $this->availability_service->resolve_variant_status($variant, $threshold);
                 $counts[$status] = ($counts[$status] ?? 0) + 1;
 
-                if ($variant->track_inventory && $status !== AvailabilityStatus::IN_STOCK) {
-                    $tracked[] = [(int) $variant->available_quantity, $last_id];
-                    sort($tracked);
-                    $tracked = array_slice($tracked, 0, static::LOWEST_STOCK_LIMIT);
+                if ($variant->track_inventory && in_array($status, $statuses, true)) {
+                    $listed[] = [(int) $variant->available_quantity, $last_id];
                 }
             }
         } while (count($variants) === static::VARIANT_CHUNK_SIZE);
 
-        return array_merge($counts, ['lowest' => $this->fetch_lowest_variants($tracked, $threshold)]);
+        sort($listed);
+
+        return [
+            'counts' => $counts,
+            'total' => count($listed),
+            'variants' => $this->fetch_lowest_variants(array_slice($listed, ($page - 1) * $per_page, $per_page), $threshold),
+        ];
     }
 
     /**
@@ -2267,7 +2312,9 @@ class AnalyticsQueryService
                 'product_id' => (int) $variant->product_id,
                 'product_name' => $variant->product->title ?? '',
                 'variant_name' => empty($labels) ? null : implode(' / ', $labels),
+                'sku' => $variant->sku,
                 'available_quantity' => $quantity,
+                'low_stock_threshold' => $this->availability_service->resolve_low_stock_threshold($variant, $threshold),
                 'status' => $this->availability_service->resolve_variant_status($variant, $threshold),
             ];
         }

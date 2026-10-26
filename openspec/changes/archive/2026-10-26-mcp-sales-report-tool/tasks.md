@@ -23,6 +23,6 @@
 
 - [x] 3.1 Write `docs/mcp.md` in the `docs/emails.md` structure: table of contents; 1. Quick start (install the MCP Adapter plugin, create an application password, connect Claude Code / Claude Desktop over HTTP, and `wp mcp-adapter serve --server=kirki-ecommerce`); server reference (id, endpoint, permission, rate limit); `sales-report` tool reference (arguments, presets, output fields, errors, examples such as "sales for the last 7 days"); time zone; "Where this differs from the Analytics page" (no comparison by default, site time zone unless the header is sent, no product/category/location breakdowns); adding more tools
 - [x] 3.2 Add one line for `vendor/libraries/framework-mcp/` to the "do not hand-edit" note in `CLAUDE.md` §2
-- [ ] 3.3 Ask the user to check on a site with the MCP Adapter plugin: `tools/list` with an application password, a `last_7` call, an editor rejected, and a 429 after 60 calls in one minute; record any correction in `design.md`
+- [x] 3.3 Ask the user to check on a site with the MCP Adapter plugin: `tools/list` with an application password, a `last_7` call, an editor rejected, and a 429 after 60 calls in one minute; record any correction in `design.md`
 - [x] 3.4 Verify: `npm run typecheck && npm test` in `resources/app/` and `composer test`
   - Note: unit 442/442 and integration 1121/1121 (run in Docker), typecheck passes. `npm test` has the same 9 failures in `features/list-page-empty-state.test.tsx`, from before this change.

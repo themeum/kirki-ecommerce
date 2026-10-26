@@ -2,9 +2,11 @@
 
 namespace Kirki\Ecommerce\Tests\Integration;
 
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\JsonSchema\JsonSchema;
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Request;
 use Kirki\Ecommerce\App\Constants\Order\PaymentStatus;
 use Kirki\Ecommerce\App\Mcp\Tools\SalesReportTool;
+use Kirki\Ecommerce\App\Services\AnalyticsRangeResolver;
 use Kirki\Ecommerce\Framework\Exceptions\ValidationException;
 use Kirki\Ecommerce\Tests\Support\RestTestCase;
 use Kirki\Ecommerce\Tests\Support\SeedsAnalyticsData;
@@ -84,6 +86,20 @@ class McpSalesReportToolTest extends RestTestCase
         $this->assertTrue($tool->idempotent());
         $this->assertFalse($tool->is_public());
         $this->assertFalse($tool->shows_in_rest());
+    }
+
+    /**
+     * The registrar reads input_schema(). A tool that still declares only schema() would send no arguments.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_input_schema_declares_the_range(): void
+    {
+        $schema = JsonSchema::object_from_map(app()->make(SalesReportTool::class)->input_schema(new JsonSchema()));
+
+        $this->assertSame(AnalyticsRangeResolver::PRESETS, $schema['properties']['range']['enum']);
+        $this->assertSame('last_30', $schema['properties']['range']['default']);
     }
 
     /**
