@@ -3,6 +3,8 @@
 namespace Kirki\Ecommerce\Tests\Integration;
 
 use Kirki\Ecommerce\Ahamed\FrameworkMcp\Facades\Mcp;
+use Kirki\Ecommerce\Ahamed\FrameworkMcp\Registrar\AbilityRegistrar;
+use Kirki\Ecommerce\App\Mcp\Resources\StoreProfileResource;
 use Kirki\Ecommerce\App\Mcp\Servers\StoreServer;
 use Kirki\Ecommerce\App\Mcp\Tools\FindCouponsTool;
 use Kirki\Ecommerce\App\Mcp\Tools\FindCustomersTool;
@@ -22,7 +24,8 @@ use function Kirki\Ecommerce\Framework\app;
 /**
  * Covers task 1.4: registration and access of the store's MCP server.
  *
- * Spec: mcp-server (Server id and transports, Server needs the MCP Adapter, Each tool checks its own access).
+ * Spec: mcp-server (Server id and transports, Server needs the MCP Adapter, Each tool checks its own access,
+ * Server offers resources and prompts).
  */
 class McpServerTest extends RestTestCase
 {
@@ -136,5 +139,81 @@ class McpServerTest extends RestTestCase
         $mcp_routes = array_filter($routes, fn($route) => strpos($route, '/mcp/kirki-ecommerce') !== false);
 
         $this->assertSame([], array_values($mcp_routes));
+    }
+
+    /**
+     * Scenario "Client lists the resources": 7 resources, each with its kecom:// URI and the JSON MIME type.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_server_offers_the_resources(): void
+    {
+        $registrar = app()->make(AbilityRegistrar::class);
+        $resources = (new StoreServer())->resources();
+        $listed = [];
+
+        foreach ($resources as $resource) {
+            $mcp = $registrar->arguments(app()->make($resource))['meta']['mcp'];
+            $listed[$mcp['uri']] = $mcp['mimeType'];
+
+            $this->assertSame('resource', $mcp['type']);
+        }
+
+        $this->assertSame([
+            'kecom://store/profile' => 'application/json',
+            'kecom://store/order-lifecycle' => 'application/json',
+            'kecom://store/analytics-definitions' => 'application/json',
+            'kecom://store/checkout-and-payments' => 'application/json',
+            'kecom://store/tax-and-shipping' => 'application/json',
+            'kecom://store/currencies' => 'application/json',
+            'kecom://catalog/structure' => 'application/json',
+        ], $listed);
+    }
+
+    /**
+     * Scenario "Client lists the prompts": 6 prompts, each with its arguments as string properties.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_server_offers_the_prompts(): void
+    {
+        $registrar = app()->make(AbilityRegistrar::class);
+        $listed = [];
+
+        foreach ((new StoreServer())->prompts() as $prompt) {
+            $instance = app()->make($prompt);
+            $arguments = $registrar->arguments($instance);
+
+            $this->assertSame('prompt', $arguments['meta']['mcp']['type']);
+            $listed[AbilityRegistrar::mcp_name($instance->name())] = array_keys((array) ($arguments['input_schema']['properties'] ?? []));
+        }
+
+        $this->assertSame([
+            'kirki-ecommerce-morning-brief' => ['date'],
+            'kirki-ecommerce-weekly-review' => ['range', 'compare'],
+            'kirki-ecommerce-monthly-close' => ['month'],
+            'kirki-ecommerce-low-stock-check' => [],
+            'kirki-ecommerce-investigate-order' => ['order_number'],
+            'kirki-ecommerce-setup-guide' => [],
+        ], $listed);
+    }
+
+    /**
+     * Scenario "Editor cannot read a resource": the registered permission callback rejects an editor.
+     *
+     * @return void
+     * @since 1.0.0
+     */
+    public function test_editor_cannot_read_a_resource(): void
+    {
+        $permission = app()->make(AbilityRegistrar::class)->arguments(app()->make(StoreProfileResource::class))['permission_callback'];
+
+        wp_set_current_user(static::factory()->user->create(['role' => 'editor']));
+        $this->assertFalse($permission());
+
+        wp_set_current_user(static::factory()->user->create(['role' => 'administrator']));
+        $this->assertTrue($permission());
     }
 }

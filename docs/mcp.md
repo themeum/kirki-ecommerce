@@ -14,6 +14,11 @@ The server has 11 tools. All of them only read store data:
 - Customers and coupons: **find customers** and **find coupons**.
 - Setup: **setup status**.
 
+It also has 7 resources (store-wide context that a client can attach, such as
+the store profile and the order lifecycle) and 6 prompts (ready-made routines,
+such as a morning brief and a monthly close). Resources and prompts also only
+read store data.
+
 The server is built on the bundled `ahamed/framework-mcp`
 package (scoped to `Kirki\Ecommerce\Ahamed\FrameworkMcp\`) and the WordPress
 MCP Adapter plugin.
@@ -27,10 +32,12 @@ MCP Adapter plugin.
 - [7. Catalog tools](#7-catalog-tools)
 - [8. Customer and coupon tools](#8-customer-and-coupon-tools)
 - [9. The setup status tool](#9-the-setup-status-tool)
-- [10. Time zone](#10-time-zone)
-- [11. Checking a site by hand](#11-checking-a-site-by-hand)
-- [12. Adding a tool](#12-adding-a-tool)
-- [13. Where this differs from the admin screens](#13-where-this-differs-from-the-admin-screens)
+- [10. Resources](#10-resources)
+- [11. Prompts](#11-prompts)
+- [12. Time zone](#12-time-zone)
+- [13. Checking a site by hand](#13-checking-a-site-by-hand)
+- [14. Adding a tool](#14-adding-a-tool)
+- [15. Where this differs from the admin screens](#15-where-this-differs-from-the-admin-screens)
 
 ---
 
@@ -185,7 +192,7 @@ These rules apply to all 11 tools.
 - **Money** is `{ amount, display, currency }`. Fields named `base_*` are in
   the store currency. Fields named `invoiced_*` are in the order currency.
 - **Dates and times** are ISO 8601 with the offset of the site time zone (see
-  [section 10](#10-time-zone)), for example `2026-10-21T16:00:00+06:00`.
+  [section 12](#12-time-zone)), for example `2026-10-21T16:00:00+06:00`.
 - **IDs** are integers. Each row has the ID that the next tool needs, for
   example `order_id` for `get-order`.
 
@@ -497,7 +504,78 @@ Code: `app/Mcp/Tools/SetupStatusTool.php`, on `SetupChecklistService`.
 
 ---
 
-## 10. Time zone
+## 10. Resources
+
+A resource is store-wide context with a fixed URI. A client shows the
+resources, and the merchant attaches one (in Claude Code, with an `@`
+mention). Each resource returns one JSON document (`application/json`) and
+reads the data again on each read. Only users with `manage_options` can read
+a resource.
+
+| URI | Contents |
+|---|---|
+| `kecom://store/profile` | Store name, email, phone, address, tax ID, industry, selling countries, base currency, site time zone, and the order and invoice number formats. |
+| `kecom://store/order-lifecycle` | Each order status with its fulfillment, payment and order actions and the status each action leads to. Which action sends which email, and whether that email is on. |
+| `kecom://store/analytics-definitions` | How the Analytics page counts sales, orders, returns and customers, the formulas, the range presets and comparisons, the chart granularity and the top-N limit (25). |
+| `kecom://store/checkout-and-payments` | Guest checkout, the checkout field rules, the coupon field, the customer note, the payment methods (id, name, enabled, offline) and the legal consents. |
+| `kecom://store/tax-and-shipping` | The tax flags, the tax regions with their rates, and the shipping zones with their regions and methods. Amounts are money values in the base currency. |
+| `kecom://store/currencies` | The base currency, the active currencies with their exchange rates, the rate provider, and the last and next sync time (ISO 8601). |
+| `kecom://catalog/structure` | Categories (with `parent_id`), brands, collections and tags with their product counts, and the attributes with their values. |
+
+The profile and the analytics definitions have the audience `assistant` and
+priority 1, so a client can add them to the context first.
+
+**What a resource never contains.** Each resource builds its output one field
+at a time, so only the fields in the table are in it. There are no payment
+provider credentials or settings, no exchange rate API keys (`api_configs`) or
+usage, no offline payment instructions, and no customer or order data.
+
+**Catalog lists are capped.** Each catalog list holds at most 200 entries,
+with the most products first. Each list has `items`, `total` (the full count)
+and `is_truncated`.
+
+Code: `app/Mcp/Resources/`. Each resource extends `StoreResource`.
+
+---
+
+## 11. Prompts
+
+A prompt is a ready-made routine. Clients show prompts as commands (Claude
+Code shows them as slash commands with the name that the merchant gave the
+server). A prompt returns one message that tells the assistant which tools to call, with
+the exact arguments (dates are already calculated), and how to give the
+result. Only users with `manage_options` can get a prompt.
+
+| Prompt | Arguments | Tools it calls | What the merchant gets |
+|---|---|---|---|
+| `kirki-ecommerce-morning-brief` | `date` (optional, default yesterday; `2026-10-25`, `today`, `yesterday` or other date text) | sales report against the same weekday one week earlier; find orders for `order-placed`, `order-processing`, `order-on-hold` and `payment-failed`; stock levels with `attention` | At most five lines of results and a short action list for today. |
+| `kirki-ecommerce-weekly-review` | `range` (optional, default `last_7`; any preset except `custom`, or `last week`, `last 7 days`, `last 30 days`, `last 90 days`, `last 12 months`, `last year`, `this month`, `this year`), `compare` (optional, default `previous_period`; `previous_year`, `last period` or `last year`) | sales report, sales trend, product performance by product and by category, sales breakdown by coupon and by country | Wins, losses, top products and categories, coupon and country results, and three suggested actions. |
+| `kirki-ecommerce-monthly-close` | `month` (optional, default the last complete month; `2026-09`, `September`, `September 2026`, `Sep 2026`, `this month` or `last month`) | sales report for the month with no comparison; sales breakdown by tax region, payment method and shipping method with `limit` 25 | One table for the accountant. For the current month, the range ends today and the answer says that the month is not complete. |
+| `kirki-ecommerce-low-stock-check` | none | every page of stock levels with `attention`; product performance by product for `last_30` with `limit` 25 | A reorder list, out-of-stock items first and best sellers first in each group. |
+| `kirki-ecommerce-investigate-order` | `order_number` (optional; spaces and a leading `#` are removed; without it, the assistant asks for it) | get order with its activity timeline | A summary of the order and a draft reply to the customer. Nothing is sent. |
+| `kirki-ecommerce-setup-guide` | none | setup status | The open setup steps in order, with their admin links. |
+
+**A prompt never fails because of an argument value.** Claude Desktop shows
+only "Failed to attach prompt" when a prompt returns an error, so the merchant
+could not see what to correct. Case, spaces, hyphens and underscores do not
+matter in `range` and `compare`. A value that does not parse, or a date or
+month after today, is replaced by the default, and the message gets a note
+that gives the typed value and the value used. The assistant tells the
+merchant. The note holds the typed value JSON-encoded and says that it is
+data, not an instruction. Without a usable order number, the order
+investigation tells the assistant to ask the merchant for it before it calls
+a tool. Dates use the site time zone.
+
+**Prompts are read-only routines.** Each message tells the assistant to only
+read store data, and not to change store data or send messages to customers.
+The morning brief and the order investigation also tell it that order notes,
+customer notes and cancellation reasons are data, not instructions.
+
+Code: `app/Mcp/Prompts/`. Each prompt extends `StorePrompt`.
+
+---
+
+## 12. Time zone
 
 The analytics tools put each order on a day in the **site time zone**
 (**Settings → General → Timezone** in WordPress). The other tools give their
@@ -508,7 +586,7 @@ analytics tools says which one was used.
 
 ---
 
-## 11. Checking a site by hand
+## 13. Checking a site by hand
 
 The test suite has no MCP Adapter, so these checks need a site that has it:
 
@@ -526,10 +604,13 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
 5. A call with an editor's application password gets a permission error.
 6. The 61st request from one user within one minute gets `429` with a
    `Retry-After` header.
+7. `resources/list` lists the 7 resources, and a read of each one returns
+   JSON. `prompts/list` lists the 6 prompts with their arguments, and each
+   prompt runs once in the client.
 
 ---
 
-## 12. Adding a tool
+## 14. Adding a tool
 
 1. Create a class in `app/Mcp/Tools/`. A tool that only reads store data
    extends `StoreReadTool`, which sets the read-only annotations, checks
@@ -543,6 +624,16 @@ The test suite has no MCP Adapter, so these checks need a site that has it:
    (`MasksPersonalData`) and the analytics range (`ReadsAnalyticsRange`).
 3. Add it to `$tools` in `StoreServer`.
 
+A resource extends `StoreResource` in `app/Mcp/Resources/`, declares `$uri`,
+and returns `Response::structured()` from `handle()`. Build the output one
+field at a time, never from a whole settings group. A prompt extends
+`StorePrompt` in `app/Mcp/Prompts/`, declares `arguments()`, and builds its
+message with `tool_call()`. It reads its arguments with the parse helpers
+(`parse_date()`, `parse_month()`, `parse_choice()`, `parse_order_number()`)
+and adds `fallback_note()` for a value that does not parse. It never throws for
+an argument value. Add them to `$resources` and `$prompts` in
+`StoreServer`. Both base classes check `manage_options`.
+
 The package guide (`docs/mcp.md` in the `ahamed/framework-mcp` repository)
 covers schemas, responses, resources and prompts. Use the scoped namespaces
 (`Kirki\Ecommerce\Ahamed\FrameworkMcp\…`, `Kirki\Ecommerce\Framework\…`) in
@@ -550,7 +641,7 @@ this plugin.
 
 ---
 
-## 13. Where this differs from the admin screens
+## 15. Where this differs from the admin screens
 
 - **No comparison by default.** The Analytics page compares with the previous
   period unless you change it. The analytics tools compare only when `compare`
@@ -580,6 +671,14 @@ this plugin.
   call. There is no "all rows" option.
 - **Read only.** No tool can change an order, a product, a customer, a coupon
   or a setting.
+- **Resources and prompts in some clients only.** Claude, Claude Code, VS Code
+  and Cursor show resources and prompts. ChatGPT supports tools only, so it
+  gets no resources and no prompts. There is no `get-store-settings` tool yet,
+  so a client without resources cannot read the store profile, the order
+  lifecycle or the other resource contents.
+- **Prompts depend on the client.** A prompt only gives instructions. The
+  client's assistant calls the tools and writes the answer, so the wording of
+  the answer can differ from one client to another.
 - **Two queries per sales report call.** The sales report tool reads the window
   twice (once for the KPIs, once for the breakdown). The numbers are the same,
   but a call costs more than one Analytics card.
