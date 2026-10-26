@@ -767,7 +767,6 @@ class OrderEditApiTest extends RestTestCase
             $item_coupon = OrderItemCoupon::where('order_coupon_id', $order_coupon->id)->first();
 
             $this->assertSame(1000, $order_coupon->base_max_discount_amount);
-            $this->assertSame(1000, $item_coupon->base_max_discount_amount);
             $this->assertSame($expected_discount, $order_coupon->base_discount_amount);
             $this->assertSame($expected_discount, $item_coupon->base_discount_amount);
         }
@@ -792,7 +791,7 @@ class OrderEditApiTest extends RestTestCase
         $second_order_coupon = OrderCoupon::where('order_id', $order['id'])->where('code', $second_coupon->code)->first();
         $second_item_coupon = OrderItemCoupon::where('order_coupon_id', $second_order_coupon->id)->first();
         $this->assertSame(0, $second_item_coupon->base_discount_amount);
-        $this->assertSame(200, $second_item_coupon->base_max_discount_amount);
+        $this->assertSame(200, $second_order_coupon->base_max_discount_amount);
         $this->assertSame(600, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
@@ -801,6 +800,28 @@ class OrderEditApiTest extends RestTestCase
         ])));
 
         $this->assertSame(1200, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
+    }
+
+    public function test_a_fixed_product_coupon_capped_at_checkout_gives_its_set_amount_when_the_line_grows(): void
+    {
+        Variant::query()->where('id', $this->variant_id)->update(['base_price' => 600, 'base_sale_price' => 600]);
+        $coupon = $this->create_amount_off_coupon(DiscountTarget::PRODUCTS, DiscountValueType::FIXED, 1000);
+        $order = $this->create_order([
+            'items' => [['variant_id' => $this->variant_id, 'quantity' => 1]],
+            'coupon_codes' => [$coupon->code],
+        ]);
+
+        $order_coupon = OrderCoupon::where('order_id', $order['id'])->first();
+        $this->assertSame(600, $order_coupon->base_discount_amount);
+        $this->assertSame(1000, $order_coupon->base_max_discount_amount);
+
+        $this->assert_api_success($this->request('PUT', 'orders/' . $order['id'], $this->order_payload([
+            'items' => [$this->line($order, 2)],
+            'coupon_codes' => [$coupon->code],
+        ])));
+
+        $this->assertSame(1000, OrderCoupon::where('order_id', $order['id'])->first()->base_discount_amount);
+        $this->assertSame(1000, (int) OrderItem::find($order['items'][0]['id'])->base_discount_amount);
     }
 
     public function test_a_new_fixed_product_coupon_does_not_take_from_a_stored_one(): void

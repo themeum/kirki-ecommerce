@@ -83,7 +83,7 @@ trait PersistsOrderCoupons
             if ($coupon_result->coupon->discount_type === DiscountType::AMOUNT_OFF && $coupon_result->coupon->discount_value_type === DiscountValueType::FIXED) {
                 $order_coupon_dto->base_max_discount_amount = $kept_order_coupon
                     ? ($kept_order_coupon->base_max_discount_amount ?? $kept_order_coupon->base_discount_amount)
-                    : $coupon_result->total_discount;
+                    : $coupon_result->coupon->base_discount_amount_fixed;
             }
 
             $order_coupon = $this->order_service->create_order_coupon($order_coupon_dto);
@@ -222,12 +222,6 @@ trait PersistsOrderCoupons
             $item_coupon_dto->order_coupon_id = $order_coupon->id;
             $item_coupon_dto->invoiced_discount_amount = $this->convert_amount($amount, $currency_code, $exchange_rate);
             $item_coupon_dto->base_discount_amount = $amount;
-
-            if ($coupon_result->coupon->discount_type === DiscountType::AMOUNT_OFF && $coupon_result->coupon->discount_value_type === DiscountValueType::FIXED) {
-                $item_coupon_dto->base_max_discount_amount = $stored_item_coupon
-                    ? ($stored_item_coupon->base_max_discount_amount ?? $stored_item_coupon->base_discount_amount)
-                    : $amount;
-            }
 
             $this->order_service->create_order_item_coupon($item_coupon_dto);
         }

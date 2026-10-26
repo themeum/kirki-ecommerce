@@ -650,9 +650,9 @@ class DiscountService
     /**
      * Apply a stored item-scoped amount-off coupon: only the lines it discounted before are discounted.
      *
-     * A percentage coupon takes its stored rate of the line's new subtotal. A fixed coupon keeps
-     * its original maximum for the line, capped at the line's new subtotal. A line the coupon did not
-     * discount before gets nothing, whatever the coupon's original conditions were.
+     * A percentage coupon takes its stored rate of the line's new subtotal. A fixed coupon gives
+     * the amount it was set to when it was first applied, capped at the line's new subtotal. A line
+     * the coupon did not discount before gets nothing, whatever the coupon's original conditions were.
      *
      * @since 1.0.0
      *
@@ -669,7 +669,7 @@ class DiscountService
         $stored_shares = [];
 
         foreach ($stored->order_item_coupons as $item_coupon) {
-            $stored_shares[$item_coupon->order_item_id] = $item_coupon->base_max_discount_amount ?? $item_coupon->base_discount_amount;
+            $stored_shares[$item_coupon->order_item_id] = $item_coupon->base_discount_amount;
         }
 
         foreach ($context->items as $item) {
@@ -681,7 +681,7 @@ class DiscountService
 
             $amount = $stored->discount_rate !== null
                 ? $this->get_percent_discounted_amount($stored->discount_rate, $item_subtotal)
-                : $this->get_fixed_discounted_amount($stored_shares[$item->order_item_id], $item_subtotal);
+                : $this->get_fixed_discounted_amount($stored->base_max_discount_amount ?? $stored_shares[$item->order_item_id], $item_subtotal);
 
             $coupon_result->item_discounts[$item->line_key] = $amount;
             $coupon_result->total_discount += $amount;
@@ -735,7 +735,7 @@ class DiscountService
 
         $coupon->discount_value_type = $is_percentage ? DiscountValueType::PERCENTAGE : DiscountValueType::FIXED;
         $coupon->discount_amount_percentage = $stored->discount_rate;
-        $coupon->base_discount_amount_fixed = !$is_percentage && $stored->discount_target === DiscountTarget::ORDER
+        $coupon->base_discount_amount_fixed = !$is_percentage
             ? ($stored->base_max_discount_amount ?? $stored->base_discount_amount)
             : null;
 

@@ -35,7 +35,7 @@ class CreateOrderCouponsTable implements Migration
             $table->string('discount_type', 50);
             $table->string('discount_target', 50)->nullable();
             $table->decimal('discount_rate', 8, 4)->nullable()->comment('Percent the coupon takes off, for a percentage coupon; null for any other coupon. Kept so an edit of the order can price the coupon again');
-            $table->integer('base_max_discount_amount')->nullable()->comment('Fixed discount promised when the coupon was first applied, in base currency minor units; never reduced by an edit');
+            $table->integer('base_max_discount_amount')->nullable()->comment('Fixed amount the coupon was set to when it was first applied, in base currency minor units: per eligible line for a product coupon, in total for an order-wide coupon; never reduced by an edit');
             $table->text('coupon_snapshot')->nullable()->comment('JSON snapshot of the coupon rules at checkout');
 
             $table->integer('invoiced_discount_amount')->default(0)->comment('Total discount this coupon gave: the sum over the items, or the shipping discount for a shipping coupon; includes tax when orders.is_tax_inclusive is true; in the invoiced currency, minor units');

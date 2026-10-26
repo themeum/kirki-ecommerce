@@ -220,13 +220,17 @@ A stored percent order coupon SHALL use its stored rate on the subtotal that is 
 - **THEN** the discount is 6.00
 
 #### Scenario: Fixed coupon restored after a capped edit
-- **WHEN** a fixed coupon originally gave 10.00, an edit caps it at 6.00, and a later edit raises the subtotal above 10.00
+- **WHEN** a fixed coupon of 10.00 originally gave 10.00, an edit caps it at 6.00, and a later edit raises the subtotal above 10.00
 - **THEN** the coupon can give 10.00 again, using its unchanged `base_max_discount_amount`
 - **AND** this applies to both an order-wide coupon and a product coupon on its original line
 
+#### Scenario: Fixed coupon that was capped at checkout
+- **WHEN** a fixed product coupon of 10.00 gave 6.00 at checkout because the line was worth 6.00, and an edit raises the line to 12.00
+- **THEN** the coupon gives 10.00 for that line, because its `base_max_discount_amount` is the amount it was set to, not the amount it gave
+
 #### Scenario: A kept coupon temporarily gives no discount
 - **WHEN** an edit lowers a line's quantity so that an earlier stored coupon uses the whole line subtotal
-- **THEN** the later stored coupon's attribution and fixed maximum stay stored even when its applied amount is zero
+- **THEN** the later stored coupon's attribution and its `base_max_discount_amount` stay stored even when its applied amount is zero
 - **AND** raising the quantity again lets that coupon discount the line again
 
 #### Scenario: A new coupon does not take from a stored product coupon
@@ -325,7 +329,7 @@ The order update endpoint SHALL keep the order's currency. A request that sends 
 - **THEN** the request fails with a 422 error
 
 ### Requirement: Coupon discount terms are stored at checkout
-The system SHALL store a percentage coupon's rate in `order_coupons.discount_rate`, otherwise null. Fixed amount-off coupons SHALL store their original promised discounts in `base_max_discount_amount` on the order coupon and its item coupons, otherwise null. Edits SHALL preserve these maxima separately from applied amounts.
+The system SHALL store a percentage coupon's rate in `order_coupons.discount_rate`, otherwise null. Fixed amount-off coupons SHALL store the amount the coupon was set to when it was first applied in `order_coupons.base_max_discount_amount` (per eligible line for a product coupon, in total for an order-wide coupon), otherwise null. Edits SHALL preserve this amount separately from the applied amounts.
 
 #### Scenario: Percent coupon at checkout
 - **WHEN** an order is created with a 15% coupon

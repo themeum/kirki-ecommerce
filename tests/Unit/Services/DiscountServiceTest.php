@@ -235,6 +235,15 @@ class DiscountServiceTest extends TestCase
         $this->assertSame([1 => 500], $this->service->calculate($context, [])->item_discounts);
     }
 
+    public function test_a_stored_fixed_product_coupon_that_was_capped_gives_up_to_its_set_amount_when_the_line_grows(): void
+    {
+        $context = $this->make_stored_context([
+            $this->make_stored_coupon('STORED', DiscountTarget::PRODUCTS, ['base_max_discount_amount' => 1000], [10 => 600]),
+        ], [$this->make_line(1, 600, 2, 10)]);
+
+        $this->assertSame([1 => 1000], $this->service->calculate($context, [])->item_discounts);
+    }
+
     public function test_a_stored_fixed_product_coupon_is_capped_at_the_new_line_subtotal(): void
     {
         $context = $this->make_stored_context([

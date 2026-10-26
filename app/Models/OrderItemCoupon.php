@@ -20,7 +20,6 @@ class OrderItemCoupon extends Model
     protected $fillable = [
         'order_item_id',
         'order_coupon_id',
-        'base_max_discount_amount',
         'invoiced_discount_amount',
         'base_discount_amount',
     ];
@@ -29,7 +28,6 @@ class OrderItemCoupon extends Model
     protected $casts = [
         'order_item_id' => 'integer',
         'order_coupon_id' => 'integer',
-        'base_max_discount_amount' => 'integer',
         'invoiced_discount_amount' => 'integer',
         'base_discount_amount' => 'integer',
     ];
