@@ -188,7 +188,7 @@ Every calculated line item in the manual order calculation payload SHALL expose 
 - **THEN** it is in the same tax mode as the item's unit price, so the two are directly comparable
 
 ### Requirement: The calculation accepts an order ID to preview an edit
-The order calculation endpoint SHALL accept an optional `order_id`. All other inputs are the same as for order creation, except that an existing line is sent with its `order_item_id`. When `order_id` is sent, the endpoint SHALL calculate the edit of that order with the same frozen values as the save. It SHALL fail with a 404 error when the order does not exist, and with a 422 error when the order is not editable.
+The order calculation endpoint SHALL accept an optional `order_id`. All other inputs are the same as for order creation, except that an existing line is sent with its `id`. When `order_id` is sent, the endpoint SHALL calculate the edit of that order with the same frozen values as the save. It SHALL fail with a 404 error when the order does not exist, and with a 422 error when the order is not editable.
 
 #### Scenario: Preview an edit
 - **WHEN** an admin sends a calculation with the ID of an editable order
@@ -233,15 +233,15 @@ Each calculated line item SHALL expose these values, read from its variant at ca
 - **THEN** that line's six stock and limit values are null
 
 ### Requirement: Each calculated item identifies its stored order line
-Each calculated line item SHALL expose `order_item_id`. Its value is the ID of the stored order line when the line is an existing line of an edit. Otherwise its value is null.
+Each calculated line item SHALL expose `id`. Its value is the ID of the stored order line when the line is an existing line of an edit. Otherwise its value is null.
 
 #### Scenario: Existing line in an edit
-- **WHEN** an edit preview includes a line sent with an `order_item_id`
-- **THEN** that item's `order_item_id` is the stored line's ID
+- **WHEN** an edit preview includes a line sent with an `id`
+- **THEN** that item's `id` is the stored line's ID
 
 #### Scenario: New line or create preview
 - **WHEN** an item is new in an edit, or the calculation has no order ID
-- **THEN** that item's `order_item_id` is null
+- **THEN** that item's `id` is null
 
 ### Requirement: Calculation and save apply the same quantity and stock rules
 The calculation endpoint and the order save SHALL apply the same quantity, per-order limit and stock rules, and SHALL fail with a 422 error when a rule is broken. The calculation SHALL still return `is_reachable` and the live stock and limit values for display. The calculation SHALL NOT reserve stock; the save SHALL check stock again and reserve it under the order lock.

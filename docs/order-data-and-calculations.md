@@ -521,7 +521,7 @@ does the following in one transaction.
 3. **Reads the terms stored on the order** (`StoredOrderTermsService`): the unit prices of the lines, the exchange rate, the tax mode, the shipping charge, the tax rates, and the coupons with the lines they discounted.
 4. **Runs the full calculation again** (section 4) with the new input and with the **stored** terms in place of today's settings. Today's settings are read only for a new line, for a coupon that is new to the order, and for the shipping and tax of a new delivery address.
 5. **Updates the order items**:
-   - Line already on the order (sent by `order_item_id`) → the row keeps its snapshot and prices. Only the quantity and the money change.
+   - Line already on the order (sent by `id`) → the row keeps its snapshot and prices. Only the quantity and the money change.
    - New line (sent by `variant_id`) → a new row, with a snapshot of the variant as it is now.
    - Line left out → the row is deleted.
 6. **Updates stock**: reserves more or gives back stock for the quantity difference only. The live stock is checked in the preview and again here, while the order is locked. If stock is short, the whole edit fails.

@@ -290,7 +290,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->add_variant(1, ['base_sale_price' => 9900, 'base_price' => 9900, 'weight' => 1]);
 
-        $item = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 3]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 2]]))->first();
+        $item = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 3]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 2]]))->first();
 
         $this->assertSame(5, $item->order_item_id);
         $this->assertSame(1, $item->variant_id);
@@ -305,7 +305,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->add_variant(1, ['tax_profile_id' => 12]);
 
-        $item = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]))->first();
+        $item = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]))->first();
 
         $this->assertSame(9, $item->shipping_profile_id);
         $this->assertSame(12, $item->tax_profile_id);
@@ -315,7 +315,7 @@ class OrderCalculationContextServiceTest extends TestCase
 
     public function test_an_existing_line_whose_variant_was_deleted_stays_with_its_stored_values(): void
     {
-        $item = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => null, 'quantity' => 2]]))->first();
+        $item = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => null, 'quantity' => 2]]))->first();
 
         $this->assertSame(5, $item->order_item_id);
         $this->assertNull($item->variant_id);
@@ -331,7 +331,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->add_variant(1, [], ['status' => ProductStatus::DRAFT]);
 
-        $item = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]))->first();
+        $item = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]))->first();
 
         $this->assertFalse($item->is_reachable);
     }
@@ -340,7 +340,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 99, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]));
+        $this->service->build_items($this->lines([['id' => 99, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1]]));
     }
 
     public function test_rejects_an_order_line_sent_twice(): void
@@ -349,14 +349,14 @@ class OrderCalculationContextServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 1], ['order_item_id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => 1]]));
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1], ['id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => 1]]));
     }
 
     public function test_rejects_an_order_line_when_there_is_no_order(): void
     {
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 1]]), null);
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1]]), null);
     }
 
     public function test_refuses_a_quantity_change_on_a_line_that_is_not_reachable(): void
@@ -365,21 +365,21 @@ class OrderCalculationContextServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 1]]));
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 1]]));
     }
 
     public function test_refuses_lowering_the_quantity_of_a_line_whose_variant_was_deleted(): void
     {
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => null, 'quantity' => 2]]));
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => null, 'quantity' => 2]]));
     }
 
     public function test_keeps_a_line_that_is_not_reachable_when_its_quantity_is_unchanged(): void
     {
         $this->add_variant(1, [], ['status' => ProductStatus::DRAFT]);
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 1]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 1]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 1]]));
 
         $this->assertSame(1, $items->first()->quantity);
     }
@@ -388,7 +388,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->add_variant(1, ['has_limit_per_order' => true, 'max_per_order' => 5]);
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 5]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 5]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
 
         $this->assertSame(5, $items->first()->quantity);
     }
@@ -399,14 +399,14 @@ class OrderCalculationContextServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 6]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 6]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
     }
 
     public function test_keeps_a_quantity_that_is_over_a_lowered_limit_when_it_is_not_raised(): void
     {
         $this->add_variant(1, ['has_limit_per_order' => true, 'max_per_order' => 2]);
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 4]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 4]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
 
         $this->assertSame(4, $items->first()->quantity);
     }
@@ -415,7 +415,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->add_variant(1, ['has_limit_per_order' => true, 'max_per_order' => 2]);
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 3]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 3]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
 
         $this->assertSame(3, $items->first()->quantity);
     }
@@ -426,7 +426,7 @@ class OrderCalculationContextServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 5]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 5]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
     }
 
     public function test_checks_stock_for_the_increase_of_an_existing_line_only(): void
@@ -434,7 +434,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->add_variant(1);
         $this->available_stock[1] = 2;
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 6]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 6]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
 
         $this->assertSame(6, $items->first()->quantity);
     }
@@ -447,7 +447,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage('Not enough stock for variant: 1');
 
-        $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 6]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $this->service->build_items($this->lines([['id' => 5, 'quantity' => 6]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
     }
 
     public function test_keeps_an_unchanged_line_on_a_sold_out_variant(): void
@@ -455,7 +455,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->add_variant(1);
         $this->available_stock[1] = 0;
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 4]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 4]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
 
         $this->assertSame(4, $items->first()->quantity);
     }
@@ -465,7 +465,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->add_variant(1);
         $this->available_stock[1] = 0;
 
-        $items = $this->service->build_items($this->lines([['order_item_id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
+        $items = $this->service->build_items($this->lines([['id' => 5, 'quantity' => 2]]), $this->make_order([['id' => 5, 'variant_id' => 1, 'quantity' => 4]]));
 
         $this->assertSame(2, $items->first()->quantity);
     }
@@ -486,7 +486,7 @@ class OrderCalculationContextServiceTest extends TestCase
         $this->add_variant(1);
 
         $context = $this->service->build($this->input([
-            'items' => [['order_item_id' => 5, 'quantity' => 1]],
+            'items' => [['id' => 5, 'quantity' => 1]],
             'customer_id' => 5,
             'customer_email' => 'buyer@example.com',
             'coupon_codes' => ['SAVE10'],
@@ -511,7 +511,7 @@ class OrderCalculationContextServiceTest extends TestCase
     {
         $this->add_variant(1);
 
-        $context = $this->service->build($this->input(['items' => [['order_item_id' => 5, 'quantity' => 1]]]), $this->make_order([['id' => 5, 'variant_id' => 1]]));
+        $context = $this->service->build($this->input(['items' => [['id' => 5, 'quantity' => 1]]]), $this->make_order([['id' => 5, 'variant_id' => 1]]));
 
         $this->assertNotNull($context->stored);
         $this->assertFalse($context->stored->is_tax_inclusive);

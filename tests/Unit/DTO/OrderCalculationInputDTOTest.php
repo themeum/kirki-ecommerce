@@ -18,7 +18,7 @@ class OrderCalculationInputDTOTest extends TestCase
             'coupon_codes' => ['SAVE10'],
             'shipping_method' => 'method-0001',
             'payment_provider' => 'stripe',
-            'items' => [['order_item_id' => 8, 'quantity' => 2], ['variant_id' => 3, 'quantity' => 1]],
+            'items' => [['id' => 8, 'quantity' => 2], ['variant_id' => 3, 'quantity' => 1]],
         ]);
 
         $this->assertSame(5, $input->customer_id);
@@ -30,13 +30,13 @@ class OrderCalculationInputDTOTest extends TestCase
 
     public function test_it_keeps_the_keys_of_the_lines(): void
     {
-        $input = OrderCalculationInputDTO::from_payload(['items' => [3 => ['variant_id' => 3, 'quantity' => 1], 'b' => ['order_item_id' => 8, 'quantity' => 2]]]);
+        $input = OrderCalculationInputDTO::from_payload(['items' => [3 => ['variant_id' => 3, 'quantity' => 1], 'b' => ['id' => 8, 'quantity' => 2]]]);
 
         $this->assertSame([3, 'b'], array_keys($input->items));
         $this->assertInstanceOf(OrderCalculationLineDTO::class, $input->items[3]);
         $this->assertSame(3, $input->items[3]->variant_id);
-        $this->assertNull($input->items[3]->order_item_id);
-        $this->assertSame(8, $input->items['b']->order_item_id);
+        $this->assertNull($input->items[3]->id);
+        $this->assertSame(8, $input->items['b']->id);
         $this->assertSame(2, $input->items['b']->quantity);
     }
 
@@ -80,13 +80,13 @@ class OrderCalculationInputDTOTest extends TestCase
     {
         $dto = UpdateOrderPayloadDTO::from_array([
             'id' => 77,
-            'items' => [['order_item_id' => 8, 'quantity' => 4]],
+            'items' => [['id' => 8, 'quantity' => 4]],
             'billing_country' => 'CA',
         ]);
 
         $input = $dto->to_calculation_input();
 
-        $this->assertSame(8, $input->items[0]->order_item_id);
+        $this->assertSame(8, $input->items[0]->id);
         $this->assertSame(4, $input->items[0]->quantity);
         $this->assertSame('CA', $input->get_address('billing')['country']);
     }

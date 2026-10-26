@@ -143,7 +143,7 @@ examples:
               "items": [
                 {
                   "line_key": 1,
-                  "order_item_id": null,
+                  "id": null,
                   "is_reachable": true,
                   "quantity": 4,
                   "base_subtotal_money_object": { "raw": 63.20, "display": "$63.20", "currency": { "code": "USD", "symbol": "$" } },

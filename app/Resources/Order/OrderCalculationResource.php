@@ -114,7 +114,7 @@ class OrderCalculationResource extends Resource
 
             $cart_items[] = array_merge([
                 'line_key' => $item->line_key,
-                'order_item_id' => $item->order_item_id,
+                'id' => $item->order_item_id,
                 'is_reachable' => $item->is_reachable,
                 'quantity' => $item->quantity,
                 'base_subtotal_money_object' => Money::prepare_amount_object_from_minor($subtotal),

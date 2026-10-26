@@ -1032,7 +1032,7 @@ class OrderEditApiTest extends RestTestCase
 
         $preview = $this->preview(['order_id' => $order['id'], 'items' => [$this->line($order, 1)]]);
 
-        $this->assertSame((int) $order['items'][0]['id'], $preview['items'][0]['order_item_id']);
+        $this->assertSame((int) $order['items'][0]['id'], $preview['items'][0]['id']);
         $this->assertTrue($preview['items'][0]['is_reachable']);
     }
 
@@ -1058,7 +1058,7 @@ class OrderEditApiTest extends RestTestCase
         $preview = $this->preview(['coupon_codes' => [$coupon->code, 'NOSUCHCODE']]);
 
         $this->assertCount(1, $preview['items']);
-        $this->assertNull($preview['items'][0]['order_item_id']);
+        $this->assertNull($preview['items'][0]['id']);
         $this->assertTrue($preview['items'][0]['is_reachable']);
         $this->assertTrue($preview['items'][0]['track_inventory']);
         $this->assertFalse($preview['items'][0]['allow_back_order']);
@@ -1475,11 +1475,11 @@ class OrderEditApiTest extends RestTestCase
      * @param array<string, mixed> $order    Order resource data, as created.
      * @param int                  $quantity New quantity of the line.
      * @param int                  $index    Position of the line on the order.
-     * @return array{order_item_id: int, quantity: int}
+     * @return array{id: int, quantity: int}
      */
     protected function line(array $order, int $quantity, int $index = 0): array
     {
-        return ['order_item_id' => (int) $order['items'][$index]['id'], 'quantity' => $quantity];
+        return ['id' => (int) $order['items'][$index]['id'], 'quantity' => $quantity];
     }
 
     /**

@@ -15,7 +15,7 @@ http:
         "order_id": 36,
         "items": [
           {
-            "order_item_id": 35,
+            "id": 35,
             "quantity": 3
           },
           {
@@ -122,7 +122,7 @@ response:
           "items": [
             {
               "line_key": 0,
-              "order_item_id": 35,
+              "id": 35,
               "is_reachable": true,
               "quantity": 3,
               "base_subtotal_money_object": {
@@ -144,7 +144,7 @@ response:
             },
             {
               "line_key": 1,
-              "order_item_id": null,
+              "id": null,
               "is_reachable": true,
               "quantity": 1,
               "base_subtotal_money_object": {
@@ -196,7 +196,7 @@ request:
         "order_id": 999999,
         "items": [
           {
-            "order_item_id": 35,
+            "id": 35,
             "quantity": 3
           },
           {
@@ -252,7 +252,7 @@ request:
         "order_id": 36,
         "items": [
           {
-            "order_item_id": 35,
+            "id": 35,
             "quantity": 3
           },
           {
@@ -308,7 +308,7 @@ request:
         "order_id": 36,
         "items": [
           {
-            "order_item_id": 35,
+            "id": 35,
             "quantity": 5
           }
         ],
@@ -360,7 +360,7 @@ request:
         "order_id": 36,
         "items": [
           {
-            "order_item_id": 35,
+            "id": 35,
             "quantity": 3
           },
           {
@@ -416,7 +416,7 @@ request:
         "order_id": 36,
         "items": [
           {
-            "order_item_id": 35,
+            "id": 35,
             "quantity": 50
           }
         ],
@@ -463,7 +463,7 @@ examples:
             "order_id": 36,
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 3
               },
               {
@@ -570,7 +570,7 @@ examples:
               "items": [
                 {
                   "id": 0,
-                  "order_item_id": 35,
+                  "id": 35,
                   "is_reachable": true,
                   "quantity": 3,
                   "base_subtotal_money_object": {
@@ -592,7 +592,7 @@ examples:
                 },
                 {
                   "id": 1,
-                  "order_item_id": null,
+                  "id": null,
                   "is_reachable": true,
                   "quantity": 1,
                   "base_subtotal_money_object": {
@@ -644,7 +644,7 @@ examples:
             "order_id": 999999,
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 3
               },
               {
@@ -700,7 +700,7 @@ examples:
             "order_id": 36,
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 3
               },
               {
@@ -756,7 +756,7 @@ examples:
             "order_id": 36,
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 5
               }
             ],
@@ -808,7 +808,7 @@ examples:
             "order_id": 36,
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 3
               },
               {
@@ -864,7 +864,7 @@ examples:
             "order_id": 36,
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 50
               }
             ],
@@ -910,14 +910,14 @@ docs: |-
   Previews the edit of an existing order without saving it. Send the same payload that you will send to
   `PUT {{baseUrl}}/orders/{id}`, plus `order_id`.
 
-  - A line already on the order is sent with `order_item_id`. It keeps its stored price. A new line is sent with `variant_id`.
+  - A line already on the order is sent with its item `id`. It keeps its stored price. A new line is sent with `variant_id`.
   - Coupons, exchange rate, tax mode, and the shipping charge and tax rates are the ones stored on the order.
     Shipping and tax are quoted again only when the delivery country or state, or the shipping method, changes.
   - The preview applies the same quantity, per-order limit and stock rules as the save, so it gives the same 422 errors.
     It does not reserve stock.
 
   ### Item keys
-  `line_key` (the position of the line in the `items` you sent), `order_item_id` (null for a new line), `is_reachable` (false for a locked line), and the live variant values
+  `line_key` (the position of the line in the `items` you sent), `id` (null for a new line), `is_reachable` (false for a locked line), and the live variant values
   `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order`
   (all null when the variant was deleted).
 

@@ -13,7 +13,7 @@ http:
     data: |-
       {
         "items": [
-          { "order_item_id": 35, "quantity": 2 },
+          { "id": 35, "quantity": 2 },
           { "variant_id": 252, "quantity": 1 }
         ],
         "customer_id": 2,
@@ -66,7 +66,7 @@ examples:
         data: |-
           {
             "items": [
-              { "order_item_id": 35, "quantity": 2 },
+              { "id": 35, "quantity": 2 },
               { "variant_id": 252, "quantity": 1 }
             ],
             "customer_id": 2,
@@ -256,7 +256,7 @@ examples:
         data: |-
           {
             "items": [
-              { "order_item_id": 35, "quantity": 2 },
+              { "id": 35, "quantity": 2 },
               { "variant_id": 252, "quantity": 1 }
             ],
             "customer_id": 2,
@@ -316,7 +316,7 @@ examples:
           {
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 2
               },
               {
@@ -383,7 +383,7 @@ examples:
           {
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 3
               }
             ],
@@ -446,7 +446,7 @@ examples:
           {
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 2
               },
               {
@@ -513,7 +513,7 @@ examples:
           {
             "items": [
               {
-                "order_item_id": 35,
+                "id": 35,
                 "quantity": 50
               }
             ],
@@ -573,7 +573,7 @@ docs: |-
   charge and tax rates for an address that did not change. Full rules: `docs/order-editing.md`.
 
   ### Lines
-  - A line already on the order is sent with `order_item_id` (the `id` of the item in the order response).
+  - A line already on the order is sent with its item `id`, the same `id` as in the order response.
   - A new line is sent with `variant_id`. A line left out of the payload is removed and its stock is given back.
   - `currency_code` is optional. When sent, it must equal the order's currency.
   - A coupon code that is already on the order stays with its stored terms. A new code is checked and priced from the coupon.

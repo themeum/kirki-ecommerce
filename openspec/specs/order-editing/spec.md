@@ -56,18 +56,18 @@ The order update endpoint SHALL check editability after it locks the order, and 
 - **THEN** the save fails with a 422 error and nothing on the order changes
 
 ### Requirement: Existing lines are identified by order line ID
-An existing line SHALL be sent with its `order_item_id`. A new line SHALL be sent with a `variant_id` and no `order_item_id`. The system SHALL reject an `order_item_id` that is not a line of the edited order, and it SHALL reject a payload that uses the same `order_item_id` twice. An existing line that the payload leaves out SHALL be removed from the order.
+An existing line SHALL be sent with its `id`. A new line SHALL be sent with a `variant_id` and no `id`. The system SHALL reject an `id` that is not a line of the edited order, and it SHALL reject a payload that uses the same `id` twice. An existing line that the payload leaves out SHALL be removed from the order.
 
 #### Scenario: Existing line
-- **WHEN** an admin sends a line with the `order_item_id` of a stored line and a new quantity
+- **WHEN** an admin sends a line with the `id` of a stored line and a new quantity
 - **THEN** the system changes that stored line
 
 #### Scenario: Line from another order
-- **WHEN** an admin sends an `order_item_id` that belongs to a different order
+- **WHEN** an admin sends an `id` that belongs to a different order
 - **THEN** the request fails with a 422 error
 
 #### Scenario: Line whose variant was deleted
-- **WHEN** an order has a line whose variant was deleted, and an admin sends that line with its `order_item_id` and an unchanged quantity
+- **WHEN** an order has a line whose variant was deleted, and an admin sends that line with its `id` and an unchanged quantity
 - **THEN** the line stays on the order with its stored values
 
 ### Requirement: A variant can appear on only one new line, and not as a new line when the order has it

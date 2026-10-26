@@ -329,7 +329,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['order_item_id' => $existing_item_id, 'quantity' => 1],
+                ['id' => $existing_item_id, 'quantity' => 1],
             ],
         ])));
 
@@ -418,7 +418,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Updated notes',
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -488,7 +488,7 @@ class OrderApiTest extends RestTestCase
             'customer_notes' => 'Old customer',
             'admin_notes' => 'Old admin',
             'items' => [[
-                'order_item_id' => $order['items'][0]['id'] ?? null,
+                'id' => $order['items'][0]['id'] ?? null,
                 'variant_id' => $this->variant_id,
                 'quantity' => 1,
             ]],
@@ -517,7 +517,7 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'order_notes' => null,
             'items' => [[
-                'order_item_id' => $order['items'][0]['id'] ?? null,
+                'id' => $order['items'][0]['id'] ?? null,
                 'variant_id' => $this->variant_id,
                 'quantity' => 1,
             ]],
@@ -599,7 +599,7 @@ class OrderApiTest extends RestTestCase
 
         $response = $this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
-            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'customer_first_name' => 'Jane',
             'customer_last_name' => 'Roe',
@@ -672,7 +672,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Updated by store manager',
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -724,7 +724,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Guest order edit',
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -848,7 +848,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['order_item_id' => $existing_item_id, 'quantity' => 1],
+                ['id' => $existing_item_id, 'quantity' => 1],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -886,7 +886,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['order_item_id' => $existing_item_id, 'quantity' => 2],
+                ['id' => $existing_item_id, 'quantity' => 2],
             ],
         ])));
 
@@ -1001,7 +1001,7 @@ class OrderApiTest extends RestTestCase
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
             'items' => [
-                ['order_item_id' => $existing_item_id, 'quantity' => 3],
+                ['id' => $existing_item_id, 'quantity' => 3],
             ],
         ])));
 
@@ -1039,7 +1039,7 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'items' => [
-                ['order_item_id' => $existing_item_id, 'quantity' => 2],
+                ['id' => $existing_item_id, 'quantity' => 2],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -1071,7 +1071,7 @@ class OrderApiTest extends RestTestCase
             'id' => $this->order_id,
             'customer_id' => $customer_id,
             'items' => [
-                ['order_item_id' => $order['items'][0]['id'], 'variant_id' => $this->variant_id, 'quantity' => 1],
+                ['id' => $order['items'][0]['id'], 'variant_id' => $this->variant_id, 'quantity' => 1],
                 ['variant_id' => $added_variant_id, 'quantity' => 1],
             ],
         ])));
@@ -1099,7 +1099,7 @@ class OrderApiTest extends RestTestCase
             'flags' => ['gift', 'priority'],
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -1141,7 +1141,7 @@ class OrderApiTest extends RestTestCase
             'flags' => ['gift'],
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -1154,7 +1154,7 @@ class OrderApiTest extends RestTestCase
             'flags' => [],
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -2187,7 +2187,7 @@ class OrderApiTest extends RestTestCase
             'order_notes' => 'Unrelated edit',
             'items' => [
                 [
-                    'order_item_id' => $order['items'][0]['id'] ?? null,
+                    'id' => $order['items'][0]['id'] ?? null,
                     'variant_id' => $this->variant_id,
                     'quantity' => 1,
                 ],
@@ -2390,7 +2390,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
-            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
         ])));
@@ -2423,7 +2423,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
-            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [],
         ])));
@@ -2457,7 +2457,7 @@ class OrderApiTest extends RestTestCase
 
         $this->assert_api_success($this->request('PUT', 'orders/' . $this->order_id, $this->order_payload([
             'id' => $this->order_id,
-            'items' => [['order_item_id' => $order['items'][0]['id'], 'quantity' => 1]],
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
             'customer_id' => $customer_id,
             'coupon_codes' => [$coupon->code],
             'order_notes' => 'Unrelated edit',

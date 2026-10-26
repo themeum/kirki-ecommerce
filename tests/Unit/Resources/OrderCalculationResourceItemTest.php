@@ -26,7 +26,7 @@ class OrderCalculationResourceItemTest extends TestCase
         $items = $this->prepare_items([$this->make_item(0, 7, 55, true)], [7 => $this->make_variant()]);
 
         $this->assertSame(0, $items[0]['line_key']);
-        $this->assertSame(55, $items[0]['order_item_id']);
+        $this->assertSame(55, $items[0]['id']);
         $this->assertTrue($items[0]['is_reachable']);
     }
 
@@ -34,7 +34,7 @@ class OrderCalculationResourceItemTest extends TestCase
     {
         $items = $this->prepare_items([$this->make_item(0, 7, null, true)], [7 => $this->make_variant()]);
 
-        $this->assertNull($items[0]['order_item_id']);
+        $this->assertNull($items[0]['id']);
         $this->assertTrue($items[0]['allow_back_order']);
         $this->assertTrue($items[0]['track_inventory']);
         $this->assertSame(4, $items[0]['available_quantity']);
@@ -48,7 +48,7 @@ class OrderCalculationResourceItemTest extends TestCase
         $items = $this->prepare_items([$this->make_item(0, null, 55, false)], []);
 
         $this->assertFalse($items[0]['is_reachable']);
-        $this->assertSame(55, $items[0]['order_item_id']);
+        $this->assertSame(55, $items[0]['id']);
 
         foreach (['allow_back_order', 'track_inventory', 'available_quantity', 'in_stock', 'has_limit_per_order', 'max_per_order'] as $key) {
             $this->assertNull($items[0][$key], $key);
@@ -59,7 +59,7 @@ class OrderCalculationResourceItemTest extends TestCase
     {
         $items = $this->prepare_items([$this->make_item(0, 7, 55, true), $this->make_item(1, null, 56, false)], [7 => $this->make_variant()]);
 
-        $this->assertSame([55, 56], array_column($items, 'order_item_id'));
+        $this->assertSame([55, 56], array_column($items, 'id'));
         $this->assertSame([true, false], array_column($items, 'is_reachable'));
     }
 

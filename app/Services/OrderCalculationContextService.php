@@ -93,14 +93,14 @@ class OrderCalculationContextService
     /**
      * Build the calculation items for the payload's lines.
      *
-     * A line with an `order_item_id` is a line already on the order: it keeps the prices
+     * A line with an `id` is a line already on the order: it keeps the prices
      * stored on it, and it may be a line whose product was unpublished or deleted. A line
      * with a `variant_id` is a new line: it is priced from the variant as it is now and
      * must be for sale.
      *
      * @since 1.0.0
      *
-     * @param array<int|string, OrderCalculationLineDTO> $items Lines with `quantity` and either `order_item_id` or `variant_id`.
+     * @param array<int|string, OrderCalculationLineDTO> $items Lines with `quantity` and either `id` (an order item) or `variant_id`.
      * @param Order|null                                 $order Order being edited, with its items loaded; null for a new order.
      * @return \Kirki\Ecommerce\Framework\Collections\Collection Collection of CalculationItemDTO, keyed like the input.
      * @throws NotFoundException When a variant or its product does not exist.
@@ -119,11 +119,11 @@ class OrderCalculationContextService
         $this->validate_lines($items, $order_items_by_id);
 
         return collection($items)->map(function ($item, $key) use ($order_items_by_id) {
-            if (empty($item->order_item_id)) {
+            if (empty($item->id)) {
                 return $this->build_new_item($item, $key);
             }
 
-            return $this->build_existing_item($item, $key, $order_items_by_id[$item->order_item_id]);
+            return $this->build_existing_item($item, $key, $order_items_by_id[$item->id]);
         });
     }
 
@@ -151,11 +151,11 @@ class OrderCalculationContextService
      */
     protected function validate_lines(array $items, array $order_items_by_id)
     {
-        $order_item_ids = array_filter(array_map(fn($item) => $item->order_item_id, $items));
-        $new_variant_ids = array_map(fn($item) => $item->variant_id, array_filter($items, fn($item) => empty($item->order_item_id)));
+        $order_item_ids = array_filter(array_map(fn($item) => $item->id, $items));
+        $new_variant_ids = array_map(fn($item) => $item->variant_id, array_filter($items, fn($item) => empty($item->id)));
         $stored_variant_ids = array_filter(array_map(fn($order_item) => $order_item->variant_id, $order_items_by_id));
 
-        $has_line_without_target = !empty(array_filter($items, fn($item) => empty($item->order_item_id) && empty($item->variant_id)));
+        $has_line_without_target = !empty(array_filter($items, fn($item) => empty($item->id) && empty($item->variant_id)));
         $has_repeated_order_line = count(array_unique($order_item_ids)) !== count($order_item_ids);
         $has_unknown_order_line = !empty(array_diff($order_item_ids, array_keys($order_items_by_id)));
         $has_repeated_variant = count(array_unique($new_variant_ids)) !== count($new_variant_ids) || !empty(array_intersect($new_variant_ids, $stored_variant_ids));
@@ -221,7 +221,7 @@ class OrderCalculationContextService
      *
      * @since 1.0.0
      *
-     * @param OrderCalculationLineDTO $item       Payload line with `order_item_id` and `quantity`.
+     * @param OrderCalculationLineDTO $item       Payload line with `id` (the order item) and `quantity`.
      * @param int|string              $line_key   Key of the line in the payload.
      * @param OrderItem               $order_item Line as stored on the order.
      * @return CalculationItemDTO

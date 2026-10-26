@@ -34,14 +34,14 @@ quote and new tax, because the store never quoted those.
    `shipping_*`, `billing_*` and `customer_*` fields, `order_notes` and
    `flags`.
 
-A line **already on the order** is sent with its `order_item_id` and the new
+A line **already on the order** is sent with its `id` and the new
 `quantity`. A **new line** is sent with a `variant_id`.
 
 ```json
 {
   "items": [
-    { "order_item_id": 301, "quantity": 3 },
-    { "order_item_id": 302, "quantity": 1 },
+    { "id": 301, "quantity": 3 },
+    { "id": 302, "quantity": 1 },
     { "variant_id": 40, "quantity": 2 }
   ],
   "coupon_codes": ["SPRING10"],
@@ -57,7 +57,7 @@ The payload is the **complete** new order, not a list of changes:
 | You want to | Do this |
 |---|---|
 | Change a quantity | Send the line with the new `quantity`. |
-| Add a line | Add a line with a `variant_id` and no `order_item_id`. |
+| Add a line | Add a line with a `variant_id` and no `id`. |
 | Remove a line | Leave the line out. |
 | Remove a coupon | Leave the code out of `coupon_codes`. |
 | Add a coupon | Add the code to `coupon_codes`. |
@@ -118,7 +118,7 @@ totals equal the preview totals.
 
 ## 4. Lines
 
-Every line is sent by `order_item_id` (a line already on the order) or by
+Every line is sent by `id` (a line already on the order) or by
 `variant_id` (a new line). When both are sent, the `variant_id` is ignored.
 
 | Line | Rule |
@@ -128,7 +128,7 @@ Every line is sent by `order_item_id` (a line already on the order) or by
 | New line | The product must be published and the variant visible, the same as for order creation. Otherwise the save fails with 422. |
 | A new line for a variant the order already holds | The save fails with 422. To add more of an item that is on the order, raise that line's quantity. |
 | The same `variant_id` on two new lines | The save fails with 422. |
-| An `order_item_id` of another order, or sent twice | The save fails with 422. |
+| An item `id` of another order, or sent twice | The save fails with 422. |
 
 A line is **not reachable** when its variant or product was deleted, when its
 product is draft, scheduled or trashed, or when its variant is hidden. A line
@@ -272,7 +272,7 @@ Every item in the response has:
 | Key | Meaning |
 |---|---|
 | `line_key` | The position of the line in the `items` you sent (0, 1, 2 ...). Use it to match each result to the row you sent. It is not a database ID. |
-| `order_item_id` | The stored order line's ID, or `null` for a new line and in a new-order preview. Send it back to keep that line. |
+| `id` | The stored order item's ID, the same `id` as in the order response, or `null` for a new line and in a new-order preview. Send it back to keep that line. |
 | `is_reachable` | `false` when the line is locked (section 4). Disable its quantity buttons. |
 | `allow_back_order`, `track_inventory`, `available_quantity`, `in_stock`, `has_limit_per_order`, `max_per_order` | The variant's live values. All `null` when the variant was deleted. |
 
@@ -294,8 +294,8 @@ customer paid.
 | 404 | The order does not exist, or a `variant_id` does not exist. |
 | 422 | The order cannot be edited (section 2). |
 | 422 | `currency_code` differs from the order's currency. |
-| 422 | A line has neither `order_item_id` nor `variant_id`. |
-| 422 | An `order_item_id` is not on the order or is sent twice. |
+| 422 | A line has neither `id` nor `variant_id`. |
+| 422 | An item `id` is not on the order or is sent twice. |
 | 422 | A variant is on more than one line, or a new line is for a variant the order already holds. |
 | 422 | A new line's product is not published, or its variant is hidden. |
 | 422 | The quantity of a locked line (section 4) changed. |
@@ -331,7 +331,7 @@ coupons nor the totals.
 - **One line per variant for new lines.** WooCommerce allows the same product
   on two lines. Here a new line cannot repeat a variant on the order. Old
   orders that already hold two lines for one variant keep both, and each is
-  edited by its own `order_item_id`.
+  edited by its own `id`.
 - **The exchange rate and the tax mode are kept.**
 - **No edit history and no emails.** WooCommerce adds order notes when items
   are added or removed and when stock changes. Here a save does not add a

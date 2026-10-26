@@ -50,7 +50,6 @@ class OrderUpdateRequest extends Request
             'customer_id' => 'nullable|integer',
             'items' => 'required|array|min:1',
             'items.*.id' => 'nullable|integer',
-            'items.*.order_item_id' => 'nullable|integer',
             'items.*.variant_id' => 'nullable|integer',
             'items.*.quantity' => 'required|integer|min:1',
 
@@ -119,7 +118,6 @@ class OrderUpdateRequest extends Request
             'customer_id' => Sanitizer::INT,
             'items' => Sanitizer::ARRAY,
             'items.*.id' => Sanitizer::INT,
-            'items.*.order_item_id' => Sanitizer::INT,
             'items.*.variant_id' => Sanitizer::INT,
             'items.*.quantity' => Sanitizer::INT,
 
