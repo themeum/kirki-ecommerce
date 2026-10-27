@@ -1,4 +1,3 @@
-import { useWatch } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router';
 
 import Button from '@/components/ui/button';
@@ -19,6 +18,7 @@ import { useOrderEdit } from '@/features/orders/hooks/use-order-edit';
 import OrderDetailsSkeleton from '@/features/orders/skeletons/order-details-skeleton';
 import { SelectProductsDialog } from '@/features/products';
 import { theme } from '@/theme';
+import { isDefined } from '@/utils/object';
 import { __, sprintf } from '@/wpi18n';
 
 const OrderFormContent = () => {
@@ -34,6 +34,7 @@ const OrderFormContent = () => {
     selections,
     rows,
     calculation,
+    paymentSummary,
     isCalculating,
     isSaving,
     isEdit,
@@ -47,12 +48,6 @@ const OrderFormContent = () => {
     handleRemoveItem,
     handleSubmit,
   } = useOrderEdit();
-
-  const shippingMethodId = useWatch({ control: form.control, name: 'shipping_method' });
-
-  const selectedShippingMethodName = calculation?.available_shipping_methods.find(
-    (method) => String(method.id) === shippingMethodId,
-  )?.name;
 
   if (isEdit && isOrderLoading) {
     return <OrderDetailsSkeleton />;
@@ -152,13 +147,8 @@ const OrderFormContent = () => {
               />
               {rows.length > 0 && (
                 <PaymentSummaryCard
-                  totals={calculation?.totals}
-                  coupons={calculation?.coupons}
-                  taxLines={calculation?.tax_lines}
-                  itemsCount={calculation?.items_count}
+                  {...paymentSummary}
                   availableShippingMethods={calculation?.available_shipping_methods}
-                  shippingMethodName={selectedShippingMethodName}
-                  isTaxInclusive={calculation?.is_tax_inclusive}
                   isCalculating={isCalculating}
                   isDiscountEditable
                   isShippingEditable
@@ -205,7 +195,7 @@ const OrderForm = () => {
   const { id } = useParams();
 
   return (
-    <OrderEditProvider orderId={id}>
+    <OrderEditProvider orderId={isDefined(id) ? Number(id) : id}>
       <OrderFormContent />
     </OrderEditProvider>
   );

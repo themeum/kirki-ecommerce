@@ -35,7 +35,7 @@ import {
   useOrderQuery,
   useUpdateOrderMutation,
 } from '@/features/orders/services/order';
-import type { OrderItem } from '@/features/orders/types';
+import type { OrderItem, PaymentSummary } from '@/features/orders/types';
 import type { ProductSelection } from '@/features/products';
 import { useDebounce } from '@/hooks';
 import type { ErrorResponse } from '@/libs/api';
@@ -53,6 +53,7 @@ export type OrderEditContextValue = {
   selections: ProductSelection[];
   rows: OrderItem[];
   calculation?: OrderCalculation;
+  paymentSummary: PaymentSummary;
   calculationItems: (OrderCalculationItem | undefined)[];
   isCalculating: boolean;
   isSaving: boolean;
@@ -73,7 +74,7 @@ const OrderEditContext = createContext<OrderEditContextValue | null>(null);
 
 type OrderEditProviderProps = {
   children: ReactNode;
-  orderId?: string;
+  orderId?: number;
 };
 
 const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
@@ -112,6 +113,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   const isApplyingCorrectionRef = useRef(false);
   const pendingCouponCorrectionRef = useRef<string[] | null>(null);
   const [rejectedCouponCodes, setRejectedCouponCodes] = useState<string[]>([]);
+  const [paymentSummary, setPaymentSummary] = useState<PaymentSummary>({});
 
   const values = useWatch({
     control: form.control,
@@ -126,10 +128,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
       form.subscribe({
         formState: { values: true },
         callback: ({ name, values }) => {
-          if (
-            isDefined(name) &&
-            ['order_notes', 'flags', 'is_manual'].includes(name)
-          ) {
+          if (isDefined(name) && ['order_notes', 'flags', 'is_manual'].includes(name)) {
             return;
           }
 
@@ -144,11 +143,12 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   );
 
   useEffect(() => {
-    if (!order || !order.is_editable || isFormFilledRef.current) {
+    if (!isDefined(order) || !order.is_editable || isFormFilledRef.current) {
       return;
     }
 
     isFormFilledRef.current = true;
+    isApplyingCorrectionRef.current = true;
 
     form.reset(
       pickFormValues(OrderFormSchema, order, {
@@ -162,7 +162,17 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
         ...toOrderFormAddresses(order),
       }),
     );
-    setCalculationRequest(OrderCalculationRequestSchema.parse(form.getValues()));
+
+    setPaymentSummary({
+      totals: order.totals,
+      coupons: order.coupons,
+      taxLines: order.tax_lines,
+      itemsCount: order.items_count,
+      isTaxInclusive: order.is_tax_inclusive,
+      shippingMethodName: order.shipping_method_name,
+    });
+
+    isApplyingCorrectionRef.current = false;
   }, [order, form]);
 
   const debouncedCalculationRequest = useDebounce(calculationRequest, CALCULATION_DEBOUNCE_DELAY);
@@ -260,6 +270,18 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
         }),
       );
     }
+
+    setPaymentSummary({
+      totals: calculation.totals,
+      coupons: calculation.coupons,
+      taxLines: calculation.tax_lines,
+      itemsCount: calculation.items_count,
+      isTaxInclusive: calculation.is_tax_inclusive,
+      shippingMethodName: calculation.available_shipping_methods.find(
+        (method) => String(method.id) === String(calculation.shipping_method),
+      )?.name,
+    });
+
     // Reconciliation must run only when a new calculation result arrives, reading the
     // current form state fresh each time - re-running it for every keystroke that
     // changes `pickedItems`/`form` identity would fight the user's own edits.
@@ -284,7 +306,10 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
   const handleQuantityChange = (index: number, quantity: number) => {
     const { id, variant_id: variantId } = pickedItems[index];
 
-    updateItems(index, isDefined(id) ? { id, variant_id: variantId, quantity } : { variant_id: variantId, quantity });
+    updateItems(
+      index,
+      isDefined(id) ? { id, variant_id: variantId, quantity } : { variant_id: variantId, quantity },
+    );
   };
 
   const handleRemoveItem = (index: number) => {
@@ -337,6 +362,7 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
     selections,
     rows,
     calculation,
+    paymentSummary,
     calculationItems,
     isCalculating,
     isSaving: createMutation.isPending || updateMutation.isPending,

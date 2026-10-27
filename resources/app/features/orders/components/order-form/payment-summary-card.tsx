@@ -9,6 +9,7 @@ import Text from '@/components/ui/text';
 import DiscountPopover from '@/features/orders/components/order-form/payment/discount-popover';
 import ShippingPopover from '@/features/orders/components/order-form/payment/shipping-popover';
 import type { OrderCalculation } from '@/features/orders/schemas/catalog/order';
+import type { PaymentSummary, PaymentSummaryCoupon } from '@/features/orders/types';
 import { theme } from '@/theme';
 import { defineStyles } from '@/theme/mixins';
 import { isDefined } from '@/utils/object';
@@ -16,37 +17,9 @@ import { __, _n, sprintf } from '@/wpi18n';
 
 const EMPTY_AMOUNT = '—';
 
-type PaymentSummaryTotals = Pick<
-  OrderCalculation['totals'],
-  | 'base_items_subtotal_money_object'
-  | 'base_order_total_money_object'
-  | 'base_tax_total_money_object'
-  | 'base_shipping_amount_money_object'
-  | 'base_total_money_object'
->;
-
-type PaymentSummaryCoupon = Pick<
-  OrderCalculation['coupons'][number],
-  | 'code'
-  | 'title'
-  | 'discount_value_type'
-  | 'discount_amount_percentage'
-  | 'base_discount_amount_money_object'
->;
-
-type PaymentSummaryTaxLine = Pick<
-  OrderCalculation['tax_lines'][number],
-  'name' | 'rate' | 'base_amount_money_object'
->;
-
-type PaymentSummaryCardProps = {
-  totals?: PaymentSummaryTotals;
-  coupons?: PaymentSummaryCoupon[];
-  taxLines?: PaymentSummaryTaxLine[];
-  itemsCount?: number;
+type PaymentSummaryCardProps = PaymentSummary & {
   availableShippingMethods?: OrderCalculation['available_shipping_methods'];
   shippingMethodName?: string | null;
-  isTaxInclusive?: boolean;
   isCalculating?: boolean;
   isDiscountEditable?: boolean;
   isShippingEditable?: boolean;
