@@ -371,22 +371,22 @@ const OrderEditProvider = ({ children, orderId }: OrderEditProviderProps) => {
 
   const handleSubmit = form.handleSubmit(async (payload) => {
     try {
-      if (isEdit) {
-        if (!isDefined(order)) {
-          return;
-        }
+      if (!isEdit) {
+        const response = await createMutation.mutateAsync(payload);
 
-        await updateMutation.mutateAsync({ id: order.id, data: payload });
+        if (isDefined(response.data) && isDefined(response.data.id)) {
+          void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }), {
+            replace: true,
+          });
+        }
         return;
       }
 
-      const response = await createMutation.mutateAsync(payload);
-
-      if (isDefined(response.data) && isDefined(response.data.id)) {
-        void navigate(RouteConfig.Orders.get('OrderDetail').buildLink({ id: response.data.id }), {
-          replace: true,
-        });
+      if (!isDefined(order)) {
+        return;
       }
+
+      await updateMutation.mutateAsync({ id: order.id, data: payload });
     } catch (error) {
       applyServerErrors(form, error as ErrorResponse);
     }
