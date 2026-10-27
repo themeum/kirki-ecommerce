@@ -201,16 +201,15 @@ const OrderDetails = () => {
                 isPerforming={isActionPending}
               />
 
-              <CustomerCard
-                onSave={handleSaveOrder}
+              <CustomerCard isGuest={order.is_guest} mode="view" order={order} />
+
+              <FlagCard onSave={() => void handleSaveOrder('flags')} />
+
+              <NotesCard
+                mode="edit"
+                onSave={() => handleSaveOrder('order_notes')}
                 isSaving={isSaving}
-                isGuest={order.is_guest}
-                mode="view"
               />
-
-              <FlagCard onSave={handleSaveOrder} />
-
-              <NotesCard mode="edit" onSave={handleSaveOrder} isSaving={isSaving} />
             </Flex>
           </Flex>
         </PageContent>

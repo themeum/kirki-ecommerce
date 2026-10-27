@@ -250,5 +250,27 @@ type OrderFormInput = z.input<typeof OrderFormSchema>;
 type OrderFormPayload = z.output<typeof OrderFormSchema>;
 type OrderCalculationRequestPayload = z.output<typeof OrderCalculationRequestSchema>;
 
-export { OrderCalculationRequestSchema, OrderFormSchema };
-export type { OrderCalculationRequestPayload, OrderFormInput, OrderFormPayload };
+const OrderPartialFormSchema = z
+  .object({
+    order_notes: z.string().nullish(),
+    flags: z.array(z.string()).nullish(),
+  }).partial()
+  .transform((values) => ({
+    order_notes: values.order_notes,
+    flags: values.flags,
+  }));
+
+type OrderPartialField = keyof z.input<typeof OrderPartialFormSchema>;
+
+type OrderPartialFormInput = z.input<typeof OrderPartialFormSchema>;
+type OrderPartialPayload = z.output<typeof OrderPartialFormSchema>;
+
+export { OrderCalculationRequestSchema, OrderFormSchema, OrderPartialFormSchema };
+export type {
+  OrderCalculationRequestPayload,
+  OrderFormInput,
+  OrderFormPayload,
+  OrderPartialField,
+  OrderPartialFormInput,
+  OrderPartialPayload,
+};
